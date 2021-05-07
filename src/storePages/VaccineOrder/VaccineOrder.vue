@@ -137,485 +137,489 @@
 </template>
 
 <script>
-	import {
-		mapState
-	} from 'vuex'
-	export default {
-		data() {
-			return {
-				current: 0, //当前tab
-				noticeList: [], // 通知列表
-				vaccineList: [], //疫苗列表
-				vaccineRecord: [], //疫苗预约记录
-				modalName: '',
-				curVac: {},
-				loadStatus: 'more',
-				noticePage: {
-					rownumber: 10,
-					total: 0,
-					pageNo: 1
-				},
-				page: {
-					rownumber: 10,
-					total: 0,
-					pageNo: 1
-				}
-			}
-		},
-		computed: {
-			...mapState({
-				subscsribeStatus: state => state.app.subscsribeStatus,
-				userInfo: state => state.user.userInfo,
+import {
+  mapState
+} from 'vuex'
+export default {
+  data () {
+    return {
+      current: 0, //当前tab
+      noticeList: [], // 通知列表
+      vaccineList: [], //疫苗列表
+      vaccineRecord: [], //疫苗预约记录
+      modalName: '',
+      curVac: {},
+      loadStatus: 'more',
+      noticePage: {
+        rownumber: 10,
+        total: 0,
+        pageNo: 1
+      },
+      page: {
+        rownumber: 10,
+        total: 0,
+        pageNo: 1
+      }
+    }
+  },
+  computed: {
+    ...mapState({
+      subscsribeStatus: state => state.app.subscsribeStatus,
+      userInfo: state => state.user.userInfo,
 
-			}),
-			list() {
-				return [...this.vaccineList, ...this.noticeList]
-				if (this.current === 0) {
-					return this.vaccineList
-				} else {
-					return this.noticeList
-				}
-			}
-		},
-		methods: {
-			DateChange(e) {
-				this.curVac.customer_birth_day = e.detail.value
-			},
-			hideModal() {
-				this.modalName = ''
-			},
-			update() {
-				let req = [{
-					"serviceName": "srvhealth_store_vaccination_appoint_record_update",
-					"condition": [{
-						"colName": "id",
-						"ruleType": "eq",
-						"value": this.curVac.id
-					}],
-					"data": [this.curVac]
-				}]
-				if (!this.curVac.customer_name || !this.curVac.customer_phone || !this.curVac.customer_birth_day) {
-					uni.showToast({
-						title: '请确认预约信息是否填写完整',
-						icon: 'none'
-					})
-					return
-				}
-				let self = this
-				uni.showModal({
-					title: '提示',
-					content: '确定提交修改内容?',
-					success(res) {
-						if (res.confirm) {
-							if (self.curVac && self.curVac.id) {
-								self.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_update', req,
-									'health').then(res => {
-									if (res.success) {
-										self.modalName = ''
-										self.curVac = {}
-										uni.showToast({
-											title: '修改成功'
-										})
-										self.getVaccineRecord()
-									}
-								})
-							}
-						}
-					}
-				})
+    }),
+    list () {
+      return [ ...this.vaccineList, ...this.noticeList ]
+      if (this.current === 0) {
+        return this.vaccineList
+      } else {
+        return this.noticeList
+      }
+    }
+  },
+  methods: {
+    DateChange (e) {
+      this.curVac.customer_birth_day = e.detail.value
+    },
+    hideModal () {
+      this.modalName = ''
+    },
+    update () {
+      let req = [ {
+        "serviceName": "srvhealth_store_vaccination_appoint_record_update",
+        "condition": [ {
+          "colName": "id",
+          "ruleType": "eq",
+          "value": this.curVac.id
+        } ],
+        "data": [ this.curVac ]
+      } ]
+      if (!this.curVac.customer_name || !this.curVac.customer_phone || !this.curVac.customer_birth_day) {
+        uni.showToast({
+          title: '请确认预约信息是否填写完整',
+          icon: 'none'
+        })
+        return
+      }
+      let self = this
+      uni.showModal({
+        title: '提示',
+        content: '确定提交修改内容?',
+        success (res) {
+          if (res.confirm) {
+            if (self.curVac && self.curVac.id) {
+              self.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_update', req,
+                'health').then(res => {
+                  if (res.success) {
+                    self.modalName = ''
+                    self.curVac = {}
+                    uni.showToast({
+                      title: '修改成功'
+                    })
+                    uni.startPullDownRefresh({
 
-			},
-			cancel(e) {
-				// 取消预约
-				const serviceName = 'srvhealth_store_vaccination_appoint_record_update'
-				let req = [{
-					"serviceName": "srvhealth_store_vaccination_appoint_record_result_update",
-					"condition": [{
-						"colName": "id",
-						"ruleType": "eq",
-						"value": e.id
-					}],
-					"data": [{
-						"app_state": "取消"
-					}]
-				}]
-				let self = this
-				uni.showModal({
-					title: '确定取消预约?',
-					content: '',
-					success(res) {
-						if (res.confirm) {
-							self.$fetch('operate', serviceName, req,
-								'health').then(result => {
-								if (result.success) {
-									uni.showToast({
-										title: '已成功取消预约'
-									})
-									self.getVaccineRecord()
-								}
-							})
-						}
-					}
-				})
-			},
-			edit(e) {
-				// 修改预约信息
-				this.modalName = 'editInfo'
-				this.curVac = this.deepClone(e)
-			},
-			async getVaccineRecord(type = 'refresh', tabIndex) {
-				// 查找已预约疫苗列表
-				let req = {
-					"condition": [{
-						"colName": "person_no",
-						"ruleType": "eq",
-						"value": this.userInfo.no
-					}],
-					order: [{
-						"colName": "app_date",
-						"orderType": "asc" // asc升序  desc降序
-					}],
-					"page": {
-						"pageNo": this.page.pageNo,
-						"rownumber": this.page.rownumber
-					},
-				}
-				if (tabIndex && tabIndex === 1) {
-					req.condition.push({
-						"colName": "app_date",
-						"ruleType": "isnull",
-						"value": ''
-					})
-				} else {
-					req.condition.push({
-						"colName": "app_date",
-						"ruleType": "ge",
-						"value": this.formateDate()
-					})
-				}
-				let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req,
-					'health')
-				if (res.success) {
-					if (tabIndex && tabIndex === 1) {
-						if (type === 'refresh') {
-							this.noticePage.pageNo = 1
-							this.noticeList = res.data
-						} else {
-							this.noticeList = [...this.noticeList, ...res.data]
-						}
-						if (res.page) {
-							if (res.page.total > res.page.rownumber * res.page.pageNo) {
-								this.loadStatus = 'more'
-								this.noticePage.pageNo++
-							} else {
-								this.loadStatus = 'noMore'
-							}
-						}
-					} else {
-						if (type === 'refresh') {
-							this.page.pageNo = 1
-							this.vaccineList = res.data
-						} else {
-							this.vaccineList = [...this.vaccineList, ...res.data]
-						}
-						if (res.page) {
-							if (res.page.total > res.page.rownumber * res.page.pageNo) {
-								this.loadStatus = 'more'
-								this.page.pageNo++
-							} else {
-								this.loadStatus = 'noMore'
-							}
-						}
-					}
-				}
-			},
-			toSetNotice() {
-				uni.showModal({
-					title: '提示',
-					content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
-					success(res) {
-						if (res.confirm) {
-							uni.navigateTo({
-								url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
-							})
-						}
-					}
-				})
-			}
-		},
-		onReachBottom() {
-			if (this.loadStatus !== 'noMore') {
-				this.getVaccineRecord('loadmore')
-			}
-		},
-		onPullDownRefresh() {
-			this.getVaccineRecord('refresh', 0).then(_ => {
-				this.getVaccineRecord('refresh', 1).then(_ => {
-					uni.stopPullDownRefresh()
-				})
-			})
-		},
-		mounted() {
-			setTimeout(() => {
-				if (!this.subscsribeStatus) {
-					this.toSetNotice()
-				}
-			}, 1000)
-		},
-		created() {
-			uni.$on('vaccineSuccess', () => {
-				this.getVaccineRecord('refresh', 0).then(_ => {
-					this.getVaccineRecord('refresh', 1).then(_ => {
-						uni.stopPullDownRefresh()
-					})
-				})
-			})
-			this.getVaccineRecord('refresh', 0)
-			this.getVaccineRecord('refresh', 1)
-		}
-	}
+                    })
+                  }
+                })
+            }
+          }
+        }
+      })
+
+    },
+    cancel (e) {
+      // 取消预约
+      const serviceName = 'srvhealth_store_vaccination_appoint_record_result_update'
+      let req = [ {
+        "serviceName": "srvhealth_store_vaccination_appoint_record_result_update",
+        "condition": [ {
+          "colName": "id",
+          "ruleType": "eq",
+          "value": e.id
+        } ],
+        "data": [ {
+          "app_state": "取消"
+        } ]
+      } ]
+      let self = this
+      uni.showModal({
+        title: '确定取消预约?',
+        content: '',
+        success (res) {
+          if (res.confirm) {
+            self.$fetch('operate', serviceName, req,
+              'health').then(result => {
+                if (result.success) {
+                  uni.showToast({
+                    title: '已成功取消预约'
+                  })
+                  uni.startPullDownRefresh()
+                }
+              })
+          }
+        }
+      })
+    },
+    edit (e) {
+      // 修改预约信息
+      this.modalName = 'editInfo'
+      this.curVac = this.deepClone(e)
+    },
+    async getVaccineRecord (type = 'refresh', tabIndex) {
+      // 查找已预约疫苗列表
+      let req = {
+        "condition": [ {
+          "colName": "person_no",
+          "ruleType": "eq",
+          "value": this.userInfo.no
+        },
+        {
+          "colName": "app_state",
+          "ruleType": "ne",
+          "value": '取消'
+        } ],
+        order: [ {
+          "colName": "app_date",
+          "orderType": "asc" // asc升序  desc降序
+        } ],
+        "page": {
+          "pageNo": this.page.pageNo,
+          "rownumber": this.page.rownumber
+        },
+      }
+      if (tabIndex && tabIndex === 1) {
+        req.condition.push({
+          "colName": "app_date",
+          "ruleType": "isnull",
+          "value": ''
+        })
+      } else {
+        req.condition.push({
+          "colName": "app_date",
+          "ruleType": "ge",
+          "value": this.formateDate()
+        })
+      }
+      let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req,
+        'health')
+      if (res.success) {
+        if (tabIndex && tabIndex === 1) {
+          if (type === 'refresh') {
+            this.noticePage.pageNo = 1
+            this.noticeList = res.data
+          } else {
+            this.noticeList = [ ...this.noticeList, ...res.data ]
+          }
+          if (res.page) {
+            if (res.page.total > res.page.rownumber * res.page.pageNo) {
+              this.loadStatus = 'more'
+              this.noticePage.pageNo++
+            } else {
+              this.loadStatus = 'noMore'
+            }
+          }
+        } else {
+          if (type === 'refresh') {
+            this.page.pageNo = 1
+            this.vaccineList = res.data
+          } else {
+            this.vaccineList = [ ...this.vaccineList, ...res.data ]
+          }
+          if (res.page) {
+            if (res.page.total > res.page.rownumber * res.page.pageNo) {
+              this.loadStatus = 'more'
+              this.page.pageNo++
+            } else {
+              this.loadStatus = 'noMore'
+            }
+          }
+        }
+      }
+    },
+    toSetNotice () {
+      uni.showModal({
+        title: '提示',
+        content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
+        success (res) {
+          if (res.confirm) {
+            uni.navigateTo({
+              url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+            })
+          }
+        }
+      })
+    }
+  },
+  onReachBottom () {
+    if (this.loadStatus !== 'noMore') {
+      this.getVaccineRecord('loadmore')
+    }
+  },
+  onPullDownRefresh () {
+    this.getVaccineRecord('refresh', 0).then(_ => {
+      this.getVaccineRecord('refresh', 1).then(_ => {
+        uni.stopPullDownRefresh()
+      })
+    })
+  },
+  mounted () {
+    setTimeout(() => {
+      if (!this.subscsribeStatus) {
+        this.toSetNotice()
+      }
+    }, 1000)
+  },
+  created () {
+    uni.$on('vaccineSuccess', () => {
+      this.getVaccineRecord('refresh', 0).then(_ => {
+        this.getVaccineRecord('refresh', 1).then(_ => {
+          uni.stopPullDownRefresh()
+        })
+      })
+    })
+    this.getVaccineRecord('refresh', 0)
+    this.getVaccineRecord('refresh', 1)
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-	@import "@/colorui/animation.css";
+@import "@/colorui/animation.css";
 
-	.page-wrap {
-		position: relative;
-		min-height: calc(100vh - var(--window-bottom) - var(--window-top));
+.page-wrap {
+  position: relative;
+  min-height: calc(100vh - var(--window-bottom) - var(--window-top));
 
-		// padding-top: 40px;
-		.tabs {
-			height: 40px;
-			position: absolute;
-			top: 0;
-			width: 100%;
-		}
+  // padding-top: 40px;
+  .tabs {
+    height: 40px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+}
 
-	}
+.button-box {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 
-	.button-box {
-		display: flex;
-		justify-content: center;
-		margin-top: 10px;
+  .cu-btn {
+    color: #fff;
 
-		.cu-btn {
-			color: #fff;
+    &.bg-blue {
+      background-color: #0bc99d;
+    }
+  }
+}
 
-			&.bg-blue {
-				background-color: #0bc99d;
-			}
-		}
-	}
+.vaccine-list {
+  display: flex;
+  flex-direction: column;
+  padding: 40rpx 20rpx;
+  overflow: auto;
 
-	.vaccine-list {
-		display: flex;
-		flex-direction: column;
-		padding: 40rpx 20rpx;
-		overflow: auto;
+  .vaccine-item {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+    display: flex;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 20rpx 20rpx 0;
+    margin-bottom: 20px;
+    position: relative;
 
-		.vaccine-item {
-			box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-			display: flex;
-			background-color: #fff;
-			border-radius: 5px;
-			padding: 20rpx 20rpx 0;
-			margin-bottom: 20px;
-			position: relative;
+    .content {
+      width: 100%;
+    }
 
-			.content {
-				width: 100%;
-			}
+    .name {
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10rpx 20rpx;
+      display: flex;
 
-			.name {
-				font-weight: bold;
-				font-size: 16px;
-				padding: 10rpx 20rpx;
-				display: flex;
+      .label {
+        position: relative;
 
-				.label {
-					position: relative;
+        .badge {
+          position: absolute;
+          top: 0;
+          right: -120rpx;
+          font-size: 12px;
+          background-color: #f1f1f1;
+          padding: 5rpx 10rpx;
+          border-radius: 20px;
+        }
+      }
+    }
 
-					.badge {
-						position: absolute;
-						top: 0;
-						right: -120rpx;
-						font-size: 12px;
-						background-color: #f1f1f1;
-						padding: 5rpx 10rpx;
-						border-radius: 20px;
-					}
-				}
+    .badge-ribbon {
+      position: absolute;
+      right: 0;
+      top: -15px;
+      width: 100px;
+      height: 100px;
+      z-index: 2;
+      transform: rotate(65deg);
 
-			}
+      .image {
+        width: 100px;
+        height: 100px;
+      }
 
-			.badge-ribbon {
-				position: absolute;
-				right: 0;
-				top: -15px;
-				width: 100px;
-				height: 100px;
-				z-index: 2;
-				transform: rotate(65deg);
+      .icon {
+        width: 100px;
+        height: 100px;
+      }
 
-				.image {
-					width: 100px;
-					height: 100px;
-				}
+      .tips {
+        color: #0bc99d;
+        position: absolute;
+        right: 43px;
+        top: 41px;
+        font-size: 12px;
+        transform: rotate(337deg) scale(1.2);
+      }
 
-				.icon {
-					width: 100px;
-					height: 100px;
-				}
+      // &::after {
+      // 	color: #0bc99d;
+      // 	content: '已预约';
+      // 	position: absolute;
+      // 	right: 43px;
+      // 	top: 41px;
+      // 	font-size: 12px;
+      // 	transform: rotate(337deg) scale(1.2);
+      // }
 
-				.tips {
-					color: #0bc99d;
-					position: absolute;
-					right: 43px;
-					top: 41px;
-					font-size: 12px;
-					transform: rotate(337deg) scale(1.2);
-				}
+      &.notice {
+        .tips {
+          width: 75px;
+          color: #ffaa00;
+          // content: '【到货通知】';
+          right: 20px;
+          top: 40px;
+          // content: '';
+          transform: rotate(295deg) scale(1);
+        }
 
-				// &::after {
-				// 	color: #0bc99d;
-				// 	content: '已预约';
-				// 	position: absolute;
-				// 	right: 43px;
-				// 	top: 41px;
-				// 	font-size: 12px;
-				// 	transform: rotate(337deg) scale(1.2);
-				// }
+        // &::after {
+        // 	width: 75px;
+        // 	color: #ffaa00;
+        // 	content: '【到货通知】';
+        // 	right: 20px;
+        // 	top: 40px;
+        // 	// content: '';
+        // 	transform: rotate(295deg) scale(1);
+        // }
 
-				&.notice {
-					.tips {
-						width: 75px;
-						color: #ffaa00;
-						// content: '【到货通知】';
-						right: 20px;
-						top: 40px;
-						// content: '';
-						transform: rotate(295deg) scale(1);
-					}
+        &.need-set {
+          &::after {
+            width: 125px;
+            right: 0px;
+            color: #ff5500;
+            content: "【未设置通知提醒】";
+          }
+        }
+      }
 
-					// &::after {
-					// 	width: 75px;
-					// 	color: #ffaa00;
-					// 	content: '【到货通知】';
-					// 	right: 20px;
-					// 	top: 40px;
-					// 	// content: '';
-					// 	transform: rotate(295deg) scale(1);
-					// }
+      &.no-sub {
+        &::after {
+          color: #ccc;
+          content: "待预约";
+          position: absolute;
+        }
+      }
+    }
 
-					&.need-set {
-						&::after {
-							width: 125px;
-							right: 0px;
-							color: #ff5500;
-							content: '【未设置通知提醒】';
-						}
-					}
-				}
+    .desc {
+      padding: 10rpx 20rpx;
+      border-radius: 10rpx;
+      overflow: hidden;
+      display: flex;
 
-				&.no-sub {
-					&::after {
-						color: #ccc;
-						content: '待预约';
-						position: absolute;
-					}
-				}
+      & + .desc {
+        margin-top: 10rpx;
+      }
 
-			}
+      .desc-item {
+        display: flex;
 
-			.desc {
-				padding: 10rpx 20rpx;
-				border-radius: 10rpx;
-				overflow: hidden;
-				display: flex;
+        & + .desc-item {
+          margin-left: 10px;
+        }
 
-				&+.desc {
-					margin-top: 10rpx;
-				}
+        .desc-value {
+          font-weight: bold;
+          color: #666;
+        }
 
-				.desc-item {
-					display: flex;
+        .desc-label {
+          margin-right: 10px;
+          font-size: 12px;
+        }
+      }
+    }
 
-					&+.desc-item {
-						margin-left: 10px;
-					}
+    .subscribe-detail {
+      padding: 0 20rpx;
+      border-radius: 10rpx;
+      display: flex;
+      flex-wrap: wrap;
 
-					.desc-value {
-						font-weight: bold;
-						color: #666;
-					}
+      .subscribe-item {
+        min-width: 50%;
+        display: flex;
+        padding: 4px;
+        align-items: center;
+        text-align: justify;
+        text-align-last: justify;
+        text-justify: inter-ideograph;
 
-					.desc-label {
-						margin-right: 10px;
-						font-size: 12px;
-					}
-				}
-			}
+        .label {
+          margin-right: 10px;
+          font-size: 12px;
+          min-width: 50px;
+          display: inline-block;
+        }
 
-			.subscribe-detail {
-				padding: 0 20rpx;
-				border-radius: 10rpx;
-				display: flex;
-				flex-wrap: wrap;
+        .value {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
 
-				.subscribe-item {
-					min-width: 50%;
-					display: flex;
-					padding: 4px;
-					align-items: center;
-					text-align: justify;
-					text-align-last: justify;
-					text-justify: inter-ideograph;
+.cu-modal {
+  z-index: 20;
+}
 
-					.label {
-						margin-right: 10px;
-						font-size: 12px;
-						min-width: 50px;
-						display: inline-block;
-					}
+.edit-modal {
+  background-color: #fff;
 
-					.value {
-						font-weight: bold;
-					}
-				}
-			}
-		}
-	}
+  .margin-bottom {
+    margin-bottom: 50rpx;
+  }
 
-	.cu-modal {
-		z-index: 20;
-	}
+  .cu-form-group {
+    text-align: left;
 
-	.edit-modal {
-		background-color: #fff;
+    .picker {
+      text-align: left;
+    }
+  }
 
-		.margin-bottom {
-			margin-bottom: 50rpx;
-		}
+  .title {
+    min-width: 150rpx;
+    text-align: justify;
+    text-align-last: justify;
+  }
 
-		.cu-form-group {
-			text-align: left;
-
-			.picker {
-				text-align: left;
-			}
-		}
-
-		.title {
-			min-width: 150rpx;
-			text-align: justify;
-			text-align-last: justify;
-		}
-
-		.remark {
-			width: 100%;
-			padding: 20rpx 40rpx;
-			background-color: #f1f1f1;
-			border-radius: 10rpx;
-		}
-	}
+  .remark {
+    width: 100%;
+    padding: 20rpx 40rpx;
+    background-color: #f1f1f1;
+    border-radius: 10rpx;
+  }
+}
 </style>

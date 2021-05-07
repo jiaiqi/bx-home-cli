@@ -63,7 +63,10 @@
 			"root": "storePages",
 			"pages": [
 				{
-					"path": "VaccineOrder/VaccineOrder"
+					"path": "VaccineOrder/VaccineOrder",
+					"style":{
+						"enablePullDownRefresh": true
+					}
 				},
 				{
 					"path": "StoreManager/StoreManager"
@@ -97,7 +100,7 @@
 					"path": "DeviceManager/DeviceManager",
 					"style": {
 						"navigationBarTitleText": "设备管理",
-						"enablePullDownRefresh": false
+						"enablePullDownRefresh": true
 					}
 				}
 			]
@@ -135,6 +138,24 @@
 					"style": {
 						"navigationBarTitleText": "问卷列表",
 						"enablePullDownRefresh": true
+					}
+				}
+			]
+		},
+		{
+			"root": "personalPages",
+			"pages": [
+				{
+					"path": "ArchiveHistory/ArchiveHistory",
+					"style": {
+						"navigationBarTitleText": "ArchiveHistory"
+					}
+				},
+				{
+					"path": "HealthHistory/HealthHistory",
+					"style": {
+						"navigationBarTitleText": "我的状态",
+						"enablePullDownRefresh": false
 					}
 				}
 			]

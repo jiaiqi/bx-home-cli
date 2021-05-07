@@ -472,8 +472,11 @@ export default {
         } ]
       } ];
       uni.showModal({
-        title: '提示',
-        content: `是否加入【${this.storeInfo.name}】`,
+        title: `是否加入【${this.storeInfo.name}】`,
+        content: "不加入则无法进行大部分操作",
+        confirmText: "加入",
+        confirmColor: "#0bc99d",
+        cancelColor: "#ccc",
         success (res) {
           if (res.confirm) {
             self.$http.post(url, req).then(res => {
