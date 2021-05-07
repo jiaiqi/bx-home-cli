@@ -1,6 +1,7 @@
 {
   "name": "bx-home-cli",
   "version": "0.1.0",
+  "description": "百想首页",
   "private": true,
   "scripts": {
     "serve": "npm run dev:h5",
@@ -44,7 +45,7 @@
   "dependencies": {
     "@dcloudio/uni-app-plus": "^2.0.0-31920210428001",
     "@dcloudio/uni-h5": "^2.0.0-31920210428001",
-    "@dcloudio/uni-helper-json": "*",
+    "@dcloudio/uni-helper-json": "^1.0.13",
     "@dcloudio/uni-i18n": "^2.0.0-31920210428001",
     "@dcloudio/uni-mp-360": "^2.0.0-31920210428001",
     "@dcloudio/uni-mp-alipay": "^2.0.0-31920210428001",
@@ -58,9 +59,15 @@
     "@dcloudio/uni-quickapp-webview": "^2.0.0-31920210428001",
     "@dcloudio/uni-stat": "^2.0.0-31920210428001",
     "@vue/shared": "^3.0.0",
+    "adbkit": "^2.11.1",
     "core-js": "^3.6.5",
     "flyio": "^0.6.2",
+    "jimp": "^0.10.1",
+    "node-simctl": "^6.1.0",
+    "puppeteer": "^3.0.1",
     "regenerator-runtime": "^0.12.1",
+    "sass": "^1.32.12",
+    "sass-loader": "^10.1.1",
     "vue": "^2.6.11",
     "vuex": "^3.2.0"
   },
@@ -76,6 +83,7 @@
     "@dcloudio/vue-cli-plugin-uni-optimize": "^2.0.0-31920210428001",
     "@dcloudio/webpack-uni-mp-loader": "^2.0.0-31920210428001",
     "@dcloudio/webpack-uni-pages-loader": "^2.0.0-31920210428001",
+    "@types/uni-app": "^1.4.3",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "babel-plugin-import": "^1.11.0",
@@ -84,7 +92,9 @@
     "mini-types": "*",
     "miniprogram-api-typings": "*",
     "postcss-comment": "^2.0.0",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.1.0 ",
+    "webpack-cli": "^4.7.0"
   },
   "browserslist": [
     "Android >= 4",
