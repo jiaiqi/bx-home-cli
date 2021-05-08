@@ -1,5 +1,11 @@
 <template>
   <view class="history-wrap">
+    <u-tabs
+      :list="tabList"
+      :is-scroll="false"
+      :current="currentTab"
+      @change="changeTab"
+    ></u-tabs>
     <view class="history-chart" v-if="isAllPages">
       <uniEcCharts
         class="uni-ec-charts"
@@ -476,7 +482,6 @@
         </view>
       </view>
     </view>
-  
   </view>
 </template>
 
@@ -492,6 +497,8 @@ export default {
   },
   data () {
     return {
+      tabList: [],
+      currentTab: 0,
       currentSymptom: {},
       showSymptom: false,
       occur_time: '', //症状发生时间
@@ -626,19 +633,6 @@ export default {
       pageType: '',
       pageName: '',
       symptomRecord: [],
-      currentTab: 1,
-      tabList: [ {
-        iconPath: "cuIcon-home",
-        selectedIconPath: "cuIcon-homefill",
-        text: '设备',
-        customIcon: false,
-      },
-      {
-        iconPath: "cuIcon-circle",
-        selectedIconPath: "cuIcon-circlefill",
-        text: '状态',
-        customIcon: false,
-      } ],
       storeNo: ""
     }
   },
@@ -712,6 +706,12 @@ export default {
     }
   },
   methods: {
+    changeTab (index) {
+      this.currentTab = index
+    },
+    getUserList () {
+
+    },
     buildBPOption (data) {
       data = this.deepClone(data)
       const yAxisData0 = data.map(item => 80) // 舒张压-正常

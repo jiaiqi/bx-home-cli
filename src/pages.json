@@ -12,8 +12,10 @@
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "主页",
-				"navigationStyle": "custom",
+				"navigationBarTitleText": "",
+				"navigationBarBackgroundColor": "#fff",
+				"navigationBarTextStyle": "black",
+				// "navigationStyle": "custom",
 				"enablePullDownRefresh": true
 			}
 		}
@@ -64,7 +66,7 @@
 			"pages": [
 				{
 					"path": "VaccineOrder/VaccineOrder",
-					"style":{
+					"style": {
 						"enablePullDownRefresh": true
 					}
 				},
@@ -101,6 +103,12 @@
 					"style": {
 						"navigationBarTitleText": "设备管理",
 						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "DeviceData/DeviceData",
+					"style": {
+						"navigationBarTitleText": "DeviceData"
 					}
 				}
 			]
@@ -148,7 +156,7 @@
 				{
 					"path": "ArchiveHistory/ArchiveHistory",
 					"style": {
-						"navigationBarTitleText": "ArchiveHistory"
+						"navigationBarTitleText": ""
 					}
 				},
 				{

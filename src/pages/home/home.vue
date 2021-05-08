@@ -1,18 +1,15 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
   <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'">
-    <u-navbar :is-back="false">
-      <view class="nav-bar" @click="openSwitchHomePage">
-        <view class="home-btn" v-if="showHomeBtn" @click.stop="goHome">
-          <text class="cuIcon-home"></text>
-        </view>
+    <view slot="content" @click="openSwitchHomePage">
+      <view class="nav-bar">
         {{ storeInfo.name || "首页" }}
         <text
           class="cuIcon-unfold margin-left-xs"
           :class="{ 'show-home': showHomePageSelector }"
         ></text>
       </view>
-    </u-navbar>
+    </view>
     <store-item
       v-for="pageItem in pageItemList"
       :goodsListData="goodsListData"
@@ -28,7 +25,26 @@
       @setHomePage="setHomePage"
     >
     </store-item>
-    <u-popup v-model="showHomePageSelector" mode="bottom">
+    <view
+      class="cu-modal bottom-modal"
+      @click="hideModal"
+      :class="{ show: showHomePageSelector }"
+    >
+      <view class="cu-dialog" @tap.stop>
+        <view class="store-list" v-if="storeList.length > 0">
+          <view
+            class="store-item"
+            v-for="item in storeList"
+            :key="item.id"
+            @click="switchStore(item)"
+          >
+            {{ item.name || "" }}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- <u-popup v-model="showHomePageSelector" mode="bottom">
       <view class="store-list" v-if="storeList.length > 0">
         <view
           class="store-item"
@@ -39,7 +55,7 @@
           {{ item.name || "" }}
         </view>
       </view>
-    </u-popup>
+    </u-popup> -->
   </view>
   <bx-auth v-else @auth-complete="initPage"></bx-auth>
 </template>
@@ -86,6 +102,9 @@ export default {
     }),
   },
   methods: {
+    hideModal () {
+      this.showHomePageSelector = false
+    },
     switchStore (e) {
       if (e.store_no) {
         this.storeNo = e.store_no
@@ -278,9 +297,9 @@ export default {
         if (this.storeInfo.type === '健康服务') {
           this.getGoodsListData();
         }
-        uni.setNavigationBarTitle({
-          title: this.storeInfo.name
-        });
+        // uni.setNavigationBarTitle({
+        //   title: this.storeInfo.name
+        // });
         // this.getNotice();
       } else {
         if (res && res.code === '0011') {
@@ -714,9 +733,10 @@ export default {
   display: flex;
   // justify-content: center;
   align-items: center;
-  padding: 0 20rpx;
+  padding: 10rpx 20rpx;
   width: 100%;
-
+  background-color: #fff;
+  justify-content: center;
   .home-btn {
     width: 30px;
     height: 30px;
@@ -735,6 +755,7 @@ export default {
   .store-item {
     padding: 20rpx;
     border-bottom: 1rpx solid #f1f1f1;
+    font-weight: bold;
   }
 }
 </style>

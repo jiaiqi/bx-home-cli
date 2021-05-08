@@ -938,11 +938,6 @@ export default {
         width: 100%;
         height: 150upx;
       }
-      ::v-deep .u-image__image {
-        div {
-          background-size: 100% 100% !important;
-        }
-      }
     }
 
     .textbox {

@@ -14,6 +14,7 @@ const state = {
 	hasSaveUserInfo: false,
 	storeUserInfo: {},
 	wxAuthUserInfo: getItem('wxAuthUserInfo') ? getItem('wxAuthUserInfo') : null, //授权用户信息后获取到的数据
+	deviceList:[]
 }
 
 const mutations = {
@@ -46,6 +47,9 @@ const mutations = {
 	},
 	SET_STORE_USER: (state, storeUserInfo) => {
 		state.storeUserInfo = storeUserInfo
+	},
+	SET_DEVICE_LIST:(state,list)=>{
+		state.deviceList = list
 	}
 }
 

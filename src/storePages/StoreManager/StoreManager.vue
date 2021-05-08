@@ -36,15 +36,14 @@
             <text class="cu-tag badge-left" v-if="item.unback">{{
               item.unback
             }}</text>
-            <image
+            <!-- <image
               src="../static/links.png"
               class="icon"
               mode=""
               v-if="!item.icon"
-            ></image>
+            ></image> -->
             <text
               class="icon"
-              v-else
               :class="[
                 'cuIcon-' + item.icon,
                 item.color ? 'text-' + item.color : '',

@@ -27,7 +27,7 @@ let ENV = {
 	appID: {
 		// wxmp: 'wx8e6f993081f6e979', // 百想软件ai平台
 		wxmp: 'wxa3c50c8177ef6739', // 百想健康
-		// wxmp: 'wxa8574a1e93d8e8d0', // 百想首页通
+		// wxmp: 'wxa8574a1e93d8e8d0', // 百想首页
 		wxh5: 'wx78d1d4139f97ffca', //百想助理公众号
 		// wxmp: "wx08876efb5760ca75" //生活能力评估
 	},

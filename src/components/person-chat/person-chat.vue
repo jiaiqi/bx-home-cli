@@ -155,12 +155,14 @@
               "
               class="person-chat-item-right person-chat-item-right-image"
             >
-              <u-image
-                :width="item.imgWidth + 'px'"
-                :height="item.imgHeight + 'px'"
+              <image
+                :style="{
+                  width: item.imgWidth + 'px',
+                  height: item.imgHeight + 'px',
+                }"
                 :src="item.img_url"
               >
-              </u-image>
+              </image>
               <!-- <chat-image :max="350" :src="item.img_url"></chat-image> -->
             </view>
             <view
@@ -372,12 +374,14 @@
               v-if="item.image && item.img_url"
               class="person-chat-item-right person-chat-item-right-image"
             >
-              <u-image
-                :width="item.imgWidth + 'px'"
-                :height="item.imgHeight + 'px'"
+              <image
+                :style="{
+                  width: item.imgWidth + 'px',
+                  height: item.imgHeight + 'px',
+                }"
                 :src="item.img_url"
               >
-              </u-image>
+              </image>
             </view>
             <view
               class="person-chat-item-right"
