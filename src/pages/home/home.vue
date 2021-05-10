@@ -1,7 +1,16 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
   <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'">
-    <view slot="content" @click="openSwitchHomePage">
+    <cu-custom-navbar bgColor="bg-white" :isBack="true">
+      <view class="nav-bar" @click="openSwitchHomePage">
+        {{ storeInfo.name || "首页" }}
+        <text
+          class="cuIcon-unfold margin-left-xs"
+          :class="{ 'show-home': showHomePageSelector }"
+        ></text>
+      </view>
+    </cu-custom-navbar>
+    <!-- <view slot="content" @click="openSwitchHomePage">
       <view class="nav-bar">
         {{ storeInfo.name || "首页" }}
         <text
@@ -9,7 +18,7 @@
           :class="{ 'show-home': showHomePageSelector }"
         ></text>
       </view>
-    </view>
+    </view> -->
     <store-item
       v-for="pageItem in pageItemList"
       :goodsListData="goodsListData"
@@ -731,12 +740,10 @@ export default {
 
 ::v-deep .nav-bar {
   display: flex;
-  // justify-content: center;
   align-items: center;
   padding: 10rpx 20rpx;
   width: 100%;
   background-color: #fff;
-  justify-content: center;
   .home-btn {
     width: 30px;
     height: 30px;

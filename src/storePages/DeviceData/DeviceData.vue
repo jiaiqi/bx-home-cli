@@ -1,6 +1,16 @@
 <template>
   <div class="device-data">
-    <view class="last-data-box">
+    <u-tabs
+      :list="userList"
+      :is-scroll="false"
+      :current="currentTab"
+      @change="changeTab"
+    ></u-tabs>
+
+    <view
+      class="last-data-box"
+      v-if="isArray(deviceData) && deviceData.length > 0"
+    >
       <view class="record-title text-bold">最新数据</view>
       <view class="record-data">
         <view
@@ -38,6 +48,16 @@
           <text class="cuIcon-time margin-right-xs"></text>
           {{ deviceData[0].create_time.slice(0, 16) }}
         </view>
+        <view
+          class="chart-content"
+          v-if="isArray(deviceData) && deviceData.length > 0"
+        >
+          <uniEcCharts
+            class="uni-ec-charts"
+            id="uni-ec-charts"
+            :ec="BPChartOption"
+          ></uniEcCharts>
+        </view>
         <!-- customer_no:患者编号,有患者编号时意味着是医生账号从患者列表进入此页面,则没有记录数据的权限 -->
         <!-- <button
           class="nav-button"
@@ -48,21 +68,11 @@
         </button> -->
       </view>
     </view>
-    <view class="chart-content">
-      <uniEcCharts
-        class="uni-ec-charts"
-        id="uni-ec-charts"
-        :ec="BPChartOption"
-      ></uniEcCharts>
-    </view>
 
-    <view class="history-record">
+    <view class="history-record" v-if="deviceData && deviceData.length > 0">
       <view class="title">历史数据</view>
-      <u-empty
-        mode="history"
-        v-if="deviceData && deviceData.length === 0"
-      ></u-empty>
-      <view class="list-box cu-list" v-if="deviceData && deviceData.length > 0">
+
+      <view class="list-box cu-list">
         <view
           class="cu-item list-item"
           @tap="updateItem(item)"
@@ -126,12 +136,16 @@
         </view>
       </view>
     </view>
+    <view v-else style="margin-top: 20vh">
+      <u-empty mode="history" text="没有历史数据"></u-empty>
+    </view>
   </div>
 </template>
 
 <script>
 import uniEcCharts from '@/components/uni-ec-canvas/uni-echart.vue'
 import dayjs from '@/static/js/dayjs.min.js'
+
 import { mapState } from 'vuex'
 
 export default {
@@ -145,12 +159,61 @@ export default {
   },
   data () {
     return {
-      dic_device_id: 'A00027815',
+      ud_no: "",
+      currentTab: 0,
+      deviceInfo: {},
+      userList: [],
+      currentUser: {},
+      dic_device_id: '',
       deviceData: [],
       BPChartOption: { option: {} }
     }
   },
   methods: {
+    changeTab (index) {
+      this.currentTab = index
+      if (this.currentTab < this.userList.length) {
+        this.currentUser = this.userList[ this.currentTab ]
+        this.getData()
+      }
+    },
+    async getDeviceInfo () {
+      const req = {
+        "serviceName": "srvhealth_store_user_device_select", "colNames": [ "*" ],
+        "condition": [ {
+          "colName": "ud_no",
+          ruleType: 'eq',
+          value: this.ud_no
+        } ],
+        "page": { "pageNo": 1, "rownumber": 1 }
+      }
+      const res = await this.$fetch('select', 'srvhealth_store_user_device_select', req, 'health')
+      if (res.success && res.data.length > 0) {
+        this.deviceInfo = res.data[ 0 ]
+        this.getUserList()
+      }
+    },
+    async getUserList () {
+      const req = {
+        "serviceName": "srvhealth_store_user_device_user_select",
+        "colNames": [ "*" ],
+        "condition": [ { "colName": "ud_no", "ruleType": "eq", "value": this.ud_no } ],
+        "page": { "pageNo": 1, "rownumber": 5 }
+      }
+      const res = await this.$fetch('select', 'srvhealth_store_user_device_user_select', req, 'health')
+      if (res.success) {
+        this.userList = res.data.map(item => {
+          item.name = item.user_name
+          return item
+        })
+        if (this.currentTab < res.data.length) {
+          this.currentUser = res.data[ this.currentTab ]
+          this.getData()
+        }
+
+      }
+    },
+
     updateItem (e) {
 
     },
@@ -168,19 +231,27 @@ export default {
         return 0
       }
     },
+
     async getData () {
       // 血压
-      const req = {
-        "serviceName": "srviot_ap_user_bp_data_select",
-        "colNames": [ "*" ],
-        "order": [ { colName: "measure_time", orderType: "desc" } ],
-        "condition": [ { "colName": "serial_number", "ruleType": "like", "value": this.dic_device_id } ],
-        "page": { "pageNo": 1, "rownumber": 10 }
-      }
-      const res = await this.$fetch('select', 'srviot_ap_user_bp_data_select', req, 'iot')
-      if (Array.isArray(res.data)) {
-        this.deviceData = res.data
-        this.buildBPOption(res.data)
+      if (this.deviceInfo.record_table) {
+        const req = {
+          "serviceName": this.deviceInfo.record_table.replace('bx', 'srv') + '_select',
+          "colNames": [ "*" ],
+          "order": [ { colName: "measure_time", orderType: "desc" } ],
+          "condition": [
+            { "colName": "serial_number", "ruleType": "eq", "value": this.deviceInfo.serial_number },
+            { "colName": this.deviceInfo.user_id_col || "user", "ruleType": "eq", value: this.currentUser.dev_user_index }
+          ],
+          "page": { "pageNo": 1, "rownumber": 10 }
+        }
+        if (this.deviceInfo.serial_number && this.currentUser.dev_user_index) {
+          const res = await this.$fetch('select', 'srviot_ap_user_bp_data_select', req, 'iot')
+          if (Array.isArray(res.data)) {
+            this.deviceData = res.data
+            this.buildBPOption(res.data)
+          }
+        }
       }
     },
     buildBPOption (data) {
@@ -379,8 +450,11 @@ export default {
     // if (option.dic_device_id) {
     //   this.dic_device_id = option.dic_device_id
     // }
-    this.getData()
-
+    if (option.ud_no) {
+      this.ud_no = option.ud_no
+      this.getDeviceInfo()
+    }
+    // this.getData()
   },
   // 页面周期函数--监听页面初次渲染完成
 

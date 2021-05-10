@@ -15,7 +15,7 @@
 				"navigationBarTitleText": "",
 				"navigationBarBackgroundColor": "#fff",
 				"navigationBarTextStyle": "black",
-				// "navigationStyle": "custom",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": true
 			}
 		}
@@ -108,7 +108,7 @@
 				{
 					"path": "DeviceData/DeviceData",
 					"style": {
-						"navigationBarTitleText": "DeviceData"
+						"navigationBarTitleText": ""
 					}
 				}
 			]

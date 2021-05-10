@@ -73,7 +73,7 @@
             <input
               placeholder="输入设备名称"
               name="input"
-              v-model="currentDevice.person_remark_device_name"
+              v-model="curDevName"
             />
           </view>
           <view class="button-box bg-white">
@@ -81,7 +81,7 @@
               class="cu-btn bg-cyan"
               type="primary"
               @tap="updateDeviceName"
-              v-if="currentDevice.person_remark_device_name"
+              v-if="curDevName"
             >
               修改
             </button>
@@ -92,6 +92,63 @@
               v-else
             >
               恢复默认名称
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view
+      class="cu-modal bottom-modal"
+      :class="{ show: modalName === 'add-device' }"
+    >
+      <view class="cu-dialog" @click.stop="">
+        <view class="add-device-modal">
+          <view class="cu-bar bg-white justify-end">
+            <view class="content">请确认设备信息与用户信息</view>
+            <view class="action" @tap="hideModal">
+              <text class="cuIcon-close text-red"></text>
+            </view>
+          </view>
+          <view class="device-info">
+            <view class="cu-form-group disabled">
+              <view class="title">序列号：</view>
+              <input
+                name="input"
+                :disabled="true"
+                v-model="deviceInfo.dic_device_id"
+              />
+            </view>
+            <view class="cu-form-group disabled">
+              <view class="title">设备名称：</view>
+              <input
+                name="input"
+                :disabled="true"
+                v-model="deviceInfo.dt_name"
+              />
+            </view>
+            <view
+              :key="index"
+              class="cu-form-group user-item"
+              v-for="(user, index) in deviceInfo.userList"
+            >
+              <view class="title">用户{{ index + 1 }}：</view>
+              <input
+                placeholder="请输入用户名"
+                name="input"
+                v-model="user.user_name"
+              />
+            </view>
+          </view>
+          <view class="button-box padding">
+            <button @click="hideModal" class="cu-btn bg-gray margin-right">
+              取消
+            </button>
+            <button
+              class="cu-btn bg-blue"
+              type="primary"
+              @click="confirmAddDevice"
+            >
+              添加设备
             </button>
           </view>
         </view>
@@ -135,22 +192,25 @@ export default {
       pageNo: 1,
       storeUserInfo: {},
       deviceList: [],
+      deviceInfo: {},
       currentDevice: {},
       curDevName: "", //当前设备名称
       modalName: "",
       currentTab: 0,
-      tabList: [ {
-        iconPath: "cuIcon-home",
-        selectedIconPath: "cuIcon-homefill",
-        text: '设备',
-        customIcon: false,
-      },
-      {
-        iconPath: "cuIcon-circle",
-        selectedIconPath: "cuIcon-circlefill",
-        text: '状态',
-        customIcon: false,
-      } ],
+      tabList: [
+        //    {
+        //   iconPath: "cuIcon-home",
+        //   selectedIconPath: "cuIcon-homefill",
+        //   text: '设备',
+        //   customIcon: false,
+        // },
+        // {
+        //   iconPath: "cuIcon-circle",
+        //   selectedIconPath: "cuIcon-circlefill",
+        //   text: '状态',
+        //   customIcon: false,
+        // } 
+      ],
       loadStatus: 'more', //more noMore loading 
     }
   },
@@ -158,15 +218,15 @@ export default {
     seeData (e) {
       // 跳转到数据展示页
       if (e.dic_device_id) {
-        uni.navigateTo({ url: `/storePages/DeviceData/DeviceData?dic_device_id=${e.dic_device_id}` })
+        uni.navigateTo({ url: `/storePages/DeviceData/DeviceData?ud_no=${e.ud_no}&dic_device_id=${e.dic_device_id}` })
       }
     },
     changeTab (index) {
-      if (index === 1) {
-        uni.redirectTo({
-          url: `/personalPages/HealthHistory/HealthHistory?storeNo=${this.store_no}`
-        })
-      }
+      // if (index === 1) {
+      //   uni.redirectTo({
+      //     url: `/personalPages/HealthHistory/HealthHistory?storeNo=${this.store_no}`
+      //   })
+      // }
     },
     toDeviceDetail (e) {
       const fieldsCond = [ { "column": "ud_no", "value": e.ud_no, "display": false } ]
@@ -180,9 +240,7 @@ export default {
       this.modalName = 'change-device'
     },
     updateDeviceName (e) {
-      if (this.curDevName === this.currentDevice.person_remark_device_name) {
-        return
-      }
+      this.currentDevice.person_remark_device_name = this.curDevName
       if (!this.currentDevice.person_remark_device_name) {
         this.currentDevice.person_remark_device_name = this.currentDevice.dt_name
       }
@@ -313,6 +371,30 @@ export default {
         return obj
       }
     },
+    async selectDeviceInfo (dt_no) {
+      // 查找设备信息
+      const req = {
+        "serviceName": "srviot_device_type_select",
+        "colNames": [ "*" ],
+        "condition": [ {
+          colName: 'dt_no',
+          ruleType: 'eq',
+          value: dt_no
+        } ],
+        "page": { "pageNo": 1, "rownumber": 1 }
+      }
+      const res = await this.$fetch('select', 'srviot_device_type_select', req, 'iot')
+      if (res.success && res.data.length > 0) {
+        return res.data[ 0 ]
+      }
+    },
+    insertDeviceRecord () {
+
+    },
+    insertUserDevice () {
+
+    },
+
     async getDeviceInfoWithDIC (e) {
       // 通过序列号查找设备信息
       const req = {
@@ -334,9 +416,145 @@ export default {
     async getDeviceTypeWithDp (e) {
       // 通过设备型号编码查找型号信息
     },
+    async confirmAddDevice (e) {
+      const info = this.deviceInfo;
+      // 添加设备记录、用户设备信息
+      const req1 = [ {
+        "serviceName": "srviot_device_instance_code_add",
+        "condition": [],
+        "data": [ { "dic_device_id": info.dic_device_id, "dt_no": info.dt_no, "type_pic": info.type_pic } ]
+      } ]
+
+      const res1 = await this.$fetch("operate", 'srviot_device_instance_code_add', req1, 'iot')
+      if (res1.success && res1.data.length > 0) {
+        console.log(info)
+        const result = res1.data[ 0 ]
+        const userList = info.userList
+
+        const req2 = [
+          {
+            "serviceName": "srvhealth_store_user_device_add",
+            "condition": [],
+            "data": [
+              {
+                "dic_no": result.dic_no, "serial_number": result.dic_device_id,
+                "store_user_no": this.storeUserInfo.store_user_no,
+                "store_no": this.store_no, "person_no": this.userInfo.no,
+                "sex": this.userInfo.sex, "user_device_role": "用户",
+                "record_table": this.deviceInfo.record_table,
+                user_id_col: this.deviceInfo.user_id_col,
+                // "child_data_list": childList
+              }
+            ]
+
+          }
+        ]
+
+        const res2 = await this.$fetch("operate", 'srvhealth_store_user_device_add', req2, 'health')
+
+        if (res2.success) {
+          uni.showToast({
+            title: '设备添加成功',
+            icon: 'success',
+            mask: true
+          })
+          if (res2.data.length > 0) {
+            const data = res2.data[ 0 ]
+            const req3 = [
+              {
+                "serviceName": "srvhealth_store_user_device_user_add",
+                "condition": [],
+                "data": userList.map((item, index) => {
+                  return { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
+                })
+              }
+            ]
+            const res3 = await this.$fetch("operate", 'srvhealth_store_user_device_user_add', req3, 'health')
+            if (res3.success) {
+              uni.showToast({
+                title: '设备用户创建成功',
+                icon: 'success',
+                mask: true
+              })
+            } else {
+              uni.showToast({
+                title: '设备用户创建失败',
+                icon: 'none',
+                mask: true
+              })
+            }
+          }
+        } else {
+          uni.showToast({
+            title: res2?.info?.msg || '设备添加失败,请重试',
+            icon: 'none'
+          })
+        }
+        uni.startPullDownRefresh()
+
+        // const req2 = [
+        //   {
+        //     "serviceName": "srvhealth_diet_contents_add",
+        //     "condition": [],
+        //     "data":
+        //       [
+        //         {
+        //           "name": "测试",
+        //           "mix_type": "食材",
+        //           "cook_method_default": "煮",
+        //           "unit_weight_g": 1,
+        //           "as_medicine": "否",
+        //           "child_data_list":
+        //             [
+        //               {
+        //                 "serviceName": "srvhealth_diet_contents_item_add",
+        //                 "condition": [],
+        //                 "depend_keys": [
+        //                   { "type": "column", "add_col": "food_no", "depend_key": "food_no" } ],
+        //                 "data": [
+        //                   { "item_food_no": "FD202011181423390101", "image": "20201118141917340100", "name": "樱桃", "choose_type": "必选", "unit": "g", "unit_weight_g": 1, "unit_amount": 1, "dietary_fiber": 1 } ]
+        //               } ]
+        //         } ]
+        //   } ]
+      } else {
+        uni.showToast({
+          title: res1?.info?.msg || '设备添加失败,请重试',
+          icon: 'none'
+        })
+      }
+      this.hideModal()
+
+    },
     async addDevice () {
       let result = await this.scanCode()
-      let data = await this.getDeviceInfoWithDIC(result)
+      // let data = await this.getDeviceInfoWithDIC(result)
+      if (result.dt_no && result.dic_device_id) {
+        const deviceInfo = await this.selectDeviceInfo(result.dt_no)
+        debugger
+        if (deviceInfo) {
+          // 根据型号查找到设备信息
+          deviceInfo.dic_device_id = result.dic_device_id
+          if (deviceInfo.user_count === null) {
+            deviceInfo.user_count = 2
+          }
+          deviceInfo.userList = []
+          for (let index = 1; index <= deviceInfo.user_count; index++) {
+            deviceInfo.userList.push({
+              user_name: `用户${index}`
+            })
+          }
+          this.deviceInfo = deviceInfo
+          this.modalName = 'add-device'
+        } else {
+          uni.showModal({
+            title: '未找到设备信息',
+            content: '请稍后尝试重新扫描二维码',
+            showCancel: false
+          })
+          return
+        }
+      }
+      return
       if (data && data.dic_no) {
         // 绑定设备
         const req = [
@@ -545,6 +763,27 @@ export default {
 .button-box {
   .cu-btn {
     width: 50%;
+  }
+}
+.add-device-modal {
+  background-color: #fff;
+  min-height: 40vh;
+  .device-info {
+    .cu-form-group {
+      .title {
+        min-width: 200rpx;
+      }
+      &.disabled {
+        opacity: 0.6;
+      }
+    }
+  }
+  .button-box {
+    display: flex;
+    justify-content: space-around;
+    .cu-btn {
+      width: 45%;
+    }
   }
 }
 </style>
