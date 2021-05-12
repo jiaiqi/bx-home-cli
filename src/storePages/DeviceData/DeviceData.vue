@@ -18,7 +18,7 @@
           v-if="isArray(deviceData) && deviceData.length > 0"
         >
           <text class="digital">
-            <text>
+            <text v-if="deviceInfo.record_table === 'bxiot_ap_user_bp_data'">
               <text
                 :class="{
                   'text-green': deviceData[0].sys < 120,
@@ -41,8 +41,20 @@
                 {{ getFixedNum(deviceData[0].dia) }}
               </text>
             </text>
+            <text v-if="deviceInfo.record_table === 'bxiot_ap_user_bs_data'">
+              {{ getFixedNum(deviceData[0].bs_mmol) }}
+            </text>
           </text>
-          <text class="unit">毫米汞柱</text>
+          <text
+            class="unit"
+            v-if="deviceInfo.record_table === 'bxiot_ap_user_bp_data'"
+            >毫米汞柱</text
+          >
+          <text
+            class="unit"
+            v-if="deviceInfo.record_table === 'bxiot_ap_user_bs_data'"
+            >毫摩尔每升</text
+          >
         </view>
         <view class="date" v-if="isArray(deviceData) && deviceData.length > 0">
           <text class="cuIcon-time margin-right-xs"></text>
@@ -53,9 +65,16 @@
           v-if="isArray(deviceData) && deviceData.length > 0"
         >
           <uniEcCharts
+            v-if="deviceInfo.record_table === 'bxiot_ap_user_bp_data'"
             class="uni-ec-charts"
             id="uni-ec-charts"
             :ec="BPChartOption"
+          ></uniEcCharts>
+          <uniEcCharts
+            v-if="deviceInfo.record_table === 'bxiot_ap_user_bs_data'"
+            class="uni-ec-charts"
+            id="uni-ec-charts"
+            :ec="GluChartOption"
           ></uniEcCharts>
         </view>
         <!-- customer_no:患者编号,有患者编号时意味着是医生账号从患者列表进入此页面,则没有记录数据的权限 -->
@@ -85,6 +104,19 @@
               <text
                 class="digital"
                 :class="{
+                  'text-green': item.bs_mmol < 6.1,
+                  'text-yellow': item.bs_mmol >= 6.1 && item.bs_mmol < 9.4,
+                  'text-red': item.bs_mmol >= 9.4,
+                }"
+                v-if="item && item.bs_mmol"
+              >
+                {{ item.bs_mmol ? getFixedNum(item.bs_mmol) : "-" }}
+              </text>
+            </view>
+            <view class="item">
+              <text
+                class="digital"
+                :class="{
                   'text-green': item.sys < 120,
                   'text-yellow': item.sys >= 120 && item.sys < 140,
                   'text-red': item.sys >= 140,
@@ -108,7 +140,12 @@
               </text>
             </view>
             <view class="unit">
-              <text>mmHg</text>
+              <text v-if="deviceInfo.record_table === 'bxiot_ap_user_bp_data'"
+                >mmHg</text
+              >
+              <text v-if="deviceInfo.record_table === 'bxiot_ap_user_bs_data'"
+                >mmol/L</text
+              >
             </view>
             <view class="heart_rate" v-if="item.pul">
               <view class="data">
@@ -117,6 +154,9 @@
                 ></text>
                 <text class="value">{{ item.pul || "-" }}次/分</text>
               </view>
+            </view>
+            <view class="meal-time bg-cyan light" v-if="item.mealtime">
+              {{ item.mealtime || "" }}
             </view>
           </view>
           <view class="action">
@@ -127,7 +167,7 @@
               <text
                 v-if="item.create_time.slice(0, 3) !== new Date().getFullYear()"
               ></text>
-              {{ getDate(item.create_time) }}
+              {{ getDate(item.measure_time || item.create_time) }}
             </text>
           </view>
           <!-- <view class="move">
@@ -136,9 +176,16 @@
         </view>
       </view>
     </view>
-    <view v-else style="margin-top: 20vh">
+
+    <view v-else-if="deviceData.length === 0" style="margin-top: 20vh">
       <u-empty mode="history" text="没有历史数据"></u-empty>
     </view>
+
+    <uni-load-more
+      class="load-more"
+      :status="loadStatus"
+      v-if="deviceData.length !== 0"
+    ></uni-load-more>
   </div>
 </template>
 
@@ -160,17 +207,24 @@ export default {
   data () {
     return {
       ud_no: "",
+      loadStatus: "", // more noMore loading
+      pageNo: 1,
       currentTab: 0,
       deviceInfo: {},
       userList: [],
       currentUser: {},
-      dic_device_id: '',
       deviceData: [],
-      BPChartOption: { option: {} }
+      BPChartOption: { option: {} },
+      GluChartOption: { option: {} }
     }
   },
   methods: {
     changeTab (index) {
+      this.deviceData = []
+      this.loadStatus = 'more'
+      this.BPChartOption = { option: {} }
+      this.GluChartOption = { option: {} }
+
       this.currentTab = index
       if (this.currentTab < this.userList.length) {
         this.currentUser = this.userList[ this.currentTab ]
@@ -232,29 +286,273 @@ export default {
       }
     },
 
-    async getData () {
-      // 血压
+    async getData (loadType = 'refresh') {
+      if (loadType === 'refresh') {
+        this.pageNo = 1
+      }
       if (this.deviceInfo.record_table) {
-        const req = {
-          "serviceName": this.deviceInfo.record_table.replace('bx', 'srv') + '_select',
+        let serviceName = this.deviceInfo.record_table.replace('bx', 'srv') + '_select'
+        let req = {
+          "serviceName": serviceName,
           "colNames": [ "*" ],
-          "order": [ { colName: "measure_time", orderType: "desc" } ],
+          "order": [ { colName: "measure_time", orderType: "asc" } ],
           "condition": [
             { "colName": "serial_number", "ruleType": "eq", "value": this.deviceInfo.serial_number },
             { "colName": this.deviceInfo.user_id_col || "user", "ruleType": "eq", value: this.currentUser.dev_user_index }
           ],
-          "page": { "pageNo": 1, "rownumber": 10 }
+          "page": { "pageNo": this.pageNo, "rownumber": 10 }
         }
+
         if (this.deviceInfo.serial_number && this.currentUser.dev_user_index) {
-          const res = await this.$fetch('select', 'srviot_ap_user_bp_data_select', req, 'iot')
-          if (Array.isArray(res.data)) {
-            this.deviceData = res.data
-            this.buildBPOption(res.data)
+          try {
+            this.loadStatus = 'loading'
+            const res = await this.$fetch('select', serviceName, req, 'iot')
+            if (res.page) {
+              if (res.page.pageNo * res.page.rownumber >= res.page.total) {
+                this.loadStatus = 'noMore'
+              } else {
+                this.loadStatus = 'more'
+              }
+            }
+            if (Array.isArray(res.data)) {
+              if (loadType === 'loadmore') {
+                res.data = [ ...this.deviceData, ...res.data ]
+              }
+
+              this.deviceData = res.data
+              if (this.deviceInfo.record_table === 'bxiot_ap_user_bp_data') {
+                // 血压
+                this.buildBPOption(res.data)
+
+              } else if (this.deviceInfo.record_table === 'bxiot_ap_user_bs_data') {
+                //  血糖
+                res.data = res.data.map(item => {
+                  if (item.bs) {
+                    // 1mmol/L=18mg/dL
+                    item.bs_mmol = Number((item.bs / 18).toFixed(1))
+                  }
+                  return item
+                })
+                this.buildBGOption(res.data)
+              }
+            }
+          } catch (error) {
+            //TODO handle the exception
+            console.log(error)
+
+            if (Array.isArray(error?.data?.data)) {
+              if (loadType === 'loadmore') {
+                error.data.data = [ ...this.deviceData, ...error.data.data ]
+              }
+              if (error.data.page) {
+                if (error.data.page.pageNo * error.data.page.rownumber >= error.data.page.total) {
+                  this.loadStatus = 'noMore'
+                } else {
+                  this.loadStatus = 'more'
+                }
+              }
+              this.deviceData = error.data.data
+              if (this.deviceInfo.record_table === 'bxiot_ap_user_bp_data') {
+                // 血压
+                this.buildBPOption(error.data.data)
+
+              } else if (this.deviceInfo.record_table === 'bxiot_ap_user_bs_data') {
+                //  血糖
+                error.data.data = error.data.data.map(item => {
+                  if (item.bs) {
+                    // 1mmol/L=18mg/dL
+                    item.bs_mmol = Number((item.bs / 18).toFixed(1))
+                  }
+                  return item
+                })
+                this.buildBGOption(error.data.data)
+              }
+            } else {
+              this.loadStatus = 'noMore'
+            }
           }
+
         }
       }
     },
+    buildBGOption (data) {
+      // 构建血糖图表数据
+      data = this.deepClone(data)
+      // 空腹全血血糖:3.9～6.1毫摩/升、餐后1小时:6.7-9.4毫摩/升、餐后2小时:≤7.8毫摩/升
+      const yAxisData0 = data.map(item => 3.9) // 空腹 最低
+      const yAxisData01 = data.map(item => 6.1) // 空腹 最高
+      const yAxisData02 = data.map(item => 9.4) // 餐后 最高
+      const beforeEatLine = data.filter(item => item.mealtime === '餐前').map(item => item.bs_mmol)
+      const afterEatLine = data.filter(item => item.mealtime === '餐后').map(item => item.bs_mmol)
+      const xAxisData = data.map(item => dayjs(item.measure_time).format('MM-DD'))
+
+      let max = data.map(item => item.bs_mmol).sort((a, b) => b - a)[ 0 ] + 0.5
+      let min = data.map(item => item.bs_mmol).sort((a, b) => a - b)[ 0 ] - 0.5
+
+      if (min >= 3.9) {
+        min = 3.5
+      }
+      if (max <= 9.4) {
+        max = 10
+      }
+
+      const color = [ '#40c0fd', '#9900FF', '#FAD650', '#F7B235' ]
+
+      let option = {
+        backgroundColor: '#fff',
+        legend: {
+          show: true,
+          top: '5%',
+          // icon: 'roundRect',
+          icon:
+            'path://M1635.315872 398.277883a510.609754 510.609754 0 0 0-996.200768 0H0v227.443097h639.115104a510.609754 510.609754 0 0 0 996.200768 0H2274.430976v-227.443097zM1137.215488 910.024852a398.025421 398.025421 0 1 1 398.025421-398.025421A398.025421 398.025421 0 0 1 1137.215488 910.024852z',
+          itemWidth: 20,
+          itemHeight: 10,
+          itemGap: 10,
+          data: [
+            {
+              name: '餐前-低',
+              icon: 'path://M0 1024V0h3072v1024H0z m4096 0V0h3072v1024H4096z m8192 0V0h3072v1024h-3072z m-4096 0V0h3072v1024H8192z'
+            },
+            {
+              name: '餐前-高',
+              icon: 'path://M0 1024V0h3072v1024H0z m4096 0V0h3072v1024H4096z m8192 0V0h3072v1024h-3072z m-4096 0V0h3072v1024H8192z'
+            },
+            {
+              name: '餐后-高',
+              icon: 'path://M0 1024V0h3072v1024H0z m4096 0V0h3072v1024H4096z m8192 0V0h3072v1024h-3072z m-4096 0V0h3072v1024H8192z'
+            },
+            {
+              name: '餐前',
+              icon:
+                'path://M1635.315872 398.277883a510.609754 510.609754 0 0 0-996.200768 0H0v227.443097h639.115104a510.609754 510.609754 0 0 0 996.200768 0H2274.430976v-227.443097zM1137.215488 910.024852a398.025421 398.025421 0 1 1 398.025421-398.025421A398.025421 398.025421 0 0 1 1137.215488 910.024852z'
+            },
+            {
+              name: '餐后',
+              icon:
+                'path://M1635.315872 398.277883a510.609754 510.609754 0 0 0-996.200768 0H0v227.443097h639.115104a510.609754 510.609754 0 0 0 996.200768 0H2274.430976v-227.443097zM1137.215488 910.024852a398.025421 398.025421 0 1 1 398.025421-398.025421A398.025421 398.025421 0 0 1 1137.215488 910.024852z'
+            }
+          ]
+        },
+        grid: {
+          top: '30%',
+          left: '10%',
+          right: '10%',
+          bottom: '15%'
+        },
+        xAxis: {
+          type: 'category',
+          data: xAxisData,
+          axisLine: {
+            // y轴
+            show: true
+          },
+          axisTick: {
+            show: true
+          },
+          boundaryGap: true //false时X轴从0开始
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: {
+            // y轴
+            show: true
+          },
+          axisTick: {
+            // y轴刻度线
+            show: true
+          },
+          splitLine: {
+            show: false
+          },
+          max: max,
+          min: min
+        },
+        series: [
+          {
+            name: '餐前-低',
+            type: 'line',
+            symbol: 'none',
+            data: yAxisData0,
+            smooth: true,
+            lineStyle: {
+              type: 'dashed',
+              width: 1
+            },
+            itemStyle: {
+              normal: {
+                color: color[ 0 ],
+                borderColor: color[ 0 ]
+              }
+            }
+          },
+          {
+            name: '餐前-高',
+            type: 'line',
+            symbol: 'none',
+            data: yAxisData01,
+            smooth: true,
+            lineStyle: {
+              width: 1,
+              type: 'dashed'
+            },
+            itemStyle: {
+              normal: {
+                color: color[ 1 ],
+                borderColor: color[ 1 ]
+              }
+            }
+          },
+          {
+            name: '餐后-高',
+            type: 'line',
+            symbol: 'none',
+            data: yAxisData02,
+            smooth: true,
+            lineStyle: {
+              type: 'dashed',
+              width: 1
+            },
+            itemStyle: {
+              normal: {
+                color: color[ 2 ],
+                borderColor: color[ 2 ]
+              }
+            }
+          },
+          {
+            name: '餐前',
+            type: 'line',
+            symbol: 'none',
+            data: beforeEatLine,
+            smooth: true,
+            itemStyle: {
+              normal: {
+                color: color[ 0 ],
+                borderColor: color[ 0 ]
+              }
+            }
+          },
+          {
+            name: '餐后',
+            type: 'line',
+            symbol: 'none',
+            data: afterEatLine,
+            smooth: true,
+            itemStyle: {
+              normal: {
+                color: color[ 3 ],
+                borderColor: color[ 3 ]
+              }
+            }
+          },
+        ]
+      }
+      this.GluChartOption = { option }
+
+    },
     buildBPOption (data) {
+      // 构建血压图表数据
       data = this.deepClone(data)
       const yAxisData0 = data.map(item => 80) // 舒张压-正常
       const yAxisData01 = data.map(item => 90) // 舒张压-高
@@ -265,6 +563,13 @@ export default {
       const xAxisData = data.map(item => dayjs(item.measure_time).format('MM-DD'))
       let max = data.map(item => item.sys).sort((a, b) => b - a)[ 0 ] + 2
       let min = data.map(item => item.dia).sort((a, b) => a - b)[ 0 ] - 2
+
+      if (min >= 80) {
+        min = 75
+      }
+      if (max <= 140) {
+        max = 145
+      }
       const color = [ '#40c0fd', '#9900FF', '#FAD650', '#F7B235' ]
       let option = {
         backgroundColor: '#fff',
@@ -444,12 +749,14 @@ export default {
       this.BPChartOption = { option }
     },
   },
+  onReachBottom () {
+    if (this.loadStatus === 'more') {
+      this.getData('loadmore')
 
+    }
+  },
   // 页面周期函数--监听页面加载
   onLoad (option) {
-    // if (option.dic_device_id) {
-    //   this.dic_device_id = option.dic_device_id
-    // }
     if (option.ud_no) {
       this.ud_no = option.ud_no
       this.getDeviceInfo()
@@ -687,6 +994,7 @@ export default {
         border-bottom: 1rpx solid #f1f1f1;
         align-items: center;
         padding: 20rpx;
+
         .content {
           display: flex;
           flex: 1;
@@ -768,6 +1076,11 @@ export default {
         display: flex;
         flex: 1;
         align-items: center;
+      }
+      .meal-time {
+        padding: 10rpx 20rpx;
+        margin: 0 20rpx;
+        border-radius: 20rpx;
       }
       .heart_rate {
         padding: 0 20rpx;

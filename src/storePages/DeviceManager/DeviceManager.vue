@@ -2,7 +2,7 @@
   <view class="device-manager">
     <view class="device-list">
       <view class="device-item">
-        <view class="add-device" @click="addDevice">
+        <view class="add-device" @click="showTypeModal">
           <view class="add-btn"><text class="cuIcon-add"></text></view>
           <text class="add-label">添加新设备</text>
         </view>
@@ -36,15 +36,24 @@
           <view class="field">
             <view class="label"> 设备序列号 </view>
             <view class="value">
-              {{ item.dic_device_id }}
+              {{ item.dic_device_id || item.serial_number }}
             </view>
           </view>
         </view>
-        <view
-          class="device-data round cu-btn bg-cyan"
-          @click.stop="seeData(item)"
-          >查看数据</view
-        >
+        <view class="button-list">
+          <button
+            class="device-data round cu-btn bg-red"
+            @click.stop="deleteDevice(item)"
+          >
+            删除设备
+          </button>
+          <button
+            class="device-data round cu-btn bg-cyan"
+            @click.stop="seeData(item)"
+          >
+            查看数据
+          </button>
+        </view>
       </view>
     </view>
     <uni-load-more class="load-more" :status="loadStatus"></uni-load-more>
@@ -92,6 +101,50 @@
               v-else
             >
               恢复默认名称
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view
+      class="cu-modal"
+      :class="{ show: modalName === 'selectType' }"
+      @click="hideModal"
+    >
+      <view class="cu-dialog" @click.stop="">
+        <view class="cu-bar bg-white justify-end">
+          <view class="content">选择设备型号</view>
+          <view class="action" @tap="hideModal">
+            <text class="cuIcon-close text-red"></text>
+          </view>
+        </view>
+        <view class="select-type-modal">
+          <view
+            class="type-item"
+            :class="{ active: selectedDeviceType.id === item.id }"
+            v-for="item in deviceType"
+            :key="item.id"
+            @click="confirmDeviceType(item)"
+          >
+            <image
+              :src="getImagePath(item.type_pic)"
+              mode="scaleToFill"
+              class="type-pic"
+            />
+            <view class="type-name">
+              {{ item.dt_name || "" }}
+            </view>
+          </view>
+          <view v-if="deviceType.length === 0">没有设备数据</view>
+          <view class="buttons">
+            <button class="cu-btn bg-gray" @click="hideModal">取消</button>
+            <button
+              class="cu-btn bg-blue"
+              type="primary"
+              @click="addDevice"
+              v-if="selectedDeviceType.id"
+            >
+              扫码添加
             </button>
           </view>
         </view>
@@ -154,27 +207,6 @@
         </view>
       </view>
     </view>
-    <!-- <view class="cu-bar tabbar bg-white shadow foot">
-      <view
-        class="action"
-        v-for="(tab, index) in tabList"
-        :key="tab.text"
-        @click="changeTab(index)"
-      >
-        <view class="cuIcon-cu-image">
-          <text
-            :class="
-              currentTab !== index
-                ? tab.iconPath + ' ' + 'text-gray'
-                : tab.selectedIconPath + ' ' + 'text-cyan'
-            "
-          ></text>
-        </view>
-        <view :class="currentTab == index ? 'text-cyan' : 'text-gray'">
-          {{ tab.text }}
-        </view>
-      </view>
-    </view> -->
   </view>
 </template>
 
@@ -192,41 +224,76 @@ export default {
       pageNo: 1,
       storeUserInfo: {},
       deviceList: [],
+      deviceType: [],
+      selectedDeviceType: {},
       deviceInfo: {},
       currentDevice: {},
       curDevName: "", //当前设备名称
       modalName: "",
-      currentTab: 0,
-      tabList: [
-        //    {
-        //   iconPath: "cuIcon-home",
-        //   selectedIconPath: "cuIcon-homefill",
-        //   text: '设备',
-        //   customIcon: false,
-        // },
-        // {
-        //   iconPath: "cuIcon-circle",
-        //   selectedIconPath: "cuIcon-circlefill",
-        //   text: '状态',
-        //   customIcon: false,
-        // } 
-      ],
       loadStatus: 'more', //more noMore loading 
     }
   },
   methods: {
-    seeData (e) {
-      // 跳转到数据展示页
-      if (e.dic_device_id) {
-        uni.navigateTo({ url: `/storePages/DeviceData/DeviceData?ud_no=${e.ud_no}&dic_device_id=${e.dic_device_id}` })
+    async getDeviceType () {
+      const req = { "serviceName": "srviot_device_type_select", "colNames": [ "*" ], "condition": [], "page": { "pageNo": 1, "rownumber": 10 } }
+      const res = await this.$fetch('select', 'srviot_device_type_select', req, 'iot')
+      if (res.success) {
+        this.deviceType = res.data
       }
     },
-    changeTab (index) {
-      // if (index === 1) {
-      //   uni.redirectTo({
-      //     url: `/personalPages/HealthHistory/HealthHistory?storeNo=${this.store_no}`
-      //   })
-      // }
+    showTypeModal () {
+      this.modalName = 'selectType'
+
+    },
+    confirmDeviceType (e) {
+      this.selectedDeviceType = e
+    },
+    deleteDevice (e) {
+      uni.showModal({
+        title: '确认删除设备',
+        content: '若删除设备，设备关联的用户信息也会同步删除',
+        success: (res) => {
+          if (res.confirm) {
+            this.confirmDelDevice(e)
+          }
+        }
+      })
+    },
+    async confirmDelDevice (e) {
+      // 1. 删除用户设备
+      if (e.id && e.dic_no) {
+        const req1 = [ { "serviceName": "srvhealth_store_user_device_delete", "condition": [ { "colName": "id", "ruleType": "in", "value": e.id } ] } ]
+        const res1 = await this.$fetch('operate', 'srvhealth_store_user_device_delete', req1, 'health')
+        if (res1.success) {
+          // 2. 删除设备记录
+          const req2 = [ { "serviceName": "srviot_device_instance_code_delete", "condition": [ { "colName": "dic_no", "ruleType": "in", "value": e.dic_no } ] } ]
+          const res2 = await this.$fetch('operate', 'srviot_device_instance_code_delete', req2, 'iot')
+          if (res2.success) {
+            uni.showModal({
+              title: '提示',
+              content: '删除成功',
+              showCancel: false,
+              success: () => {
+                uni.startPullDownRefresh()
+              }
+            })
+          }
+        }
+      } else {
+        uni.showToast({
+          title: '设备信息有误，请刷新重试',
+          icon: 'none',
+          mask: true,
+          duration: 2000
+        })
+      }
+
+    },
+    seeData (e) {
+      // 跳转到数据展示页
+      if (e.dic_device_id || e.serial_number) {
+        uni.navigateTo({ url: `/storePages/DeviceData/DeviceData?ud_no=${e.ud_no}&dic_device_id=${e.dic_device_id || e.serial_number}` })
+      }
     },
     toDeviceDetail (e) {
       const fieldsCond = [ { "column": "ud_no", "value": e.ud_no, "display": false } ]
@@ -263,7 +330,9 @@ export default {
               } else {
                 uni.showToast({
                   title: res.msg,
-                  icon: "none"
+                  icon: "none",
+                  duration: 2000
+
                 })
               }
             })
@@ -316,47 +385,59 @@ export default {
       const res = await this.$fetch('select', 'srvhealth_store_user_device_select', req, 'health')
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         // this.deviceList = res.data
-        // dic_no
-        const req2 = {
-          "serviceName": "srviot_device_instance_code_select",
-          "colNames": [ "*" ],
-          "condition": [ {
-            "colName": "dic_no",
-            "ruleType": "in",
-            "value": res.data.map(item => item.dic_no).toString()
-          } ],
-          "page": { "pageNo": this.pageNo, "rownumber": 10 }
-        }
-        const res2 = await this.$fetch('select', 'srviot_device_instance_code_select', req2, 'iot')
-        if (Array.isArray(res2.data) && res2.data.length > 0) {
-          const deviceList = res.data.map(item => {
-            res2.data.forEach(element => {
-              Object.keys(element).forEach(key => {
-                if (key !== 'id' && element[ key ] && !item[ key ]) {
-                  item[ key ] = element[ key ]
-                }
-              })
-            });
-            return item
-          })
-          if (type === 'more') {
-            this.deviceList = [ ...this.deviceList, ...deviceList ]
-          } else {
-            this.deviceList = deviceList
-          }
-          this.loadStatus = 'more'
-          // 保存当前用户的设备列表
-          this.$store.commit('SET_DEVICE_LIST', deviceList)
+        const deviceList = res.data
+        this.loadStatus = 'more'
+        if (type === 'more') {
+          this.deviceList = [ ...this.deviceList, ...deviceList ]
         } else {
-          this.loadStatus = 'noMore'
+          this.deviceList = deviceList
         }
-
+        // dic_no
+        // const req2 = {
+        //   "serviceName": "srviot_device_instance_code_select",
+        //   "colNames": [ "*" ],
+        //   "condition": [ {
+        //     "colName": "dic_no",
+        //     "ruleType": "in",
+        //     "value": res.data.map(item => item.dic_no).toString()
+        //   } ],
+        //   "page": { "pageNo": this.pageNo, "rownumber": 10 }
+        // }
+        // const res2 = await this.$fetch('select', 'srviot_device_instance_code_select', req2, 'iot')
+        // if (Array.isArray(res2.data) && res2.data.length > 0) {
+        //   const deviceList = res.data.map(item => {
+        //     res2.data.forEach(element => {
+        //       Object.keys(element).forEach(key => {
+        //         if (key !== 'id' && element[ key ] && !item[ key ]) {
+        //           item[ key ] = element[ key ]
+        //         }
+        //       })
+        //     });
+        //     return item
+        //   })
+        //   if (type === 'more') {
+        //     this.deviceList = [ ...this.deviceList, ...deviceList ]
+        //   } else {
+        //     this.deviceList = deviceList
+        //   }
+        //   this.loadStatus = 'more'
+        //   // 保存当前用户的设备列表
+        //   this.$store.commit('SET_DEVICE_LIST', deviceList)
+        // } else {
+        //   this.loadStatus = 'noMore'
+        // }
       } else {
+        if (res.data.length == 0) {
+          if (type !== 'more') {
+            this.deviceList = []
+          }
+        }
         this.loadStatus = 'noMore'
       }
     },
     hideModal () {
       this.modalName = ''
+      this.selectedDeviceType = []
     },
     parseCode (result) {
       let arr = result.split('&')
@@ -413,9 +494,6 @@ export default {
         return res.data[ 0 ]
       }
     },
-    async getDeviceTypeWithDp (e) {
-      // 通过设备型号编码查找型号信息
-    },
     async confirmAddDevice (e) {
       const info = this.deviceInfo;
       // 添加设备记录、用户设备信息
@@ -437,6 +515,9 @@ export default {
             "condition": [],
             "data": [
               {
+                "user_count": this.deviceInfo.user_count,
+                "dt_name": this.deviceInfo.dt_name,
+                "type_pic": this.deviceInfo.type_pic,
                 "dic_no": result.dic_no, "serial_number": result.dic_device_id,
                 "store_user_no": this.storeUserInfo.store_user_no,
                 "store_no": this.store_no, "person_no": this.userInfo.no,
@@ -465,7 +546,11 @@ export default {
                 "serviceName": "srvhealth_store_user_device_user_add",
                 "condition": [],
                 "data": userList.map((item, index) => {
-                  return { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
+                  const obj = { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
+                  if (info.record_table === 'bxiot_ap_user_bp_data') {
+                    obj.dev_user_index = index + 1 + ''
+                  }
+                  return obj
                 })
               }
             ]
@@ -473,21 +558,23 @@ export default {
             if (res3.success) {
               uni.showToast({
                 title: '设备用户创建成功',
-                icon: 'success',
+                icon: 'none',
                 mask: true
               })
             } else {
               uni.showToast({
-                title: '设备用户创建失败',
+                title: res3?.msg || '设备用户创建失败',
                 icon: 'none',
-                mask: true
+                mask: true,
+                duration: 2000
               })
             }
           }
         } else {
           uni.showToast({
-            title: res2?.info?.msg || '设备添加失败,请重试',
-            icon: 'none'
+            title: res2?.msg || '设备添加失败,请重试',
+            icon: 'none',
+            duration: 2000
           })
         }
         uni.startPullDownRefresh()
@@ -518,7 +605,7 @@ export default {
         //   } ]
       } else {
         uni.showToast({
-          title: res1?.info?.msg || '设备添加失败,请重试',
+          title: res1?.msg || '设备添加失败,请重试',
           icon: 'none'
         })
       }
@@ -526,16 +613,19 @@ export default {
 
     },
     async addDevice () {
+      const { selectedDeviceType } = this
       let result = await this.scanCode()
+      if (selectedDeviceType && selectedDeviceType.dt_no) {
+        result = { dic_device_id: result, dt_no: selectedDeviceType.dt_no }
+      }
       // let data = await this.getDeviceInfoWithDIC(result)
       if (result.dt_no && result.dic_device_id) {
         const deviceInfo = await this.selectDeviceInfo(result.dt_no)
-        debugger
         if (deviceInfo) {
           // 根据型号查找到设备信息
           deviceInfo.dic_device_id = result.dic_device_id
           if (deviceInfo.user_count === null) {
-            deviceInfo.user_count = 2
+            deviceInfo.user_count = 1
           }
           deviceInfo.userList = []
           for (let index = 1; index <= deviceInfo.user_count; index++) {
@@ -610,18 +700,23 @@ export default {
             console.log('条码类型：' + res.scanType);
             console.log('条码内容：' + res.result);
             if (res.result) {
-              const result = this.parseCode(res.result)
-              if (result && result.dt_no && (result.dic_device_id || result.ddid)) {
-                if (result.dt_no.indexOf("DT") === -1) {
-                  result.dt_no = "DT" + result.dt_no
-                }
-                if (result.ddid) {
-                  result.dic_device_id = result.ddid
-                }
-                resolve(result)
+              if (res.result.indexOf('&') == -1) {
+                resolve(res.result)
               } else {
-                resolve(null)
+                const result = this.parseCode(res.result)
+                if (result && result.dt_no && (result.dic_device_id || result.ddid)) {
+                  if (result.dt_no.indexOf("DT") === -1) {
+                    result.dt_no = "DT" + result.dt_no
+                  }
+                  if (result.ddid) {
+                    result.dic_device_id = result.ddid
+                  }
+                  resolve(result)
+                } else {
+                  resolve(null)
+                }
               }
+
             } else {
               resolve(null)
             }
@@ -663,6 +758,7 @@ export default {
   // 页面处理函数--监听用户下拉动作
   onPullDownRefresh () {
     this.loadStatus = 'more'
+    this.getDeviceType()
     this.getDeviceList()
     setTimeout(() => {
       uni.stopPullDownRefresh();
@@ -697,10 +793,24 @@ export default {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    .device-data {
-      width: 50%;
-      margin: 0 25%;
+    .button-list {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      .device-data {
+        width: 200rpx;
+        & + .device-data {
+          margin-left: 20px;
+        }
+      }
     }
+    // .device-data {
+    //   // width: 50%;
+    //   // margin: 0 25%;
+    //   margin-right: 0;
+    //   margin-left: 67%;
+    //   width: 100px;
+    // }
     .field-list {
       width: calc(100% - 110rpx);
     }
@@ -780,6 +890,56 @@ export default {
   }
   .button-box {
     display: flex;
+    justify-content: space-around;
+    .cu-btn {
+      width: 45%;
+    }
+  }
+}
+.select-type-modal {
+  padding: 20rpx;
+  background-color: #fff;
+
+  .type-item {
+    border-radius: 20rpx;
+    background-color: #fafafa;
+    margin-bottom: 10rpx;
+    display: flex;
+    transition: all ease-in 0.3s;
+    overflow: hidden;
+    .type-pic {
+      width: 150rpx;
+      height: 150rpx;
+      margin-right: 20rpx;
+    }
+    .type-name {
+      flex: 1;
+      padding: 20rpx;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    &:active {
+      transform: scale(1.1);
+    }
+    &.active {
+      border: #1cbbb4 solid 1px;
+      color: #1cbbb4;
+      background-color: rgba(28, 187, 180, 0.1);
+    }
+    // &.bg-cyan {
+    //   background-color: #1cbbb4;
+    // }
+
+    &:last-child {
+      margin-bottom: 50rpx;
+    }
+  }
+  .buttons {
+    display: flex;
+    padding: 20rpx;
+    background-color: #fff;
     justify-content: space-around;
     .cu-btn {
       width: 45%;

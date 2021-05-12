@@ -441,7 +441,6 @@ export default {
 					rownumber: 10
 				}
 			}
-			let self = this
 			let reqType = optionType
 			if (optionType === "add" || optionType === "update") {
 				reqType = optionType
