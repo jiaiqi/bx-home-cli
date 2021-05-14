@@ -1,5 +1,8 @@
 <template>
 	<view class="vaccine-list" :style="{'--page-height':pageHeight}">
+    <view class="" style="width:50%;margin:20rpx auto;">
+      <u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
+    </view>
 		<view class="vaccine-item" v-for="(item,itemIndex) in vaccineList" :key="itemIndex" @click="showInfo(item)">
 			<view class="title">
 				{{item.vaccine_drug_name}}
@@ -270,621 +273,656 @@
 </template>
 
 <script>
-	import {
-		mapState
-	} from 'vuex'
+import {
+  mapState
+} from 'vuex'
 
-	import dayjs from '@/static/js/dayjs.min.js'
-	export default {
-		data() {
-			return {
-				vaccineList: [],
-				condition: [], // 查询条件
-				loadStatus: 'noMore', //more,loading,noMore
-				page: {
-					pageNo: 1,
-					rownumber: 15,
-					total: 0
-				},
-				modalName: '',
-				selectedVaccine: {},
-				activeField: '',
-				formModel: {
-					id_no: '',
-					phone_xcx: '',
-					customer_name: "",
-					customer_birth_day: "",
-					customer_phone: '',
-					appoint_remark: ''
-				},
-				timeArr: [],
-				imagesUrl: [],
-				vaccineInfo: {}, // 疫苗信息
-				curVac: {
-					data: []
-				},
-				tip: ''
-			}
-		},
-		computed: {
-			pageHeight() {
-				return 'calc(100vh - var(--window-top) - var(--window-bottom))'
-			},
-			vaccineTip() {
-				if (this.vaccineInfo) {
-					if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
-						return '请在下方选择您需要被通知的业务'
-					} else {
-						return '请在下方选择您预约打疫苗的时间'
-					}
-				}
-			},
-			...mapState({
-				userInfo: state => state.user.userInfo
-			})
-		},
+export default {
+  data () {
+    return {
+      curSub: 0,
 
-		methods: {
-			async decryptPhoneNumber(e) {
-				// 解密手机号信息
-				let self = this
-				try {
-					let sessionStatus = await wx.checkSession()
-				} catch (err) {
-					// session_key 已经失效， 需要重新执行登录流程
-					if (err) {
-						uni.showToast({
-							title: err,
-							icon: false
-						})
-					}
-					let result = await wx.login()
-					if (result.code) {
-						await self.wxLogin({
-							code: result.code
-						})
-					}
-				}
+      subList: [ {
+        name: "一类"
+      }, {
+        name: "二类"
+      } ],
+      vaccineList: [],
+      condition: [], // 查询条件
+      loadStatus: 'noMore', //more,loading,noMore
+      page: {
+        pageNo: 1,
+        rownumber: 15,
+        total: 0
+      },
+      modalName: '',
+      selectedVaccine: {},
+      activeField: '',
+      formModel: {
+        id_no: '',
+        phone_xcx: '',
+        customer_name: "",
+        customer_birth_day: "",
+        customer_phone: '',
+        appoint_remark: ''
+      },
+      timeArr: [],
+      imagesUrl: [],
+      vaccineInfo: {}, // 疫苗信息
+      curVac: {
+        data: []
+      },
+      tip: '',
+      storeNo: "",
+    }
+  },
+  computed: {
+    pageHeight () {
+      return 'calc(100vh - var(--window-top) - var(--window-bottom)  + 20px)'
+    },
+    vaccineTip () {
+      if (this.vaccineInfo) {
+        if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
+          return '请在下方选择您需要被通知的业务'
+        } else {
+          return '请在下方选择您预约打疫苗的时间'
+        }
+      }
+    },
+    ...mapState({
+      userInfo: state => state.user.userInfo
+    })
+  },
 
-				if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
-					let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
-					let req = [{
-						data: [{
-							encryptedData: e.detail.encryptedData,
-							signature: e.detail.iv
-						}],
-						serviceName: 'srvwx_app_data_decrypt'
-					}]
-					let res = await this.$http.post(url, req);
-					if (res.data.resultCode === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response
-						.length > 0 && res.data.response[0].response && res.data.response[0].response.phoneNumber) {
-						this.formModel.phone_xcx = res.data.response[0].response.phoneNumber
-						this.formModel.customer_phone = res.data.response[0].response.phoneNumber
-					} else {
-						// wx.checkSession({
-						// 	fail(err) {
-						// 		// session_key 已经失效， 需要重新执行登录流程
-						// 		wx.login({
-						// 			success(result) {
-						// 				if (result.code) {
-						// 					self.wxLogin({
-						// 						code: result.code
-						// 					}).then(_ => {
-						// 						self.decryptPhoneNumber(e)
-						// 					})
-						// 				}
-						// 			}
-						// 		})
-						// 	}
-						// })
-					}
-				}
-			},
-			hideModal() {
-				this.vaccineInfo = {}
-				this.curVac = {}
-				this.selectedVaccine = {}
-				this.modalName = ''
-				Object.keys(this.formModel).forEach(key => {
-					this.formModel[key] = ''
-				})
-			},
-			onFocus(e) {
-				this.activeField = e
-			},
-			toOrderList() {
-				uni.navigateTo({
-					url: '/storePages/VaccineOrder/VaccineOrder'
-				})
-			},
-			async submitOrder() {
-				// 提交预约信息
-				if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
-					uni.showToast({
-						title: '请选择预约时间',
-						icon: 'none'
-					})
-					return
-				}
-				if (!this.formModel.customer_name) {
-					uni.showToast({
-						title: '请填写就诊人姓名',
-						icon: 'none'
-					})
-					return
-				}
-				let req = [{
-					"serviceName": "srvhealth_store_vaccination_appoint_record_add",
-					"condition": [],
-					"data": [{
-						"sa_no": this.selectedVaccine.sa_no,
-						"appoint_name": this.selectedVaccine.appoint_name,
-						"app_date": this.selectedVaccine.app_date,
-						"app_time_start": this.selectedVaccine.app_time_start,
-						"app_time_end": this.selectedVaccine.app_time_end,
-						"customer_name": this.formModel.customer_name,
-						"customer_birth_day": this.formModel.customer_birth_day,
-						"customer_phone": this.formModel.customer_phone,
-						"appoint_remark": this.formModel.appoint_remark,
-						"person_no": this.userInfo.no,
-						"person_user_no": this.userInfo.userno,
-						"person_name": this.userInfo.name || this.userInfo.nick_name,
-						"person_image": this.userInfo.person_image || this.userInfo.profile_url
-					}]
-				}]
-				let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
-					'health');
-				if (res.success) {
-					this.$emit('submit', res.data)
-					this.hideModal()
-					uni.showModal({
-						title: '提示',
-						content: "预约成功",
-						showCancel: false
-					})
-				}
-			},
-			DateChange(e) {
-				this.formModel.customer_birth_day = e.detail.value
-			},
-			onBlur() {
-				this.activeField = ''
-			},
-			selectItem(e) {
-				if (this.disabledTime(e)) {
-					uni.showToast({
-						title: '已过期,不可预约',
-						icon: 'none'
-					})
-					return
-				}
-				this.selectedVaccine = e
-			},
-			disabledTime(e) {
-				// 判断是否过期 已过期则禁用
-				let time = new Date(e.app_date + ' ' + e.app_time_start)
-				let now = new Date()
-				if (time.getTime() < now.getTime()) {
-					return true
-				} else {
-					return false
-				}
-			},
-			async getVaccineList(type = 'refresh') {
-				// 查找可预约疫苗列表
-				if (type === 'refresh') {
-					this.page.pageNo = 1
-				}
-				let req = {
-					"page": {
-						"pageNo": this.page.pageNo,
-						"rownumber": this.page.rownumber
-					},
-				}
-				let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
-				if (res.success) {
-					res.data = res.data.map(item=>{
-						if (item.button_text) {
-							try {
-								item.btnTextConfig = JSON.parse(item.button_text)
-							} catch (e) {
-								//TODO handle the exception
-								console.log(e)
-							}
-						}
-						return item
-					})
-					if (type === 'refresh') {
-						this.vaccineList = res.data
-					} else {
-						this.vaccineList = [...this.vaccineList, ...res.data]
-					}
-					if (res.page) {
-						if (res.page.total > res.page.rownumber * res.page.pageNo) {
-							this.loadStatus = 'more'
-							this.page.pageNo++
-						} else {
-							this.loadStatus = 'noMore'
-						}
-					}
-				}
-				return this.vaccineList
-			},
-			// async showInfo(e) {
-			// 	this.vaccineInfo = e
-			// 	if (e.remark_pic) {
-			// 		this.imagesUrl = [];
-			// 		let images = await this.getFilePath(e.remark_pic)
-			// 		if (Array.isArray(images)) {
-			// 			for (let i = 0; i < images.length; i++) {
-			// 				const obj = {
-			// 					originUrl: `${this.$api.getFilePath}${images[i].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
-			// 					smallUrl: `${this.$api.getFilePath}${images[i].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
-			// 				}
-			// 				this.imagesUrl.push(obj);
-			// 			}
-			// 		}
-			// 	}
-			// 	this.modalName = 'vaccine-info'
-			// },
-			async selectTimeArr(e) {
-				let req = {
-					"condition": [{
-							"colName": "svs_no",
-							"ruleType": "eq",
-							"value": e.vs_no
-						},
-						{
-							"colName": "app_date",
-							"ruleType": "ge",
-							"value": this.formateDate()
-						},
-						// {
-						// 	"colName": "app_date",
-						// 	"ruleType": "lt",
-						// 	value: dayjs().add(5, 'day').format('YYYY-MM-DD')
-						// }
-					],
-					order: [{
-						colName: "app_date",
-						orderType: "asc"
-					}],
-					"page": {
-						"pageNo": 1,
-						"rownumber": 20
-					},
-				}
-				if (!e.stock_count || e.stock_count < 1) {
-					req.condition = [{
-							"colName": "svs_no",
-							"ruleType": "eq",
-							"value": e.vs_no
-						},
-						{
-							"colName": "appoint_type",
-							"ruleType": "eq",
-							"value": '登记'
-						}
-					]
-					delete req.order
-				}
-				let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
-				if (res.success) {
-					this.timeArr = res.data
-					this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
-					this.formModel.customer_phone = this.userInfo.phone || ''
-					this.formModel.customer_birth_day = this.userInfo.birthday || ''
-					this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
-					this.modalName = 'vaccine'
-					this.getImage(e)
-				}
-			},
-			async getImage(e) {
-				if (e && e.remark_pic) {
-					this.imagesUrl = [];
-					let images = await this.getFilePath(e.remark_pic)
-					if (Array.isArray(images)) {
-						for (let i = 0; i < images.length; i++) {
-							const obj = {
-								originUrl: `${this.$api.getFilePath}${images[i].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
-								smallUrl: `${this.$api.getFilePath}${images[i].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
-							}
-							this.imagesUrl.push(obj);
-						}
-					}
-				}
-			},
-			async showInfo(e) {
-				this.vaccineInfo = e
-				this.getImage(e)
-				this.modalName = 'vaccine-info'
-			},
-			showRealNameModal() {
-				this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
-				this.formModel.customer_phone = this.userInfo.phone
-				this.formModel.customer_birth_day = this.userInfo.birthday
-				this.formModel.id_no = this.userInfo.id_no
-				this.formModel.phone_xcx = this.userInfo.phone_xcx
-				this.modalName = 'realname'
-			},
-			showModal(e) {
-				this.vaccineInfo = e
-				if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
-					this.showRealNameModal()
-				} else {
-					this.selectTimeArr(e)
-				}
-			},
-		},
-		created() {
-			this.getVaccineList()
-		},
-		onReachBottom() {
-			if (this.loadStatus !== 'noMore') {
-				this.getVaccineList('loadmore')
-			}
-		},
-		onPullDownRefresh() {
-			this.getVaccineList().then(_ => {
-				uni.stopPullDownRefresh()
-			})
-		}
-	}
+  methods: {
+    changeSub (index) {
+      this.curSub = index
+      this.getVaccineList()
+    },
+    async decryptPhoneNumber (e) {
+      // 解密手机号信息
+      let self = this
+      try {
+        let sessionStatus = await wx.checkSession()
+      } catch (err) {
+        // session_key 已经失效， 需要重新执行登录流程
+        if (err) {
+          uni.showToast({
+            title: err,
+            icon: false
+          })
+        }
+        let result = await wx.login()
+        if (result.code) {
+          await self.wxLogin({
+            code: result.code
+          })
+        }
+      }
+
+      if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
+        let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
+        let req = [ {
+          data: [ {
+            encryptedData: e.detail.encryptedData,
+            signature: e.detail.iv
+          } ],
+          serviceName: 'srvwx_app_data_decrypt'
+        } ]
+        let res = await this.$http.post(url, req);
+        if (res.data.resultCode === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response
+          .length > 0 && res.data.response[ 0 ].response && res.data.response[ 0 ].response.phoneNumber) {
+          this.formModel.phone_xcx = res.data.response[ 0 ].response.phoneNumber
+          this.formModel.customer_phone = res.data.response[ 0 ].response.phoneNumber
+        } else {
+          // wx.checkSession({
+          // 	fail(err) {
+          // 		// session_key 已经失效， 需要重新执行登录流程
+          // 		wx.login({
+          // 			success(result) {
+          // 				if (result.code) {
+          // 					self.wxLogin({
+          // 						code: result.code
+          // 					}).then(_ => {
+          // 						self.decryptPhoneNumber(e)
+          // 					})
+          // 				}
+          // 			}
+          // 		})
+          // 	}
+          // })
+        }
+      }
+    },
+    hideModal () {
+      this.vaccineInfo = {}
+      this.curVac = {}
+      this.selectedVaccine = {}
+      this.modalName = ''
+      Object.keys(this.formModel).forEach(key => {
+        this.formModel[ key ] = ''
+      })
+    },
+    onFocus (e) {
+      this.activeField = e
+    },
+    toOrderList () {
+      uni.navigateTo({
+        url: '/storePages/VaccineOrder/VaccineOrder'
+      })
+    },
+    async submitOrder () {
+      // 提交预约信息
+      if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
+        uni.showToast({
+          title: '请选择预约时间',
+          icon: 'none'
+        })
+        return
+      }
+      if (!this.formModel.customer_name) {
+        uni.showToast({
+          title: '请填写就诊人姓名',
+          icon: 'none'
+        })
+        return
+      }
+      let req = [ {
+        "serviceName": "srvhealth_store_vaccination_appoint_record_add",
+        "condition": [],
+        "data": [ {
+          "sa_no": this.selectedVaccine.sa_no,
+          "appoint_name": this.selectedVaccine.appoint_name,
+          "app_date": this.selectedVaccine.app_date,
+          "app_time_start": this.selectedVaccine.app_time_start,
+          "app_time_end": this.selectedVaccine.app_time_end,
+          "customer_name": this.formModel.customer_name,
+          "customer_birth_day": this.formModel.customer_birth_day,
+          "customer_phone": this.formModel.customer_phone,
+          "appoint_remark": this.formModel.appoint_remark,
+          "person_no": this.userInfo.no,
+          "person_user_no": this.userInfo.userno,
+          "person_name": this.userInfo.name || this.userInfo.nick_name,
+          "person_image": this.userInfo.person_image || this.userInfo.profile_url
+        } ]
+      } ]
+      let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
+        'health');
+      if (res.success) {
+        this.$emit('submit', res.data)
+        this.hideModal()
+        uni.showModal({
+          title: '提示',
+          content: "预约成功",
+          showCancel: false
+        })
+      }
+    },
+    DateChange (e) {
+      this.formModel.customer_birth_day = e.detail.value
+    },
+    onBlur () {
+      this.activeField = ''
+    },
+    selectItem (e) {
+      if (this.disabledTime(e)) {
+        uni.showToast({
+          title: '已过期,不可预约',
+          icon: 'none'
+        })
+        return
+      }
+      this.selectedVaccine = e
+    },
+    disabledTime (e) {
+      // 判断是否过期 已过期则禁用
+      let time = new Date(e.app_date + ' ' + e.app_time_start)
+      let now = new Date()
+      if (time.getTime() < now.getTime()) {
+        return true
+      } else {
+        return false
+      }
+    },
+    async getVaccineList (type = 'refresh') {
+      // 查找可预约疫苗列表
+      if (type === 'refresh') {
+        this.page.pageNo = 1
+      }
+      let req = {
+        "page": {
+          "pageNo": this.page.pageNo,
+          "rownumber": this.page.rownumber
+        },
+        condition: [
+          {
+            colName: 'vaccine_type',
+            ruleType: 'eq',
+            value: this.curSub === 0 ? "一类" : "二类"
+          }
+        ]
+      }
+      if (this.storeNo) {
+        req.condition.push({
+          colName: 'store_no',
+          ruleType: 'eq',
+          value: this.storeNo
+        })
+      } else {
+        return
+      }
+      let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
+      if (res.success) {
+        res.data = res.data.map(item => {
+          if (item.button_text) {
+            try {
+              item.btnTextConfig = JSON.parse(item.button_text)
+            } catch (e) {
+              //TODO handle the exception
+              console.log(e)
+            }
+          }
+          return item
+        })
+        if (type === 'refresh') {
+          this.vaccineList = res.data
+        } else {
+          this.vaccineList = [ ...this.vaccineList, ...res.data ]
+        }
+        if (res.page) {
+          if (res.page.total > res.page.rownumber * res.page.pageNo) {
+            this.loadStatus = 'more'
+            this.page.pageNo++
+          } else {
+            this.loadStatus = 'noMore'
+          }
+        }
+      }
+      return this.vaccineList
+    },
+    // async showInfo(e) {
+    // 	this.vaccineInfo = e
+    // 	if (e.remark_pic) {
+    // 		this.imagesUrl = [];
+    // 		let images = await this.getFilePath(e.remark_pic)
+    // 		if (Array.isArray(images)) {
+    // 			for (let i = 0; i < images.length; i++) {
+    // 				const obj = {
+    // 					originUrl: `${this.$api.getFilePath}${images[i].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
+    // 					smallUrl: `${this.$api.getFilePath}${images[i].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+    // 				}
+    // 				this.imagesUrl.push(obj);
+    // 			}
+    // 		}
+    // 	}
+    // 	this.modalName = 'vaccine-info'
+    // },
+    async selectTimeArr (e) {
+      let req = {
+        "condition": [ {
+          "colName": "svs_no",
+          "ruleType": "eq",
+          "value": e.vs_no
+        },
+        {
+          "colName": "app_date",
+          "ruleType": "ge",
+          "value": this.formateDate()
+        },
+          // {
+          // 	"colName": "app_date",
+          // 	"ruleType": "lt",
+          // 	value: dayjs().add(5, 'day').format('YYYY-MM-DD')
+          // }
+        ],
+        order: [ {
+          colName: "app_date",
+          orderType: "asc"
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 20
+        },
+      }
+      if (!e.stock_count || e.stock_count < 1) {
+        req.condition = [ {
+          "colName": "svs_no",
+          "ruleType": "eq",
+          "value": e.vs_no
+        },
+        {
+          "colName": "appoint_type",
+          "ruleType": "eq",
+          "value": '登记'
+        }
+        ]
+        delete req.order
+      }
+      let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+      if (res.success) {
+        this.timeArr = res.data
+        this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+        this.formModel.customer_phone = this.userInfo.phone || ''
+        this.formModel.customer_birth_day = this.userInfo.birthday || ''
+        this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+        this.modalName = 'vaccine'
+        this.getImage(e)
+      }
+    },
+    async getImage (e) {
+      if (e && e.remark_pic) {
+        this.imagesUrl = [];
+        let images = await this.getFilePath(e.remark_pic)
+        if (Array.isArray(images)) {
+          for (let i = 0; i < images.length; i++) {
+            const obj = {
+              originUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
+              smallUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+            }
+            this.imagesUrl.push(obj);
+          }
+        }
+      }
+    },
+    async showInfo (e) {
+      this.vaccineInfo = e
+      this.getImage(e)
+      this.modalName = 'vaccine-info'
+    },
+    showRealNameModal () {
+      this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+      this.formModel.customer_phone = this.userInfo.phone
+      this.formModel.customer_birth_day = this.userInfo.birthday
+      this.formModel.id_no = this.userInfo.id_no
+      this.formModel.phone_xcx = this.userInfo.phone_xcx
+      this.modalName = 'realname'
+    },
+    showModal (e) {
+      this.vaccineInfo = e
+      if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
+        this.showRealNameModal()
+      } else {
+        this.selectTimeArr(e)
+      }
+    },
+  },
+  onLoad (option) {
+    if (option.storeNo) {
+      this.storeNo = option.storeNo
+      this.getVaccineList()
+
+    }
+  },
+  // created () {
+  //   this.getVaccineList()
+  // },
+  onReachBottom () {
+    if (this.loadStatus !== 'noMore') {
+      this.getVaccineList('loadmore')
+    }
+  },
+  onPullDownRefresh () {
+    this.getVaccineList().then(_ => {
+      uni.stopPullDownRefresh()
+    })
+  }
+}
 </script>
 
 <style scoped lang="scss">
-	.vaccine-list {
-		display: flex;
-		flex-direction: column;
-		margin-bottom: 20rpx;
-		background-color: #fff;
-		min-height: var(--page-height);
+.vaccine-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20rpx;
+  background-color: #fff;
+  // min-height: var(--page-height);
+  min-height: 100vh;
 
-		.vaccine-item {
-			padding: 5rpx 20rpx;
-			margin-bottom: 10rpx;
-			display: flex;
-			align-items: center;
-			flex-wrap: wrap;
-			border-bottom: 1rpx solid #f1f1f1;
+  .vaccine-item {
+    padding: 5rpx 20rpx;
+    margin-bottom: 10rpx;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1rpx solid #f1f1f1;
 
-			&:first-child {
-				border-top: 1rpx solid #f1f1f1;
-			}
-			
-			.button-area {
-				display: flex;
-				align-items: center;
-			}
-			.title {
-				display: inline-block;
-				font-size: 16px;
-				text-align: left;
-				flex: 1;
-			}
+    &:first-child {
+      border-top: 1rpx solid #f1f1f1;
+    }
 
-			.desc {
-				flex: 1;
-			}
+    .button-area {
+      display: flex;
+      align-items: center;
+    }
+    .title {
+      display: inline-block;
+      font-size: 16px;
+      text-align: left;
+      flex: 1;
+    }
 
-			.button-box {
-				flex: inherit;
-				min-width: 75px;
-				margin: 10rpx 0;
+    .desc {
+      flex: 1;
+    }
 
-				.cu-tag {
-					width: 100%;
-				}
-			}
-		}
+    .button-box {
+      flex: inherit;
+      min-width: 75px;
+      margin: 10rpx 0;
 
-	}
+      .cu-tag {
+        width: 100%;
+      }
+    }
+  }
+}
 
-	.cu-modal {
-		z-index: 100;
+.cu-modal {
+  z-index: 100;
 
-		.vaccine-info {
-			background-color: #fff;
-			overflow: scroll;
+  .vaccine-info {
+    background-color: #fff;
+    overflow: scroll;
 
-			.vaccine-name {
-				font-weight: bold;
-				text-align: center;
-			}
+    .vaccine-name {
+      font-weight: bold;
+      text-align: center;
+    }
 
-			.tips {
-				width: 100%;
-				text-align: center;
-				font-size: 12px;
-				color: #666;
-				font-weight: bold;
-			}
+    .tips {
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      font-weight: bold;
+    }
 
-			.vaccine-detail {
-				display: flex;
-				padding: 0;
-				padding: 10rpx;
+    .vaccine-detail {
+      display: flex;
+      padding: 0;
+      padding: 10rpx;
 
-				.label {
-					color: #666;
-					margin-right: 20rpx;
-					min-width: 100rpx;
-				}
+      .label {
+        color: #666;
+        margin-right: 20rpx;
+        min-width: 100rpx;
+      }
 
-				.value {
-					flex: 1;
-					text-align: left;
-				}
+      .value {
+        flex: 1;
+        text-align: left;
+      }
 
-				.tips {
-					width: auto;
-					text-align: center;
-					font-size: 12px;
-					color: #666;
-					font-weight: bold;
-				}
-			}
+      .tips {
+        width: auto;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        font-weight: bold;
+      }
+    }
 
-			.image-box {
-				border-radius: 20rpx;
-				overflow: hidden;
-				display: flex;
-				justify-content: center;
-				flex-wrap: wrap;
+    .image-box {
+      border-radius: 20rpx;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
 
-				.remark-pic {
-					width: 300rpx;
-					margin-right: 10rpx;
+      .remark-pic {
+        width: 300rpx;
+        margin-right: 10rpx;
 
-					.tips {
-						width: 100%;
-					}
-				}
-			}
-		}
+        .tips {
+          width: 100%;
+        }
+      }
+    }
+  }
 
-		.tip {
-			text-align: center;
-			padding: 10px;
-		}
+  .tip {
+    text-align: center;
+    padding: 10px;
+  }
 
-		.button-box {
-			justify-content: center;
-			text-align: center;
-			padding: 20rpx;
+  .button-box {
+    justify-content: center;
+    text-align: center;
+    padding: 20rpx;
 
-			.cu-btn {
-				min-width: 45%;
-			}
-		}
-	}
+    .cu-btn {
+      min-width: 45%;
+    }
+  }
+}
 
-	.birthday {
-		text-align: left !important;
-	}
+.birthday {
+  text-align: left !important;
+}
 
-	.cu-form-group {
-		text-align: left;
+.cu-form-group {
+  text-align: left;
 
-		.title {
-			min-width: calc(4em + 15px);
-		}
+  .title {
+    min-width: calc(4em + 15px);
+  }
 
-		uni-picker .picker {
-			text-align: left;
-			line-height: 40px;
-		}
-	}
+  uni-picker .picker {
+    text-align: left;
+    line-height: 40px;
+  }
+}
 
-	.order-info {
-		min-height: 50vh;
-		max-height: calc(100vh - var(--window-top) - var(--window-bottom));
-		overflow-y: scroll;
-		background-color: #fff;
-		padding: 20rpx;
-		padding-top: 0;
+.order-info {
+  min-height: 50vh;
+  max-height: calc(100vh - var(--window-top) - var(--window-bottom));
+  overflow-y: scroll;
+  background-color: #fff;
+  padding: 20rpx;
+  padding-top: 0;
 
-		.cu-form-group {
-			min-height: 40px;
-		}
+  .cu-form-group {
+    min-height: 40px;
+  }
 
-		.from-box {
-			display: flex;
-			flex-direction: column;
-			text-align: left;
-			margin-bottom: 20px;
+  .from-box {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 20px;
 
-			.form-title {
-				text-indent: 20px;
-				margin-top: 10px;
-			}
+    .form-title {
+      text-indent: 20px;
+      margin-top: 10px;
+    }
 
-			.form-item {
-				display: flex;
-				min-height: 30px;
-				position: relative;
-				margin: 10px 0;
-				font-size: 16px;
-				align-items: center;
+    .form-item {
+      display: flex;
+      min-height: 30px;
+      position: relative;
+      margin: 10px 0;
+      font-size: 16px;
+      align-items: center;
 
-				&:last-child {
-					margin: 0;
-				}
+      &:last-child {
+        margin: 0;
+      }
 
-				.label {
-					// position: absolute;
-					line-height: 20px;
-					left: 10px;
-					padding: 0 5px;
-					transition: all .5s ease;
-					z-index: 2;
-					top: 10px;
-					color: #999;
-					min-width: 80px;
-				}
+      .label {
+        // position: absolute;
+        line-height: 20px;
+        left: 10px;
+        padding: 0 5px;
+        transition: all 0.5s ease;
+        z-index: 2;
+        top: 10px;
+        color: #999;
+        min-width: 80px;
+      }
 
-				// &.active {
-				// 	.label {
-				// 		top: -15px;
-				// 		font-size: 14px;
-				// 	}
-				// }
+      // &.active {
+      // 	.label {
+      // 		top: -15px;
+      // 		font-size: 14px;
+      // 	}
+      // }
 
-				.value {
-					width: 100%;
-					height: 40px;
-					display: flex;
-					align-items: center;
-					border-bottom: 1px solid #f1f1f1;
-					text-indent: 20px;
+      .value {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #f1f1f1;
+        text-indent: 20px;
 
-					.text-area {}
+        .text-area {
+        }
 
-					&.textarea {
-						margin: 0 20rpx;
-						min-height: 100rpx;
-						text-indent: 20px;
-						background-color: #f1f1f1;
-						border-radius: 10px;
-						padding: 10px 0;
-					}
-				}
-			}
-		}
-	}
+        &.textarea {
+          margin: 0 20rpx;
+          min-height: 100rpx;
+          text-indent: 20px;
+          background-color: #f1f1f1;
+          border-radius: 10px;
+          padding: 10px 0;
+        }
+      }
+    }
+  }
+}
 
-	.date-area {
-		margin-top: 20rpx;
-		display: flex;
-		flex-wrap: wrap;
+.date-area {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
 
-		.tips {
-			width: 100%;
-			padding-bottom: 5px;
-			color: rgba($color: #39c5a9, $alpha: 1);
-		}
+  .tips {
+    width: 100%;
+    padding-bottom: 5px;
+    color: rgba($color: #39c5a9, $alpha: 1);
+  }
 
-		.date-item {
-			display: flex;
-			justify-content: center;
-			padding: 5px 15px;
-			border-radius: 5px;
-			background-color: #f1f1f1;
-			position: relative;
-			margin-bottom: 10px;
-			width: calc(50% - 5px);
-			transition: all 0.5s ease;
-			border: 1rpx solid transparent;
+  .date-item {
+    display: flex;
+    justify-content: center;
+    padding: 5px 15px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    position: relative;
+    margin-bottom: 10px;
+    width: calc(50% - 5px);
+    transition: all 0.5s ease;
+    border: 1rpx solid transparent;
 
-			&:nth-child(2n+1) {
-				margin-left: 10px;
-			}
+    &:nth-child(2n + 1) {
+      margin-left: 10px;
+    }
 
-			&.disabled {
-				// pointer-events: none;
-				// cursor: default;
-				opacity: 0.6;
-			}
-		}
-	}
+    &.disabled {
+      // pointer-events: none;
+      // cursor: default;
+      opacity: 0.6;
+    }
+  }
+}
 </style>

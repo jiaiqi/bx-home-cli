@@ -3,7 +3,9 @@
   <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'">
     <cu-custom-navbar bgColor="bg-white" :isBack="true">
       <view class="nav-bar" @click="openSwitchHomePage">
-        {{ storeInfo.name || "首页" }}
+        <text class="home-name">
+          {{ storeInfo.name || "首页" }}
+        </text>
         <text
           class="cuIcon-unfold margin-left-xs"
           :class="{ 'show-home': showHomePageSelector }"
@@ -312,7 +314,6 @@ export default {
         // this.getNotice();
       } else {
         if (res && res.code === '0011') {
-
           await this.toAddPage()
           times++
           if (times < 3) {
@@ -744,6 +745,16 @@ export default {
   padding: 10rpx 20rpx;
   width: 100%;
   background-color: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  .home-name {
+    display: inline-block;
+    width: calc(100% - 40rpx);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   .home-btn {
     width: 30px;
     height: 30px;

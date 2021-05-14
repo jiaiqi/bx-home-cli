@@ -86,7 +86,8 @@
 					"path": "StoreIntroduce/StoreIntroduce"
 				},
 				{
-					"path": "VaccineList/VaccineList"
+					"path": "VaccineList/VaccineList",
+					"style":{"enablePullDownRefresh": true}
 				},
 				{
 					"path": "DoctorIntro/DoctorIntro"

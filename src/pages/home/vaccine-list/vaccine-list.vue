@@ -1,7 +1,7 @@
 <template>
 	<view class="vaccine-list" v-if="vaccineList&&vaccineList.length>0" :style="[calcStyle]">
 		<view class="vaccine-title">
-			<view class="">
+			<view class="title-text">
 				<text class="cuIcon-titles text-blue"></text>
 				<text>疫苗预约</text>
 			</view>
@@ -10,6 +10,9 @@
 				<text class="cuIcon-right "></text>
 			</view>
 		</view>
+    <view class="" style="width:50%;margin:20rpx auto;">
+      <u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
+    </view>
 		<swiper class="swiper rectangle-dot" indicator-active-color="#00aaff" indicator-color="#ccc"
 			:indicator-dots="true" :autoplay="false">
 			<swiper-item v-for="(child,index) in list" :key="index" class="swiper-item">
@@ -348,6 +351,12 @@ export default {
   },
   data () {
     return {
+      subList: [ {
+        name: "一类"
+      }, {
+        name: "二类"
+      } ],
+      curSub: 0,
       onSubmit: false, //正在提交
       modalName: '',
       selectedVaccine: {},
@@ -370,6 +379,12 @@ export default {
       tip: ''
     }
   },
+  props: {
+    storeInfo: {
+      type: Object,
+      default: () => { }
+    },
+  },
   beforeDestroy () {
     uni.$off('backFromWebview')
   },
@@ -383,6 +398,10 @@ export default {
     }
   },
   methods: {
+    changeSub (index) {
+      this.curSub = index
+      this.getVaccineList()
+    },
     mindSub () {
       // 提醒用户关注公众号
       return new Promise((resolve) => {
@@ -477,7 +496,7 @@ export default {
     },
     toMore () {
       uni.navigateTo({
-        url: '/storePages/VaccineList/VaccineList'
+        url: '/storePages/VaccineList/VaccineList?storeNo=' + this.storeInfo.store_no
       })
     },
     disabledTime (e) {
@@ -628,6 +647,20 @@ export default {
           "pageNo": 1,
           "rownumber": 100
         },
+        condition: [
+          {
+            colName: 'vaccine_type',
+            ruleType: 'eq',
+            value: this.curSub === 0 ? "一类" : "二类"
+          }
+        ]
+      }
+      if (this.storeInfo && this.storeInfo.store_no) {
+        req.condition.push({
+          colName: 'store_no',
+          ruleType: 'eq',
+          value: this.storeInfo.store_no
+        })
       }
       let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
       if (res.success) {
@@ -852,7 +885,10 @@ export default {
   font-weight: bold;
   font-size: 16px;
   padding: 20rpx 20rpx 0;
-
+  .title-text {
+    display: flex;
+    flex: 1;
+  }
   .to-more {
     font-weight: normal;
     width: 100rpx;
