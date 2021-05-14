@@ -266,19 +266,19 @@ export default {
         const res1 = await this.$fetch('operate', 'srvhealth_store_user_device_delete', req1, 'health')
         if (res1.success) {
           // 2. 删除设备记录
-          const req2 = [ { "serviceName": "srviot_device_instance_code_delete", "condition": [ { "colName": "dic_no", "ruleType": "in", "value": e.dic_no } ] } ]
-          const res2 = await this.$fetch('operate', 'srviot_device_instance_code_delete', req2, 'iot')
-          if (res2.success) {
-            uni.showModal({
-              title: '提示',
-              content: '删除成功',
-              showCancel: false,
-              success: () => {
-                uni.startPullDownRefresh()
-              }
-            })
-          }
+          // const req2 = [ { "serviceName": "srviot_device_instance_code_delete", "condition": [ { "colName": "dic_no", "ruleType": "in", "value": e.dic_no } ] } ]
+          // const res2 = await this.$fetch('operate', 'srviot_device_instance_code_delete', req2, 'iot')
+          // if (res2.success) {
+          uni.showModal({
+            title: '提示',
+            content: '删除成功',
+            showCancel: false,
+            success: () => {
+              uni.startPullDownRefresh()
+            }
+          })
         }
+        // }
       } else {
         uni.showToast({
           title: '设备信息有误，请刷新重试',
@@ -505,105 +505,90 @@ export default {
 
       const res1 = await this.$fetch("operate", 'srviot_device_instance_code_add', req1, 'iot')
       if (res1.success && res1.data.length > 0) {
+        // 设备没有添加过
         console.log(info)
         const result = res1.data[ 0 ]
-        const userList = info.userList
-
-        const req2 = [
-          {
-            "serviceName": "srvhealth_store_user_device_add",
-            "condition": [],
-            "data": [
-              {
-                "user_count": this.deviceInfo.user_count,
-                "dt_name": this.deviceInfo.dt_name,
-                "type_pic": this.deviceInfo.type_pic,
-                "dic_no": result.dic_no, "serial_number": result.dic_device_id,
-                "store_user_no": this.storeUserInfo.store_user_no,
-                "store_no": this.store_no, "person_no": this.userInfo.no,
-                "sex": this.userInfo.sex, "user_device_role": "用户",
-                "record_table": this.deviceInfo.record_table,
-                user_id_col: this.deviceInfo.user_id_col,
-                // "child_data_list": childList
-              }
-            ]
-
-          }
-        ]
-
-        const res2 = await this.$fetch("operate", 'srvhealth_store_user_device_add', req2, 'health')
-
-        if (res2.success) {
-          uni.showToast({
-            title: '设备添加成功',
-            icon: 'success',
-            mask: true
-          })
-          if (res2.data.length > 0) {
-            const data = res2.data[ 0 ]
-            const req3 = [
-              {
-                "serviceName": "srvhealth_store_user_device_user_add",
-                "condition": [],
-                "data": userList.map((item, index) => {
-                  const obj = { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
-                  if (info.record_table === 'bxiot_ap_user_bp_data') {
-                    obj.dev_user_index = index + 1 + ''
-                  }
-                  return obj
-                })
-              }
-            ]
-            const res3 = await this.$fetch("operate", 'srvhealth_store_user_device_user_add', req3, 'health')
-            if (res3.success) {
-              uni.showToast({
-                title: '设备用户创建成功',
-                icon: 'none',
-                mask: true
-              })
-            } else {
-              uni.showToast({
-                title: res3?.msg || '设备用户创建失败',
-                icon: 'none',
-                mask: true,
-                duration: 2000
-              })
-            }
-          }
-        } else {
-          uni.showToast({
-            title: res2?.msg || '设备添加失败,请重试',
-            icon: 'none',
-            duration: 2000
-          })
-        }
-        uni.startPullDownRefresh()
-
+        this.insertUserDevice(result, info)
         // const req2 = [
         //   {
-        //     "serviceName": "srvhealth_diet_contents_add",
+        //     "serviceName": "srvhealth_store_user_device_add",
         //     "condition": [],
-        //     "data":
-        //       [
-        //         {
-        //           "name": "测试",
-        //           "mix_type": "食材",
-        //           "cook_method_default": "煮",
-        //           "unit_weight_g": 1,
-        //           "as_medicine": "否",
-        //           "child_data_list":
-        //             [
-        //               {
-        //                 "serviceName": "srvhealth_diet_contents_item_add",
-        //                 "condition": [],
-        //                 "depend_keys": [
-        //                   { "type": "column", "add_col": "food_no", "depend_key": "food_no" } ],
-        //                 "data": [
-        //                   { "item_food_no": "FD202011181423390101", "image": "20201118141917340100", "name": "樱桃", "choose_type": "必选", "unit": "g", "unit_weight_g": 1, "unit_amount": 1, "dietary_fiber": 1 } ]
-        //               } ]
-        //         } ]
-        //   } ]
+        //     "data": [
+        //       {
+        //         "user_count": this.deviceInfo.user_count,
+        //         "dt_name": this.deviceInfo.dt_name,
+        //         "type_pic": this.deviceInfo.type_pic,
+        //         "dic_no": result.dic_no, "serial_number": result.dic_device_id,
+        //         "store_user_no": this.storeUserInfo.store_user_no,
+        //         "store_no": this.store_no, "person_no": this.userInfo.no,
+        //         "sex": this.userInfo.sex, "user_device_role": "用户",
+        //         "record_table": this.deviceInfo.record_table,
+        //         user_id_col: this.deviceInfo.user_id_col,
+        //         // "child_data_list": childList
+        //       }
+        //     ]
+
+        //   }
+        // ]
+
+        // const res2 = await this.$fetch("operate", 'srvhealth_store_user_device_add', req2, 'health')
+
+        // if (res2.success) {
+        //   // uni.showToast({
+        //   //   title: '设备添加成功',
+        //   //   icon: 'success',
+        //   //   mask: true
+        //   // })
+        //   if (res2.data.length > 0) {
+        //     const data = res2.data[ 0 ]
+        //     const req3 = [
+        //       {
+        //         "serviceName": "srvhealth_store_user_device_user_add",
+        //         "condition": [],
+        //         "data": userList.map((item, index) => {
+        //           const obj = { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
+        //           if (info.record_table === 'bxiot_ap_user_bp_data') {
+        //             obj.dev_user_index = index + 1 + ''
+        //           }
+        //           return obj
+        //         })
+        //       }
+        //     ]
+        //     const res3 = await this.$fetch("operate", 'srvhealth_store_user_device_user_add', req3, 'health')
+        //     if (res3.success) {
+        //       uni.showToast({
+        //         title: '设备添加成功',
+        //         icon: 'none',
+        //         mask: true
+        //       })
+        //     } else {
+        //       uni.showToast({
+        //         title: res3?.msg || '设备添加失败',
+        //         icon: 'none',
+        //         mask: true,
+        //         duration: 2000
+        //       })
+        //     }
+        //   }
+        // } else {
+        //   uni.showToast({
+        //     title: res2?.msg || '设备添加失败,请重试',
+        //     icon: 'none',
+        //     duration: 2000
+        //   })
+        // }
+        // uni.startPullDownRefresh()
+      } else if (res1?.code === '4444') {
+        // 数据重复 设备已经被添加
+        debugger
+        const req = { "serviceName": "srviot_device_instance_code_select", "colNames": [ "*" ], "condition": [ { colName: 'dic_device_id', ruleType: 'eq', value: info.dic_device_id } ], "page": { "pageNo": 1, "rownumber": 10 } }
+        const res = await this.$fetch("select", 'srviot_device_instance_code_select', req, 'iot')
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const deviceInfo = res.data[ 0 ]
+          this.insertUserDevice(deviceInfo, info)
+        }
       } else {
+        debugger
         uni.showToast({
           title: res1?.msg || '设备添加失败,请重试',
           icon: 'none'
@@ -611,6 +596,79 @@ export default {
       }
       this.hideModal()
 
+    },
+    async insertUserDevice (result, info) {
+      const userList = info.userList
+
+      const req2 = [
+        {
+          "serviceName": "srvhealth_store_user_device_add",
+          "condition": [],
+          "data": [
+            {
+              "user_count": this.deviceInfo.user_count,
+              "dt_name": this.deviceInfo.dt_name,
+              "type_pic": this.deviceInfo.type_pic,
+              "dic_no": result.dic_no, "serial_number": result.dic_device_id,
+              "store_user_no": this.storeUserInfo.store_user_no,
+              "store_no": this.store_no, "person_no": this.userInfo.no,
+              "sex": this.userInfo.sex, "user_device_role": "用户",
+              "record_table": this.deviceInfo.record_table,
+              user_id_col: this.deviceInfo.user_id_col,
+              // "child_data_list": childList
+            }
+          ]
+
+        }
+      ]
+
+      const res2 = await this.$fetch("operate", 'srvhealth_store_user_device_add', req2, 'health')
+
+      if (res2.success) {
+        // uni.showToast({
+        //   title: '设备添加成功',
+        //   icon: 'success',
+        //   mask: true
+        // })
+        if (res2.data.length > 0) {
+          const data = res2.data[ 0 ]
+          const req3 = [
+            {
+              "serviceName": "srvhealth_store_user_device_user_add",
+              "condition": [],
+              "data": userList.map((item, index) => {
+                const obj = { ud_no: data.ud_no, "dev_user_index": index + '', "person_no": this.userInfo.no, "user_name": item.user_name }
+                if (info.record_table === 'bxiot_ap_user_bp_data') {
+                  obj.dev_user_index = index + 1 + ''
+                }
+                return obj
+              })
+            }
+          ]
+          const res3 = await this.$fetch("operate", 'srvhealth_store_user_device_user_add', req3, 'health')
+          if (res3.success) {
+            uni.showToast({
+              title: '设备添加成功',
+              icon: 'none',
+              mask: true
+            })
+          } else {
+            uni.showToast({
+              title: res3?.msg || '设备添加失败',
+              icon: 'none',
+              mask: true,
+              duration: 2000
+            })
+          }
+        }
+      } else {
+        uni.showToast({
+          title: res2?.msg || '设备添加失败,请重试',
+          icon: 'none',
+          duration: 2000
+        })
+      }
+      uni.startPullDownRefresh()
     },
     async addDevice () {
       const { selectedDeviceType } = this

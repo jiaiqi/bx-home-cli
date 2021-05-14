@@ -887,6 +887,7 @@ export default {
       isAll: false,
       currentChat: {},
       remindPerson: {}, // 被@人的userInfo
+      remindPersonList: [],
       remindText: "", // 
       refreshMessageTimer: null, // 定时刷新消息的定时器
     };
@@ -944,13 +945,23 @@ export default {
     },
     remindSomeone (e) {
       // 长按头像@某人
-      this.remindPerson = {
+      if (this.remindPerson && this.remindPerson.name) {
+        this.chatText = this.chatText.replace(`@${this.remindPerson.name}`, '')
+
+      }
+      const remindPerson = {
         type: 'remindPerson',
         no: e.sender_person_no,
         name: e.sender_name,
         profile_url: e.sender_profile_url,
         user_image: e.sender_user_image
       }
+      // const index = this.remindPersonList.findIndex(item => item.no === e.sender_person_no)
+      // if (index == -1) {
+      // this.remindPersonList.push(remindPerson)
+      this.remindPersonList = [ remindPerson ]
+      // }
+      this.remindPerson = remindPerson
       let str = `@${e.sender_name} `
       if ((this.chatText && this.chatText.indexOf(str) == -1) || !this.chatText) {
         this.chatText = str + this.chatText
@@ -1031,14 +1042,33 @@ export default {
         cursor
       } = e.detail
       const text = this.remindText.trim()
+      const arr = this.remindPersonList.map(item => '@' + item.name)
+
+
+      for (let index = 0; index < arr.length; index++) {
+        const name = arr[ index ];
+        if (value && this.chatText.indexOf(name) !== -1 && value.indexOf(name) !== -1) {
+          let remindText = arr.reduceRight((pre, cur) => pre += cur, '')
+          const val = value.replace(' ', '')
+          if (remindText && val.trim() === remindText.trim()) {
+            this.chatText = this.chatText.replace(name, '')
+            this.remindPersonList.splice(index, 1)
+            break;
+          }
+        }
+      }
+
+      // arr.forEach(name => {
+      //   if (value && this.chatText.indexOf(name) !== -1 && value.indexOf(name) !== -1) {
+      //     this.chatText = this.chatText.replace(name, '')
+      //   }
+      // })
       if (value && text && value === text && cursor === text
         .length) {
         // if(this.systemInfo&&this.systemInfo.platform!=='windows')
-
         this.remindText = ''
         this.clearRemind()
         this.chatText = this.chatText.replace(text, '')
-
         // && keyCode === 8 
       }
     },
@@ -1996,9 +2026,17 @@ export default {
         if (this.identity) {
           req[ 0 ].data[ 0 ].identity = this.identity
         }
-        if (this.remindPerson && this.remindPerson.no) {
-          req[ 0 ].data[ 0 ].receiver_person_no = this.remindPerson.no
-          req[ 0 ].data[ 0 ].attribute = JSON.stringify(this.remindPerson)
+        // if (this.remindPerson && this.remindPerson.no) {
+        //   req[ 0 ].data[ 0 ].receiver_person_no = this.remindPerson.no
+        //   req[ 0 ].data[ 0 ].attribute = JSON.stringify(this.remindPerson)
+        // }
+        if (Array.isArray(this.remindPersonList) && this.remindPersonList.length > 0) {
+          if (this.remindPersonList.length === 1) {
+            req[ 0 ].data[ 0 ].receiver_person_no = this.remindPersonList[ 0 ].no
+          } else {
+            req[ 0 ].data[ 0 ].receiver_person_no = this.remindPersonList.map(item => item.no).toString()
+          }
+          req[ 0 ].data[ 0 ].attribute = JSON.stringify(this.remindPersonList)
         }
         if (!this.sessionNo) {
           uni.showModal({
@@ -2049,6 +2087,7 @@ export default {
         if (this.remindPerson && this.remindPerson.no) {
           this.remindPerson = {}
         }
+        this.remindPersonList = []
         this.initMessageList('refresh');
         setTimeout(() => {
           this.toBottom()
