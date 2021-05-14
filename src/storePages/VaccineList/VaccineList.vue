@@ -337,6 +337,7 @@ export default {
   methods: {
     changeSub (index) {
       this.curSub = index
+      this.page.pageNo = 1
       this.getVaccineList()
     },
     async decryptPhoneNumber (e) {
