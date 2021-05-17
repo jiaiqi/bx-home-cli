@@ -1835,11 +1835,7 @@ export default {
 			}
 		}
 		Vue.prototype.updateUserInfo = async (e) => {
-			// uni.getUserInfo({
-			// 	provider: 'weixin',
-			// 	success: function(user) {
 			let userInfo = JSON.parse(JSON.stringify(e))
-			// let userInfo = user.userInfo
 			let gender = userInfo.gender || userInfo.sex //性别 0：未知、1：男、2：女
 			userInfo.sex = gender === 1 ? '男' : gender === 2 ? '女' : null
 			let vuex_userInfo = store.state.user.userInfo
@@ -1866,7 +1862,6 @@ export default {
 			if (!isLogin) {
 				isLogin = await wxVerifyLogin()
 			}
-
 			// 登录 查找基本信息
 			let data = await selectPersonInfo()
 			if (data && data.no && data.nick_name && data.profile_url) {
@@ -1879,8 +1874,29 @@ export default {
 				store.commit('SET_REGIST_STATUS', false)
 				return true
 			} else {
+				// 未查到用户信息
 				store.commit('SET_AUTH_USERINFO', false)
+				// 获取授权，登记用户信息
+				const wxUser = await wx.getUserProfile({
+					desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+				})
+				if (wxUser && wxUser.userInfo) {
+					let rawData = {
+						nickname: wxUser.userInfo.nickName,
+						sex: wxUser.userInfo.gender,
+						country: wxUser.userInfo.country,
+						province: wxUser.userInfo.province,
+						city: wxUser.userInfo.city,
+						headimgurl: wxUser.userInfo.avatarUrl
+					};
+					// 保存用户信息
+					Vue.prototype.setWxUserInfo(rawData);
+					store.commit('SET_WX_USERINFO', rawData);
+					store.commit('SET_AUTH_USERINFO', true);
+					// await this.toAddPage()
+				}
 			}
+
 
 			let wxUserInfo = ''
 			if (store && store.state && store.state.user) {
@@ -1894,17 +1910,19 @@ export default {
 				return
 				// 未授权不进行注册
 			} else {
-				Vue.prototype.updateUserInfo(wxUserInfo)
+				if(data && data.no){
+					Vue.prototype.updateUserInfo(wxUserInfo)
+				}
 			}
 
-			if (store.state.app.authBoxDisplay) {
-				store.commit('SET_REGIST_STATUS', false)
-				return
-			}
+			// if (store.state.app.authBoxDisplay) {
+			// 	store.commit('SET_REGIST_STATUS', false)
+			// 	return
+			// }
 
 			// 没有基本信息 创建基本信息
 			let login_user_info = uni.getStorageSync('login_user_info')
-			let user_no = uni.getStorageSync('login_user_info').user_no
+			let user_no = login_user_info.user_no
 			try {
 				if (store.state.user.loginUserInfo) {
 					login_user_info = store.state.user.loginUserInfo
@@ -1940,6 +1958,7 @@ export default {
 						break;
 				}
 			}
+			debugger
 			let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
 			let req = [{
 				"serviceName": "srvhealth_person_info_add",
@@ -1961,6 +1980,8 @@ export default {
 				let inviterInfo = store.state.app.inviterInfo
 				if (inviterInfo.invite_user_no) {
 					req[0].data[0].invite_user_no = inviterInfo.invite_user_no
+				}else{
+					req[0].data[0].invite_user_no = 'jiaqi'
 				}
 				if (inviterInfo.add_url) {
 					req[0].data[0].add_url = inviterInfo.add_url
@@ -1968,6 +1989,9 @@ export default {
 				if (inviterInfo.add_store_no) {
 					req[0].data[0].add_store_no = inviterInfo.add_store_no
 					req[0].data[0].home_store_no = inviterInfo.add_store_no
+				}else{
+					req[0].data[0].add_store_no = 'S20210204016'
+					req[0].data[0].home_store_no = 'S20210204016'
 				}
 			} catch (e) {}
 			if (store.state.user.userInfo && store.state.user.userInfo.no) {

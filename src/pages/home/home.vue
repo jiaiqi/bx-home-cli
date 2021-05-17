@@ -563,10 +563,16 @@ export default {
         // uni.startPullDownRefresh()
         this.initPage()
       } else {
+        const option = {
+          store_no: this.storeNo
+        }
+        this.checkOptionParams(option);
         this.toAddPage().then(_ => {
           uni.startPullDownRefresh()
         })
       }
+    } else {
+
     }
   },
   onShareAppMessage () {

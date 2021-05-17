@@ -1,0 +1,6 @@
+POST https://api.weixin.qq.com/wxaapi/broadcast/role/addrole?access_token=45_gEIjLAbUMbvrEYfPUVkhJ0qtZ3PfpTacDjwvlJXxafYQLsvNmO-8vXWSNuQOLLnL7MUc5f5S0-S86cf4CjJAiOakFTwUAuVLVgrWoLEfaICOuyfYhr75XQY0egqfkKiRr71mjpQbGl92s_A2RYFhAGDHOV
+
+{
+  username:"jiaqiai_",
+  role:"1"
+}

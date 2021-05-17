@@ -23,6 +23,7 @@
 	"subPackages": [
 		{
 			"root": "publicPages",
+
 			"pages": [
 				{
 					"path": "accountExec/accountExec",
@@ -51,6 +52,9 @@
 					"path": "articleList/articleList"
 				},
 				{
+					"path": "articleSelect/articleSelect"
+				},
+				{
 					"path": "webviewPage/webviewPage"
 				},
 				{
@@ -63,6 +67,15 @@
 		},
 		{
 			"root": "storePages",
+			"usingComponents": {
+        "subscribe": "plugin-private://wx2b03c6e691cd7370/components/subscribe/subscribe"
+    	},
+			"plugins": {
+					"live-player-plugin": {
+							"version": "1.3.0",
+							"provider": "wx2b03c6e691cd7370" 
+					}
+			},
 			"pages": [
 				{
 					"path": "VaccineOrder/VaccineOrder",

@@ -12,7 +12,7 @@
       ></image>
       <view class="content">
         <view class="name">{{ groupInfo.name }}</view>
-        <view class="introduce">群主很懒，还没有群介绍哦~</view>
+        <!-- <view class="introduce">群主很懒，还没有群介绍哦~</view> -->
       </view>
     </view>
     <view
@@ -106,9 +106,7 @@
         <text>公告</text>
         <text class="cuIcon-form"></text>
       </view>
-      <view class="content-text"
-        >问君西游何时还？畏途巉岩不可攀。但见悲鸟号古木，雄飞雌从绕林间。又闻子规啼夜月，愁空山。蜀道之难，难于上青天，使人听此凋朱颜</view
-      >
+      <view class="content-text">{{ groupInfo.group_notice || "" }}</view>
     </view>
     <view
       class="cu-modal"
