@@ -166,14 +166,42 @@
               <!-- <chat-image :max="350" :src="item.img_url"></chat-image> -->
             </view>
             <view
-              class="person-chat-item-right"
+              class="person-chat-item-right article-content"
               v-else-if="item.msg_content_type === '文章'"
               @click="toArticle(item)"
             >
-              <text class="border-bottom"
+              <view class="article-title">{{
+                item.attribute && item.attribute.title
+                  ? item.attribute.title
+                  : item.msg_content
+              }}</view>
+              <view class="article-main">
+                <view
+                  class="article-text"
+                  v-if="item.attribute && item.attribute.content"
+                >
+                  {{ html2text(item.attribute.content) || "" }}
+                </view>
+                <view class="article-text" v-else> </view>
+                <view class="article-icon">
+                  <image
+                    class="image"
+                    :src="getImagePath(item.attribute.icon_image)"
+                    mode="scaleToFill"
+                    v-if="item.attribute && item.attribute.icon_image"
+                  />
+                  <image
+                    v-else
+                    class="image"
+                    :src="'../../static/news.png'"
+                    mode="scaleToFill"
+                  />
+                </view>
+              </view>
+              <!-- <text class="border-bottom"
                 >{{ item.msg_content }}
                 <text class="cuIcon-text margin-right-xs"></text
-              ></text>
+              ></text> -->
             </view>
             <view
               v-else-if="item.msg_content"
@@ -384,14 +412,42 @@
               </image>
             </view>
             <view
-              class="person-chat-item-right"
+              class="person-chat-item-right article-content"
               v-else-if="item.msg_content_type === '文章'"
               @click="toArticle(item)"
             >
-              <text class="border-bottom"
+              <view class="article-title">{{
+                item.attribute && item.attribute.title
+                  ? item.attribute.title
+                  : item.msg_content
+              }}</view>
+              <view class="article-main">
+                <view
+                  class="article-text"
+                  v-if="item.attribute && item.attribute.content"
+                >
+                  {{ html2text(item.attribute.content) || "" }}
+                </view>
+                <view class="article-text" v-else> </view>
+                <view class="article-icon">
+                  <image
+                    class="image"
+                    :src="getImagePath(item.attribute.icon_image)"
+                    mode="scaleToFill"
+                    v-if="item.attribute && item.attribute.icon_image"
+                  />
+                  <image
+                    v-else
+                    class="image"
+                    :src="'../../static/news.png'"
+                    mode="scaleToFill"
+                  />
+                </view>
+              </view>
+              <!-- <text class="border-bottom"
                 >{{ item.msg_content }}
                 <text class="cuIcon-text margin-right-xs"></text
-              ></text>
+              ></text> -->
             </view>
             <view
               v-else-if="item.msg_content"
@@ -2147,14 +2203,14 @@ export default {
             } ]
           } ];
         } else if (this.pageType === 'session') {
-          conditionData = [ {
-            relation: 'AND',
-            data: [ {
-              colName: 'session_no', // 会话编码
-              ruleType: 'eq',
-              value: this.sessionNo
-            } ]
-          } ];
+          // conditionData = [ {
+          //   relation: 'AND',
+          //   data: [ {
+          //     colName: 'session_no', // 会话编码
+          //     ruleType: 'eq',
+          //     value: this.sessionNo
+          //   } ]
+          // } ];
           if (this.groupNo) {
             conditionData = [ {
               relation: 'OR',
@@ -2170,6 +2226,15 @@ export default {
               }
               ]
             } ];
+          } else {
+            req.condition = [
+              {
+                colName: 'session_no', // 会话编码
+                ruleType: 'eq',
+                value: this.sessionNo
+              }
+            ]
+            conditionData = []
           }
         } else {
           conditionData = [ {
@@ -2233,7 +2298,11 @@ export default {
         }
         ];
       }
-      req.relation_condition.data = conditionData;
+      if(Array.isArray(conditionData)&&conditionData.length>0){
+         req.relation_condition.data = conditionData;
+      }else{
+        delete req.relation_condition
+      }
       let res = await this.$http.post(url, req);
       if (Array.isArray(res.data.data) && res.data.data.length > 0) {
         this.$emit('load-msg-complete', res.data.data[ 0 ]);
@@ -2263,6 +2332,7 @@ export default {
             try {
               item.attribute = JSON.parse(item.attribute);
               this.$set(item, 'attribute', item.attribute);
+              console.log("attribute:", item.attribute)
             } catch (e) {
               //TODO handle the exception
             }
@@ -2300,15 +2370,16 @@ export default {
               this.$set(item, 'file_size', obj.file_size);
             });
           }
-          if (item.msg_content_type === '视频' && item.video) {
-            if (item.attribute) {
-              try {
-                item.attribute = JSON.parse(item.attribute);
-                this.$set(item, 'attribute', item.attribute);
-              } catch (e) {
-                //TODO handle the exception
-              }
+          if (item.attribute) {
+            try {
+              item.attribute = JSON.parse(item.attribute);
+              this.$set(item, 'attribute', item.attribute);
+            } catch (e) {
+              //TODO handle the exception
             }
+          }
+          if (item.msg_content_type === '视频' && item.video) {
+
             if (item.attribute && item.attribute.width && item.attribute.height) {
               let info = this.setImgSize(item.attribute, 500);
               if (info.width && info.height) {
@@ -2446,6 +2517,7 @@ export default {
       }
     },
     async sendArticle (data) {
+      debugger
       let serviceName = 'srvhealth_consultation_chat_record_add'
       if (this.sessionType === '机构用户客服') {
         if (this.identity === '客户') {
@@ -2571,15 +2643,13 @@ export default {
           }
         }
         result.msg_content = item.title
-        result.attribute = JSON.stringify({
-          content_no: item.content_no
-        })
-        let data = this.deepClone(result)
-        data.msg_content_type = type
-        data.id = this.recordList.length > 0 ? (this.recordList[ this.recordList.length - 1 ].id +
+        result.attribute = JSON.stringify(item)
+        let dataResult = this.deepClone(result)
+        dataResult.msg_content_type = type
+        dataResult.id = this.recordList.length > 0 ? (this.recordList[ this.recordList.length - 1 ].id +
           999) :
           99
-        this.recordList.push(data)
+        this.recordList.push(dataResult)
         return result
       })
       req[ 0 ].data = reqData
@@ -2980,6 +3050,36 @@ export default {
             left: -8px;
             top: 15px;
           }
+          &.article-content {
+            color: #333;
+            .article-title {
+              font-weight: bold;
+              margin-bottom: 10rpx;
+              font-size: 30rpx;
+            }
+            .article-main {
+              display: flex;
+              .article-text {
+                flex: 1;
+                word-break: break-all;
+                display: -webkit-box;
+                -webkit-line-clamp: 3; /**指定行数*/
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                padding-right: 20rpx;
+                font-size: 12px;
+                color: #ccc;
+              }
+              .article-icon {
+                width: 100rpx;
+                height: 100rpx;
+                .image {
+                  width: 100%;
+                  height: 100%;
+                }
+              }
+            }
+          }
         }
 
         .person-chat-item-right-link {
@@ -3200,6 +3300,41 @@ export default {
             position: absolute;
             right: -8px;
             top: 15px;
+          }
+
+          &.article-content {
+            background-color: #fff;
+            color: #333;
+            .article-title {
+              font-weight: bold;
+              margin-bottom: 10rpx;
+              font-size: 30rpx;
+            }
+            .article-main {
+              display: flex;
+              .article-text {
+                flex: 1;
+                word-break: break-all;
+                display: -webkit-box;
+                -webkit-line-clamp: 3; /**指定行数*/
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                padding-right: 20rpx;
+                font-size: 12px;
+                color: #ccc;
+              }
+              .article-icon {
+                width: 100rpx;
+                height: 100rpx;
+                .image {
+                  width: 100%;
+                  height: 100%;
+                }
+              }
+            }
+            &::after {
+              border-left: 8px solid #fff;
+            }
           }
         }
 

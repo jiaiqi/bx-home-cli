@@ -341,18 +341,13 @@ export default {
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         self.sessionInfo = res.data[ 0 ]
         self.session_no = res.data[ 0 ].session_no
-        debugger
         switch (self.sessionType) {
           case '店铺机构全员':
-            debugger
             if (self.storeInfo && self.storeInfo.user_count) {
               self.pageTitle =
                 `${self.sessionInfo.session_name || self.storeInfo.name}(${self.storeInfo.user_count})`
-
-              debugger
             }
             if (self.pageTitle) {
-              debugger
               uni.setNavigationBarTitle({
                 title: self.pageTitle
               })
@@ -555,11 +550,8 @@ export default {
           "value": this.groupNo
         } ]
       }
-      debugger
       if (cond.length > 0) {
         let sessionInfo = await this.getSession(cond)
-        debugger
-
         if (sessionInfo && sessionInfo.session_no) {
           this.updateSessionNo()
           return
@@ -716,14 +708,18 @@ export default {
   async onLoad (option) {
     const self = this
     if (option.articleList) {
+      debugger
+
       try {
         this.articleList = JSON.parse(option.articleList)
         delete option.articleList
       } catch (e) {
         //TODO handle the exception
+        debugger
       }
     }
     this.queryOption = option
+    debugger
     if (Array.isArray(this.articleList) && this.articleList.length > 0) {
       uni.showModal({
         title: '发送文章',

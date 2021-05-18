@@ -4,7 +4,7 @@
       <view class="device-item">
         <view class="add-device" @click="showTypeModal">
           <view class="add-btn"><text class="cuIcon-add"></text></view>
-          <text class="add-label">添加新设备</text>
+          <text class="add-label">添加设备</text>
         </view>
       </view>
       <view
@@ -207,6 +207,27 @@
         </view>
       </view>
     </view>
+    <view class="cu-bar tabbar bg-white shadow foot">
+      <view
+        class="action"
+        v-for="(tab, index) in tabList"
+        :key="tab.text"
+        @click="changeTab(index)"
+      >
+        <view class="cuIcon-cu-image">
+          <text
+            :class="
+              currentTab !== index
+                ? tab.iconPath + ' ' + 'text-gray'
+                : tab.selectedIconPath + ' ' + 'text-cyan'
+            "
+          ></text>
+        </view>
+        <view :class="currentTab == index ? 'text-cyan' : 'text-gray'">
+          {{ tab.text }}
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -231,9 +252,27 @@ export default {
       curDevName: "", //当前设备名称
       modalName: "",
       loadStatus: 'more', //more noMore loading 
+      tabList: [ {
+        iconPath: "cuIcon-home",
+        selectedIconPath: "cuIcon-homefill",
+        text: '我的设备',
+        customIcon: false,
+      },
+      {
+        iconPath: "cuIcon-circle",
+        selectedIconPath: "cuIcon-circlefill",
+        text: '我的亲友',
+        customIcon: false,
+      } ],
+      currentTab: 0,
     }
   },
   methods: {
+    changeTab (index) {
+      if (index === 1) {
+        uni.redirectTo({ url: `/storePages/DeviceManager/family/family?store_no=${this.store_no}` })
+      }
+    },
     async getDeviceType () {
       const req = { "serviceName": "srviot_device_type_select", "colNames": [ "*" ], "condition": [], "page": { "pageNo": 1, "rownumber": 10 } }
       const res = await this.$fetch('select', 'srviot_device_type_select', req, 'iot')

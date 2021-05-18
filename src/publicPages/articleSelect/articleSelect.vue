@@ -85,12 +85,20 @@ export default {
           }
         }
         let data = this.list.filter(item => val.indexOf(item.content_no) !== -1).map(item => {
-          return {
+          let obj = {
             title: item.title,
             content_no: item.content_no
           }
+          if (item.icon_image) {
+            obj.icon_image = item.icon_image
+          }
+          if (item.content) {
+            obj.content = this.html2text(item.content).slice(0, 50)
+          }
+          return obj
         })
         url += `articleList=${JSON.stringify(data)}`
+        debugger
         uni.redirectTo({
           url
         })

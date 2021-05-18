@@ -1508,9 +1508,13 @@ export default {
 			}
 		}
 		Vue.prototype.html2text = (str) => {
-			return str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
+			if(str&&typeof str==='string'){
+				return str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
 				.replace(
 					/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ')
+			}else{
+				return str
+			}
 		}
 		Vue.prototype.getFixedNum = (num) => {
 			if (num) {

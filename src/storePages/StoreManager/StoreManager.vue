@@ -259,6 +259,11 @@ export default {
           "colName": "item_no",
           "ruleType": "eq",
           "value": e.component_no
+        },
+        {
+          "colName": "display",
+          "ruleType": "ne",
+          "value": '隐藏'
         } ],
         "page": {
           "pageNo": 1,
@@ -426,6 +431,9 @@ export default {
       if (e.navType) {
         navType = e.navType
       }
+      if (e.navigate_type) {
+        navType = e.navigate_type
+      }
       if (navType === 'miniProgram') {
         if (e.appid) {
           uni.navigateToMiniProgram({
@@ -454,7 +462,7 @@ export default {
       }
     },
     clickGrid (item) {
-      let url = '';
+      let url = item.url || '';
       let cond = [ {
         colName: 'store_no',
         ruleType: 'eq',
@@ -600,7 +608,6 @@ export default {
           url =
             `/publicPages/list/list?pageType=list&label=${JSON.stringify(labels)}&serviceName=srvhealth_store_vaccine_stocks_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`
           break;
-
       }
 
       if (url) {
@@ -608,6 +615,24 @@ export default {
           url: url
         });
       }
+    },
+    async selectStoreActivity () {
+      // 查找店铺关联问卷
+      const req = { "serviceName": "srvdaq_activity_cfg_select", "colNames": [ "*" ], "condition": [ { colName: 'store_no', ruleType: 'eq', value: 'S20210517043' } ], "page": { "pageNo": 1, "rownumber": 1 } }
+      const res = await this.$fetch('select', 'srvdaq_activity_cfg_select', req, 'daq');
+      if (res.success && res.data.length > 0) {
+        let obj = {
+          url: '/questionnaire/storeQuest/storeQuest?store_no=' + this.storeNo,
+          name: '信息采集',
+          label: '信息采集',
+          icon: 'form',
+          color: 'orange',
+          type: 'daq'
+        }
+        this.gridList.push(obj)
+        return true
+      }
+
     },
     goNoticeList (item) {
       let viewTemp = {
@@ -693,6 +718,8 @@ export default {
       });
     },
     async getStoreInfo () {
+      this.selectStoreActivity()
+
       let req = {
         condition: [ {
           colName: 'store_no',
