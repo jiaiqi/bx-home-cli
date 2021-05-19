@@ -554,15 +554,16 @@ export default {
     buildBPOption (data) {
       // 构建血压图表数据
       data = this.deepClone(data)
-      const yAxisData0 = data.map(item => 80) // 舒张压-正常
-      const yAxisData01 = data.map(item => 90) // 舒张压-高
-      const yAxisData02 = data.map(item => 120) // 收缩压-正常
-      const yAxisData1 = data.map(item => 140) // 收缩压-高
-      const yAxisData2 = data.map(item => item.dia) //舒张压
-      const yAxisData3 = data.map(item => item.sys) //收缩压
-      const xAxisData = data.map(item => dayjs(item.measure_time).format('MM-DD'))
-      let max = data.map(item => item.sys).sort((a, b) => b - a)[ 0 ] + 2
-      let min = data.map(item => item.dia).sort((a, b) => a - b)[ 0 ] - 2
+      const reverseData = data.reverse()
+      const yAxisData0 = reverseData.map(item => 80) // 舒张压-正常
+      const yAxisData01 = reverseData.map(item => 90) // 舒张压-高
+      const yAxisData02 = reverseData.map(item => 120) // 收缩压-正常
+      const yAxisData1 = reverseData.map(item => 140) // 收缩压-高
+      const yAxisData2 = reverseData.map(item => item.dia) //舒张压
+      const yAxisData3 = reverseData.map(item => item.sys) //收缩压
+      const xAxisData = reverseData.map(item => dayjs(item.measure_time).format('MM-DD'))
+      let max = reverseData.map(item => item.sys).sort((a, b) => b - a)[ 0 ] + 2
+      let min = reverseData.map(item => item.dia).sort((a, b) => a - b)[ 0 ] - 2
 
       if (min >= 80) {
         min = 75
