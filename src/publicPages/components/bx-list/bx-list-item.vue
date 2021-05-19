@@ -615,10 +615,16 @@ export default {
 
       .title-tip {
         font-size: 24upx;
+
+        // overflow: hidden;
+        // text-overflow: ellipsis;
+        // white-space: nowrap;
+        // display: inline-block;
+        word-break: break-all;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /**指定行数*/
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: inline-block;
       }
 
       .content {

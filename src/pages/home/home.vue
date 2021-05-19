@@ -342,9 +342,8 @@ export default {
 
     async bindStore () {
       // 将当前登录用户添加到店铺用户列表，角色为用户
-      if (!this.storeInfo || !this.storeInfo.no) {
-
-        let userInfo = await this.toAddPage()
+      if (!this.userInfo || !this.userInfo.no) {
+        await this.toAddPage()
       }
       let req = [ {
         "serviceName": "srvhealth_store_user_add",

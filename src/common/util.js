@@ -1782,7 +1782,7 @@ export default {
 				colNames: ['*'],
 				condition: [{
 					colName: 'no',
-					ruleType: 'in',
+					ruleType: 'eq',
 					value: no
 				}],
 				page: {
@@ -1798,7 +1798,7 @@ export default {
 				return false;
 			}
 		}
-		Vue.prototype.bindDoctorInfo = async (no) => {
+		Vue.prototype.bindDoctorInfo = async (no,params) => {
 			let docInfo = await Vue.prototype.getDoctorInfo(no)
 			if (docInfo && docInfo.no) {
 				let serviceName = 'srvhealth_person_relation_add';
@@ -1807,7 +1807,7 @@ export default {
 					serviceName: 'srvhealth_person_relation_add',
 					condition: [],
 					data: [{
-						relation_type: '管理',
+						relation_type:params?.relation_type|| '管理',
 						state: '正常',
 						usera_name: docInfo.name,
 						usera_no: docInfo.userno,

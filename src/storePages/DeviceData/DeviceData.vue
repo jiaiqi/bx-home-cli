@@ -295,7 +295,7 @@ export default {
         let req = {
           "serviceName": serviceName,
           "colNames": [ "*" ],
-          "order": [ { colName: "measure_time", orderType: "asc" } ],
+          "order": [ { colName: "measure_time", orderType: "desc" } ],
           "condition": [
             { "colName": "serial_number", "ruleType": "eq", "value": this.deviceInfo.serial_number },
             { "colName": this.deviceInfo.user_id_col || "user", "ruleType": "eq", value: this.currentUser.dev_user_index }

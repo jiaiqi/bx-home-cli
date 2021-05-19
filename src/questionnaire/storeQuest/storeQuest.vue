@@ -15,13 +15,14 @@
             {{ item.status }}
           </view>
         </view>
-        <view class="quest-date text-gray">
-          <text class="cuIcon-timefill margin-right-sm"></text>
-          <text>
-            {{ item.create_time || "" }}
-          </text>
-        </view>
+
         <view class="quest-button">
+          <view class="quest-date text-gray">
+            <text class="cuIcon-timefill margin-right-sm"></text>
+            <text>
+              {{ item.create_time || "" }}
+            </text>
+          </view>
           <button class="button cu-btn bg-blue" type="primary">查看记录</button>
         </view>
       </view>
@@ -44,9 +45,27 @@ export default {
   methods: {
     toRecord (e) {
       // 跳转到问卷填写记录
-      if (e.activity_no) {
-        uni.navigateTo({ url: './list?activity_no=' + e.activity_no })
-      }
+      // if (e.activity_no) {
+      //   uni.navigateTo({ url: './list?activity_no=' + e.activity_no })
+      // }
+      let viewTemp = {
+        // price: "content_status",
+        // price:"create_time",
+        tip: 'fill_text',
+        footer: 'create_time',
+        // title: 'nickname',
+        // img: 'headimgurl'
+      };
+      let cond = [ {
+        colName: "activity_no",
+        ruleType: "like",
+        value: e.activity_no
+      } ]
+      let url =
+        `/publicPages/list/list?pageType=list&hideFootBtn=true&destApp=daq&appName=daq&serviceName=srvdaq_record_reply_with_fill_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
+      uni.navigateTo({
+        url: url
+      })
     },
     async getList (type = "refresh") {
       // 查找店铺关联问卷
@@ -114,8 +133,9 @@ export default {
     }
     .quest-button {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       padding-top: 20rpx;
+      align-items: center;
     }
   }
 }

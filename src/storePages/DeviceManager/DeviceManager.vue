@@ -41,12 +41,12 @@
           </view>
         </view>
         <view class="button-list">
-          <button
-            class="device-data round cu-btn bg-red"
+          <text
+            class="device-data delete-btn text-orange"
             @click.stop="deleteDevice(item)"
           >
             删除设备
-          </button>
+          </text>
           <button
             class="device-data round cu-btn bg-cyan"
             @click.stop="seeData(item)"
@@ -892,10 +892,15 @@ export default {
     flex-wrap: wrap;
     .button-list {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-around;
       width: 100%;
       .device-data {
         width: 200rpx;
+        display: flex;
+        align-items: center;
+        &.delete-btn {
+          // border-bottom: 1px solid #e54d42;
+        }
         & + .device-data {
           margin-left: 20px;
         }
