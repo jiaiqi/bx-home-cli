@@ -22,9 +22,9 @@
           ><button
             @click.stop="bindStore(true)"
             type="primary"
-            class="bg-blue cu-btn sm"
+            class="bg-blue cu-btn"
           >
-            绑定
+            加入
           </button></view
         >
       </view>
@@ -308,13 +308,16 @@ export default {
     display: flex;
     flex-direction: column;
     width: calc(100% - 150rpx);
-    padding-right: 20rpx;
+    // padding-right: 20rpx;
 
     .top {
       display: flex;
       justify-content: space-between;
-      padding-right: 20rpx;
+      // .bind{
+      //   .cu-btn{
 
+      //   }
+      // }
       .name {
         width: 500rpx;
         overflow: hidden;
@@ -324,6 +327,8 @@ export default {
         color: #333;
         font-weight: bold;
         flex: 1;
+        display: flex;
+        align-items: center;
       }
 
       .tags {
@@ -364,7 +369,6 @@ export default {
     justify-content: flex-end;
     align-items: center;
     position: relative;
-    top: -5px;
     margin-left: 20rpx;
 
     .right-item {

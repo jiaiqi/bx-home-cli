@@ -846,7 +846,9 @@ export default {
             }
           })
         } else {
-          uni.startPullDownRefresh()
+          this.getDeviceType()
+          this.getDeviceList()
+          // uni.startPullDownRefresh()
           // this.getDeviceList()
         }
       })

@@ -73,7 +73,17 @@
         </view>
       </view>
     </view>
-    <uni-load-more class="load-more" :status="loadStatus"></uni-load-more>
+    <uni-load-more
+      class="load-more"
+      :status="loadStatus"
+      v-if="deviceList.length > 0 && loadStatus === 'noMore'"
+    ></uni-load-more>
+    <u-empty
+      text="该亲友没有绑定设备"
+      mode="order"
+      v-else-if="currentKin"
+    ></u-empty>
+    <u-empty text="暂无关联亲友账号" mode="order" v-else></u-empty>
     <view class="cu-modal" :class="{ show: showExitModal }">
       <view class="cu-dialog bg-white">
         <view class="cu-bar bg-white justify-end">
@@ -83,15 +93,16 @@
           ></view> -->
         </view>
         <view class="padding-xl"> 您的亲友已经可以查看您的数据了 </view>
-        <navigator
+        <!-- <navigator
           class="cu-btn bg-blue round margin-bottom"
           open-type="exit"
           target="miniProgram"
         >
-          知道了</navigator
+          知道了</navigator -->
         >
       </view>
     </view>
+    <view class="cu-modal"> </view>
   </view>
 </template>
 
@@ -130,7 +141,10 @@ export default {
       currentTab: 1,
       loadStatus: 'more',
       pageNo: 1,
-      inviterInfo: {}
+      inviterInfo: {},
+      loadStatusText: {
+        contentdown: "上拉显示更多", contentrefresh: "加载中,请稍后...", contentnomore: "没有更多数据了"
+      }
     }
   },
   methods: {
@@ -155,30 +169,37 @@ export default {
         let req = [ {
           serviceName: 'srvhealth_person_relation_add',
           condition: [],
-          data: [ {
-            relation_type: '家属',
-            state: '正常',
-            usera_name: inviterInfo.name,
-            usera_no: inviterInfo.userno,
-            usera_person_no: inviterInfo.no,
-            // usera_profile_url: docInfo.profile_url,
-            userb_name: this.userInfo.name,
-            userb_no: this.userInfo.userno,
-            userb_person_no: this.userInfo.no,
-            userb_image: this.userInfo.user_image,
-            userb_profile_url: this.userInfo
-              .profile_url,
-            userb_sex: this.userInfo.sex
-          } ]
+          data: [
+            //   {
+            //   relation_type: '家属',
+            //   state: '正常',
+            //   usera_name: inviterInfo.name,
+            //   usera_no: inviterInfo.userno,
+            //   usera_person_no: inviterInfo.no,
+            //   // usera_profile_url: docInfo.profile_url,
+            //   userb_name: this.userInfo.name,
+            //   userb_no: this.userInfo.userno,
+            //   userb_person_no: this.userInfo.no,
+            //   userb_image: this.userInfo.user_image,
+            //   userb_profile_url: this.userInfo
+            //     .profile_url,
+            //   userb_sex: this.userInfo.sex
+            // } 
+            {
+              relation_type: '家属',
+              state: '正常',
+              usera_name: this.userInfo.name,
+              usera_no: this.userInfo.userno,
+              usera_person_no: this.userInfo.no,
+              // usera_profile_url: docInfo.profile_url,
+              userb_name: inviterInfo.name,
+              userb_no: inviterInfo.userno,
+              userb_person_no: inviterInfo.no,
+            }
+          ]
         } ];
         let res = await this.$http.post(url, req);
         if (res.data.state === 'SUCCESS') {
-          // uni.showModal({
-          // 	title: '提示',
-          // 	content: `已绑定${docInfo.name}为您的医生`,
-          // 	showCancel: false,
-          // 	confirmText: '知道了'
-          // });
           return true
         } else {
           return false
@@ -192,7 +213,7 @@ export default {
       const promise = new Promise((resolve) => {
         uni.showModal({
           title: `提示`,
-          content: `是否同意【${this.inviterInfo.name}】添加您的帐号为亲友账号?同意后对方即可查看您的健康设备的数据`,
+          content: `是否添加【${this.inviterInfo.name}】的帐号为亲友账号`,
           cancelText: "不同意",
           confirmText: "同意",
           success: (res) => {
@@ -207,12 +228,18 @@ export default {
       const isConsent = await promise
       if (isConsent) {
         const bindSuccess = await this.bindKin()
-
-
-
-
         if (bindSuccess) {
-          this.showExitModal = true
+          // this.showExitModal = true
+          uni.showModal({
+            title: '提示',
+            content: '添加亲友成功，您可以查看Ta的数据啦',
+            showCancel: false,
+            success: (res) => {
+              if (res.confirm) {
+                this.getKins()
+              }
+            }
+          })
         } else {
           uni.showModal({
             title: '提示',
@@ -229,28 +256,20 @@ export default {
     async getKins () {
       // 查找亲友列表
       let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
-      this.loadStatus = 'loading'
       const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
       if (res.success) {
-        // if (type === 'refresh') {
         this.kins = res.data
-        // } else {
-        //   this.kins = [ ...res.data, ...this.kins ]
-        // }
         if (!this.currentKin && this, this.kins.length > 0) {
           this.currentKin = this.kins[ 0 ].userb_person_no
         }
-        debugger
         if (this.currentKin) {
           this.getDeviceList()
         }
-        if (res.page.pageNo * res.page.rownumber >= res.page.total) {
-          this.loadStatus = 'noMore'
-        } else {
-          this.loadStatus = 'more'
-        }
-      } else {
-        this.loadStatus = 'more'
+        // if (res.page.pageNo * res.page.rownumber >= res.page.total) {
+        //   this.loadStatus = 'noMore'
+        // } else {
+        //   this.loadStatus = 'more'
+        // }
       }
     },
     async getDeviceList (type = 'refresh') {
@@ -276,14 +295,21 @@ export default {
       }
       this.loadStatus = 'loading'
       const res = await this.$fetch('select', 'srvhealth_store_user_device_select', req, 'health')
+      debugger
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         // this.deviceList = res.data
         const deviceList = res.data
-        this.loadStatus = 'more'
         if (type === 'more') {
           this.deviceList = [ ...this.deviceList, ...deviceList ]
         } else {
           this.deviceList = deviceList
+        }
+        if (res.page) {
+          if (res.page.pageNo * res.page.rownumber >= res.page.total) {
+            this.loadStatus = 'noMore'
+          } else {
+            this.loadStatus = 'more'
+          }
         }
       } else {
         if (res.data.length == 0) {
@@ -362,36 +388,44 @@ export default {
     // width: calc(25% - 60rpx / 4);
     // width: 25%;
     // padding: 20rpx;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-    border-radius: 20rpx;
-    min-height: 200rpx;
+    // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+    // border-radius: 20rpx;
+    // min-height: 200rpx;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     // justify-content: center;
     flex-wrap: wrap;
     margin-left: 20rpx;
-    margin-bottom: 20rpx;
+    // margin-bottom: 20rpx;
     box-sizing: border-box;
     overflow: hidden;
+    transition: all 0.5s ease;
     &:first-child {
       margin-left: 0;
     }
     &.active {
-      border: 1px solid #1cbbb4;
-      background-color: #d3fffd;
+      transform: scale(1.1);
+      .user-image {
+        border: 1px solid #1cbbb4;
+        background-color: #d3fffd;
+      }
+      .user-name {
+        color: #1cbbb4;
+      }
     }
     // &:nth-child(4n + 1) {
     //   margin-left: 0;
     // }
 
     .user-image {
-      width: 150rpx;
-      height: 150rpx;
-      // border-radius: 50%;
+      width: 80rpx;
+      height: 80rpx;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
     }
     .user-name {
-      padding: 10rpx 0 20rpx;
+      padding: 5rpx 0;
     }
   }
 }
