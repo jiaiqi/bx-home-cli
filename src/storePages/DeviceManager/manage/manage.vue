@@ -1,24 +1,27 @@
 <template>
   <view>
-    <view class="tips margin-top-xs text-cyan">
-      <text class="cuIcon-info"></text>
-      发送本页面给微信好友即可授权好友查看您的设备数据
-    </view>
     <view class="family-list">
       <view
         class="family-item"
         v-for="item in kins"
         :key="item.row_no"
-        @click="switchKin(item)"
-        :class="{ active: currentKin === item.userb_person_no }"
+        :class="{ active: currentKin === item.usera_person_no }"
       >
         <image
-          :src="getImagePath(item.userb_image)"
+          :src="getImagePath(item.usera_image)"
           mode="scaleToFill"
           class="user-image"
         />
         <view class="user-name">
-          {{ item.userb_name }}
+          {{ item.usera_name }}
+        </view>
+        <view class="">
+          <button
+            class="cu-btn sm round bg-orange margin-top-xs"
+            @click="cancelAuth(item)"
+          >
+            取消授权
+          </button>
         </view>
       </view>
     </view>
@@ -43,70 +46,12 @@
         </view>
       </view>
     </view>
-    <view class="device-list">
-      <view class="device-item" v-for="item in deviceList" :key="item.ud_no">
-        <view class="type-pic">
-          <image
-            v-if="item.type_pic"
-            class="type-pic"
-            :src="getImagePath(item.type_pic)"
-            mode="scaleToFill"
-          />
-          <text class="cuIcon-question type-pic" v-else></text>
-        </view>
-        <view class="field-list">
-          <view class="field">
-            <view class="label"> 设备名称 </view>
-            <view class="value">
-              {{ item.person_remark_device_name || item.dt_name || "未知设备" }}
-            </view>
-          </view>
-          <view class="field">
-            <view class="label"> 设备序列号 </view>
-            <view class="value">
-              {{ item.dic_device_id || item.serial_number }}
-            </view>
-          </view>
-        </view>
-        <view class="button-list">
-          <button
-            class="device-data round cu-btn bg-cyan"
-            @click.stop="seeData(item)"
-          >
-            查看数据
-          </button>
-        </view>
-      </view>
-    </view>
     <uni-load-more
       class="load-more"
       :status="loadStatus"
-      v-if="deviceList.length > 0 && loadStatus === 'noMore'"
+      v-if="kins.length > 0 && loadStatus === 'noMore'"
     ></uni-load-more>
-    <u-empty
-      text="该亲友没有绑定设备"
-      mode="order"
-      v-else-if="currentKin"
-    ></u-empty>
-    <u-empty text="暂无关联亲友账号" mode="order" v-else></u-empty>
-    <view class="cu-modal" :class="{ show: showExitModal }">
-      <view class="cu-dialog bg-white">
-        <view class="cu-bar bg-white justify-end">
-          <view class="content">操作成功</view>
-          <!-- <view class="action" @tap="hideModal"
-            ><text class="cuIcon-close text-red"></text
-          ></view> -->
-        </view>
-        <view class="padding-xl"> 您的亲友已经可以查看您的数据了 </view>
-        <!-- <navigator
-          class="cu-btn bg-blue round margin-bottom"
-          open-type="exit"
-          target="miniProgram"
-        >
-          知道了</navigator -->
-        >
-      </view>
-    </view>
+    <u-empty text="没有已授权亲友" mode="order" v-else></u-empty>
   </view>
 </template>
 
@@ -137,12 +82,12 @@ export default {
         text: '我的亲友',
         customIcon: false,
       }, {
-        iconPath: "cuIcon-friend",
+        iconPath: "cuIcon-friendfill",
         selectedIconPath: "cuIcon-friendfill",
         text: '授权管理',
         customIcon: false,
       } ],
-      currentTab: 1,
+      currentTab: 2,
       loadStatus: 'more',
       pageNo: 1,
       inviterInfo: {},
@@ -163,6 +108,20 @@ export default {
       // 跳转到数据展示页
       if (e.dic_device_id || e.serial_number) {
         uni.navigateTo({ url: `/storePages/DeviceData/DeviceData?ud_no=${e.ud_no}&dic_device_id=${e.dic_device_id || e.serial_number}` })
+      }
+    },
+    async cancelAuth (e) {
+      if (e.id) {
+        let req = [ { "serviceName": "srvhealth_person_relation_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": e.id } ], "data": [ { state: "关闭" } ] } ]
+        const res = await this.$fetch('operate', 'srvhealth_person_relation_update', req, 'health')
+        if (res.success) {
+          uni.showToast({
+            title: '取消成功',
+            icon: 'success',
+            mask: true
+          })
+        }
+        this.getKins()
       }
     },
     async bindKin () {
@@ -214,7 +173,6 @@ export default {
     },
     async addToMyKin () {
       // 将某个用户添加为当前登录用户的亲友
-
       const promise = new Promise((resolve) => {
         uni.showModal({
           title: `提示`,
@@ -232,21 +190,7 @@ export default {
       })
       const isConsent = await promise
       if (isConsent) {
-
-        let bindSuccess = false
-        let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" }, { colName: "state", ruleType: 'eq', value: "关闭" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
-        const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
-        if (res.success && res.data.length > 0 && res.data[ 0 ].id) {
-          const data = res.data[ 0 ]
-          data.state = '正常'
-          let req1 = [ { "serviceName": "srvhealth_person_relation_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": data.id } ], "data": [ { state: '正常' } ] } ]
-          const res1 = await this.$fetch('operate', 'srvhealth_person_relation_update', req1, 'health')
-          if (res1.success) {
-            bindSuccess = true
-          }
-        } else {
-          bindSuccess = await this.bindKin()
-        }
+        const bindSuccess = await this.bindKin()
         if (bindSuccess) {
           // this.showExitModal = true
           uni.showModal({
@@ -269,17 +213,17 @@ export default {
       }
     },
     switchKin (e) {
-      this.currentKin = e.userb_person_no
+      this.currentKin = e.usera_person_no
       this.getDeviceList('refresh')
     },
     async getKins () {
       // 查找亲友列表
-      let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" }, { colName: "state", ruleType: 'eq', value: "正常" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
+      let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "userb_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" }, { colName: "state", ruleType: 'eq', value: "正常" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
       const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
       if (res.success) {
         this.kins = res.data
         if (!this.currentKin && this, this.kins.length > 0) {
-          this.currentKin = this.kins[ 0 ].userb_person_no
+          this.currentKin = this.kins[ 0 ].usera_person_no
         }
         if (this.currentKin) {
           this.getDeviceList()
@@ -314,6 +258,7 @@ export default {
       }
       this.loadStatus = 'loading'
       const res = await this.$fetch('select', 'srvhealth_store_user_device_select', req, 'health')
+      debugger
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         // this.deviceList = res.data
         const deviceList = res.data
@@ -341,15 +286,8 @@ export default {
     changeTab (index) {
       if (index === 0) {
         uni.redirectTo({ url: `/storePages/DeviceManager/DeviceManager?store_no=${this.store_no}` })
-      } else if (index === 2) {
-        uni.redirectTo({ url: `/storePages/DeviceManager/manage/manage?store_no=${this.store_no}` })
-
-        // uni.showModal({
-        //   title: '提示',
-        //   content: '点击小程序右上方胶囊按钮，发送本页面到微信好友，即可向该好友申请绑定亲友',
-        //   showCancel: false,
-        //   confirmText: '知道了'
-        // })
+      } else if (index === 1) {
+        uni.redirectTo({ url: `/storePages/DeviceManager/family/family?store_no=${this.store_no}` })
       }
     },
   },
@@ -389,34 +327,29 @@ export default {
   // 页面处理函数--监听页面滚动(not-nvue)
   /* onPageScroll(event) {}, */
   // 页面处理函数--用户点击右上角分享
-  onShareAppMessage () {
-    return {
-      title: `${this.userInfo.name || this.userInfo.nick_name}申请成为您的亲友`,
-      path: `/storePages/DeviceManager/family/family?inviter_userno=${this.userInfo.userno}&inviter_no=${this.userInfo.no}&store_no=${this.store_no}&inviter_name=${this.userInfo.name || this.userInfo.nick_name}`,
-    }
-  }
+  // onShareAppMessage () {
+  //   return {
+  //     title: `${this.userInfo.name || this.userInfo.nick_name}申请成为您的亲友`,
+  //     path: `/storePages/DeviceManager/family/family?inviter_userno=${this.userInfo.userno}&inviter_no=${this.userInfo.no}&store_no=${this.store_no}&inviter_name=${this.userInfo.name || this.userInfo.nick_name}`,
+  //   }
+  // }
 };
 </script>
 
 <style scoped lang="scss">
-.tips {
-  // color: #ccc;
-  padding: 10rpx 20rpx;
-  font-size: 12px;
-  text-align: center;
-}
 .family-list {
   padding: 20rpx;
+  margin: 20rpx;
   display: flex;
   overflow-y: scroll;
-  // flex-wrap: wrap;
+  flex-wrap: wrap;
   .family-item {
     // width: calc(25% - 60rpx / 4);
-    // width: 25%;
-    // padding: 20rpx;
-    // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-    // border-radius: 20rpx;
-    // min-height: 200rpx;
+    width: calc(50% - 20rpx);
+    padding: 20rpx;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+    border-radius: 20rpx;
+    min-height: 200rpx;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -427,6 +360,7 @@ export default {
     box-sizing: border-box;
     overflow: hidden;
     transition: all 0.5s ease;
+    margin-left: 20rpx;
     &:first-child {
       margin-left: 0;
     }

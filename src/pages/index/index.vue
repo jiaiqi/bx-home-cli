@@ -6,7 +6,7 @@
           class="image"
           v-if="item.logo"
           :src="getImagePath(item.logo)"
-          mode="aspectFill"
+          mode="aspectFit"
           @tap="toStoreHome(item)"
         ></image>
         <view class="store-desc" @tap="toStoreHome(item)">
@@ -375,8 +375,9 @@ export default {
   display: flex;
 
   .image {
-    width: 120px;
+    width: 100px;
     height: 100px;
+    padding: 20rpx;
   }
 
   .store-desc {

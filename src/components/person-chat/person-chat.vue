@@ -209,7 +209,7 @@
               class="person-chat-item-right"
               :class="item.msg_link ? 'person-chat-item-right-link' : ''"
             >
-              <text user-select selectable space="nbsp">
+              <view>
                 <text
                   class="remind-someone"
                   v-if="
@@ -218,9 +218,22 @@
                     item.attribute.type === 'remindPerson'
                   "
                 >
-                  @{{ item.attribute.name }} </text
-                >{{ item.msg_content }}
-              </text>
+                  @{{ item.attribute.name }}
+                </text>
+                <!-- <rich-text
+                  :nodes="getText(item.msg_content)"
+                  class="value rich-text"
+                  :selectable="true"
+                  space="nbsp"
+                  v-if="
+                    item.msg_content && item.msg_content.indexOf('</') !== -1
+                  "
+                ></rich-text> -->
+                <u-parse :content="item.msg_content" />
+                <!-- <text user-select selectable space="nbsp" v-else>{{
+                  item.msg_content
+                }}</text> -->
+              </view>
             </view>
             <view
               v-else-if="item.msg_link && item.msg_content_type === '链接'"
@@ -326,7 +339,10 @@
               v-else-if="item.msg_content_type === '文件'"
               class="documents-wrap"
             >
-              <view class="documents-item">
+              <view
+                class="documents-item"
+                v-if="['jpg', 'png'].includes(item.file_type) === false"
+              >
                 <view class="documents-item-left">
                   <text>{{ item.documents_name }}</text>
                 </view>
@@ -350,6 +366,20 @@
                     mode=""
                   ></image>
                 </view>
+              </view>
+              <view class="documents-item img" v-else @click.stop="">
+                <image
+                  :src="item.pic_url"
+                  @click.stop="toPreviewImage(item.pic_url)"
+                  mode="scaleToFill"
+                />
+                <!-- <image
+                  @click.stop="toPreviewImage(item.imgs_list)"
+                  :src="img._file_url"
+                  :key="img._file_url"
+                  mode="scaleToFill"
+                  v-for="img in item.img_list"
+                /> -->
               </view>
             </view>
           </view>
@@ -464,9 +494,18 @@
                 "
                 >@{{ item.attribute.name }}</text
               >
-              <text user-select selectable space="nbsp">{{
+              <u-parse :content="item.msg_content" />
+
+              <!-- <rich-text
+                :nodes="getText(item.msg_content)"
+                class="value rich-text"
+                :selectable="true"
+                space="nbsp"
+                v-if="item.msg_content && item.msg_content.indexOf('</') !== -1"
+              ></rich-text>
+              <text user-select selectable space="nbsp" v-else>{{
                 item.msg_content
-              }}</text>
+              }}</text> -->
             </view>
 
             <view
@@ -576,7 +615,10 @@
               v-else-if="item.msg_content_type === '文件'"
               class="documents-wrap"
             >
-              <view class="documents-item">
+              <view
+                class="documents-item"
+                v-if="['jpg', 'png'].includes(item.file_type) === false"
+              >
                 <view class="documents-item-left">
                   <text>{{ item.documents_name }}</text>
                 </view>
@@ -600,6 +642,20 @@
                     mode=""
                   ></image>
                 </view>
+              </view>
+              <view class="documents-item img" v-else>
+                <image
+                  :src="item.pic_url"
+                  @click.stop="toPreviewImage(item.pic_url)"
+                  mode="scaleToFill"
+                />
+                <!-- <image
+                  :src="img._file_url"
+                  :key="img._file_url"
+                  @click.stop="toPreviewImage(item.imgs_list)"
+                  mode="scaleToFill"
+                  v-for="img in item.img_list"
+                /> -->
               </view>
             </view>
             <view
@@ -761,7 +817,7 @@
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/paper.png" mode=""></image>
           </view>
-          <view class="person-chat-bot-bot-item-b"><text>微信文档</text></view>
+          <view class="person-chat-bot-bot-item-b"><text>微信文件</text></view>
         </view>
         <view @click="openMenuPoup('video')" class="person-chat-bot-bot-item">
           <view class="person-chat-bot-bot-item-top">
@@ -808,11 +864,15 @@
 import {
   mapState
 } from 'vuex';
+import parseHtml from '@/static/js/html-parser.js'
+
 import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
+import uParse from '@/components/html-parse/parse.vue'
 export default {
   name: 'personchat',
   components: {
-    robbyImageUpload
+    robbyImageUpload,
+    uParse
   },
   props: {
     customer_no: {
@@ -950,6 +1010,12 @@ export default {
   },
 
   methods: {
+    getText (str) {
+      if (str && typeof str === 'string') {
+        let result = parseHtml(str.replace(/\<img/gi, '<img width=100% height=100%'))
+        return result
+      }
+    },
     clickAvatar (e) {
       this.$emit('clickAvatar', e)
     },
@@ -1441,7 +1507,7 @@ export default {
           '/publicPages/webviewPage/webviewPage?webUrl=' +
           encodeURIComponent('https://wx2.100xsys.cn/pages/fileInfo/fileInfo') +
           '?doctor_info=' +
-          encodeURIComponent(this.doctor_info.owner_account) +
+          encodeURIComponent(this?.doctor_info?.owner_account) +
           '&userno=' +
           encodeURIComponent(this.userInfo.userno);
         console.log('url----->', url);
@@ -1449,7 +1515,7 @@ export default {
           url: '/publicPages/webviewPage/webviewPage?webUrl=' +
             encodeURIComponent('https://wx2.100xsys.cn/pages/fileInfo/fileInfo') +
             '&doctor_info=' +
-            encodeURIComponent(this.doctor_info.owner_account) +
+            encodeURIComponent(this?.doctor_info?.owner_account) +
             '&userno=' +
             encodeURIComponent(this.userInfo.userno)
         });
@@ -1458,7 +1524,7 @@ export default {
         // #ifdef MP-WEIXIN
         wx.chooseMessageFile({
           count: 1,
-          type: 'file',
+          type: 'all',
           success (res) {
             console.log('上传图片----》', res);
             let reqHeader = {
@@ -1474,20 +1540,22 @@ export default {
             };
             console.log('name-----', formData);
             let url = '';
+            let file_no = ''
             for (let i = 0; i < res.tempFiles.length; i++) {
               console.log('res--上传文件--', res);
+              if (file_no) {
+                formData.file_no = file_no
+              }
               uni.uploadFile({
                 url: self.$api.upload,
                 header: reqHeader,
                 formData: formData,
-                filePath: res.tempFiles[ 0 ].path,
+                filePath: res.tempFiles[ i ].path,
                 name: 'file',
                 success: e => {
-                  console.log('e----->', e);
                   if (e.statusCode === 200) {
-                    let photoDataNo = JSON.parse(e.data).file_no;
+                    file_no = JSON.parse(e.data).file_no;
                     console.log('上传文件-----', e);
-                    self.sendMessageLanguageInfo('文件', photoDataNo);
                   } else { }
                 },
                 fail: e => {
@@ -1495,6 +1563,7 @@ export default {
                 }
               });
             }
+            self.sendMessageLanguageInfo('文件', file_no);
           }
         });
         // #endif
@@ -1994,7 +2063,6 @@ export default {
     async getFileNo (no) {
       let fileNo = await this.getFilePath(no);
       return fileNo[ 0 ];
-      console.log('file——no', fileNo);
     },
     async sendMessageInfo (obj) {
       // 发送消息
@@ -2298,9 +2366,9 @@ export default {
         }
         ];
       }
-      if(Array.isArray(conditionData)&&conditionData.length>0){
-         req.relation_condition.data = conditionData;
-      }else{
+      if (Array.isArray(conditionData) && conditionData.length > 0) {
+        req.relation_condition.data = conditionData;
+      } else {
         delete req.relation_condition
       }
       let res = await this.$http.post(url, req);
@@ -2365,6 +2433,18 @@ export default {
           }
           if (item.attachment) {
             this.getFileNo(item.attachment).then(obj => {
+              if ([ 'jpg', 'png', 'jepg', 'gif' ].includes(obj.file_type) === true) {
+                this.$set(item, 'pic_url', this.getImagePath(item.attachment, true));
+                this.getFilePath(item.attachment).then(files => {
+                  files = files.map(f => {
+                    f._file_url = this.$api.getFilePath + item.fileurl + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket')
+                    return f
+                  })
+                  this.$set(item, 'imgs_list', files.amp(file => file._file_url))
+                  this.$set(item, 'img_list', files)
+
+                })
+              }
               this.$set(item, 'documents_name', obj.src_name);
               this.$set(item, 'file_type', obj.file_type);
               this.$set(item, 'file_size', obj.file_size);
@@ -2747,6 +2827,11 @@ export default {
     }, 500)
   },
   created () {
+    uni.$on('onBack', () => {
+      this.initMessageList('refresh').then(_ => {
+        this.setRefreshMessageTimer()
+      });
+    })
     if (this.customer_no) {
       this.getRecorderManagerList();
       this.getUserInfo(this.customer_no);

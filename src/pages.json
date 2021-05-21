@@ -61,6 +61,13 @@
 					"style": {
 						"enablePullDownRefresh": true
 					}
+				},
+				{
+					"path": "groupAC/groupAC",
+					"style": {
+						"navigationStyle": "custom",
+						"navigationBarTitleText": "群公告"
+					}
 				}
 			]
 		},
@@ -123,7 +130,13 @@
 				{
 					"path": "DeviceManager/family/family",
 					"style": {
-						"navigationBarTitleText": ""
+						"navigationBarTitleText": "我的亲友"
+					}
+				},
+				{
+					"path": "DeviceManager/manage/manage",
+					"style": {
+						"navigationBarTitleText": "授权管理"
 					}
 				},
 				{
@@ -175,7 +188,8 @@
 						"navigationBarTitleText": "信息采集",
 						"enablePullDownRefresh": true
 					}
-				},{
+				},
+				{
 					"path": "storeQuest/list",
 					"style": {
 						"navigationBarTitleText": "填写记录",

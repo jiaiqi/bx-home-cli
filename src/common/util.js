@@ -1511,7 +1511,7 @@ export default {
 			if(str&&typeof str==='string'){
 				return str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
 				.replace(
-					/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ')
+					/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ').replace(/&nbsp\;/g,' ')
 			}else{
 				return str
 			}

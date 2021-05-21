@@ -8,11 +8,22 @@
         receiver_person_no
       "
     >
-      <!-- 		<view class="util-item " @click="toPages('group-member')">
-				<view class="icon"><text class="cuIcon-friend "></text></view>
-							<text class="label">成员<text
-						v-if="storeInfo&&storeInfo.user_count">({{storeInfo.user_count}})</text></text>
-			</view> -->
+      <!-- <view
+        class="util-item"
+        @click="toPages('notify')"
+        v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'"
+      >
+        <view class="icon"><text class="cuIcon-notice"></text></view>
+        <text class="label">消息通知</text>
+      </view> -->
+      <view
+        class="util-item"
+        @click="toPages('groupAnnouncement')"
+        v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'"
+      >
+        <view class="icon"><text class="cuIcon-notice"></text></view>
+        <text class="label">群公告</text>
+      </view>
       <view
         class="util-item"
         @click="toPages('group-util')"
@@ -167,6 +178,11 @@ export default {
       }
     },
     toPages (type) {
+      if (type === 'groupAnnouncement') {
+        // 跳转到群公告列表
+        uni.navigateTo({ url: `/publicPages/groupAC/groupAC?session_no=${this.session_no}&store_no=${this.storeNo}&store_user_no=${this.store_user_no}` })
+        return
+      }
       if (this.groupInfo.gc_no) {
         uni.navigateTo({
           url: `../gropDetail/gropDetail?gc_no=${this.groupInfo.gc_no}&type=${type}`

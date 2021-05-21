@@ -263,6 +263,11 @@ export default {
         selectedIconPath: "cuIcon-circlefill",
         text: '我的亲友',
         customIcon: false,
+      }, {
+        iconPath: "cuIcon-friend",
+        selectedIconPath: "cuIcon-friendfill",
+        text: '授权管理',
+        customIcon: false,
       } ],
       currentTab: 0,
     }
@@ -271,6 +276,8 @@ export default {
     changeTab (index) {
       if (index === 1) {
         uni.redirectTo({ url: `/storePages/DeviceManager/family/family?store_no=${this.store_no}` })
+      } else if (index === 2) {
+        uni.redirectTo({ url: `/storePages/DeviceManager/manage/manage?store_no=${this.store_no}` })
       }
     },
     async getDeviceType () {
