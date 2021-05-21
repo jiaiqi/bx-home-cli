@@ -2440,7 +2440,7 @@ export default {
                     f._file_url = this.$api.getFilePath + item.fileurl + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket')
                     return f
                   })
-                  this.$set(item, 'imgs_list', files.amp(file => file._file_url))
+                  this.$set(item, 'imgs_list', files.map(file => file._file_url))
                   this.$set(item, 'img_list', files)
 
                 })
