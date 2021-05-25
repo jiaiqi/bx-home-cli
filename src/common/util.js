@@ -10,6 +10,7 @@ import {
 } from '@/common/api/login.js'
 export default {
 	install(Vue, options) {
+		// dayjs.extend(isoWeek)
 		Vue.prototype.dayjs = dayjs
 		Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
 		/**

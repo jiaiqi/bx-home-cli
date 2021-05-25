@@ -144,6 +144,28 @@
 					"style": {
 						"navigationBarTitleText": ""
 					}
+				},
+				{
+					"path": "queue/queue",
+					"style": {
+						"navigationBarTitleText": "排队",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "queue/list",
+					"style": {
+						"navigationBarTitleText": "排队列表",
+						"enablePullDownRefresh": true
+					}
+				},
+				{
+					"path": "queueManage/queueManage",
+					"style": {
+						"navigationBarTitleText": "排队管理",
+						"enablePullDownRefresh": true
+
+					}
 				}
 			]
 		},

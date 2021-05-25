@@ -35,8 +35,8 @@
 						<view class="desc-item">
 							<view class="desc-value" v-if="item.app_time_start&&item.app_time_end">
 								{{dayjs(item.app_date).format('MM-DD')}}
-								{{formateDate(item.app_date+' '+ item.app_time_start,'hh:mm')}} -
-								{{formateDate(item.app_date+' '+ item.app_time_end,'hh:mm')}}
+                {{dayjs(item.app_date+' '+ item.app_time_start).format("hh:mm")}}-
+                {{dayjs(item.app_date+' '+ item.app_time_end).format("hh:mm")}}
 							</view>
 						</view>
 					</view>
@@ -229,9 +229,10 @@ export default {
     },
     cancel (e) {
       // 取消预约
-      const serviceName = 'srvhealth_store_vaccination_appoint_record_result_update'
+      // const serviceName = 'srvhealth_store_vaccination_appoint_record_result_update'
+      const serviceName = 'srvhealth_store_vaccination_appoint_record_result_cancel'
       let req = [ {
-        "serviceName": "srvhealth_store_vaccination_appoint_record_result_update",
+        "serviceName": serviceName,
         "condition": [ {
           "colName": "id",
           "ruleType": "eq",

@@ -109,6 +109,10 @@
 						<view class="value">
 							{{vaccineInfo.usage}}
 						</view>
+            <view class="tips" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
+									@tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
+									点击查看照片说明
+								</view>
 					</view>
 					<view class="vaccine-detail" v-if="vaccineInfo.remark">
 						<view class="label">说明:</view>
@@ -187,20 +191,32 @@
 					</view>
 
 					<view class="vaccine-info" v-if="vaccineInfo.usage">
+            	<view class="vaccine-detail" v-if="vaccineInfo.usage">
 						<view class="label">用法:</view>
 						<view class="value">
 							{{vaccineInfo.usage}}
 						</view>
-						<view class="tips" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
+            <view class="tips" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
+									@tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
+									点击查看照片说明
+								</view>
+					</view>
+						<!-- <view class="label">用法:</view>
+						<view class="value">
+							{{vaccineInfo.usage}}
+						</view> -->
+						<!-- <view class="tips" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
 							@tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
 							点击查看照片说明
-						</view>
+						</view> -->
 					</view>
 					<view class="vaccine-info" v-if="vaccineInfo.remark">
+            	<view class="vaccine-detail" v-if="vaccineInfo.usage">
 						<view class="label">说明:</view>
 						<view class="value">
 							{{vaccineInfo.remark}}
 						</view>
+					</view>
 					</view>
 				</view>
 				<view class="order-info">
@@ -335,6 +351,53 @@ export default {
   },
 
   methods: {
+    async updateUserInfo () {
+      let data = {}
+      if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
+        .customer_birth_day || !this.formModel.id_no) {
+        //  || !this.formModel.phone_xcx 暂不校验是否填写小程序手机号
+        this.tip = '请确认所有实名信息已填写完整'
+        return
+      }
+      this.tip = ''
+      if (!this.userInfo.id_no || this.formModel.id_no) {
+        data.id_no = this.formModel.id_no
+      }
+      if (!this.userInfo.phone || this.formModel.customer_phone) {
+        data.phone = this.formModel.customer_phone
+      }
+      if (!this.userInfo.phone_xcx || this.formModel.phone_xcx) {
+        data.phone_xcx = this.formModel.phone_xcx
+      }
+      if (!this.userInfo.birthday || this.formModel.customer_birth_day) {
+        data.birthday = this.formModel.customer_birth_day
+      }
+      if (this.formModel.customer_name || this.formModel.customer_name) {
+        data.name = this.formModel.customer_name
+      }
+      let req = [ {
+        "serviceName": "srvhealth_person_info_real_identity_update",
+        "condition": [ {
+          "colName": "id",
+          "ruleType": "eq",
+          "value": this.userInfo.id
+        } ],
+        "data": [ data ]
+      } ]
+      let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
+      if (res.success) {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
+          if (info && info.no) {
+            this.$store.commit('SET_USERINFO', info)
+          } else if (res.data[ 0 ].no) {
+            uni.setStorageSync('cur_user_no', res.data[ 0 ].no)
+            this.$store.commit('SET_USERINFO', res.data[ 0 ])
+          }
+        }
+        this.selectTimeArr(this.vaccineInfo)
+      }
+    },
     changeSub (index) {
       this.curSub = index
       this.page.pageNo = 1

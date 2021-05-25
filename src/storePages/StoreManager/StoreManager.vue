@@ -164,6 +164,12 @@ export default {
         color: 'blue',
         type: 'vaccination_appointment'
       },
+      {
+        label: '排队管理',
+        icon: 'friend',
+        color: 'blue',
+        type: 'queueManage'
+      },
       // {
       // 	label: '公告管理',
       // 	icon: 'read',
@@ -584,6 +590,10 @@ export default {
             this.goNoticeList(item)
           }
           break;
+        case 'queueManage':
+          url = `/storePages/queue/list?store_no=${this.storeNo}&type=manage`
+          // url = `/storePages/queueManage/queueManage?store_no=${this.storeNo}`
+          break;
         case 'article-list':
           // 通知公告管理
           // this.modalName = 'selectColumn'
@@ -719,7 +729,6 @@ export default {
     },
     async getStoreInfo () {
       this.selectStoreActivity()
-
       let req = {
         condition: [ {
           colName: 'store_no',

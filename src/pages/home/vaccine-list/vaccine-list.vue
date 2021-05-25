@@ -707,7 +707,9 @@ export default {
         if (res.success) {
           this.$emit('submit', res.data)
           this.hideModal()
-          return
+          return true
+        } else {
+          return res
         }
       } else {
         uni.showToast({
@@ -725,7 +727,7 @@ export default {
         return
       }
       let tips = `${this.selectedVaccine.appoint_name} 设置成功`
-      this.submitForm().then(_ => {
+      this.submitForm().then(res => {
         // #ifdef MP-WEIXIN
         this.subscription('已成功设置疫苗到货通知')
         // #endif
@@ -740,7 +742,30 @@ export default {
         })
         return
       }
-      this.submitForm().then(_ => {
+      this.submitForm().then(res => {
+        if (res !== true) {
+          debugger
+          if (res.msg) {
+            this.hideModal()
+            if (res.code === '4444') {
+              uni.showToast({
+                title: '取消预约后不能再预约同一批次同一时间段的疫苗',
+                icon: 'none',
+                mask: true,
+                duration: 2000
+              })
+            } else {
+              uni.showToast({
+                title: res.msg,
+                icon: 'none',
+                mask: true,
+                duration: 2000
+              })
+            }
+
+          }
+          return
+        }
         if (this.subscsribeStatus) {
           uni.showModal({
             title: '提示',

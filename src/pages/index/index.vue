@@ -174,8 +174,13 @@ export default {
       let req = {
         "serviceName": "srvhealth_store_mgmt_select",
         "colNames": [ "*" ],
-        "condition": [],
-        "relation_condition": {},
+        "condition": [
+          {
+            colName: "audit_status",
+            ruleType: 'eq',
+            value: '正常'
+          }
+        ],
         "page": {
           "pageNo": this.page.pageNo,
           "rownumber": this.page.rownumber
