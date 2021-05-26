@@ -1,13 +1,23 @@
 <template>
   <view class="queue-wrap">
-    <view class="queue-name" v-if="todayQue && todayQue.queue_name">
-      {{ todayQue.queue_name || "" }}
-    </view>
-    <view class="que-date" v-if="todayQue && todayQue.queue_date">
-      <text>
-        {{ dayjs(todayQue.queue_date).format("YYYY-MM-DD") }}
-      </text>
-      <text> （周{{ dayjs(todayQue.queue_date).day() }}，今日） </text>
+    <view class="queue-header">
+      <view>
+        <view class="queue-name" v-if="todayQue && todayQue.queue_name">
+          {{ todayQue.queue_name || "" }}
+        </view>
+        <view class="que-date" v-if="todayQue && todayQue.queue_date">
+          <text>
+            {{ dayjs(todayQue.queue_date).format("YYYY-MM-DD") }}
+          </text>
+          <text> （周{{ dayjs(todayQue.queue_date).day() }}，今日） </text>
+        </view>
+      </view>
+      <view class="right">
+        <image class="profile" :src="userInfo.profile_url" mode="scaleToFill" />
+        <view class="label">
+          {{ userInfo.name || userInfo.nick_name || "" }}</view
+        >
+      </view>
     </view>
     <view class="queue-remark" v-if="todayQue && todayQue.queue_remark">
       <view class="remark-title">说明：</view>
@@ -57,13 +67,18 @@
       </view>
     </view> -->
     <view class="my-queue" v-if="queInfo && currentQuer">
-      <view class="queue-info">
-        <view class="label">我的排号： </view>
-        <view class="value">{{ queInfo.seq }}</view>
-      </view>
-      <view class="queue-info">
-        <view class="label">我的等待数量： </view>
-        <view class="value">{{ queInfo.seq - currentQuer.seq }}</view>
+      <view class="left">
+        <view class="queue-info">
+          <view class="label">我的排号： </view>
+          <view class="value text-blue">{{ queInfo.seq }}</view>
+        </view>
+        <view class="queue-info" v-if="queInfo.status === '排队中'">
+          <view class="label">我的等待数量： </view>
+          <view class="value text-orange">{{ todayQue.wait_amount }}</view>
+          <!-- <view class="value text-orange">{{
+            queInfo.seq - currentQuer.seq
+          }}</view> -->
+        </view>
       </view>
     </view>
     <view
@@ -112,7 +127,8 @@ export default {
       queInfo: null,//当前用户排队信息
       total: 0,//排队人总数
       queList: [],
-      storeUser: null
+      storeUser: null,
+      fill_batch_no: ''
     }
   },
   methods: {
@@ -134,6 +150,12 @@ export default {
         this.getQueInfo()
       }
     },
+    async updateQueueInfo (no) {
+      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": "8" } ], "data": [ { last_no: no } ] } ]
+      if (no) {
+        await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
+      }
+    },
     async getQueList () {
       // 查找排队列表
       let req = {
@@ -146,10 +168,33 @@ export default {
       this.total = res.page.total
     },
     async getQueInfo () {
-      let req = { "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ], "condition": [ { colName: "person_no", ruleType: 'eq', value: this.userInfo.no }, { colName: "store_no", ruleType: 'eq', value: this.store_no } ], "page": { "pageNo": 1, "rownumber": 1 } }
+      let req = {
+        "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ],
+        "condition": [
+          { colName: "person_no", ruleType: 'eq', value: this.userInfo.no },
+          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no },
+          { colName: "store_no", ruleType: 'eq', value: this.store_no }
+        ],
+        "page": { "pageNo": 1, "rownumber": 1 }
+      }
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
       if (res.success && res.data.length > 0) {
         this.queInfo = res.data[ 0 ]
+      } else if (res.data.length === 0 && this.fill_batch_no) {
+        uni.showModal({
+          title: '提示',
+          content: '是否自动抽号？',
+          showCancel: true,
+          success: ({ confirm, cancel }) => {
+            if (confirm) {
+              this.startQue()
+            } else {
+              this.queInfo = null
+            }
+          }
+        })
+      } else {
+        this.queInfo = null
       }
     },
     async startQue () {
@@ -167,8 +212,8 @@ export default {
             store_user_no: this.storeUser.store_user_no,
             store_no: this.store_no,
             user_account: this.userInfo.userno,
-            user_image: this.userInfo.user_image
-
+            user_image: this.userInfo.user_image,
+            fill_batch_no: this.fill_batch_no || null
           } ]
       } ]
       if (this?.todayQue?.queue_remark) {
@@ -190,14 +235,22 @@ export default {
           return
         }
       }
+      if (this?.todayQue?.activity_no) {
+
+        if (!this.fill_batch_no) {
+          uni.redirectTo({
+            url: `/questionnaire/index/index?formType=form&activity_no=${this?.todayQue?.activity_no}&status=进行中&from=queue&store_no=${this.store_no}&queue_no=${this.queue_no}`
+          });
+          return
+        }
+      }
       const res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_add', req, 'health')
       if (res.success && res.data.length > 0) {
         this.getQueList()
         this.queInfo = res.data[ 0 ]
+        await this.updateQueueInfo(res.data[ 0 ].seq)
+        this.getQueueInfo()
       }
-    },
-    getStoreInfo () {
-
     },
     getStoreUserInfo () {
       let req = { "serviceName": "srvhealth_store_user_select", "colNames": [ "*" ], "condition": [ { colName: 'person_no', ruleType: 'eq', value: this.userInfo.no }, { colName: 'store_no', ruleType: 'eq', value: this.store_no } ], "relation_condition": {}, "page": { "pageNo": 1, "rownumber": 10 }, "order": [], "draft": false, "query_source": "list_page" }
@@ -212,6 +265,9 @@ export default {
 
   // 页面周期函数--监听页面加载
   async onLoad (option) {
+    if (option.fill_batch_no) {
+      this.fill_batch_no = option.fill_batch_no
+    }
     if (option.store_no && option.queue_no) {
       this.store_no = option.store_no
       this.queue_no = option.queue_no
@@ -244,6 +300,22 @@ export default {
   padding-top: 20px;
   overflow: hidden;
 }
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  .right {
+    padding-right: 20rpx;
+    .profile {
+      width: 100rpx;
+      height: 100rpx;
+      border-radius: 10rpx;
+    }
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+  }
+}
 .queue-name {
   // font-weight: bold;
   font-size: 20px;
@@ -274,8 +346,8 @@ export default {
   justify-content: center;
   .card-item {
     padding: 20rpx;
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     background-color: #deebf7;
     border-radius: 20px;
     display: flex;
@@ -289,7 +361,7 @@ export default {
       font-weight: bold;
     }
     .card-content {
-      font-size: 40px;
+      font-size: 50px;
       font-weight: bold;
       color: #00b050;
     }
@@ -297,11 +369,28 @@ export default {
 }
 .my-queue {
   padding: 20px;
+  display: flex;
+  align-items: center;
+  .left {
+    flex: 1;
+  }
+  .right {
+    .profile {
+      width: 100rpx;
+      height: 100rpx;
+      border-radius: 10rpx;
+    }
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+  }
   .queue-info {
     text-align: left;
     display: flex;
     align-items: center;
     font-size: 18px;
+    padding: 20rpx 0;
     .label {
       min-width: 130px;
     }
@@ -309,7 +398,7 @@ export default {
       font-weight: bold;
       font-size: 30px;
       margin-left: 24px;
-      color: #00b050;
+      // color: #00b050;
     }
   }
 }

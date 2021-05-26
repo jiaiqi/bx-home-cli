@@ -6,6 +6,11 @@
       :current="currentTab"
       @change="changeTab"
     ></u-tabs>
+    <!-- <view class="call-name">
+      <button class="cu-btn bg-cyan" @click="callNext" v-if="currentTab === 0">
+        叫号
+      </button>
+    </view> -->
     <view class="list-wrap">
       <view
         class="list-item"
@@ -25,21 +30,32 @@
               ><text class="title">
                 {{ item.person_name || item.nick_name || "" }}</text
               >
-              <text class="">（{{ item.sex || "" }}）</text>
+              <text class="" v-if="item.sex">（{{ item.sex || "" }}）</text>
             </view>
             <view>
               <text class="num">{{ item.seq }}</text>
             </view>
           </view>
-          <view class="button-box">
-            <button class="cu-btn bg-blue" @click="changeStatus(item, '完成')">
+          <view class="button-box" v-if="currentTab !== 2">
+            <button
+              class="cu-btn bg-cyan"
+              @click="changeStatus(item, '已叫号')"
+              v-if="currentTab !== 0"
+            >
+              叫号
+            </button>
+            <button
+              class="cu-btn bg-blue"
+              @click="changeStatus(item, '完成')"
+              v-if="currentTab !== 1"
+            >
               完成
             </button>
             <button
               class="cu-btn bg-orange"
               @click="changeStatus(item, '未到场')"
             >
-              未到场
+              过号
             </button>
           </view>
         </view>
@@ -62,6 +78,7 @@ export default {
       todayQue: null,
       store_no: '',
       queue_no: '',
+      curPerson: {},
       currentTab: 0,
       pages: [ {
         pageNo: 1,
@@ -74,11 +91,18 @@ export default {
       {
         pageNo: 1,
         status: 'more'
+      },
+      {
+        pageNo: 1,
+        status: 'more'
       } ],
       listData: [
-        [], [], []
+        [], [], [], []
       ],
       tabList: [
+        {
+          name: "已叫号"
+        },
         {
           name: "排队中"
         },
@@ -92,6 +116,34 @@ export default {
     }
   },
   methods: {
+    async callNext () {
+      let list = this.listData[ 0 ]
+      let index = 0
+      if (this.curPerson && this.curPerson.seq) {
+        index = list.findIndex(item => item.seq === this.curPerson.seq)
+        index++;
+      }
+      if (list.length > index) {
+        this.curPerson = list[ index ]
+      } else {
+        this.curPerson = null
+        uni.showModal({
+          title: '提示',
+          content: '后面已经没有人排队了',
+          showCancel: false,
+          confirmText: "知道了",
+        })
+        return
+      }
+      if (this.listData[ 0 ].length > 0) {
+        let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": "8" } ], "data": [ { cur_no: this.curPerson.seq } ] } ]
+        let res = await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
+        if (res.success) {
+
+        }
+      }
+      this.getList()
+    },
     changeTab (index) {
       this.currentTab = index;
       this.getList()
@@ -117,7 +169,7 @@ export default {
 
     },
     async getTodayQue () {
-      // 查询当日排队信息
+      // 查询当前排队信息
       let req = {
         "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
         "condition": [
@@ -130,7 +182,23 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
       if (res.success && res.data.length > 0) {
         this.todayQue = res.data[ 0 ]
+        if (res.data[ 0 ].cur_no) {
+          this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no)
+        }
         this.getList()
+      }
+    },
+    async getCurPerson (no) {
+      let req = {
+        "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ], "condition": [
+          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no },
+          { colName: "seq", ruleType: 'eq', value: no }
+        ],
+        "page": { "pageNo": this.pages[ this.currentTab ].pageNo, "rownumber": 30 }
+      }
+      let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
+      if (res.success && res.data.length > 0) {
+        return res.data[ 0 ]
       }
     },
     async getList () {
@@ -178,13 +246,23 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.call-name {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20rpx;
+}
 .list-wrap {
   min-height: calc(100vh - var(--window-top));
+  padding: 0 20rpx;
 }
 .list-item {
-  padding: 20rpx 40rpx;
+  padding: 20rpx;
   border-bottom: 1px solid #f1f1f1;
   display: flex;
+  margin-bottom: 10rpx;
+  &.current-number {
+    border: 1px solid #0bc99d;
+  }
   .image {
     width: 150rpx;
     height: 150rpx;
@@ -210,7 +288,7 @@ export default {
     // justify-content: center;
     .cu-btn {
       margin-right: 20rpx;
-      min-width: 30%;
+      min-width: 25%;
     }
   }
 }

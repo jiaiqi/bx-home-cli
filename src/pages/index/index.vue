@@ -1,7 +1,22 @@
 <template>
   <view>
+    <view class="cu-bar fixed search bg-white">
+      <view class="search-form">
+        <text class="cuIcon-search"></text>
+        <input
+          @input="searchWithKey"
+          type="text"
+          placeholder="搜索"
+          confirm-type="search"
+        />
+      </view>
+    </view>
     <view class="store-list">
-      <view class="store-item" v-for="item in list" :key="item.store_no">
+      <view
+        class="store-item animation-fade"
+        v-for="item in list"
+        :key="item.store_no"
+      >
         <image
           class="image"
           v-if="item.logo"
@@ -50,7 +65,6 @@
 <script>
 // 小程序默认入口 展示店铺列表
 import {
-  checkIsAttention,
   wxVerifyLogin,
   selectPersonInfo
 } from '@/common/api/login.js'
@@ -81,6 +95,18 @@ export default {
     }
   },
   methods: {
+    searchWithKey (e) {
+      this.page.pageNo = 1;
+      let key = e.detail.value
+      let condition = [
+        {
+          colName: 'name',
+          ruleType: "like",
+          value: key
+        }
+      ]
+      this.getList('', condition)
+    },
     openLocation (e) {
       if (!e.latitude || !e.longitude) {
         return
@@ -169,7 +195,7 @@ export default {
         })
       }
     },
-    async getList (type) {
+    async getList (type = 'refresh', cond) {
       // 查找店铺列表
       let req = {
         "serviceName": "srvhealth_store_mgmt_select",
@@ -186,6 +212,9 @@ export default {
           "rownumber": this.page.rownumber
         },
       }
+      if (Array.isArray(cond)) {
+        req.condition = [ ...req.condition, ...cond ]
+      }
       this.loadStatus = 'loading'
       let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
       if (res.success && Array.isArray(res.data)) {
@@ -193,15 +222,28 @@ export default {
           this.page = res.page
           if (res.page.total > res.page.rownumber * res.page.pageNo) {
             this.loadStatus = 'more'
-            this.page.pageNo++
           } else {
             this.loadStatus = 'noMore'
           }
         }
         if (type === 'more') {
-          this.list = [ ...this.list, ...res.data ]
+          for (let index = 0; index < res.data.length; index++) {
+            const element = res.data[ index ];
+            if (!this.list.find(item => item.id === element.id)) {
+              setTimeout(() => {
+                this.list.push(element)
+              }, 100);
+            }
+          }
+          // let list = [ ...this.list, ...res.data ]
+          // this.list = list
         } else {
-          this.list = res.data
+          this.list = []
+          res.data.forEach(item => {
+            setTimeout(() => {
+              this.list.push(item)
+            }, 100);
+          })
         }
       }
     },
@@ -305,13 +347,19 @@ export default {
     },
   },
   onPullDownRefresh () {
-    this.getList()
+    // this.getList()
+    this.loadStatus = 'more'
+    this.page.pageNo = 1
+    this.initLogin().then(_ => {
+      this.getList()
+    })
     setTimeout(() => {
       uni.stopPullDownRefresh()
     }, 1000)
   },
   onReachBottom () {
     if (this.loadStatus !== 'noMore') {
+      this.page.pageNo++
       this.getList('more')
     }
   },
@@ -327,11 +375,6 @@ export default {
       this.getList()
     })
   },
-  // onShareTimeline () {
-  //   return {
-  //     title: "百想首页",
-  //   };
-  // },
   onShareAppMessage () {
     return {
       title: "百想首页",
@@ -342,6 +385,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "@/colorui/animation.css";
+
 .consult-button {
   position: fixed;
   bottom: 50px;
@@ -366,6 +411,7 @@ export default {
 }
 .store-list {
   padding: 20rpx;
+  margin-top: 50px;
   min-height: calc(100vh - var(--window-top) - var(--window-bottom));
 }
 

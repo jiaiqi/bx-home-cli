@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-25 17:05:03
- * @LastEditTime: 2021-05-25 19:31:05
+ * @LastEditTime: 2021-05-26 16:02:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \bx-home-cli\src\storePages\queue\list.vue
@@ -38,16 +38,33 @@
       </view>
       <view class="que-footer">
         <view class="footer-item">
-          <view class="label">当前叫号： </view>
-          <view class="value text-blue">{{ item.cur_no || " - " }} </view>
-        </view>
-        <view class="footer-item">
           <view class="label">等待人数： </view>
           <view class="value text-orange"
             >{{ item.wait_amount || " - " }}
           </view>
         </view>
+        <view class="footer-item">
+          <view class="label">当前叫号： </view>
+          <view class="value text-blue big-font"
+            >{{ item.cur_no || " - " }}
+          </view>
+        </view>
       </view>
+    </view>
+    <uni-load-more
+      :status="loadStatus"
+      v-if="
+        loadStatus !== 'noMore' ||
+        (loadStatus === 'noMore' && queue.length !== 0)
+      "
+    >
+    </uni-load-more>
+    <view
+      class=""
+      style="margin-top: 30vh"
+      v-if="loadStatus === 'noMore' && queue.length === 0"
+    >
+      <u-empty text="未找到今日排队数据" mode="list"> </u-empty>
     </view>
   </view>
 </template>
@@ -59,12 +76,13 @@ export default {
       type: "", // manage
       store_no: "",
       queue: [],
-      loadStatus: "more"
+      loadStatus: "more",
+
     }
   },
   methods: {
     toQueue (e) {
-      if (e.queue_no && this.store_no && (e.queue_status === '进行中' || e.queue_status === '开放中')) {
+      if (this.type !== 'manage' && e.queue_no && this.store_no && (e.queue_status === '进行中' || e.queue_status === '开放中')) {
         uni.navigateTo({ url: `./queue?store_no=${this.store_no}&queue_no=${e.queue_no}` })
       } else if (e.queue_no && this.store_no && this.type === 'manage') {
         uni.navigateTo({ url: `../queueManage/queueManage?store_no=${this.store_no}&queue_no=${e.queue_no}` })
@@ -89,7 +107,10 @@ export default {
       this.loadStatus = 'loading'
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
       if (res.success) {
-        this.queue = res.data
+        this.queue = res.data.map(item => {
+          item.cur_no = isNaN(Number(item.cur_no)) ? 0 : Number(item.cur_no)
+          return item
+        })
         if (res.page.pageNo * res.page.rownumber >= res.page.total) {
           this.loadStatus = 'noMore'
         } else {
@@ -146,8 +167,11 @@ export default {
         display: flex;
         align-items: center;
         .value {
-          font-size: 24px;
+          font-size: 30px;
           font-weight: bold;
+          &.big-font {
+            // font-size: 40px;
+          }
         }
         &:first-child {
           margin-left: 0;

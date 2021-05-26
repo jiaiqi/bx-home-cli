@@ -43,9 +43,9 @@ export default {
       const updateManager = uni.getUpdateManager();
       updateManager.onCheckForUpdate(function (res) {
         // 请求完新版本信息的回调
-        console.log(res.hasUpdate);
+        console.log('小程序需要进行更新？', res.hasUpdate);
       });
-      updateManager.onUpdateReady(function (res) {
+      updateManager.onUpdateReady(function () {
         uni.showModal({
           title: '更新提示',
           content: '新版本已经准备好，是否重启应用？',
@@ -57,7 +57,7 @@ export default {
           }
         });
       });
-      updateManager.onUpdateFailed(function (res) {
+      updateManager.onUpdateFailed(function () {
         // 新的版本下载失败
         uni.showModal({
           title: '更新提示',

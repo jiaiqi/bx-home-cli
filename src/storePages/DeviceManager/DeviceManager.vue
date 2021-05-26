@@ -720,7 +720,7 @@ export default {
       const { selectedDeviceType } = this
       let result = await this.scanCode()
       if (selectedDeviceType && selectedDeviceType.dt_no) {
-        result = { dic_device_id: result, dt_no: selectedDeviceType.dt_no }
+        result = { ...result, dt_no: selectedDeviceType.dt_no }
       }
       // let data = await this.getDeviceInfoWithDIC(result)
       if (result.dt_no && result.dic_device_id) {
@@ -989,6 +989,7 @@ export default {
 .add-device-modal {
   background-color: #fff;
   min-height: 40vh;
+  padding-bottom: 150rpx;
   .device-info {
     .cu-form-group {
       .title {

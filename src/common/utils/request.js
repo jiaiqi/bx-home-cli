@@ -55,7 +55,16 @@ export default function({
 				...headers
 			}, ...args)
 		},
-		onerror: () => {}, // 请求错误钩子函数集合
+		onerror: (...e) => {
+			console.error('请求异常',e)
+			if(e.includes('网络请求失败：超时取消')){
+				uni.showToast({
+					title: '网络请求失败，请刷新重试',
+					icon: 'none',
+					mask: true
+				})
+			}
+		}, // 请求错误钩子函数集合
 		file(method, url, data, header, reqIntercept, resIntercept) {
 			let timer, // timer 检测超时定时器
 				requestTask, // requestTask 网络请求 task 对象

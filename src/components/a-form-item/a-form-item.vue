@@ -435,7 +435,7 @@
               class="cu-bar search bg-white"
               v-if="modalName === 'Selector' && fieldData.showSearch !== false"
             >
-              <view class="search-form round" v>
+              <view class="search-form round">
                 <!-- <text class="cuIcon-search"></text> -->
                 <input
                   @input="searchFKDataWithKey"

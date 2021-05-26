@@ -1440,7 +1440,7 @@ export default {
       this.checkRadioValue = e;
       console.log('e----------', e);
     },
-    openMenuPoup (type) {
+    async openMenuPoup (type) {
       let self = this;
       if (type == 'location') {
         uni.chooseLocation({
@@ -1522,30 +1522,37 @@ export default {
         console.log('点击上传文档----');
       } else if (type === 'wx_word') {
         // #ifdef MP-WEIXIN
-        wx.chooseMessageFile({
-          count: 1,
-          type: 'all',
-          success (res) {
-            console.log('上传图片----》', res);
-            let reqHeader = {
-              bx_auth_ticket: uni.getStorageSync('bx_auth_ticket'),
-              'content-type': 'multipart/form-data'
-            };
-            let formData = {
-              serviceName: 'srv_bxfile_service',
-              interfaceName: 'add',
-              app_no: 'health',
-              columns: 'attachment',
-              src_name: res.tempFiles[ 0 ].name
-            };
-            console.log('name-----', formData);
-            let url = '';
-            let file_no = ''
-            for (let i = 0; i < res.tempFiles.length; i++) {
-              console.log('res--上传文件--', res);
-              if (file_no) {
-                formData.file_no = file_no
-              }
+
+        let res = await new Promise(resolve => {
+          wx.chooseMessageFile({
+            count: 1,
+            type: 'all',
+            success (res) {
+              resolve(res)
+            }
+          });
+        })
+        if (res) {
+          console.log('上传图片----》', res);
+          let reqHeader = {
+            bx_auth_ticket: uni.getStorageSync('bx_auth_ticket'),
+            'content-type': 'multipart/form-data'
+          };
+          let formData = {
+            serviceName: 'srv_bxfile_service',
+            interfaceName: 'add',
+            app_no: 'health',
+            columns: 'attachment',
+            src_name: res.tempFiles[ 0 ].name
+          };
+          console.log('name-----', formData);
+          let file_no = ''
+          for (let i = 0; i < res.tempFiles.length; i++) {
+            console.log('res--上传文件--', res);
+            if (file_no) {
+              formData.file_no = file_no
+            }
+            file_no = await new Promise((resolve => {
               uni.uploadFile({
                 url: self.$api.upload,
                 header: reqHeader,
@@ -1556,16 +1563,20 @@ export default {
                   if (e.statusCode === 200) {
                     file_no = JSON.parse(e.data).file_no;
                     console.log('上传文件-----', e);
-                  } else { }
+                    resolve(file_no)
+                  } else {
+                    resolve(false)
+                  }
                 },
                 fail: e => {
                   console.log('fail-----', e);
+                  resolve(false)
                 }
               });
-            }
-            self.sendMessageLanguageInfo('文件', file_no);
+            }))
           }
-        });
+          self.sendMessageLanguageInfo('文件', file_no);
+        }
         // #endif
       } else if (type === 'video') {
         let reqHeader = {
@@ -1848,6 +1859,10 @@ export default {
     },
     /*点击发送后添加图片或语音数据**/
     async sendMessageLanguageInfo (type, value, info) {
+      uni.showLoading({
+        title: '发送中...',
+        mask: true
+      })
       let serviceName = 'srvhealth_consultation_chat_record_add'
       if (this.sessionType === '机构用户客服') {
         if (this.identity === '客户') {

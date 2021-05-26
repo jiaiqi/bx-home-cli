@@ -290,7 +290,6 @@ export default {
       });
     },
     async selectStoreInfo (times = 0) {
-      let url = this.getServiceUrl('health', 'srvhealth_store_mgmt_select', 'select');
       let req = {
         condition: [ {
           colName: 'store_no',

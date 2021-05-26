@@ -249,7 +249,7 @@ export default {
       this.modalName = ''
     },
     onBack () {
-      uni.emit('onBack')
+      uni.$emit('onBack')
     },
   },
 
