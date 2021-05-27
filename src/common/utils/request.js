@@ -58,11 +58,12 @@ export default function({
 		onerror: (...e) => {
 			console.error('请求异常',e)
 			if(e.includes('网络请求失败：超时取消')){
-				uni.showToast({
-					title: '网络请求失败，请刷新重试',
-					icon: 'none',
-					mask: true
-				})
+				// uni.showToast({
+				// 	title: '网络请求失败，请刷新重试',
+				// 	icon: 'none',
+				// 	mask: true
+				// })
+				uni.$emit('networkErr', e)
 			}
 		}, // 请求错误钩子函数集合
 		file(method, url, data, header, reqIntercept, resIntercept) {

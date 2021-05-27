@@ -1522,7 +1522,6 @@ export default {
         console.log('点击上传文档----');
       } else if (type === 'wx_word') {
         // #ifdef MP-WEIXIN
-
         let res = await new Promise(resolve => {
           wx.chooseMessageFile({
             count: 1,
@@ -1532,6 +1531,7 @@ export default {
             }
           });
         })
+        debugger
         if (res) {
           console.log('上传图片----》', res);
           let reqHeader = {
@@ -1546,12 +1546,18 @@ export default {
             src_name: res.tempFiles[ 0 ].name
           };
           console.log('name-----', formData);
-          let file_no = ''
+          // let file_no = ''
           for (let i = 0; i < res.tempFiles.length; i++) {
             console.log('res--上传文件--', res);
-            if (file_no) {
-              formData.file_no = file_no
-            }
+            // if (file_no) {
+            //   formData.file_no = file_no
+            // }
+            let file_no = ''
+            uni.showLoading({
+              title: '上传中，请稍后...',
+              mask: true
+            })
+            uni.showNavigationBarLoading()
             file_no = await new Promise((resolve => {
               uni.uploadFile({
                 url: self.$api.upload,
@@ -1561,8 +1567,7 @@ export default {
                 name: 'file',
                 success: e => {
                   if (e.statusCode === 200) {
-                    file_no = JSON.parse(e.data).file_no;
-                    console.log('上传文件-----', e);
+                    const file_no = JSON.parse(e.data).file_no;
                     resolve(file_no)
                   } else {
                     resolve(false)
@@ -1574,8 +1579,60 @@ export default {
                 }
               });
             }))
+            uni.vibrate({
+              success: (result) => { },
+              fail: (error) => { }
+            })
+            uni.hideLoading()
+            uni.hideNavigationBarLoading()
+            if (!file_no) {
+              uni.showToast({
+                title: '文件上传失败',
+                icon: 'none',
+                mask: true
+              })
+              return
+            } else {
+              uni.showToast({
+                title: '上传成功！',
+                icon: 'success',
+                mask: true
+              })
+            }
+            if (res.tempFiles[ i ].type === 'video') {
+              const videoInfo = await new Promise(resolve => {
+                uni.getVideoInfo({
+                  src: res.tempFiles[ i ].path,
+                  success (info) {
+                    resolve(info)
+                  }
+                });
+              })
+              if (videoInfo) {
+                self.sendMessageLanguageInfo('视频', file_no, videoInfo);
+                return
+              } else {
+                self.sendMessageLanguageInfo('视频', file_no);
+              }
+            } else if (res.tempFiles[ i ].type === 'image') {
+              const imageInfo = await new Promise(resolve => {
+                uni.getImageInfo({
+                  src: res.tempFiles[ i ].path,
+                  success: function (image) {
+                    resolve(image)
+                  }
+                });
+              })
+              if (imageInfo) {
+                self.sendMessageLanguageInfo('图片', file_no, imageInfo);
+              } else {
+                self.sendMessageLanguageInfo('图片', file_no);
+              }
+            } else {
+              self.sendMessageLanguageInfo('文件', file_no);
+            }
           }
-          self.sendMessageLanguageInfo('文件', file_no);
+          // self.sendMessageLanguageInfo('文件', file_no);
         }
         // #endif
       } else if (type === 'video') {

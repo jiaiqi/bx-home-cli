@@ -60,8 +60,25 @@
           </view>
         </view>
       </view>
+      <uni-load-more
+        :status="pages[currentTab].status"
+        v-if="
+          pages[currentTab].status !== 'noMore' ||
+          (pages[currentTab].status === 'noMore' &&
+            pages[currentTab].total !== 0)
+        "
+      >
+      </uni-load-more>
+      <view
+        class=""
+        style="margin-top: 30vh"
+        v-if="
+          pages[currentTab].status === 'noMore' && pages[currentTab].total === 0
+        "
+      >
+        <u-empty text="暂无数据" mode="list"> </u-empty>
+      </view>
     </view>
-    <!-- </view> -->
   </div>
 </template>
 
@@ -101,16 +118,21 @@ export default {
       ],
       tabList: [
         {
-          name: "已叫号"
+          name: "已叫号",
+          count: 0
         },
         {
-          name: "排队中"
+          name: "排队中",
+          count: 0
         },
         {
-          name: "完成"
+          name: "完成",
+          count: 0
+
         },
         {
-          name: "未到场"
+          name: "未到场",
+          count: 0
         },
       ]
     }
@@ -148,6 +170,12 @@ export default {
       this.currentTab = index;
       this.getList()
     },
+    async updateQueueInfo (no) {
+      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { last_no: no } ] } ]
+      if (no) {
+        await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
+      }
+    },
     changeStatus (item, status) {
       let req = [ { "serviceName": "srvhealth_store_queue_up_record_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": item.id } ], "data": [ { "status": status, } ] } ]
       this.$fetch('operate', 'srvhealth_store_queue_up_record_update', req, 'health').then(res => {
@@ -157,6 +185,11 @@ export default {
             icon: 'success',
             mask: true
           })
+          if (status === '已叫号' && res.data.length > 0 && res.data[ 0 ].seq) {
+            if (this?.todayQue?.id) {
+              this.updateQueueInfo(res.data[ 0 ].seq)
+            }
+          }
         } else if (res.msg) {
           uni.showToast({
             title: res.msg,
@@ -185,7 +218,9 @@ export default {
         if (res.data[ 0 ].cur_no) {
           this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no)
         }
-        this.getList()
+        this.tabList.forEach((item, index) => {
+          this.getList(index)
+        })
       }
     },
     async getCurPerson (no) {
@@ -201,21 +236,28 @@ export default {
         return res.data[ 0 ]
       }
     },
-    async getList () {
+    async getList (type = "refresh", index) {
+      let current = this.currentTab
+      if (index || index === 0) {
+        current = index
+      }
       let req = {
         "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ], "condition": [
-          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no }, { colName: 'status', ruleType: 'eq', value: this.tabList[ this.currentTab ].name } ], "page": { "pageNo": this.pages[ this.currentTab ].pageNo, "rownumber": 30 }
+          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no }, { colName: 'status', ruleType: 'eq', value: this.tabList[ current ].name } ], "page": { "pageNo": this.pages[ current ].pageNo, "rownumber": 30 }
       }
-      this.pages[ this.currentTab ].status = 'loading'
+      this.pages[ current ].status = 'loading'
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
-      // this.queList = res.data
+
       if (res.success) {
-        this.$set(this.listData, this.currentTab, res.data)
+        let data = type === 'loadmore' ? [ ...this.listData[ current ], ...res.data ] : res.data
+        this.$set(this.listData, current, data)
         if (res.page.total > res.page.pageNo * res.page.rownumber) {
-          this.pages[ this.currentTab ].status = 'more'
+          this.pages[ current ].status = 'more'
         } else {
-          this.pages[ this.currentTab ].status = 'noMore'
+          this.pages[ current ].status = 'noMore'
         }
+        this.pages[ current ].total = res.page.total
+        this.tabList[ current ].count = res.page.total
       }
     }
   },
@@ -235,7 +277,7 @@ export default {
   onReachBottom () {
     if (this.pages[ this.currentTab ].status === 'more') {
       this.pages[ this.currentTab ].pageNo++
-      this.getList()
+      this.getList('loadmore', this.currentTab)
     }
   },
   // 页面处理函数--监听页面滚动(not-nvue)

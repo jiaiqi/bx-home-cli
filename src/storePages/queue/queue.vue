@@ -151,7 +151,7 @@ export default {
       }
     },
     async updateQueueInfo (no) {
-      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": "8" } ], "data": [ { last_no: no } ] } ]
+      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { last_no: no } ] } ]
       if (no) {
         await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
       }
@@ -248,7 +248,9 @@ export default {
       if (res.success && res.data.length > 0) {
         this.getQueList()
         this.queInfo = res.data[ 0 ]
-        await this.updateQueueInfo(res.data[ 0 ].seq)
+        if (this?.todayQue?.id) {
+          await this.updateQueueInfo(res.data[ 0 ].seq)
+        }
         this.getQueueInfo()
       }
     },
@@ -303,8 +305,8 @@ export default {
 .queue-header {
   display: flex;
   justify-content: space-between;
+  padding: 0 20px;
   .right {
-    padding-right: 20rpx;
     .profile {
       width: 100rpx;
       height: 100rpx;
@@ -317,13 +319,12 @@ export default {
   }
 }
 .queue-name {
-  // font-weight: bold;
-  font-size: 20px;
+  font-weight: bold;
+  font-size: 18px;
   margin-bottom: 20px;
 }
 .que-date {
   text-align: left;
-  padding-left: 20px;
   color: #666;
 }
 .queue-remark {

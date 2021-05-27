@@ -37,6 +37,12 @@
           </view>
         </view>
       </view>
+      <view
+        class="store-item animation-fade"
+        v-if="list && list.length > 0 && showAd"
+      >
+        <ad unit-id="adunit-1179c9d61b074e7d"></ad>
+      </view>
     </view>
     <view class="consult-button text-yellow" @click="toChatBXHeahth">
       <view class="icon">
@@ -85,6 +91,7 @@ export default {
   },
   data () {
     return {
+      showAd: false,
       list: [],
       page: {
         pageNo: 1,
@@ -245,7 +252,11 @@ export default {
             }, 100);
           })
         }
+        setTimeout(() => {
+          this.showAd = true
+        }, 1000);
       }
+
     },
     async initLogin () {
       let isLogin = this.$store.state.app.isLogin

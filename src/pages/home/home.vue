@@ -37,6 +37,12 @@
     >
     </store-item>
     <view
+      style="width: 100%; padding-bottom: 20px; overflow: hidden"
+      v-if="pageItemList && pageItemList.length > 0 && showAd"
+    >
+      <ad unit-id="adunit-214e9c0d0b32708b" ad-intervals="60"></ad>
+    </view>
+    <view
       class="cu-modal bottom-modal"
       @click="hideModal"
       :class="{ show: showHomePageSelector }"
@@ -73,14 +79,17 @@
 
 <script>
 import { mapState } from 'vuex';
-
 import StoreItem from './store-item/store-item.vue'
+
+
+
 export default {
   components: {
     StoreItem
   },
   data () {
     return {
+      showAd: false, //是否显示底部banner广告
       showHomeBtn: true,
       showHomePageSelector: false,
       selectVal: '',
@@ -213,6 +222,10 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
       if (res.success) {
         this.pageItemList = res.data.filter(item => item.display !== '否')
+        uni.$emit('updateStoreItemData')
+        setTimeout(() => {
+          this.showAd = true
+        }, 1000);
       }
     },
     toDeptDetail (e) {
@@ -225,7 +238,6 @@ export default {
       // 跳转到医生主页
       uni.navigateTo({
         url: `/storePages/Registration/RegistrationDetail?storeNo=${e.store_no}&doctorNo=${e.person_no}`
-        // url: '/personalPages/DoctorDetail/DoctorDetail?doctor_no=' + e.person_no + '&store_no=' + e.store_no
       });
     },
     async selectBindUser () {
@@ -543,6 +555,7 @@ export default {
         // 	icon: 'none'
         // })
       }
+
     }
   },
   onPullDownRefresh () {
@@ -559,7 +572,9 @@ export default {
     if (this.storeNo) {
       if (this.userInfo && this.userInfo.no) {
         // uni.startPullDownRefresh()
-        this.initPage()
+        setTimeout(() => {
+          this.initPage()
+        }, 1000);
       } else {
         const option = {
           store_no: this.storeNo
@@ -592,6 +607,7 @@ export default {
   },
 
   async onLoad (option) {
+
     // showHomeBtn
     let pageInfo = getCurrentPages()
     if (Array.isArray(pageInfo) && pageInfo.length === 1) {
@@ -614,6 +630,9 @@ export default {
     })
     uni.$on('updateUnread', e => {
       // this.initPage()
+    })
+    uni.$on('networkErr', _ => {
+      this.initPage()
     })
     uni.$on('updateStoreInfo', (e) => {
       if (e && e.store_no === this.storeNo) {

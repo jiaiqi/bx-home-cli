@@ -289,9 +289,9 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
+import { mapState } from 'vuex'
+// 在页面中定义插屏广告
+let interstitialAd = null
 
 export default {
   data () {
@@ -602,6 +602,13 @@ export default {
           }
         }
       }
+
+      // 在适合的场景显示插屏广告
+      if (interstitialAd) {
+        interstitialAd.show().catch((err) => {
+          console.error(err)
+        })
+      }
       return this.vaccineList
     },
     // async showInfo(e) {
@@ -714,8 +721,18 @@ export default {
     if (option.storeNo) {
       this.storeNo = option.storeNo
       this.getVaccineList()
-
     }
+
+    // 在页面onLoad回调事件中创建插屏广告实例
+    if (wx.createInterstitialAd) {
+      interstitialAd = wx.createInterstitialAd({
+        adUnitId: 'adunit-34fd06b767494b27'
+      })
+      interstitialAd.onLoad(() => { })
+      interstitialAd.onError((err) => { })
+      interstitialAd.onClose(() => { })
+    }
+
   },
   // created () {
   //   this.getVaccineList()
