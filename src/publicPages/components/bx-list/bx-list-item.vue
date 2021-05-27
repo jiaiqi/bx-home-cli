@@ -529,7 +529,7 @@ export default {
   width: auto;
   margin: 10rpx 0;
   box-sizing: border-box;
-
+  // width: calc(1 * 100% / 6);
   .list-item {
     display: flex;
     justify-content: space-between;
