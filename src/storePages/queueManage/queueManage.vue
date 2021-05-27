@@ -171,7 +171,7 @@ export default {
       this.getList()
     },
     async updateQueueInfo (no) {
-      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { last_no: no } ] } ]
+      let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { cur_no: no } ] } ]
       if (no) {
         await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
       }
@@ -215,11 +215,25 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
       if (res.success && res.data.length > 0) {
         this.todayQue = res.data[ 0 ]
+        this.getList()
         if (res.data[ 0 ].cur_no) {
           this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no)
         }
-        this.tabList.forEach((item, index) => {
-          this.getList(index)
+        this.tabList = this.tabList.map((item, index) => {
+          if (item.name === '已叫号') {
+            item.count = this.todayQue.call_amount
+            this.$set(this.tabList, index, item)
+          } else if (item.name === '排队中') {
+            item.count = this.todayQue.wait_amount
+            this.$set(this.tabList, index, item)
+          } else if (item.name === '完成') {
+            item.count = this.todayQue.finish_amount
+            this.$set(this.tabList, index, item)
+          } else if (item.name === '未到场') {
+            item.count = this.todayQue.absent_amount
+            this.$set(this.tabList, index, item)
+          }
+          return item
         })
       }
     },
@@ -257,7 +271,7 @@ export default {
           this.pages[ current ].status = 'noMore'
         }
         this.pages[ current ].total = res.page.total
-        this.tabList[ current ].count = res.page.total
+        // this.tabList[ current ].count = res.page.total
       }
     }
   },

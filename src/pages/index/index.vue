@@ -37,12 +37,12 @@
           </view>
         </view>
       </view>
-      <view
+      <!-- <view
         class="store-item animation-fade"
         v-if="list && list.length > 0 && showAd"
       >
         <ad unit-id="adunit-1179c9d61b074e7d"></ad>
-      </view>
+      </view> -->
     </view>
     <view class="consult-button text-yellow" @click="toChatBXHeahth">
       <view class="icon">

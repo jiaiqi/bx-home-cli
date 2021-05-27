@@ -18,10 +18,10 @@
     >
       <image :src="item.url" mode="scaleToFill"></image>
     </swiper-item>
-    <swiper-item v-if="swiperList && swiperList.length > 0">
+    <!-- <swiper-item v-if="swiperList && swiperList.length > 4">
       <ad unit-id="adunit-a6e044e74ae32c30"></ad>
       <ad unit-id="adunit-e3af82298ac61213"></ad>
-    </swiper-item>
+    </swiper-item> -->
   </swiper>
 </template>
 

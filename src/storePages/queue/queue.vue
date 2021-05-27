@@ -26,13 +26,11 @@
     <view class="queue-card" v-if="todayQue || currentQuer">
       <view class="card-item">
         <view class="card-label text-blue">当前叫号</view>
-        <view class="card-content">{{
-          todayQue.cur_no || currentQuer.seq || "-"
-        }}</view>
+        <view class="card-content">{{ todayQue.cur_no || "-" }}</view>
       </view>
       <view class="card-item">
         <view class="card-label text-blue">最新排号</view>
-        <view class="card-content">{{ todayQue.last_no || "" }}</view>
+        <view class="card-content">{{ todayQue.last_no || "-" }}</view>
       </view>
     </view>
     <!-- <view class="que-card">
@@ -74,10 +72,10 @@
         </view>
         <view class="queue-info" v-if="queInfo.status === '排队中'">
           <view class="label">我的等待数量： </view>
-          <view class="value text-orange">{{ todayQue.wait_amount }}</view>
-          <!-- <view class="value text-orange">{{
+          <!-- <view class="value text-orange">{{ todayQue.wait_amount }}</view> -->
+          <view class="value text-orange">{{
             queInfo.seq - currentQuer.seq
-          }}</view> -->
+          }}</view>
         </view>
       </view>
     </view>
@@ -146,6 +144,7 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
       if (res.success && res.data.length > 0) {
         this.todayQue = res.data[ 0 ]
+        uni.setNavigationBarTitle({ title: res.data[ 0 ].queue_name })
         this.getQueList()
         this.getQueInfo()
       }
@@ -322,6 +321,7 @@ export default {
   font-weight: bold;
   font-size: 18px;
   margin-bottom: 20px;
+  text-align: left;
 }
 .que-date {
   text-align: left;

@@ -36,12 +36,12 @@
       @setHomePage="setHomePage"
     >
     </store-item>
-    <view
+    <!-- <view
       style="width: 100%; padding-bottom: 20px; overflow: hidden"
       v-if="pageItemList && pageItemList.length > 0 && showAd"
     >
       <ad unit-id="adunit-214e9c0d0b32708b" ad-intervals="60"></ad>
-    </view>
+    </view> -->
     <view
       class="cu-modal bottom-modal"
       @click="hideModal"
@@ -89,6 +89,7 @@ export default {
   },
   data () {
     return {
+      networkErrTimes: 0,
       showAd: false, //是否显示底部banner广告
       showHomeBtn: true,
       showHomePageSelector: false,
@@ -632,7 +633,12 @@ export default {
       // this.initPage()
     })
     uni.$on('networkErr', _ => {
-      this.initPage()
+      setTimeout(() => {
+        if (this.networkErrTimes < 3) {
+          this.initPage()
+          this.networkErrTimes++
+        }
+      }, 2000);
     })
     uni.$on('updateStoreInfo', (e) => {
       if (e && e.store_no === this.storeNo) {
