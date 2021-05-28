@@ -55,9 +55,9 @@ export default function({
 				...headers
 			}, ...args)
 		},
-		onerror: (...e) => {
-			console.error('请求异常',e)
-			if(e.includes('网络请求失败：超时取消')){
+		onerror: (method ,url, data, reason) => {
+			console.info('请求异常',method ,url, data, reason)
+			if(reason === '网络请求失败：超时取消'){
 				// uni.showToast({
 				// 	title: '网络请求失败，请刷新重试',
 				// 	icon: 'none',

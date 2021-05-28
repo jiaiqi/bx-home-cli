@@ -1,10 +1,16 @@
 import Vue from 'vue'
 import api from '@/common/api.js'
 import request from '@/common/utils/request.js'
+
 import store from '@/store/index.js'
 
+
+// let Fly = require("flyio/dist/npm/wx")
+// let fly = new Fly()
+// //设置超时
+// fly.config.timeout = 30000;
 const fly = request({
-	timeout: 1 * 1000
+	timeout: 10 * 1000
 })
 let FormateDate = function(date) {
 	let o = {

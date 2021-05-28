@@ -33,37 +33,6 @@
         <view class="card-content">{{ todayQue.last_no || "-" }}</view>
       </view>
     </view>
-    <!-- <view class="que-card">
-      <view class="margin-tb-sm">
-        <text v-if="currentQuer && currentQuer.seq"
-          >当前叫到【{{ currentQuer.seq }}】号，</text
-        >
-        排队人数：{{ total || 0 }}人
-      </view>
-      <view class="que-num">
-        <view class="num" v-if="queInfo && queInfo.seq">
-          <text class="">
-            {{ queInfo.seq }}
-          </text>
-          <text
-            v-if="queInfo && queInfo.status && queInfo.status === '未到场'"
-            class="text-orange tip"
-            >({{ queInfo.status }})</text
-          >
-        </view>
-        <view class="head font-bold text-gray" v-if="queInfo && queInfo.seq">
-          排队号
-        </view>
-
-        <view class="num" v-else> 待排队 </view>
-      </view>
-      <view
-        class=""
-        v-if="queInfo && queInfo.seq && currentQuer && currentQuer.seq"
-      >
-        您前面还有{{ queInfo.seq - currentQuer.seq }}人在等候
-      </view>
-    </view> -->
     <view class="my-queue" v-if="queInfo && currentQuer">
       <view class="left">
         <view class="queue-info">
@@ -73,9 +42,10 @@
         <view class="queue-info" v-if="queInfo.status === '排队中'">
           <view class="label">我的等待数量： </view>
           <!-- <view class="value text-orange">{{ todayQue.wait_amount }}</view> -->
-          <view class="value text-orange">{{
+          <view class="value text-orange">{{ waitAmount }}</view>
+          <!-- <view class="value text-orange">{{
             queInfo.seq - currentQuer.seq
-          }}</view>
+          }}</view> -->
         </view>
       </view>
     </view>
@@ -96,6 +66,9 @@
       class="que-button"
       v-else-if="todayQue && todayQue.id && todayQue.queue_status === '进行中'"
     >
+      <view class="tip" v-if="todayQue && todayQue.refreshTime"
+        >刷新时间：{{ todayQue.refreshTime }}</view
+      >
       <button class="button cu-btn bg-cyan light" @click="getQueueInfo">
         <text class="cuIcon-refresh margin-right-xs"></text> 刷新
       </button>
@@ -110,6 +83,18 @@ export default {
     ...mapState({
       userInfo: state => state.user.userInfo
     }),
+    waitAmount () {
+      if (this.queList.length > 0 && this?.userInfo?.no) {
+        let index = this.queList.findIndex(item => item.person_no === this.userInfo.no)
+        if (index !== -1) {
+          return index + 1
+        } else {
+          return this.queList.length
+        }
+      } else {
+        return '-'
+      }
+    },
     currentQuer () {
       // 当前正在接种用户排队信息
       if (this.queList.length > 0) {
@@ -132,22 +117,30 @@ export default {
   methods: {
     async getQueueInfo () {
       // 查询当日排队信息
-      let req = {
-        "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
-        "condition": [
-          { colName: 'store_no', ruleType: 'eq', value: this.store_no },
-          { colName: 'queue_no', ruleType: 'eq', value: this.queue_no },
-          { colName: "queue_date", ruleType: 'like', value: this.dayjs().format("YYYY-MM-DD") }
-        ],
-        "page": { "pageNo": 1, "rownumber": 1 }
-      }
-      let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
-      if (res.success && res.data.length > 0) {
-        this.todayQue = res.data[ 0 ]
-        uni.setNavigationBarTitle({ title: res.data[ 0 ].queue_name })
-        this.getQueList()
-        this.getQueInfo()
-      }
+      this.$uDebounce.canDoFunction({
+        key: "getQueueInfo",//基于此值判断是否可以操作，如两个方法传入了同样的key，则会混淆，建议传入调用此事件的方法名，简单好梳理
+        time: 3000,//如果传入time字段，则为定时器后，自动解除锁定状态，单位（毫秒）
+        success: async () => {//成功中调用应该操作的方法，被锁定状态不会执行此代码块内的方法
+          let req = {
+            "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
+            "condition": [
+              { colName: 'store_no', ruleType: 'eq', value: this.store_no },
+              { colName: 'queue_no', ruleType: 'eq', value: this.queue_no },
+              { colName: "queue_date", ruleType: 'like', value: this.dayjs().format("YYYY-MM-DD") }
+            ],
+            "page": { "pageNo": 1, "rownumber": 1 }
+          }
+          let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
+          if (res.success && res.data.length > 0) {
+            res.data[ 0 ].refreshTime = this.dayjs().format("HH:mm:ss")
+            this.todayQue = res.data[ 0 ]
+            uni.setNavigationBarTitle({ title: res.data[ 0 ].queue_name })
+            this.getQueList()
+            this.getQueInfo()
+          }
+        }
+      })
+
     },
     async updateQueueInfo (no) {
       let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { last_no: no } ] } ]
@@ -171,6 +164,7 @@ export default {
         "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ],
         "condition": [
           { colName: "person_no", ruleType: 'eq', value: this.userInfo.no },
+          { colName: 'status', ruleType: 'ne', value: '完成' },
           { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no },
           { colName: "store_no", ruleType: 'eq', value: this.store_no }
         ],
@@ -198,60 +192,66 @@ export default {
     },
     async startQue () {
       // 开始排队
-      const req = [ {
-        "serviceName": "srvhealth_store_queue_up_record_add", "condition": [],
-        "data": [
-          {
-            "queue_no": this.todayQue.queue_no, "queue_name": this.todayQue.queue_name, "status": "排队中",
-            nick_name: this.userInfo.nick_name,
-            person_name: this.userInfo.person_name,
-            person_no: this.userInfo.no,
-            profile_url: this.userInfo.profile_url,
-            sex: this.userInfo.sex,
-            store_user_no: this.storeUser.store_user_no,
-            store_no: this.store_no,
-            user_account: this.userInfo.userno,
-            user_image: this.userInfo.user_image,
-            fill_batch_no: this.fill_batch_no || null
+      this.$uDebounce.canDoFunction({
+        key: "startQue",//基于此值判断是否可以操作，如两个方法传入了同样的key，则会混淆，建议传入调用此事件的方法名，简单好梳理
+        time: 3000,//如果传入time字段，则为定时器后，自动解除锁定状态，单位（毫秒）
+        success: async () => {//成功中调用应该操作的方法，被锁定状态不会执行此代码块内的方法
+          const req = [ {
+            "serviceName": "srvhealth_store_queue_up_record_add", "condition": [],
+            "data": [
+              {
+                "queue_no": this.todayQue.queue_no, "queue_name": this.todayQue.queue_name, "status": "排队中",
+                nick_name: this.userInfo.nick_name,
+                person_name: this.userInfo.person_name,
+                person_no: this.userInfo.no,
+                profile_url: this.userInfo.profile_url,
+                sex: this.userInfo.sex,
+                store_user_no: this.storeUser.store_user_no,
+                store_no: this.store_no,
+                user_account: this.userInfo.userno,
+                user_image: this.userInfo.user_image,
+                fill_batch_no: this.fill_batch_no || null
+              } ]
           } ]
-      } ]
-      if (this?.todayQue?.queue_remark) {
-        let result = await new Promise((resolve) => {
-          uni.showModal({
-            title: '提示',
-            content: this?.todayQue?.queue_remark,
-            confirmText: "知道了",
-            success (res) {
-              if (res.confirm) {
-                resolve(true)
-              } else {
-                resolve(false)
-              }
+          if (this?.todayQue?.queue_remark) {
+            let result = await new Promise((resolve) => {
+              uni.showModal({
+                title: '提示',
+                content: this?.todayQue?.queue_remark,
+                confirmText: "知道了",
+                success (res) {
+                  if (res.confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+            if (!result) {
+              return
             }
-          })
-        })
-        if (!result) {
-          return
-        }
-      }
-      if (this?.todayQue?.activity_no) {
+          }
+          if (this?.todayQue?.activity_no) {
 
-        if (!this.fill_batch_no) {
-          uni.redirectTo({
-            url: `/questionnaire/index/index?formType=form&activity_no=${this?.todayQue?.activity_no}&status=进行中&from=queue&store_no=${this.store_no}&queue_no=${this.queue_no}`
-          });
-          return
+            if (!this.fill_batch_no) {
+              uni.redirectTo({
+                url: `/questionnaire/index/index?formType=form&activity_no=${this?.todayQue?.activity_no}&status=进行中&from=queue&store_no=${this.store_no}&queue_no=${this.queue_no}`
+              });
+              return
+            }
+          }
+          const res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_add', req, 'health')
+          if (res.success && res.data.length > 0) {
+            this.getQueList()
+            this.queInfo = res.data[ 0 ]
+            // if (this?.todayQue?.id) {
+            //   await this.updateQueueInfo(res.data[ 0 ].seq)
+            // }
+            this.getQueueInfo()
+          }
         }
-      }
-      const res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_add', req, 'health')
-      if (res.success && res.data.length > 0) {
-        this.getQueList()
-        this.queInfo = res.data[ 0 ]
-        if (this?.todayQue?.id) {
-          await this.updateQueueInfo(res.data[ 0 ].seq)
-        }
-        this.getQueueInfo()
-      }
+      })
     },
     getStoreUserInfo () {
       let req = { "serviceName": "srvhealth_store_user_select", "colNames": [ "*" ], "condition": [ { colName: 'person_no', ruleType: 'eq', value: this.userInfo.no }, { colName: 'store_no', ruleType: 'eq', value: this.store_no } ], "relation_condition": {}, "page": { "pageNo": 1, "rownumber": 10 }, "order": [], "draft": false, "query_source": "list_page" }
@@ -436,9 +436,13 @@ export default {
 }
 
 .que-button {
+  margin: 50px auto;
+  .tip {
+    color: #666;
+  }
   .button {
+    margin-top: 10rpx;
     width: 30%;
-    margin: 50px auto;
     font-size: 20px;
     font-weight: bold;
   }

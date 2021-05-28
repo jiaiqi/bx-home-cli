@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-25 17:05:03
- * @LastEditTime: 2021-05-27 19:26:13
+ * @LastEditTime: 2021-05-28 10:34:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \bx-home-cli\src\storePages\queue\list.vue
@@ -263,9 +263,9 @@ export default {
     .change-status {
       display: flex;
       padding: 10rpx 0;
-      justify-content: space-between;
+      // justify-content: space-between;
       .label {
-        flex: 1;
+        // flex: 1;
       }
     }
     .que-footer {

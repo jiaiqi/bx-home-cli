@@ -32,6 +32,7 @@
         :src="currentChat.voice_url"
         controls
       />
+
       <scroll-view
         @scrolltoupper="loadData"
         :scroll-y="true"
@@ -312,7 +313,7 @@
               ></map>
             </view>
             <view
-              @tap="openVideo(item)"
+              @tap.stop.prevent="openVideo(item)"
               v-else-if="item.video && item.msg_content_type === '视频'"
               class="video_right_play"
             >
@@ -324,7 +325,7 @@
                   width: item.videoWidth + 'px',
                   height: item.videoHeight + 'px',
                 }"
-                id="myVideo"
+                :id="'myVideo' + item.id"
                 :src="item.video_url"
                 :duration="
                   item.attribute && item.attribute.duration
@@ -363,6 +364,25 @@
                   <image
                     v-else-if="item.file_type && item.file_type === 'pdf'"
                     src="/static/img/pdf.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="
+                      item.file_type && ['ppt', 'pptx'].includes(item.file_type)
+                    "
+                    src="/static/img/ppt.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="item.file_type && item.file_type === 'file'"
+                    src="/static/img/file1.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="
+                      item.file_type && ['mp3', 'mp4'].includes(item.file_type)
+                    "
+                    src="/static/img/music.png"
                     mode=""
                   ></image>
                 </view>
@@ -562,7 +582,7 @@
               </view>
             </view>
             <view
-              @tap="openVideo(item)"
+              @tap.stop.prevent="openVideo(item)"
               v-else-if="item.video && item.msg_content_type === '视频'"
               class="video_right_play"
             >
@@ -575,7 +595,7 @@
                   width: item.videoWidth + 'px',
                   height: item.videoHeight + 'px',
                 }"
-                id="myVideo"
+                :id="'myVideo' + item.id"
                 :duration="
                   item.attribute && item.attribute.duration
                     ? item.attribute.duration
@@ -639,6 +659,25 @@
                   <image
                     v-else-if="item.file_type && item.file_type === 'pdf'"
                     src="/static/img/pdf.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="item.file_type && item.file_type === 'file'"
+                    src="/static/img/file1.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="
+                      item.file_type && ['ppt', 'pptx'].includes(item.file_type)
+                    "
+                    src="/static/img/ppt.png"
+                    mode=""
+                  ></image>
+                  <image
+                    v-else-if="
+                      item.file_type && ['mp3', 'mp4'].includes(item.file_type)
+                    "
+                    src="/static/img/music.png"
                     mode=""
                   ></image>
                 </view>
@@ -1220,6 +1259,10 @@ export default {
     },
     /*播放视频**/
     openVideo (item) {
+      // this.videoContext = uni.createVideoContext('myVideo' + item.id);
+      // this.videoContext.requestFullScreen({	// 设置全屏时视频的方向，不指定则根据宽高比自动判断。
+      //   // direction: 90						// 屏幕逆时针90度
+      // });
       // let self = this
       // uni.openVideoEditor({
       // 	filePath:self.$api.downloadFile + item.video + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket')

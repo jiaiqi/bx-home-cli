@@ -383,7 +383,7 @@ export default {
         .navType) {
         uni.showModal({
           title: '提示',
-          content: '请先绑定为当前机构用户，点击右上方绑定按钮进行绑定',
+          content: '请先绑定为当前机构用户，点击右上方加入按钮进行绑定',
           showCancel: false,
           confirmText: '知道了'
         })
@@ -619,7 +619,7 @@ export default {
         // this.addToStore()
         uni.showModal({
           title: '提示',
-          content: '请先绑定为当前机构用户，点击右上方绑定按钮进行绑定',
+          content: '请先绑定为当前机构用户，点击右上方加入按钮进行绑定',
           showCancel: false,
           confirmText: '知道了'
         })

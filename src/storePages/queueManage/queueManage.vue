@@ -186,9 +186,9 @@ export default {
             mask: true
           })
           if (status === '已叫号' && res.data.length > 0 && res.data[ 0 ].seq) {
-            if (this?.todayQue?.id) {
-              this.updateQueueInfo(res.data[ 0 ].seq)
-            }
+            // if (this?.todayQue?.id) {
+            //   this.updateQueueInfo(res.data[ 0 ].seq)
+            // }
           }
         } else if (res.msg) {
           uni.showToast({

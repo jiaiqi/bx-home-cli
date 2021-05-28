@@ -3,6 +3,7 @@ import api from '@/common/api.js'
 import _http from '@/common/http.js'
 const mpAppNo = api.appNo.wxmp
 import dayjs from '@/static/js/dayjs.min.js'
+import uDebounce from '@/common/utils/debounce.js'
 import {
 	checkIsAttention,
 	wxVerifyLogin,
@@ -12,6 +13,7 @@ export default {
 	install(Vue, options) {
 		// dayjs.extend(isoWeek)
 		Vue.prototype.dayjs = dayjs
+		Vue.prototype.$uDebounce = uDebounce
 		Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
 		/**
 		 *@param {Array} loginInfoList 要存储的登录信息 [{key:'',value:''}]

@@ -74,6 +74,9 @@
             <text class="cu-tag badge-left" v-if="item.unback">{{
               item.unback
             }}</text>
+            <text class="cu-tag badge" v-if="item.unread">{{
+              item.unread
+            }}</text>
             <image
               :src="item.iconPath"
               class="icon"
@@ -298,6 +301,13 @@ export default {
               num1 = 0
             }
             item.unback = num1
+          }
+          if (item.unread_attr) {
+            let num1 = Number(this.renderStr(item.unread_attr, obj))
+            if (isNaN(num1)) {
+              num1 = 0
+            }
+            item.unread = num1
           }
           item.label = item.button_label
           item.num = num || 0
@@ -877,7 +887,8 @@ export default {
       height: 14px;
       color: #ffffff;
     }
-
+    .badge-right {
+    }
     .box-item-content {
       position: relative;
       display: flex;
