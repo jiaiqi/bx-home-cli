@@ -38,14 +38,27 @@
         <view class="queue-info">
           <view class="label">我的排号： </view>
           <view class="value text-blue">{{ queInfo.seq }}</view>
+          <view class="status text-blue">{{ queInfo.status }}</view>
         </view>
+
         <view class="queue-info" v-if="queInfo.status === '排队中'">
-          <view class="label">我的等待数量： </view>
+          <view class="label">前方等待人数： </view>
           <!-- <view class="value text-orange">{{ todayQue.wait_amount }}</view> -->
           <view class="value text-orange">{{ waitAmount }}</view>
+          <view class="status text-blue">人</view>
           <!-- <view class="value text-orange">{{
             queInfo.seq - currentQuer.seq
           }}</view> -->
+        </view>
+        <view
+          class="queue-info"
+          v-if="waitAmount && todayQue && todayQue.avg_wait_time"
+        >
+          <view class="label">预估等待时长： </view>
+          <view class="value text-blue">{{
+            waitAmount * todayQue.avg_wait_time
+          }}</view>
+          <view class="status text-blue">(分钟)</view>
         </view>
       </view>
     </view>
@@ -392,14 +405,19 @@ export default {
     align-items: center;
     font-size: 18px;
     padding: 20rpx 0;
+    justify-content: space-between;
     .label {
       min-width: 130px;
     }
     .value {
+      flex: 1;
       font-weight: bold;
       font-size: 30px;
       margin-left: 24px;
       // color: #00b050;
+    }
+    .status {
+      font-size: 14px;
     }
   }
 }
@@ -436,7 +454,7 @@ export default {
 }
 
 .que-button {
-  margin: 50px auto;
+  margin: 10rpx auto 30px;
   .tip {
     color: #666;
   }
