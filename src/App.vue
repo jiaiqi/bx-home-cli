@@ -7,6 +7,7 @@ export default {
   },
   onLaunch (options) {
     if (options.scene === 1154) {
+      // 朋友圈单页模式进入
       return
     }
     this.checkUpdate()

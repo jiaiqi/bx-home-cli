@@ -1,10 +1,17 @@
 <template>
   <view class="queue-wrap">
     <view class="queue-header">
-      <view>
-        <view class="queue-name" v-if="todayQue && todayQue.queue_name">
-          {{ todayQue.queue_name || "" }}
-        </view>
+      <view class="queue-name" v-if="todayQue && todayQue.queue_name">
+        {{ todayQue.queue_name || "" }}
+      </view>
+    </view>
+    <view class="queue-remark" v-if="todayQue && todayQue.queue_remark">
+      <view class="remark-title">说明：</view>
+      <view class="remark-content">{{ todayQue.queue_remark }}</view>
+    </view>
+
+    <view class="cu-timeline" v-if="queStatus === '未抽号'">
+      <view class="cu-time">
         <view class="que-date" v-if="todayQue && todayQue.queue_date">
           <text>
             {{ dayjs(todayQue.queue_date).format("YYYY-MM-DD") }}
@@ -12,18 +19,125 @@
           <text> （周{{ dayjs(todayQue.queue_date).day() }}，今日） </text>
         </view>
       </view>
-      <view class="right">
-        <image class="profile" :src="userInfo.profile_url" mode="scaleToFill" />
-        <view class="label">
-          {{ userInfo.name || userInfo.nick_name || "" }}</view
-        >
+
+      <view class="cu-item card-item text-blue" v-if="todayQue">
+        <view class="content">
+          <text class="label">当前叫号:</text>
+          <text class="value">{{ todayQue.cur_no || "未开始" }}</text>
+        </view>
+        <view class="timeline-tips" v-if="total">
+          <text> 前方等待：{{ total }}人 </text>
+          <text v-if="todayQue && todayQue.avg_wait_time && waitAmount"
+            >预估等待：{{ waitAmount * todayQue.avg_wait_time }}分钟</text
+          >
+        </view>
+      </view>
+
+      <view
+        class="cu-item card-item text-blue"
+        v-if="todayQue && todayQue.last_no"
+      >
+        <view class="content">
+          <text class="label">队尾号码:</text>
+          <text class="value">{{ todayQue.last_no || "-" }}</text>
+        </view>
       </view>
     </view>
-    <view class="queue-remark" v-if="todayQue && todayQue.queue_remark">
-      <view class="remark-title">说明：</view>
-      <view class="remark-content">{{ todayQue.queue_remark }}</view>
+    <view class="cu-timeline" v-else>
+      <view class="cu-time">
+        <view class="que-date" v-if="todayQue && todayQue.queue_date">
+          <text>
+            {{ dayjs(todayQue.queue_date).format("YYYY-MM-DD") }}
+          </text>
+          <text> （周{{ dayjs(todayQue.queue_date).day() }}，今日） </text>
+        </view>
+      </view>
+
+      <view
+        class="cu-item card-item text-blue"
+        v-if="todayQue && queInfo && queInfo.status !== '已叫号'"
+      >
+        <view class="content">
+          <text class="label">当前叫号:</text>
+          <text class="value mr-80">{{ todayQue.cur_no || "未开始" }}</text>
+        </view>
+        <view class="timeline-tips" v-if="total">
+          <text> 前方等待：{{ total }}人 </text>
+          <text
+            class="margin-left"
+            v-if="todayQue && todayQue.avg_wait_time && waitAmount"
+            >预估等待：{{ waitAmount * todayQue.avg_wait_time }}分钟</text
+          >
+        </view>
+      </view>
+      <view class="cu-item card-item text-blue" v-if="queInfo && queInfo.seq">
+        <view class="content">
+          <view class="label">
+            <text>我的排号:</text>
+            <text v-if="queInfo.status === '已叫号'" class="text-blue"
+              >[叫号中]
+              <text
+                v-if="lastQueInfo && queInfo && lastQueInfo.seq === queInfo.seq"
+                >[队尾]</text
+              ></text
+            >
+          </view>
+          <view class="value">
+            <text class="value_text">{{ queInfo.seq || "未开始" }}</text>
+            <view class="profile-info">
+              <image
+                class="profile"
+                :src="userInfo.profile_url"
+                mode="scaleToFill"
+              />
+              <view class="margin-right-xs text">
+                {{ userInfo.name || userInfo.nick_name || "" }}</view
+              >
+            </view>
+          </view>
+        </view>
+        <view
+          class="timeline-tips"
+          v-if="overWait && lastQueInfo && lastQueInfo.status !== '已叫号'"
+        >
+          <text> 后面等待：{{ overWait }}人 </text>
+        </view>
+      </view>
+      <view
+        class="cu-item card-item text-blue"
+        v-if="
+          todayQue &&
+          todayQue.last_no &&
+          todayQue.last_no !== queInfo.seq &&
+          lastQueInfo &&
+          lastQueInfo.seq !== queInfo.seq
+        "
+      >
+        <view class="content">
+          <view class="label">
+            <text>队尾号码:</text>
+            <text v-if="lastQueInfo.status === '已叫号'" class="text-blue"
+              >[叫号中]</text
+            >
+          </view>
+          <text
+            class="value mr-80"
+            v-if="lastQueInfo.seq === todayQue.last_no"
+            >{{ todayQue.last_no || "-" }}</text
+          >
+          <text
+            class="value mr-80"
+            v-if="
+              lastQueInfo.seq !== todayQue.last_no &&
+              lastQueInfo.seq !== queInfo.seq
+            "
+            >{{ lastQueInfo.seq || "-" }}</text
+          >
+        </view>
+      </view>
     </view>
-    <view class="queue-card" v-if="todayQue || currentQuer">
+
+    <!-- <view class="queue-card" v-if="todayQue || currentQuer">
       <view class="card-item">
         <view class="card-label text-blue">当前叫号</view>
         <view class="card-content">{{ todayQue.cur_no || "-" }}</view>
@@ -32,8 +146,8 @@
         <view class="card-label text-blue">最新排号</view>
         <view class="card-content">{{ todayQue.last_no || "-" }}</view>
       </view>
-    </view>
-    <view class="my-queue" v-if="queInfo && currentQuer">
+    </view> -->
+    <!-- <view class="my-queue" v-if="queInfo && currentQuer">
       <view class="left">
         <view class="queue-info">
           <view class="label">我的排号： </view>
@@ -43,12 +157,8 @@
 
         <view class="queue-info" v-if="queInfo.status === '排队中'">
           <view class="label">前方等待人数： </view>
-          <!-- <view class="value text-orange">{{ todayQue.wait_amount }}</view> -->
           <view class="value text-orange">{{ waitAmount }}</view>
           <view class="status text-blue">人</view>
-          <!-- <view class="value text-orange">{{
-            queInfo.seq - currentQuer.seq
-          }}</view> -->
         </view>
         <view
           class="queue-info"
@@ -61,7 +171,8 @@
           <view class="status text-blue">(分钟)</view>
         </view>
       </view>
-    </view>
+    </view> -->
+
     <view
       class="que-button"
       v-if="
@@ -86,6 +197,14 @@
         <text class="cuIcon-refresh margin-right-xs"></text> 刷新
       </button>
     </view>
+    <view class="margin-tb">
+      <ad
+        unit-id="adunit-27e9d9a7b00e4f6a"
+        ad-type="video"
+        ad-theme="white"
+        v-if="todayQue && todayQue.id && queStatus"
+      ></ad>
+    </view>
   </view>
 </template>
 
@@ -96,6 +215,28 @@ export default {
     ...mapState({
       userInfo: state => state.user.userInfo
     }),
+    queStatus () {
+      if (!this.queInfo) {
+        return '未抽号'
+      } else if (this.queInfo?.status) {
+        return this.queInfo.status
+      }
+    },
+    curWaitAmount () {
+      if (Array.isArray(this.queList)) {
+        return this.queList.length
+      } else {
+        return 0
+      }
+    },
+    overWait () {
+      // 当前用户后面等待的人数
+      if (this.queInfo && this.queInfo.seq && this.lastQueInfo && this.lastQueInfo.seq) {
+        if (this.lastQueInfo.seq - this.queInfo.seq > 0) {
+          return this.lastQueInfo.seq - this.queInfo.seq
+        }
+      }
+    },
     waitAmount () {
       if (this.queList.length > 0 && this?.userInfo?.no) {
         let index = this.queList.findIndex(item => item.person_no === this.userInfo.no)
@@ -121,13 +262,19 @@ export default {
       queue_no: "",
       todayQue: null,//当日排队信息
       queInfo: null,//当前用户排队信息
+      lastQueInfo: null,
       total: 0,//排队人总数
       queList: [],
       storeUser: null,
-      fill_batch_no: ''
+      fill_batch_no: '',
+      timer: null,
+      setTimer: false,
     }
   },
   methods: {
+    autoRefresh () {
+
+    },
     async getQueueInfo () {
       // 查询当日排队信息
       this.$uDebounce.canDoFunction({
@@ -150,6 +297,7 @@ export default {
             uni.setNavigationBarTitle({ title: res.data[ 0 ].queue_name })
             this.getQueList()
             this.getQueInfo()
+            this.getLastPerson()
           }
         }
       })
@@ -166,7 +314,7 @@ export default {
       let req = {
         "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ], "condition": [
           { colName: 'status', ruleType: 'eq', value: '排队中' },
-          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no } ], "page": { "pageNo": 1, "rownumber": 1 }
+          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no } ], "page": { "pageNo": 1, "rownumber": 30 }
       }
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
       this.queList = res.data
@@ -203,8 +351,41 @@ export default {
         this.queInfo = null
       }
     },
+    async getLastPerson () {
+      let req = {
+        "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ],
+        "condition": [
+          { colName: 'status', ruleType: 'ne', value: '完成' },
+          { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no },
+          { colName: "store_no", ruleType: 'eq', value: this.store_no }
+        ],
+        "order": [
+          {
+            colName: "create_time",
+            orderType: "desc"
+          }
+        ],
+        "page": { "pageNo": 1, "rownumber": 1 }
+      }
+      let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
+      if (res.success && res.data.length > 0) {
+        this.lastQueInfo = res.data[ 0 ]
+      }
+    },
     async startQue () {
       // 开始排队
+      if (this.todayQue?.queue_length) {
+        if (this.total && this.total >= this.todayQue.queue_length) {
+          //
+          uni.showModal({
+            title: '提示',
+            content: '当前队伍已满，请稍后再试...',
+            showCancel: false,
+            confirmText: "好的"
+          })
+          return
+        }
+      }
       this.$uDebounce.canDoFunction({
         key: "startQue",//基于此值判断是否可以操作，如两个方法传入了同样的key，则会混淆，建议传入调用此事件的方法名，简单好梳理
         time: 3000,//如果传入time字段，则为定时器后，自动解除锁定状态，单位（毫秒）
@@ -288,8 +469,25 @@ export default {
       await this.toAddPage()
       await this.getStoreUserInfo()
       await this.getQueueInfo()
+      this.timer = setInterval(() => {
+        this.getQueueInfo()
+      }, 5000);
     }
+  },
 
+  beforeDestroy () {
+    clearInterval(this.timer)
+  },
+  onHide () {
+    clearInterval(this.timer)
+  },
+  onShow () {
+    if (this.setTimer && this.store_no && this.queue_no) {
+      clearInterval(this.timer)
+      this.timer = setInterval(() => {
+        this.getQueueInfo()
+      }, 5000);
+    }
   },
   // 页面处理函数--监听用户下拉动作
   onPullDownRefresh () {
@@ -315,8 +513,8 @@ export default {
   overflow: hidden;
 }
 .queue-header {
-  display: flex;
-  justify-content: space-between;
+  // display: flex;
+  // justify-content: space-between;
   padding: 0 20px;
   .right {
     .profile {
@@ -333,8 +531,7 @@ export default {
 .queue-name {
   font-weight: bold;
   font-size: 18px;
-  margin-bottom: 20px;
-  text-align: left;
+  text-align: center;
 }
 .que-date {
   text-align: left;
@@ -463,6 +660,73 @@ export default {
     width: 30%;
     font-size: 20px;
     font-weight: bold;
+  }
+}
+.cu-timeline {
+  .cu-time {
+    width: auto;
+    padding: 20rpx;
+  }
+  .timeline-tips {
+    color: #e54d42;
+    font-weight: bold;
+    margin-top: 20rpx;
+  }
+  .profile-info {
+    // width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    // position: absolute;
+    // right: 0;
+    // top: 0;
+    .text {
+      font-size: 14px;
+      color: #333;
+    }
+    .profile {
+      width: 80rpx;
+      height: 80rpx;
+      border-radius: 20rpx;
+      margin-bottom: 10rpx;
+    }
+  }
+  .card-item {
+    padding: 20rpx 20rpx 20rpx 100rpx;
+    .content {
+      background-color: #deebf7;
+      border-radius: 20rpx;
+      display: flex;
+      align-items: center;
+      padding: 20rpx;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .label {
+      color: #e54d42;
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .value {
+      flex: 1;
+      width: 100%;
+      font-size: 50px;
+      color: #00b050;
+      font-weight: bold;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      &.mr-80 {
+        margin-right: 80rpx;
+      }
+      .value_text {
+        flex: 1;
+        // margin-left: 80rpx;
+        text-align: center;
+      }
+    }
   }
 }
 </style>

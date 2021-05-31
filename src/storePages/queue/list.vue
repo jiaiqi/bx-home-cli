@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-05-25 17:05:03
- * @LastEditTime: 2021-05-28 10:34:43
+ * @LastEditTime: 2021-05-31 10:14:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \bx-home-cli\src\storePages\queue\list.vue
@@ -39,7 +39,7 @@
         <text>
           {{ dayjs().format("YYYY-MM-DD") }}
         </text>
-        <text> （周{{ dayjs().day() }}，今日） </text>
+        <text> （周{{ localDay }}，今日） </text>
       </view>
       <view class="que-footer">
         <view class="footer-item">
@@ -106,7 +106,36 @@ export default {
   computed: {
     ...mapState({
       userInfo: state => state.user.userInfo
-    })
+    }),
+    localDay () {
+      let day = new Date()
+      day = day.getDay()
+      let result = ''
+      switch (day) {
+        case 0:
+          result = '日'
+          break;
+        case 1:
+          result = '一'
+          break;
+        case 2:
+          result = '二'
+          break;
+        case 3:
+          result = '三'
+          break;
+        case 4:
+          result = '四'
+          break;
+        case 5:
+          result = '五'
+          break;
+        case 6:
+          result = '六'
+          break;
+      }
+      return result
+    }
   },
   data () {
     return {

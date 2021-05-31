@@ -181,11 +181,11 @@ export default {
     if (this.userInfo && this.userInfo.userno) {
       query += `&invite_user_no=${this.userInfo.userno}`
     }
+    this.saveSharerInfo(this.userInfo, path);
     return {
       title: this.articleData.title,
       query: query
     };
-    this.saveSharerInfo(this.userInfo, path);
   },
   onShareAppMessage () {
     let path =
@@ -209,6 +209,7 @@ export default {
     };
   },
   onLoad (option) {
+    debugger
     if (option.article) {
       this.articleData = JSON.parse(decodeURIComponent(option.article));
     }

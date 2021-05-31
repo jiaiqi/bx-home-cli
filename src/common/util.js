@@ -3,6 +3,7 @@ import api from '@/common/api.js'
 import _http from '@/common/http.js'
 const mpAppNo = api.appNo.wxmp
 import dayjs from '@/static/js/dayjs.min.js'
+
 import uDebounce from '@/common/utils/debounce.js'
 import {
 	checkIsAttention,
@@ -647,6 +648,17 @@ export default {
 				animationType: 'zoom-fade-in',
 				delta: 1
 			});
+		}
+		Vue.prototype.getLocalDay=(date,isLocal=true)=>{
+			// 日期对应周几
+			date = new Date(date||null)
+			if(isLocal){
+				const options = { weekday: 'long'};
+				return new Intl.DateTimeFormat('zh-cn', options).format(date)
+			}else{
+				return date.getDay()
+			}
+			
 		}
 		Vue.prototype.formateTime = (date, returnNull, formate) => {
 			// TODO 上午下午 昨天前天 
