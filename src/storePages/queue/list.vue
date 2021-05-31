@@ -1,11 +1,3 @@
-<!--
- * @Author: your name
- * @Date: 2021-05-25 17:05:03
- * @LastEditTime: 2021-05-31 10:14:33
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \bx-home-cli\src\storePages\queue\list.vue
--->
 <template>
   <view class="queue-list-view">
     <view class="add-btn" v-if="type === 'manage'">
@@ -59,7 +51,7 @@
         <text class="label">更改状态：</text>
         <view class="buttons">
           <button
-            class="cu-btn bg-gray sm round margin-right-xs"
+            class="cu-btn bg-red sm round margin-right-xs"
             @click.stop="changeStatus(item, '已结束')"
             v-if="item.queue_status !== '已结束'"
           >
@@ -216,10 +208,15 @@ export default {
         "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
         "condition": [
           { colName: 'store_no', ruleType: 'eq', value: this.store_no },
-          { colName: 'queue_status', ruleType: 'in', value: '待开始,进行中' },
+          // { colName: 'queue_status', ruleType: 'in', value: '待开始,进行中' },
           { colName: "queue_date", ruleType: 'like', value: this.dayjs().format("YYYY-MM-DD") }
         ],
         "page": { "pageNo": 1, "rownumber": 20 }
+      }
+      if (this.type != 'manage') {
+        req.condition.push(
+          { colName: 'queue_status', ruleType: 'in', value: '待开始,进行中' }
+        )
       }
       this.loadStatus = 'loading'
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')

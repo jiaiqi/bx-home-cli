@@ -4,6 +4,7 @@
       :list="tabList"
       :is-scroll="false"
       :current="currentTab"
+      :font-size="36"
       @change="changeTab"
     ></u-tabs>
     <!-- <view class="call-name">
@@ -36,27 +37,44 @@
               <text class="num">{{ item.seq }}</text>
             </view>
           </view>
-          <view class="button-box" v-if="currentTab !== 2">
+          <view class="button-box" v-if="currentTab !== 1">
+            <view class="queue-status text-blue">{{ item.status }}</view>
             <button
               class="cu-btn bg-cyan"
-              @click="changeStatus(item, '已叫号')"
-              v-if="currentTab !== 0"
+              @click="changeStatus(item, '叫号中')"
+              v-if="
+                currentTab !== 1 &&
+                (item.status === '排队中' || item.status === '已过号')
+              "
             >
               叫号
             </button>
             <button
               class="cu-btn bg-blue"
               @click="changeStatus(item, '完成')"
-              v-if="currentTab !== 1"
+              v-if="currentTab !== 2 && item.status === '叫号中'"
             >
               完成
             </button>
             <button
               class="cu-btn bg-orange"
-              @click="changeStatus(item, '未到场')"
+              v-if="
+                currentTab !== 2 && currentTab !== 1 && item.status === '叫号中'
+              "
+              @click="changeStatus(item, '已过号')"
             >
               过号
             </button>
+            <button
+              class="cu-btn bg-orange"
+              v-if="currentTab !== 0 && currentTab !== 1"
+              @click="changeStatus(item, '排队中')"
+            >
+              排队
+            </button>
+          </view>
+          <view class="button-box" v-if="currentTab == 1">
+            <view class="queue-status text-blue">{{ item.status }}</view>
           </view>
         </view>
       </view>
@@ -108,19 +126,15 @@ export default {
       {
         pageNo: 1,
         status: 'more'
-      },
-      {
-        pageNo: 1,
-        status: 'more'
       } ],
       listData: [
-        [], [], [], []
+        [], [], []
       ],
       tabList: [
-        {
-          name: "已叫号",
-          count: 0
-        },
+        // {
+        //   name: "叫号中",
+        //   count: 0
+        // },
         {
           name: "排队中",
           count: 0
@@ -131,7 +145,7 @@ export default {
 
         },
         {
-          name: "未到场",
+          name: "已过号",
           count: 0
         },
       ]
@@ -185,7 +199,7 @@ export default {
             icon: 'success',
             mask: true
           })
-          if (status === '已叫号' && res.data.length > 0 && res.data[ 0 ].seq) {
+          if (status === '叫号中' && res.data.length > 0 && res.data[ 0 ].seq) {
             // if (this?.todayQue?.id) {
             //   this.updateQueueInfo(res.data[ 0 ].seq)
             // }
@@ -220,7 +234,7 @@ export default {
           this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no)
         }
         this.tabList = this.tabList.map((item, index) => {
-          if (item.name === '已叫号') {
+          if (item.name === '叫号中') {
             item.count = this.todayQue.call_amount
             this.$set(this.tabList, index, item)
           } else if (item.name === '排队中') {
@@ -229,7 +243,7 @@ export default {
           } else if (item.name === '完成') {
             item.count = this.todayQue.finish_amount
             this.$set(this.tabList, index, item)
-          } else if (item.name === '未到场') {
+          } else if (item.name === '已过号') {
             item.count = this.todayQue.absent_amount
             this.$set(this.tabList, index, item)
           }
@@ -258,6 +272,9 @@ export default {
       let req = {
         "serviceName": "srvhealth_store_queue_up_record_select", "colNames": [ "*" ], "condition": [
           { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no }, { colName: 'status', ruleType: 'eq', value: this.tabList[ current ].name } ], "page": { "pageNo": this.pages[ current ].pageNo, "rownumber": 30 }
+      }
+      if (this.tabList[ current ].name === '排队中') {
+        req.condition[ 1 ] = { colName: 'status', ruleType: 'in', value: '叫号中,排队中' }
       }
       this.pages[ current ].status = 'loading'
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
@@ -342,6 +359,11 @@ export default {
     display: flex;
     justify-content: flex-end;
     // justify-content: center;
+    .queue-status {
+      flex: 1;
+      text-align: left;
+      font-size: 18px;
+    }
     .cu-btn {
       margin-right: 20rpx;
       min-width: 25%;
