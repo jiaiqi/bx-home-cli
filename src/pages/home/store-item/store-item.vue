@@ -50,6 +50,7 @@
     >
     </staff-manage>
     <news-list
+      :pageItem="pageItem"
       :website_no="storeInfo && storeInfo.website_no"
       ref="articleList"
       :article-style="pageItem.article_style"
@@ -145,17 +146,17 @@ export default {
     onRefresh () {
       if (this.pageItem) {
         switch (this.pageItem.type) {
-          case '按钮组':
-            if (this.$refs.buttonGroup && this.$refs.buttonGroup.getButtons) {
-              // this.$refs.buttonGroup.buttons = []
-              this.$refs.buttonGroup.getButtons()
-            }
-            break;
-          case '人员列表':
-            if (this.$refs && this.$refs.staffList && this.$refs.staffList.getStoreUserList) {
-              this.$refs.staffList.getStoreUserList()
-            }
-            break;
+          // case '按钮组':
+          //   if (this.$refs.buttonGroup && this.$refs.buttonGroup.getButtons) {
+          //     // this.$refs.buttonGroup.buttons = []
+          //     this.$refs.buttonGroup.getButtons()
+          //   }
+          //   break;
+          // case '人员列表':
+          //   if (this.$refs && this.$refs.staffList && this.$refs.staffList.getStoreUserList) {
+          //     this.$refs.staffList.getStoreUserList()
+          //   }
+          //   break;
           case '文章列表':
             if (this.$refs && this.$refs.articleList && this.$refs.articleList.getTabs) {
               this.$refs.articleList.getTabs()
@@ -166,20 +167,20 @@ export default {
               this.$refs.vaccineList.getVaccineList()
             }
             break;
-          case '轮播图':
-            if (this.$refs && this.$refs.swiperList && this.$refs.swiperList.getSwiperList) {
-              this.$refs.swiperList.getSwiperList()
-            }
-            break;
-          case '商品列表':
-            if (this.$refs && this.$refs.goodsList && this.$refs.goodsList.getGoodsListData) {
-              this.$refs.goodsList.getGoodsListData()
-            }
-            break;
-          case '通知横幅':
-            if (this.$refs && this.$refs.noticeList && this.$refs.noticeList.getList) {
-              this.$refs.noticeList.getList()
-            }
+            // case '轮播图':
+            //   if (this.$refs && this.$refs.swiperList && this.$refs.swiperList.getSwiperList) {
+            //     this.$refs.swiperList.getSwiperList()
+            //   }
+            //   break;
+            // case '商品列表':
+            //   if (this.$refs && this.$refs.goodsList && this.$refs.goodsList.getGoodsListData) {
+            //     this.$refs.goodsList.getGoodsListData()
+            //   }
+            //   break;
+            // case '通知横幅':
+            //   if (this.$refs && this.$refs.noticeList && this.$refs.noticeList.getList) {
+            //     this.$refs.noticeList.getList()
+            //   }
             break;
         }
       }

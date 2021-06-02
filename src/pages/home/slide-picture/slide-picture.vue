@@ -52,6 +52,9 @@ export default {
       swiperList: []
     }
   },
+  mounted () {
+    this.getSwiperList()
+  },
   methods: {
     async getSwiperList () {
       let image = this.pageItem && this.pageItem.image_origin === '店铺信息' ? this.storeInfo.image : this

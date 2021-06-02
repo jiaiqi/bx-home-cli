@@ -116,9 +116,6 @@
 <script>
 export default {
   props: {
-    mainMenuList: {
-      type: Array
-    },
     bindUserInfo: {
       type: Object
     },
@@ -135,10 +132,17 @@ export default {
   data () {
     return {
       groupList: [],
-      buttons: []
+      // buttons: this.pageItem.listdata || []
     }
   },
   computed: {
+    buttons () {
+      if (Array.isArray(this.pageItem.listdata)) {
+        return this.pageItem.listdata
+      } else {
+        return []
+      }
+    },
     calcStyle () {
       if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
         return {
@@ -184,16 +188,6 @@ export default {
           })
         }
       }
-      // if (this.storeInfo && this.storeInfo.member_session_no && this.showPublic) {
-      // 	list.push({
-      // 		icon: 'cuIcon-comment',
-      // 		iconType: 'font',
-      // 		label: this.storeInfo.member_session_name || '公开咨询',
-      // 		eventType: 'toPage',
-      // 		type: 'groupChat',
-      // 		num: this.bindUserInfo.store_session_user_unread_msg || 0,
-      // 	})
-      // }
       if (Array.isArray(this.groupList)) {
         let groupList = this.groupList.map(item => {
           return {

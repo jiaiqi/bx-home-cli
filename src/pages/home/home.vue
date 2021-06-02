@@ -180,23 +180,23 @@ export default {
             break;
           case '按钮组':
             keys = [ 'show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
-              'component_no', 'show_public_button', 'row_number', 'margin'
+              'component_no', 'show_public_button', 'row_number', 'margin', 'listdata'
             ]
             break;
           case '商品列表':
-            keys = [ 'row_number', 'margin' ]
+            keys = [ 'row_number', 'margin', 'listdata' ]
             break;
           case '疫苗列表':
             keys = [ 'row_number', 'margin' ]
             break;
           case '人员列表':
-            keys = [ 'user_role', 'row_number', 'component_label', 'margin' ]
+            keys = [ 'user_role', 'row_number', 'component_label', 'margin', 'listdata' ]
             break;
           case '文章列表':
             keys = [ 'category_no', 'row_number', 'article_style', 'margin' ]
             break;
           case '通知横幅':
-            keys = [ 'component_no', 'margin' ]
+            keys = [ 'component_no', 'margin', 'listdata' ]
             break;
         }
         if (Array.isArray(keys) && keys.length > 0) {
@@ -223,10 +223,187 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
       if (res.success) {
         this.pageItemList = res.data.filter(item => item.display !== '否')
-        // uni.$emit('updateStoreItemData')
-        // setTimeout(() => {
-        //   this.showAd = true
-        // }, 1000);
+        uni.$emit('updateStoreItemData')
+        this.getComponentData()
+      }
+    },
+    async getComponentData () {
+      const storeNo = this.storeNo
+      let req = []
+      const pageItemList = this.pageItemList.filter(item => [ '按钮组', '人员列表', '商品列表', '通知横幅' ].includes(item.type))
+
+      for (let index = 0; index < pageItemList.length; index++) {
+        const element = pageItemList[ index ];
+        let reqBody = null
+        switch (element.type) {
+          case '按钮组':
+            reqBody = {
+              "serviceName": "srvhealth_page_item_buttons_select",
+              "colNames": [ "*" ],
+              "condition": [ {
+                "colName": "item_no",
+                "ruleType": "eq",
+                "value": element.component_no
+              },
+              {
+                "colName": "button_usage",
+                "ruleType": "ne",
+                "value": '管理人员'
+              }
+              ],
+              "page": {
+                "pageNo": 1,
+                "rownumber": 99
+              },
+            }
+            break;
+          case '人员列表':
+            reqBody = {
+              serviceName: 'srvhealth_store_user_select',
+              colNames: [ '*' ],
+              condition: [ {
+                colName: 'store_no',
+                ruleType: 'eq',
+                value: storeNo
+              }, {
+                colName: 'user_role',
+                ruleType: 'inset',
+                value: element.user_role || '大夫'
+              } ]
+            }
+            break;
+          case '文章列表':
+            // reqBody = {
+            //   "serviceName": "srvdaq_cms_category_select",
+            //   "colNames": [ "*" ],
+            //   "condition": [ {
+            //     "colName": "parent_no",
+            //     "value": element.category_no,
+            //     "ruleType": "eq"
+            //   } ],
+            //   "page": {
+            //     "pageNo": 1,
+            //     "rownumber": 999
+            //   }
+            // };
+            break;
+          case '疫苗列表':
+            // reqBody = {
+            //   serviceName: "srvhealth_store_vaccine_stocks_select",
+            //   "page": {
+            //     "pageNo": 1,
+            //     "rownumber": 100
+            //   },
+            //   "colNames": [ "*" ],
+            //   condition: [
+            //     {
+            //       colName: 'vaccine_type',
+            //       ruleType: 'in',
+            //       value: "一类,二类"
+            //     },
+            //     {
+            //       colName: 'store_no',
+            //       ruleType: 'eq',
+            //       value: storeNo
+            //     }
+            //   ]
+            // }
+            break;
+          case '轮播图':
+            // reqBody = 
+            break;
+          case '商品列表':
+            reqBody = {
+              serviceName: "srvhealth_store_goods_select",
+              "colNames": [ "*" ],
+              condition: [ {
+                colName: 'store_no',
+                ruleType: 'eq',
+                value: storeNo
+              } ]
+            }
+            break;
+          case '通知横幅':
+            reqBody = {
+              serviceName: 'srvhealth_store_home_notice_select',
+              "colNames": [ "*" ],
+              "condition": [ {
+                "colName": "component_no",
+                "ruleType": "eq",
+                "value": element.component_no
+              } ],
+              "page": {
+                "pageNo": 1,
+                "rownumber": 10
+              },
+            }
+            break;
+        }
+        if (reqBody) {
+          req.push(reqBody)
+        }
+      }
+      let res = await this.$fetch('multi', 'select', req, 'health')
+      if (res.success) {
+        let dataArray = res.data;
+        for (let index = 0; index < pageItemList.length; index++) {
+          const element = pageItemList[ index ];
+          dataArray[ index ] = dataArray[ index ].data
+          switch (element.type) {
+            case '按钮组':
+              element[ 'listdata' ] = dataArray[ index ].filter(item => item.display !== '否' && item.display !== '隐藏')
+              break;
+            case '人员列表':
+              element[ 'listdata' ] = dataArray[ index ]
+              break;
+            case '商品列表':
+              if (Array.isArray(dataArray[ index ]) && dataArray[ index ].length > 0) {
+                element[ 'listdata' ] = dataArray[ index ].reduce((pre, cur) => {
+                  let url = this.getImagePath(cur[ 'goods_img' ], true);
+                  cur.url = url;
+                  if (cur[ 'goods_img' ]) {
+                    this.getImageInfo({
+                      url: url
+                    }).then(picInfo => {
+                      if (picInfo.w && picInfo.h) {
+                        let res = this.setPicHeight(picInfo);
+                        if (res.w && res.h) {
+                          this.$set(cur, 'imgWidth', res.w);
+                          this.$set(cur, 'imgHeight', res.h);
+                        }
+                      }
+                    });
+                  }
+                  pre.push(cur)
+                  return pre
+                }, []);
+              }
+              break;
+            case '通知横幅':
+              element[ 'listdata' ] = dataArray[ index ].map(item => {
+                if (!item.style_config) {
+                  item.style_config = {}
+                } else if (typeof item.style_config === 'string') {
+                  try {
+                    item.style_config = JSON.parse(item.style_config)
+                  } catch (e) {
+                    //TODO handle the exception
+                  }
+                }
+                return item
+              })
+              break;
+          }
+          //  [ '按钮组', '人员列表', '商品列表', '通知横幅' ]
+        }
+        console.log(pageItemList)
+        this.pageItemList = this.pageItemList.map(item => {
+          let obj = pageItemList.find(a => a.component_no === item.component_no)
+          if (obj) {
+            item.listdata = obj.listdata
+          }
+          return item
+        })
       }
     },
     toDeptDetail (e) {
@@ -240,6 +417,12 @@ export default {
       uni.navigateTo({
         url: `/storePages/Registration/RegistrationDetail?storeNo=${e.store_no}&doctorNo=${e.person_no}`
       });
+    },
+    setPicHeight (content) {
+      let maxW = uni.upx2px(350);
+      content.h = (maxW * content.h) / content.w;
+      content.w = maxW;
+      return content;
     },
     async selectBindUser () {
       let condition = [ {
@@ -548,7 +731,7 @@ export default {
         this.getPageItem()
         await this.selectStoreInfo();
         await this.selectBindUser()
-        uni.$emit('updateStoreItemData')
+        // uni.$emit('updateStoreItemData')
         // this.selectUnreadAmount()
       } else {
         // uni.showToast({
@@ -608,7 +791,6 @@ export default {
   },
 
   async onLoad (option) {
-
     // showHomeBtn
     let pageInfo = getCurrentPages()
     if (Array.isArray(pageInfo) && pageInfo.length === 1) {
