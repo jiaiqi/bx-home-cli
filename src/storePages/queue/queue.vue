@@ -52,7 +52,7 @@
         </view>
         <view
           class="queue-info"
-          v-if="waitAmount && todayQue && todayQue.avg_wait_time"
+          v-if="waitAmount && todayQue && todayQue.avg_wait_time&&queInfo&&queInfo.status==='排队中'"
         >
           <view class="label">预估等待： </view>
           <text class="value text-blue">{{
@@ -68,7 +68,7 @@
           (!queInfo || (queInfo&&queInfo.status!=='排队中'&&queInfo&&queInfo.status!=='叫号中')) &&
           todayQue &&
           todayQue.id &&
-          todayQue.queue_status === '进行中'
+          todayQue.queue_status === '进行中'&&!qr_no
         "
       >
         <button class="button cu-btn bg-cyan light" @click="startQue">
@@ -88,7 +88,21 @@
           <text class="cuIcon-refresh margin-right-xs"></text> 刷新
         </button>
       </view>
+      <view class="qr-code-box" v-if="qrCodeText">
+        	<uni-qrcode
+						cid="qrcodeCanvas"
+						:text="qrCodeText"
+						:size="codeSize"
+						class="qrcode-canvas"
+						foregroundColor="#333"
+						makeOnLoad
+						@makeComplete="qrcodeCanvasComplete"
+						v-if="qrCodeText"
+					></uni-qrcode>
+					<image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
+      </view>
     </view>
+
     <view class="margin-tb">
       <ad
         unit-id="adunit-27e9d9a7b00e4f6a"
@@ -222,10 +236,18 @@ export default {
           break;
       }
       return result
-    }
+    },
+    qrCodeText () {
+      if (this.qr_no && this.store_no && this.queue_no) {
+        return `https://wx2.100xsys.cn/pages/specific/queue/queue?store_no=${this.store_no}&queue_no=${this.queue_no}&qr_no=${this.qr_no}`
+      }
+    },
   },
   data () {
     return {
+      qrcodePath: '',
+      codeSize: uni.upx2px(750),
+      qr_no: "",
       formModel: {
         id_no: '',
         phone_xcx: '',
@@ -329,6 +351,11 @@ export default {
           ],
           "page": { "pageNo": 1, "rownumber": 1 }
         }
+        if (this.qr_no) {
+          req.condition = [
+            { colName: "qr_no", ruleType: 'eq', value: this.qr_no },
+          ]
+        }
         let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
         if (res.success && res.data.length > 0) {
           this.queInfo = res.data[ 0 ]
@@ -396,18 +423,26 @@ export default {
       }
       if (this.todayQue.must_subscribe === '是') {
         if (!this.subscsribeStatus && this.userInfo.wechat_notice_set !== '是') {
-          uni.showModal({
-            title: '提示',
-            content: '请根据提示关注百想助理公众号，否则无法收到排队提醒消息，是否跳转到公众号关注引导页面？',
-            success (res) {
-              if (res.confirm) {
-                uni.navigateTo({
-                  url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
-                })
+          const promise = await new Promise(resolve => {
+            uni.showModal({
+              title: '提示',
+              content: '请根据提示关注百想助理公众号，否则无法收到排队提醒消息，是否跳转到公众号关注引导页面？',
+              success (res) {
+                if (res.confirm) {
+                  uni.navigateTo({
+                    url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+                  })
+                  resolve(true)
+                } else {
+                  resolve(false)
+                }
               }
-            }
+            })
           })
-          return
+          if (promise) {
+            return
+
+          }
         }
       }
       this.$uDebounce.canDoFunction({
@@ -603,6 +638,9 @@ export default {
         }
       }
     },
+    qrcodeCanvasComplete (e) {
+      this.qrcodePath = e;
+    },
   },
   created () {
     uni.$on('backFromWebview', () => {
@@ -615,10 +653,18 @@ export default {
     if (option.fill_batch_no) {
       this.fill_batch_no = option.fill_batch_no
     }
+    if (option.qr_no) {
+      this.store_no = option.store_no
+      this.queue_no = option.queue_no
+      this.qr_no = option.qr_no
+      this.getTodayQueueInfo()
+      return
+    }
     if (option.store_no && option.queue_no) {
       await this.toAddPage()
       this.store_no = option.store_no
       this.queue_no = option.queue_no
+
       let storeUser = await this.getStoreUserInfo()
       if (!storeUser) {
         await this.addToStore()
@@ -977,6 +1023,21 @@ export default {
     .title {
       min-width: 150rpx;
     }
+  }
+}
+.qr-code-box {
+  background-color: #fff;
+  width: 700rpx;
+  height: 700rpx;
+  margin: 0 auto 50px;
+  padding: 10px;
+  .qrcode-canvas {
+    position: fixed;
+    top: -999999px;
+  }
+  .qr-code-image {
+    width: 680rpx;
+    height: 680rpx;
   }
 }
 </style>

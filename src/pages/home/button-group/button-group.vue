@@ -135,6 +135,15 @@ export default {
       // buttons: this.pageItem.listdata || []
     }
   },
+  created () {
+    if (this.pageItem && this.showPublic && this.pageItem.show_related_group === '是' && this.pageItem.type ===
+      "按钮组") {
+      // 查找关联群组
+      this.seletGroupList()
+    } else {
+      this.groupList = []
+    }
+  },
   computed: {
     buttons () {
       if (Array.isArray(this.pageItem.listdata)) {

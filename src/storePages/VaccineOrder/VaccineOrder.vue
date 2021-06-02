@@ -230,7 +230,7 @@ export default {
     cancel (e) {
       // 取消预约
       // const serviceName = 'srvhealth_store_vaccination_appoint_record_result_update'
-      const serviceName = 'srvhealth_store_vaccination_appoint_record_result_cancel'
+      const serviceName = 'srvhealth_store_vaccination_appoint_record_result_cancel_update'
       let req = [ {
         "serviceName": serviceName,
         "condition": [ {

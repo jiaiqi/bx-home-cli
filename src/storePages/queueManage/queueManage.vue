@@ -23,6 +23,13 @@
             class="image"
             :src="getImagePath(item.profile_url)"
             mode="scaleToFill"
+            v-if="item.profile_url"
+          />
+          <image
+            class="image"
+            v-else
+            :src="require('@/static/man-profile.png')"
+            mode="scaleToFill"
           />
         </view>
         <view style="flex: 1">
@@ -32,6 +39,16 @@
                 {{ item.person_name || item.nick_name || "" }}</text
               >
               <text class="" v-if="item.sex">（{{ item.sex || "" }}）</text>
+            </view>
+            <view v-if="item.remark">
+              <text
+                style="font-size: 20px"
+                @click="toQrcodeDetail(item)"
+                v-if="
+                  item.remark && item.remark.indexOf('工作人员帮忙抽号') !== -1
+                "
+                class="cuIcon-qrcode"
+              ></text>
             </view>
             <view>
               <text class="num">{{ item.seq }}</text>
@@ -106,16 +123,23 @@
         <view class="user-info">
           <view class="cu-form-group">
             <view class="title"> <text class="text-red">*</text> 用户姓名</view>
-            <input placeholder="输入用户姓名" name="input" v-modal="name" />
+            <input
+              placeholder="输入用户姓名"
+              name="input"
+              v-model="personName"
+            />
           </view>
           <view class="cu-form-group">
-            <view class="title"><text class="text-red">*</text>身份证号</view>
-            <input placeholder="输入身份证号" name="input" v-modal="idcard" />
+            <view class="title"> 身份证号</view>
+            <input placeholder="输入身份证号" name="input" v-model="idcard" />
           </view>
           <view class="cu-form-group">
             <view class="title">手机号</view>
-            <input placeholder="输入手机号" name="input" v-modal="phone" />
+            <input placeholder="输入手机号" name="input" v-model="phone" />
           </view>
+        </view>
+        <view class="tips padding-top bg-white text-red">
+          {{ modalTip || "" }}
         </view>
         <view class="button-box">
           <button class="cu-btn bg-gray" @click="hideModal">取消</button>
@@ -176,12 +200,18 @@ export default {
         },
       ],
       modalName: "",
-      name: "",
+      personName: "",
       idcard: '',
-      phone: ""
+      phone: "",
+      modalTip: ""
     }
   },
   methods: {
+    toQrcodeDetail (e) {
+      if (e.qr_no) {
+        uni.navigateTo({ url: `/storePages/queue/queue?store_no=${this.store_no}&queue_no=${this.queue_no}&qr_no=${e.qr_no}` })
+      }
+    },
     showAddInfo () {
       this.modalName = 'showAddInfo'
     },
@@ -190,7 +220,24 @@ export default {
     },
     async createNumber () {
       // 工作人员帮忙抽号
-
+      if (this.personName && (this.idcard || this.phone)) {
+        let req = [ {
+          "serviceName": "srvhealth_store_queue_up_record_add",
+          "condition": [],
+          "data": [
+            { "nick_name": this.personName, "queue_no": this.queue_no, "queue_name": this.todayQue.queue_name, "status": "排队中", "phone": this.phone, 'remark': `工作人员帮忙抽号，身份证号:${this.idcard}` }
+          ]
+        } ]
+        let res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_add', req, 'health')
+        if (res.success && res.data.length > 0) {
+          const data = res.data[ 0 ]
+          this.currentTab = 0;
+          this.getList()
+        }
+        this.hideModal()
+      } else {
+        this.modalTip = '请确认信息是否填写完整,身份证号和手机号至少填一项'
+      }
     },
     async callNext () {
       let list = this.listData[ 0 ]
@@ -391,6 +438,7 @@ export default {
     }
   }
   .button-box {
+    margin: 0;
     margin-top: 20rpx;
     display: flex;
     justify-content: flex-end;
