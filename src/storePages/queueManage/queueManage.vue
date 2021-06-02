@@ -1,5 +1,10 @@
 <template>
   <div class="queue-manage">
+    <view class="button-box padding-tb-sm">
+      <button type="primary" class="cu-btn bg-green" @click="showAddInfo">
+        抽号
+      </button>
+    </view>
     <u-tabs
       :list="tabList"
       :is-scroll="false"
@@ -7,11 +12,6 @@
       :font-size="36"
       @change="changeTab"
     ></u-tabs>
-    <!-- <view class="call-name">
-      <button class="cu-btn bg-cyan" @click="callNext" v-if="currentTab === 0">
-        叫号
-      </button>
-    </view> -->
     <view class="list-wrap">
       <view
         class="list-item"
@@ -97,6 +97,32 @@
         <u-empty text="暂无数据" mode="list"> </u-empty>
       </view>
     </view>
+    <view
+      class="cu-modal bottom-modal"
+      :class="{ show: modalName === 'showAddInfo' }"
+    >
+      <view class="cu-dialog" @click.stop="">
+        <view class="tips margin-top bg-white"> 请填写抽号用户身份信息 </view>
+        <view class="user-info">
+          <view class="cu-form-group">
+            <view class="title"> <text class="text-red">*</text> 用户姓名</view>
+            <input placeholder="输入用户姓名" name="input" v-modal="name" />
+          </view>
+          <view class="cu-form-group">
+            <view class="title"><text class="text-red">*</text>身份证号</view>
+            <input placeholder="输入身份证号" name="input" v-modal="idcard" />
+          </view>
+          <view class="cu-form-group">
+            <view class="title">手机号</view>
+            <input placeholder="输入手机号" name="input" v-modal="phone" />
+          </view>
+        </view>
+        <view class="button-box">
+          <button class="cu-btn bg-gray" @click="hideModal">取消</button>
+          <button class="cu-btn bg-blue" @click="createNumber">抽号</button>
+        </view>
+      </view>
+    </view>
   </div>
 </template>
 
@@ -148,10 +174,24 @@ export default {
           name: "已过号",
           count: 0
         },
-      ]
+      ],
+      modalName: "",
+      name: "",
+      idcard: '',
+      phone: ""
     }
   },
   methods: {
+    showAddInfo () {
+      this.modalName = 'showAddInfo'
+    },
+    hideModal () {
+      this.modalName = ''
+    },
+    async createNumber () {
+      // 工作人员帮忙抽号
+
+    },
     async callNext () {
       let list = this.listData[ 0 ]
       let index = 0
@@ -311,10 +351,6 @@ export default {
       this.getList('loadmore', this.currentTab)
     }
   },
-  // 页面处理函数--监听页面滚动(not-nvue)
-  /* onPageScroll(event) {}, */
-  // 页面处理函数--用户点击右上角分享
-  /* onShareAppMessage(options) {}, */
 };
 </script>
 
@@ -367,6 +403,24 @@ export default {
     .cu-btn {
       margin-right: 20rpx;
       min-width: 25%;
+    }
+  }
+}
+.button-box {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 10rpx;
+  margin: 0 20rpx 10rpx;
+  border-bottom: #f1f1f1 1px solid;
+}
+.cu-dialog {
+  .button-box {
+    background-color: #fff;
+    padding: 20rpx 20rpx 40rpx;
+    justify-content: space-around;
+    margin: 0;
+    .cu-btn {
+      width: 40%;
     }
   }
 }

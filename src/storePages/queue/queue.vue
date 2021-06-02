@@ -398,7 +398,7 @@ export default {
         if (!this.subscsribeStatus && this.userInfo.wechat_notice_set !== '是') {
           uni.showModal({
             title: '提示',
-            content: '请根据提示关注百想助理公众号，否则无法接收到消息通知，即将跳转到公众号关注引导页面？',
+            content: '请根据提示关注百想助理公众号，否则无法收到排队提醒消息，是否跳转到公众号关注引导页面？',
             success (res) {
               if (res.confirm) {
                 uni.navigateTo({
