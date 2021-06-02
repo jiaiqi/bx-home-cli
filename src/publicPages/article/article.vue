@@ -109,6 +109,7 @@ export default {
       qrCodeText: "",
       qrcodePath: "",
       codeSize: uni.upx2px(700),
+      invite_user_no: ""
     };
   },
   methods: {
@@ -118,7 +119,7 @@ export default {
     toStore () {
       if (this.storeNo) {
         uni.navigateTo({
-          url: `/pages/home/home?store_no=${this.storeNo}`
+          url: `/pages/home/home?store_no=${this.storeNo}&invite_user_no=${this.invite_user_no || 'jiaqi'}`
         })
       }
 
@@ -209,7 +210,6 @@ export default {
     };
   },
   onLoad (option) {
-    debugger
     if (option.article) {
       this.articleData = JSON.parse(decodeURIComponent(option.article));
     }
@@ -225,7 +225,9 @@ export default {
     if (option.serviceName) {
       this.serviceName = decodeURIComponent(option.serviceName);
     }
-
+    if (option.invite_user_no) {
+      this.invite_user_no = option.invite_user_no
+    }
     if (option.q) {
       let text = this.getDecodeUrl(option.q);
       if (text && text.indexOf('https://wx2.100xsys.cn/article/') !== -1) {

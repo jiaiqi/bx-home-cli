@@ -223,10 +223,10 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
       if (res.success) {
         this.pageItemList = res.data.filter(item => item.display !== '否')
-        uni.$emit('updateStoreItemData')
-        setTimeout(() => {
-          this.showAd = true
-        }, 1000);
+        // uni.$emit('updateStoreItemData')
+        // setTimeout(() => {
+        //   this.showAd = true
+        // }, 1000);
       }
     },
     toDeptDetail (e) {

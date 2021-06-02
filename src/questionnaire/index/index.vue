@@ -623,6 +623,8 @@ export default {
           ruleType: 'eq'
         } ]
       };
+      req.colNames = [ "columns", "fileurlsmall", "remark", "table_name", "src_name", "file_no", "file_size", "file_type", "fileurl", "id", "app_no" ]
+
       if (file_no !== null && file_no !== '' && file_no !== undefined) {
         let res = await this.$http.post(url, req);
         if (res.data.state === 'SUCCESS') {
@@ -768,6 +770,9 @@ export default {
   onShareAppMessage () {
     let path =
       `/questionnaire/index/index?formType=form&activity_no=${this.activity_no}&status=进行中`;
+    if (this.userInfo && this.userInfo.userno) {
+      path += `&invite_user_no=${this.userInfo.userno}`
+    }
     this.saveSharerInfo(this.userInfo, path);
     return {
       title: this.formData.title,

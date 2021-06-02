@@ -27,50 +27,57 @@
           {{ item.queue_status || "-" }}
         </view>
       </view>
-      <view class="que-date">
-        <text>
-          {{ dayjs().format("YYYY-MM-DD") }}
-        </text>
-        <text> （周{{ localDay }}，今日） </text>
-      </view>
-      <view class="que-footer">
-        <view class="footer-item">
+      <view style="display: flex; justify-content: space-between">
+        <view class="que-date">
+          <text>
+            {{ dayjs().format("YYYY-MM-DD") }}
+          </text>
+          <text> （周{{ localDay }}，今日） </text>
+        </view>
+        <view class="footer-item" style="display: flex; align-items: center">
           <view class="label">等待人数： </view>
-          <view class="value text-orange"
+          <view
+            class="value text-orange"
+            style="font-size: 20px; font-weight: bold"
             >{{ item.wait_amount || " - " }}
           </view>
         </view>
+      </view>
+      <view class="que-footer">
         <view class="footer-item">
           <view class="label">当前叫号： </view>
           <view class="value text-blue big-font"
             >{{ item.cur_no || " - " }}
           </view>
         </view>
-      </view>
-      <view v-if="type === 'manage'" class="change-status">
-        <text class="label">更改状态：</text>
-        <view class="buttons">
-          <button
-            class="cu-btn bg-red sm round margin-right-xs"
-            @click.stop="changeStatus(item, '已结束')"
-            v-if="item.queue_status !== '已结束'"
-          >
-            已结束
-          </button>
-          <button
-            class="cu-btn bg-green sm round margin-right-xs"
-            @click.stop="changeStatus(item, '进行中')"
-            v-if="item.queue_status !== '进行中'"
-          >
-            进行中
-          </button>
-          <button
-            class="cu-btn bg-blue sm round margin-right-xs"
-            @click.stop="changeStatus(item, '待开始')"
-            v-if="item.queue_status !== '待开始'"
-          >
-            待开始
-          </button>
+        <view class="footer-item" v-if="type !== 'manage'">
+          <button class="cu-btn bg-blue shadow-blur">开始排队</button>
+        </view>
+        <view v-if="type === 'manage'" class="change-status footer-item">
+          <text class="label">更改状态：</text>
+          <view class="buttons">
+            <button
+              class="cu-btn bg-red sm round margin-right-xs"
+              @click.stop="changeStatus(item, '已结束')"
+              v-if="item.queue_status !== '已结束'"
+            >
+              已结束
+            </button>
+            <button
+              class="cu-btn bg-green sm round margin-right-xs"
+              @click.stop="changeStatus(item, '进行中')"
+              v-if="item.queue_status !== '进行中'"
+            >
+              进行中
+            </button>
+            <button
+              class="cu-btn bg-blue sm round margin-right-xs"
+              @click.stop="changeStatus(item, '待开始')"
+              v-if="item.queue_status !== '待开始'"
+            >
+              待开始
+            </button>
+          </view>
         </view>
       </view>
     </view>
@@ -293,11 +300,15 @@ export default {
       .label {
         // flex: 1;
       }
+      .cu-btn {
+        margin-right: 0;
+      }
     }
     .que-footer {
       display: flex;
+      justify-content: space-between;
       .footer-item {
-        margin-left: 20px;
+        // margin-left: 20px;
         display: flex;
         align-items: center;
         .value {

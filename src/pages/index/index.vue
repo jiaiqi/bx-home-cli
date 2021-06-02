@@ -132,28 +132,6 @@ export default {
       });
     },
     async toStoreHome (e) {
-      // let self = this
-      // if (this.authBoxDisplay) {
-
-      //   uni.showModal({
-      //     title: '提示',
-      //     content: '需要授权登录才能访问，是否跳转到授权页面?',
-      //     success (res) {
-      //       if (res.confirm) {
-      //         let pageStack = getCurrentPages()
-      //         if (Array.isArray(pageStack) && pageStack.length >= 1) {
-      //           let currentPage = pageStack[ pageStack.length - 1 ]
-      //           self.$store.commit('SET_PRE_PAGE_URL', currentPage.$page.fullPath)
-      //         }
-      //         uni.redirectTo({
-      //           url: '/publicPages/accountExec/accountExec'
-      //         })
-      //       }
-      //     }
-      //   })
-      //   return
-      // }
-
       if (!this.userInfo || !this.userInfo.no) {
         let userInfo = await selectPersonInfo()
         if (userInfo && userInfo.no && userInfo.nick_name && userInfo.profile_url) {
@@ -165,7 +143,7 @@ export default {
           // 自动更新头像昵称
           this.$store.commit('SET_REGIST_STATUS', false)
           if (!this.$store.state.app.hasIntoHospital && userInfo.home_store_no) {
-            uni.navigateTo({
+            uni.redirectTo({
               url: '/pages/home/home?store_no=' + userInfo.home_store_no,
               success: () => {
                 this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
@@ -174,28 +152,10 @@ export default {
           }
         } else {
           await this.toAddPage()
-
-          // // 获取授权，登记用户信息
-          // const wxUser = await wx.getUserProfile({
-          //   desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-
-          // })
-          // if (wxUser && wxUser.userInfo) {
-          //   let rawData = {
-          //     nickname: wxUser.userInfo.nickName,
-          //     sex: wxUser.userInfo.gender,
-          //     country: wxUser.userInfo.country,
-          //     province: wxUser.userInfo.province,
-          //     city: wxUser.userInfo.city,
-          //     headimgurl: wxUser.userInfo.avatarUrl
-          //   };
-          //   this.$store.commit('SET_WX_USERINFO', rawData)
-          //   await this.toAddPage()
-          // }
         }
       }
       if (e.store_no) {
-        uni.navigateTo({
+        uni.redirectTo({
           animationType: "zoom-fade-out",
           animationDuration: 500,
           url: '/pages/home/home?store_no=' + e.store_no
@@ -204,8 +164,9 @@ export default {
     },
     async getList (type = 'refresh', cond) {
       // 查找店铺列表
+      const serviceName = 'srvhealth_store_list_select'
       let req = {
-        "serviceName": "srvhealth_store_mgmt_select",
+        "serviceName": serviceName,
         "colNames": [ "*" ],
         "condition": [
           {
@@ -223,7 +184,7 @@ export default {
         req.condition = [ ...req.condition, ...cond ]
       }
       this.loadStatus = 'loading'
-      let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+      let res = await this.$fetch('select', serviceName, req, 'health')
       if (res.success && Array.isArray(res.data)) {
         if (res.page) {
           this.page = res.page
@@ -236,14 +197,12 @@ export default {
         if (type === 'more') {
           for (let index = 0; index < res.data.length; index++) {
             const element = res.data[ index ];
-            if (!this.list.find(item => item.id === element.id)) {
+            if (!this.list.find(item => item.store_no === element.store_no)) {
               setTimeout(() => {
                 this.list.push(element)
               }, 100);
             }
           }
-          // let list = [ ...this.list, ...res.data ]
-          // this.list = list
         } else {
           this.list = []
           res.data.forEach(item => {
@@ -276,12 +235,14 @@ export default {
         // 自动更新头像昵称
         this.$store.commit('SET_REGIST_STATUS', false)
         if (!this.$store.state.app.hasIntoHospital && data.home_store_no) {
-          uni.navigateTo({
+          uni.redirectTo({
             url: '/pages/home/home?store_no=' + data.home_store_no,
             success: () => {
               this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
             }
           })
+        } else {
+          uni.startPullDownRefresh()
         }
       } else {
         this.$store.commit('SET_AUTH_USERINFO', false)
@@ -330,7 +291,6 @@ export default {
       if (!this.userInfo || !this.userInfo.no) {
         await this.toAddPage()
       }
-      let url = this.getServiceUrl('health', 'srvhealth_store_user_add', 'operate');
       let req = [ {
         serviceName: 'srvhealth_store_user_add',
         condition: [],
@@ -351,19 +311,15 @@ export default {
       } ];
 
       let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
-      // this.$http.post(url, req)
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         return res.data[ 0 ]
       }
     },
   },
   onPullDownRefresh () {
-    // this.getList()
+    this.getList()
     this.loadStatus = 'more'
     this.page.pageNo = 1
-    this.initLogin().then(_ => {
-      this.getList()
-    })
     setTimeout(() => {
       uni.stopPullDownRefresh()
     }, 1000)
@@ -376,15 +332,12 @@ export default {
   },
   onLoad (option) {
     if (option.store_no) {
-      uni.navigateTo({
+      uni.redirectTo({
         url: '/pages/home/home?store_no=' + option.store_no
       })
+    } else {
+      this.initLogin()
     }
-  },
-  created () {
-    this.initLogin().then(_ => {
-      this.getList()
-    })
   },
   onShareAppMessage () {
     return {

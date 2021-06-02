@@ -264,7 +264,6 @@ export default {
   },
   methods: {
     isLastRow (list, index) {
-      console.log(this.menuList)
       let row_number = Math.ceil(list.length / 4)
       if (row_number === 1) {
         return true

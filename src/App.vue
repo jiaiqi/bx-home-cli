@@ -84,7 +84,7 @@ export default {
 @import "./static/iconfont.css"; //引入字体文件
 @import "colorui/main.css";
 @import "colorui/icon.css";
-@import "@/common/uni.css";
+// @import "@/common/uni.css";
 
 /*每个页面公共css */
 // --page-height:calc(100vh - var(--window-top) - var(--window-bottom))

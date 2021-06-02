@@ -159,7 +159,7 @@ export default {
   },
   methods: {
     qrcodeCanvasComplete (e) {
-      this.qrcodePath = e;
+      this.qrcodePath = this.storeInfo?.barcode_pic || e;
     },
     makePhoneCall () {
       uni.makePhoneCall({

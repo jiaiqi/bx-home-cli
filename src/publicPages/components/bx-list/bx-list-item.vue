@@ -281,6 +281,8 @@ export default {
           ruleType: 'eq'
         } ]
       };
+      req.colNames = [ "columns", "fileurlsmall", "remark", "table_name", "src_name", "file_no", "file_size", "file_type", "fileurl", "id", "app_no" ]
+
       if (file_no !== null && file_no !== '' && file_no !== undefined) {
         let res = await this.$http.post(url, req);
         if (res.data.state === 'SUCCESS') {

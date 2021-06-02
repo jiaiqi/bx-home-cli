@@ -5,9 +5,6 @@
         <view class="queue-name" v-if="todayQue && todayQue.queue_name">
           {{ todayQue.queue_name || "" }}
         </view>
-        <!-- <view class="current-number" v-if="todayQue&&todayQue.cur_no">
-          当前叫号：<text class="text-red number">{{todayQue.cur_no}}</text>
-        </view> -->
       </view>
        <view class="que-date" v-if="todayQue && todayQue.queue_date">
             <text>
@@ -17,139 +14,12 @@
           </view>
       <view class="queue-remark" v-if="todayQue && todayQue.queue_remark">
         <view class="remark-title">说明：</view>
-        <textarea
-        class="remark-content"
-          v-model="todayQue.queue_remark"
-          disabled
-        />
-        <!-- <view class="remark-content">{{ todayQue.queue_remark }}</view> -->
+        <view class="remark-content">{{ todayQue.queue_remark }}</view>
       </view>
       <view class="current-number" v-if="todayQue&&todayQue.id">
         <view class="current-number-item"><view class="label">最新叫号：</view><view class="text-red number" v-if="todayQue&&todayQue.cur_no">{{todayQue.cur_no}}</view><view class="text-red number" v-else>未叫号</view></view>
         <view class="current-number-item"><view class="label">排队人数：</view> <view class="text-red number">{{total||0}}人</view></view>
       </view>
-      <!-- <view class="cu-timeline" v-if="queStatus === '未抽号'">
-
-        <view class="cu-item card-item text-blue" v-if="currentQuer&&currentQuer.seq">
-          <view class="content">
-            <text class="label">队首号码:</text>
-            <text class="value">{{ currentQuer.seq || "未开始" }}</text>
-          </view>
-          <view class="timeline-tips" v-if="total">
-            <text> 前方等待：{{ total }}人 </text>
-            <text v-if="todayQue && todayQue.avg_wait_time && waitAmount"
-              >预估等待：{{ waitAmount * todayQue.avg_wait_time }}分钟</text
-            >
-          </view>
-        </view>
-
-        <view
-          class="cu-item card-item text-blue"
-          v-if="todayQue && todayQue.last_no"
-        >
-          <view class="content">
-            <text class="label">队尾号码:</text>
-            <text class="value">{{ todayQue.last_no || "-" }}</text>
-          </view>
-        </view>
-      </view>
-      <view class="cu-timeline" v-else>
-        <view
-          class="cu-item card-item text-blue"
-          v-if="todayQue && queInfo && queInfo.status !== '叫号中'"
-        >
-          <view class="content" v-if=" currentQuer&&currentQuer.seq ">
-            <text class="label">队首号码:</text>
-            <text class="value mr-80">{{  currentQuer.seq  }}</text>
-          </view>
-          <view class="timeline-tips" v-if="total">
-            <text> 前方等待：{{ total }}人 </text>
-            <text
-              class="margin-left"
-              v-if="todayQue && todayQue.avg_wait_time && waitAmount"
-              >预估等待：{{ waitAmount * todayQue.avg_wait_time }}分钟</text
-            >
-          </view>
-        </view>
-        <view class="cu-item card-item text-blue" v-if="queInfo && queInfo.seq">
-          <view class="content">
-            <view class="label">
-              <text>我的排号:</text>
-              <text v-if="queInfo.status === '叫号中'" class="text-blue"
-                >[叫号中]
-                <text
-                  v-if="
-                    lastQueInfo && queInfo && lastQueInfo.seq === queInfo.seq
-                  "
-                  >[队尾]</text
-                ></text
-              >
-            </view>
-            <view class="value">
-              <text class="value_text">{{ queInfo.seq || "未开始" }}</text>
-              <view class="profile-info">
-                <image
-                  class="profile"
-                  :src="userInfo.profile_url"
-                  mode="scaleToFill"
-                />
-                <view class="margin-right-xs text">
-                  {{ userInfo.name || userInfo.nick_name || "" }}</view
-                >
-              </view>
-            </view>
-          </view>
-          <view
-            class="timeline-tips"
-            v-if="overWait && lastQueInfo && lastQueInfo.status !== '叫号中'"
-          >
-            <text> 后面等待：{{ overWait }}人 </text>
-          </view>
-        </view>
-        <view
-          class="cu-item card-item text-blue"
-          v-if="
-            todayQue &&
-            todayQue.last_no &&
-            todayQue.last_no !== queInfo.seq &&
-            lastQueInfo &&
-            lastQueInfo.seq !== queInfo.seq
-          "
-        >
-          <view class="content">
-            <view class="label">
-              <text>队尾号码:</text>
-              <text v-if="lastQueInfo.status === '叫号中'" class="text-blue"
-                >[叫号中]</text
-              >
-            </view>
-            <text
-              class="value mr-80"
-              v-if="lastQueInfo.seq === todayQue.last_no"
-              >{{ todayQue.last_no || "-" }}</text
-            >
-            <text
-              class="value mr-80"
-              v-if="
-                lastQueInfo.seq !== todayQue.last_no &&
-                lastQueInfo.seq !== queInfo.seq
-              "
-              >{{ lastQueInfo.seq || "-" }}</text
-            >
-          </view>
-        </view>
-      </view> -->
-<!-- 
-      <view class="queue-card" v-if="todayQue || currentQuer">
-      <view class="card-item">
-        <view class="card-label text-blue">当前叫号</view>
-        <view class="card-content">{{ todayQue.cur_no || "-" }}</view>
-      </view>
-      <view class="card-item">
-        <view class="card-label text-blue">最新排号</view>
-        <view class="card-content">{{ todayQue.last_no || "-" }}</view>
-      </view>
-    </view> -->
       <view class="my-queue" v-if="queInfo ">
       <view class="left">
         <view class=" profile-info">
@@ -177,12 +47,8 @@
         </view>
 
         <view class="queue-info" v-if="queInfo.status === '排队中'">
-          <view class="label">前面等待人数：
-          
-             </view>
-             <text class="value text-blue">{{ waitAmount }}<text class="status text-blue margin-right">人</text></text>
-          
-          
+          <view class="label">前面等待人数：  </view>
+          <text class="value text-blue">{{ waitAmount }}<text class="status text-blue margin-right">人</text></text>
         </view>
         <view
           class="queue-info"
@@ -196,7 +62,6 @@
         </view>
       </view>
     </view>
-
       <view
         class="que-button"
         v-if="
@@ -322,13 +187,6 @@ export default {
       } else {
         return 0
       }
-      // let index = this.queList.findIndex(item => item.person_no === this.userInfo.no)
-      // if (index !== -1) {
-      //   return index + 1
-      // } else {
-      //   return this.queList.length
-      // }
-
     },
     currentQuer () {
       // 队首
@@ -387,7 +245,8 @@ export default {
       fill_batch_no: '',
       setTimer: false,
       modalName: "",
-      tip: ""
+      tip: "",
+      onrefresh: false
     }
   },
   methods: {
@@ -409,10 +268,12 @@ export default {
     async getTodayQueueInfo () {
       // 查询当日排队信息
       clearInterval(timer)
-      // this.$uDebounce.canDoFunction({
-      //   key: "getTodayQueueInfo",//基于此值判断是否可以操作，如两个方法传入了同样的key，则会混淆，建议传入调用此事件的方法名，简单好梳理
-      //   time: 3000,//如果传入time字段，则为定时器后，自动解除锁定状态，单位（毫秒）
-      //   success: async () => {//成功中调用应该操作的方法，被锁定状态不会执行此代码块内的方法
+      timer = setInterval(() => {
+        this.getTodayQueueInfo()
+      }, 10 * 1000);
+      if (this.onrefresh) {
+        return
+      }
       let req = {
         "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
         "condition": [
@@ -422,7 +283,9 @@ export default {
         ],
         "page": { "pageNo": 1, "rownumber": 20 }
       }
+      this.onrefresh = true
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
+      this.onrefresh = false
       if (res.success && res.data.length > 0) {
         res.data[ 0 ].refreshTime = this.dayjs().format("HH:mm:ss")
         this.todayQue = res.data[ 0 ]
@@ -431,13 +294,6 @@ export default {
         this.getQueInfo()
         this.getLastPerson()
       }
-      //   }
-      // })
-
-      timer = setInterval(() => {
-        this.getTodayQueueInfo()
-      }, 10 * 1000);
-
     },
     async updateQueueInfo (no) {
       let req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": this.todayQue.id } ], "data": [ { last_no: no } ] } ]
@@ -468,8 +324,6 @@ export default {
           } ],
           "condition": [
             { colName: "person_no", ruleType: 'eq', value: this.userInfo.no },
-            // { colName: 'status', ruleType: 'ne', value: '完成' },
-            // { colName: 'status', ruleType: 'ne', value: '已过号' },
             { colName: "queue_no", ruleType: 'eq', value: this.todayQue.queue_no },
             { colName: "store_no", ruleType: 'eq', value: this.store_no }
           ],
@@ -775,13 +629,16 @@ export default {
         //   return
         // }
       }
-      await this.getTodayQueueInfo()
+      this.getTodayQueueInfo()
+      clearInterval(timer)
       timer = setInterval(() => {
         this.getTodayQueueInfo()
       }, 10 * 1000);
     }
   },
-
+  onUnload () {
+    clearInterval(timer)
+  },
   beforeDestroy () {
     clearInterval(timer)
   },
@@ -808,9 +665,8 @@ export default {
   },
   // 页面处理函数--监听用户下拉动作
   onPullDownRefresh () {
-    // this.getQueList()
-    this.getTodayQueueInfo()
 
+    this.getTodayQueueInfo()
     uni.stopPullDownRefresh();
   },
 };
@@ -823,7 +679,7 @@ export default {
   padding-top: 20px;
   margin-bottom: 30rpx;
   .queue-content {
-    min-height: 90vh;
+    min-height: 80vh;
     overflow: auto;
   }
 }
