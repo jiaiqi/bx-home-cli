@@ -141,21 +141,21 @@ export default {
             this.checkSubscribeStatus()
           }
           // 自动更新头像昵称
-          this.$store.commit('SET_REGIST_STATUS', false)
-          if (!this.$store.state.app.hasIntoHospital && userInfo.home_store_no) {
-            uni.redirectTo({
-              url: '/pages/home/home?store_no=' + userInfo.home_store_no,
-              success: () => {
-                this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          }
+          // this.$store.commit('SET_REGIST_STATUS', false)
+          // if (!this.$store.state.app.hasIntoHospital && userInfo.home_store_no) {
+          //   uni.redirectTo({
+          //     url: '/pages/home/home?store_no=' + userInfo.home_store_no,
+          //     success: () => {
+          //       this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
+          //     }
+          //   })
+          // }
         } else {
           await this.toAddPage()
         }
       }
       if (e.store_no) {
-        uni.redirectTo({
+        uni.navigateTo({
           animationType: "zoom-fade-out",
           animationDuration: 500,
           url: '/pages/home/home?store_no=' + e.store_no

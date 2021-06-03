@@ -1,6 +1,13 @@
 <template>
   <view class="queue-list-view">
     <view class="add-btn" v-if="type === 'manage'">
+      <text
+        class="cuIcon-qrcode"
+        style="font-size: 30px"
+        @click="toPreviewImage(qrcodePath)"
+        v-if="qrcodePath"
+      ></text>
+      <text v-else></text>
       <button class="cu-btn bg-blue" type="primary" @click="addQueue">
         创建队列
       </button>
@@ -96,6 +103,25 @@
     >
       <u-empty text="未找到今日排队数据" mode="list"> </u-empty>
     </view>
+    <view class="qr-code-box" v-if="qrCodeText">
+      <uni-qrcode
+        cid="qrcodeCanvas"
+        :text="qrCodeText"
+        :size="codeSize"
+        class="qrcode-canvas"
+        foregroundColor="#333"
+        makeOnLoad
+        @makeComplete="qrcodeCanvasComplete"
+        v-if="qrCodeText"
+      ></uni-qrcode>
+      <image
+        :src="qrcodePath"
+        class="qr-code-image"
+        mode="aspectFit"
+        v-if="qrcodePath"
+        @click="toPreviewImage(qrcodePath)"
+      ></image>
+    </view>
   </view>
 </template>
 
@@ -106,6 +132,11 @@ export default {
     ...mapState({
       userInfo: state => state.user.userInfo
     }),
+    qrCodeText () {
+      if (this.store_no) {
+        return `https://wx2.100xsys.cn/pages/specific/queue/list?store_no=${this.store_no}`
+      }
+    },
     localDay () {
       let day = new Date()
       day = day.getDay()
@@ -138,6 +169,8 @@ export default {
   },
   data () {
     return {
+      codeSize: uni.upx2px(750),
+      qrcodePath: "",//图片路径
       type: "", // manage
       store_no: "",
       queue: [],
@@ -145,6 +178,9 @@ export default {
     }
   },
   methods: {
+    qrcodeCanvasComplete (e) {
+      this.qrcodePath = e
+    },
     async changeStatus (e, status) {
       const req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": e.id } ], "data": [ { queue_status: status } ] } ]
       let res = await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
@@ -266,7 +302,7 @@ export default {
 <style lang="scss" scoped>
 .add-btn {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding-bottom: 10rpx;
   margin-bottom: 10rpx;
   border-bottom: #f1f1f1 1px solid;
@@ -324,5 +360,22 @@ export default {
       }
     }
   }
+}
+.qr-code-box {
+  background-color: #fff;
+  // width: 700rpx;
+  // height: 700rpx;
+  // margin: 0 auto 50px;
+  // padding: 10px;
+  position: fixed;
+  top: -999999px;
+  // .qrcode-canvas {
+  //   position: fixed;
+  //   top: -999999px;
+  // }
+  // .qr-code-image {
+  //   width: 680rpx;
+  //   height: 680rpx;
+  // }
 }
 </style>
