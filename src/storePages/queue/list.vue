@@ -64,8 +64,14 @@
           <button class="cu-btn bg-blue shadow-blur">开始排队</button>
         </view>
         <view v-if="type === 'manage'" class="change-status footer-item">
-          <text class="label">更改状态：</text>
-          <view class="buttons">
+          <button
+            class="cu-btn bg-blue light round"
+            @click.stop="showSettingModal(item)"
+          >
+            <text class="cuIcon-settings margin-right-xs"></text>设置
+          </button>
+          <!-- <text class="label">更改状态：</text> -->
+          <!-- <view class="buttons">
             <button
               class="cu-btn bg-red sm round margin-right-xs"
               @click.stop="changeStatus(item, '已结束')"
@@ -87,7 +93,7 @@
             >
               待开始
             </button>
-          </view>
+          </view> -->
         </view>
       </view>
     </view>
@@ -105,6 +111,38 @@
       v-if="loadStatus === 'noMore' && queue.length === 0"
     >
       <u-empty text="未找到今日排队数据" mode="list"> </u-empty>
+    </view>
+    <view
+      class="cu-modal"
+      @click="hideModal"
+      :class="{ show: modalName === 'settingModal' }"
+    >
+      <view class="cu-dialog" style="width:60%" @click.stop="">
+        <view class="label font-bold margin-tb-xs">更改状态：</view>
+        <view class="buttons">
+          <button
+            class="cu-btn bg-red light round margin-right-xs"
+            @click.stop="changeStatus(curQue, '已结束')"
+            v-if="curQue.queue_status !== '已结束'"
+          >
+            已结束
+          </button>
+          <button
+            class="cu-btn bg-green light round margin-right-xs"
+            @click.stop="changeStatus(curQue, '进行中')"
+            v-if="curQue.queue_status !== '进行中'"
+          >
+            进行中
+          </button>
+          <button
+            class="cu-btn bg-blue light round margin-right-xs"
+            @click.stop="changeStatus(curQue, '待开始')"
+            v-if="curQue.queue_status !== '待开始'"
+          >
+            待开始
+          </button>
+        </view>
+      </view>
     </view>
     <view class="qr-code-box" v-if="qrCodeText">
       <uni-qrcode
@@ -129,177 +167,233 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 export default {
   computed: {
     ...mapState({
-      userInfo: state => state.user.userInfo
+      userInfo: (state) => state.user.userInfo,
     }),
-    qrCodeText () {
+    qrCodeText() {
       if (this.store_no) {
-        return `https://wx2.100xsys.cn/pages/specific/queue/list?store_no=${this.store_no}`
+        return `https://wx2.100xsys.cn/pages/specific/queue/list?store_no=${this.store_no}`;
       }
     },
-    localDay () {
-      let day = new Date()
-      day = day.getDay()
-      let result = ''
+    localDay() {
+      let day = new Date();
+      day = day.getDay();
+      let result = "";
       switch (day) {
         case 0:
-          result = '日'
+          result = "日";
           break;
         case 1:
-          result = '一'
+          result = "一";
           break;
         case 2:
-          result = '二'
+          result = "二";
           break;
         case 3:
-          result = '三'
+          result = "三";
           break;
         case 4:
-          result = '四'
+          result = "四";
           break;
         case 5:
-          result = '五'
+          result = "五";
           break;
         case 6:
-          result = '六'
+          result = "六";
           break;
       }
-      return result
-    }
+      return result;
+    },
   },
-  data () {
+  data() {
     return {
       codeSize: uni.upx2px(750),
-      qrcodePath: "",//图片路径
+      qrcodePath: "", //图片路径
       type: "", // manage
       store_no: "",
       queue: [],
+      curQue: null,
       loadStatus: "more",
-    }
+      modalName: "",
+    };
   },
   methods: {
-    qrcodeCanvasComplete (e) {
-      this.qrcodePath = e
+    hideModal() {
+      this.curQue = null;
+      this.modalName = "";
     },
-    async changeStatus (e, status) {
-      const req = [ { "serviceName": "srvhealth_store_queue_up_cfg_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": e.id } ], "data": [ { queue_status: status } ] } ]
-      let res = await this.$fetch('operate', 'srvhealth_store_queue_up_cfg_update', req, 'health')
-      if (res.success) {
-        this.getTodayQue()
+    showSettingModal(e) {
+      this.curQue = e;
+      this.modalName = "settingModal";
+    },
+    qrcodeCanvasComplete(e) {
+      this.qrcodePath = e;
+    },
+    async changeStatus(e, status) {
+      const req = [
+        {
+          serviceName: "srvhealth_store_queue_up_cfg_update",
+          condition: [{ colName: "id", ruleType: "eq", value: e.id }],
+          data: [{ queue_status: status }],
+        },
+      ];
+      const confirm = await new Promise((resolve) => {
+        uni.showModal({
+          title: "提示",
+          content: "是否将状态更改为" + status,
+          showCancel: true,
+          success: ({ confirm, cancel }) => {
+            if (confirm) {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+        });
+      });
+      if (!!confirm) {
+        let res = await this.$fetch(
+          "operate",
+          "srvhealth_store_queue_up_cfg_update",
+          req,
+          "health"
+        );
+        if (res.success) {
+          this.getTodayQue();
+        }
       }
     },
-    addQueue () {
+    addQueue() {
       let fieldsCond = [
         {
-          column: 'store_no',
+          column: "store_no",
           value: this.store_no,
-          display: false
+          display: false,
         },
         {
-          column: 'user_account',
+          column: "user_account",
           value: this.userInfo.userno,
-          display: false
+          display: false,
         },
         {
-          column: 'person_no',
+          column: "person_no",
           value: this.userInfo.no,
-          display: false
+          display: false,
         },
         {
-          column: 'person_name',
+          column: "person_name",
           value: this.userInfo.name,
-          display: false
+          display: false,
         },
         {
-          column: 'queue_date',
+          column: "queue_date",
           value: this.dayjs().format("YYYY-MM-DD"),
-          display: true
+          display: true,
         },
         {
-          column: 'queue_status',
+          column: "queue_status",
           value: "进行中",
-          display: true
+          display: true,
         },
         {
-          column: 'cur_no',
-          display: false
+          column: "cur_no",
+          display: false,
         },
         {
-          column: 'last_no',
-          display: false
-        }
-      ]
-      let url = '/publicPages/form/form?serviceName=srvhealth_store_queue_up_cfg_add&type=add&addType=onwer&fieldsCond=' + decodeURIComponent(JSON.stringify(fieldsCond))
-      uni.navigateTo({ url })
+          column: "last_no",
+          display: false,
+        },
+      ];
+      let url =
+        "/publicPages/form/form?serviceName=srvhealth_store_queue_up_cfg_add&type=add&addType=onwer&fieldsCond=" +
+        decodeURIComponent(JSON.stringify(fieldsCond));
+      uni.navigateTo({ url });
     },
-    toQueue (e) {
-      if (this.type !== 'manage' && e.queue_no && this.store_no && (e.queue_status === '进行中' || e.queue_status === '开放中')) {
-        uni.navigateTo({ url: `./queue?store_no=${this.store_no}&queue_no=${e.queue_no}` })
-      } else if (e.queue_no && this.store_no && this.type === 'manage') {
-        uni.navigateTo({ url: `../queueManage/queueManage?store_no=${this.store_no}&queue_no=${e.queue_no}` })
+    toQueue(e) {
+      if (
+        this.type !== "manage" &&
+        e.queue_no &&
+        this.store_no &&
+        (e.queue_status === "进行中" || e.queue_status === "开放中")
+      ) {
+        uni.navigateTo({
+          url: `./queue?store_no=${this.store_no}&queue_no=${e.queue_no}`,
+        });
+      } else if (e.queue_no && this.store_no && this.type === "manage") {
+        uni.navigateTo({
+          url: `../queueManage/queueManage?store_no=${this.store_no}&queue_no=${e.queue_no}`,
+        });
       } else if (e && e.queue_status) {
         uni.showToast({
           title: `该排队目前状态为${e.queue_status}，不可进行排队`,
-          icon: 'none',
-          mask: true
-        })
+          icon: "none",
+          mask: true,
+        });
       }
     },
-    async getTodayQue () {
+    async getTodayQue() {
       // 查询当日排队信息
       let req = {
-        "serviceName": "srvhealth_store_queue_up_cfg_select", "colNames": [ "*" ],
-        "condition": [
-          { colName: 'store_no', ruleType: 'eq', value: this.store_no },
+        serviceName: "srvhealth_store_queue_up_cfg_select",
+        colNames: ["*"],
+        condition: [
+          { colName: "store_no", ruleType: "eq", value: this.store_no },
           // { colName: 'queue_status', ruleType: 'in', value: '待开始,进行中' },
           { colName: "queue_date", ruleType: 'like', value: this.dayjs().format("YYYY-MM-DD") }
         ],
-        "page": { "pageNo": 1, "rownumber": 20 }
+        page: { pageNo: 1, rownumber: 20 },
+      };
+      if (this.type != "manage") {
+        req.condition.push({
+          colName: "queue_status",
+          ruleType: "in",
+          value: "待开始,进行中",
+        });
       }
-      if (this.type != 'manage') {
-        req.condition.push(
-          { colName: 'queue_status', ruleType: 'in', value: '待开始,进行中' }
-        )
-      }
-      this.loadStatus = 'loading'
-      let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
+      this.loadStatus = "loading";
+      let res = await this.$fetch(
+        "select",
+        "srvhealth_store_queue_up_cfg_select",
+        req,
+        "health"
+      );
       if (res.success) {
-        this.queue = res.data.map(item => {
-          item.cur_no = isNaN(Number(item.cur_no)) ? 0 : item.cur_no
-          return item
-        })
+        this.queue = res.data.map((item) => {
+          item.cur_no = isNaN(Number(item.cur_no)) ? 0 : item.cur_no;
+          return item;
+        });
         if (res.page.pageNo * res.page.rownumber >= res.page.total) {
-          this.loadStatus = 'noMore'
+          this.loadStatus = "noMore";
         } else {
-          this.loadStatus = 'more'
+          this.loadStatus = "more";
         }
       }
     },
   },
-  onPullDownRefresh () {
-    this.getTodayQue()
+  onPullDownRefresh() {
+    this.getTodayQue();
     setTimeout(() => {
-      uni.stopPullDownRefresh()
+      uni.stopPullDownRefresh();
     }, 1500);
   },
-  onShow () {
+  onShow() {
     if (this.store_no) {
-      this.getTodayQue()
+      this.getTodayQue();
     }
   },
-  onLoad (option) {
+  onLoad(option) {
     if (option.type) {
-      this.type = option.type
+      this.type = option.type;
     }
     if (option.store_no) {
-      this.store_no = option.store_no
-      this.getTodayQue()
+      this.store_no = option.store_no;
+      this.getTodayQue();
     }
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -380,5 +474,19 @@ export default {
   //   width: 680rpx;
   //   height: 680rpx;
   // }
+}
+.buttons{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+   .cu-btn {
+      width: 80%;
+      margin-top: 20rpx;
+      letter-spacing: 2px;
+      &:last-child {
+        margin-bottom: 20rpx;
+      }
+    }
 }
 </style>

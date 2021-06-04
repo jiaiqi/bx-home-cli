@@ -63,7 +63,7 @@ export default function({
 				// 	icon: 'none',
 				// 	mask: true
 				// })
-				uni.$emit('networkErr', e)
+				uni.$emit('networkErr',reason)
 			}
 		}, // 请求错误钩子函数集合
 		file(method, url, data, header, reqIntercept, resIntercept) {
