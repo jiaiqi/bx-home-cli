@@ -400,7 +400,8 @@ export default {
         this.pageItemList = this.pageItemList.map(item => {
           let obj = pageItemList.find(a => a.component_no === item.component_no)
           if (obj) {
-            item.listdata = obj.listdata
+            // item.listdata = obj.listdata
+            this.$set(item,'listdata',obj.listdata)
           }
           return item
         })
