@@ -1,10 +1,84 @@
 <template>
   <div class="queue-manage">
-    <view class="button-box padding-tb-sm">
-      <button type="primary" class="cu-btn bg-green" @click="showAddInfo">
-        抽号
-      </button>
+    <view class="cur-que-no" v-if="todayQue && todayQue.cur_no">
+      <text
+        >当前叫号：<text class="text-blue">{{ todayQue.cur_no }}</text></text
+      >
+      <view v-if="handlerStatus && currentTab === 0">
+        <button
+          type="primary"
+          class="cu-btn round bg-green margin-right"
+          @click="multiChangeStatus(handlerStatus)"
+        >
+          {{ handlerStatus }}
+        </button>
+        <button class="cu-btn round bg-gray" @click="multiHandler(null)">
+          取消
+        </button>
+      </view>
+      <text v-else></text>
+      <!-- <button
+        class="cu-btn round cuIcon-add"
+        @click="showHandler"
+        v-else-if="currentTab === 0"
+      ></button> -->
     </view>
+
+    <view class="button-box top padding-tb-sm" v-if="currentTab === 0">
+      <view class="button-group">
+        <view class="label"> 批量操作 </view>
+        <view class="buttons">
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('叫号')"
+          >
+            叫号
+          </button>
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('过号')"
+          >
+            过号
+          </button>
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('完成')"
+          >
+            完成
+          </button>
+        </view>
+      </view>
+      <view class="button-group">
+        <view class="label">快捷操作</view>
+        <view class="buttons">
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('叫号', 5)"
+          >
+            叫号5
+          </button>
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('叫号', 10)"
+          >
+            叫号10
+          </button>
+          <button
+            type="primary"
+            class="cu-btn bg-blue round light"
+            @click="multiHandler('全部完成')"
+          >
+            全完成
+          </button>
+        </view>
+      </view>
+    </view>
+
     <u-tabs
       :list="tabList"
       :is-scroll="false"
@@ -12,13 +86,21 @@
       :font-size="36"
       @change="changeTab"
     ></u-tabs>
+
     <view class="list-wrap">
       <view
         class="list-item"
         v-for="item in listData[currentTab]"
         :key="item.qr_no"
       >
-        <view>
+        <view class="multi-select" v-if="isShowCheck(item.status)">
+          <checkbox
+            :value="item.id"
+            :checked="item.checked"
+            @click="changeCheckStatus(item)"
+          />
+        </view>
+        <view @click="showInfo(item)">
           <image
             class="image"
             :src="getImagePath(item.profile_url)"
@@ -32,9 +114,16 @@
             mode="scaleToFill"
           />
         </view>
-        <view style="flex: 1">
-          <view class="top">
+        <view style="flex: 1; overflow: hidden">
+          <view class="top" @click="showInfo(item)">
             <view
+              style="
+                flex: 1;
+                margin-right: 20rpx;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              "
               ><text class="title">
                 {{ item.person_name || item.nick_name || "" }}</text
               >
@@ -147,6 +236,38 @@
         </view>
       </view>
     </view>
+    <view
+      class="cu-modal"
+      @click="hideModal"
+      :class="{ show: modalName === 'handlerModal' }"
+    >
+      <view class="cu-dialog" style="width: 70%" @click.stop="">
+        <view class="handler-modal">
+          <view class="">批量操作</view>
+          <button class="cu-btn bg-cyan" @click="multiHandler('叫号')">
+            叫号(多选)
+          </button>
+          <button class="cu-btn bg-cyan" @click="multiHandler('叫号', 5)">
+            叫号(x5)
+          </button>
+          <button class="cu-btn bg-cyan" @click="multiHandler('叫号', 10)">
+            叫号(x10)
+          </button>
+          <button class="cu-btn bg-orange" @click="multiHandler('过号')">
+            过号(多选)
+          </button>
+          <button class="cu-btn bg-blue" @click="multiHandler('完成')">
+            完成(多选)
+          </button>
+          <button class="cu-btn bg-blue" @click="multiHandler('全部完成')">
+            全部完成
+          </button>
+        </view>
+      </view>
+    </view>
+    <!-- <view class="cu-modal" :class="{ show: modalName === 'curQueInfo' }">
+
+    </view> -->
   </div>
 </template>
 
@@ -200,13 +321,18 @@ export default {
         },
       ],
       modalName: "",
+      curInfo: null,
       personName: "",
       idcard: '',
       phone: "",
-      modalTip: ""
+      modalTip: "",
+      handlerStatus: "",
     }
   },
   methods: {
+    isShowCheck (e) {
+      return this.handlerStatus && e && (((e == '排队中' || e === '已过号') && this.handlerStatus === '叫号') || (e == '叫号中' && (this.handlerStatus === '完成' || this.handlerStatus === '过号')))
+    },
     toQrcodeDetail (e) {
       if (e.qr_no) {
         uni.navigateTo({ url: `/storePages/queue/queue?store_no=${this.store_no}&queue_no=${this.queue_no}&qr_no=${e.qr_no}` })
@@ -216,6 +342,7 @@ export default {
       this.modalName = 'showAddInfo'
     },
     hideModal () {
+      this.curInfo = null
       this.modalName = ''
     },
     async createNumber () {
@@ -225,7 +352,7 @@ export default {
           "serviceName": "srvhealth_store_queue_up_record_add",
           "condition": [],
           "data": [
-            { "nick_name": this.personName, "queue_no": this.queue_no, "queue_name": this.todayQue.queue_name, "status": "排队中", "phone": this.phone, 'remark': `工作人员帮忙抽号，身份证号:${this.idcard}` }
+            { person_name: this.personName, "nick_name": this.personName, "queue_no": this.queue_no, "queue_name": this.todayQue.queue_name, "status": "排队中", "phone": this.phone, "id_no": this.idcard, 'remark': `工作人员帮忙抽号，身份证号:${this.idcard}` }
           ]
         } ]
         let res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_add', req, 'health')
@@ -269,6 +396,7 @@ export default {
     },
     changeTab (index) {
       this.currentTab = index;
+      this.pages[ this.currentTab ].pageNo = 1
       this.getList()
     },
     async updateQueueInfo (no) {
@@ -316,6 +444,7 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_cfg_select', req, 'health')
       if (res.success && res.data.length > 0) {
         this.todayQue = res.data[ 0 ]
+        uni.setNavigationBarTitle({ title: `${this.todayQue.queue_name}` })
         this.getList()
         if (res.data[ 0 ].cur_no) {
           this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no)
@@ -367,6 +496,10 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_queue_up_record_select', req, 'health')
 
       if (res.success) {
+        res.data = res.data.map(item => {
+          item.checked = false;
+          return item
+        })
         let data = type === 'loadmore' ? [ ...this.listData[ current ], ...res.data ] : res.data
         this.$set(this.listData, current, data)
         if (res.page.total > res.page.pageNo * res.page.rownumber) {
@@ -377,7 +510,124 @@ export default {
         this.pages[ current ].total = res.page.total
         // this.tabList[ current ].count = res.page.total
       }
-    }
+    },
+    multiHandler (e, num = null) {
+      let toast = null
+      let text = num ? e + num : e
+      switch (text) {
+        case '全部完成':
+        case '完成':
+          toast = this.listData[ 0 ].filter(item => item.status === '叫号中').length === 0 ? "没有状态为叫号中的人员" : null
+          break;
+        case '叫号':
+        case '叫号5':
+        case '叫号10':
+        case '过号':
+          toast = this.listData[ 0 ].filter(item => item.status === '排队中').length === 0 ? "没有状态为排队中的人员" : null
+          break;
+      }
+      if (toast) {
+        uni.showToast({
+          title: toast,
+          icon: 'none',
+          mask: true
+        })
+        this.hideModal()
+        return
+      }
+      if (e !== '全部完成') {
+        if (num) {
+          this.multiChangeStatus('叫号', num)
+        } else {
+          this.handlerStatus = e
+        }
+        if (e === null) {
+          this.currentTab = 0;
+          this.pages[ this.currentTab ].pageNo = 1
+          this.getList()
+        }
+      } else {
+        this.multiChangeStatus('all')
+      }
+      this.hideModal()
+
+    },
+    changeCheckStatus (e) {
+      this.listData[ 0 ].forEach((item, index) => {
+        if (item.id === e.id) {
+          item.checked = !item.checked
+          this.$set(this.listData[ 0 ], index, item)
+        }
+      })
+    },
+    async multiChangeStatus (e, num) {
+      let req = []
+      let ids = null
+      switch (e) {
+        case 'all': // 全部完成
+          req[ 0 ] = {
+            "serviceName": "srvhealth_store_queue_up_record_update",
+            "condition": [ { "colName": "queue_no", "ruleType": "eq", "value": this.queue_no }, { "colName": "status", "ruleType": "eq", "value": '叫号中' } ],
+            "data": [ { "status": "完成" } ]
+          }
+          break;
+        case '完成': // 
+          ids = this.listData[ 0 ].filter(item => item.checked === true && item.status === '叫号中').map(item => item.id).toString()
+          req[ 0 ] = {
+            "serviceName": "srvhealth_store_queue_up_record_update",
+            "condition": [ { "colName": "queue_no", "ruleType": "eq", "value": this.queue_no }, { "colName": "id", "ruleType": "in", "value": ids } ],
+            "data": [ { "status": "完成" } ]
+          }
+          break;
+        case '叫号': // 
+          ids = this.listData[ 0 ].filter(item => item.checked === true && item.status === '排队中').map(item => item.id).toString()
+          if (num) {
+            ids = this.listData[ 0 ].filter(item => item.status === '排队中').slice(0, num).map(item => item.id).toString()
+          }
+          debugger
+          req[ 0 ] = {
+            "serviceName": "srvhealth_store_queue_up_record_update",
+            "condition": [ { "colName": "queue_no", "ruleType": "eq", "value": this.queue_no }, { "colName": "id", "ruleType": "in", "value": ids } ],
+            "data": [ { "status": "叫号中" } ]
+          }
+          break;
+        case '过号': // 
+          ids = this.listData[ 0 ].filter(item => item.checked === true && item.status === '叫号中').map(item => item.id).toString()
+          req[ 0 ] = {
+            "serviceName": "srvhealth_store_queue_up_record_update",
+            "condition": [ { "colName": "queue_no", "ruleType": "eq", "value": this.queue_no }, { "colName": "id", "ruleType": "in", "value": ids } ],
+            "data": [ { "status": "已过号" } ]
+          }
+          break;
+      }
+      let res = await this.$fetch('operate', 'srvhealth_store_queue_up_record_update', req, 'health')
+      this.handlerStatus = null
+      if (res.success) {
+        uni.showToast({
+          title: '操作成功',
+          icon: 'success',
+          mask: true
+        })
+        this.currentTab = 0;
+        this.pages[ this.currentTab ].pageNo = 1
+        this.getList()
+      }
+    },
+    showHandler () {
+      this.modalName = 'handlerModal'
+    },
+    showInfo (e) {
+      // this.curInfo = e
+      // this.modalName = 'curQueInfo'
+      uni.showModal({
+        // title: '用户信息',
+        title: `姓名:${e.person_name || e.nick_name}\n${e.phone ? '\r\n,手机号：' + e.phone : ''}\n${e.id_no ? '\r\n,身份证号：' + e.id_no : ''}`,
+        content: '',
+        // content: `姓名:${e.person_name || e.nick_name}\n${e.phone ? '\r\n,手机号：' + e.phone : ''}\n${e.id_no ? '\r\n,身份证号：' + e.id_no : ''}`,
+        showCancel: false,
+        confirmText: "知道了"
+      })
+    },
   },
   onLoad (option) {
     if (option.store_no && option.queue_no) {
@@ -402,6 +652,53 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.queue-manage {
+  .cur-que-no {
+    width: 100%;
+    text-align: center;
+    padding: 20rpx 0;
+    margin: 0 30rpx;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f1f1;
+    .cuIcon-add {
+      font-size: 30px;
+    }
+    .text-blue {
+      font-size: 30px;
+      font-weight: bold;
+    }
+  }
+  .button-box.top {
+    // justify-content: space-around;
+    justify-content: flex-start;
+    border-bottom: 1px solid #f1f1f1;
+    border-top: 1px solid #f1f1f1;
+    flex: 1;
+    .button-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10rpx;
+      flex: 1;
+      margin-right: 30rpx;
+      .buttons {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        .cu-btn {
+          min-width: 150rpx;
+        }
+      }
+    }
+    .label {
+      margin-right: 20rpx;
+    }
+    .cu-btn {
+      margin-left: 20rpx;
+    }
+  }
+}
 .call-name {
   display: flex;
   justify-content: flex-end;
@@ -410,18 +707,24 @@ export default {
 .list-wrap {
   min-height: calc(100vh - var(--window-top));
   padding: 0 20rpx;
+  margin-top: 20rpx;
 }
 .list-item {
-  padding: 20rpx;
+  padding: 0 10rpx;
   border-bottom: 1px solid #f1f1f1;
   display: flex;
   margin-bottom: 10rpx;
   &.current-number {
     border: 1px solid #0bc99d;
   }
+  .multi-select {
+    display: flex;
+    align-items: center;
+    margin-right: 20rpx;
+  }
   .image {
-    width: 150rpx;
-    height: 150rpx;
+    width: 130rpx;
+    height: 130rpx;
     margin-right: 20rpx;
     border-radius: 10rpx;
   }
@@ -446,20 +749,21 @@ export default {
     .queue-status {
       flex: 1;
       text-align: left;
-      font-size: 18px;
+      // font-size: 18px;
     }
     .cu-btn {
-      margin-right: 20rpx;
-      min-width: 25%;
+      margin-right: 10rpx;
+      // min-width: 25%;
+      height: 50rpx;
     }
   }
 }
 .button-box {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding-bottom: 10rpx;
   margin: 0 20rpx 10rpx;
-  border-bottom: #f1f1f1 1px solid;
+  // border-bottom: #f1f1f1 1px solid;
 }
 .cu-dialog {
   .button-box {
@@ -469,6 +773,21 @@ export default {
     margin: 0;
     .cu-btn {
       width: 40%;
+    }
+  }
+}
+.handler-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20rpx;
+  .cu-btn {
+    width: 80%;
+    margin-top: 20rpx;
+    letter-spacing: 2px;
+    &:last-child {
+      margin-bottom: 20rpx;
     }
   }
 }

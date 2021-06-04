@@ -57,7 +57,10 @@
             >{{ item.cur_no || " - " }}
           </view>
         </view>
-        <view class="footer-item" v-if="type !== 'manage'">
+        <view
+          class="footer-item"
+          v-if="type !== 'manage' && item.queue_status === '进行中'"
+        >
           <button class="cu-btn bg-blue shadow-blur">开始排队</button>
         </view>
         <view v-if="type === 'manage'" class="change-status footer-item">

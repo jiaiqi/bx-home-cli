@@ -164,7 +164,6 @@
 					"style": {
 						"navigationBarTitleText": "排队管理",
 						"enablePullDownRefresh": true
-
 					}
 				}
 			]
@@ -238,6 +237,18 @@
 				}
 			]
 		}
+		// ,
+		// {
+		// 	"root": "otherPages",
+		// 	"pages": [
+		// 		{
+		// 			"path": "echarts-map-test/echarts-map-test",
+		// 			"style": {
+		// 				"navigationBarTitleText": "echarts-map-test"
+		// 			}
+		// 		}
+		// 	]
+		// }
 	],
 	"easycom": {
 		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"

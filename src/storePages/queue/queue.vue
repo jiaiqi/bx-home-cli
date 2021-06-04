@@ -419,6 +419,10 @@ export default {
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
           return
+        } else if (!this.userInfo) {
+          await this.toAddPage()
+          this.showRealNameModal()
+          return
         }
       }
       if (this.todayQue.must_subscribe === '是') {
@@ -457,6 +461,8 @@ export default {
                 nick_name: this.userInfo.nick_name,
                 person_name: this.userInfo.person_name,
                 person_no: this.userInfo.no,
+                id_no: this.userInfo.id_no || '', //身份证号
+                phone: this.userInfo.phone || this.userInfo.phone_xcx || '',
                 profile_url: this.userInfo.profile_url,
                 sex: this.userInfo.sex,
                 store_user_no: this.storeUser.store_user_no,

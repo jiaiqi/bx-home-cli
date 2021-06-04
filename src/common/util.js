@@ -1977,7 +1977,6 @@ export default {
 						break;
 				}
 			}
-			debugger
 			let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
 			let req = [{
 				"serviceName": "srvhealth_person_info_add",
