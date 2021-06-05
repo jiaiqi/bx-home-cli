@@ -29,22 +29,22 @@
         <view class="label"> 批量 </view>
         <view class="buttons">
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+           
+            class="cu-btn  bg-blue"
             @click="multiHandler('叫号')"
           >
             叫号
           </button>
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+           
+            class="cu-btn  bg-blue"
             @click="multiHandler('过号')"
           >
             过号
           </button>
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+           
+            class="cu-btn  bg-blue"
             @click="multiHandler('完成')"
           >
             完成
@@ -60,29 +60,28 @@
         <view class="label">快捷</view>
         <view class="buttons">
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+           
+            class="cu-btn  bg-blue"
             @click="multiHandler('叫号', 5)"
           >
             叫号5
           </button>
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+           
+            class="cu-btn  bg-blue"
             @click="multiHandler('叫号', 10)"
           >
             叫号10
           </button>
           <button
-            type="primary"
-            class="cu-btn bg-blue light"
+            class="cu-btn  bg-blue"
             @click="multiHandler('全部完成')"
           >
             全完成
           </button>
         </view>
         <view class="right">
-          <button class="cu-btn bg-green" type="primary" @click="showAddInfo">抽号</button>
+          <button class="cu-btn  bg-green" type="primary" @click="showAddInfo">抽号</button>
         </view>
       </view>
     </view>
@@ -119,7 +118,7 @@
             :src="getImagePath(item.profile_url)"
             mode="scaleToFill"
             v-if="item.profile_url"
-            @click="toPreviewImage(item.profile_url)"
+            @click.stop="toPreviewImage(item.profile_url)"
           />
           <image
             class="image"
@@ -143,17 +142,24 @@
             </view>
             <view v-if="item.remark">
               <text
-                style="font-size: 20px"
-                @click="toQrcodeDetail(item)"
+                style="font-size: 20px;margin-right:20rpx;"
+                @click.stop="toQrcodeDetail(item)"
                 v-if="
                   item.remark && item.remark.indexOf('工作人员帮忙抽号') !== -1
                 "
                 class="cuIcon-qrcode"
               ></text>
             </view>
-            <view class="queue-status text-blue margin-right">{{ item.status }}</view>
+            <view class="queue-status  margin-right" :class="{
+              'text-blue':item.status==='排队中',
+              'text-green':item.status==='叫号中',
+              'text-orangen':item.status==='已过号',
+              'text-cyan':item.status==='完成',
+
+
+            }">{{ item.status }}</view>
             <view>
-              <button class="cu-btn round bg-blue" @click="showHandlerModal(item)">
+              <button class="cu-btn round bg-blue" @click.stop="showHandlerModal(item)">
               <text class=" cuIcon-add"></text>
               </button>
             </view>
@@ -279,11 +285,12 @@
       </view>
     </view>
     <view
-      class="cu-modal bottom-modal"
+      class="cu-modal"
       :class="{ show: modalName === 'showAddInfo' }"
     >
-      <view class="cu-dialog" @click.stop="">
-        <view class="tips margin-top bg-white"> 请填写抽号用户身份信息 </view>
+      <view class="cu-dialog" @click.stop="" style="    vertical-align: inherit">
+        <view >
+          <view class="tips margin-top bg-white"> 请填写抽号用户身份信息 </view>
         <view class="user-info">
           <view class="cu-form-group">
             <view class="title"> <text class="text-red">*</text> 用户姓名</view>
@@ -306,8 +313,9 @@
           {{ modalTip || "" }}
         </view>
         <view class="button-box">
-          <button class="cu-btn bg-gray" @click="hideModal">取消</button>
-          <button class="cu-btn bg-blue" @click="createNumber">抽号</button>
+          <button class="cu-btn bg-gray lg" @click="hideModal">取消</button>
+          <button class="cu-btn bg-blue lg" @click="createNumber">抽号</button>
+        </view>
         </view>
       </view>
     </view>
@@ -346,7 +354,7 @@
           <view class="button-box" v-if="curInfo&&curInfo.id">
             <!-- <view class="queue-status text-blue">{{ curInfo.status }}</view> -->
             <button
-              class="cu-btn bg-cyan"
+              class="cu-btn bg-cyan lg"
               @click="changeStatus(curInfo, '叫号中')"
               v-if="
                 currentTab !== 1 &&
@@ -356,14 +364,14 @@
               叫号
             </button>
             <button
-              class="cu-btn bg-blue"
+              class="cu-btn bg-blue lg"
               @click="changeStatus(curInfo, '完成')"
               v-if="currentTab !== 2 && curInfo.status === '叫号中'"
             >
               完成
             </button>
             <button
-              class="cu-btn bg-orange"
+              class="cu-btn bg-orange lg"
               v-if="
                 currentTab !== 2 && currentTab !== 1 && curInfo.status === '叫号中'
               "
@@ -372,13 +380,22 @@
               过号
             </button>
             <button
-              class="cu-btn bg-orange"
+              class="cu-btn bg-orange lg"
               v-if="currentTab !== 0 && currentTab !== 1"
               @click="changeStatus(curInfo, '排队中')"
             >
               排队
             </button>
-          <button  class="cu-btn bg-blue" @click="showInfo(curInfo)">查看信息</button>
+            <button  v-if="
+                 curInfo&& curInfo.remark
+                "   class="cu-btn bg-blue lg"  @click="toQrcodeDetail(curInfo)">  <text
+               
+                v-if="
+                  curInfo.remark && curInfo.remark.indexOf('工作人员帮忙抽号') !== -1
+                "
+                class="cuIcon-qrcode"
+              ></text>查看排队</button>
+          <button  class="cu-btn bg-blue lg" @click="showInfo(curInfo)">查看信息</button>
           </view>
         </view>
       </view>
@@ -734,6 +751,7 @@ export default {
       switch (text) {
         case "全部完成":
         case "完成":
+        case "过号":
           toast =
             this.listData[0].filter((item) => item.status === "叫号中")
               .length === 0
@@ -743,7 +761,6 @@ export default {
         case "叫号":
         case "叫号5":
         case "叫号10":
-        case "过号":
           toast =
             this.listData[0].filter((item) => item.status === "排队中")
               .length === 0
@@ -760,11 +777,15 @@ export default {
         this.hideModal();
         return;
       }
+      debugger;
       if (e !== "全部完成") {
+        this.handlerStatus = e;
         if (num) {
+          this.handlerStatus = "叫号";
+
           this.multiChangeStatus("叫号", num);
         } else {
-          this.handlerStatus = e;
+          this.multiChangeStatus(e);
         }
         if (e === null) {
           this.currentTab = 0;
@@ -787,6 +808,8 @@ export default {
     async multiChangeStatus(e, num) {
       let req = [];
       let ids = null;
+      debugger;
+
       switch (e) {
         case "all": // 全部完成
           req[0] = {
@@ -811,18 +834,38 @@ export default {
             ],
             data: [{ status: "完成" }],
           };
+          if (!ids) {
+            uni.showToast({
+              title: "选中数据没有处于叫号中状态的",
+              icon: "none",
+              duration: 3000,
+              mask: true,
+            });
+            return;
+          }
           break;
         case "叫号": //
           ids = this.listData[0]
             .filter((item) => item.checked === true && item.status === "排队中")
             .map((item) => item.id)
             .toString();
+          debugger;
           if (num) {
             ids = this.listData[0]
               .filter((item) => item.status === "排队中")
               .slice(0, num)
               .map((item) => item.id)
               .toString();
+          }
+          if (!ids) {
+            uni.showToast({
+              title: "选中数据没有处于排队中状态的",
+              icon: "none",
+              duration: 3000,
+
+              mask: true,
+            });
+            return;
           }
           debugger;
           req[0] = {
@@ -847,6 +890,15 @@ export default {
             ],
             data: [{ status: "已过号" }],
           };
+          if (!ids) {
+            uni.showToast({
+              title: "选中数据没有处于叫号中状态的",
+              duration: 3000,
+              icon: "none",
+              mask: true,
+            });
+            return;
+          }
           break;
       }
       let res = await this.$fetch(
@@ -865,6 +917,7 @@ export default {
         this.currentTab = 0;
         this.pages[this.currentTab].pageNo = 1;
         this.getList();
+        this.getTodayQue();
       }
     },
     showHandler() {
@@ -938,7 +991,7 @@ export default {
     .button-group {
       display: flex;
       align-items: center;
-      margin-bottom: 10rpx;
+      margin-bottom: 20rpx;
       flex: 1;
       margin-right: 30rpx;
       .right {
@@ -952,6 +1005,9 @@ export default {
         justify-content: space-around;
         .cu-btn {
           // min-width: 120rpx;
+          min-height: 80rpx;
+          font-size: 32rpx;
+          font-weight: bold;
         }
       }
     }
@@ -1048,7 +1104,7 @@ export default {
     flex-direction: column;
     .cu-btn {
       width: 80%;
-      margin-top: 20rpx;
+      margin-top: 20px;
       letter-spacing: 2px;
       &:last-child {
         margin-bottom: 20rpx;

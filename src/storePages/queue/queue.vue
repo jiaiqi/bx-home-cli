@@ -65,7 +65,7 @@
       <view
         class="que-button"
         v-if="
-          (!queInfo || (queInfo&&queInfo.status!=='排队中'&&queInfo&&queInfo.status!=='叫号中')) &&
+          (!queInfo ||(queInfo&&queInfo.status==='完成')|| (queInfo&&queInfo.status!=='排队中'&&queInfo&&queInfo.status!=='叫号中')) &&
           todayQue &&
           todayQue.id &&
           todayQue.queue_status === '进行中'&&!qr_no

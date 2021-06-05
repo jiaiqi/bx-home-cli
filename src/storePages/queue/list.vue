@@ -118,24 +118,24 @@
       :class="{ show: modalName === 'settingModal' }"
     >
       <view class="cu-dialog" style="width:60%" @click.stop="">
-        <view class="label font-bold margin-tb-xs">更改状态：</view>
+        <view class="label font-bold margin-tb-xs text-bold">更改状态</view>
         <view class="buttons">
           <button
-            class="cu-btn bg-red light round margin-right-xs"
+            class="cu-btn bg-red light round margin-right-xs lg"
             @click.stop="changeStatus(curQue, '已结束')"
             v-if="curQue.queue_status !== '已结束'"
           >
             已结束
           </button>
           <button
-            class="cu-btn bg-green light round margin-right-xs"
+            class="cu-btn bg-green light round margin-right-xs lg"
             @click.stop="changeStatus(curQue, '进行中')"
             v-if="curQue.queue_status !== '进行中'"
           >
             进行中
           </button>
           <button
-            class="cu-btn bg-blue light round margin-right-xs"
+            class="cu-btn bg-blue light round margin-right-xs lg"
             @click.stop="changeStatus(curQue, '待开始')"
             v-if="curQue.queue_status !== '待开始'"
           >
@@ -482,7 +482,7 @@ export default {
   align-items: center;
    .cu-btn {
       width: 80%;
-      margin-top: 20rpx;
+      margin-top: 20px;
       letter-spacing: 2px;
       &:last-child {
         margin-bottom: 20rpx;
