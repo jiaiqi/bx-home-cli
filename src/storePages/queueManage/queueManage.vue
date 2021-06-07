@@ -50,9 +50,9 @@
             完成
           </button>
         </view>
-        <view class="right" style="font-size: 30px">
-          <text class="text-blue line-blue font-bold" style="font-size: 30px">{{
-            todayQue.cur_no
+        <view class="right">
+          <text class="text-blue line-blue font-bold">{{
+            todayQue.cur_no||''
           }}</text>
         </view>
       </view>
@@ -411,7 +411,7 @@ export default {
       userInfo: (state) => state.user.userInfo,
     }),
   },
-  data() {
+  data () {
     return {
       todayQue: null,
       store_no: "",
@@ -432,7 +432,7 @@ export default {
           status: "more",
         },
       ],
-      listData: [[], [], []],
+      listData: [ [], [], [] ],
       tabList: [
         // {
         //   name: "叫号中",
@@ -461,7 +461,7 @@ export default {
     };
   },
   methods: {
-    isShowCheck(e) {
+    isShowCheck (e) {
       return (
         this.handlerStatus &&
         e &&
@@ -470,21 +470,21 @@ export default {
             (this.handlerStatus === "完成" || this.handlerStatus === "过号")))
       );
     },
-    toQrcodeDetail(e) {
+    toQrcodeDetail (e) {
       if (e.qr_no) {
         uni.navigateTo({
           url: `/storePages/queue/queue?store_no=${this.store_no}&queue_no=${this.queue_no}&qr_no=${e.qr_no}`,
         });
       }
     },
-    showAddInfo() {
+    showAddInfo () {
       this.modalName = "showAddInfo";
     },
-    hideModal() {
+    hideModal () {
       this.curInfo = null;
       this.modalName = "";
     },
-    async createNumber() {
+    async createNumber () {
       // 工作人员帮忙抽号
       if (this.personName && (this.idcard || this.phone)) {
         let req = [
@@ -512,7 +512,7 @@ export default {
           "health"
         );
         if (res.success && res.data.length > 0) {
-          const data = res.data[0];
+          const data = res.data[ 0 ];
           this.currentTab = 0;
           this.getList();
         }
@@ -521,15 +521,15 @@ export default {
         this.modalTip = "请确认信息是否填写完整,身份证号和手机号至少填一项";
       }
     },
-    async callNext() {
-      let list = this.listData[0];
+    async callNext () {
+      let list = this.listData[ 0 ];
       let index = 0;
       if (this.curPerson && this.curPerson.seq) {
         index = list.findIndex((item) => item.seq === this.curPerson.seq);
         index++;
       }
       if (list.length > index) {
-        this.curPerson = list[index];
+        this.curPerson = list[ index ];
       } else {
         this.curPerson = null;
         uni.showModal({
@@ -540,12 +540,12 @@ export default {
         });
         return;
       }
-      if (this.listData[0].length > 0) {
+      if (this.listData[ 0 ].length > 0) {
         let req = [
           {
             serviceName: "srvhealth_store_queue_up_cfg_update",
-            condition: [{ colName: "id", ruleType: "eq", value: "8" }],
-            data: [{ cur_no: this.curPerson.seq }],
+            condition: [ { colName: "id", ruleType: "eq", value: "8" } ],
+            data: [ { cur_no: this.curPerson.seq } ],
           },
         ];
         let res = await this.$fetch(
@@ -559,19 +559,19 @@ export default {
       }
       this.getList();
     },
-    changeTab(index) {
+    changeTab (index) {
       this.currentTab = index;
-      this.pages[this.currentTab].pageNo = 1;
+      this.pages[ this.currentTab ].pageNo = 1;
       this.getList();
     },
-    async updateQueueInfo(no) {
+    async updateQueueInfo (no) {
       let req = [
         {
           serviceName: "srvhealth_store_queue_up_cfg_update",
           condition: [
             { colName: "id", ruleType: "eq", value: this.todayQue.id },
           ],
-          data: [{ cur_no: no }],
+          data: [ { cur_no: no } ],
         },
       ];
       if (no) {
@@ -583,12 +583,12 @@ export default {
         );
       }
     },
-    changeStatus(item, status) {
+    changeStatus (item, status) {
       let req = [
         {
           serviceName: "srvhealth_store_queue_up_record_update",
-          condition: [{ colName: "id", ruleType: "eq", value: item.id }],
-          data: [{ status: status }],
+          condition: [ { colName: "id", ruleType: "eq", value: item.id } ],
+          data: [ { status: status } ],
         },
       ];
       this.$fetch(
@@ -603,7 +603,7 @@ export default {
             icon: "success",
             mask: true,
           });
-          if (status === "叫号中" && res.data.length > 0 && res.data[0].seq) {
+          if (status === "叫号中" && res.data.length > 0 && res.data[ 0 ].seq) {
             // if (this?.todayQue?.id) {
             //   this.updateQueueInfo(res.data[ 0 ].seq)
             // }
@@ -618,11 +618,11 @@ export default {
         this.getList();
       });
     },
-    async getTodayQue() {
+    async getTodayQue () {
       // 查询当前排队信息
       let req = {
         serviceName: "srvhealth_store_queue_up_cfg_select",
-        colNames: ["*"],
+        colNames: [ "*" ],
         condition: [
           { colName: "store_no", ruleType: "eq", value: this.store_no },
           { colName: "queue_no", ruleType: "eq", value: this.queue_no },
@@ -641,11 +641,11 @@ export default {
         "health"
       );
       if (res.success && res.data.length > 0) {
-        this.todayQue = res.data[0];
+        this.todayQue = res.data[ 0 ];
         uni.setNavigationBarTitle({ title: `${this.todayQue.queue_name}` });
         this.getList();
-        if (res.data[0].cur_no) {
-          this.curPerson = await this.getCurPerson(res.data[0].cur_no);
+        if (res.data[ 0 ].cur_no) {
+          this.curPerson = await this.getCurPerson(res.data[ 0 ].cur_no);
         }
         this.tabList = this.tabList.map((item, index) => {
           if (item.name === "叫号中") {
@@ -665,10 +665,10 @@ export default {
         });
       }
     },
-    async getCurPerson(no) {
+    async getCurPerson (no) {
       let req = {
         serviceName: "srvhealth_store_queue_up_record_select",
-        colNames: ["*"],
+        colNames: [ "*" ],
         condition: [
           {
             colName: "queue_no",
@@ -677,7 +677,7 @@ export default {
           },
           { colName: "seq", ruleType: "eq", value: no },
         ],
-        page: { pageNo: this.pages[this.currentTab].pageNo, rownumber: 30 },
+        page: { pageNo: this.pages[ this.currentTab ].pageNo, rownumber: 30 },
       };
       let res = await this.$fetch(
         "select",
@@ -686,17 +686,17 @@ export default {
         "health"
       );
       if (res.success && res.data.length > 0) {
-        return res.data[0];
+        return res.data[ 0 ];
       }
     },
-    async getList(type = "refresh", index) {
+    async getList (type = "refresh", index) {
       let current = this.currentTab;
       if (index || index === 0) {
         current = index;
       }
       let req = {
         serviceName: "srvhealth_store_queue_up_record_select",
-        colNames: ["*"],
+        colNames: [ "*" ],
         condition: [
           {
             colName: "queue_no",
@@ -706,19 +706,19 @@ export default {
           {
             colName: "status",
             ruleType: "eq",
-            value: this.tabList[current].name,
+            value: this.tabList[ current ].name,
           },
         ],
-        page: { pageNo: this.pages[current].pageNo, rownumber: 30 },
+        page: { pageNo: this.pages[ current ].pageNo, rownumber: 30 },
       };
-      if (this.tabList[current].name === "排队中") {
-        req.condition[1] = {
+      if (this.tabList[ current ].name === "排队中") {
+        req.condition[ 1 ] = {
           colName: "status",
           ruleType: "in",
           value: "叫号中,排队中",
         };
       }
-      this.pages[current].status = "loading";
+      this.pages[ current ].status = "loading";
       let res = await this.$fetch(
         "select",
         "srvhealth_store_queue_up_record_select",
@@ -733,19 +733,19 @@ export default {
         });
         let data =
           type === "loadmore"
-            ? [...this.listData[current], ...res.data]
+            ? [ ...this.listData[ current ], ...res.data ]
             : res.data;
         this.$set(this.listData, current, data);
         if (res.page.total > res.page.pageNo * res.page.rownumber) {
-          this.pages[current].status = "more";
+          this.pages[ current ].status = "more";
         } else {
-          this.pages[current].status = "noMore";
+          this.pages[ current ].status = "noMore";
         }
-        this.pages[current].total = res.page.total;
+        this.pages[ current ].total = res.page.total;
         // this.tabList[ current ].count = res.page.total
       }
     },
-    multiHandler(e, num = null) {
+    multiHandler (e, num = null) {
       let toast = null;
       let text = num ? e + num : e;
       switch (text) {
@@ -753,7 +753,7 @@ export default {
         case "完成":
         case "过号":
           toast =
-            this.listData[0].filter((item) => item.status === "叫号中")
+            this.listData[ 0 ].filter((item) => item.status === "叫号中")
               .length === 0
               ? "没有状态为叫号中的人员"
               : null;
@@ -762,7 +762,7 @@ export default {
         case "叫号5":
         case "叫号10":
           toast =
-            this.listData[0].filter((item) => item.status === "排队中")
+            this.listData[ 0 ].filter((item) => item.status === "排队中")
               .length === 0
               ? "没有状态为排队中的人员"
               : null;
@@ -789,7 +789,7 @@ export default {
         }
         if (e === null) {
           this.currentTab = 0;
-          this.pages[this.currentTab].pageNo = 1;
+          this.pages[ this.currentTab ].pageNo = 1;
           this.getList();
         }
       } else {
@@ -797,42 +797,42 @@ export default {
       }
       this.hideModal();
     },
-    changeCheckStatus(e) {
-      this.listData[0].forEach((item, index) => {
+    changeCheckStatus (e) {
+      this.listData[ 0 ].forEach((item, index) => {
         if (item.id === e.id) {
           item.checked = !item.checked;
-          this.$set(this.listData[0], index, item);
+          this.$set(this.listData[ 0 ], index, item);
         }
       });
     },
-    async multiChangeStatus(e, num) {
+    async multiChangeStatus (e, num) {
       let req = [];
       let ids = null;
       debugger;
 
       switch (e) {
         case "all": // 全部完成
-          req[0] = {
+          req[ 0 ] = {
             serviceName: "srvhealth_store_queue_up_record_update",
             condition: [
               { colName: "queue_no", ruleType: "eq", value: this.queue_no },
               { colName: "status", ruleType: "eq", value: "叫号中" },
             ],
-            data: [{ status: "完成" }],
+            data: [ { status: "完成" } ],
           };
           break;
         case "完成": //
-          ids = this.listData[0]
+          ids = this.listData[ 0 ]
             .filter((item) => item.checked === true && item.status === "叫号中")
             .map((item) => item.id)
             .toString();
-          req[0] = {
+          req[ 0 ] = {
             serviceName: "srvhealth_store_queue_up_record_update",
             condition: [
               { colName: "queue_no", ruleType: "eq", value: this.queue_no },
               { colName: "id", ruleType: "in", value: ids },
             ],
-            data: [{ status: "完成" }],
+            data: [ { status: "完成" } ],
           };
           if (!ids) {
             uni.showToast({
@@ -845,13 +845,13 @@ export default {
           }
           break;
         case "叫号": //
-          ids = this.listData[0]
+          ids = this.listData[ 0 ]
             .filter((item) => item.checked === true && item.status === "排队中")
             .map((item) => item.id)
             .toString();
           debugger;
           if (num) {
-            ids = this.listData[0]
+            ids = this.listData[ 0 ]
               .filter((item) => item.status === "排队中")
               .slice(0, num)
               .map((item) => item.id)
@@ -868,27 +868,27 @@ export default {
             return;
           }
           debugger;
-          req[0] = {
+          req[ 0 ] = {
             serviceName: "srvhealth_store_queue_up_record_update",
             condition: [
               { colName: "queue_no", ruleType: "eq", value: this.queue_no },
               { colName: "id", ruleType: "in", value: ids },
             ],
-            data: [{ status: "叫号中" }],
+            data: [ { status: "叫号中" } ],
           };
           break;
         case "过号": //
-          ids = this.listData[0]
+          ids = this.listData[ 0 ]
             .filter((item) => item.checked === true && item.status === "叫号中")
             .map((item) => item.id)
             .toString();
-          req[0] = {
+          req[ 0 ] = {
             serviceName: "srvhealth_store_queue_up_record_update",
             condition: [
               { colName: "queue_no", ruleType: "eq", value: this.queue_no },
               { colName: "id", ruleType: "in", value: ids },
             ],
-            data: [{ status: "已过号" }],
+            data: [ { status: "已过号" } ],
           };
           if (!ids) {
             uni.showToast({
@@ -915,26 +915,25 @@ export default {
           mask: true,
         });
         this.currentTab = 0;
-        this.pages[this.currentTab].pageNo = 1;
+        this.pages[ this.currentTab ].pageNo = 1;
         this.getList();
         this.getTodayQue();
       }
     },
-    showHandler() {
+    showHandler () {
       this.modalName = "handlerModal";
     },
-    showHandlerModal(e) {
+    showHandlerModal (e) {
       this.curInfo = e;
       this.modalName = "curQueInfo";
     },
-    showInfo(e) {
+    showInfo (e) {
       // this.curInfo = e
       // this.modalName = 'curQueInfo'
       uni.showModal({
         // title: '用户信息',
-        title: `姓名:${e.person_name || e.nick_name}\n${
-          e.phone ? "\r\n,手机号：" + e.phone : ""
-        }\n${e.id_no ? "\r\n,身份证号：" + e.id_no : ""}`,
+        title: `姓名:${e.person_name || e.nick_name}\n${e.phone ? "\r\n,手机号：" + e.phone : ""
+          }\n${e.id_no ? "\r\n,身份证号：" + e.id_no : ""}`,
         content: "",
         // content: `姓名:${e.person_name || e.nick_name}\n${e.phone ? '\r\n,手机号：' + e.phone : ''}\n${e.id_no ? '\r\n,身份证号：' + e.id_no : ''}`,
         showCancel: false,
@@ -942,22 +941,22 @@ export default {
       });
     },
   },
-  onLoad(option) {
+  onLoad (option) {
     if (option.store_no && option.queue_no) {
       this.store_no = option.store_no;
       this.queue_no = option.queue_no;
       this.getTodayQue();
     }
   },
-  onPullDownRefresh() {
+  onPullDownRefresh () {
     this.pages.forEach((item) => (item.pageNo = 1));
     this.getTodayQue();
     uni.stopPullDownRefresh();
   },
   // 页面处理函数--监听用户上拉触底
-  onReachBottom() {
-    if (this.pages[this.currentTab].status === "more") {
-      this.pages[this.currentTab].pageNo++;
+  onReachBottom () {
+    if (this.pages[ this.currentTab ].status === "more") {
+      this.pages[ this.currentTab ].pageNo++;
       this.getList("loadmore", this.currentTab);
     }
   },
@@ -993,10 +992,12 @@ export default {
       align-items: center;
       margin-bottom: 20rpx;
       flex: 1;
-      margin-right: 30rpx;
       .right {
         flex: 1;
         text-align: right;
+        .text-blue {
+          font-size: 30px;
+        }
       }
       .buttons {
         // flex: 1;
@@ -1013,6 +1014,7 @@ export default {
     }
     .label {
       margin-right: 10rpx;
+      width: 30px;
     }
     .cu-btn {
       margin-left: 10rpx;

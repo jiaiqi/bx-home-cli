@@ -175,8 +175,7 @@
               <view class="title">设备名称：</view>
               <input
                 name="input"
-                :disabled="true"
-                v-model="deviceInfo.dt_name"
+                v-model="deviceInfo.person_remark_device_name"
               />
             </view>
             <view
@@ -630,7 +629,8 @@ export default {
         const req = { "serviceName": "srviot_device_instance_code_select", "colNames": [ "*" ], "condition": [ { colName: 'dic_device_id', ruleType: 'eq', value: info.dic_device_id } ], "page": { "pageNo": 1, "rownumber": 10 } }
         const res = await this.$fetch("select", 'srviot_device_instance_code_select', req, 'iot')
         if (Array.isArray(res.data) && res.data.length > 0) {
-          const deviceInfo = res.data[ 0 ]
+          let deviceInfo = res.data[ 0 ]
+          deviceInfo.person_remark_device_name = deviceInfo.person_remark_device_name || deviceInfo.dt_name
           this.insertUserDevice(deviceInfo, info)
         }
       } else {
@@ -720,11 +720,16 @@ export default {
       const { selectedDeviceType } = this
       let result = await this.scanCode()
       if (selectedDeviceType && selectedDeviceType.dt_no) {
-        result = { ...result, dt_no: selectedDeviceType.dt_no }
+        if (typeof result === 'string') {
+          result = { dic_device_id: result, dt_no: selectedDeviceType.dt_no }
+        } else {
+          result = { ...result, dt_no: selectedDeviceType.dt_no }
+        }
       }
       // let data = await this.getDeviceInfoWithDIC(result)
       if (result.dt_no && result.dic_device_id) {
-        const deviceInfo = await this.selectDeviceInfo(result.dt_no)
+        let deviceInfo = await this.selectDeviceInfo(result.dt_no)
+        deviceInfo.person_remark_device_name = deviceInfo.person_remark_device_name || deviceInfo.dt_name
         if (deviceInfo) {
           // 根据型号查找到设备信息
           deviceInfo.dic_device_id = result.dic_device_id
