@@ -90,6 +90,8 @@ export default {
               pre.push(cur)
               return pre
             }, []);
+            this.goodsList = [ ...this.goodsList, ...this.goodsList ]
+            console.log(this.goodsList)
           }
         }
       });
@@ -137,10 +139,10 @@ export default {
 
 <style scoped lang="scss">
 .goods-list {
-  // display: flex;
-  // flex-wrap: wrap;
-  column-count: 2;
-  column-gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  // column-count: 2;
+  // column-gap: 10px;
   padding: 0 5px 20px;
 }
 
@@ -150,8 +152,10 @@ export default {
   background-color: #fff;
   break-inside: avoid;
   margin-top: 20rpx;
+  margin-right: 20rpx;
+  width: calc(50% - 10rpx);
   &:first-child {
-    margin-top: 0;
+    // margin-top: 0;
   }
   // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   &:nth-child(2n) {
@@ -180,6 +184,11 @@ export default {
     font-size: 12px;
     color: #aaa;
     margin-top: 5px;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /**指定行数*/
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .price {

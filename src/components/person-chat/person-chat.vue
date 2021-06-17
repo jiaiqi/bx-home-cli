@@ -164,7 +164,6 @@
                 :src="item.img_url"
               >
               </image>
-              <!-- <chat-image :max="350" :src="item.img_url"></chat-image> -->
             </view>
             <view
               class="person-chat-item-right article-content"
