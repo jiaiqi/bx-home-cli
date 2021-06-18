@@ -72,7 +72,7 @@ export default {
         if (Array.isArray(res.data)) {
           if (Array.isArray(res.data)) {
             this.goodsList = res.data.reduce((pre, cur) => {
-              let url = this.getImagePath(cur[ this.image ], true);
+              let url = this.getImagePath(cur[ this.image ]);
               cur.url = url;
               if (cur[ this.image ]) {
                 this.getImageInfo({
@@ -90,7 +90,7 @@ export default {
               pre.push(cur)
               return pre
             }, []);
-            this.goodsList = [ ...this.goodsList, ...this.goodsList ]
+            // this.goodsList = [ ...this.goodsList, ...this.goodsList ]
             console.log(this.goodsList)
           }
         }
@@ -152,8 +152,8 @@ export default {
   background-color: #fff;
   break-inside: avoid;
   margin-top: 20rpx;
+  width: calc(50% - 20rpx);
   margin-right: 20rpx;
-  width: calc(50% - 10rpx);
   &:first-child {
     // margin-top: 0;
   }
