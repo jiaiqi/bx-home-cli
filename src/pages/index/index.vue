@@ -55,7 +55,8 @@
       style="margin-top: 30vh"
       v-if="loadStatus === 'noMore' && list.length === 0"
     >
-      <u-empty text="暂无数据" mode="list"> </u-empty>
+      暂无数据
+      <!-- <u-empty text="暂无数据" mode="list"> </u-empty> -->
     </view>
     <uni-load-more
       :status="loadStatus"

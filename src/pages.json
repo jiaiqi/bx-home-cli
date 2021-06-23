@@ -73,9 +73,9 @@
 		},
 		{
 			"root": "storePages",
-			"usingComponents": {
-				"subscribe": "plugin-private://wx2b03c6e691cd7370/components/subscribe/subscribe"
-			},
+			// "usingComponents": {
+			// 	"subscribe": "plugin-private://wx2b03c6e691cd7370/components/subscribe/subscribe"
+			// },
 			"plugins": {
 				"live-player-plugin": {
 					"version": "1.3.0",
@@ -236,8 +236,7 @@
 					}
 				}
 			]
-		}
-		,
+		},
 		{
 			"root": "otherPages",
 			"pages": [
@@ -245,6 +244,13 @@
 					"path": "echarts-map-test/echarts-map-test",
 					"style": {
 						"navigationBarTitleText": "echarts-map-test"
+					}
+				},
+				{
+					"path": "activity/activity",
+					"style": {
+						"navigationBarBackgroundColor": "#8a1b1f",
+						"navigationBarTitleText": "建党100周年祝福接力"
 					}
 				}
 			]

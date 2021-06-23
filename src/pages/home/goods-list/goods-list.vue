@@ -8,6 +8,7 @@
       <image
         class="goods-image"
         v-if="item[image]"
+        :lazy-load="true"
         :src="item.url"
         mode="aspectFill"
         :style="{ height: item.imgHeight + 'px' }"
@@ -72,7 +73,7 @@ export default {
         if (Array.isArray(res.data)) {
           if (Array.isArray(res.data)) {
             this.goodsList = res.data.reduce((pre, cur) => {
-              let url = this.getImagePath(cur[ this.image ]);
+              let url = this.getImagePath(cur[ this.image ], true);
               cur.url = url;
               if (cur[ this.image ]) {
                 this.getImageInfo({

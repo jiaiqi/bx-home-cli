@@ -1,5 +1,5 @@
 <template>
-  <div class="echarts-map-test">
+  <view class="activity">
     <u-notice-bar
       mode="horizontal"
       :list="noticeList"
@@ -7,84 +7,69 @@
       v-if="noticeList && noticeList.length > 0"
     >
     </u-notice-bar>
-    <view class="chart-content">
+    <view>
+      <view class="top-bg"> </view>
+      <view class="join-number">
+        <text v-if="total">
+          已参与
+          <text class="number">{{ total }}</text
+          >人次
+        </text>
+      </view>
+    </view>
+    <view class="chart-content" v-if="chartOption">
       <uniEcCharts
         class="uni-ec-charts"
         id="uni-ec-charts"
         :ec="chartOption"
       ></uniEcCharts>
     </view>
-    <!-- <map
-      longitude="108.214705"
-      latitude="33.846009"
-      :markers="marker"
-      :scale="3.5"
-      class="e-charts"
-    >
-    </map> -->
-  </div>
+  </view>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import * as echarts from '@/components/uni-ec-canvas/echarts.js'
 import chinaMap from '@/static/china.json'
 echarts.registerMap('china', chinaMap);
-// console.log(chinaMap)
-import uniEcCharts from '@/components/uni-ec-canvas/uni-echart'
 export default {
-  components: {
-    uniEcCharts,
-  },
   data () {
     return {
-      noticeList: [],
-      marker: [ {
-        id: 1,
-        latitude: "33.846009",
-        longitude: "108.214705",
-        callout: {
-          display: "ALWAYS",
-          // bgColor: "transparent",
-          borderRadius: 100,
-          borderWidth: 0,
-          display: "ALWAYS",
-          anchorY: 5,
-          content: "23"
-
-        }
-      },
-      {
-        id: 2,
-        latitude: "33.847009",
-        longitude: "113.216705",
-        label: { content: "四川" },
-        callout: {
-          borderRadius: '100 100 0 0 ',
-          color: '#fff',
-          display: "ALWAYS",
-          bgColor: "#ff0000",
-          padding: 10,
-          anchorY: 43,
-          content: "44"
-        }
-      },
-      {
-        id: 3,
-        latitude: "30.147009",
-        longitude: "100.316705",
-        callout: {
-          bgColor: "transparent",
-          anchorY: 5,
-          display: "ALWAYS",
-          content: "17"
-        }
-      } ],
-      chartOption: {
-        option: {}
-      }
+      shareNum: 0,
+      shareJoinNum: 0,
+      total: 0,
+      su: "", //share_user_no
+      chartOption: { option: {} },
+      wxUserInfo: {},
     }
   },
-
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.userInfo,
+      loginUserInfo: state => state.user.loginUserInfo
+    }),
+    noticeList () {
+      if (this.wxUserInfo && (this.wxUserInfo.user_no || this.loginUserInfo.user_no)) {
+        if (this.shareNum && !this.shareJoinNum) {
+          return [
+            `您分享的本活动已被${this.shareNum || '-'}人次浏览`
+          ]
+        }
+        if (!this.shareNum && this.shareJoinNum) {
+          return [
+            `已有${this.shareNum || '-'}人通过您分享的链接参加本活动`
+          ]
+        }
+        if (this.shareNum && this.shareJoinNum) {
+          return [
+            `您已传播${this.shareNum || '-'}人，带动${this.shareJoinNum || '-'}人次参加本活动`
+          ]
+        }
+      } else {
+        return []
+      }
+    },
+  },
   methods: {
     async getData () {
       let req = {
@@ -106,6 +91,132 @@ export default {
         // this.provinceList = res.data.data
         return res.data.data
       }
+    },
+    async getUserInfo () {
+      let url = this.$api.getUserInfo;
+      let req = {
+        serviceName: 'srvwx_basic_user_info_select',
+        colNames: [ '*' ],
+        condition: [ {
+          colName: 'app_no',
+          ruleType: 'eq',
+          value: this.$api.appNo.wxmp
+        } ]
+      };
+      let res = await this.$http.post(url, req);
+      if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+        const userInfo = res.data.data[ 0 ];
+        this.wxUserInfo = userInfo;
+
+        if (this.su || uni.getStorageSync('su')) {
+          let share_user_no = this.su || uni.getStorageSync('su')
+          if (share_user_no != userInfo.user_no) {
+            this.addViewRecord()
+          }
+        }
+        this.getLastRecord()
+        this.getPresentResult(userInfo.unionid)
+      }
+    },
+    async getLastRecord () {
+      // 查找最后一条祝福记录
+      let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
+      let req = {
+        "serviceName": "srvportal_act_atd_rcd_select",
+        "colNames": [ "*" ],
+        order: [ {
+          colName: "id",
+          orderType: "desc"
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 1
+        },
+      }
+      let res = await this.$http.post(url, req)
+      if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+        this.lastRecord = res.data.data[ 0 ]
+        this.total = res.data.data[ 0 ].id
+      }
+    },
+    async getPresentResult (unionid) {
+      let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
+      let req = {
+        "serviceName": "srvportal_act_atd_rcd_select",
+        "colNames": [ "*" ],
+        order: [ {
+          colName: "id",
+          orderType: "desc"
+        } ],
+        "condition": [ {
+          colName: "unionid",
+          ruleType: 'eq',
+          value: unionid
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 1
+        },
+      }
+      if (!unionid) {
+        return
+      }
+      let res = await this.$http.post(url, req)
+      if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+        this.result = res.data.data[ 0 ]
+      }
+      this.getShareNum()
+      this.getShareJoinNum()
+    },
+    getShareNum () {
+      let req = {
+        "serviceName": "srvportal_share_visit_log_select",
+        "colNames": [ "*" ],
+        "condition": [ {
+          colName: "share_user_no",
+          ruleType: 'eq',
+          value: this.wxUserInfo?.user_no || this.loginUserInfo.user_no
+        } ],
+        group: [ {
+          "colName": "id",
+          "type": "count"
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 10
+        },
+      }
+      let url = this.getServiceUrl('bxportal', 'srvportal_share_visit_log_select', 'select');
+      this.$http.post(url, req).then(res => {
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          this.shareNum = res.data.data[ 0 ].id
+        }
+      })
+    },
+    getShareJoinNum () {
+      let req = {
+        "serviceName": "srvportal_act_atd_rcd_select",
+        "colNames": [ "*" ],
+        "condition": [ {
+          colName: "share_user_no",
+          ruleType: 'eq',
+          value: this.wxUserInfo?.user_no || this.loginUserInfo.user_no
+        } ],
+        group: [ {
+          "colName": "id",
+          "type": "count"
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 10
+        },
+      }
+      let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
+      this.$http.post(url, req).then(res => {
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          this.shareJoinNum = res.data.data[ 0 ].id
+        }
+      })
     },
     async buildOption () {
       // myChart = echarts.init(document.getElementById('echarts'))
@@ -312,30 +423,39 @@ export default {
           }
         ]
       };
-      // this.ecOption = option
       this.chartOption = { option }
-      // myChart.setOption(option);
     },
   },
-  created () {
+
+  // 页面周期函数--监听页面加载
+  onLoad (option) {
+    if (option.su) {
+      this.su = option.su
+      uni.setStorageSync('su', option.su)
+    }
+    this.getUserInfo()
+
+  },
+  mounted () {
     setTimeout(() => {
       this.buildOption()
-    }, 200)
+    }, 200);
   },
+
 };
 </script>
 
 <style lang="scss">
-.echarts-map-test {
+.activity {
   background-color: #8a1b1f;
   min-height: calc(100vh - var(--window-top));
-}
-.chart-content {
-  width: 100%;
-  height: 600rpx;
-  .uni-ec-charts {
+  .chart-content {
     width: 100%;
-    height: 100%;
+    height: 600rpx;
+    .uni-ec-charts {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 </style>

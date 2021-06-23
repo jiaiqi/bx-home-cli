@@ -1,5 +1,8 @@
 <template>
   <view class="store-item" v-if="storeInfo && storeInfo.store_no">
+    <view class="title" v-if="pageItem.show_label === '是'">{{
+      pageItem.component_label || ""
+    }}</view>
     <slide-list
       v-if="pageItem.type === '轮播图'"
       ref="swiperList"
@@ -12,7 +15,7 @@
       :userInfo="userInfo"
       :bindUserInfo="bindUserInfo"
       @bindUser="bindStore"
-      v-if="pageItem.type === '店铺信息'"
+      v-else-if="pageItem.type === '店铺信息'"
       :isBind="isBind"
       :pageItem="pageItem"
       @setHomePage="setHomePage"
@@ -25,11 +28,11 @@
       :bindUserInfo="bindUserInfo"
       :storeInfo="storeInfo"
       @addToStore="addToStore"
-      v-if="pageItem.type === '按钮组'"
+      v-else-if="pageItem.type === '按钮组'"
       ref="buttonGroup"
     ></button-list>
     <goods-list
-      v-if="pageItem.type === '商品列表' && goodsListData.length > 0"
+      v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0"
       :storeNo="storeNo"
       image="goods_img"
       name="goods_name"
@@ -38,13 +41,13 @@
     ></goods-list>
     <vaccine-list
       :storeInfo="storeInfo"
-      v-if="pageItem.type === '疫苗列表'"
+      v-else-if="pageItem.type === '疫苗列表'"
       ref="vaccineList"
     ></vaccine-list>
     <staff-manage
       :storeNo="storeNo"
       :pageItem="pageItem"
-      v-if="pageItem.type === '人员列表'"
+      v-else-if="pageItem.type === '人员列表'"
       @toDoctorDetail="toDoctorDetail"
       ref="staffList"
     >
@@ -57,16 +60,22 @@
       :rownumber="pageItem.row_number"
       :cateNo="pageItem.category_no"
       :storeInfo="storeInfo"
-      v-if="pageItem.type === '文章列表'"
+      v-else-if="pageItem.type === '文章列表'"
     >
     </news-list>
     <notice-list
-      v-if="pageItem.type === '通知横幅'"
+      v-else-if="pageItem.type === '通知横幅'"
       ref="noticeList"
       :storeNo="storeNo"
       :pageItem="pageItem"
     >
     </notice-list>
+    <relation-store
+      v-else-if="pageItem && pageItem.type === '关联店铺'"
+      ref="relationStore"
+      :storeNo="storeNo"
+      :pageItem="pageItem"
+    ></relation-store>
   </view>
 </template>
 
@@ -79,6 +88,7 @@ import vaccineList from '../vaccine-list/vaccine-list.vue'
 import newsList from '../news-list/news-list.vue'
 import staffManage from '../staff-manage/staff-manage.vue'
 import noticeList from '../notice-list/notice-list.vue'
+import relationStore from '../relation-store/relation-store.vue'
 export default {
   components: {
     slideList,
@@ -88,7 +98,8 @@ export default {
     vaccineList,
     staffManage,
     newsList,
-    noticeList
+    noticeList,
+    relationStore
   },
   props: {
     pageItem: {
@@ -189,5 +200,22 @@ export default {
 }
 </script>
 
-<style>
+<style scoped >
+.title {
+  background-color: #fff;
+  padding: 20rpx;
+  position: relative;
+  padding-left: 40rpx;
+  border-bottom: 1px solid #f1f1f1;
+}
+.title::before {
+  content: "";
+  width: 10rpx;
+  height: 30rpx;
+  background-color: #0bc99d;
+  position: absolute;
+  left: 20rpx;
+  top: calc(50% - 15rpx);
+  border-radius: 20rpx;
+}
 </style>

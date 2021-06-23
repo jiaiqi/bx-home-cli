@@ -198,6 +198,9 @@ export default {
           case '通知横幅':
             keys = [ 'component_no', 'margin', 'listdata' ]
             break;
+          case '关联店铺':
+            keys = Object.keys(pageItem)
+            break;
         }
         if (Array.isArray(keys) && keys.length > 0) {
           keys.forEach(key => {
@@ -222,7 +225,7 @@ export default {
       }
       let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
       if (res.success) {
-        this.pageItemList = res.data.filter(item => item.display !== '否')
+        this.pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
         uni.$emit('updateStoreItemData')
         this.getComponentData()
       }
@@ -230,12 +233,34 @@ export default {
     async getComponentData () {
       const storeNo = this.storeNo
       let req = []
-      const pageItemList = this.pageItemList.filter(item => [ '按钮组', '人员列表', '商品列表', '通知横幅' ].includes(item.type))
+      const pageItemList = this.pageItemList.filter(item => [ '按钮组', '人员列表', '商品列表', '通知横幅', '关联店铺' ].includes(item.type))
 
       for (let index = 0; index < pageItemList.length; index++) {
         const element = pageItemList[ index ];
+
         let reqBody = null
         switch (element.type) {
+          case '关联店铺':
+            reqBody = {
+              "serviceName": "srvhealth_store_relation_select",
+              "colNames": [ "*" ],
+              "condition": [ {
+                "colName": "relation_type",
+                "ruleType": "in",
+                "value": element.relation_type
+              },
+              {
+                "colName": "a_store_no",
+                "ruleType": "eq",
+                "value": storeNo
+              }
+              ],
+              "page": {
+                "pageNo": 1,
+                "rownumber": 99
+              },
+            }
+            break;
           case '按钮组':
             reqBody = {
               "serviceName": "srvhealth_page_item_buttons_select",
@@ -350,6 +375,9 @@ export default {
           const element = pageItemList[ index ];
           dataArray[ index ] = dataArray[ index ].data
           switch (element.type) {
+            case '关联店铺':
+              element[ 'listdata' ] = dataArray[ index ]
+              break;
             case '按钮组':
               element[ 'listdata' ] = dataArray[ index ].filter(item => item.display !== '否' && item.display !== '隐藏')
               break;
@@ -401,7 +429,7 @@ export default {
           let obj = pageItemList.find(a => a.component_no === item.component_no)
           if (obj) {
             // item.listdata = obj.listdata
-            this.$set(item,'listdata',obj.listdata)
+            this.$set(item, 'listdata', obj.listdata)
           }
           return item
         })
