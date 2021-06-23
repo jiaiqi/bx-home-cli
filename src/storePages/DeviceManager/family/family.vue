@@ -206,6 +206,9 @@ export default {
         if (res.data.state === 'SUCCESS') {
           return true
         } else {
+          if (res.data.resultCode === '4444') {
+            return '已绑定过此账号，请勿重复绑定'
+          }
           return false
         }
       } else {
@@ -232,7 +235,6 @@ export default {
       })
       const isConsent = await promise
       if (isConsent) {
-
         let bindSuccess = false
         let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" }, { colName: "state", ruleType: 'eq', value: "关闭" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
         const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
@@ -247,7 +249,7 @@ export default {
         } else {
           bindSuccess = await this.bindKin()
         }
-        if (bindSuccess) {
+        if (bindSuccess == true) {
           // this.showExitModal = true
           uni.showModal({
             title: '提示',
@@ -258,6 +260,12 @@ export default {
                 this.getKins()
               }
             }
+          })
+        } else if (typeof bindSuccess === 'string') {
+          uni.showModal({
+            title: '操作失败',
+            content: bindSuccess,
+            showCancel: false
           })
         } else {
           uni.showModal({
@@ -362,8 +370,8 @@ export default {
         this.getKins()
       }
     }
-    if (option.inviter_userno && option.inviter_no && option.inviter_name) {
-      this.inviterInfo.userno = option.inviter_userno
+    if (option.invite_user_no && option.inviter_no && option.inviter_name) {
+      this.inviterInfo.userno = option.invite_user_no
       this.inviterInfo.no = option.inviter_no
       this.inviterInfo.name = option.inviter_name
       this.addToMyKin()
@@ -386,13 +394,12 @@ export default {
       this.getKins('loadmore')
     }
   },
-  // 页面处理函数--监听页面滚动(not-nvue)
-  /* onPageScroll(event) {}, */
-  // 页面处理函数--用户点击右上角分享
   onShareAppMessage () {
+    const path = `/storePages/DeviceManager/family/family?invite_user_no=${this.userInfo.userno}&inviter_no=${this.userInfo.no}&store_no=${this.store_no}&inviter_name=${this.userInfo.name || this.userInfo.nick_name}`;
+    const title = `${this.userInfo.name || this.userInfo.nick_name}申请成为您的亲友`
     return {
-      title: `${this.userInfo.name || this.userInfo.nick_name}申请成为您的亲友`,
-      path: `/storePages/DeviceManager/family/family?invite_user_no=${this.userInfo.userno}&inviter_no=${this.userInfo.no}&store_no=${this.store_no}&inviter_name=${this.userInfo.name || this.userInfo.nick_name}`,
+      title,
+      path
     }
   }
 };

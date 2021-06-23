@@ -42,9 +42,13 @@ const state = {
 	previousPageUrl: "",
 	systemInfo:wx.getSystemInfoSync(),
 	hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
+	scene:0,//小程序进入场景
 }
 let persistData = {}; //持久化数据
 const mutations = {
+	SET_SCENE:(state, scene)=>{
+		state.scene = scene
+	},
 	SET_HOME_PATH: (state, path) => {
 		state.homePath = path
 	},

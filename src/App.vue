@@ -6,6 +6,7 @@ export default {
     statusBarHeight: uni.getSystemInfoSync()[ 'statusBarHeight' ], // 获取导航栏的高度
   },
   onLaunch (options) {
+    this.$store.commit('SET_SCENE', options.scene)
     if (options.scene === 1154) {
       // 朋友圈单页模式进入
       return

@@ -55,10 +55,12 @@ export default {
       if (!this.bgColor) {
         style += `background-color:#0bc99d;color:#fff;`
       }
+
       return style
     }
   },
   props: {
+
     bgColor: {
       type: String,
       default: ''
