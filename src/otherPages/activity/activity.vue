@@ -43,6 +43,8 @@
         <text class="cuIcon-share"></text>
       </button>
     </view>
+    <MessageBoard></MessageBoard>
+
     	<view class="cu-modal bottom-modal" @click="hideModal" :class="{show:modalName==='editInfo'}">
 				<view class="cu-dialog" @click.stop="">
 					<view class="edit-info">
