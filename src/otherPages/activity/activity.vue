@@ -43,7 +43,8 @@
         <text class="cuIcon-share"></text>
       </button>
     </view>
-    <MessageBoard></MessageBoard>
+    <timeline-list :profile="wxUserInfo.headimgurl" v-if="wxUserInfo&&userInfo&&userInfo.userno"></timeline-list>
+    <!-- <MessageBoard :profile="wxUserInfo.headimgurl" v-if="wxUserInfo&&userInfo&&userInfo.userno"></MessageBoard> -->
 
     	<view class="cu-modal bottom-modal" @click="hideModal" :class="{show:modalName==='editInfo'}">
 				<view class="cu-dialog" @click.stop="">
@@ -194,10 +195,12 @@ import * as echarts from '@/components/uni-ec-canvas/echarts.js'
 
 import chinaMap from '@/static/china.json'
 echarts.registerMap('china', chinaMap);
-import MessageBoard from './MessageBoard.vue'
+// import MessageBoard from './MessageBoard.vue'
+// import TimelineList from '../../components/timeline-list/timeline-list.vue';
 export default {
   components: {
-    MessageBoard,
+    // MessageBoard,
+    // TimelineList,
   },
   data () {
     return {
@@ -422,8 +425,8 @@ export default {
         return
       }
       proData = proData.map(item => {
-        item.label = item.name
-        item.name = item.name.replace('省', '').replace('市', '')
+        // item.label = item.name
+        item.label = item.name.replace('省', '').replace('市', '')
         return item
       })
 
@@ -442,9 +445,14 @@ export default {
       data = proData.map(item => {
         let obj = {}
         obj.name = item.name
+        obj.label = item.label
+        // obj.name = item.label
         obj.value = item.total_count || 0
+        if (isNaN(obj.value)) {
+          obj.value = 0
+        }
         return obj
-      }).filter(item => item.value)
+      })
       var max = 480,
         min = 9; // todo 
       var maxSize4Pin = 100,
@@ -456,7 +464,7 @@ export default {
           var geoCoord = geoCoordMap[ data[ i ].name ];
           if (geoCoord) {
             res.push({
-              name: data[ i ].name,
+              name: data[ i ].label,
               value: geoCoord.concat(data[ i ].value)
             });
           }
@@ -467,13 +475,15 @@ export default {
       let option = {
         tooltip: {
           trigger: 'item',
-          formatter: function (params) {
-            if (typeof (params.value)[ 2 ] == "undefined") {
-              return params.name + ' : ' + params.value;
-            } else {
-              return params.name + ' : ' + params.value[ 2 ];
-            }
-          }
+          formatter: '{b}: {c}',
+          // formatter: function (params) {
+          //   debugger
+          //   if (typeof (params.value)[ 2 ] == "undefined") {
+          //     return params.name + ' : ' + params.value;
+          //   } else {
+          //     return params.name + ' : ' + params.value[ 2 ];
+          //   }
+          // }
         },
         legend: {
           orient: 'vertical',
@@ -497,7 +507,7 @@ export default {
           top: 0,
           seriesIndex: [ 1 ],
           inRange: {
-            color: [ '#e14e4e', '#5B1113' ],
+            color: [ '#e14e4e', '#ff3d3d', '#f72c33', '#A71F22', '#5B1113' ],
           },
           pieces: [ {
             gt: 10000,
@@ -625,13 +635,7 @@ export default {
       };
       this.chartOption = { option }
     },
-    getCascaderValue (e) {
-      if (e) {
-        this.clickTag(e, true)
-      } else {
-        this.showModal('editInfo')
-      }
-    },
+
     clickOrgAddr (e) {
       if (e && e.id) {
         this.selectOrgAddr = e

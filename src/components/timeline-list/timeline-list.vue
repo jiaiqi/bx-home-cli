@@ -1,5 +1,5 @@
 <template>
-  <view class="message-board">
+  <view class="message-board" :class="{ noMargin: noMargin }">
     <!-- <view class="title"> 留言墙 </view> -->
     <!-- <input
       class="input-box"
@@ -8,15 +8,19 @@
     /> -->
     <view class="header">
       <view class="head-handler">
-        <button class="cu-btn bg-blue" @click="toPublish" type="primary">
-          发表
-        </button>
+        <button class="cu-btn" @click="toPublish" type="primary">发表</button>
       </view>
       <view class="head-profile"
         ><image v-if="profile" :src="getImagePath(profile)" mode="scaleToFill"
       /></view>
     </view>
     <view class="timeline-box">
+      <view
+        class="no-data"
+        v-if="loadStatus === 'noMore' && listData.length === 0"
+      >
+        暂无数据
+      </view>
       <view class="timeline-item" v-for="item in listData" :key="item.id">
         <view class="left">
           <image
@@ -75,7 +79,6 @@
 
 <script>
 // 留言板
-import imgList from './img-list.vue'
 import dayjs from '@/static/js/dayjs.min.js'
 import { mapState } from 'vuex'
 export default {
@@ -84,11 +87,9 @@ export default {
       userInfo: state => state.user.userInfo
     })
   },
-  components: {
-    imgList,
-  },
   data () {
     return {
+      loadStatus: "more",
       listData: []
     }
   },
@@ -96,7 +97,11 @@ export default {
     limit: {
       // 条数限制
       type: Number,
-      default: 3
+      default: 10
+    },
+    noMargin: {
+      type: Boolean,
+      default: false
     },
     profile: {
       // 个人头像
@@ -184,7 +189,11 @@ export default {
       if (Array.isArray(pageStack) && pageStack.length >= 1) {
         currentPage = pageStack[ pageStack.length - 1 ]?.$page?.fullPath
       }
-      uni.redirectTo({ url: '/otherPages/publish/publish?fromPage=' + currentPage })
+      let url = `/otherPages/publish/publish?fromPage=${encodeURIComponent(currentPage)}`
+      if (this.storeNo) {
+        url += `&storeNo=${this.storeNo}`
+      }
+      uni.redirectTo({ url })
     },
     getList () {
       const serviceName = this.srvInfo?.serviceName || 'srvportal_friends_circle_select'
@@ -205,9 +214,17 @@ export default {
       if (Array.isArray(this.condition) && this.condition.length > 0) {
         req.condition = [ ...req.condition, ...this.condition ]
       }
+      this.loadStatus = 'loading'
       this.$fetch('select', serviceName, req, appName).then(res => {
         if (res.success) {
           this.listData = res.data
+          if (res.page.total > res.page.pageNo * res.page.rownumber) {
+            this.loadStatus = 'more'
+          } else {
+            this.loadStatus = 'noMore'
+          }
+        } else {
+          this.loadStatus = 'more'
         }
       })
     },
@@ -217,5 +234,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "./msgBoard.scss";
+@import "./style.scss";
 </style>

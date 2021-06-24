@@ -247,6 +247,12 @@
 						"navigationBarBackgroundColor": "#8a1b1f",
 						"navigationBarTitleText": "建党100周年祝福接力"
 					}
+				},
+				{
+					"path": "publish/publish",
+					"style": {
+						"navigationBarTitleText": "发表文字"
+					}
 				}
 			]
 		}

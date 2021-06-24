@@ -208,6 +208,7 @@ export default {
         } else {
           if (res.data.resultCode === '4444') {
             return '已绑定过此账号，请勿重复绑定'
+            // return '已绑定过此账号，请勿重复绑定'
           }
           return false
         }
@@ -217,7 +218,16 @@ export default {
     },
     async addToMyKin () {
       // 将某个用户添加为当前登录用户的亲友
-
+      let hasExist = null
+      const req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "userb_no", ruleType: 'eq', value: this.inviterInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" } ], "page": { "pageNo": 1, "rownumber": 1 } }
+      const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
+      if (res.success && res.data.length > 0) {
+        hasExist = res.data[ 0 ]
+        return
+      }
+      if (hasExist && hasExist.state && hasExist.state !== '关闭') {
+        return
+      }
       const promise = new Promise((resolve) => {
         uni.showModal({
           title: `提示`,
@@ -236,10 +246,13 @@ export default {
       const isConsent = await promise
       if (isConsent) {
         let bindSuccess = false
-        let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" }, { colName: "state", ruleType: 'eq', value: "关闭" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
-        const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
-        if (res.success && res.data.length > 0 && res.data[ 0 ].id) {
-          const data = res.data[ 0 ]
+        if (hasExist && hasExist.state && hasExist.state == '关闭') {
+
+          // let req = { "serviceName": "srvhealth_person_relation_select", "colNames": [ "*" ], "condition": [ { colName: "usera_no", ruleType: 'eq', value: this.userInfo.userno }, { colName: "relation_type", ruleType: 'eq', value: "家属" },{colName: "userb_no", ruleType: 'eq', value: this.inviterInfo.userno}, { colName: "state", ruleType: 'eq', value: "关闭" } ], "page": { "pageNo": this.pageNo || 1, "rownumber": 20 }, "order": [], "draft": false, "query_source": "list_page" }
+          // const res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
+          // if (res.success && res.data.length > 0 && res.data[ 0 ].id) {
+          const data = hasExist
+          // res.data[ 0 ]
           data.state = '正常'
           let req1 = [ { "serviceName": "srvhealth_person_relation_update", "condition": [ { "colName": "id", "ruleType": "eq", "value": data.id } ], "data": [ { state: '正常' } ] } ]
           const res1 = await this.$fetch('operate', 'srvhealth_person_relation_update', req1, 'health')

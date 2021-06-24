@@ -500,6 +500,7 @@ export default {
 				}
 				if (res.data.resultMessage) {
 					result.msg = res.data.resultMessage
+					result.resultMessage = res.data.resultMessage
 				}
 				if (res.data.serviceInfo) {
 					result.info = res.data.serviceInfo
@@ -621,7 +622,7 @@ export default {
 			})
 			return newObj
 		}
-		Vue.prototype.toPreviewImage = (urls) => {
+		Vue.prototype.toPreviewImage = (urls,current=0) => {
 			if (!urls) {
 				return;
 			}
@@ -633,7 +634,8 @@ export default {
 				return url.replace(/&thumbnailType=fwsu_100/gi, '');
 			});
 			uni.previewImage({
-				urls: urls,
+				urls,
+				current,
 				longPressActions: {
 					itemList: ['发送给朋友', '保存图片', '收藏'],
 					success: function(data) {

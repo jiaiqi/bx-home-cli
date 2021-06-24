@@ -332,8 +332,7 @@ export default {
                   types[ index ].list = [ ...topList, ...statusList, ...
                     normalList
                   ]
-
-                  if (item.page && item.page.total) {
+                  if (item.page && item.page.rownumber) {
                     types[ index ].total = item.page.total
                     if (item.page.total <= 3) {
                       this.loadstatus[ index ] = 'noMore'

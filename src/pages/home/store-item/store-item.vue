@@ -1,5 +1,9 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no">
+  <view
+    class="store-item"
+    v-if="storeInfo && storeInfo.store_no"
+    :class="{ 'bg-white': pageItem && pageItem.type === '朋友圈' }"
+  >
     <view class="title" v-if="pageItem.show_label === '是'">{{
       pageItem.component_label || ""
     }}</view>
@@ -76,6 +80,20 @@
       :storeNo="storeNo"
       :pageItem="pageItem"
     ></relation-store>
+    <timeline-list
+      :profile="userInfo.profile_url"
+      :storeNo="storeNo"
+      noMargin
+      :condition="timelinecondition"
+      :limit="20"
+      v-else-if="
+        storeNo &&
+        pageItem &&
+        pageItem.type === '朋友圈' &&
+        userInfo &&
+        userInfo.userno
+      "
+    ></timeline-list>
   </view>
 </template>
 
@@ -124,6 +142,11 @@ export default {
   computed: {
     storeNo () {
       return this.storeInfo && this.storeInfo.store_no ? this.storeInfo.store_no : ''
+    },
+    timelinecondition () {
+      return [
+        { colName: 'store_no', ruleType: 'eq', value: this.storeNo },
+      ]
     },
     isBind () {
       return this.bindUserInfo && this.bindUserInfo.id ? true : false

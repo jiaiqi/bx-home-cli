@@ -199,6 +199,7 @@ export default {
             keys = [ 'component_no', 'margin', 'listdata' ]
             break;
           case '关联店铺':
+          case '朋友圈':
             keys = Object.keys(pageItem)
             break;
         }
