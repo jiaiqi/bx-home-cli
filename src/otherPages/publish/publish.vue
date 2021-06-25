@@ -188,6 +188,7 @@ import { mapState } from 'vuex'
 export default {
   data () {
     return {
+      act_no: "",// 活动编号
       storeNo: null,
       org_name: "",
       org_addr: "",
@@ -243,7 +244,9 @@ export default {
   },
 
   onLoad (option) {
-    debugger
+    if (option.activityNo) {
+      this.act_no = option.activityNo
+    }
     if (option.fromPage) {
       this.fromPage = decodeURIComponent(option.fromPage)
     }
@@ -465,7 +468,7 @@ export default {
           "data": [
             {
               "fc_type": "活动",
-              "act_no": "AT2106110001",
+              "act_no": this.act_no || "AT2106110001",
               "user_no": this.userInfo.userno,
               "text_desc": this.text_desc ? this.text_desc.replace(
                 /[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF][\u200D|\uFE0F]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF]|[0-9|*|#]\uFE0F\u20E3|[0-9|#]\u20E3|[\u203C-\u3299]\uFE0F\u200D|[\u203C-\u3299]\uFE0F|[\u2122-\u2B55]|\u303D|[\A9|\AE]\u3030|\uA9|\uAE|\u3030/ig,

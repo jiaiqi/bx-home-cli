@@ -1,16 +1,17 @@
 <template>
-  <view class="message-board" :class="{ noMargin: noMargin }">
-    <!-- <view class="title"> 留言墙 </view> -->
-    <!-- <input
-      class="input-box"
-      placeholder="说说你的想法吧..."
-      @click.stop.prevent="toPublish"
-    /> -->
+  <view class="message-board" :class="{ noMargin: noMargin || !showProfile }">
     <view class="header">
       <view class="head-handler">
-        <button class="cu-btn" @click="toPublish" type="primary">发表</button>
+        <button
+          class="cu-btn"
+          @click="toPublish"
+          type="primary"
+          v-if="showPublish"
+        >
+          发表
+        </button>
       </view>
-      <view class="head-profile"
+      <view class="head-profile" v-if="showProfile"
         ><image v-if="profile" :src="getImagePath(profile)" mode="scaleToFill"
       /></view>
     </view>
@@ -56,22 +57,30 @@
                 {{ toNow(item.create_time) }}
               </text>
 
-              <text class="delete-handler text-red" @click="deleteItem(item)">
-                <text
-                  class="cuIcon-delete"
-                  v-if="
-                    userInfo &&
-                    userInfo.userno &&
-                    item.user_no &&
-                    item.user_no == userInfo.userno
-                  "
-                ></text>
+              <text
+                class="delete-handler text-red"
+                @click="deleteItem(item)"
+                v-if="
+                  userInfo &&
+                  userInfo.userno &&
+                  item.user_no &&
+                  item.user_no == userInfo.userno
+                "
+              >
+                <text class="cuIcon-delete"></text>
                 删除
               </text>
             </view>
             <view class="foot-handle"></view>
           </view>
         </view>
+      </view>
+      <view
+        class="to-more"
+        @click="toMore"
+        v-if="showMore && loadStatus === 'more' && listData.length > 0"
+      >
+        <text class="text"><text class="margin-lr">查看更多</text> </text>
       </view>
     </view>
   </view>
@@ -94,6 +103,27 @@ export default {
     }
   },
   props: {
+    list: {
+      type: Array
+    },
+    showMore: {
+      // 显示更多按钮
+      type: Boolean,
+      default: false
+    },
+    showPublish: {
+      // 显示发布按钮
+      type: Boolean,
+      default: true
+    },
+    loadOutData: {
+      type: Boolean,
+      default: false
+    },
+    showProfile: {
+      type: Boolean,
+      default: true
+    },
     limit: {
       // 条数限制
       type: Number,
@@ -138,15 +168,43 @@ export default {
       type: String,
       default: ''
     },
-    placeholder: {
-      type: String,
-      default: ''
+  },
+  watch: {
+    storeNo: {
+      immediate: true,
+
+      handler (newValue) {
+        if (!this.loadOutData) {
+          this.getList()
+        }
+      }
     },
+    list: {
+      immediate: true,
+      deep: true,
+      handler (newValue) {
+        if (Array.isArray(newValue) && this.loadOutData) {
+          this.listData = newValue
+        }
+      }
+    }
   },
   created () {
-    this.getList()
+    // if (!this.loadOutData) {
+    //   this.getList()
+    // }
   },
   methods: {
+    toMore () {
+      let url = '/otherPages/timeline/timeline'
+      if (this.storeNo) {
+        url = `${url}?storeNo=${this.storeNo}`
+      }
+      if (this.activityNo) {
+        url = `${url}?activityNo=${this.activityNo}`
+      }
+      uni.navigateTo({ url })
+    },
     deleteItem (e) {
       if (e.id) {
         uni.showModal({
@@ -193,9 +251,16 @@ export default {
       if (this.storeNo) {
         url += `&storeNo=${this.storeNo}`
       }
+      if (this.activityNo) {
+        url += `&activityNo=${this.activityNo}`
+      }
       uni.redirectTo({ url })
     },
-    getList () {
+    getList (...e) {
+      if (this.loadOutData) {
+        this.$emit('load', e)
+        return
+      }
       const serviceName = this.srvInfo?.serviceName || 'srvportal_friends_circle_select'
       const appName = this.srvInfo?.appName || 'bxportal'
       let req = {

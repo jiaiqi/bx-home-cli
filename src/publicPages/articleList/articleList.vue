@@ -52,12 +52,12 @@
           }}</text>
         </view>
       </view>
-      <view class="news-item" v-if="articleList && articleList.length > 0">
+      <!-- <view class="news-item" v-if="articleList && articleList.length > 0">
         <ad-custom
           unit-id="adunit-5816ffb522d52580"
           style="width: 100%"
         ></ad-custom>
-      </view>
+      </view> -->
     </view>
     <u-empty
       text="数据为空"
@@ -73,6 +73,16 @@
         (loadStatus === 'noMore' && articleList.length !== 0)
       "
     ></uni-load-more>
+    <view
+      class="news-item"
+      style="margin-top: 200rpx"
+      v-if="articleList && articleList.length > 0"
+    >
+      <ad-custom
+        unit-id="adunit-5816ffb522d52580"
+        style="width: 100%"
+      ></ad-custom>
+    </view>
   </view>
 </template>
 
@@ -84,6 +94,8 @@ export default {
       cate_name: '',
       articleList: [],
       storeNo: '',
+      storeName: "",
+      shareLogo: "",
       condition: [], // 查询条件
       loadStatus: 'noMore', //more,loading,noMore
       page: {
@@ -149,6 +161,12 @@ export default {
         if (this.storeNo) {
           url += `&store_no=${this.storeNo}`
         }
+        if (this.storeName) {
+          url += `&store_name=${this.storeName}`
+        }
+        if (this.shareLogo) {
+          url += `&logo=${this.shareLogo}`
+        }
         uni.navigateTo({
           url: url
         });
@@ -175,6 +193,15 @@ export default {
     if (option.cateNo) {
       this.cateNo = option.cateNo
       this.getListData()
+    }
+    if (option.store_no) {
+      this.storeNo = option.store_no
+    }
+    if (option.logo) {
+      this.shareLogo = decodeURIComponent(option.logo)
+    }
+    if (option.store_name) {
+      this.storeName = option.store_name
     }
     if (option.condition) {
       this.condition = JSON.parse(option.condition)

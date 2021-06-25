@@ -48,7 +48,10 @@
 					"path": "article/article"
 				},
 				{
-					"path": "articleList/articleList"
+					"path": "articleList/articleList",
+					"style":{
+						"enablePullDownRefresh": true
+					}
 				},
 				{
 					"path": "articleSelect/articleSelect"
@@ -83,6 +86,16 @@
 				}
 			},
 			"pages": [
+				{
+					"path": "home/home",
+					"style": {
+						"navigationBarTitleText": "",
+						"navigationBarBackgroundColor": "#fff",
+						"navigationBarTextStyle": "black",
+						"navigationStyle": "custom",
+						"enablePullDownRefresh": true
+					}
+				},
 				{
 					"path": "VaccineOrder/VaccineOrder",
 					"style": {
@@ -253,6 +266,12 @@
 					"style": {
 						"navigationBarTitleText": "发表文字"
 					}
+				},
+				{
+					"path": "timeline/timeline",
+					"style": {
+						"navigationBarTitleText": "朋友圈"
+					}
 				}
 			]
 		}
@@ -267,8 +286,7 @@
 		"backgroundColor": "#F8F8F8"
 	},
 	"condition": {
-		//模式配置，仅开发期间生效
-		"current": 0, //当前激活的模式(list 的索引项)
+		"current": 0, 
 		"list": [
 			{
 				"name": "聊天页面",

@@ -3,6 +3,7 @@
     <image
       :lazy-load="true"
       :draggable="false"
+      show-menu-by-longpress
       :class="{
         single: imagesUrl.length === 1,
         double: imagesUrl.length === 2,

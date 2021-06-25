@@ -4,9 +4,13 @@
     v-if="storeInfo && storeInfo.store_no"
     :class="{ 'bg-white': pageItem && pageItem.type === '朋友圈' }"
   >
-    <view class="title" v-if="pageItem.show_label === '是'">{{
-      pageItem.component_label || ""
-    }}</view>
+    <view class="title" v-if="pageItem.show_label === '是'" @click="toMore">
+      <text>{{ pageItem.component_label || "" }}</text>
+      <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">
+        查看更多
+        <text class="cuIcon-right"></text>
+      </view> -->
+    </view>
     <slide-list
       v-if="pageItem.type === '轮播图'"
       ref="swiperList"
@@ -81,11 +85,14 @@
       :pageItem="pageItem"
     ></relation-store>
     <timeline-list
+      :showProfile="false"
       :profile="userInfo.profile_url"
       :storeNo="storeNo"
       noMargin
+      showMore
       :condition="timelinecondition"
-      :limit="20"
+      :limit="3"
+      :showPublish="false"
       v-else-if="
         storeNo &&
         pageItem &&
@@ -161,6 +168,13 @@ export default {
     })
   },
   methods: {
+    toMore () {
+      let url = '/otherPages/timeline/timeline'
+      if (this.storeNo) {
+        url = `${url}?storeNo=${this.storeNo}`
+      }
+      uni.navigateTo({ url })
+    },
     setHomePage () {
       this.$emit('setHomePage')
     },
@@ -230,6 +244,9 @@ export default {
   position: relative;
   padding-left: 40rpx;
   border-bottom: 1px solid #f1f1f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .title::before {
   content: "";

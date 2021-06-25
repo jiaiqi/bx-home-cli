@@ -99,6 +99,7 @@ export default {
   },
   data () {
     return {
+      shareLogo: "",
       articleData: {},
       content_no: '',
       cate_name: '',
@@ -182,8 +183,12 @@ export default {
     if (this.userInfo && this.userInfo.userno) {
       query += `&invite_user_no=${this.userInfo.userno}`
     }
-    this.saveSharerInfo(this.userInfo, path);
+    if (this.shareLogo) {
+      query += `&logo=${this.shareLogo}`
+    }
+    // this.saveSharerInfo(this.userInfo, query);
     return {
+      imageUrl: this.shareLogo || null,
       title: this.articleData.title,
       query: query
     };
@@ -200,12 +205,16 @@ export default {
     if (this.cate_name) {
       path += `&cate_name=${this.cate_name}`
     }
+    if (this.shareLogo) {
+      path += `&logo=${this.shareLogo}`
+    }
     if (this.userInfo && this.userInfo.userno) {
       path += `&invite_user_no=${this.userInfo.userno}`
     }
     this.saveSharerInfo(this.userInfo, path);
     return {
-      title: this.storeName || this.articleData.title,
+      imageUrl: this.shareLogo || null,
+      title: this.articleData.title || this.storeName,
       path: path
     };
   },
@@ -215,6 +224,9 @@ export default {
     }
     if (option.store_no) {
       this.storeNo = option.store_no
+    }
+    if (option.logo) {
+      this.shareLogo = decodeURIComponent(option.logo)
     }
     if (option.store_name) {
       this.storeName = option.store_name

@@ -449,24 +449,26 @@ export default {
           } ]
           break;
         case '机构用户客服':
-          serviceName = 'srvhealth_store_user_update'
-          req = [ {
-            "serviceName": serviceName,
-            "condition": [ {
-              "colName": "store_no",
-              "ruleType": "eq",
-              "value": this.storeNo
-            },
-            {
-              "colName": "person_no",
-              "ruleType": "eq",
-              "value": this.userInfo.no
-            }
-            ],
-            "data": [ {
-              "kefu_session_no": this.session_no
+          if (this.storeUserInfo && this.storeUserInfo.id && !this.storeUserInfo.kefu_session_no) {
+            serviceName = 'srvhealth_store_user_update'
+            req = [ {
+              "serviceName": serviceName,
+              "condition": [ {
+                "colName": "store_no",
+                "ruleType": "eq",
+                "value": this.storeNo
+              },
+              {
+                "colName": "person_no",
+                "ruleType": "eq",
+                "value": this.userInfo.no
+              }
+              ],
+              "data": [ {
+                "kefu_session_no": this.session_no
+              } ]
             } ]
-          } ]
+          }
           break;
         case '用户间':
           serviceName = 'srvhealth_person_relation_update'

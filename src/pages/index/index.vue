@@ -145,7 +145,7 @@ export default {
           // this.$store.commit('SET_REGIST_STATUS', false)
           // if (!this.$store.state.app.hasIntoHospital && userInfo.home_store_no) {
           //   uni.redirectTo({
-          //     url: '/pages/home/home?store_no=' + userInfo.home_store_no,
+          //     url: '/storePages/home/home?store_no=' + userInfo.home_store_no,
           //     success: () => {
           //       this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
           //     }
@@ -159,7 +159,7 @@ export default {
         uni.navigateTo({
           animationType: "zoom-fade-out",
           animationDuration: 500,
-          url: '/pages/home/home?store_no=' + e.store_no
+          url: '/storePages/home/home?store_no=' + e.store_no
         })
       }
     },
@@ -237,7 +237,7 @@ export default {
         this.$store.commit('SET_REGIST_STATUS', false)
         if (!this.$store.state.app.hasIntoHospital && data.home_store_no) {
           uni.redirectTo({
-            url: '/pages/home/home?store_no=' + data.home_store_no,
+            url: '/storePages/home/home?store_no=' + data.home_store_no,
             success: () => {
               this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
             }
@@ -334,7 +334,7 @@ export default {
   onLoad (option) {
     if (option.store_no) {
       uni.redirectTo({
-        url: '/pages/home/home?store_no=' + option.store_no
+        url: '/storePages/home/home?store_no=' + option.store_no
       })
     } else {
       this.initLogin()

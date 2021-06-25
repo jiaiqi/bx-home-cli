@@ -43,7 +43,7 @@
         <text class="cuIcon-share"></text>
       </button>
     </view>
-    <timeline-list :profile="wxUserInfo.headimgurl" v-if="wxUserInfo&&userInfo&&userInfo.userno"></timeline-list>
+    <timeline-list :profile="wxUserInfo.headimgurl" v-if="wxUserInfo&&userInfo&&userInfo.userno" activityNo="AT2106110001" showMore :limit="3"></timeline-list>
     <!-- <MessageBoard :profile="wxUserInfo.headimgurl" v-if="wxUserInfo&&userInfo&&userInfo.userno"></MessageBoard> -->
 
     	<view class="cu-modal bottom-modal" @click="hideModal" :class="{show:modalName==='editInfo'}">

@@ -238,6 +238,15 @@ export default {
         if (e.name) {
           url += `&cate_name=${e.name}`
         }
+        if (this.storeInfo.store_no) {
+          url += `&store_no=${this.storeInfo.store_no}`
+        }
+        if (this.storeInfo && this.storeInfo.name) {
+          url += `&store_name=${this.storeInfo.name}`
+        }
+        if (this.storeInfo.logo) {
+          url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
+        }
         uni.navigateTo({
           url: url
         })
@@ -252,6 +261,9 @@ export default {
         }
         if (this.storeInfo.store_no) {
           url += `&store_no=${this.storeInfo.store_no}`
+        }
+        if (this.storeInfo.logo) {
+          url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
         }
         uni.navigateTo({
           url: url

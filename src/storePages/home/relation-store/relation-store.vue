@@ -12,7 +12,7 @@
         mode="scaleToFill"
       />
       <view class="label">{{
-        item.b_name_short || item.b_name ? item.b_name.slice(-10) : "-"
+        item.b_name_short || (item.b_name ? item.b_name.slice(-10) : "-")
       }}</view>
     </view>
   </div>
