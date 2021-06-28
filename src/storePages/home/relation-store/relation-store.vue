@@ -6,14 +6,14 @@
       :key="item.id"
       @click="toStore(item)"
     >
-      <image
-        class="image"
-        :src="getImagePath(item.b_logo)"
-        mode="scaleToFill"
-      />
+      <image class="image" :src="getImagePath(item.b_logo)" />
       <view class="label">{{
         item.b_name_short || (item.b_name ? item.b_name.slice(-10) : "-")
       }}</view>
+    </view>
+    <view class="store-item to-more" @click="toMore" v-if="showMore">
+      <text class="image cuIcon-more"></text>
+      <view class="label"> 查看更多 </view>
     </view>
   </div>
 </template>
@@ -34,7 +34,15 @@ export default {
     [ 'pageItem.listdata' ]: {
       handler (newVal) {
         if (this.pageItem?.row_number && Array.isArray(newVal) && newVal.length > 0) {
-          this.listData = newVal.slice(0, 4 * this.pageItem.row_number)
+          this.row_number = this.pageItem.row_number
+          if (newVal.length >= this.row_number * 4) {
+            this.showMore = true
+            this.listData = newVal.slice(0, 4 * this.pageItem.row_number - 1)
+          } else {
+            this.listData = newVal.slice(0, 4 * this.pageItem.row_number)
+
+            this.showMore = false
+          }
         } else {
           this.listData = newVal
         }
@@ -52,10 +60,16 @@ export default {
   },
   data () {
     return {
+      row_number: 3,
+      showMore: false,
       listData: []
     }
   },
   methods: {
+    toMore () {
+      const url = `/publicPages/list/list?pageType=list&col=4&searchKey=b_name&hideFootBtn=true&customTemp=true&serviceName=srvhealth_store_relation_select&cond=${JSON.stringify([ { colName: "relation_type", ruleType: "in", value: "包含" }, { colName: "a_store_no", ruleType: "eq", value: this.storeNo } ])}&viewTemp={"title":"b_name_short||b_name","img":"b_logo"}`
+      uni.navigateTo({ url })
+    },
     toStore (e) {
       if (e.b_store_no) {
         uni.navigateTo({
@@ -78,9 +92,8 @@ export default {
   padding: 20rpx;
   .store-item {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-    padding: 10rpx;
     border-radius: 20rpx;
-    max-width: calc(25% - (30rpx / 4));
+    width: calc(25% - (30rpx / 4));
     overflow: hidden;
     margin-right: 10rpx;
     display: flex;
@@ -90,6 +103,9 @@ export default {
     margin-top: 10rpx;
 
     transition: all 0.5s ease-in;
+    &.to-more {
+      justify-content: center;
+    }
     &:active {
       background-color: #f1f1f1;
     }
@@ -103,11 +119,15 @@ export default {
       margin-right: 0;
     }
     .label {
+      padding: 10rpx;
       text-align: center;
     }
     .image {
-      width: 100rpx;
+      width: 100%;
       height: 100rpx;
+      font-size: 60rpx;
+      line-height: 100rpx;
+      text-align: center;
     }
   }
 }

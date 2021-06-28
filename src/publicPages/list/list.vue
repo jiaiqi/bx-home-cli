@@ -24,11 +24,20 @@
           </button>
           <button
             class="cu-btn bg-cyan shadow-blur round margin-left-xs"
+            @click="showOrder"
+            v-if="listConfig && listConfig._fieldInfo"
+          >
+            <text class="cuIcon-order text-sm"></text>
+            <!-- <text class="text-sm">排序</text> -->
+          </button>
+          <button
+            class="cu-btn bg-cyan shadow-blur round margin-left-xs"
             @click="showFilterModal"
             v-if="listConfig && listConfig._fieldInfo"
           >
-            <!-- <text class="cuIcon-filter"></text> -->
-            <text class="text-sm">筛选</text>
+            <text class="cuIcon-filter text-sm"></text>
+
+            <!-- <text class="text-sm">筛选</text> -->
           </button>
           <button
             class="cu-btn bg-cyan shadow-blur round margin-left-xs"
@@ -39,13 +48,12 @@
           </button>
         </view>
       </view>
-      <!-- <view style="height: 100upx;width: 100%;"></view> -->
     </view>
     <bx-list
       ref="bxList"
       :serviceName="serviceName"
       :condition="condition"
-      :order="order"
+      :order="orderList.length > 0 ? orderList : order"
       :relation_condition="relation_condition"
       :pageType="pageType"
       :listType="'list'"
@@ -64,6 +72,7 @@
       :searchColumn="keyColumn"
       :tempWord="tempWord"
       :rownumber="42"
+      :colnumber="col"
       :customTemp="customTemp"
       :showFootBtn="showFootBtn"
       @click-list-item="clickItem"
@@ -71,9 +80,6 @@
       @clickFootBtn="clickFootBtn"
       @loadEnd="loadEnd"
     ></bx-list>
-    <!-- 		<view class="public-button-box">
-			<view class="add-button" @click="clickAddButton" v-if="showAdd"></view>
-		</view> -->
     <view
       class="cu-modal bottom-modal"
       :class="{ show: showFilter }"
@@ -86,6 +92,48 @@
           @toFilter="toFilter"
           @cancel="hideFilter"
         ></bx-filter>
+      </view>
+    </view>
+    <view
+      class="cu-modal bottom-modal"
+      :class="{ show: modalName === 'orderModal' }"
+      @click.stop="hideModal"
+    >
+      <view class="cu-dialog" @click.stop="">
+        <view class="order-modal">
+          <view class="order-column">
+            <view
+              class="order-item"
+              hover-class="hover"
+              :class="{ current: item.selected }"
+              v-for="(item, index) in orderCols"
+              :key="item.columns"
+              @click.stop="changeOrderType(item, index)"
+            >
+              <view class="label">{{ item.label || "" }}</view>
+              <view class="order-option">
+                <text
+                  class="cuIcon-top text-gray"
+                  :class="{
+                    active: item.orderType === 'asc' && item.selected,
+                  }"
+                ></text>
+                <text
+                  class="cuIcon-down text-gray"
+                  :class="{
+                    active: item.orderType === 'desc' && item.selected,
+                  }"
+                ></text>
+              </view>
+            </view>
+          </view>
+          <view class="button-box">
+            <button class="cu-btn bg-gray" @click="hideModal">取消</button>
+            <button class="cu-btn bg-green" type="primary" @click="toOrder">
+              确定
+            </button>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -104,10 +152,25 @@ export default {
     ...mapState({
       doctorInfo: state => state.user.userInfo,
       patientInfo: state => state.user.patientInfo
-    })
+    }),
+    orderList () {
+      let cols = this.orderCols.filter(item => item.selected)
+      if (cols.length === 0) {
+        return []
+      }
+      let arr = cols.map(col => {
+        return {
+          colName: col.columns,
+          orderType: col.orderType || 'asc'
+        }
+      })
+      return arr
+    },
   },
   data () {
     return {
+      orderCols: [],
+      modalName: "",
       showFilter: false, //是否显示筛选弹框
       appName: '',
       serviceName: '',
@@ -149,7 +212,8 @@ export default {
       queryParams: {},
       queryOption: {},
       navigationBarTitle: null,
-      labels: [] // 要显示label的字段
+      labels: [], // 要显示label的字段
+      col: 0,//每行数量
     };
   },
   onReachBottom () {
@@ -214,6 +278,9 @@ export default {
       this.viewTemp = JSON.parse(decodeURIComponent(query.viewTemp));
       if (this.viewTemp.title) {
         this.keyColumn = this.viewTemp.title;
+        if (this.viewTemp.title.split('||').length > 1) {
+          this.keyColumn = this.viewTemp.title.split('||')[ 0 ]
+        }
       }
       if (query.destApp) {
         uni.setStorageSync('activeApp', query.destApp);
@@ -222,23 +289,32 @@ export default {
         this.appName = query.appName
       }
     }
+    if (query.searchKey) {
+      // 搜索关键词对应字段
+      this.keyColumn = query.searchKey
+    }
     if (query.cond) {
+      let cond = query.cond
       try {
-        let cond = JSON.parse(decodeURIComponent(query.cond));
-        if (Array.isArray(cond)) {
-          cond.forEach(item => {
-            if ((item.colName === 'create_user' || item.colName === 'openid' || item.colName ===
-              'glry') && item.value === 'user_no') {
-              item.value = uni.getStorageSync('login_user_info').user_no;
-            }
-          });
-          this.condition = cond;
-        }
+        cond = JSON.parse(decodeURIComponent(query.cond));
+
       } catch (e) {
         console.log(e);
         //TODO handle the exception
       }
+      if (Array.isArray(cond)) {
+        cond.forEach(item => {
+          if ((item.colName === 'create_user' || item.colName === 'openid' || item.colName ===
+            'glry') && item.value === 'user_no') {
+            item.value = uni.getStorageSync('login_user_info').user_no;
+          }
+        });
+        this.condition = cond;
+      }
       // this.condition = JSON.parse(this.getDecodeUrl(option.cond));
+    }
+    if (query.col) {
+      this.col = Number(query.col)
     }
     if (query.relation_condition) {
       try {
@@ -282,6 +358,32 @@ export default {
     } else { }
   },
   methods: {
+    hideModal () {
+      this.modalName = ''
+    },
+    changeOrderColumn (e, index) {
+      e.selected = !e.selected
+      this.$set(this.orderCols, index, e)
+    },
+    changeOrderType (e, index) {
+      if (e.selected) {
+        if (e.orderType === 'asc') {
+          e.orderType = 'desc'
+        } else if (e.orderType = 'desc') {
+          e.orderType = 'asc'
+          e.selected = false
+        }
+        this.$set(this.orderCols, index, e)
+      } else {
+        e.selected = !e.selected
+        e.orderType = 'asc'
+        this.$set(this.orderCols, index, e)
+      }
+    },
+    toOrder () {
+      this.$refs.bxList.getListData()
+      this.hideModal()
+    },
     toFilter (e) {
       this.searchVal = ''
       this.showFilter = false;
@@ -302,6 +404,9 @@ export default {
     },
     hideFilter () {
       this.showFilter = false
+    },
+    showOrder () {
+      this.modalName = 'orderModal'
     },
     showFilterModal () {
       this.showFilter = true
@@ -894,6 +999,15 @@ export default {
         }
       }
       this.listConfig = colVs;
+      if (Array.isArray(colVs.srv_cols)) {
+        this.orderCols = colVs.srv_cols.filter(item => {
+          if (item.in_list === 1) {
+            item.orderType = 'asc'
+            item.selected = false;
+            return true
+          }
+        })
+      }
       if (this.pageType === 'proc') {
         this.showFootBtn = false;
       }
@@ -962,7 +1076,9 @@ export default {
     .cu-btn {
       font-size: 40rpx;
       padding: 0 20rpx;
-
+      .text-sm {
+        font-size: 32rpx;
+      }
       &.bg-cyan {
         background-color: #0bc99d;
       }
@@ -1003,6 +1119,77 @@ export default {
   &:active {
     transform: rotate(45deg);
     transition: all 0.2s;
+  }
+}
+.order-modal {
+  background-color: #f1f1f1;
+  overflow: hidden;
+  .order-column {
+    max-height: 80vh;
+    overflow-y: scroll;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20rpx;
+    .order-item {
+      margin-top: 10rpx;
+      width: calc(50% - 10rpx);
+      padding: 10rpx 10rpx 10rpx 20rpx;
+      background-color: #fff;
+      margin-right: 20rpx;
+      border-radius: 20rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      transition: transform 0.5s ease-in;
+
+      &:nth-child(2n) {
+        margin-right: 0;
+      }
+      &:active {
+        transform: scale(1.1);
+      }
+      &.current {
+        margin-top: 6rpx;
+        border: 1px solid #0bc99d;
+        .label {
+          color: #0bc99d;
+        }
+        .order-option {
+          border-color: #0bc99d;
+        }
+      }
+      .order-option {
+        line-height: 60rpx;
+        margin-right: 10rpx;
+        border-left: 1px solid #f1f1f1;
+        text {
+          margin-left: 10rpx;
+        }
+        .active {
+          animation: scale 0.2s;
+          color: #0bc99d;
+        }
+        @keyframes scale {
+          50% {
+            // font-size: 36rpx;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+  .button-box {
+    display: flex;
+    justify-content: center;
+    padding: 40rpx;
+    margin-top: 20rpx;
+    margin-bottom: 0;
+    background-color: #fff;
+    .cu-btn {
+      width: 45%;
+      margin-right: 20rpx;
+    }
   }
 }
 </style>

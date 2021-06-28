@@ -49,7 +49,7 @@
 				},
 				{
 					"path": "articleList/articleList",
-					"style":{
+					"style": {
 						"enablePullDownRefresh": true
 					}
 				},
@@ -70,6 +70,12 @@
 					"style": {
 						"navigationStyle": "custom",
 						"navigationBarTitleText": "群公告"
+					}
+				},
+				{
+					"path": "listPage/listPage",
+					"style": {
+						"navigationBarTitleText": "listPage"
 					}
 				}
 			]
@@ -286,7 +292,7 @@
 		"backgroundColor": "#F8F8F8"
 	},
 	"condition": {
-		"current": 0, 
+		"current": 0,
 		"list": [
 			{
 				"name": "聊天页面",

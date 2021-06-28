@@ -42,6 +42,7 @@
         >
           <list-item
             class="list-item-wrap"
+            :class="{ 'col-4': colnumber === 4 }"
             :detailList="detailList"
             v-for="item in listData"
             :key="item[rowKey]"
@@ -101,6 +102,7 @@ export default {
   },
   data () {
     return {
+      orderList: [],
       index: -1,
       TabCur: 0,
       listData: [],
@@ -220,6 +222,13 @@ export default {
     }
   },
   watch: {
+    order: {
+      deep: true,
+      immediate: true,
+      handler (newValue) {
+        this.orderList = newValue
+      }
+    },
     pageInfo: {
       deep: true,
       handler (newValue) {
@@ -267,6 +276,10 @@ export default {
   },
 
   props: {
+    colnumber: {
+      // 列数
+      type: [ String, Number ]
+    },
     // 是否允许下拉刷新
     enablePullDown: {
       type: Boolean,
@@ -396,6 +409,7 @@ export default {
       default: false
     }
   },
+
   methods: {
     tabSelect (e, item, index) {
       console.log(e);
@@ -443,7 +457,7 @@ export default {
           rownumber: this.pageInfo.rownumber,
           pageNo: this.pageInfo.pageNo
         },
-        order: this.order
+        order: this.orderList
       };
       if (this.listType === 'proc') {
         if (proc_data_type || this.proc_data_type) {
@@ -628,10 +642,20 @@ export default {
     flex-wrap: wrap;
     .list-item-wrap {
       width: calc((100% / 6) - 50rpx / 6);
+
       margin-right: 10rpx;
       margin-bottom: 10rpx;
       &:nth-child(6n) {
         margin-right: 0;
+      }
+      &.col-4 {
+        width: calc((100% / 4) - 30rpx / 4);
+        &:nth-child(6n) {
+          margin-right: 10rpx;
+        }
+        &:nth-child(4n) {
+          margin-right: 0;
+        }
       }
     }
     // display: grid;
