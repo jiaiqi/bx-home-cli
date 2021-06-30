@@ -26,10 +26,6 @@
           >
           </view>
         </view>
-        <!-- 	<view class="date-box">
-					<text v-if="formData.start_time">开始时间：{{ formData.start_time.slice(0, 10) }}</text>
-					<text v-if="formData.end_time">结束时间：{{ formData.end_time.slice(0, 10) }}</text>
-				</view> -->
       </view>
     </view>
     <view class="content form-wrap" style="box-sizing: border-box">

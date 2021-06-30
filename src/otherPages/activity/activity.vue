@@ -498,48 +498,48 @@ export default {
           show: true,
           textStyle: { color: '#fff' },
           min: 0,
-          max: 10000,
+          max: 1000,
           left: ' ',
           text: [ '多', '少' ], // 文本，默认为数值文本
           calculable: true,
           orient: "horizontal",
-          type: 'continuous',
+          type: 'piecewise', // piecewise,continuous
           top: 0,
           seriesIndex: [ 1 ],
           inRange: {
-            color: [ '#e14e4e', '#ff3d3d', '#f72c33', '#A71F22', '#5B1113' ],
+            color: [ '#FFB530', '#FD6330', '#E42028', '#DB0011', '#6E1618' ],
           },
-          pieces: [ {
-            gt: 10000,
-            label: ">10000人次",
-            color: "#5B1113"
-          }, {
-            gte: 1000,
-            lte: 10000,
-            label: "1000 - 10000人次",
-            color: "#A71F22"
-          }, {
-            gte: 100,
-            lt: 1000,
-            label: "100 - 1000人次",
-            color: "#f72c33"
-          }, {
-            gte: 30,
-            lt: 100,
-            label: "1 - 100人次",
-            color: "#ff3d3d"
-          },
-          {
-            gte: 1,
-            lt: 30,
-            label: "1 - 100人次",
-            color: "#e14e4e"
-          },
-
-          {
-            value: 0,
-            color: "#ffffff"
-          }
+          pieces: [
+            {
+              gt: 5000,
+              label: ">5000人次",
+              color: "#5B1113"
+            }, {
+              gte: 1000,
+              lte: 5000,
+              label: "1000 - 5000人次",
+              color: "#DB0011"
+            }, {
+              gte: 500,
+              lt: 1000,
+              label: "500 - 1000人次",
+              color: "#f72c33"
+            }, {
+              gte: 100,
+              lt: 500,
+              label: "100 - 500人次",
+              color: "#E42028"
+            },
+            {
+              gte: 1,
+              lt: 100,
+              label: "1 - 100人次",
+              color: "#FD6330"
+            },
+            {
+              value: 0,
+              color: "#EDC266"
+            }
           ],
         },
         geo: {

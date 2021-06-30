@@ -66,9 +66,12 @@
       </view>
       <view
         class="form-item-content_detail text"
+        :class="{ 'can-link': canLink }"
         v-else-if="pageType === 'detail'"
+        @click="toFKLink"
       >
         {{ fieldData.value | formalText }}
+        <text class="cuIcon-link margin-left" v-if="canLink"></text>
       </view>
       <!-- detail-详情-end -->
       <!-- form-item-start -->
@@ -607,6 +610,11 @@ export default {
     }
   },
   computed: {
+    canLink () {
+      if (this.fieldData.value && this.fieldData.bx_col_type === 'fk') {
+        return true
+      }
+    },
     radioOptions () {
       if (Array.isArray(this.fieldData.options)) {
         if (this.pageType === 'filter') {
@@ -729,6 +737,36 @@ export default {
     }
   },
   methods: {
+    toFKLink () {
+      // 跳转到fk字段的详情页面
+      let serviceName = this.fieldData?.option_list_v2?.serviceName
+      let column = this.fieldData?.option_list_v2?.refed_col
+      if (serviceName && column && this.fieldData.value) {
+        let fieldsCond = [ {
+          column: column,
+          value: this.fieldData.value,
+          display: false
+        } ]
+
+        let url =
+          `/publicPages/form/form?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+        let pageStack = getCurrentPages()
+        if (Array.isArray(pageStack) && pageStack.length > 8) {
+          uni.navigateBack({
+            delta: 3, success: () => {
+              uni.navigateTo({
+                url
+              })
+            }
+          })
+        } else {
+          uni.navigateTo({
+            url
+          })
+        }
+
+      }
+    },
     isChecked (val) {
       if (this.fieldData && this.fieldData.value && this.fieldData.value.indexOf(val) !== -1) {
         return true
