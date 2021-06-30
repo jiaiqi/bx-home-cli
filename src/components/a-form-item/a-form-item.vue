@@ -751,13 +751,9 @@ export default {
         let url =
           `/publicPages/form/form?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
         let pageStack = getCurrentPages()
-        if (Array.isArray(pageStack) && pageStack.length > 8) {
-          uni.navigateBack({
-            delta: 3, success: () => {
-              uni.navigateTo({
-                url
-              })
-            }
+        if (Array.isArray(pageStack) && pageStack.length > 9) {
+          uni.redirectTo({ url })({
+            url
           })
         } else {
           uni.navigateTo({
