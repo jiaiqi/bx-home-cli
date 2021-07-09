@@ -262,9 +262,10 @@
 				{
 					"path": "activity/activity",
 					"style": {
-						"navigationStyle": "custom",
-						"navigationBarBackgroundColor": "#8a1b1f",
-						"navigationBarTitleText": "建党100周年祝福接力"
+						// "navigationStyle": "custom",
+						"navigationBarBackgroundColor": "#8a1b1f"
+						// ,
+						// "navigationBarTitleText": "建党100周年祝福接力"
 					}
 				},
 				{

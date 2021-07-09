@@ -223,9 +223,6 @@ export default {
       if (!isLogin) {
         isLogin = await wxVerifyLogin()
       }
-      if (!isLogin) {
-        return
-      }
       let data = await selectPersonInfo()
       if (data && data.no && data.nick_name && data.profile_url) {
         // 已有用户信息
@@ -243,7 +240,9 @@ export default {
             }
           })
         } else {
-          uni.startPullDownRefresh()
+          this.getList()
+
+          // uni.startPullDownRefresh()
         }
       } else {
         this.$store.commit('SET_AUTH_USERINFO', false)
@@ -334,7 +333,10 @@ export default {
   onLoad (option) {
     if (option.store_no) {
       uni.redirectTo({
-        url: '/storePages/home/home?store_no=' + option.store_no
+        url: '/storePages/home/home?store_no=' + option.store_no,
+        fail: (err) => {
+          debugger
+        }
       })
     } else {
       this.initLogin()

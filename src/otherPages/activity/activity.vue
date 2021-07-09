@@ -1,17 +1,18 @@
 <template>
   <view class="activity">
-    <cu-custom-navbar bg-color="none"
-      ><u-notice-bar mode="horizontal" :list="noticeList" class="text-white">
-      </u-notice-bar
-    ></cu-custom-navbar>
-    <view class="bg-view" :class="{ fullbg: scene === 1154 }">
+    <!-- <cu-custom-navbar bg-color="none"
+      
+    ></cu-custom-navbar> -->
+    <u-notice-bar mode="horizontal" :list="noticeList" class="text-white">
+      </u-notice-bar>
+    <!-- <view class="bg-view" :class="{ fullbg: scene === 1154 }">
       <image
         :src="require('./img/share-img.png')"
         mode="scaleToFill"
         v-if="scene === 1154"
       />
       <image :src="require('./img/bg-bottom.png')" mode="scaleToFill" v-else />
-    </view>
+    </view> -->
     <view>
       <view class="top-bg">
         <image :src="require('./img/100-top.png')" mode="scaleToFill" />
@@ -32,6 +33,17 @@
         :ec="chartOption"
       ></uni-ec-canvas>
     </view>
+    			<view class="text-center" style="position: relative;z-index: 11;"
+				v-if="selectedCompany&&selectedCompany.org_name">
+				<view class="text-yellow bottom-tip" @click="showModal('orgModal')">
+					<view class="text-bold text-center margin-left-xs margin-right-xs text-lg  "
+						style="margin-bottom: 10rpx;">{{selectedCompany.org_name}}</view>
+					<view class="">
+						<text class="margin-right-xs">已有{{orgJoinNum}}人次参与</text>
+						<button class="cu-btn lines-yellow "> 接力送祝福</button>
+					</view>
+				</view>
+			</view>
     <view class="button-box">
       <image
         class="present-button"
@@ -174,7 +186,7 @@
 				</view>
 			</view>
 			<view class="cu-modal bottom-modal" @click="hideModal" :class="{show:modalName=== 'areaSelector'}">
-				<view class="cu-dialog" @click.stop="">
+				<view class="cu-dialog" @click.stop="" v-if="modalName=== 'areaSelector'">
 					<tree-selector v-show="typeRadio==='所在地'" :srvInfo="srvInfo" @cancel="showModal('editInfo')"
 						:order="areaOrder" :current="selectArea" @confirm="clickArea">
 					</tree-selector>
@@ -195,13 +207,7 @@ import * as echarts from '@/components/uni-ec-canvas/echarts.js'
 
 import chinaMap from '@/static/china.json'
 echarts.registerMap('china', chinaMap);
-// import MessageBoard from './MessageBoard.vue'
-// import TimelineList from '../../components/timeline-list/timeline-list.vue';
 export default {
-  components: {
-    // MessageBoard,
-    // TimelineList,
-  },
   data () {
     return {
       radioList: [ '所在地', '家乡', '单位' ],
@@ -262,7 +268,7 @@ export default {
             `您已传播${this.shareNum || '-'}人，带动${this.shareJoinNum || '-'}人次参加本活动`
           ]
         } else {
-          return []
+          return [ '建党100周年祝福接力' ]
         }
       } else {
         return []
@@ -313,16 +319,19 @@ export default {
             this.addViewRecord()
           }
         }
-        this.getLastRecord()
         this.getPresentResult(userInfo.unionid)
         return res.data
       }
     },
     async getLastRecord () {
       // 查找最后一条祝福记录
-      let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
+      let serviceName = 'srvportal_act_atd_rcd_select'
+      if (this.scene === 1154) {
+        serviceName = 'srvportal_act_atd_rcd_max_id_select'
+      }
+      let url = this.getServiceUrl('bxportal', serviceName, 'select');
       let req = {
-        "serviceName": "srvportal_act_atd_rcd_select",
+        "serviceName": serviceName,
         "colNames": [ "*" ],
         order: [ {
           colName: "id",
@@ -340,6 +349,7 @@ export default {
       }
     },
     async getPresentResult (unionid) {
+
       let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
       let req = {
         "serviceName": "srvportal_act_atd_rcd_select",
@@ -742,8 +752,54 @@ export default {
       this.shareOrgNo = e.org_no
       this.selectOrgInfo()
     },
+    async getOrgJoinInfo () {
+      // 查找单位参与人数
+      let req = {
+        "serviceName": "srvportal_act_atd_rcd_select",
+        "colNames": [ "*" ],
+        group: [ {
+          colName: 'id',
+          type: 'count'
+        } ],
+        "condition": [ {
+          colName: "org_no",
+          ruleType: "like",
+          value: this.selectedCompany.org_no
+        } ]
+      }
+      let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select');
+      this.$http.post(url, req).then(res => {
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          this.orgJoinNum = res.data.data[ 0 ].id
+        }
+      })
+    },
+    async selectOrgInfo () {
+      let url = this.getServiceUrl('bxportal', 'srvportal_org_mgmt_select', 'select');
+      let req = {
+        "serviceName": "srvportal_org_mgmt_select",
+        "colNames": [ "*" ],
+        "condition": [ {
+          "colName": "org_no",
+          "ruleType": "eq",
+          "value": this.shareOrgNo
+        } ],
+        "page": {
+          "pageNo": 1,
+          "rownumber": 1
+        },
+      }
+      const res = await this.$http.post(url, req)
+      if (res.data.state === "SUCCESS" && res.data.data.length > 0) {
+        this.selectedCompany = res.data.data[ 0 ]
+        this.typeRadio = '单位'
+        this.org_name = res.data.data[ 0 ].org_name
+        // this.companyList = res.data.data
+        this.setShareTitle()
+        this.getOrgJoinInfo()
+      }
+    },
     async presentFlower () {
-
       let userInfo = this.wxUserInfo
       let pages = getCurrentPages()
       if (userInfo && userInfo.unionid) {
@@ -894,7 +950,6 @@ export default {
       }
     },
     setShareTitle () {
-
       let title = `${this.total || 0}人次已为党100周年生日接力送祝福`
       let path = '/otherPages/activity/activity?su=${this.wxUserInfo.user_no || this.wxUserInfo.unionid}'
       if (this.shareOrgNo && this.selectedCompany) {
@@ -921,14 +976,20 @@ export default {
 
   },
   // 页面周期函数--监听页面加载
-  onLoad (option) {
+  async onLoad (option) {
     if (option.su) {
       this.su = option.su
       uni.setStorageSync('su', option.su)
     }
-    this.getUserInfo().then(() => {
+    if (this.scene === 1154) {
+
+    } else {
+      await this.getUserInfo()
       this.buildOption()
-    })
+    }
+    this.getLastRecord()
+
+
     uni.getLocation({
       type: 'wgs84',
       success: (res) => {
@@ -1006,6 +1067,7 @@ export default {
     justify-content: center;
     align-items: center;
     position: relative;
+    margin: 20rpx 0;
     .share-btn {
       position: absolute;
       right: 20rpx;

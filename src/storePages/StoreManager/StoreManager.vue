@@ -4,7 +4,7 @@
       <image
         :src="getImagePath(storeInfo.image)"
         class="logo"
-        mode="aspectFill"
+        mode="aspectFit"
         @click="toStoreDetail"
       ></image>
       <view class="store-name" @click="toStoreDetail">
@@ -17,7 +17,7 @@
         </view>
       </view>
       <view class="phone" @click="makePhoneCall" v-if="storeInfo.telephone">
-        <image src="../../static/icon/makePhone.png" mode=""></image>
+        <image src="../../static/icon/makePhone.png" mode="aspectFit"></image>
       </view>
     </view>
     <view class="manager-view">
@@ -80,7 +80,7 @@
             <image
               :src="item.iconPath"
               class="icon"
-              mode="aspectFill"
+              mode="aspectFit"
               v-if="item.iconPath"
             ></image>
             <text

@@ -70,7 +70,7 @@ export default {
         "serviceName": serviceName,
         "colNames": [ "*" ],
         "condition": [],
-        "page": { "pageNo": 1, "rownumber": this.page.rownumber }
+        "page": { "pageNo": this.page.pageNo, "rownumber": this.page.rownumber }
       }
       if (this.storeNo) {
         req.condition.push(

@@ -129,7 +129,7 @@ export default {
       type: Object,
     },
   },
-  data() {
+  data () {
     return {
       groupList: [],
       // buttons: this.pageItem.listdata || []
@@ -139,7 +139,7 @@ export default {
   watch: {
     storeNo: {
       immediate: true,
-      handler(newValue, oldValue) {
+      handler (newValue, oldValue) {
         if (
           this.pageItem &&
           this.showPublic &&
@@ -155,14 +155,14 @@ export default {
     },
   },
   computed: {
-    buttons() {
+    buttons () {
       if (Array.isArray(this.pageItem.listdata)) {
         return this.pageItem.listdata;
       } else {
         return [];
       }
     },
-    calcStyle() {
+    calcStyle () {
       if (
         this.pageItem &&
         (this.pageItem.margin || this.pageItem.margin == 0)
@@ -172,22 +172,22 @@ export default {
         };
       }
     },
-    indicatorDots() {
+    indicatorDots () {
       if (this.pageItem) {
         if (this.menuList.length > 1) {
           return true;
         }
       }
     },
-    showPublic() {
+    showPublic () {
       return this.pageItem && this.pageItem.show_public_button === "是";
     },
-    storeNo() {
+    storeNo () {
       return this.storeInfo && this.storeInfo.store_no
         ? this.storeInfo.store_no
         : null;
     },
-    swiperHeight() {
+    swiperHeight () {
       if (this.pageItem) {
         let num = this.pageItem.row_number || 1;
         if (this.pageItem.button_style === "grid") {
@@ -197,7 +197,7 @@ export default {
         }
       }
     },
-    menuList() {
+    menuList () {
       let list = [];
       if (this.pageItem.show_subscribe && this.showPublic) {
         // 检测是否关注公众号
@@ -223,7 +223,7 @@ export default {
             num: item.unreadNum || 0,
           };
         });
-        list = [...list, ...groupList];
+        list = [ ...list, ...groupList ];
       }
       if (
         this.bindUserInfo &&
@@ -276,11 +276,11 @@ export default {
       if (Array.isArray(list)) {
         return list.reduce((pre, item) => {
           if (pre.length === 0) {
-            pre = [[item]];
-          } else if (pre[pre.length - 1].length >= rownumber * 4) {
-            pre.push([item]);
+            pre = [ [ item ] ];
+          } else if (pre[ pre.length - 1 ].length >= rownumber * 4) {
+            pre.push([ item ]);
           } else {
-            pre[pre.length - 1].push(item);
+            pre[ pre.length - 1 ].push(item);
           }
           return pre;
         }, []);
@@ -288,7 +288,7 @@ export default {
     },
   },
   methods: {
-    isLastRow(list, index) {
+    isLastRow (list, index) {
       let row_number = Math.ceil(list.length / 4);
       if (row_number === 1) {
         return true;
@@ -301,7 +301,7 @@ export default {
         }
       }
     },
-    getButtons() {
+    getButtons () {
       if (
         this.pageItem &&
         this.showPublic &&
@@ -315,7 +315,7 @@ export default {
       }
       let req = {
         serviceName: "srvhealth_page_item_buttons_select",
-        colNames: ["*"],
+        colNames: [ "*" ],
         condition: [
           {
             colName: "item_no",
@@ -346,7 +346,7 @@ export default {
         }
       });
     },
-    async getGroupList() {
+    async getGroupList () {
       // 查找店铺关联群组
       let req = {
         condition: [
@@ -372,7 +372,7 @@ export default {
         return res.data;
       }
     },
-    async seletGroupList() {
+    async seletGroupList () {
       // 查找店铺关联群组 - 群成员信息
       if (!this.storeNo) {
         return;
@@ -417,7 +417,7 @@ export default {
         this.groupList = [];
       }
     },
-    toPages(e) {
+    toPages (e) {
       if (e.$orig) {
         e = e.$orig;
       }
@@ -575,20 +575,20 @@ export default {
         if (e.phone_number) {
           uni.makePhoneCall({
             phoneNumber: e.phone_number,
-            fail(err) {
+            fail (err) {
               console.error(err);
             },
           });
         }
       } else {
         if (
-          ["navigateTo", "redirectoTo", "switchTab", "reLaunch"].includes(
+          [ "navigateTo", "redirectoTo", "switchTab", "reLaunch" ].includes(
             navType
           )
         ) {
-          uni[navType]({
+          uni[ navType ]({
             url: url,
-            fail(err) {
+            fail (err) {
               uni.switchTab({
                 url: url,
               });
@@ -643,10 +643,10 @@ export default {
 
       // }
     },
-    addToStore() {
+    addToStore () {
       this.$emit("addToStore");
     },
-    async selectPersonInGroup(group_no) {
+    async selectPersonInGroup (group_no) {
       // 查找当前登录用户有没有在此圈子用户列表中
       let req = {
         condition: [],
@@ -674,10 +674,10 @@ export default {
         "health"
       );
       if (Array.isArray(res.data) && res.data.length > 0) {
-        return res.data[0];
+        return res.data[ 0 ];
       }
     },
-    async toGroup(e) {
+    async toGroup (e) {
       if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
         // this.bindUserInfo = await this.bindStore()
         // this.addToStore()
@@ -693,11 +693,9 @@ export default {
       if (data && data.pg_no && data.gc_no) {
         // 跳到聊天页面
         uni.navigateTo({
-          url: `/publicPages/chat/chat?type=群组圈子&storeNo=${
-            this.storeNo
-          }&groupNo=${data.gc_no}&pg_no=${data.pg_no}&group_role=${
-            data.group_role || "用户"
-          }`,
+          url: `/publicPages/chat/chat?type=群组圈子&storeNo=${this.storeNo
+            }&groupNo=${data.gc_no}&pg_no=${data.pg_no}&group_role=${data.group_role || "用户"
+            }`,
         });
       } else {
         // 跳到圈子信息页面
