@@ -66,7 +66,6 @@ export default {
   },
   methods: {
     clickContent () {
-      debugger
       this.$emit('clickContent')
     },
     BackPage () {

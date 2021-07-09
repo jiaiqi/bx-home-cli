@@ -144,6 +144,9 @@ export default {
     },
     goodsListData: {
       type: Array
+    },
+    isBind: {
+      type: Boolean
     }
   },
   computed: {
@@ -155,9 +158,9 @@ export default {
         { colName: 'store_no', ruleType: 'eq', value: this.storeNo },
       ]
     },
-    isBind () {
-      return this.bindUserInfo && this.bindUserInfo.id ? true : false
-    },
+    // isBind () {
+    //   return this.bindUserInfo && this.bindUserInfo.id ? true : false
+    // },
   },
   data () {
     return {}

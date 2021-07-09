@@ -744,7 +744,7 @@ export default {
       }
       this.submitForm().then(res => {
         if (res !== true) {
-          debugger
+
           if (res.msg) {
             this.hideModal()
             if (res.code === '4444') {

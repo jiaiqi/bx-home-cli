@@ -777,7 +777,7 @@ export default {
         this.hideModal();
         return;
       }
-      debugger;
+      ;
       if (e !== "全部完成") {
         this.handlerStatus = e;
         if (num) {
@@ -808,7 +808,7 @@ export default {
     async multiChangeStatus (e, num) {
       let req = [];
       let ids = null;
-      debugger;
+      ;
 
       switch (e) {
         case "all": // 全部完成
@@ -849,7 +849,7 @@ export default {
             .filter((item) => item.checked === true && item.status === "排队中")
             .map((item) => item.id)
             .toString();
-          debugger;
+          ;
           if (num) {
             ids = this.listData[ 0 ]
               .filter((item) => item.status === "排队中")
@@ -867,7 +867,7 @@ export default {
             });
             return;
           }
-          debugger;
+          ;
           req[ 0 ] = {
             serviceName: "srvhealth_store_queue_up_record_update",
             condition: [

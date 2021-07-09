@@ -487,7 +487,7 @@ export default {
           trigger: 'item',
           formatter: '{b}: {c}',
           // formatter: function (params) {
-          //   debugger
+          //  
           //   if (typeof (params.value)[ 2 ] == "undefined") {
           //     return params.name + ' : ' + params.value;
           //   } else {

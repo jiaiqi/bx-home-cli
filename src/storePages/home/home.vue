@@ -28,6 +28,7 @@
       :pageItem="getConfig(pageItem)"
       :storeInfo="storeInfo"
       :userInfo="userInfo"
+      :is-bind="isBind"
       :bindUserInfo="bindUserInfo"
       ref="storeItem"
       @toDoctorDetail="toDoctorDetail"
@@ -95,7 +96,7 @@ export default {
       showHomePageSelector: false,
       selectVal: '',
       client_env: uni.getStorageSync('client_env'),
-      isBind: false, //当前用户是否绑定此诊所
+      isBind: true, //当前用户是否绑定此诊所
       bindUserInfo: {},
       swiperList: [],
       goodsListData: [],
@@ -484,7 +485,11 @@ export default {
           this.isBind = true
           this.bindUserInfo = isBind
           this.$store.commit('SET_STORE_USER', this.bindUserInfo)
+        } else {
+          this.isBind = false
         }
+      } else {
+        this.isBind = false
       }
     },
     selectDepartList () {
@@ -602,6 +607,8 @@ export default {
           return this.bindUserInfo
         }
       } else {
+        this.isBind = false
+
         return res
       }
     },

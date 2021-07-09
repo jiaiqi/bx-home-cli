@@ -578,7 +578,7 @@ export default {
           labels = [ 'store_session_user_unread_msg', 'kefu_session_kefu_unread_msg', 'user_role', 'sex' ],
             url =
             `/publicPages/list/list?pageType=list&hideFootBtn=true&customTemp=true&label=${JSON.stringify(labels)}&serviceName=srvhealth_store_user_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
-          debugger
+
           break;
         case 'vaccination_appointment':
           // 预约列表

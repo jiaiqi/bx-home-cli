@@ -625,7 +625,7 @@ export default {
         // uni.startPullDownRefresh()
       } else if (res1?.code === '4444') {
         // 数据重复 设备已经被添加
-        debugger
+
         const req = { "serviceName": "srviot_device_instance_code_select", "colNames": [ "*" ], "condition": [ { colName: 'dic_device_id', ruleType: 'eq', value: info.dic_device_id } ], "page": { "pageNo": 1, "rownumber": 10 } }
         const res = await this.$fetch("select", 'srviot_device_instance_code_select', req, 'iot')
         if (Array.isArray(res.data) && res.data.length > 0) {
@@ -634,7 +634,7 @@ export default {
           this.insertUserDevice(deviceInfo, info)
         }
       } else {
-        debugger
+
         uni.showToast({
           title: res1?.msg || '设备添加失败,请重试',
           icon: 'none'

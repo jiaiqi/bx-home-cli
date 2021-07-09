@@ -1573,7 +1573,6 @@ export default {
             }
           });
         })
-        debugger
         if (res) {
           console.log('上传图片----》', res);
           let reqHeader = {
@@ -2711,7 +2710,7 @@ export default {
       }
     },
     async sendArticle (data) {
-      debugger
+     
       let serviceName = 'srvhealth_consultation_chat_record_add'
       if (this.sessionType === '机构用户客服') {
         if (this.identity === '客户') {
@@ -2847,7 +2846,6 @@ export default {
         return result
       })
       req[ 0 ].data = reqData
-      debugger
       let res = await this.$http.post(url, req);
       uni.hideLoading();
       if (this.remindPerson && this.remindPerson.no) {

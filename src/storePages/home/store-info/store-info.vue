@@ -18,7 +18,7 @@
     <view class="left" @click="toPages('instroduce')">
       <view class="top">
         <view class="name">{{ storeInfo.name || "机构名称" }}</view>
-        <view class="bind" v-if="!isBind"
+        <view class="bind" v-if="isBind === false"
           ><button
             @click.stop="bindStore(true)"
             type="primary"

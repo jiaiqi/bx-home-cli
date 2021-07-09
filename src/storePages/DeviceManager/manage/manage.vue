@@ -258,7 +258,7 @@ export default {
       }
       this.loadStatus = 'loading'
       const res = await this.$fetch('select', 'srvhealth_store_user_device_select', req, 'health')
-      debugger
+
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         // this.deviceList = res.data
         const deviceList = res.data

@@ -448,7 +448,6 @@ export default {
     async getListData (cond, proc_data_type, i) {
       let serviceName = this.serviceName;
       let app = uni.getStorageSync('activeApp');
-      debugger
       let url = this.getServiceUrl(this.srvApp || app, serviceName, 'select');
       let req = {
         serviceName: serviceName,

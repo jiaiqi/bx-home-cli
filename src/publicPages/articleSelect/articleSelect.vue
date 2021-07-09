@@ -98,7 +98,7 @@ export default {
           return obj
         })
         url += `articleList=${JSON.stringify(data)}`
-        debugger
+
         uni.redirectTo({
           url
         })

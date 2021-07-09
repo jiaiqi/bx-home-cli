@@ -5,10 +5,16 @@
         <text class="cuIcon-search"></text>
         <input
           @input="searchWithKey"
+          v-model="searchKey"
           type="text"
           placeholder="搜索"
           confirm-type="search"
         />
+        <text
+          class="cuIcon-close margin-right-xs"
+          v-if="searchKey"
+          @click="clear"
+        ></text>
       </view>
     </view>
     <view class="store-list">
@@ -92,6 +98,7 @@ export default {
   },
   data () {
     return {
+      searchKey: "",
       showAd: false,
       list: [],
       page: {
@@ -103,6 +110,10 @@ export default {
     }
   },
   methods: {
+    clear () {
+      this.searchKey = ''
+      this.getList()
+    },
     searchWithKey (e) {
       this.page.pageNo = 1;
       let key = e.detail.value
@@ -141,16 +152,6 @@ export default {
           if (!this.$store.state.app.subscsribeStatus) {
             this.checkSubscribeStatus()
           }
-          // 自动更新头像昵称
-          // this.$store.commit('SET_REGIST_STATUS', false)
-          // if (!this.$store.state.app.hasIntoHospital && userInfo.home_store_no) {
-          //   uni.redirectTo({
-          //     url: '/storePages/home/home?store_no=' + userInfo.home_store_no,
-          //     success: () => {
-          //       this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
-          //     }
-          //   })
-          // }
         } else {
           await this.toAddPage()
         }
@@ -216,7 +217,6 @@ export default {
           this.showAd = true
         }, 1000);
       }
-
     },
     async initLogin () {
       let isLogin = this.$store.state.app.isLogin
@@ -241,8 +241,6 @@ export default {
           })
         } else {
           this.getList()
-
-          // uni.startPullDownRefresh()
         }
       } else {
         this.$store.commit('SET_AUTH_USERINFO', false)
@@ -335,7 +333,7 @@ export default {
       uni.redirectTo({
         url: '/storePages/home/home?store_no=' + option.store_no,
         fail: (err) => {
-          debugger
+
         }
       })
     } else {

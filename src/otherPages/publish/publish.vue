@@ -408,7 +408,7 @@ export default {
       const result = await new Promise((resolve) => {
         uni.chooseLocation({
           success: (res) => {
-            debugger
+
             resolve(res)
           }
         });

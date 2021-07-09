@@ -726,18 +726,18 @@ export default {
   async onLoad (option) {
     const self = this
     if (option.articleList) {
-      debugger
+
 
       try {
         this.articleList = JSON.parse(option.articleList)
         delete option.articleList
       } catch (e) {
         //TODO handle the exception
-        debugger
+
       }
     }
     this.queryOption = option
-    debugger
+
     if (Array.isArray(this.articleList) && this.articleList.length > 0) {
       uni.showModal({
         title: '发送文章',
