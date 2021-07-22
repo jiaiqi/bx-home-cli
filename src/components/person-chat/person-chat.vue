@@ -2319,6 +2319,39 @@ export default {
         req[ 0 ].data[ 0 ].msg_link = this.chooseRecod;
       }
       this.recordList.push(req[ 0 ].data[ 0 ])
+      if (serviceName === 'srvhealth_consultation_chat_record_add') {
+        if (req[ 0 ].data[ 0 ].msg_content && req[ 0 ].data[ 0 ].msg_content.indexOf("@所有人") !== -1) {
+          console.log(this.currentUserInfo)
+          if (this.storeUserInfo.user_role.indexOf('管理员') !== -1 || this.storeUserInfo.user_role.indexOf('客服') !== -1) {
+            let isSendAll = await new Promise((resolve) => {
+              uni.showModal({
+                title: '提示',
+                content: '信息将会推送给全员，请确认是否发送',
+                cancelText: '不用了',
+                confirmText: '确认',
+                success: ({ confirm, cancel }) => {
+                  if (confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+            if (isSendAll) {
+              req[ 0 ].data[ 0 ].msg_content = req[ 0 ].data[ 0 ].msg_content.replace('@所有人', ' ')
+              req[ 0 ].data[ 0 ][ "receiver_person_no" ] = "all"
+              req[ 0 ].data[ 0 ][ "receiver_account" ] = "all"
+              req[ 0 ].data[ 0 ][ "msg_content_type" ] = "公告"
+              req[ 0 ].data[ 0 ][ "sender_group_role" ] = "管理员"
+              req[ 0 ].data[ 0 ].attribute = JSON.stringify({
+                type: 'remindPerson',
+                name: "所有人"
+              })
+            }
+          }
+        }
+      }
       this.$fetch('operate', serviceName, req, 'health').then(res => {
         this.isAll = false;
         if (this.remindPerson && this.remindPerson.no) {
@@ -2710,7 +2743,7 @@ export default {
       }
     },
     async sendArticle (data) {
-     
+
       let serviceName = 'srvhealth_consultation_chat_record_add'
       if (this.sessionType === '机构用户客服') {
         if (this.identity === '客户') {

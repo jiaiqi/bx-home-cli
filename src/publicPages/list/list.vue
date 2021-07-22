@@ -24,11 +24,18 @@
           </button>
           <button
             class="cu-btn bg-cyan shadow-blur round margin-left-xs"
+            @click="clickGridButton(btn)"
+            v-for="(btn, btnIndex) in listButton"
+            :key="btnIndex"
+          >
+            <text :class="[btn.icon]" class="text-sm"></text>
+          </button>
+          <!-- <button
+            class="cu-btn bg-cyan shadow-blur round margin-left-xs"
             @click="showOrder"
             v-if="listConfig && listConfig._fieldInfo"
           >
             <text class="cuIcon-order text-sm"></text>
-            <!-- <text class="text-sm">排序</text> -->
           </button>
           <button
             class="cu-btn bg-cyan shadow-blur round margin-left-xs"
@@ -36,8 +43,6 @@
             v-if="listConfig && listConfig._fieldInfo"
           >
             <text class="cuIcon-filter text-sm"></text>
-
-            <!-- <text class="text-sm">筛选</text> -->
           </button>
           <button
             class="cu-btn bg-cyan shadow-blur round margin-left-xs"
@@ -45,7 +50,7 @@
             v-if="showAdd"
           >
             <text class="cuIcon-add"></text>
-          </button>
+          </button> -->
         </view>
       </view>
     </view>
@@ -151,7 +156,38 @@ export default {
   computed: {
     ...mapState({
       doctorInfo: state => state.user.userInfo,
-      patientInfo: state => state.user.patientInfo
+      patientInfo: state => state.user.patientInfo,
+      listButton () {
+        let buttons = this.publicButton
+        let res = buttons.filter(item => {
+          if ([ 'select', 'add', 'apply', 'customize' ].includes(item.button_type)) {
+            if (item.button_type === 'select') {
+              return this?.listConfig?._fieldInfo
+            }
+            if (item.button_type === 'add') {
+              return this?.showAdd
+            }
+          }
+        }).map(item => {
+          if (item.button_type === 'select') {
+            item.icon = 'cuIcon-filter'
+            item.clickEvent = this.showFilterModal
+          } else if ([ 'add', 'apply' ].includes(item.button_type)) {
+            item.icon = 'cuIcon-add'
+            item.clickEvent = this.clickAddButton
+          }
+          return item
+        })
+        if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
+          res.push({
+            button_type: 'order',
+            icon: 'cuIcon-order',
+            label: '排序',
+            clickEvent: this.showOrder
+          })
+        }
+        return res
+      },
     }),
     orderList () {
       let cols = this.orderCols.filter(item => item.selected)
@@ -358,6 +394,126 @@ export default {
     } else { }
   },
   methods: {
+    clickGridButton (e) {
+      switch (e.button_type) {
+        case 'select':
+          this.showFilterModal()
+          break;
+        case 'add':
+          this.clickAddButton()
+          break;
+        case 'order':
+          this.showOrder()
+          break;
+        case 'customize':
+          this.handlerCustomizeButton(e)
+          break;
+      }
+    },
+    handlerCustomizeButton (e) {
+      // 自定义按钮
+      debugger
+      // application: "health"
+      // button_name: "从DB获取表定义"
+      // button_type: "customize"
+      // client_type: "PC,APP"
+      // main_table: "bxsys_table_defined"
+      // operate_mode: "静默操作"
+      // operate_service: "srvsys_table_defined_from_db_get"
+      // operate_type: "操作"
+      // page_area: "表格按钮"
+      // page_type: "列表"
+      // service: "srvsys_table_defined_select"
+      // service_name: "srvsys_table_defined_from_db_get"
+      // service_view_name: "获取DB表定义"
+      if (e.servcie_type === 'add') {
+        let params = {
+          type: 'add',
+          serviceName: e.service_name,
+          eventOrigin: e
+        };
+        uni.navigateTo({
+          url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+            params)
+        });
+      } else if (e.servcie_type === 'select') {
+        let params = {
+          type: 'select',
+          serviceName: e.service_name,
+          defaultVal: data.row,
+          eventOrigin: e
+        };
+        if (e.operate_params && Array.isArray(e.operate_params
+          .condition)) {
+          let viewTemp = {};
+          if (e.service_name ===
+            'srvhealth_store_vaccination_appoint_record_select') {
+            viewTemp = {
+              title: 'customer_name',
+              img: 'person_image',
+            }
+          }
+          uni.navigateTo({
+            url: '/publicPages/list/list?pageType=list&serviceName=' +
+              e.service_name +
+              '&cond=' +
+              JSON.stringify(e.operate_params.condition) +
+              '&viewTemp=' +
+              JSON.stringify(viewTemp)
+          });
+        }
+      } else if (e.servcie_type === 'update') {
+        let fieldsCond = [];
+        if (Array.isArray(this.condition)) {
+          fieldsCond = this.condition.map(item => {
+            return {
+              column: item.colName,
+              value: item.value,
+              display: false
+            };
+          });
+        }
+        let condition = button?.operate_params?.condition
+        let defaultVal = button?.operate_params?.data
+        if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+          let obj = defaultVal[ 0 ]
+          if (this.iObject(obj)) {
+            Object.keys(obj).forEach(key => {
+              fieldsCond.push({
+                column: key,
+                value: obj[ key ]
+              })
+            })
+          }
+        }
+        if (Array.isArray(condition) && condition.length > 0) {
+          condition.forEach(cond => {
+            fieldsCond.push({
+              column: cond.colName,
+              value: cond.value
+            })
+          })
+        }
+        let otherParams = this.handleSpecialClickEvent(res)
+        if (otherParams && otherParams.otherFieldsCond) {
+          if (Array.isArray(otherFieldsCond)) {
+            fieldsCond = [ ...fieldsCond, ...otherFieldsCond ]
+          }
+        }
+        let url =
+          `/publicPages/form/form?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
+          encodeURIComponent(JSON.stringify(fieldsCond));
+        if (this.appName) {
+          url += `&appName=${this.appName}`
+        }
+        if (otherParams && otherParams.hideColumn) {
+          url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
+        }
+        uni.navigateTo({
+          url: url
+        });
+      }
+    },
     hideModal () {
       this.modalName = ''
     },
