@@ -30,27 +30,6 @@
           >
             <text :class="[btn.icon]" class="text-sm"></text>
           </button>
-          <!-- <button
-            class="cu-btn bg-cyan shadow-blur round margin-left-xs"
-            @click="showOrder"
-            v-if="listConfig && listConfig._fieldInfo"
-          >
-            <text class="cuIcon-order text-sm"></text>
-          </button>
-          <button
-            class="cu-btn bg-cyan shadow-blur round margin-left-xs"
-            @click="showFilterModal"
-            v-if="listConfig && listConfig._fieldInfo"
-          >
-            <text class="cuIcon-filter text-sm"></text>
-          </button>
-          <button
-            class="cu-btn bg-cyan shadow-blur round margin-left-xs"
-            @click="clickAddButton"
-            v-if="showAdd"
-          >
-            <text class="cuIcon-add"></text>
-          </button> -->
         </view>
       </view>
     </view>
@@ -250,6 +229,8 @@ export default {
       navigationBarTitle: null,
       labels: [], // 要显示label的字段
       col: 0,//每行数量
+      foreign_key: null,
+      main_data: null
     };
   },
   onReachBottom () {
@@ -265,6 +246,12 @@ export default {
     }
   },
   onLoad (option) {
+    if (option.foreign_key) {
+      this.foreign_key = JSON.parse(option.foreign_key)
+    }
+    if (option.main_data) {
+      this.main_data = JSON.parse(option.main_data)
+    }
     if (option.hideFootBtn) {
       this.showFootBtn = false
     }
@@ -630,6 +617,18 @@ export default {
               }
               return;
             }
+            // if (this.foreign_key && this.main_data) {
+            //   debugger
+            //   let { column_name, referenced_column_name } = this.foreign_key
+            //   if (column_name && referenced_column_name &&  this.main_data[ referenced_column_name ]) {
+            //      fieldsCond.push({
+            //       column: column_name,
+            //       value: this.main_data[ referenced_column_name ],
+            //       display: true,
+            //       disabled:true
+            //     });
+            //   }
+            // }
             let url = `/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
             if (this.appName) {
               url += `&appName=${this.appName}`
