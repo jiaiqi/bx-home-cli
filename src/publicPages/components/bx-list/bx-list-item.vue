@@ -2,7 +2,7 @@
 	<view class="list-item-wrap bg-white" :class="{ 'grid-layout-item': layout === 'grid' }">
 		<view class="list-item flex" v-if="viewType === 'normal'">
 			<view class="main-image" v-if="itemData[viewTemp['img']]">
-				<image class="image" :src="getImagePath(itemData[viewTemp['img']])" @click.stop="listItemClick"
+				<image class="image" :src="getImagePath(itemData[viewTemp['img']],true)" @click.stop="listItemClick"
 					mode="aspectFill"></image>
 			</view>
 			<view class="main-image" v-else-if="viewTemp['img']">

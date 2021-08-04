@@ -180,6 +180,10 @@ export default {
 					max: null,
 					min: null
 				}
+				fieldInfo = {
+					...fieldInfo,
+					...item
+				}
 				if (item.more_config && typeof item.more_config === 'string') {
 					try {
 						fieldInfo.moreConfig = JSON.parse(item.more_config)
@@ -200,6 +204,7 @@ export default {
 				if (item.init_expr) {
 					item.init_expr = item.init_expr.replace(/\'/g, '')
 					fieldInfo.defaultValue = item.init_expr
+					fieldInfo.value = item.init_expr
 				}
 				fieldInfo.option_list_v2 = item.option_list_v2
 				fieldInfo.bx_col_type = item.bx_col_type
@@ -310,6 +315,8 @@ export default {
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo.in_cond = item.in_cond
+				fieldInfo.x_if = item.x_if
+				fieldInfo.xif_trigger_col = item.xif_trigger_col
 				fieldInfo._colDatas = item //保存原始data
 				return fieldInfo
 			})
@@ -622,7 +629,7 @@ export default {
 			})
 			return newObj
 		}
-		Vue.prototype.toPreviewImage = (urls,current=0) => {
+		Vue.prototype.toPreviewImage = (urls, current = 0) => {
 			if (!urls) {
 				return;
 			}
@@ -651,16 +658,18 @@ export default {
 				delta: 1
 			});
 		}
-		Vue.prototype.getLocalDay=(date,isLocal=true)=>{
+		Vue.prototype.getLocalDay = (date, isLocal = true) => {
 			// 日期对应周几
-			date = new Date(date||null)
-			if(isLocal){
-				const options = { weekday: 'long'};
+			date = new Date(date || null)
+			if (isLocal) {
+				const options = {
+					weekday: 'long'
+				};
 				return new Intl.DateTimeFormat('zh-cn', options).format(date)
-			}else{
+			} else {
 				return date.getDay()
 			}
-			
+
 		}
 		Vue.prototype.formateTime = (date, returnNull, formate) => {
 			// TODO 上午下午 昨天前天 
@@ -1525,11 +1534,11 @@ export default {
 			}
 		}
 		Vue.prototype.html2text = (str) => {
-			if(str&&typeof str==='string'){
+			if (str && typeof str === 'string') {
 				return str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
-				.replace(
-					/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ').replace(/&nbsp\;/g,' ')
-			}else{
+					.replace(
+						/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ').replace(/&nbsp\;/g, ' ')
+			} else {
 				return str
 			}
 		}
@@ -1815,7 +1824,7 @@ export default {
 				return false;
 			}
 		}
-		Vue.prototype.bindDoctorInfo = async (no,params) => {
+		Vue.prototype.bindDoctorInfo = async (no, params) => {
 			let docInfo = await Vue.prototype.getDoctorInfo(no)
 			if (docInfo && docInfo.no) {
 				let serviceName = 'srvhealth_person_relation_add';
@@ -1824,7 +1833,7 @@ export default {
 					serviceName: 'srvhealth_person_relation_add',
 					condition: [],
 					data: [{
-						relation_type:params?.relation_type|| '管理',
+						relation_type: params?.relation_type || '管理',
 						state: '正常',
 						usera_name: docInfo.name,
 						usera_no: docInfo.userno,
@@ -1931,7 +1940,7 @@ export default {
 				return
 				// 未授权不进行注册
 			} else {
-				if(data && data.no){
+				if (data && data.no) {
 					Vue.prototype.updateUserInfo(wxUserInfo)
 				}
 			}
@@ -2000,7 +2009,7 @@ export default {
 				let inviterInfo = store.state.app.inviterInfo
 				if (inviterInfo.invite_user_no) {
 					req[0].data[0].invite_user_no = inviterInfo.invite_user_no
-				}else{
+				} else {
 					req[0].data[0].invite_user_no = 'jiaqi'
 				}
 				if (inviterInfo.add_url) {
@@ -2009,7 +2018,7 @@ export default {
 				if (inviterInfo.add_store_no) {
 					req[0].data[0].add_store_no = inviterInfo.add_store_no
 					req[0].data[0].home_store_no = inviterInfo.add_store_no
-				}else{
+				} else {
 					req[0].data[0].add_store_no = 'S20210204016'
 					req[0].data[0].home_store_no = 'S20210204016'
 				}
@@ -2216,6 +2225,42 @@ export default {
 				str = ''
 			}
 			return str
+		}
+
+		// 后端计算xif并返回结果
+		Vue.prototype.evalX_IF = async (tableName, cols, data = {}) => {
+			if (!tableName || !cols) {
+				return
+			}
+			if (Array.isArray(cols)) {
+				cols = cols.toString()
+			}
+			const url = `${Vue.prototype.$api.serverURL}/health/operate/srvsys_table_col_show_hide_result`
+			const req = [{
+				serviceName: "srvsys_table_col_show_hide_result",
+				condition: [{
+						colName: 'table',
+						ruleType: 'eq',
+						value: tableName
+					},
+					{
+						colName: 'col',
+						ruleType: 'eq',
+						value: cols
+					}
+				]
+			}]
+			if (data) {
+				req[0].data = [data]
+			}
+
+			const res = await _http.post(url, req)
+			if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
+				0) {
+				return res.data.response[0]
+			} else {
+				return false
+			}
 		}
 	}
 }

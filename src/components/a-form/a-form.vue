@@ -111,36 +111,23 @@
 					return false;
 				}
 			},
-			onValChange(e) {
+			async onValChange(e) {
 				// 保存已经发生变化的字段值
 				if (e.type === 'number' || e.type === 'digit') {
 					e.value = Number(e.value);
 				}
 				this.fieldModel[e.column] = e.value;
 				const fieldModel = this.deepClone(this.fieldModel);
-				this.allField = this.allField.map((item, index) => {
-					item.display = item.isShowExp && item.isShowExp.length > 0 ? this.colItemShowExps(item, this
-						.fieldModel) : item.display === false ? false : true;
-					if (item.column === e.column) {
-						item.value = e.value;
-						if (item.type === 'Set') {
-							item.option_list_v2 = e.option_list_v2;
-						}
-					}
-					if (item.formulaShow) {
-						let isIfShow = evaluatorTo(fieldModel, item.formulaShow);
-						item.display = isIfShow;
-					}
-					if(!item.value && this.pageType==='filter'){
-						item.value = '全部'
-					}
-					return item;
-				});
-				if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e.colData) !==
-					true && Object.keys(e.colData).length > 0) {
-					//冗余
-					this.allField = this.allField.map(item => {
-						if (item.redundant && typeof item.redundant === 'object' && item.redundant.dependField ===
+				const column = e.column
+				// const triggerColumns = this.allField.filter((item)=>item.)
+				for (let index = 0; index < this.allField.length; index++) {
+					const item = this.allField[index]
+
+					if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
+							.colData) !==
+						true && Object.keys(e.colData).length > 0) {
+						if (item.redundant && typeof item.redundant === 'object' && item.redundant
+							.dependField ===
 							e.column) {
 							if (item.redundant.trigger === 'always') {
 								item.value = e.colData[item.redundant.refedCol];
@@ -152,10 +139,71 @@
 							this.fieldModel[item.column] = item.value;
 							this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
 						}
-						return item;
-					});
+					}
+					if (Array.isArray(item.isShowExp) && item.isShowExp.length > 0) {
+						item.display = this.colItemShowExps(item, this.fieldModel)
+					} else if (item.formulaShow) {
+						item.display = evaluatorTo(fieldModel, item.formulaShow);
+					} 
+					
+					if (item.display !== false) {
+						item.display = true
+					}
+					if (item.column === e.column) {
+						item.value = e.value;
+						if (item.type === 'Set') {
+							item.option_list_v2 = e.option_list_v2;
+						}
+					}
+
+					if (!item.value && this.pageType === 'filter') {
+						item.value = '全部'
+					}
+
+
+					this.$set(this.allField, index, item)
 				}
-				this.$emit('value-blur', this.fieldModel);
+				// this.allField = this.allField.map((item, index) => {
+				// 	item.display = item.isShowExp && item.isShowExp.length > 0 ? this.colItemShowExps(item, this
+				// 		.fieldModel) : item.display === false ? false : true;
+				// 	if (item.column === e.column) {
+				// 		item.value = e.value;
+				// 		if (item.type === 'Set') {
+				// 			item.option_list_v2 = e.option_list_v2;
+				// 		}
+				// 	}
+				// 	if (item.formulaShow) {
+				// 		let isIfShow = evaluatorTo(fieldModel, item.formulaShow);
+				// 		item.display = isIfShow;
+				// 	}
+				// 	if(!item.value && this.pageType==='filter'){
+				// 		item.value = '全部'
+				// 	}
+				// 	return item;
+				// });
+
+				// if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
+				// 		.colData) !==
+				// 	true && Object.keys(e.colData).length > 0) {
+				// 	//冗余
+				// 	this.allField = this.allField.map(item => {
+				// 		if (item.redundant && typeof item.redundant === 'object' && item.redundant
+				// 			.dependField ===
+				// 			e.column) {
+				// 			if (item.redundant.trigger === 'always') {
+				// 				item.value = e.colData[item.redundant.refedCol];
+				// 			} else if (item.redundant.trigger === 'isnull') {
+				// 				if (!item.value) {
+				// 					item.value = e.colData[item.redundant.refedCol];
+				// 				}
+				// 			}
+				// 			this.fieldModel[item.column] = item.value;
+				// 			this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
+				// 		}
+				// 		return item;
+				// 	});
+				// }
+				this.$emit('value-blur', this.fieldModel,e);
 			},
 			onValBlur(e) {
 				if (e.hasOwnProperty('value')) {
@@ -205,8 +253,8 @@
 						if (this.allField.length === 0) {
 							this.oldField = this.deepClone(newValue);
 						}
-						this.allField = newValue.map(item=>{
-							if(!item.value && this.pageType==='filter'){
+						this.allField = newValue.map(item => {
+							if (!item.value && this.pageType === 'filter') {
 								item.value = '全部'
 							}
 							return item
