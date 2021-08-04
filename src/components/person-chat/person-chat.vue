@@ -2346,7 +2346,8 @@ export default {
               req[ 0 ].data[ 0 ][ "sender_group_role" ] = "管理员"
               req[ 0 ].data[ 0 ].attribute = JSON.stringify({
                 type: 'remindPerson',
-                name: "所有人"
+                name: "所有人",
+								store_no:this.storeNo
               })
             }
           }

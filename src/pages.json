@@ -1,6 +1,5 @@
 {
-	"pages": [
-		{
+	"pages": [{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "",
@@ -20,11 +19,9 @@
 			}
 		}
 	],
-	"subPackages": [
-		{
+	"subPackages": [{
 			"root": "publicPages",
-			"pages": [
-				{
+			"pages": [{
 					"path": "accountExec/accountExec",
 					"style": {
 						"navigationBarTitleText": "登录"
@@ -91,8 +88,7 @@
 					"provider": "wx2b03c6e691cd7370"
 				}
 			},
-			"pages": [
-				{
+			"pages": [{
 					"path": "home/home",
 					"style": {
 						"navigationBarTitleText": "",
@@ -189,8 +185,7 @@
 		},
 		{
 			"root": "questionnaire",
-			"pages": [
-				{
+			"pages": [{
 					"path": "index/index",
 					"style": {
 						"navigationBarTitleText": "问卷",
@@ -240,8 +235,7 @@
 		},
 		{
 			"root": "personalPages",
-			"pages": [
-				{
+			"pages": [{
 					"path": "ArchiveHistory/ArchiveHistory",
 					"style": {
 						"navigationBarTitleText": ""
@@ -253,13 +247,19 @@
 						"navigationBarTitleText": "我的状态",
 						"enablePullDownRefresh": false
 					}
+				}, {
+					"path": "switchAccount/switchAccount",
+					"style": {
+						"navigationBarTitleText": "切换账号",
+						"enablePullDownRefresh": false
+					}
+
 				}
 			]
 		},
 		{
 			"root": "otherPages",
-			"pages": [
-				{
+			"pages": [{
 					"path": "activity/activity",
 					"style": {
 						// "navigationStyle": "custom",
@@ -280,7 +280,16 @@
 						"navigationBarTitleText": "朋友圈"
 					}
 				}
-			]
+			    ,{
+                    "path" : "dashboard/dashboard",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
 		}
 	],
 	"easycom": {
@@ -294,8 +303,7 @@
 	},
 	"condition": {
 		"current": 0,
-		"list": [
-			{
+		"list": [{
 				"name": "聊天页面",
 				"path": "publicPages/chat/chat",
 				"query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"

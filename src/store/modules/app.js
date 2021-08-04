@@ -100,7 +100,6 @@ const mutations = {
 		setItem('authUserInfo', state.authUserInfo)
 	},
 	SET_LOGIN_STATE: (state, loginState) => {
-		
 		state.isLogin = loginState
 		setItem('isLogin', loginState)
 	},

@@ -273,7 +273,7 @@ export default {
             } ],
             data: this.orderInfo.goodsList.map(item => {
               let obj = {
-                food_no: item.meal_no ? item.meal_no : item
+                goods_no: item.meal_no ? item.meal_no : item
                   .goods_no,
                 goods_amount: item.car_num,
                 goods_desc: item.name,

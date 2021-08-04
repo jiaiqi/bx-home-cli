@@ -234,7 +234,6 @@ export default {
     };
   },
   onReachBottom () {
-    console.log('触底');
     if (!this.noData) {
       this.$refs.bxList.pageInfo.pageNo++;
       this.$refs.bxList.getListData().then(data => { });

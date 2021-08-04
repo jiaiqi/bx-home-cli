@@ -37,9 +37,9 @@
 				</view>
 				<view class="footer" v-if="rowButton.length > 0">
 					<view class="footer-btn" v-if="showFootBtn">
-						<text v-if="deRowButDisplay(itemData, item) && !detailList"
+						<text v-if="deRowButDisplay(itemData, item,index) && !detailList"
 							class="cu-btn round sm text-blue line-blue" :class="'cuIcon-' + item.button_type"
-							v-for="item in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
+							v-for="(item ,index) in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
 							{{ item.button_name }}
 						</text>
 					</view>
@@ -78,9 +78,9 @@
 				</view>
 				<view class="footer" v-if="rowButton.length > 0 && showFootBtn">
 					<view class="footer-btn" v-if="showFootBtn">
-						<text v-if="deRowButDisplay(itemData, item) && !detailList"
+						<text v-if="deRowButDisplay(itemData, item,index) && !detailList"
 							class="cu-btn round sm text-blue line-blue" :class="'cuIcon-' + item.button_type"
-							v-for="item in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
+							v-for="(item ,index) in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
 							{{ item.button_name }}
 						</text>
 					</view>
@@ -147,8 +147,8 @@
 						{{ goodsData.footer | html2text }}</text>
 					<view class="foot-button" v-if="showFootBtn">
 						<view class="cu-btn round sm text-blue line-blue" :class="'cuIcon-' + item.button_type"
-							v-for="item in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
-							<text v-if="deRowButDisplay(itemData, item) && !detailList">{{
+							v-for="(item ,index) in theRowbutton" :key="item.id" @click.stop="footBtnClick(item)">
+							<text v-if="deRowButDisplay(itemData, item,index) && !detailList">{{
                 item.button_name
               }}</text>
 						</view>
@@ -299,7 +299,13 @@
 					}
 				}
 			},
-			deRowButDisplay: function(item, button) {
+			deRowButDisplay: function(item, button, index) {
+				if (Array.isArray(this.itemData._buttons)) {
+					debugger
+					if (typeof index === 'number' && (index || index === 0)) {
+						return this.itemData._buttons[index]
+					}
+				}
 				if (item && button.hasOwnProperty('isShow') && button['isShow'].length > 0) {
 					let isShow = [];
 					for (let key in button['isShow']) {
@@ -589,13 +595,14 @@
 						font-weight: bold;
 						font-size: 32rpx;
 						flex: 1;
-						white-space: initial;
+						white-space: nowrap;
+						overflow: hidden;
 					}
 
 					.title-tip {
 						padding: 5rpx 10rpx;
 						border: 1px solid;
-						max-width:150rpx ;
+						max-width: 200rpx;
 						overflow: hidden;
 						height: 50rpx;
 						margin-left: 20rpx;

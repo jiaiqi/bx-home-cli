@@ -289,6 +289,7 @@
       <input
         class="form-item-content_value"
         @blur="onBlur"
+				placeholder="请输入"
         :type="fieldData.type"
         @input="onInput"
         :maxlength="

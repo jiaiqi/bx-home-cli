@@ -465,6 +465,9 @@
 						delete req.condition
 					}
 				}
+				if (this.listConfig?.vpage_no) {
+					req['vpage_no'] = this.listConfig.vpage_no
+				}
 				let res = await this.$http.post(url, req);
 				if (res.data.state === 'SUCCESS') {
 					if (this.pageInfo.pageNo === 1) {
@@ -507,7 +510,6 @@
 			},
 			onRefresh() {
 				this.pageInfo.pageNo = 1;
-				// this.getListData();
 				this.$nextTick(() => {
 					this.$refs.pullScroll.refresh();
 				});
@@ -528,7 +530,6 @@
 							}
 						}
 					});
-					// this.loadData(pullScroll);
 				}, 200);
 			},
 			loadData(pullScroll) {

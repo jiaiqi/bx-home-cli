@@ -190,7 +190,7 @@ export default {
 									depend_keys: [{ type: 'column', add_col: 'order_no', depend_key: 'order_no' }],
 									data: this.orderInfo.goodsList.map(item => {
 										let obj = {
-											food_no: item.meal_no?item.meal_no:item.goods_no,
+											goods_no: item.meal_no?item.meal_no:item.goods_no,
 											goods_amount: item.car_num,
 											goods_desc: item.name,
 											store_no: this.orderInfo.store_no,

@@ -228,7 +228,6 @@ export default {
       let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
       if (res.success) {
         this.pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
-        uni.$emit('updateStoreItemData')
         this.getComponentData()
       }
     },
@@ -426,7 +425,6 @@ export default {
           }
           //  [ '按钮组', '人员列表', '商品列表', '通知横幅' ]
         }
-        console.log(pageItemList)
         this.pageItemList = this.pageItemList.map(item => {
           let obj = pageItemList.find(a => a.component_no === item.component_no)
           if (obj) {
@@ -435,6 +433,7 @@ export default {
           }
           return item
         })
+				uni.$emit('updateStoreItemData')
       }
     },
     toDeptDetail (e) {
@@ -952,7 +951,6 @@ export default {
 <style lang="scss" scoped>
 .page-wrap {
   background-color: #f1f1f1;
-
   ::v-deep swiper.rectangle-dot {
     .wx-swiper-dot,
     .a-swiper-dot,

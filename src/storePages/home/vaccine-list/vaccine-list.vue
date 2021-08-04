@@ -10,9 +10,9 @@
 				<text class="cuIcon-right "></text>
 			</view>
 		</view>
-    <view class="" style="width:50%;margin:20rpx auto;">
-      <u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
-    </view>
+		<view class="" style="width:50%;margin:20rpx auto;">
+			<u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
+		</view>
 		<swiper class="swiper rectangle-dot" indicator-active-color="#00aaff" indicator-color="#ccc"
 			:indicator-dots="true" :autoplay="false">
 			<swiper-item v-for="(child,index) in list" :key="index" class="swiper-item">
@@ -21,11 +21,11 @@
 						{{item.vaccine_drug_name}}
 					</view>
 					<view class="button-area">
-						<view class="margin-left  margin-right text-blue"
+						<view class="margin-left  margin-right text-yellow"
 							v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
 							{{item.btnTextConfig.less.tip||''}}
 						</view>
-						<view class="margin-left  margin-right text-blue"
+						<view class="margin-left  margin-right text-yellow"
 							v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
 							库存较少
 						</view>
@@ -37,40 +37,39 @@
 							v-else-if="!item.stock_count||item.stock_count<1">
 							待到货
 						</view>
-
-						<view class="margin-left  margin-right text-olive"
+						<view class="margin-left  margin-right text-cyan"
 							v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.persons_count!==1">
 							{{item.btnTextConfig.needOrder.tip||''}}
 						</view>
-						<view class="margin-left  margin-right text-olive" v-else-if="item.persons_count!==1">
+						<view class="margin-left  margin-right text-cyan" v-else-if="item.persons_count!==1">
 							需要预约
 						</view>
-						<view class="margin-left  margin-right text-green"
-							v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>0))">
+						<view class="margin-left  margin-right text-blue"
+							v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>=5))">
 							{{item.btnTextConfig.full.tip||''}}
 						</view>
 						<view class="button-box">
-							<view class="cu-tag bg-cyan round"
+							<view class="cu-tag bg-orange light round"
 								v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-								{{item.btnTextConfig.full.button}}
+								{{item.btnTextConfig.less.button}}
 							</view>
-							<view class="cu-tag bg-cyan round"
+							<view class="cu-tag bg-orange light round"
 								v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
 								立即预约
 							</view>
-							<view class="cu-tag bg-cyan round"
-								v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&item.btnTextConfig.full.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0">
+							<view class="cu-tag bg-blue round"
+								v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&item.btnTextConfig.full.button&&item.persons_count===1&&item.stock_count&&item.stock_count>=5">
 								{{item.btnTextConfig.full.button}}
 							</view>
-							<view class="cu-tag bg-cyan round"
-								v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0">
+							<view class="cu-tag bg-blue round"
+								v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>=5">
 								随时到店
 							</view>
-							<view class="cu-tag bg-olive round " @click.stop="showModal(item)"
+							<view class="cu-tag bg-cyan round " @click.stop="showModal(item)"
 								v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.btnTextConfig.needOrder.button&&item.persons_count!==1">
 								{{item.btnTextConfig.needOrder.button}}
 							</view>
-							<view class="cu-tag bg-olive round " @click.stop="showModal(item)"
+							<view class="cu-tag bg-cyan round " @click.stop="showModal(item)"
 								v-else-if="item.persons_count!==1">
 								预约
 							</view>
@@ -272,962 +271,961 @@
 </template>
 
 <script>
-import {
-  mapState
-} from 'vuex'
-import dayjs from '@/static/js/dayjs.min.js'
-export default {
-  name: "VaccineList", //疫苗预约列表
-  computed: {
-    btnTextConfig () {
-      // 按钮、提示文字配置
-      const buttonConfig = {
-        sellOut: { // 无货
-          button: "待到货",
-          tip: ""
-        },
-        less: { //库存大于0小于5
-          button: "库存较少",
-          tip: ""
-        },
-        full: { // 库存充足
-          button: "随时到店",
-          tip: ""
-        },
-        needOrder: { //需要预约
-          button: "预约",
-          tip: "需要预约"
-        }
-      }
-      return buttonConfig
-    },
-    calcStyle () {
-      if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
-        return {
-          margin: this.pageItem.margin
-        }
-      }
-    },
-    ...mapState({
-      subscsribeStatus: state => state.app.subscsribeStatus,
-      userInfo: state => state.user.userInfo
-    }),
-    vaccineTip () {
-      if (this.vaccineInfo) {
-        if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
-          return '请在下方选择您需要被通知的业务'
-        } else {
-          return '请在下方选择您预约打疫苗的时间'
-        }
-      }
-    },
-    list () {
-      if (this.vaccineList && Array.isArray(this.vaccineList) && this.vaccineList.length > 0) {
-        return this.vaccineList.reduce((pre, item) => {
-          if (item.button_text) {
-            try {
-              item.btnTextConfig = JSON.parse(item.button_text)
-            } catch (e) {
-              //TODO handle the exception
-              console.log(e)
-            }
-          }
+	import {
+		mapState
+	} from 'vuex'
+	import dayjs from '@/static/js/dayjs.min.js'
+	export default {
+		name: "VaccineList", //疫苗预约列表
+		computed: {
+			btnTextConfig() {
+				// 按钮、提示文字配置
+				const buttonConfig = {
+					sellOut: { // 无货
+						button: "待到货",
+						tip: ""
+					},
+					less: { //库存大于0小于5
+						button: "库存较少",
+						tip: ""
+					},
+					full: { // 库存充足
+						button: "随时到店",
+						tip: ""
+					},
+					needOrder: { //需要预约
+						button: "预约",
+						tip: "需要预约"
+					}
+				}
+				return buttonConfig
+			},
+			calcStyle() {
+				if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
+					return {
+						margin: this.pageItem.margin
+					}
+				}
+			},
+			...mapState({
+				subscsribeStatus: state => state.app.subscsribeStatus,
+				userInfo: state => state.user.userInfo
+			}),
+			vaccineTip() {
+				if (this.vaccineInfo) {
+					if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
+						return '请在下方选择您需要被通知的业务'
+					} else {
+						return '请在下方选择您预约打疫苗的时间'
+					}
+				}
+			},
+			list() {
+				if (this.vaccineList && Array.isArray(this.vaccineList) && this.vaccineList.length > 0) {
+					return this.vaccineList.reduce((pre, item) => {
+						if (item.button_text) {
+							try {
+								item.btnTextConfig = JSON.parse(item.button_text)
+							} catch (e) {
+								//TODO handle the exception
+								console.log(e)
+							}
+						}
 
-          if (pre.length === 0) {
-            pre = [
-              [ item ]
-            ]
-          } else if (pre[ pre.length - 1 ].length >= 5) {
-            pre.push([ item ])
-          } else {
-            pre[ pre.length - 1 ].push(item)
-          }
-          return pre
-        }, [])
-      } else {
-        return []
-      }
-    }
-  },
-  data () {
-    return {
-      subList: [ {
-        name: "一类"
-      }, {
-        name: "二类"
-      } ],
-      curSub: 0,
-      onSubmit: false, //正在提交
-      modalName: '',
-      selectedVaccine: {},
-      activeField: '',
-      formModel: {
-        id_no: '',
-        phone_xcx: '',
-        customer_name: "",
-        customer_birth_day: "",
-        customer_phone: '',
-        appoint_remark: ''
-      },
-      timeArr: [],
-      vaccineList: [],
-      imagesUrl: [],
-      vaccineInfo: {}, // 疫苗信息
-      curVac: {
-        data: []
-      },
-      tip: ''
-    }
-  },
-  props: {
-    storeInfo: {
-      type: Object,
-      default: () => { }
-    },
-  },
-  beforeDestroy () {
-    uni.$off('backFromWebview')
-  },
-  created () {
-    uni.$on('backFromWebview', () => {
-      // 从webview返回
-      this.checkSubscribeStatus()
-    })
-    if (!this.vaccineList || this.vaccineList.length === 0) {
-      this.getVaccineList()
-    }
-  },
-  methods: {
-    changeSub (index) {
-      this.curSub = index
-      this.getVaccineList()
-    },
-    mindSub () {
-      // 提醒用户关注公众号
-      return new Promise((resolve) => {
-        if (!this.subscsribeStatus) {
-          uni.showModal({
-            title: '提示',
-            content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
-            success (res) {
-              if (res.confirm) {
-                uni.navigateTo({
-                  url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
-                })
-                resolve('leave')
-              } else {
-                resolve('keep')
-              }
-            }
-          })
-        } else {
-          resolve('keep')
-        }
-      })
+						if (pre.length === 0) {
+							pre = [
+								[item]
+							]
+						} else if (pre[pre.length - 1].length >= 5) {
+							pre.push([item])
+						} else {
+							pre[pre.length - 1].push(item)
+						}
+						return pre
+					}, [])
+				} else {
+					return []
+				}
+			}
+		},
+		data() {
+			return {
+				subList: [{
+					name: "一类"
+				}, {
+					name: "二类"
+				}],
+				curSub: 0,
+				onSubmit: false, //正在提交
+				modalName: '',
+				selectedVaccine: {},
+				activeField: '',
+				formModel: {
+					id_no: '',
+					phone_xcx: '',
+					customer_name: "",
+					customer_birth_day: "",
+					customer_phone: '',
+					appoint_remark: ''
+				},
+				timeArr: [],
+				vaccineList: [],
+				imagesUrl: [],
+				vaccineInfo: {}, // 疫苗信息
+				curVac: {
+					data: []
+				},
+				tip: ''
+			}
+		},
+		props: {
+			storeInfo: {
+				type: Object,
+				default: () => {}
+			},
+		},
+		beforeDestroy() {
+			uni.$off('backFromWebview')
+		},
+		created() {
+			uni.$on('backFromWebview', () => {
+				// 从webview返回
+				this.checkSubscribeStatus()
+			})
+			if (!this.vaccineList || this.vaccineList.length === 0) {
+				this.getVaccineList()
+			}
+		},
+		methods: {
+			changeSub(index) {
+				this.curSub = index
+				this.getVaccineList()
+			},
+			mindSub() {
+				// 提醒用户关注公众号
+				return new Promise((resolve) => {
+					if (!this.subscsribeStatus) {
+						uni.showModal({
+							title: '提示',
+							content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
+							success(res) {
+								if (res.confirm) {
+									uni.navigateTo({
+										url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+									})
+									resolve('leave')
+								} else {
+									resolve('keep')
+								}
+							}
+						})
+					} else {
+						resolve('keep')
+					}
+				})
 
-    },
-    subscription (tip) {
-      // return
-      let tmplIds = 'fat3Nr50I5cAm0s5dBNfMSBDLJMumAUbVGHnE_am07Q'
-      // 接种疫苗提醒
-      wx.getSetting({
-        withSubscriptions: true, //  这里设置为true,下面才会返回mainSwitch
-        success: function (res) {
-          // 调起授权界面弹窗
-          if (res.subscriptionsSetting.mainSwitch) { // 用户打开了订阅消息总开关
-            if (res.subscriptionsSetting.itemSettings !=
-              null) { // 用户同意总是保持是否推送消息的选择, 这里表示以后不会再拉起推送消息的授权
-              let moIdState = res.subscriptionsSetting.itemSettings[ tmplIds ]; // 用户同意的消息模板id
-              if (moIdState === 'accept') {
-                console.log('接受了消息推送');
-                uni.showModal({
-                  title: '提示',
-                  content: tip || '已成功设置通知提醒',
-                  showCancel: false
-                })
-              } else if (moIdState === 'reject') {
-                console.log("拒绝消息推送");
-              } else if (moIdState === 'ban') {
-                console.log("已被后台封禁");
-              } else if (moIdState === undefined) {
-                wx.requestSubscribeMessage({ // 调起消息订阅界面
-                  tmplIds: [ tmplIds ],
-                  success (res) {
-                    console.log('订阅消息 成功 ');
-                    console.log(res);
-                  },
-                  fail (er) {
-                    console.log("订阅消息 失败 ");
-                    console.log(er);
-                  }
-                })
-              }
-            } else {
-              // 当用户没有点击’ 总是保持以上选择， 不再询问‘ 按钮。 那每次执到这都会拉起授权弹窗
-              wx.showModal({
-                title: '提示',
-                content: '请授权开通服务通知',
-                showCancel: true,
-                success: function (ress) {
-                  if (ress.confirm) {
-                    wx.requestSubscribeMessage({ // 调起消息订阅界面
-                      tmplIds: [ tmplIds ],
-                      success (res) {
-                        console.log('订阅消息 成功 ');
-                        console.log(res);
-                      },
-                      fail (er) {
-                        console.log("订阅消息 失败 ");
-                        console.log(er);
-                      }
-                    })
-                  }
-                }
-              })
-            }
-          } else {
-            console.log('订阅消息未开启')
-          }
-        },
-        fail: function (error) {
-          console.log(error);
-        },
-      })
-    },
-    toMore () {
-      uni.navigateTo({
-        url: '/storePages/VaccineList/VaccineList?storeNo=' + this.storeInfo.store_no
-      })
-    },
-    disabledTime (e) {
-      // 判断是否过期 已过期则禁用
-      let time = new Date(e.app_date + ' ' + e.app_time_start)
-      let now = new Date()
-      if (time.getTime() < now.getTime()) {
-        return true
-      } else {
-        return false
-      }
-    },
-    async getImage (e) {
-      if (e && e.remark_pic) {
-        this.imagesUrl = [];
-        let images = await this.getFilePath(e.remark_pic)
-        if (Array.isArray(images)) {
-          for (let i = 0; i < images.length; i++) {
-            const obj = {
-              originUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
-              smallUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
-            }
-            this.imagesUrl.push(obj);
-          }
-        }
-      }
-    },
-    async showInfo (e) {
-      this.vaccineInfo = e
-      this.getImage(e)
-      this.modalName = 'vaccine-info'
-    },
-    showRealNameModal () {
-      this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
-      this.formModel.customer_phone = this.userInfo.phone
-      this.formModel.customer_birth_day = this.userInfo.birthday
-      this.formModel.id_no = this.userInfo.id_no
-      this.formModel.phone_xcx = this.userInfo.phone_xcx
-      this.modalName = 'realname'
-    },
-    async updateUserInfo () {
-      let data = {}
-      if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
-        .customer_birth_day || !this.formModel.id_no) {
-        //  || !this.formModel.phone_xcx 暂不校验是否填写小程序手机号
-        this.tip = '请确认所有实名信息已填写完整'
-        return
-      }
-      this.tip = ''
-      if (!this.userInfo.id_no || this.formModel.id_no) {
-        data.id_no = this.formModel.id_no
-      }
-      if (!this.userInfo.phone || this.formModel.customer_phone) {
-        data.phone = this.formModel.customer_phone
-      }
-      if (!this.userInfo.phone_xcx || this.formModel.phone_xcx) {
-        data.phone_xcx = this.formModel.phone_xcx
-      }
-      if (!this.userInfo.birthday || this.formModel.customer_birth_day) {
-        data.birthday = this.formModel.customer_birth_day
-      }
-      if (this.formModel.customer_name || this.formModel.customer_name) {
-        data.name = this.formModel.customer_name
-      }
-      let req = [ {
-        "serviceName": "srvhealth_person_info_real_identity_update",
-        "condition": [ {
-          "colName": "id",
-          "ruleType": "eq",
-          "value": this.userInfo.id
-        } ],
-        "data": [ data ]
-      } ]
-      let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
-      if (res.success) {
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-          if (info && info.no) {
-            this.$store.commit('SET_USERINFO', info)
-          } else if (res.data[ 0 ].no) {
-            uni.setStorageSync('cur_user_no', res.data[ 0 ].no)
-            this.$store.commit('SET_USERINFO', res.data[ 0 ])
-          }
-        }
-        this.selectTimeArr(this.vaccineInfo)
-      }
-    },
-    async decryptPhoneNumber (e) {
-      // 解密手机号信息
-      let self = this
-      try {
-        let sessionStatus = await wx.checkSession()
-      } catch (err) {
-        // session_key 已经失效， 需要重新执行登录流程
-        if (err) {
-          uni.showToast({
-            title: err,
-            icon: false
-          })
-        }
-        await this.toAddPage()
-        // let result = await wx.login()
-        // if (result.code) {
-        // 	await self.wxLogin({
-        // 		code: result.code
-        // 	})
-        // }
-      }
+			},
+			subscription(tip) {
+				// return
+				let tmplIds = 'fat3Nr50I5cAm0s5dBNfMSBDLJMumAUbVGHnE_am07Q'
+				// 接种疫苗提醒
+				wx.getSetting({
+					withSubscriptions: true, //  这里设置为true,下面才会返回mainSwitch
+					success: function(res) {
+						// 调起授权界面弹窗
+						if (res.subscriptionsSetting.mainSwitch) { // 用户打开了订阅消息总开关
+							if (res.subscriptionsSetting.itemSettings !=
+								null) { // 用户同意总是保持是否推送消息的选择, 这里表示以后不会再拉起推送消息的授权
+								let moIdState = res.subscriptionsSetting.itemSettings[tmplIds]; // 用户同意的消息模板id
+								if (moIdState === 'accept') {
+									console.log('接受了消息推送');
+									uni.showModal({
+										title: '提示',
+										content: tip || '已成功设置通知提醒',
+										showCancel: false
+									})
+								} else if (moIdState === 'reject') {
+									console.log("拒绝消息推送");
+								} else if (moIdState === 'ban') {
+									console.log("已被后台封禁");
+								} else if (moIdState === undefined) {
+									wx.requestSubscribeMessage({ // 调起消息订阅界面
+										tmplIds: [tmplIds],
+										success(res) {
+											console.log('订阅消息 成功 ');
+											console.log(res);
+										},
+										fail(er) {
+											console.log("订阅消息 失败 ");
+											console.log(er);
+										}
+									})
+								}
+							} else {
+								// 当用户没有点击’ 总是保持以上选择， 不再询问‘ 按钮。 那每次执到这都会拉起授权弹窗
+								wx.showModal({
+									title: '提示',
+									content: '请授权开通服务通知',
+									showCancel: true,
+									success: function(ress) {
+										if (ress.confirm) {
+											wx.requestSubscribeMessage({ // 调起消息订阅界面
+												tmplIds: [tmplIds],
+												success(res) {
+													console.log('订阅消息 成功 ');
+													console.log(res);
+												},
+												fail(er) {
+													console.log("订阅消息 失败 ");
+													console.log(er);
+												}
+											})
+										}
+									}
+								})
+							}
+						} else {
+							console.log('订阅消息未开启')
+						}
+					},
+					fail: function(error) {
+						console.log(error);
+					},
+				})
+			},
+			toMore() {
+				uni.navigateTo({
+					url: '/storePages/VaccineList/VaccineList?storeNo=' + this.storeInfo.store_no
+				})
+			},
+			disabledTime(e) {
+				// 判断是否过期 已过期则禁用
+				let time = new Date(e.app_date + ' ' + e.app_time_start)
+				let now = new Date()
+				if (time.getTime() < now.getTime()) {
+					return true
+				} else {
+					return false
+				}
+			},
+			async getImage(e) {
+				if (e && e.remark_pic) {
+					this.imagesUrl = [];
+					let images = await this.getFilePath(e.remark_pic)
+					if (Array.isArray(images)) {
+						for (let i = 0; i < images.length; i++) {
+							const obj = {
+								originUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
+								smallUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+							}
+							this.imagesUrl.push(obj);
+						}
+					}
+				}
+			},
+			async showInfo(e) {
+				this.vaccineInfo = e
+				this.getImage(e)
+				this.modalName = 'vaccine-info'
+			},
+			showRealNameModal() {
+				this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+				this.formModel.customer_phone = this.userInfo.phone
+				this.formModel.customer_birth_day = this.userInfo.birthday
+				this.formModel.id_no = this.userInfo.id_no
+				this.formModel.phone_xcx = this.userInfo.phone_xcx
+				this.modalName = 'realname'
+			},
+			async updateUserInfo() {
+				let data = {}
+				if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
+					.customer_birth_day || !this.formModel.id_no) {
+					//  || !this.formModel.phone_xcx 暂不校验是否填写小程序手机号
+					this.tip = '请确认所有实名信息已填写完整'
+					return
+				}
+				this.tip = ''
+				if (!this.userInfo.id_no || this.formModel.id_no) {
+					data.id_no = this.formModel.id_no
+				}
+				if (!this.userInfo.phone || this.formModel.customer_phone) {
+					data.phone = this.formModel.customer_phone
+				}
+				if (!this.userInfo.phone_xcx || this.formModel.phone_xcx) {
+					data.phone_xcx = this.formModel.phone_xcx
+				}
+				if (!this.userInfo.birthday || this.formModel.customer_birth_day) {
+					data.birthday = this.formModel.customer_birth_day
+				}
+				if (this.formModel.customer_name || this.formModel.customer_name) {
+					data.name = this.formModel.customer_name
+				}
+				let req = [{
+					"serviceName": "srvhealth_person_info_real_identity_update",
+					"condition": [{
+						"colName": "id",
+						"ruleType": "eq",
+						"value": this.userInfo.id
+					}],
+					"data": [data]
+				}]
+				let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
+				if (res.success) {
+					if (Array.isArray(res.data) && res.data.length > 0) {
+						let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
+						if (info && info.no) {
+							this.$store.commit('SET_USERINFO', info)
+						} else if (res.data[0].no) {
+							uni.setStorageSync('cur_user_no', res.data[0].no)
+							this.$store.commit('SET_USERINFO', res.data[0])
+						}
+					}
+					this.selectTimeArr(this.vaccineInfo)
+				}
+			},
+			async decryptPhoneNumber(e) {
+				// 解密手机号信息
+				let self = this
+				try {
+					let sessionStatus = await wx.checkSession()
+				} catch (err) {
+					// session_key 已经失效， 需要重新执行登录流程
+					if (err) {
+						uni.showToast({
+							title: err,
+							icon: false
+						})
+					}
+					await this.toAddPage()
+					// let result = await wx.login()
+					// if (result.code) {
+					// 	await self.wxLogin({
+					// 		code: result.code
+					// 	})
+					// }
+				}
 
-      if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
-        let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
-        let req = [ {
-          data: [ {
-            encryptedData: e.detail.encryptedData,
-            signature: e.detail.iv
-          } ],
-          serviceName: 'srvwx_app_data_decrypt'
-        } ]
-        let res = await this.$http.post(url, req);
-        if (res.data.resultCode === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response
-          .length > 0 && res.data.response[ 0 ].response && res.data.response[ 0 ].response.phoneNumber) {
-          this.formModel.phone_xcx = res.data.response[ 0 ].response.phoneNumber
-          this.formModel.customer_phone = res.data.response[ 0 ].response.phoneNumber
-        } else {
-          // wx.checkSession({
-          // 	fail(err) {
-          // 		// session_key 已经失效， 需要重新执行登录流程
-          // 		wx.login({
-          // 			success(result) {
-          // 				if (result.code) {
-          // 					self.wxLogin({
-          // 						code: result.code
-          // 					}).then(_ => {
-          // 						self.decryptPhoneNumber(e)
-          // 					})
-          // 				}
-          // 			}
-          // 		})
-          // 	}
-          // })
-        }
-      }
-    },
-    async getVaccineList () {
-      // 查找可预约疫苗列表
-      let req = {
-        "page": {
-          "pageNo": 1,
-          "rownumber": 100
-        },
-        condition: [
-          {
-            colName: 'vaccine_type',
-            ruleType: 'eq',
-            value: this.curSub === 0 ? "一类" : "二类"
-          }
-        ]
-      }
-      if (this.storeInfo && this.storeInfo.store_no) {
-        req.condition.push({
-          colName: 'store_no',
-          ruleType: 'eq',
-          value: this.storeInfo.store_no
-        })
-      }
-      let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
-      if (res.success) {
-        this.vaccineList = res.data
-      }
-    },
-    toOrderList () {
-      uni.navigateTo({
-        url: '/storePages/VaccineOrder/VaccineOrder'
-      })
-    },
-    async submitForm () {
-      if (!this.formModel.customer_name) {
-        uni.showToast({
-          title: '请填写就诊人姓名',
-          icon: 'none'
-        })
-        return
-      }
-      let req = [ {
-        "serviceName": "srvhealth_store_vaccination_appoint_record_add",
-        "condition": [],
-        "data": [ {
-          "sa_no": this.selectedVaccine.sa_no,
-          "appoint_name": this.selectedVaccine.appoint_name,
-          "app_date": this.selectedVaccine.app_date,
-          "app_time_start": this.selectedVaccine.app_time_start,
-          "app_time_end": this.selectedVaccine.app_time_end,
-          "customer_name": this.formModel.customer_name,
-          "customer_birth_day": this.formModel.customer_birth_day,
-          "customer_phone": this.formModel.customer_phone,
-          "appoint_remark": this.formModel.appoint_remark,
-          "person_no": this.userInfo.no,
-          "person_user_no": this.userInfo.userno,
-          "person_name": this.userInfo.name || this.userInfo.nick_name,
-          "person_image": this.userInfo.person_image || this.userInfo.profile_url
-        } ]
-      } ]
-      if (!this.onSubmit) {
-        this.onSubmit = true
-        let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
-          'health');
-        this.onSubmit = false
-        if (res.success) {
-          this.$emit('submit', res.data)
-          this.hideModal()
-          return true
-        } else {
-          return res
-        }
-      } else {
-        uni.showToast({
-          title: '正在提交,请勿重复操作'
-        })
-      }
+				if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
+					let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
+					let req = [{
+						data: [{
+							encryptedData: e.detail.encryptedData,
+							signature: e.detail.iv
+						}],
+						serviceName: 'srvwx_app_data_decrypt'
+					}]
+					let res = await this.$http.post(url, req);
+					if (res.data.resultCode === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response
+						.length > 0 && res.data.response[0].response && res.data.response[0].response.phoneNumber) {
+						this.formModel.phone_xcx = res.data.response[0].response.phoneNumber
+						this.formModel.customer_phone = res.data.response[0].response.phoneNumber
+					} else {
+						// wx.checkSession({
+						// 	fail(err) {
+						// 		// session_key 已经失效， 需要重新执行登录流程
+						// 		wx.login({
+						// 			success(result) {
+						// 				if (result.code) {
+						// 					self.wxLogin({
+						// 						code: result.code
+						// 					}).then(_ => {
+						// 						self.decryptPhoneNumber(e)
+						// 					})
+						// 				}
+						// 			}
+						// 		})
+						// 	}
+						// })
+					}
+				}
+			},
+			async getVaccineList() {
+				// 查找可预约疫苗列表
+				let req = {
+					"page": {
+						"pageNo": 1,
+						"rownumber": 100
+					},
+					condition: [{
+						colName: 'vaccine_type',
+						ruleType: 'eq',
+						value: this.curSub === 0 ? "一类" : "二类"
+					}]
+				}
+				if (this.storeInfo && this.storeInfo.store_no) {
+					req.condition.push({
+						colName: 'store_no',
+						ruleType: 'eq',
+						value: this.storeInfo.store_no
+					})
+				}
+				let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
+				if (res.success) {
+					this.vaccineList = res.data
+				}
+			},
+			toOrderList() {
+				uni.navigateTo({
+					url: '/storePages/VaccineOrder/VaccineOrder'
+				})
+			},
+			async submitForm() {
+				if (!this.formModel.customer_name) {
+					uni.showToast({
+						title: '请填写就诊人姓名',
+						icon: 'none'
+					})
+					return
+				}
+				let req = [{
+					"serviceName": "srvhealth_store_vaccination_appoint_record_add",
+					"condition": [],
+					"data": [{
+						"sa_no": this.selectedVaccine.sa_no,
+						"appoint_name": this.selectedVaccine.appoint_name,
+						"app_date": this.selectedVaccine.app_date,
+						"app_time_start": this.selectedVaccine.app_time_start,
+						"app_time_end": this.selectedVaccine.app_time_end,
+						"customer_name": this.formModel.customer_name,
+						"customer_birth_day": this.formModel.customer_birth_day,
+						"customer_phone": this.formModel.customer_phone,
+						"appoint_remark": this.formModel.appoint_remark,
+						"person_no": this.userInfo.no,
+						"person_user_no": this.userInfo.userno,
+						"person_name": this.userInfo.name || this.userInfo.nick_name,
+						"person_image": this.userInfo.person_image || this.userInfo.profile_url
+					}]
+				}]
+				if (!this.onSubmit) {
+					this.onSubmit = true
+					let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
+						'health');
+					this.onSubmit = false
+					if (res.success) {
+						this.$emit('submit', res.data)
+						this.hideModal()
+						return true
+					} else {
+						return res
+					}
+				} else {
+					uni.showToast({
+						title: '正在提交,请勿重复操作'
+					})
+				}
 
-    },
-    async submitNotify () {
-      if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
-        uni.showToast({
-          title: '请选择需要通知您的业务',
-          icon: 'none'
-        })
-        return
-      }
-      let tips = `${this.selectedVaccine.appoint_name} 设置成功`
-      this.submitForm().then(res => {
-        // #ifdef MP-WEIXIN
-        this.subscription('已成功设置疫苗到货通知')
-        // #endif
-      })
-    },
-    async submitOrder () {
-      // 提交预约信息
-      if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
-        uni.showToast({
-          title: '请选择预约时间',
-          icon: 'none'
-        })
-        return
-      }
-      this.submitForm().then(res => {
-        if (res !== true) {
+			},
+			async submitNotify() {
+				if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
+					uni.showToast({
+						title: '请选择需要通知您的业务',
+						icon: 'none'
+					})
+					return
+				}
+				let tips = `${this.selectedVaccine.appoint_name} 设置成功`
+				this.submitForm().then(res => {
+					// #ifdef MP-WEIXIN
+					this.subscription('已成功设置疫苗到货通知')
+					// #endif
+				})
+			},
+			async submitOrder() {
+				// 提交预约信息
+				if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
+					uni.showToast({
+						title: '请选择预约时间',
+						icon: 'none'
+					})
+					return
+				}
+				this.submitForm().then(res => {
+					if (res !== true) {
 
-          if (res.msg) {
-            this.hideModal()
-            if (res.code === '4444') {
-              uni.showToast({
-                title: '取消预约后不能再预约同一批次同一时间段的疫苗',
-                icon: 'none',
-                mask: true,
-                duration: 2000
-              })
-            } else {
-              uni.showToast({
-                title: res.msg,
-                icon: 'none',
-                mask: true,
-                duration: 2000
-              })
-            }
+						if (res.msg) {
+							this.hideModal()
+							if (res.code === '4444') {
+								uni.showToast({
+									title: '取消预约后不能再预约同一批次同一时间段的疫苗',
+									icon: 'none',
+									mask: true,
+									duration: 2000
+								})
+							} else {
+								uni.showToast({
+									title: res.msg,
+									icon: 'none',
+									mask: true,
+									duration: 2000
+								})
+							}
 
-          }
-          return
-        }
-        if (this.subscsribeStatus) {
-          uni.showModal({
-            title: '提示',
-            content: "预约成功",
-            showCancel: false
-          })
-        } else {
-          uni.showModal({
-            title: '提示',
-            content: '预约成功,请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
-            success (res) {
-              if (res.confirm) {
-                uni.navigateTo({
-                  url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
-                })
-              }
-            }
-          })
-        }
-      })
-    },
-    DateChange (e) {
-      this.formModel.customer_birth_day = e.detail.value
-    },
-    async selectTimeArr (e) {
-      let req = {
-        "condition": [ {
-          "colName": "svs_no",
-          "ruleType": "eq",
-          "value": e.vs_no
-        },
-        {
-          "colName": "app_date",
-          "ruleType": "ge",
-          "value": this.formateDate()
-        },
-          // {
-          // 	"colName": "app_date",
-          // 	"ruleType": "lt",
-          // 	value: dayjs().add(5, 'day').format('YYYY-MM-DD')
-          // }
-        ],
-        order: [ {
-          colName: "app_date",
-          orderType: "asc"
-        } ],
-        "page": {
-          "pageNo": 1,
-          "rownumber": 20
-        },
-      }
-      if (!e.stock_count || e.stock_count < 1) {
-        req.condition = [ {
-          "colName": "svs_no",
-          "ruleType": "eq",
-          "value": e.vs_no
-        },
-        {
-          "colName": "appoint_type",
-          "ruleType": "eq",
-          "value": '登记'
-        }
-        ]
-        delete req.order
-      }
-      let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
-      if (res.success) {
-        this.timeArr = res.data
-        this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
-        this.formModel.customer_phone = this.userInfo.phone || ''
-        this.formModel.customer_birth_day = this.userInfo.birthday || ''
-        this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
-        this.modalName = 'vaccine'
-        this.getImage(e)
-      }
-    },
-    showModal (e) {
-      this.vaccineInfo = e
-      if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
-        this.showRealNameModal()
-      } else {
-        this.selectTimeArr(e)
-      }
-    },
-    hideModal () {
-      this.vaccineInfo = {}
-      this.curVac = {}
-      this.selectedVaccine = {}
-      this.modalName = ''
-      Object.keys(this.formModel).forEach(key => {
-        this.formModel[ key ] = ''
-      })
-    },
-    onFocus (e) {
-      this.activeField = e
-    },
-    onBlur () {
-      this.activeField = ''
-    },
-    selectItem (e) {
-      if (this.disabledTime(e)) {
-        uni.showToast({
-          title: '已过期,不可预约',
-          icon: 'none'
-        })
-        return
-      }
-      this.selectedVaccine = e
-    },
-    getList () {
-      let list = []
-      for (let key in this.vaccineList) {
-        let obj = this.vaccineList[ key ]
-        obj.selected = ''
-        obj.data = this.vaccineList[ key ].data.map(item => {
-          item.checked = false
-          return item
-        })
-        list.push(obj)
-      }
-      return list
-    }
-  }
-}
+						}
+						return
+					}
+					if (this.subscsribeStatus) {
+						uni.showModal({
+							title: '提示',
+							content: "预约成功",
+							showCancel: false
+						})
+					} else {
+						uni.showModal({
+							title: '提示',
+							content: '预约成功,请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
+							success(res) {
+								if (res.confirm) {
+									uni.navigateTo({
+										url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+									})
+								}
+							}
+						})
+					}
+				})
+			},
+			DateChange(e) {
+				this.formModel.customer_birth_day = e.detail.value
+			},
+			async selectTimeArr(e) {
+				let req = {
+					"condition": [{
+							"colName": "svs_no",
+							"ruleType": "eq",
+							"value": e.vs_no
+						},
+						{
+							"colName": "app_date",
+							"ruleType": "ge",
+							"value": this.formateDate()
+						},
+						// {
+						// 	"colName": "app_date",
+						// 	"ruleType": "lt",
+						// 	value: dayjs().add(5, 'day').format('YYYY-MM-DD')
+						// }
+					],
+					order: [{
+						colName: "app_date",
+						orderType: "asc"
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 20
+					},
+				}
+				if (!e.stock_count || e.stock_count < 1) {
+					req.condition = [{
+							"colName": "svs_no",
+							"ruleType": "eq",
+							"value": e.vs_no
+						},
+						{
+							"colName": "appoint_type",
+							"ruleType": "eq",
+							"value": '登记'
+						}
+					]
+					delete req.order
+				}
+				let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+				if (res.success) {
+					this.timeArr = res.data
+					this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
+					this.formModel.customer_phone = this.userInfo.phone || ''
+					this.formModel.customer_birth_day = this.userInfo.birthday || ''
+					this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+					this.modalName = 'vaccine'
+					this.getImage(e)
+				}
+			},
+			showModal(e) {
+				this.vaccineInfo = e
+				if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
+					this.showRealNameModal()
+				} else {
+					this.selectTimeArr(e)
+				}
+			},
+			hideModal() {
+				this.vaccineInfo = {}
+				this.curVac = {}
+				this.selectedVaccine = {}
+				this.modalName = ''
+				Object.keys(this.formModel).forEach(key => {
+					this.formModel[key] = ''
+				})
+			},
+			onFocus(e) {
+				this.activeField = e
+			},
+			onBlur() {
+				this.activeField = ''
+			},
+			selectItem(e) {
+				if (this.disabledTime(e)) {
+					uni.showToast({
+						title: '已过期,不可预约',
+						icon: 'none'
+					})
+					return
+				}
+				this.selectedVaccine = e
+			},
+			getList() {
+				let list = []
+				for (let key in this.vaccineList) {
+					let obj = this.vaccineList[key]
+					obj.selected = ''
+					obj.data = this.vaccineList[key].data.map(item => {
+						item.checked = false
+						return item
+					})
+					list.push(obj)
+				}
+				return list
+			}
+		}
+	}
 </script>
 
 <style lang="scss" scoped>
-::v-deep swiper.rectangle-dot {
-  height: 200px;
-}
+	::v-deep swiper.rectangle-dot {
+		height: 200px;
+	}
 
-.vaccine-list {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20rpx;
-  background-color: #fff;
-}
+	.vaccine-list {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 20rpx;
+		background-color: #fff;
+	}
 
-.vaccine-title {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 16px;
-  padding: 20rpx 20rpx 0;
-  .title-text {
-    display: flex;
-    flex: 1;
-  }
-  .to-more {
-    font-weight: normal;
-    width: 100rpx;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-}
+	.vaccine-title {
+		display: flex;
+		justify-content: space-between;
+		font-weight: bold;
+		font-size: 16px;
+		padding: 20rpx 20rpx 0;
 
-.button-box {
-  margin: 0;
-  padding: 4rpx 0;
-  justify-content: flex-end;
-  flex: 1;
+		.title-text {
+			display: flex;
+			flex: 1;
+		}
 
-  .disabled {
-    pointer-events: none;
-  }
+		.to-more {
+			font-weight: normal;
+			width: 100rpx;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+		}
+	}
 
-  .cu-tag,
-  .cu-btn {
-    min-width: 150rpx;
-    font-size: 14px;
-  }
+	.button-box {
+		margin: 0;
+		padding: 4rpx 0;
+		justify-content: flex-end;
+		flex: 1;
 
-  &.center {
-    justify-content: center;
-    margin-bottom: 20px;
-  }
+		.disabled {
+			pointer-events: none;
+		}
 
-  .cu-btn {
-    & + .cu-btn {
-      margin-left: 20px;
-    }
-  }
-}
+		.cu-tag,
+		.cu-btn {
+			min-width: 150rpx;
+			font-size: 14px;
+		}
 
-.cu-modal {
-  z-index: 100;
+		&.center {
+			justify-content: center;
+			margin-bottom: 20px;
+		}
 
-  .cu-dialog {
-    background-color: #fff;
-  }
+		.cu-btn {
+			&+.cu-btn {
+				margin-left: 20px;
+			}
+		}
+	}
 
-  .order-modal {
-    max-height: 70vh;
-  }
+	.cu-modal {
+		z-index: 100;
 
-  .vaccine-info {
-    background-color: #fff;
-    overflow: scroll;
+		.cu-dialog {
+			background-color: #fff;
+		}
 
-    .vaccine-name {
-      font-weight: bold;
-      text-align: center;
-    }
+		.order-modal {
+			max-height: 70vh;
+		}
 
-    .tips {
-      width: 100%;
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-      font-weight: bold;
-    }
+		.vaccine-info {
+			background-color: #fff;
+			overflow: scroll;
 
-    .vaccine-detail {
-      display: flex;
-      padding: 0;
-      padding: 10rpx;
+			.vaccine-name {
+				font-weight: bold;
+				text-align: center;
+			}
 
-      .label {
-        color: #666;
-        margin-right: 20rpx;
-        min-width: 100rpx;
-      }
+			.tips {
+				width: 100%;
+				text-align: center;
+				font-size: 12px;
+				color: #666;
+				font-weight: bold;
+			}
 
-      .value {
-        flex: 1;
-        text-align: left;
-      }
+			.vaccine-detail {
+				display: flex;
+				padding: 0;
+				padding: 10rpx;
 
-      .tips {
-        width: auto;
-        text-align: center;
-        font-size: 12px;
-        color: #666;
-        font-weight: bold;
-      }
-    }
+				.label {
+					color: #666;
+					margin-right: 20rpx;
+					min-width: 100rpx;
+				}
 
-    .image-box {
-      border-radius: 20rpx;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+				.value {
+					flex: 1;
+					text-align: left;
+				}
 
-      .remark-pic {
-        width: 300rpx;
-        margin-right: 10rpx;
+				.tips {
+					width: auto;
+					text-align: center;
+					font-size: 12px;
+					color: #666;
+					font-weight: bold;
+				}
+			}
 
-        .tips {
-          width: 100%;
-        }
-      }
-    }
-  }
+			.image-box {
+				border-radius: 20rpx;
+				overflow: hidden;
+				display: flex;
+				justify-content: center;
+				flex-wrap: wrap;
 
-  .tip {
-    text-align: center;
-    padding: 10px;
-  }
+				.remark-pic {
+					width: 300rpx;
+					margin-right: 10rpx;
 
-  .button-box {
-    justify-content: center;
-    text-align: center;
-    padding: 20rpx;
+					.tips {
+						width: 100%;
+					}
+				}
+			}
+		}
 
-    .cu-btn {
-      min-width: 45%;
-    }
-  }
-}
+		.tip {
+			text-align: center;
+			padding: 10px;
+		}
 
-.vaccine-item {
-  padding: 5rpx 20rpx;
-  margin-bottom: 10rpx;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  border-bottom: 1rpx solid #f1f1f1;
+		.button-box {
+			justify-content: center;
+			text-align: center;
+			padding: 20rpx;
 
-  &:first-child {
-    border-top: 1rpx solid #f1f1f1;
-    margin-top: 10px;
-  }
+			.cu-btn {
+				min-width: 45%;
+			}
+		}
+	}
 
-  .button-area {
-    display: flex;
-    align-items: center;
-  }
+	.vaccine-item {
+		padding: 5rpx 20rpx;
+		margin-bottom: 10rpx;
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		border-bottom: 1rpx solid #f1f1f1;
 
-  .title {
-    display: inline-block;
-    font-size: 16px;
-    text-align: left;
-    flex: 1;
-  }
+		&:first-child {
+			border-top: 1rpx solid #f1f1f1;
+			margin-top: 10px;
+		}
 
-  .desc {
-    flex: 1;
-  }
+		.button-area {
+			display: flex;
+			align-items: center;
+		}
 
-  .button-box {
-    flex: inherit;
-    // min-width: 75px;
-  }
-}
+		.title {
+			display: inline-block;
+			font-size: 16px;
+			text-align: left;
+			flex: 1;
+		}
 
-.birthday {
-  text-align: left !important;
-}
+		.desc {
+			flex: 1;
+		}
 
-.cu-form-group .title {
-  min-width: calc(4em + 15px);
-}
+		.button-box {
+			flex: inherit;
+			// min-width: 75px;
+		}
+	}
 
-.cu-form-group uni-picker .picker {
-  text-align: left;
-  line-height: 40px;
-}
+	.birthday {
+		text-align: left !important;
+	}
 
-.order-info {
-  min-height: 50vh;
-  max-height: calc(100vh - var(--window-top) - var(--window-bottom));
-  overflow-y: scroll;
-  background-color: #fff;
-  padding: 20rpx;
-  padding-top: 0;
+	.cu-form-group .title {
+		min-width: calc(4em + 15px);
+	}
 
-  .cu-form-group {
-    min-height: 40px;
-  }
+	.cu-form-group uni-picker .picker {
+		text-align: left;
+		line-height: 40px;
+	}
 
-  .from-box {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    margin-bottom: 20px;
+	.order-info {
+		min-height: 50vh;
+		max-height: calc(100vh - var(--window-top) - var(--window-bottom));
+		overflow-y: scroll;
+		background-color: #fff;
+		padding: 20rpx;
+		padding-top: 0;
 
-    .form-title {
-      text-indent: 20px;
-      margin-top: 10px;
-    }
+		.cu-form-group {
+			min-height: 40px;
+		}
 
-    .form-item {
-      display: flex;
-      min-height: 30px;
-      position: relative;
-      margin: 10px 0;
-      font-size: 16px;
-      align-items: center;
+		.from-box {
+			display: flex;
+			flex-direction: column;
+			text-align: left;
+			margin-bottom: 20px;
 
-      &:last-child {
-        margin: 0;
-      }
+			.form-title {
+				text-indent: 20px;
+				margin-top: 10px;
+			}
 
-      .label {
-        // position: absolute;
-        line-height: 20px;
-        left: 10px;
-        padding: 0 5px;
-        transition: all 0.5s ease;
-        z-index: 2;
-        top: 10px;
-        color: #999;
-        min-width: 80px;
-      }
+			.form-item {
+				display: flex;
+				min-height: 30px;
+				position: relative;
+				margin: 10px 0;
+				font-size: 16px;
+				align-items: center;
 
-      // &.active {
-      // 	.label {
-      // 		top: -15px;
-      // 		font-size: 14px;
-      // 	}
-      // }
+				&:last-child {
+					margin: 0;
+				}
 
-      .value {
-        width: 100%;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid #f1f1f1;
-        text-indent: 20px;
+				.label {
+					// position: absolute;
+					line-height: 20px;
+					left: 10px;
+					padding: 0 5px;
+					transition: all 0.5s ease;
+					z-index: 2;
+					top: 10px;
+					color: #999;
+					min-width: 80px;
+				}
 
-        .text-area {
-        }
+				// &.active {
+				// 	.label {
+				// 		top: -15px;
+				// 		font-size: 14px;
+				// 	}
+				// }
 
-        &.textarea {
-          margin: 0 20rpx;
-          min-height: 100rpx;
-          text-indent: 20px;
-          background-color: #f1f1f1;
-          border-radius: 10px;
-          padding: 10px 0;
-        }
-      }
-    }
-  }
-}
+				.value {
+					width: 100%;
+					height: 40px;
+					display: flex;
+					align-items: center;
+					border-bottom: 1px solid #f1f1f1;
+					text-indent: 20px;
 
-.date-area {
-  display: flex;
-  flex-wrap: wrap;
+					.text-area {}
 
-  .tips {
-    width: 100%;
-    padding-bottom: 5px;
-    color: rgba($color: #39c5a9, $alpha: 1);
-  }
+					&.textarea {
+						margin: 0 20rpx;
+						min-height: 100rpx;
+						text-indent: 20px;
+						background-color: #f1f1f1;
+						border-radius: 10px;
+						padding: 10px 0;
+					}
+				}
+			}
+		}
+	}
 
-  .date-item {
-    display: flex;
-    justify-content: center;
-    padding: 5px 15px;
-    border-radius: 5px;
-    background-color: #f1f1f1;
-    position: relative;
-    margin-bottom: 10px;
-    width: calc(50% - 5px);
-    transition: all 0.5s ease;
-    flex-wrap: wrap;
-    border: 1rpx solid transparent;
+	.date-area {
+		display: flex;
+		flex-wrap: wrap;
 
-    &.line-cyan {
-      .text-orange {
-        color: #1cbbb4;
-      }
-    }
+		.tips {
+			width: 100%;
+			padding-bottom: 5px;
+			color: rgba($color: #39c5a9, $alpha: 1);
+		}
 
-    .vaccine_app_count {
-      width: 100%;
-      font-size: 12px;
-    }
+		.date-item {
+			display: flex;
+			justify-content: center;
+			padding: 5px 15px;
+			border-radius: 5px;
+			background-color: #f1f1f1;
+			position: relative;
+			margin-bottom: 10px;
+			width: calc(50% - 5px);
+			transition: all 0.5s ease;
+			flex-wrap: wrap;
+			border: 1rpx solid transparent;
 
-    &:nth-child(2n + 1) {
-      margin-left: 10px;
-    }
+			&.line-cyan {
+				.text-orange {
+					color: #1cbbb4;
+				}
+			}
 
-    &.line-cyan {
-      border: 1rpx solid;
-      background-color: #e7fff4;
-    }
+			.vaccine_app_count {
+				width: 100%;
+				font-size: 12px;
+			}
 
-    &.disabled {
-      // pointer-events: none;
-      // cursor: default;
-      opacity: 0.6;
-    }
-  }
-}
+			&:nth-child(2n + 1) {
+				margin-left: 10px;
+			}
 
-.modal-title {
-  font-weight: bold;
-  padding: 20rpx;
-  font-size: 16px;
-}
+			&.line-cyan {
+				border: 1rpx solid;
+				background-color: #e7fff4;
+			}
 
-.realname-form {
-  text-align: left;
+			&.disabled {
+				// pointer-events: none;
+				// cursor: default;
+				opacity: 0.6;
+			}
+		}
+	}
 
-  .cu-form-group {
-    .title {
-      min-width: 150rpx;
-    }
-  }
-}
+	.modal-title {
+		font-weight: bold;
+		padding: 20rpx;
+		font-size: 16px;
+	}
+
+	.realname-form {
+		text-align: left;
+
+		.cu-form-group {
+			.title {
+				min-width: 150rpx;
+			}
+		}
+	}
 </style>

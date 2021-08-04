@@ -30,12 +30,12 @@
         {{ btn.button_name }}
       </button>
     </view>
-    <child-table
+<!--    <child-table
       :formData="defaultVal"
       :child-service="childService"
       v-if="defaultVal && childService.length > 0"
       @toChildServiceList="toChildServiceList"
-    ></child-table>
+    ></child-table> -->
   </view>
 </template>
 
@@ -65,7 +65,7 @@ export default {
       fieldsCond: [],
       params: {},
       defaultVal: null,
-      showChildService: true,
+      showChildService: false,
       successTip: '添加成功',
       afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面
       submitAction: '', //提交后要进行的emit操作
