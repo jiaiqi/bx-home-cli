@@ -89,7 +89,7 @@ export default {
 			}
 		}
 
-		Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData) => {
+		Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id) => {
 			// 统一下单
 			let url = Vue.prototype.getServiceUrl('wx', 'srvwx_order', 'operate');
 			let req = [{
@@ -154,8 +154,8 @@ export default {
 			if (pageInfo && pageInfo.add_url) {
 				if (option.store_no) {
 					store.commit('SET_INVITER_INFO', {
-						add_store_no: option.store_no||'S20210204016',
-						home_store_no: option.store_no||'S20210204016',
+						add_store_no: option.store_no || 'S20210204016',
+						home_store_no: option.store_no || 'S20210204016',
 						add_url: pageInfo.add_url,
 						invite_user_no: option.invite_user_no || 'jiaqi'
 					});
@@ -249,7 +249,7 @@ export default {
 				}],
 				data: [{}]
 			}];
-			if(profile_url){
+			if (profile_url) {
 				req[0].data[0].profile_url = profile_url;
 			}
 			if (nickname) {
@@ -258,7 +258,7 @@ export default {
 			if (sex) {
 				req[0].data[0].sex = sex;
 			}
-			if(Object.keys(req[0].data[0]).length>0){
+			if (Object.keys(req[0].data[0]).length > 0) {
 				let res = await Vue.prototype.$http.post(url, req);
 				if (res.data.state === 'SUCCESS') {
 					return true

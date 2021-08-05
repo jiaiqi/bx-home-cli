@@ -120,7 +120,7 @@
 					</text>
 				</view>
 				<view class="content" @click.stop="listItemClick">
-					<view class="content-item">
+					<view class="content-item" v-if="itemData[setViewTemp.left]">
 						<text class="label" v-if="showLabel['left']">
 							{{ showLabel["left"] }}:
 						</text>
@@ -128,7 +128,7 @@
 							{{ itemData[setViewTemp.left]| html2text }}
 						</text>
 					</view>
-					<view class="content-item">
+					<view class="content-item" v-if="itemData[setViewTemp.right]">
 						<text class="label" v-if="showLabel['right']">
 							{{ showLabel["right"] }}:
 						</text>
@@ -606,6 +606,8 @@
 						overflow: hidden;
 						height: 50rpx;
 						margin-left: 20rpx;
+						overflow: hidden;
+						text-overflow: ellipsis;
 					}
 				}
 

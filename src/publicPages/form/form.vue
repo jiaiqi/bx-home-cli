@@ -894,7 +894,8 @@
 			this.checkOptionParams(option);
 			const destApp = option.destApp;
 			if (destApp) {
-				uni.setStorageSync('activeApp', destApp);
+				this.appName = option.destApp
+				// uni.setStorageSync('activeApp', destApp);
 			}
 			if (option.appName) {
 				this.appName = option.appName

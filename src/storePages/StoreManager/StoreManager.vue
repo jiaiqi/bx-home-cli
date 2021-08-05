@@ -239,9 +239,9 @@
 			}
 		},
 		methods: {
-			toDashboard(){
+			toDashboard() {
 				uni.navigateTo({
-					url:'/otherPages/dashboard/dashboard'
+					url: '/otherPages/dashboard/dashboard'
 				})
 			},
 			getChildServiceList() {
@@ -436,6 +436,18 @@
 								'&main_data=' + JSON.stringify(this.storeInfo)
 						});
 					}
+				} else if (data?.srv_app && data?.service_name && data?.foreign_key) {
+					const foreign_key = data.foreign_key
+					condition = [{
+						colName: foreign_key.ref_service_column,
+						ruleType: "eq",
+						value: formData[foreign_key.refed_service_column]
+					}];
+					uni.navigateTo({
+						url: `/publicPages/list/list?destApp=${data.srv_app}&pageType=list&serviceName=${data.service_name}&foreign_key=${JSON.stringify(data.foreign_key)}` +
+							'&cond=' + JSON
+							.stringify(condition)
+					});
 				} else {
 					uni.navigateTo({
 						url: '/publicPages/list/list?pageType=list&serviceName=' + e.service_name + '&cond=' + JSON
@@ -1094,31 +1106,32 @@
 	.page-wrap {
 		background-color: #f1f1f1;
 	}
+
 	.statis-box {
 		display: flex;
 		flex-wrap: wrap;
 		background-color: #fff;
 		margin: 20rpx 0;
 		// border-radius: 20rpx;
-	
+
 		.statis-item {
 			padding: 30rpx 20rpx;
 			flex: 1;
 			min-width: 25%;
 			text-align: center;
-	
+
 			.item-label {
 				color: #999;
 				margin-top: 10rpx;
 			}
-	
+
 			.item-value {
 				font-weight: bold;
 				font-size: 36rpx;
 			}
 		}
 	}
-	
+
 
 	.head {
 		margin-top: 20rpx;

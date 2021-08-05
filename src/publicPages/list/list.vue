@@ -75,6 +75,9 @@
 			...mapState({
 				doctorInfo: state => state.user.userInfo,
 				patientInfo: state => state.user.patientInfo,
+				moreConfig() {
+					return this.listConfig?.moreConfig || {}
+				},
 				listButton() {
 					let buttons = this.publicButton
 					let res = buttons.filter(item => {
@@ -184,6 +187,7 @@
 			}
 		},
 		onLoad(option) {
+			debugger
 			if (option.foreign_key) {
 				this.foreign_key = JSON.parse(option.foreign_key)
 			}
@@ -243,13 +247,13 @@
 						this.keyColumn = this.viewTemp.title.split('||')[0]
 					}
 				}
-				if (query.destApp) {
-					this.appName = query.destApp
-					// uni.setStorageSync('activeApp', query.destApp);
-				}
-				if (query.appName) {
-					this.appName = query.appName
-				}
+			}
+			if (query.destApp) {
+				this.appName = query.destApp
+				// uni.setStorageSync('activeApp', query.destApp);
+			}
+			if (query.appName) {
+				this.appName = query.appName
 			}
 			if (query.searchKey) {
 				// 搜索关键词对应字段
@@ -624,6 +628,11 @@
 								}
 								let url =
 									`/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+									debugger
+								if (this.moreConfig?.detailPage === 'childTableList') {
+									url =
+										`/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+								}
 								if (otherParams.hideColumn) {
 									url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
 								}

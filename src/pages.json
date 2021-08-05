@@ -75,7 +75,16 @@
 						"navigationBarTitleText": "listPage"
 					}
 				}
-			]
+			    ,{
+                    "path" : "detail/detail",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "详情",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
 		},
 		{
 			"root": "storePages",
