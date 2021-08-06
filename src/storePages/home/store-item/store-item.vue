@@ -15,7 +15,7 @@
 			@addToStore="addToStore" @toConsult="toConsult"></store-info>
 		<button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
 			@addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
-		<goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo"
+		<goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo" :storeInfo="storeInfo"
 			image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
 		<vaccine-list :storeInfo="storeInfo" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList"></vaccine-list>
 		<staff-manage :storeNo="storeNo" :pageItem="pageItem" v-else-if="pageItem.type === '人员列表'"

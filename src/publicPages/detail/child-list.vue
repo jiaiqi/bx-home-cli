@@ -1,8 +1,15 @@
 <template>
 	<view class="child-list">
 		<view class="section-name">
-			<text>{{config.label||''}}</text>
-			<text class="cu-load" :class="loading?'loading':''"></text>
+			<view class="name">
+				<text>{{config.label||''}}</text>
+				<text class="cu-load margin-left-xs" :class="loading?'loading':''"></text>
+			</view>
+			<view class="to-more">
+				<button class="cu-btn sm line-blue border" v-for="btn in publicButton"
+					@click="onButton(btn)">{{btn.button_name||''}}</button>
+				<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})">查看更多</button>
+			</view>
 		</view>
 		<view class="list-box">
 			<view class="list-item table-head">
@@ -15,13 +22,13 @@
 					{{item[col.columns]||''}}
 				</view>
 			</view>
+			<view class="list-item" v-if="listData.length===0">
+				<view class="col-item">
+					暂无数据
+				</view>
+			</view>
 		</view>
-		<view class="to-more">
-			<!-- <view class="to-more" v-if="total>listData.length"> -->
-			<button class="cu-btn sm line-blue border" v-for="btn in publicButton"
-				@click="onButton(btn)">{{btn.button_name||''}}</button>
-			<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})">查看更多</button>
-		</view>
+
 	</view>
 </template>
 
@@ -96,6 +103,9 @@
 				}
 			},
 			showColumn() {
+				if (Array.isArray(this.moreConfig?.childTableColumn) && this.moreConfig.childTableColumn.length > 0) {
+					return this.orderCols.filter(item => this.moreConfig.childTableColumn.includes(item.columns))
+				}
 				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
 					const cols = this.orderCols.filter(item => item.columns && item.columns !== 'id' && item.columns
 						.indexOf('_no') == -1).slice(0, 4)
@@ -202,6 +212,9 @@
 							pageNo: 1
 						}
 					};
+					if (this.loading) {
+						return
+					}
 					this.loading = true
 					const res = await this.$http.post(url, req)
 					this.loading = false
@@ -231,6 +244,11 @@
 			justify-content: space-between;
 			align-items: center;
 
+			.name {
+				display: flex;
+				align-items: center;
+			}
+
 			.cu-load {
 				line-height: 1;
 				color: #666;
@@ -254,6 +272,7 @@
 					overflow: hidden;
 					white-space: nowrap;
 					text-overflow: ellipsis;
+					text-align: center;
 				}
 			}
 		}

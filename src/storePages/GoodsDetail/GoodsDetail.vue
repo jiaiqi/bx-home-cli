@@ -31,7 +31,7 @@
         class="store-icon"
       ></image>
       <view class="store-name">{{ goodsInfo.store_name }}</view>
-      <view class="phoneCall"
+      <view class="phoneCall" v-if="phone" @click="phoneCall"
         ><text class="cuIcon-phone text-cyan"></text
       ></view>
     </view>
@@ -77,7 +77,8 @@ export default {
     return {
       goodsInfo: {},
       swiperList: [],
-      goodsDetailImage: []
+      goodsDetailImage: [],
+			phone:""
     };
   },
   computed: {
@@ -86,6 +87,11 @@ export default {
     })
   },
   methods: {
+		phoneCall(){
+			uni.makePhoneCall({
+			    phoneNumber: this.phone||'10086' //仅为示例
+			});
+		},
     payOrder () {
       let goodsInfo = this.deepClone(this.goodsInfo)
       if (!goodsInfo.goods_image && goodsInfo.goods_img) {
@@ -180,6 +186,9 @@ export default {
     if (option.goods_no) {
       this.getGoodsInfo(option.goods_no);
     }
+		if(option.phone){
+			this.phone = option.phone
+		}
   }
 };
 </script>

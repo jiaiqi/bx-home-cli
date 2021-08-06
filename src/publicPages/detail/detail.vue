@@ -16,7 +16,8 @@
 							{{detail[appTempColMap.title]||''}}
 						</view>
 					</view>
-					<view class="top-item sub-title" v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
+					<view class="top-item sub-title cu-btn bg-blue light round"
+						v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
 						{{detail[appTempColMap.subTitle]||''}}
 					</view>
 				</view>
@@ -307,7 +308,7 @@
 		width: 100%;
 		margin-bottom: 20rpx;
 		border: 1px solid #f1f1f1;
-		border-radius: 20rpx;
+		// border-radius: 20rpx;
 		overflow: hidden;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
 		align-items: center;
@@ -338,10 +339,19 @@
 				.title {
 					font-size: 32rpx;
 					font-weight: bold;
+					flex: 1;
 
 					.label {
 						font-weight: normal;
 					}
+				}
+
+				.sub-title {
+					// border-top: 1px solid #999;
+					// border-bottom: 1px solid #999;
+					// // border-radius: 50rpx;
+					// padding: 5rpx 10rpx;
+					max-width: 45%;
 				}
 			}
 
@@ -365,7 +375,8 @@
 					overflow: auto;
 					white-space: nowrap;
 					margin-right: 20rpx;
-					.value{
+
+					.value {
 						color: #000000;
 					}
 				}
@@ -378,6 +389,14 @@
 					margin-bottom: 0;
 				}
 			}
+		}
+	}
+
+	.button-box {
+		padding: 20rpx;
+		.cu-btn {
+			width: 45%;
+			margin-right: 20rpx;
 		}
 	}
 </style>
