@@ -92,11 +92,14 @@
 						<text class="label" v-if="showLabel['title']">
 							{{ showLabel["title"] }}:
 						</text>
-						<text>
+						<text v-if="itemData[setViewTemp.title]">
 							{{ itemData[setViewTemp.title]  | html2text }}
 						</text>
+						<text v-else-if="goodsData.title">
+							{{ goodsData.title | html2text }}
+						</text>
 					</view>
-					<view class="title-tip  line-blue  radius">
+					<view class="title-tip line-blue  radius" v-if="itemData[setViewTemp.tip]">
 						{{ itemData[setViewTemp.tip]  | html2text }}
 					</view>
 				</view>
