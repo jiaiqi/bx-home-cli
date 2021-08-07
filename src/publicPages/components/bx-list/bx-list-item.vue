@@ -87,24 +87,24 @@
 				</view>
 			</view>
 			<view class="content-box flex-twice" v-else>
-				<view class="title" v-if="goodsData.title" @click.stop="listItemClick">
+				<view class="title" @click.stop="listItemClick">
 					<view class="main-title">
 						<text class="label" v-if="showLabel['title']">
 							{{ showLabel["title"] }}:
 						</text>
 						<text>
-							{{ goodsData.title | html2text }}
+							{{ itemData[setViewTemp.title]  | html2text }}
 						</text>
 					</view>
-					<view class="title-tip  line-blue  radius" v-if="goodsData.tip">
-						{{ goodsData.tip | html2text }}
+					<view class="title-tip  line-blue  radius">
+						{{ itemData[setViewTemp.tip]  | html2text }}
 					</view>
 				</view>
-				<view class="sub-title" v-if="goodsData.subTitle" @click.stop="listItemClick">
+				<view class="sub-title" @click.stop="listItemClick">
 					<text class="label" v-if="showLabel['subTitle']">
 						{{ showLabel["subTitle"] }}:
 					</text>
-					{{ goodsData.subTitle | html2text }}
+					{{ itemData[setViewTemp.subTitle] | html2text }}
 				</view>
 				<view class="numbers" v-if="viewTemp && viewTemp.price">
 					<text class="label" v-if="showLabel['price']">
@@ -115,12 +115,12 @@
 				      viewTemp.price &&
 				      viewTemp.price.indexOf('price') !== -1
 				    ">￥</text>
-					<text v-if="viewTemp.price">
-						{{ goodsData.price || 0 }}
+					<text v-if=" itemData[setViewTemp.price]">
+						{{ itemData[setViewTemp.price]|| 0 }}
 					</text>
 				</view>
 				<view class="content" @click.stop="listItemClick">
-					<view class="content-item" v-if="itemData[setViewTemp.left]">
+					<view class="content-item">
 						<text class="label" v-if="showLabel['left']">
 							{{ showLabel["left"] }}:
 						</text>
@@ -128,7 +128,7 @@
 							{{ itemData[setViewTemp.left]| html2text }}
 						</text>
 					</view>
-					<view class="content-item" v-if="itemData[setViewTemp.right]">
+					<view class="content-item">
 						<text class="label" v-if="showLabel['right']">
 							{{ showLabel["right"] }}:
 						</text>
@@ -253,12 +253,12 @@
 					footer: ''
 				},
 				showLabel: {
-					title: '',
-					tip: '',
-					subTitle: '',
-					img: '',
-					price: '',
-					footer: ''
+					title: "",
+					tip: "",
+					subTitle: "",
+					img: "",
+					price: "",
+					footer: ""
 				},
 			};
 		},
@@ -457,13 +457,14 @@
 						let cols = self.srv_cols.filter(item => self.labels.includes(item.columns))
 						cols.forEach(col => {
 							if (col && col.columns) {
-								Object.keys(self.viewTemp).forEach(key => {
-									if (Array.isArray(self.viewTemp[key])) {
-										if (self.viewTemp[key].includes(col.columns)) {
+								// this.setViewTemp
+								Object.keys(self.setViewTemp).forEach(key => {
+									if (Array.isArray(self.setViewTemp[key])) {
+										if (self.setViewTemp[key].includes(col.columns)) {
 											self.showLabel[key] = col.label
 										}
 									} else {
-										if (self.viewTemp[key] === col.columns) {
+										if (self.setViewTemp[key] === col.columns) {
 											self.showLabel[key] = col.label
 										}
 									}

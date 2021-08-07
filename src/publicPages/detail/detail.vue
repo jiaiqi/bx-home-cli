@@ -8,27 +8,31 @@
 			</view>
 			<view class="top-content">
 				<view class="top-title-bar">
-					<view class="top-item title" v-if="appTempColMap.title&&detail[appTempColMap.title]">
+					<view class="top-item title" v-if="appTempColMap.title">
 						<view class="label" v-if="labelMap[appTempColMap.title]">
 							{{labelMap[appTempColMap.title]||''}}:
 						</view>
 						<view class="value">
-							{{detail[appTempColMap.title]||''}}
+							{{detail[appTempColMap.title]||'-'}}
 						</view>
 					</view>
-					<view class="top-item sub-title cu-btn bg-blue light round"
-						v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
-						{{detail[appTempColMap.subTitle]||''}}
+					<view class="top-item sub-title cu-btn line-blue light sm round"
+						v-if="appTempColMap.tip&&detail[appTempColMap.tip]">
+						{{detail[appTempColMap.tip]||''}}
 					</view>
 				</view>
 				<view class="top-center">
-					<view class="top-item" v-if="appTempColMap.left && detail[appTempColMap.left]">
+					<view class="top-item " v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
 						<view class="label" v-if="labelMap[appTempColMap.left]">
-							{{labelMap[appTempColMap.left]||''}}:
+							{{labelMap[appTempColMap.subTitle]||''}}:
 						</view>
 						<view class="value">
-							{{detail[appTempColMap.left]||''}}
+							{{detail[appTempColMap.subTitle]||''}}
 						</view>
+
+					</view>
+					<view class="top-item" v-if="appTempColMap.left && detail[appTempColMap.left]">
+
 					</view>
 					<view class="top-item" v-if="appTempColMap.right&&detail[appTempColMap.right]">
 						<view class="label" v-if="labelMap[appTempColMap.right]">
@@ -116,7 +120,8 @@
 			},
 			publicButton() {
 				if (Array.isArray(this.v2Data?.formButton)) {
-					return this.v2Data.formButton.filter(item => item.permission === true)
+					return this.v2Data.formButton.filter(item => item.permission === true && item.button_type !==
+						"customize")
 				} else {
 					return []
 				}
@@ -296,104 +301,107 @@
 </script>
 
 <style lang="scss" scoped>
+	@import '../common/top-card';
+
 	.detail-wrap {
 		padding: 20rpx;
 		background-color: #F5F5F5;
 		min-height: calc(100vh - var(--window-top));
 	}
 
-	.top-card {
-		background-color: #fff;
-		display: flex;
-		width: 100%;
-		margin-bottom: 20rpx;
-		border: 1px solid #f1f1f1;
-		// border-radius: 20rpx;
-		overflow: hidden;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-		align-items: center;
-		color: #666;
+	// .top-card {
+	// 	background-color: #fff;
+	// 	display: flex;
+	// 	width: 100%;
+	// 	margin-bottom: 20rpx;
+	// 	border: 1px solid #f1f1f1;
+	// 	// border-radius: 20rpx;
+	// 	overflow: hidden;
+	// 	box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+	// 	align-items: center;
+	// 	color: #666;
 
-		.left-image {
-			width: 200rpx;
-			height: 200rpx;
-			text-align: center;
-			line-height: 200rpx;
+	// 	.left-image {
+	// 		width: 200rpx;
+	// 		height: 200rpx;
+	// 		text-align: center;
+	// 		line-height: 200rpx;
 
-			.u-image {
-				width: 200rpx;
-				height: 200rpx;
-			}
-		}
+	// 		.u-image {
+	// 			width: 200rpx;
+	// 			height: 200rpx;
+	// 		}
+	// 	}
 
-		.top-content {
-			padding: 10rpx;
-			flex: 1;
+	// 	.top-content {
+	// 		padding: 10rpx;
+	// 		flex: 1;
 
-			// display: flex;
-			// flex-direction: column;
-			// justify-content: center;
-			.top-title-bar {
-				display: flex;
+	// 		// display: flex;
+	// 		// flex-direction: column;
+	// 		// justify-content: center;
+	// 		.top-title-bar {
+	// 			display: flex;
 
-				.title {
-					font-size: 32rpx;
-					font-weight: bold;
-					flex: 1;
+	// 			.title {
+	// 				font-size: 32rpx;
+	// 				font-weight: bold;
+	// 				flex: 1;
 
-					.label {
-						font-weight: normal;
-					}
-				}
+	// 				.label {
+	// 					font-weight: normal;
+	// 				}
+	// 			}
 
-				.sub-title {
-					// border-top: 1px solid #999;
-					// border-bottom: 1px solid #999;
-					// // border-radius: 50rpx;
-					// padding: 5rpx 10rpx;
-					max-width: 45%;
-				}
-			}
+	// 			.sub-title {
+	// 				// border-top: 1px solid #999;
+	// 				// border-bottom: 1px solid #999;
+	// 				// // border-radius: 50rpx;
+	// 				// padding: 5rpx 10rpx;
+	// 				max-width: 45%;
+	// 			}
+	// 		}
 
-			.top-item {
-				display: flex;
-				align-items: center;
-				margin-bottom: 10rpx;
+	// 		.top-item {
+	// 			display: flex;
+	// 			align-items: center;
+	// 			margin-bottom: 10rpx;
 
-				.label {
-					// font-size: 24rpx;
-					margin-right: 5rpx;
-				}
-			}
+	// 			.label {
+	// 				// font-size: 24rpx;
+	// 				margin-right: 5rpx;
+	// 			}
+	// 		}
 
-			.top-center {
-				display: flex;
-				flex-wrap: wrap;
+	// 		.top-center {
+	// 			display: flex;
+	// 			flex-wrap: wrap;
 
-				.top-item {
-					min-width: 45%;
-					overflow: auto;
-					white-space: nowrap;
-					margin-right: 20rpx;
+	// 			.top-item {
+	// 				min-width: 45%;
+	// 				overflow: auto;
+	// 				white-space: nowrap;
+	// 				margin-right: 20rpx;
 
-					.value {
-						color: #000000;
-					}
-				}
-			}
+	// 				.value {
+	// 					color: #000000;
+	// 				}
+	// 			}
+	// 		}
 
-			.top-footer {
-				color: #999;
+	// 		.top-footer {
+	// 			color: #999;
 
-				.top-item {
-					margin-bottom: 0;
-				}
-			}
-		}
-	}
+	// 			.top-item {
+	// 				margin-bottom: 0;
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	.button-box {
 		padding: 20rpx;
+
 		.cu-btn {
 			width: 45%;
 			margin-right: 20rpx;

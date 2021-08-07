@@ -1,5 +1,6 @@
 <template>
 	<view class="form-item" v-if="fieldData.display" :class="{
+		'disabled-field':fieldData.disabled,
       'form-detail': pageType === 'detail',
       valid_error: !valid.valid,
       'flex-column': labelPosition === 'top' || label_width === '100%',
@@ -14,10 +15,11 @@
         'background-color': labelPosition === 'left' ? '' : '',
       }">
 			<text class="label" :for="fieldData.column">
-				<text class="cuIcon-titles text-cyan"></text>
+				<!-- <text class="cuIcon-titles text-cyan"></text> -->
 				<text class="text-red is-required" v-if="fieldData.isRequire">{{
           fieldData.isRequire ? "*" : ""
         }}</text>
+				<text class="text-hidden is-required" v-else>*</text>
 				<text>{{ fieldData.label }}</text>
 			</text>
 		</label>
@@ -49,12 +51,12 @@
 			<bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
 				v-else-if="fieldData.type === 'radio'" @change="radioChange">
 				<bx-radio class="radio" color="#2979ff" v-for="item in fieldData.options" :key="item"
-					:disabled="fieldData.disabled ? fieldData.disabled : false" :name="item">{{ item }}</bx-radio>
+					:disabled="fieldData.disabled|| false" :name="item">{{ item }}</bx-radio>
 			</bx-radio-group>
 			<bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
 				v-else-if="fieldData.type === 'radioFk'" @change="radioChange">
 				<bx-radio :iconSize="fieldData.iconSize" class="radio" color="#2979ff" v-for="item in radioOptions"
-					:key="item.value" :disabled="fieldData.disabled ? fieldData.disabled : false" :name="item.value"
+					:key="item.value" :disabled="fieldData.disabled||false" :name="item.value"
 					:serial-char="item.serialChar">
 					{{ item.label }}
 				</bx-radio>
@@ -62,28 +64,25 @@
 			<checkbox-group name="checkbox-group" class="form-item-content_value checkbox-group"
 				v-else-if="fieldData.type === 'checkbox'">
 				<label v-for="(item, index) in radioOptions" :key="index" class="checkbox">
-					<checkbox color="#2979ff" :value="item" :disabled="fieldData.disabled ? fieldData.disabled : false"
+					<checkbox color="#2979ff" :value="item" :disabled="fieldData.disabled|| false"
 						:checked="isChecked(item)" />
 					<text style="flex: 1" class="text">{{ item }}</text>
 				</label>
 			</checkbox-group>
 			<bx-checkbox-group :mode="optionMode" v-model="fieldData.value"
 				class="form-item-content_value checkbox-group" v-else-if="fieldData.type === 'checkboxFk'"
-				:disabled="fieldData.disabled ? fieldData.disabled : false" @change="onBlur()">
+				:disabled="fieldData.disabled || false" @change="onBlur()">
 				<bx-checkbox v-model="item.checked" v-for="item in radioOptions" :key="item.value" :name="item.label">
 					{{ item.label }}
 				</bx-checkbox>
 			</bx-checkbox-group>
 
 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
-				<!-- <view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)"> -->
-				<!--   <view
-          v-if="
+				<view v-if="
             (setOptionList.length < 15 && fieldData.type === 'Set') ||
             (selectorData.length < 5 && fieldData.type === 'Selector')
-          "
-        > -->
-				<view v-if="setOptionList.length < 15 && fieldData.type === 'Set'">
+          ">
+					<!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
 						v-model="fieldData.value" mode="button">
 						<bx-checkbox v-for="item in setOptionList" :name="item.value" :key="item.value"
@@ -91,32 +90,24 @@
 							{{ item.label }}
 						</bx-checkbox>
 					</bx-checkbox-group>
-					<!--     <bx-radio-group
-            v-if="fieldData.type === 'Selector'"
-            class="form-item-content_value radio-group"
-            v-model="fieldData.value"
-            mode="button"
-            @change="pickerChange"
-          >
-            <bx-radio
-              v-for="item in radioOptions"
-              :key="item.value"
-              :name="item.value"
-              >{{ item.label }}</bx-radio
-            >
-          </bx-radio-group> -->
+					<bx-radio-group v-if="fieldData.type === 'Selector'" class="form-item-content_value radio-group"
+						v-model="fieldData.value" mode="button" @change="pickerChange">
+						<bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
+						</bx-radio>
+					</bx-radio-group>
 				</view>
 				<view @click="openModal(fieldData.type)" class="open-popup" v-else>
 					<text class="place-holder" v-if="!fieldData.value">请选择</text>
 					<view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
 						{{ fieldData.value.toString() }}
 					</view>
+					<text class="value hidden" v-else-if="fkFieldLabel">{{
+					  fkFieldLabel|| ""
+					}}</text>
 					<view class="value hidden" v-else-if="fieldData.value">{{
             fieldData.value
           }}</view>
-					<text class="value hidden" v-else>{{
-            fkFieldLabel ? fkFieldLabel : ""
-          }}</text>
+
 				</view>
 			</view>
 			<!-- 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
@@ -157,15 +148,14 @@
 				<view class="value rich-text" v-if="!fieldData.value">开始输入</view>
 				<rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
 			</view>
-			<input type="text" class="" style="width: 100%" @input="onInput" placeholder="请输入" @blur="onBlur"
-				:maxlength="
+			<input type="text" class="" style="width: 100%" @input="onInput" :placeholder="fieldData.disabled ?'':'请输入'"
+				@blur="onBlur" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
-        " v-model="fieldData.value" :disabled="fieldData.disabled ? fieldData.disabled : false"
-				v-else-if="fieldData.type === 'text'" />
-			<input class="form-item-content_value" @blur="onBlur" placeholder="请输入" :type="fieldData.type"
-				@input="onInput" :maxlength="
+        " v-model="fieldData.value" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
+			<input class="form-item-content_value" @blur="onBlur" :placeholder="fieldData.disabled ?'':'请输入'"
+				:type="fieldData.type" @input="onInput" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
@@ -177,7 +167,7 @@
           fieldData.item_type_attr && fieldData.item_type_attr.min
             ? fieldData.item_type_attr.min
             : 0
-        " v-model.number="fieldData.value" :disabled="fieldData.disabled ? fieldData.disabled : false" v-else-if="
+        " v-model.number="fieldData.value" :disabled="fieldData.disabled || false" v-else-if="
           (fieldData.type === 'number' || fieldData.type === 'digit') &&
           !fieldData.max
         " />
@@ -247,8 +237,10 @@
 								<input @input="searchFKDataWithKey" type="text" placeholder="搜索"
 									confirm-type="search" />
 							</view>
-							<text class="cu-btn cuIcon-refresh line-blue shadow round"
+							<text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs"
 								@click="getSelectorData(null, null, null)"></text>
+							<text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
+							</text>
 						</view>
 						<bx-checkbox-group v-if="modalName === 'MultiSelector'"
 							class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
@@ -407,12 +399,14 @@
 				}
 				if (
 					this.pageType !== 'detail' &&
-					((this.setOptionList.length < 15 && this.fieldData.type === 'Set') || (this.selectorData.length < 5 &&
-						this.fieldData.type === 'Selector'))
+					((this.setOptionList.length > 3 && this.setOptionList.length < 15 && this.fieldData.type === 'Set') ||
+						(
+							this.selectorData.length > 3 && this.selectorData.length < 5 &&
+							this.fieldData.type === 'Selector'))
 				) {
 					result = '100%';
 				}
-				if ((this.fieldData.type === 'textarea' || this.fieldData.type === 'images') && (this.fieldData.value ||
+				if (((this.fieldData.type === 'textarea' && this.pageType == 'detail')) && (this.fieldData.value ||
 						this.pageType !== 'detail')) {
 					result = '100%';
 				}
@@ -760,13 +754,28 @@
 			},
 			pickerChange(e) {
 				if (this.fieldData.type === 'Selector') {
-					let optionData = this.radioOptions.find(item => item.value === e);
+					let selectorData = this.radioOptions || this.selectorData
+					let optionData = selectorData.find(item => item.value === e);
 					this.fkFieldLabel = optionData.label;
 					this.fieldData['colData'] = optionData;
 					this.hideModal();
 					this.onBlur()
 					// this.onInput();
 				}
+			},
+			toFkAdd() {
+				const option_list_v2 = this.fieldData?.option_list_v2
+				if (option_list_v2?.serviceName) {
+					let serviceName = option_list_v2.serviceName.replace('_select', '_add')
+					let url = `/publicPages/form/form?serviceName=${serviceName}&type=add`
+					if (option_list_v2.srv_app) {
+						url += `&destApp=${option_list_v2.srv_app}`
+					}
+					uni.navigateTo({
+						url
+					})
+				}
+
 			},
 			async getSelectorData(cond, serv, relation_condition) {
 				let self = this;

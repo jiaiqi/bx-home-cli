@@ -574,6 +574,11 @@
 							// }
 							let url =
 								`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+							url =
+								`/publicPages/formPage/formPage?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+
 							if (this.appName) {
 								url += `&appName=${this.appName}`
 							}
@@ -628,7 +633,7 @@
 								}
 								let url =
 									`/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-									debugger
+								debugger
 								if (this.moreConfig?.detailPage === 'childTableList') {
 									url =
 										`/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`

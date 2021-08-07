@@ -84,6 +84,15 @@
                 }
                 
                 }
+                ,{
+                    "path" : "formPage/formPage",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
             ]
 		},
 		{

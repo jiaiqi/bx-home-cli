@@ -606,12 +606,6 @@
 					}
 					this.$set(this.fields, i, item)
 				}
-				// this.fields = this.fields.map(item => {
-				//   if (e.hasOwnProperty(item.column)) {
-				//     item.value = e[ item.column ];
-				//   }
-				//   return item;
-				// });
 			},
 			async getFieldsModel(srv) {
 				let app = this.appName || uni.getStorageSync('activeApp');

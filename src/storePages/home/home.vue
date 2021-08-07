@@ -531,7 +531,7 @@ export default {
           rownumber: 1
         },
       };
-      let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+      let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
       if (Array.isArray(res.data) && res.data.length > 0) {
         this.storeInfo = res.data[ 0 ];
         if (this.storeInfo.type === '健康服务') {

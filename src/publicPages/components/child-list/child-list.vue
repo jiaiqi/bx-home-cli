@@ -8,7 +8,8 @@
 			<view class="to-more">
 				<button class="cu-btn sm line-blue border" v-for="btn in publicButton"
 					@click="onButton(btn)">{{btn.button_name||''}}</button>
-				<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})" v-if="listData.length==5">查看更多</button>
+				<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})"
+					v-if="listData.length===5">查看更多</button>
 			</view>
 		</view>
 		<view class="list-box">
@@ -22,13 +23,30 @@
 					{{item[col.columns]||''}}
 				</view>
 			</view>
-			<view class="list-item" v-if="listData.length===0">
+			<view class="list-item" v-for="(item,index) in memoryListData" :key="index">
+				<view class="col-item" v-for="col in showColumn">
+					{{item[col.columns]||''}}
+				</view>
+				<text class="cuIcon-close" @click="deleteMemoryListItem(index)"></text>
+			</view>
+			<view class="list-item" v-if="finalListData.length===0">
 				<view class="col-item">
 					暂无数据
 				</view>
 			</view>
 		</view>
-
+		<view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
+			<view class="cu-dialog" @click.stop.prevent="">
+				<view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
+					<a-form v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)" :fields="addV2._fieldInfo"
+						:pageType="use_type" :formType="use_type" ref="childForm" :key="modalName"></a-form>
+					<view class="button-box" v-if="addV2.formButton">
+						<button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
+							@click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -37,10 +55,13 @@
 		data() {
 			return {
 				v2Data: null,
+				addV2: null,
 				listData: [],
 				total: 0,
 				orderCols: [],
-				loading: false
+				loading: false,
+				modalName: "",
+				memoryListData: []
 			}
 		},
 
@@ -56,6 +77,12 @@
 			}
 		},
 		computed: {
+			finalListData() {
+				return [...this.listData, ...this.memoryListData]
+			},
+			use_type() {
+				return this.config?.use_type
+			},
 			condition() {
 				const foreignKey = this.foreignKey
 				const data = this.config
@@ -95,7 +122,8 @@
 			},
 			publicButton() {
 				if (Array.isArray(this.v2Data?.gridButton)) {
-					const ignoreBtn = ['select', 'add', 'batch_delete', 'delete']
+					const ignoreBtn = ['select', 'batch_delete', 'delete']
+					// const ignoreBtn = ['select', 'add', 'batch_delete', 'delete']
 					return this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
 						.button_type))
 				} else {
@@ -109,7 +137,6 @@
 				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
 					const cols = this.orderCols.filter(item => item.columns && item.columns !== 'id' && item.columns
 						.indexOf('_no') == -1).slice(0, 4)
-					debugger
 					return cols
 				}
 			},
@@ -129,8 +156,70 @@
 			this.getListV2()
 		},
 		methods: {
+			deleteMemoryListItem(index){
+				if(index||index===0){
+					this.memoryListData.splice(index,1)
+				}
+			},
+			getMemoryData() {
+				return this.memoryListData.map(item => {
+					delete item.isMemoryData
+					return item
+				})
+			},
+			onChildFormBtn(e) {
+				if (e && e.button_type) {
+					switch (e.button_type) {
+						case 'submit':
+							this.add2List()
+							break;
+						case 'reset':
+							this.restChildForm()
+							break;
+						default:
+							break;
+					}
+				}
+			},
+			restChildForm() {
+				this.$refs.childForm.onReset()
+			},
+			add2List() {
+				let data = this.$refs.childForm.getFieldModel();
+				if(!data){
+					return
+				}
+				if (typeof data === 'object' && Object.keys(data).length > 0) {
+					for (let key in data) {
+						if (Array.isArray(data[key])) {
+							data[key] = data[key].toString();
+						}
+						if (!data[key]) {
+							delete data[key]
+						}
+					}
+					if (Object.keys(data).length > 0) {
+						data.isMemoryData = true
+						this.memoryListData.push(data)
+					}
+				}
+				this.addV2._fieldInfo = this.addV2._fieldInfo.map(item => {
+					item.value  = null
+					if (item.defaultValue) {
+						item.value = item.defaultValue
+					}
+					if (item.in_add === 1) {
+						item.display = true
+					}
+					if (item.columns === this.foreignKey?.referenced_column_name) {
+						item.display = false
+					}
+					return item
+				})
+				this.modalName = ''
+
+			},
 			onButton(e) {
-				debugger
 				if (e && e.button_type) {
 					switch (e.button_type) {
 						case 'refresh':
@@ -141,15 +230,45 @@
 								url: `/publicPages/list/list?pageType=list&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
 							})
 							break;
+						case 'add':
+							this.modalName = 'addChildData'
+							break;
 					}
+					// this.$emit('onButton', {
+					// 	btn: this.deepClone(e),
+					// 	foreignKey: this.foreignKey,
+					// 	v2Data: this.deepClone(this.addV2),
+					// 	list: this.deepClone(this.listData)
+					// })
+				}
+			},
+			async getAddV2() {
+				if (this.config?.use_type === 'addchildlist') {
+					let app = this.appName || uni.getStorageSync('activeApp');
+					let colVs = await this.getServiceV2(this.serviceName, 'add', 'add', app);
+					colVs._fieldInfo = colVs._fieldInfo.map(item => {
+						if (item.defaultValue) {
+							item.value = item.defaultValue
+						}
+						if (item.in_add === 1) {
+							item.display = true
+						}
+						if (item.columns === this.foreignKey?.referenced_column_name) {
+							item.display = false
+						}
+						return item
+					})
+					this.addV2 = colVs
 				}
 			},
 			async getListV2() {
 				let app = this.appName || uni.getStorageSync('activeApp');
-				let colVs = await this.getServiceV2(this.serviceName, 'list', 'list', app);
+				let use_type = this.config?.use_type || 'list'
+				let colVs = await this.getServiceV2(this.serviceName, 'list', use_type, app);
 				if (!colVs) {
 					return
 				}
+				this.getAddV2()
 				colVs.srv_cols = colVs.srv_cols.filter(item => {
 					if (item.in_list !== 0) {
 						if (item.in_list === 1) {
@@ -176,7 +295,6 @@
 						}
 					})
 				}
-				// this.publicButton = colVs.formButton.filter(item => item.permission === true);
 				this.v2Data = colVs;
 				this.getList()
 			},
@@ -187,20 +305,7 @@
 				const foreignKey = this.foreignKey
 				const data = this.config
 				let formData = this.mainData;
-				// debugger
-				// let condition = [{
-				// 	colName: foreignKey.column_name,
-				// 	ruleType: 'eq',
-				// 	value: formData[foreignKey.referenced_column_name]
-				// }];
-				// if (data?.srv_app && data?.service_name && data?.foreign_key) {
-				// 	const foreign_key = data.foreign_key
-				// 	condition = [{
-				// 		colName: foreign_key.ref_service_column,
-				// 		ruleType: "eq",
-				// 		value: formData[foreign_key.refed_service_column]
-				// 	}];
-				// }
+
 				const condition = this.condition
 				if (Array.isArray(condition) && condition.length > 0) {
 					let req = {
@@ -222,7 +327,9 @@
 						this.listData = res.data.data
 					}
 				}
-
+			},
+			hideModal() {
+				this.modalName = ''
 			},
 		}
 	}
@@ -284,6 +391,12 @@
 			.cu-btn {
 				margin-left: 10rpx;
 			}
+		}
+	}
+
+	.button-box {
+		.cu-btn {
+			min-width: 40%;
 		}
 	}
 </style>

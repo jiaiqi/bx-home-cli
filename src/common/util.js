@@ -96,11 +96,19 @@ export default {
 					if (response.data.data) {
 						console.log('=====2', response.data.data)
 						response.data.data.use_type = pageType
-						if ('rowButton' in response.data.data) {
-							// response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
-						}
+						// if ('rowButton' in response.data.data) {
+						// response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
+						// }
 						// 第一次拿到，缓存
 						let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
+						if (pageconfig?.more_config && typeof pageconfig.more_config === 'string') {
+							try {
+								pageconfig.moreConfig = JSON.parse(pageconfig.more_config)
+							} catch (err) {
+
+							}
+
+						}
 						// self.$store.dispatch('setSrvCol', pageconfig)
 						return pageconfig
 					}
@@ -272,6 +280,8 @@ export default {
 					}]
 				} else if (fieldInfo.type === 'addr') {
 					fieldInfo.type = 'location'
+				} else if(item.bx_col_type === "string" && item.col_type === "fk"){
+					fieldInfo.type = "Selector"
 				} else {
 					fieldInfo.type = item.col_type
 				}

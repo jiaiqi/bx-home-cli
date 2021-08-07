@@ -71,7 +71,7 @@
 	.dialog-button {
 		display: flex;
 		justify-content: space-around;
-		margin-bottom: 40rpx;
+		margin:20rpx 0 40rpx;
 		.cu-btn {
 			min-width: 45%;
 		}
@@ -79,11 +79,9 @@
 	.textarea {
 		width: 100%;
 		border-radius: 10rpx;
-		margin: 20rpx auto;
-		padding: 20rpx;
+		margin:0 auto;
 		min-height: 300px;
 		text-align: left;
-		text-indent: 40rpx;
 		color: #000000;
 		background-color: #f1f1f1;
 	}
@@ -91,11 +89,18 @@
 .form-item {
 	display: flex;
 	flex-wrap: wrap;
-	min-height: 100rpx;
+	min-height: 80rpx;
 	align-items: center;
 	text-align: left;
 	padding: 10rpx;
 	position: relative;
+	&.disabled-field{
+
+		.form-item-label,.form-item-content{
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
 	&.form-detail {
 		min-height: 80rpx;
 		align-items: center;
@@ -128,7 +133,7 @@
 	.form-item-label {
 		display: flex;
 		min-width: 200rpx;
-		padding: 20rpx 10rpx;
+		padding: 10rpx 10rpx;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;
@@ -159,7 +164,7 @@
 		flex: 1;
 		display: flex;
 		flex-wrap: nowrap;
-		padding: 20rpx 0;
+		padding: 10rpx 0;
 		padding-left: 20rpx;
 		color: #000;
 		font-size: var(--global-text-font-size);
@@ -324,8 +329,11 @@
 		.content {
 			flex: 1;
 			background-color: #fff;
+			min-height: 30vh;
 			.bx-radio-group {
 				margin: 0 20rpx;
+				max-height: 60vh;
+				overflow-y: scroll;
 			}
 			.button-mode {
 				margin-bottom: 10rpx;
@@ -341,4 +349,7 @@
 	.button {
 		min-width: 45%;
 	}
+}
+.text-hidden{
+	opacity: 0;
 }

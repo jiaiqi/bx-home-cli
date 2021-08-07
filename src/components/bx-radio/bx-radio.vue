@@ -264,7 +264,7 @@ export default {
 	}
 	&.button-mode {
 		margin-right:20rpx;
-		margin-bottom: 20rpx;
+		margin-top: 10rpx;
 		padding: 0;
 		.bx-radio-icon {
 			display: none;
@@ -273,8 +273,8 @@ export default {
 			color: #333;
 			background-color: #f1f1f1;
 			border: 1px solid #f1f1f1;
-			padding: 5rpx 30rpx;
-			border-radius: 50rpx;
+			padding: 5rpx 10rpx;
+			border-radius: 30rpx;
 			letter-spacing: 1px;
 			transition: all 0.5s;
 			&.active {

@@ -1,0 +1,527 @@
+<template>
+	<view class="form-wrap">
+		<view class="main-form-edit">
+			<a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
+				ref="bxForm" @value-blur="valueChange">
+			</a-form>
+		</view>
+
+		<view class="child-service-box">
+			<view class="child-service" v-for="(item,index) in childService" :key="index">
+				<child-list :config="item" :appName="appName" :main-data="mainData" ref="childList"
+					@onButton="onChildButton">
+				</child-list>
+			</view>
+		</view>
+
+		<view class="button-box" v-if="colsV2Data">
+			<button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
+				v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex" @click="onButton(btn)">
+				{{ btn.button_name }}
+			</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	import ChildList from '@/publicPages/components/child-list/child-list.vue'
+	export default {
+		components: {
+			ChildList
+		},
+		data() {
+			return {
+				appName: null,
+				service: "",
+				serviceName: null,
+				srvType: 'add', // 表单信息 add | update  | select |list | detail
+				use_type: 'add', // detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
+				condition: [],
+				addV2: null,
+				detailV2: null,
+				fields: null,
+				mainData: null,
+				hideColumn: [], //不显示的字段
+				fieldsCond: [],
+				modalName: null, //operateModal
+				orderCols: [],
+				currentFormV2: null, //子表v2
+				currentFormFields: [], //子表字段
+				currentFormFk: null,
+				isOnButton: false
+			}
+		},
+		computed: {
+			appTempColMap() {
+				// 字段关系映射
+				if (this.moreConfig?.appTempColMa) {
+					return this.moreConfig?.appTempColMap
+				}
+				if (Array.isArray())
+					return {}
+			},
+			labelMap() {
+				// 字段对应的label
+				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
+					return this.orderCols.reduce((res, cur) => {
+						res[cur.columns] = cur.label
+						return res
+					}, {})
+				} else {
+					return {}
+				}
+			},
+			moreConfig() {
+				return this.colsV2Data?.moreConfig
+			},
+			colsV2Data() {
+				if (this.srvType) {
+					return this[`${this.srvType}V2`]
+				}
+				return {}
+			},
+			childService: {
+				get() {
+					let result = []
+					if (['update', 'add'].includes(this.srvType)) {
+						result = this.operateChildService
+					} else {
+						result = this.detailChildService
+					}
+					if (Array.isArray(result)) {
+						return result.map(item => {
+							if (item?.foreign_key?.section_name) {
+								item.label = item.foreign_key.section_name
+							}
+							return item
+						})
+					}
+					return result
+				}
+			},
+			operateChildService() {
+				return this.detailV2?.child_service.filter(item => {
+					if (item.foreign_key?.foreign_key_type === '主子表') {
+						// item.use_type = 'add'
+						item.use_type = 'addchildlist'
+						return true
+					}
+				})
+			},
+			detailChildService() {
+				return this.detailV2?.child_service.filter(item => {
+					return item.foreign_key?.foreign_key_type === '字段引用'
+				})
+			},
+		},
+		methods: {
+			onChildButton(e) {
+				if (e?.btn?.button_type === 'add') {
+					// 添加子表数据
+					this.currentFormFk = e?.foreignKey
+					if (e?.v2Data?.service_name) {
+						this.currentFormV2 = e?.v2Data
+						if (Array.isArray(e.v2Data?._fieldInfo)) {
+							this.currentFormFields = e.v2Data._fieldInfo.map(item => {
+								if (item.defaultValue) {
+									item.value = item.defaultValue
+								}
+								if (item.in_add === 1) {
+									item.display = true
+								}
+								if (item.columns === this.currentFormFk?.referenced_column_name) {
+									item.display = false
+								}
+								return item
+							})
+						}
+						this.modalName = 'addChildData'
+					}
+				}
+			},
+			async onButton(e) {
+				if (!e) {
+					return;
+				}
+				if (!this.isOnButton) {
+					this.isOnButton = true;
+				} else {
+					uni.showToast({
+						title: '正在处理中，请勿重复操作',
+						icon: 'none'
+					});
+					return;
+				}
+				let req = this.$refs.bxForm.getFieldModel();
+				for (let key in req) {
+					if (Array.isArray(req[key])) {
+						req[key] = req[key].toString();
+					}
+				}
+
+				switch (e.button_type) {
+					case 'submit':
+						if (req) {
+							for (let key in req) {
+								if (!req[key]) {
+									delete req[key];
+								}
+							}
+							let data = this.deepClone(req);
+
+							data.child_data_list = []
+							this.childService.forEach((item, index) => {
+								let child_data = this.$refs.childList[index].getMemoryData()
+								let depend = {};
+								depend["type"] = "column";
+								depend["depend_key"] = item.foreign_key["referenced_column_name"];
+								depend["add_col"] = item.foreign_key["column_name"];
+								let res = {
+									serviceName: item.service_name.replace('_select', `_${this.use_type}`),
+									depend_keys: [depend],
+									data: child_data
+								}
+								data.child_data_list.push(res)
+							})
+							let reqData = [{
+								serviceName: e.service_name,
+								data: [data]
+							}];
+							let app = this.appName || uni.getStorageSync('activeApp');
+							let url = this.getServiceUrl(app, e.service_name, 'add');
+							let res = await this.$http.post(url, reqData);
+							if (res.data.state === 'SUCCESS') {
+								uni.showModal({
+									title: '提示',
+									content: res.data.resultMessage,
+									showCancel: false,
+									success: (res) => {
+										if (res.confirm) {
+											uni.navigateBack({
+
+											})
+										}
+									}
+								})
+							} else {
+								uni.showToast({
+									title: res.data.resultMessage,
+									mask: false,
+								});
+							}
+
+
+						}
+						break;
+
+				}
+
+
+			},
+			async valueChange(e, triggerField) {
+				const column = triggerField.column
+				const fieldModel = e
+				const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
+				const table_name = this.colsV2Data.main_table
+
+				let result = null
+				if (Array.isArray(cols) && cols.length > 0) {
+					result = await this.evalX_IF(table_name, cols, fieldModel)
+				}
+				for (let i = 0; i < this.fields.length; i++) {
+					const item = this.fields[i]
+					if (item.x_if) {
+						if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+							if (item.table_name !== table_name) {
+								result = await this.evalX_IF(item.table_name, [item.column], fieldModel)
+							}
+							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else {
+								item.display = false
+							}
+						}
+					}
+					if (e.hasOwnProperty(item.column)) {
+						item.value = e[item.column];
+					}
+					this.$set(this.fields, i, item)
+				}
+			},
+			async getDefaultVal() {
+				if (this.srvType === 'detail' || this.srvType === 'update') {
+					let serviceName = this.service || this.serviceName.replace('_update', '_select').replace(
+						'_add',
+						'_select');
+					let condition = this.fieldsCond
+						.filter(item => item.value)
+						.map(item => {
+							return {
+								colName: item.column,
+								ruleType: item.column === 'id' ? "eq" : 'like',
+								value: item.value
+							};
+						});
+					if (condition.find(item => item.colName === 'id')) {
+						condition = condition.filter(item => item.colName === 'id')
+					}
+					let app = this.appName || uni.getStorageSync('activeApp');
+					let url = this.getServiceUrl(app, serviceName, 'select');
+					let req = {
+						serviceName: serviceName,
+						colNames: ['*'],
+						condition: condition,
+						page: {
+							pageNo: 1,
+							rownumber: 1
+						}
+					};
+					let res = await this.$http.post(url, req);
+					if (res.data.state === 'SUCCESS') {
+						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+							this.defaultVal = res.data.data[0];
+							return res.data.data[0];
+						}
+					}
+				}
+			},
+			async getDetailV2() {
+				const app = this.appName || uni.getStorageSync('activeApp');
+				let colVs = await this.getServiceV2(this.serviceName, 'detail', 'detail', app);
+
+				this.detailV2 = colVs
+			},
+			async getFieldsV2() {
+				const app = this.appName || uni.getStorageSync('activeApp');
+				let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type,
+					app);
+
+				this[`${this.srvType}V2`] = colVs
+
+				if (['update', 'add'].includes(this.srvType)) {
+					this.getDetailV2()
+				}
+
+				if (Array.isArray(colVs.srv_cols)) {
+					this.orderCols = colVs.srv_cols.filter(item => {
+						if (item.in_detail === 1) {
+							item.orderType = 'asc'
+							item.selected = false;
+							return true
+						}
+					})
+				}
+
+				colVs = this.deepClone(colVs);
+
+
+
+				const model = colVs._fieldInfo.reduce((res, cur) => {
+					if (cur.defaultValue) {
+						res[cur.column] = cur.defaultValue
+						cur.value = cur.defaultValue
+					}
+					return res
+				}, {})
+
+
+				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+				const table_name = colVs.main_table
+				const result = await this.evalX_IF(table_name, cols, model)
+
+				for (let i = 0; i < colVs._fieldInfo.length; i++) {
+					const item = colVs._fieldInfo[i]
+					if (item.x_if) {
+						if (Array.isArray(item.xif_trigger_col)) {
+							if (item.table_name !== table_name) {
+								result = await this.evalX_IF(item.table_name, [item.column], model)
+							}
+							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else {
+								item.display = false
+							}
+						}
+					}
+				}
+
+				// 
+				if (colVs && colVs.service_view_name) {
+					uni.setNavigationBarTitle({
+						title: colVs.service_view_name
+					});
+				} else {
+					if (!colVs) {
+						return
+					}
+				}
+				let defaultVal = null
+
+				switch (colVs.use_type) {
+					case 'update':
+					case 'detail':
+						if (this.mainData?.id) {
+							defaultVal = this.mainData
+						} else {
+							defaultVal = await this.getDefaultVal()
+						}
+						defaultVal = this.mainData && this.mainData.id ? this.mainData : await this
+							.getDefaultVal();
+						let fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal);
+						if (!fields) {
+							return;
+						}
+						this.fields = fields.map(field => {
+							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+								field.option_list_v2 = field.option_list_v2.map(item => {
+									item.checked = false;
+									return item;
+								});
+							}
+							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+								this.fieldsCond.forEach(item => {
+									if (item.column === field.column) {
+										if (item.hasOwnProperty('display')) {
+											field.display = item.display;
+										}
+										if (item.hasOwnProperty('value')) {
+											field.value = item.value;
+										}
+										if (field.option_list_v2 && Array.isArray(field
+												.option_list_v2
+												.conditions) && Array.isArray(item
+												.condition)) {
+											field.option_list_v2.conditions = field
+												.option_list_v2
+												.conditions.concat(item.condition);
+										} else if (field.option_list_v2 && !field
+											.option_list_v2
+											.conditions && Array.isArray(item
+												.condition)) {
+											field.option_list_v2.conditions = item
+												.condition;
+										}
+									}
+								});
+							}
+							return field;
+						}).filter(item => !this.hideColumn.includes(item.column))
+						break;
+					case 'add':
+						this.fields = colVs._fieldInfo.map(field => {
+							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+								field.option_list_v2 = field.option_list_v2.map(item => {
+									item.checked = false;
+									return item;
+								});
+							}
+							if (this.defaultCondition && Array.isArray(this
+									.defaultCondition) && colVs
+								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
+								this.defaultCondition.forEach(cond => {
+									colVs._fieldInfo.forEach(field => {
+										if (cond.colName === field.column) {
+											field['value'] = cond['value'];
+										}
+									});
+								});
+							}
+							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+								this.fieldsCond.forEach(item => {
+									if (item.column === field.column) {
+										if (item.hasOwnProperty('display')) {
+											field.display = item.display;
+										}
+										if (item.hasOwnProperty('value')) {
+											field.value = item.value;
+										}
+										if (field.option_list_v2 && Array.isArray(field
+												.option_list_v2
+												.conditions) && Array.isArray(item
+												.condition)) {
+											field.option_list_v2.conditions = field
+												.option_list_v2
+												.conditions.concat(item.condition);
+										} else if (field.option_list_v2 && !field
+											.option_list_v2
+											.conditions && Array.isArray(item
+												.condition)) {
+											field.option_list_v2.conditions = item
+												.condition;
+										}
+									}
+								});
+							}
+							return field;
+						}).filter(item => !this.hideColumn.includes(item.column))
+						break;
+				}
+
+			},
+			hideModal() {
+				this.modalName = null
+			},
+		},
+		onLoad(option) {
+			if (option.destApp) {
+				this.appName = option.destApp
+			}
+			if (option.appName) {
+				this.appName = option.appName
+			}
+			if (option.type) {
+				if (option.type.indexOf(',') !== -1) {
+					option.type = option.type.split(',')[0];
+				}
+				if (option.type === 'form') {
+					option.type = 'add';
+				}
+				this.srvType = option.type;
+				this.use_type = option.type;
+			}
+			
+			if (option.fieldsCond){
+				try{
+						let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+						
+						this.fieldsCond = fieldsCond
+				}catch(e){
+					//TODO handle the exception
+				}
+			}
+			
+			if (option.serviceName) {
+				this.serviceName = option.serviceName;
+				this.getFieldsV2();
+			}
+			
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	@import '../common/top-card';
+
+	.form-wrap {
+		min-height: 100vh;
+		background-color: #F1F1F1;
+		padding: 20rpx;
+	}
+
+	.main-form-edit {
+		background-color: #fff;
+		border-radius: 10rpx;
+		margin-bottom: 20rpx;
+	}
+
+	.child-form-wrap {
+		max-height: 60vh;
+		overflow-y: scroll;
+	}
+
+	.button-box {
+		.cu-btn {
+			min-width: 40%;
+		}
+	}
+</style>
