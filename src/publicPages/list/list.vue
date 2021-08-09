@@ -187,7 +187,6 @@
 			}
 		},
 		onLoad(option) {
-			debugger
 			if (option.foreign_key) {
 				this.foreign_key = JSON.parse(option.foreign_key)
 			}

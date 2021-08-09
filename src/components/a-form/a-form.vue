@@ -45,6 +45,12 @@
 				}
 			}
 		},
+		mounted() {
+			this.fieldModel = this.oldField.reduce((res, cur) => {
+				res[cur.columns] = cur.value
+				return res
+			},{})
+		},
 		data() {
 			return {
 				allField: [],
@@ -70,6 +76,7 @@
 						}
 					}
 				});
+
 				if (valid === showsNum) {
 					console.log('表单校验通过', showsNum, valid, this.fieldModel);
 					let model = {};
@@ -144,8 +151,8 @@
 						item.display = this.colItemShowExps(item, this.fieldModel)
 					} else if (item.formulaShow) {
 						item.display = evaluatorTo(fieldModel, item.formulaShow);
-					} 
-					
+					}
+
 					if (item.display !== false) {
 						item.display = true
 					}
@@ -159,7 +166,6 @@
 					if (!item.value && this.pageType === 'filter') {
 						item.value = '全部'
 					}
-
 
 					this.$set(this.allField, index, item)
 				}
@@ -203,7 +209,8 @@
 				// 		return item;
 				// 	});
 				// }
-				this.$emit('value-blur', this.fieldModel,e);
+				this.$emit('value-blur', this.fieldModel, e);
+				// this.$emit('value-change', this.fieldModel,e);
 			},
 			onValBlur(e) {
 				if (e.hasOwnProperty('value')) {

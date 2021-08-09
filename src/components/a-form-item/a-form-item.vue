@@ -1050,7 +1050,7 @@
 					};
 					this.valid.valid = true;
 				}
-				this.$emit('on-value-change', this.fieldData);
+				// this.$emit('on-value-change', this.fieldData);
 				return this.valid;
 			},
 			initSetOptions() {

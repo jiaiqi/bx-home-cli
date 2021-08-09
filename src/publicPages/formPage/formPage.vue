@@ -38,6 +38,7 @@
 				use_type: 'add', // detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
 				condition: [],
 				addV2: null,
+				updateV2: null,
 				detailV2: null,
 				fields: null,
 				mainData: null,
@@ -103,7 +104,11 @@
 				return this.detailV2?.child_service.filter(item => {
 					if (item.foreign_key?.foreign_key_type === '主子表') {
 						// item.use_type = 'add'
-						item.use_type = 'addchildlist'
+						if (this.use_type === 'update') {
+							item.use_type = 'updatechildlist'
+						} else if (this.use_type === 'add') {
+							item.use_type = 'addchildlist'
+						}
 						return true
 					}
 				})
@@ -143,15 +148,15 @@
 				if (!e) {
 					return;
 				}
-				if (!this.isOnButton) {
-					this.isOnButton = true;
-				} else {
-					uni.showToast({
-						title: '正在处理中，请勿重复操作',
-						icon: 'none'
-					});
-					return;
-				}
+				// if (!this.isOnButton) {
+				// 	this.isOnButton = true;
+				// } else {
+				// 	uni.showToast({
+				// 		title: '正在处理中，请勿重复操作',
+				// 		icon: 'none'
+				// 	});
+				// 	return;
+				// }
 				let req = this.$refs.bxForm.getFieldModel();
 				for (let key in req) {
 					if (Array.isArray(req[key])) {
@@ -160,6 +165,7 @@
 				}
 
 				switch (e.button_type) {
+					case 'edit':
 					case 'submit':
 						if (req) {
 							for (let key in req) {
@@ -171,24 +177,26 @@
 
 							data.child_data_list = []
 							this.childService.forEach((item, index) => {
-								let child_data = this.$refs.childList[index].getMemoryData()
-								let depend = {};
-								depend["type"] = "column";
-								depend["depend_key"] = item.foreign_key["referenced_column_name"];
-								depend["add_col"] = item.foreign_key["column_name"];
-								let res = {
-									serviceName: item.service_name.replace('_select', `_${this.use_type}`),
-									depend_keys: [depend],
-									data: child_data
-								}
-								data.child_data_list.push(res)
+								data.child_data_list = this.$refs.childList[index].getChildDataList()
 							})
 							let reqData = [{
 								serviceName: e.service_name,
 								data: [data]
 							}];
 							let app = this.appName || uni.getStorageSync('activeApp');
-							let url = this.getServiceUrl(app, e.service_name, 'add');
+							let type = "add"
+							if (e.button_type === 'edit') {
+								type = 'update'
+								reqData[0].condition = [{
+									colName: 'id',
+									ruleType: 'eq',
+									value: this.mainData?.id
+								}]
+								if (!this.mainData?.id) {
+									return false
+								}
+							}
+							let url = this.getServiceUrl(app, e.service_name, type);
 							let res = await this.$http.post(url, reqData);
 							if (res.data.state === 'SUCCESS') {
 								uni.showModal({
@@ -226,6 +234,7 @@
 
 				let result = null
 				if (Array.isArray(cols) && cols.length > 0) {
+					debugger
 					result = await this.evalX_IF(table_name, cols, fieldModel)
 				}
 				for (let i = 0; i < this.fields.length; i++) {
@@ -233,6 +242,7 @@
 					if (item.x_if) {
 						if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
 							if (item.table_name !== table_name) {
+								debugger
 								result = await this.evalX_IF(item.table_name, [item.column], fieldModel)
 							}
 							if (result?.response && result.response[item.column]) {
@@ -279,7 +289,7 @@
 					let res = await this.$http.post(url, req);
 					if (res.data.state === 'SUCCESS') {
 						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-							this.defaultVal = res.data.data[0];
+							this.mainData = res.data.data[0];
 							return res.data.data[0];
 						}
 					}
@@ -295,7 +305,6 @@
 				const app = this.appName || uni.getStorageSync('activeApp');
 				let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type,
 					app);
-
 				this[`${this.srvType}V2`] = colVs
 
 				if (['update', 'add'].includes(this.srvType)) {
@@ -313,37 +322,6 @@
 				}
 
 				colVs = this.deepClone(colVs);
-
-
-
-				const model = colVs._fieldInfo.reduce((res, cur) => {
-					if (cur.defaultValue) {
-						res[cur.column] = cur.defaultValue
-						cur.value = cur.defaultValue
-					}
-					return res
-				}, {})
-
-
-				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
-				const table_name = colVs.main_table
-				const result = await this.evalX_IF(table_name, cols, model)
-
-				for (let i = 0; i < colVs._fieldInfo.length; i++) {
-					const item = colVs._fieldInfo[i]
-					if (item.x_if) {
-						if (Array.isArray(item.xif_trigger_col)) {
-							if (item.table_name !== table_name) {
-								result = await this.evalX_IF(item.table_name, [item.column], model)
-							}
-							if (result?.response && result.response[item.column]) {
-								item.display = true
-							} else {
-								item.display = false
-							}
-						}
-					}
-				}
 
 				// 
 				if (colVs && colVs.service_view_name) {
@@ -454,9 +432,36 @@
 							}
 							return field;
 						}).filter(item => !this.hideColumn.includes(item.column))
+						defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+							if (cur.defaultValue) {
+								res[cur.column] = cur.defaultValue
+								cur.value = cur.defaultValue
+							}
+							return res
+						}, {})
 						break;
 				}
 
+
+				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+				const table_name = colVs.main_table
+				const result = await this.evalX_IF(table_name, cols, defaultVal)
+
+				for (let i = 0; i < colVs._fieldInfo.length; i++) {
+					const item = colVs._fieldInfo[i]
+					if (item.x_if) {
+						if (Array.isArray(item.xif_trigger_col)) {
+							if (item.table_name !== table_name) {
+								result = await this.evalX_IF(item.table_name, [item.column], defaultVal)
+							}
+							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else {
+								item.display = false
+							}
+						}
+					}
+				}
 			},
 			hideModal() {
 				this.modalName = null
@@ -479,22 +484,21 @@
 				this.srvType = option.type;
 				this.use_type = option.type;
 			}
-			
-			if (option.fieldsCond){
-				try{
-						let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
-						
-						this.fieldsCond = fieldsCond
-				}catch(e){
+
+			if (option.fieldsCond) {
+				try {
+					let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+					this.fieldsCond = fieldsCond
+				} catch (e) {
 					//TODO handle the exception
 				}
 			}
-			
+
 			if (option.serviceName) {
 				this.serviceName = option.serviceName;
 				this.getFieldsV2();
 			}
-			
+
 		}
 	}
 </script>

@@ -109,7 +109,6 @@
 				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
 					const cols = this.orderCols.filter(item => item.columns && item.columns !== 'id' && item.columns
 						.indexOf('_no') == -1).slice(0, 4)
-					debugger
 					return cols
 				}
 			},

@@ -58,7 +58,7 @@
 
 		<view class="child-service-box">
 			<view class="child-service" v-for="(item,index) in childService" :key="index">
-				<child-list :config="item" :appName="appName" :main-data="detail"></child-list>
+				<child-list :config="item" :appName="appName" :mainData="detail"></child-list>
 			</view>
 		</view>
 		<view class="button-box">
@@ -70,7 +70,8 @@
 </template>
 
 <script>
-	import ChildList from './child-list.vue'
+	// import ChildList from './child-list.vue'
+	import ChildList from '@/publicPages/components/child-list/child-list.vue'
 	export default {
 		components: {
 			ChildList
@@ -220,8 +221,10 @@
 								value: this.detail?.id,
 								display: false
 							}]
+							
 							let url =
-								`/publicPages/form/form?destApp=${this.appName}&type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
+								`/publicPages/formPage/formPage?destApp=${this.appName}&type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
+								// `/publicPages/form/form?destApp=${this.appName}&type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
 							if (this.detail?.id) {
 								uni.navigateTo({
 									url: url
