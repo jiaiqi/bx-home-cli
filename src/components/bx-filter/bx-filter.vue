@@ -56,7 +56,7 @@
 						item.value = null
 						return item
 					})
-					this.filterCols = filterCols.filter(item => item.in_cond === 1 && !['images', 'input', 'text']
+					this.filterCols = filterCols.filter(item => item.in_cond === 1 && !['images', 'input', 'text','number']
 						.includes(item.type) && !
 						/^\_.*\_disp$/.test(item.column))
 				}
@@ -76,8 +76,9 @@
 		display: flex;
 		flex-direction: column;
 		padding: 20rpx 0 40rpx;
-		border-radius: 30rpx 30rpx 0 0 ;
+		border-radius: 30rpx 30rpx 0 0;
 		background-color: #fff;
+
 		.view {
 			flex: 1;
 		}
@@ -97,13 +98,16 @@
 			width: calc(100% - 40rpx);
 			margin: 20rpx;
 			border-radius: 30rpx;
+
 			.cu-btn {
 				// flex: 1;
 				width: 200rpx;
+
 				&+.cu-btn {
 					// margin-left: 20rpx;
 				}
-				&.confirm{
+
+				&.confirm {
 					// flex: 2;
 				}
 			}

@@ -5,23 +5,25 @@
 		</view>
 		<view class="chart-box">
 			<view class="chart-item" v-for="item in chartList">
-				<uni-echart class="uni-ec-charts" :canvasId="item.id" :id="item.id" :ec="item.option">
-				</uni-echart>
+				<!-- #ifdef MP-WEIXIN -->
+				<uni-ec-canvas class="uni-ec-charts" :canvasId="item.id"  :ec="item.option"></uni-ec-canvas>
+				<!-- #endif -->
+				<!-- #ifdef H5 -->
+	<!-- 			<uni-echart class="uni-ec-charts" :canvasId="item.id" :ec="item.option">
+				</uni-echart> -->
+				<!-- #endif -->
+				
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-	import uniEchart from '@/components/uni-ec-canvas/uni-echart.vue'
 	export default {
-		components: {
-			uniEchart
-		},
 		data() {
 			return {
 				chartOptions: [{
-						id: "1",
+						id: "a",
 						option: {
 							option: {
 								title: {
@@ -81,7 +83,7 @@
 							}
 						}
 					}, {
-						id: "2",
+						id: "b",
 						option: {
 							option: {
 								tooltip: {
@@ -141,7 +143,7 @@
 						}
 					},
 					{
-						id: "3",
+						id: "c",
 						option: {
 							option: {
 								title: {
@@ -226,7 +228,7 @@
 						}
 					},
 					{
-						id: '4',
+						id: 'd',
 						option: {
 							option: {
 								// title: {
@@ -342,7 +344,7 @@
 						}
 					},
 					{
-						id:"5",
+						id:"e",
 						option:{
 							option: {
 							    xAxis: {
@@ -367,7 +369,9 @@
 
 		},
 		onLoad() {
-			this.chartList = this.chartOptions
+			setTimeout(()=>{
+				this.chartList = this.chartOptions
+			},500)
 		}
 	}
 </script>

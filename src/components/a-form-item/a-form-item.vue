@@ -84,7 +84,7 @@
           ">
 					<!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
-						v-model="fieldData.value" mode="button">
+						v-model="fieldData.value" mode="button"  @change="onBlur()">
 						<bx-checkbox v-for="item in setOptionList" :name="item.value" :key="item.value"
 							v-model="item.checked">
 							{{ item.label }}
@@ -243,6 +243,7 @@
 							</text>
 						</view>
 						<bx-checkbox-group v-if="modalName === 'MultiSelector'"
+						 @change="onBlur()"
 							class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
 							<bx-checkbox v-for="item in setOptionList" :key="item.label" :name="item.value"
 								v-model="item.checked">{{ item.label }}</bx-checkbox>
@@ -950,6 +951,7 @@
 				// 输入框失去焦点 进行校验
 				console.log('on-blur');
 				this.getValid();
+				debugger
 				this.$emit('on-value-change', this.fieldData);
 			},
 			onInput() {

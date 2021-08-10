@@ -458,7 +458,7 @@
 			},
 			async getButtonGroup() {
 				const req = {
-					"serviceName": "srvhealth_store_home_component_select",
+					"serviceName": "srvhealth_store_home_component_user_select",
 					"colNames": ["*"],
 					"condition": [{
 							"colName": "store_no",
@@ -476,7 +476,7 @@
 						"rownumber": 5
 					}
 				}
-				const res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
+				const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
 				if (res.success && Array.isArray(res.data) && res.data.length > 0) {
 					const buttonGroup = res.data[0]
 					if (buttonGroup?.component_label) {

@@ -94,6 +94,13 @@
 							if (item?.foreign_key?.section_name) {
 								item.label = item.foreign_key.section_name
 							}
+							if(item?.foreign_key?.more_config){
+								try{
+									item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
+								}catch(e){
+									
+								}
+							}
 							return item
 						})
 					}

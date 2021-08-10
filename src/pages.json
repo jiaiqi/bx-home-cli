@@ -93,6 +93,15 @@
                 }
                 
                 }
+                ,{
+                    "path" : "batchAdd/batchAdd",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
             ]
 		},
 		{

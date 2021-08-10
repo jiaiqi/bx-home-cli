@@ -226,6 +226,7 @@ export default {
 			});
 		},
 		async toPay() {
+			
 			let self = this;
 			let orderData = this.deepClone(this.orderInfo);
 			let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -238,6 +239,7 @@ export default {
 				return;
 			}
 			let result = {};
+			let wx_mch_id = ''
 			if (orderData.prepay_id) {
 				result.prepay_id = orderData.prepay_id;
 			} else {

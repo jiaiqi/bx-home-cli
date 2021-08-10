@@ -58,6 +58,7 @@
 				</view>
 			</view>
 		</view>
+		<batch-add ref="batchAdd" @submit="batchSubmit"></batch-add>
 		<view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
 			<view class="cu-dialog" @click.stop.prevent="">
 				<view class="close-btn text-right">
@@ -79,7 +80,11 @@
 </template>
 
 <script>
+	import batchAdd from '@/publicPages/components/batch-add/batch-add.vue'
 	export default {
+		components: {
+			batchAdd
+		},
 		data() {
 			return {
 				v2Data: null,
@@ -180,17 +185,35 @@
 				return this.appName || uni.getStorageSync('activeApp')
 			},
 			publicButton() {
+				let result = []
 				if (Array.isArray(this.v2Data?.gridButton)) {
 					let ignoreBtn = ['select', 'batch_delete', 'delete']
 					if (this.use_type === 'detaillist') {
 						ignoreBtn.push('add')
 					}
+
 					// const ignoreBtn = ['select', 'add', 'batch_delete', 'delete']
-					return this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
+					result = this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
 						.button_type))
-				} else {
-					return []
+
+					if (this.config?.foreign_key?.moreConfig?.batch_add?.target_column) {
+						let batch_add = this.config.foreign_key.moreConfig.batch_add
+						let column = this.orderCols.find(item => item.columns === batch_add.target_column)
+						if (column?.option_list_v2?.serviceName) {
+							result.unshift({
+								...batch_add,
+								"appName": batch_add.dest_app || uni.getStorageSync('activeApp'),
+								"column_option_list_v2": column.option_list_v2,
+								"operate_service": batch_add.add_service,
+								"button_name": "批量添加",
+								"servcie_type": "add",
+								"page_type": "添加子列表",
+								"button_type": "batchAdd"
+							})
+						}
+					}
 				}
+				return result
 			},
 			showColumn() {
 				if (Array.isArray(this.moreConfig?.childTableColumn) && this.moreConfig.childTableColumn.length > 0) {
@@ -230,11 +253,11 @@
 				}]
 				let result = [];
 				const deleteParams = this.buildDeleteParams()
-				deleteParams && result.push(deleteParams)
+				// deleteParams && result.push(deleteParams)
 				const addParams = this.buildAddParams()
-				addParams && result.push(addParams)
+				// addParams && result.push(addParams)
 				const updateParams = this.buildUpdateParams()
-				result = [...result, ...updateParams]
+				result = [...result, ...deleteParams, ...addParams, ...updateParams]
 				result = result.map(item => {
 					item.depend_keys = depend_keys
 					return item
@@ -245,7 +268,7 @@
 				let fk = this.foreignKey
 				let deleteList = this.listData.filter(item => item._dirtyFlags === 'delete')
 				if (deleteList.length === 0) {
-					return null
+					return []
 				}
 				let ids = deleteList.map(row => row.id).join(",");
 				let params = {
@@ -254,14 +277,9 @@
 						ruleType: 'in',
 						value: ids
 					}],
-					// data: deleteList.map(item => {
-					// 	delete item._isMemoryData
-					// 	delete item._dirtyFlags
-					// 	return item
-					// }),
 					serviceName: this.deleteService
 				}
-				return params
+				return [params]
 			},
 			buildUpdateParams() {
 				let fk = this.foreignKey
@@ -295,7 +313,7 @@
 				let fk = this.foreignKey
 				let addList = this.finalListData.filter(item => item._dirtyFlags === 'add')
 				if (addList.length === 0) {
-					return null
+					return []
 				}
 				let params = {
 					data: addList.map(item => {
@@ -305,7 +323,7 @@
 					}),
 					serviceName: this.addService
 				}
-				return params
+				return [params]
 			},
 			deleteMemoryListItem(index) {
 				if (index || index === 0) {
@@ -359,29 +377,50 @@
 					return
 				}
 
-				// let row = null
-				// if (this.currentItemType === 'mem') {
-				// 	row = this.memoryListData[this.currentItemIndex]
-				// } else {
-				// 	row = this.listData[this.currentItemIndex]
-				// 	Object.keys(row).forEach(key => {
-				// 		if (row[key] === data[key]) {
-				// 			delete data[key]
-				// 		}
-				// 	})
-				// }
-
 				if (this.currentItemType === 'mem') {
 					Object.assign(this.memoryListData[this.currentItemIndex], data)
-					// this.memoryListData[this.currentItemIndex] = data
 					this.memoryListData[this.currentItemIndex]._dirtyFlags = 'add'
 				} else {
-					// this.listData[this.currentItemIndex] = data
 					Object.assign(this.listData[this.currentItemIndex], data)
 					this.listData[this.currentItemIndex]._dirtyFlags = 'update'
 				}
 
 				this.hideModal()
+			},
+			batchSubmit(arr) {
+				this.$refs.batchAdd.close()
+				let dependCols = []
+				let target_column = this.config?.foreign_key?.moreConfig?.batch_add?.target_column
+				let target_column_info = null
+				if (Array.isArray(this.addV2?._fieldInfo) && this.addV2._fieldInfo.length > 0 && target_column) {
+					target_column_info = this.addV2._fieldInfo.find(item => item.columns === target_column)
+					this.addV2._fieldInfo.forEach(item => {
+						if (item?.redundant?.dependField === target_column) {
+							dependCols.push({
+								refedCol: item?.redundant?.refedCol,
+								columns: item.columns
+							})
+							return true
+						}
+					})
+				}
+				if (Array.isArray(arr) && arr.length > 0) {
+					arr.forEach(data => {
+						let obj = {
+							[target_column_info.columns]: data[target_column],
+						}
+						let numCol = this.config?.foreign_key?.moreConfig?.batch_add?.numCol
+						if(numCol){
+							obj[numCol] = data[numCol]
+						}
+						dependCols.forEach(col => {
+							obj[col.columns] = data[col.refedCol]
+						})
+						obj._isMemoryData = true
+						obj._dirtyFlags = 'add'
+						this.memoryListData.push(obj)
+					})
+				}
 			},
 			add2List() {
 				let data = this.$refs.childForm.getFieldModel();
@@ -452,6 +491,18 @@
 								this.modalName = 'updateChildData'
 							}
 							break
+						case 'batchAdd':
+							this.getAddV2()
+							this.$refs.batchAdd.open(e)
+							// let fk = this.config.foreign_key
+							// debugger
+							// let serviceName = e.column_option_list_v2?.serviceName
+							// if(fk&&serviceName){
+							// 	uni.navigateTo({
+							// 		url:'/publicPages/list/list?pageType=batchAdd'
+							// 	})
+							// }
+							break;
 					}
 					// this.$emit('onButton', {
 					// 	btn: this.deepClone(e),

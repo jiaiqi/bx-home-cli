@@ -41,7 +41,7 @@ export default {
 				return false
 			}
 		}
-		Vue.prototype.getPayParams = async (prepay_id) => {
+		Vue.prototype.getPayParams = async (prepay_id, wx_mch_id) => {
 			// 获取微信支付需要的参数（签名等）
 			let url = Vue.prototype.getServiceUrl('wx', 'srvwx_app_pay_sign_select', 'select');
 			let req = {
@@ -57,7 +57,7 @@ export default {
 					{
 						"colName": "wx_mch_id",
 						"ruleType": "eq",
-						"value": "1485038452"
+						"value": wx_mch_id || "1485038452"
 					},
 					{
 						"colName": "prepay_id",
@@ -96,7 +96,7 @@ export default {
 				"serviceName": "srvwx_order",
 				"data": [{
 					"app_no": mpAppNo,
-					"wx_mch_id": "1485038452",
+					"wx_mch_id": wx_mch_id || "1485038452",
 					"out_trade_no": orderData ? orderData.order_no : new Date().getTime(),
 					"total_fee": total_fee, // 单位是分
 					"spbill_create_ip": "192.168.0.21",

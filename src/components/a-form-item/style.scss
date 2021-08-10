@@ -170,14 +170,17 @@
 		color: #000;
 		font-size: var(--global-text-font-size);
 		overflow: hidden;
+	
+		&.form-detail {
+			padding: 0;
+		}
 		&.label-top {
-			// padding: 0 20rpx 10rpx;
+			padding: 0 20rpx 10rpx;
 			.form-item-content_value.checkbox-group {
 				margin-top: 10rpx;
 			}
-		}
-		&.form-detail {
-			padding: 0;
+			.form-item-content_detail{
+			}
 		}
 		&.valid_error {
 			border: 1rpx dashed #f37b1d;
@@ -185,8 +188,8 @@
 		}
 		.form-item-content_detail {
 			&.image {
-				width: 200rpx;
-				height: 200rpx;
+				width: 160rpx;
+				height: 160rpx;
 			}
 			&.text {
 				overflow: scroll;

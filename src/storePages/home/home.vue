@@ -225,7 +225,7 @@ export default {
           orderType: "asc"
         } ],
       }
-      let res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
+      let res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
       if (res.success) {
         this.pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
         this.getComponentData()

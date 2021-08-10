@@ -1,6 +1,6 @@
 <template>
 	<view class="page-wrap">
-		<view class="search-bar" v-if="showSearchBar">
+		<!-- 		<view class="search-bar" v-if="showSearchBar">
 			<view class="bg-white cu-bar search">
 				<view class="search-form round">
 					<text class="cuIcon-search"></text>
@@ -17,7 +17,11 @@
 					</button>
 				</view>
 			</view>
-		</view>
+		</view> -->
+		<list-bar @change="changeSerchVal" :srvCols="srvCols" :placholder="placeholder" :listButton="listButton"
+			@toOrder="toOrder" @toFilter="toFilter" @handelCustomButton="handlerCustomizeButton"
+			@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch" v-if="showSearchBar">
+		</list-bar>
 		<bx-list ref="bxList" :serviceName="serviceName" :condition="condition"
 			:order="orderList.length > 0 ? orderList : order" :relation_condition="relation_condition"
 			:pageType="pageType" :listType="'list'" :labels="labels" :srvApp="appName" :rowButtons="
@@ -26,13 +30,13 @@
 			:top="listTop" :searchWords="searchVal" :searchColumn="keyColumn" :tempWord="tempWord" :rownumber="42"
 			:colnumber="col" :customTemp="customTemp" :showFootBtn="showFootBtn" @click-list-item="clickItem"
 			@list-change="listChange" @clickFootBtn="clickFootBtn" @loadEnd="loadEnd"></bx-list>
-		<view class="cu-modal bottom-modal" :class="{ show: showFilter }" @click.stop="hideFilter">
+		<!-- 		<view class="cu-modal bottom-modal" :class="{ show: showFilter }" @click.stop="hideFilter">
 			<view class="cu-dialog" @click.stop="">
 				<bx-filter v-if="listConfig && listConfig._fieldInfo" :fieldInfo="listConfig._fieldInfo"
 					@toFilter="toFilter" @cancel="hideFilter"></bx-filter>
 			</view>
-		</view>
-		<view class="cu-modal bottom-modal" :class="{ show: modalName === 'orderModal' }" @click.stop="hideModal">
+		</view> -->
+		<!-- <view class="cu-modal bottom-modal" :class="{ show: modalName === 'orderModal' }" @click.stop="hideModal">
 			<view class="cu-dialog" @click.stop="">
 				<view class="order-modal">
 					<view class="order-column">
@@ -58,18 +62,20 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 	</view>
 </template>
 
 <script>
 	import bxList from '../components/bx-list/bx-list.vue';
+	import listBar from '../components/list-bar/list-bar.vue'
 	import {
 		mapState
 	} from 'vuex';
 	export default {
 		components: {
-			bxList
+			bxList,
+			listBar
 		},
 		computed: {
 			...mapState({
@@ -110,10 +116,13 @@
 					return res
 				},
 			}),
+			srvCols() {
+				return this.listConfig?._fieldInfo || []
+			},
 			orderList() {
 				let cols = this.orderCols.filter(item => item.selected)
 				if (cols.length === 0) {
-					return []
+					return this.order
 				}
 				let arr = cols.map(col => {
 					return {
@@ -123,6 +132,19 @@
 				})
 				return arr
 			},
+		},
+		props: {
+			propServiceName: {
+				type: String,
+				default: ''
+			},
+			propPageType: {
+				type: String,
+				default: ''
+			},
+			propListTop: {
+				type: Number
+			}
 		},
 		data() {
 			return {
@@ -184,6 +206,17 @@
 		onShow() {
 			if (this.serviceName && this.$refs.bxList) {
 				this.$refs.bxList.onRefresh();
+			}
+		},
+		mounted() {
+			if (this.propServiceName) {
+				this.serviceName = this.propServiceName
+				this.getListV2().then(_ => {
+					this.$refs.bxList.getListData()
+				})
+			}
+			if (this.propListTop) {
+				this.listTop = this.propListTop
 			}
 		},
 		onLoad(option) {
@@ -323,13 +356,16 @@
 			} else {}
 		},
 		methods: {
+			changeSerchVal(e) {
+				this.searchVal = e
+			},
 			clickGridButton(e) {
 				switch (e.button_type) {
 					case 'select':
 						this.showFilterModal()
 						break;
 					case 'add':
-						this.clickAddButton()
+						this.clickAddButton(e)
 						break;
 					case 'order':
 						this.showOrder()
@@ -342,19 +378,6 @@
 			handlerCustomizeButton(e) {
 				// 自定义按钮
 				debugger
-				// application: "health"
-				// button_name: "从DB获取表定义"
-				// button_type: "customize"
-				// client_type: "PC,APP"
-				// main_table: "bxsys_table_defined"
-				// operate_mode: "静默操作"
-				// operate_service: "srvsys_table_defined_from_db_get"
-				// operate_type: "操作"
-				// page_area: "表格按钮"
-				// page_type: "列表"
-				// service: "srvsys_table_defined_select"
-				// service_name: "srvsys_table_defined_from_db_get"
-				// service_view_name: "获取DB表定义"
 				if (e.servcie_type === 'add') {
 					let params = {
 						type: 'add',
@@ -465,25 +488,31 @@
 					this.$set(this.orderCols, index, e)
 				}
 			},
-			toOrder() {
-				this.$refs.bxList.getListData()
-				this.hideModal()
+			toOrder(e) {
+				this.order = e
+				// this.orderCols = e
+				setTimeout(_=>{
+					this.$refs.bxList.getListData()
+				},100)
+				// this.$refs.bxList.getListData()
+				// this.hideModal()
 			},
 			toFilter(e) {
 				this.searchVal = ''
 				this.showFilter = false;
 				if (Array.isArray(e)) {
-					let cond = e.filter(item => item.value !== '全部').map(item => {
-						let obj = {
-							colName: item.column,
-							ruleType: 'like',
-							value: item.value
-						}
-						if (item.col_type === 'Set') {
-							obj.ruleType = 'inset'
-						}
-						return obj
-					})
+					// let cond = e.filter(item => item.value !== '全部').map(item => {
+					// 	let obj = {
+					// 		colName: item.column,
+					// 		ruleType: 'like',
+					// 		value: item.value
+					// 	}
+					// 	if (item.col_type === 'Set') {
+					// 		obj.ruleType = 'inset'
+					// 	}
+					// 	return obj
+					// })
+					let cond = e
 					this.$refs.bxList.getListData(cond)
 				}
 			},
@@ -496,96 +525,85 @@
 			showFilterModal() {
 				this.showFilter = true
 			},
-			toSearch() {
-				let keywords = this.searchVal;
+			toSearch(e) {
+				let keywords = e || this.searchVal;
+				this.searchVal = keywords
 				this.$refs.bxList.toSearch();
 			},
 			loadEnd(e) {
 				this.noData = true;
 			},
-			clickAddButton() {
+			clickAddButton(item) {
 				if (this.pageType === 'proc') {
-					this.publicButton.map(item => {
-						if (item.button_type === 'add' || item.button_type === 'apply') {
-							uni.navigateTo({
-								url: '/pages/public/proc/apply/apply?serviceName=' + item.service_name +
-									'&cond=' + decodeURIComponent(JSON.stringify(this.condition))
+					// this.publicButton.map(item => {
+					if (item.button_type === 'add' || item.button_type === 'apply') {
+						uni.navigateTo({
+							url: '/pages/public/proc/apply/apply?serviceName=' + item.service_name +
+								'&cond=' + decodeURIComponent(JSON.stringify(this.condition))
+						});
+					}
+					// });
+				} else {
+					// this.publicButton.map(item => {
+					if (item.button_type === 'add') {
+						let fieldsCond = [];
+						if (Array.isArray(this.condition)) {
+							fieldsCond = this.condition.map(item => {
+								return {
+									column: item.colName,
+									value: item.value,
+									display: false
+								};
 							});
 						}
-					});
-				} else {
-					this.publicButton.map(item => {
-						if (item.button_type === 'add') {
-							let fieldsCond = [];
-							if (Array.isArray(this.condition)) {
-								fieldsCond = this.condition.map(item => {
-									return {
-										column: item.colName,
-										value: item.value,
-										display: false
-									};
+						if (item.service_name.indexOf('health_plan_schedule') !== -1) {
+							if (fieldsCond.find(item => item.column === 'sdr_no')) {
+								fieldsCond.push({
+									column: 'play_srv',
+									value: '大夫开药',
+									display: false
 								});
 							}
-							if (item.service_name.indexOf('health_plan_schedule') !== -1) {
-								if (fieldsCond.find(item => item.column === 'sdr_no')) {
-									fieldsCond.push({
-										column: 'play_srv',
-										value: '大夫开药',
-										display: false
-									});
-								}
-								if (this.patientInfo && this.patientInfo.no) {
-									fieldsCond.push({
-										column: 'owner_person_no',
-										value: this.patientInfo.no,
-										display: false
-									});
-								}
-								if (this.doctorInfo && this.doctorInfo.no) {
-									fieldsCond.push({
-										column: 'create_manager_no',
-										value: this.doctorInfo.no,
-										display: false
-									});
-								}
-							} else if (item.service_name === 'srvhealth_drug_schedule_doctor_detail_list_add') {
-								let ds_no = this.condition.find(item => item.colName === 'ds_no');
-								if (ds_no && ds_no.value) {
-									let url =
-										`/archivesPages/DrugSelect/DrugSelect?ds_no=${ds_no.value}&type=大夫开药&service_name=${item.service_name}`;
-									uni.navigateTo({
-										url: url
-									});
-								}
-								return;
+							if (this.patientInfo && this.patientInfo.no) {
+								fieldsCond.push({
+									column: 'owner_person_no',
+									value: this.patientInfo.no,
+									display: false
+								});
 							}
-							// if (this.foreign_key && this.main_data) {
-							//   debugger
-							//   let { column_name, referenced_column_name } = this.foreign_key
-							//   if (column_name && referenced_column_name &&  this.main_data[ referenced_column_name ]) {
-							//      fieldsCond.push({
-							//       column: column_name,
-							//       value: this.main_data[ referenced_column_name ],
-							//       display: true,
-							//       disabled:true
-							//     });
-							//   }
-							// }
-							let url =
-								`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
-
-							url =
-								`/publicPages/formPage/formPage?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
-
-
-							if (this.appName) {
-								url += `&appName=${this.appName}`
+							if (this.doctorInfo && this.doctorInfo.no) {
+								fieldsCond.push({
+									column: 'create_manager_no',
+									value: this.doctorInfo.no,
+									display: false
+								});
 							}
-							uni.navigateTo({
-								url: url
-							});
+						} else if (item.service_name === 'srvhealth_drug_schedule_doctor_detail_list_add') {
+							let ds_no = this.condition.find(item => item.colName === 'ds_no');
+							if (ds_no && ds_no.value) {
+								let url =
+									`/archivesPages/DrugSelect/DrugSelect?ds_no=${ds_no.value}&type=大夫开药&service_name=${item.service_name}`;
+								uni.navigateTo({
+									url: url
+								});
+							}
+							return;
 						}
-					});
+
+						let url =
+							`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+						url =
+							`/publicPages/formPage/formPage?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+						if (this.appName) {
+							url += `&appName=${this.appName}`
+						}
+						uni.navigateTo({
+							url: url
+						});
+					}
+					// });
 				}
 			},
 			searchBarFocus(e) {
@@ -1163,15 +1181,15 @@
 	}
 
 	.page-wrap {
-		position: absolute;
+		// position: absolute;
 	}
 
 	.search-bar {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		width: 100vw;
+		// position: absolute;
+		// top: 0;
+		// left: 0;
+		// right: 0;
+		width: 100%;
 
 		// height: 100px;
 		.search-form {

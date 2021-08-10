@@ -706,7 +706,6 @@
 						}
 					}
 				}
-				debugger
 
 				if (colVs && colVs.service_view_name) {
 					uni.setNavigationBarTitle({

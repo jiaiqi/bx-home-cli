@@ -220,8 +220,8 @@
 				handler(newValue) {
 					if (newValue) {
 						this.searchCol = newValue;
-					} else if (this.viewTemp && this.viewTemp.title) {
-						this.searchCol = this.viewTemp.title;
+					} else {
+						this.searchCol = this.viewTemp?.title || this.finalViewTemp?.title;
 					}
 				}
 			}
