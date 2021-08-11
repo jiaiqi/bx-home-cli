@@ -23,8 +23,7 @@
 				<view class="col-item" v-for="col in showColumn">
 					{{item[col.columns]||''}}
 				</view>
-				<text class="cuIcon-delete text-black"
-					v-if="v2Data&&v2Data.use_type&&['update','add','addchildlist','updatechildlist'].includes(v2Data.use_type)"
+				<text class="cuIcon-delete text-black" v-if="showDelete"
 					@click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
 			</view>
 			<view class="list-item" v-for="(item,index) in memoryListData"
@@ -32,8 +31,7 @@
 				<view class="col-item" v-for="col in showColumn">
 					{{item[col.columns]||''}}
 				</view>
-				<text class="cuIcon-delete text-black"
-					v-if="v2Data&&v2Data.use_type&&['update','add','addchildlist','updatechildlist'].includes(v2Data.use_type)"
+				<text class="cuIcon-delete text-black" v-if="showDelete"
 					@click.stop="onChildFormBtn({button_type:'delete'},index,true)"></text>
 			</view>
 			<view class="list-item" v-if="finalListData.length===0">
@@ -114,6 +112,10 @@
 			}
 		},
 		computed: {
+			showDelete() {
+				return this?.v2Data?.use_type && ['update', 'add', 'addchildlist', 'updatechildlist'].includes(this.v2Data
+					.use_type)
+			},
 			setListData() {
 				return this.listData.filter(item => item._dirtyFlags !== "delete")
 			},
@@ -410,7 +412,7 @@
 							[target_column_info.columns]: data[target_column],
 						}
 						let numCol = this.config?.foreign_key?.moreConfig?.batch_add?.numCol
-						if(numCol){
+						if (numCol) {
 							obj[numCol] = data[numCol]
 						}
 						dependCols.forEach(col => {

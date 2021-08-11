@@ -8,9 +8,9 @@
 				</list-bar>
 				<!-- <list-bar @change="changeSerchVal" :listButton="listButton" @search="toSearch"></list-bar> -->
 				<view class="add-box">
-					<view class="add-item-box" @touchmove.stop>
-						<view class="add-item" v-for="(item,index) in list" @click="clickItem(item,index)">
-							<view class="content " :class="{active:item.selected}">
+					<view class="add-item-box">
+						<view class="add-item" v-for="(item,index) in list">
+							<view class="content " :class="{active:item.selected}" @click="clickItem(item,index)">
 								<image :src="getImagePath(item[params.imgCol])" mode="aspectFill"
 									v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
 								<view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">
@@ -21,8 +21,8 @@
 								</view>
 							</view>
 							<view class="number-box" v-if="params&&params.numCol">
-								<u-number-box :input-width="30" :input-height="40" :positive-integer="false" :step="1"
-									v-model="item[params.numCol]"></u-number-box>
+								<u-number-box :input-width="30" :input-height="40" :positive-integer="false" :min="1"
+									:step="1" v-model="item[params.numCol]"></u-number-box>
 							</view>
 						</view>
 					</view>
@@ -259,7 +259,7 @@
 
 			.add-item {
 				width: calc(25% - 10rpx);
-				margin-bottom: 10rpx;
+				margin-bottom: 20rpx;
 				margin-right: 10rpx;
 				overflow: hidden;
 				background-color: #fff;
