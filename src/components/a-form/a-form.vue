@@ -12,6 +12,9 @@
 	export default {
 		name: 'aForm',
 		props: {
+			defaultVal: {
+				type: [Array, Object],
+			},
 			fields: {
 				type: Array,
 				required: true
@@ -49,7 +52,7 @@
 			this.fieldModel = this.oldField.reduce((res, cur) => {
 				res[cur.columns] = cur.value
 				return res
-			},{})
+			}, {})
 		},
 		data() {
 			return {
@@ -103,11 +106,17 @@
 					if (Object.keys(model).length > 0) {
 						return model;
 					} else {
-						uni.showToast({
-							title: '没有需要提交的数据',
-							icon: 'none'
-						});
-						return false;
+						return this.allField.reduce((res, cur) => {
+							if (cur.value) {
+								res[cur.columns] = cur.value
+							}
+							return res
+						}, {});
+						// uni.showToast({
+						// 	title: '没有需要提交的数据',
+						// 	icon: 'none'
+						// });
+						// return false;
 					}
 				} else {
 					console.log('表单校验失败', showsNum, valid, this.fieldModel);

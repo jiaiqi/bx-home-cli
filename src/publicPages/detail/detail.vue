@@ -66,15 +66,22 @@
 				{{item.button_name||''}}
 			</button>
 		</view>
+	<!-- 	<view class="cu-modal" :class="{show:modalName==='updatePopup'}" @click="hideModal">
+			<view class="cu-dialog" @click.stop="">
+				<bxForm></bxForm>
+			</view>
+		</view> -->
 	</view>
 </template>
 
 <script>
 	// import ChildList from './child-list.vue'
 	import ChildList from '@/publicPages/components/child-list/child-list.vue'
+	import bxForm from '@/components/a-form-item/a-form-item.vue'
 	export default {
 		components: {
-			ChildList
+			ChildList,
+			bxForm
 		},
 		data() {
 			return {
@@ -83,7 +90,8 @@
 				appName: null,
 				v2Data: null,
 				orderCols: [],
-				detail: null
+				detail: null,
+				modalName: ""
 			}
 		},
 		computed: {
@@ -121,8 +129,13 @@
 			},
 			publicButton() {
 				if (Array.isArray(this.v2Data?.formButton)) {
-					return this.v2Data.formButton.filter(item => item.permission === true && item.button_type !==
-						"customize")
+					return this.v2Data.formButton.filter((item, index) => {
+						if (Array.isArray(this.detail?._buttons) && this.detail._buttons.length > 0) {
+							return this.detail._buttons[index] === 1
+						} else {
+							return item.permission === true
+						}
+					})
 				} else {
 					return []
 				}
@@ -164,7 +177,6 @@
 						}
 					})
 				}
-				// this.publicButton = colVs.formButton.filter(item => item.permission === true);
 				this.v2Data = colVs;
 				this.getDetail()
 			},
@@ -201,11 +213,11 @@
 				if (!this.isOnButton) {
 					this.isOnButton = true;
 				} else {
-					uni.showToast({
-						title: '正在处理中，请勿重复操作',
-						icon: 'none'
-					});
-					return;
+					// uni.showToast({
+					// 	title: '正在处理中，请勿重复操作',
+					// 	icon: 'none'
+					// });
+					// return;
 				}
 				let req = this.detail || {}
 				for (let key in req) {
@@ -221,10 +233,9 @@
 								value: this.detail?.id,
 								display: false
 							}]
-							
+
 							let url =
 								`/publicPages/formPage/formPage?destApp=${this.appName}&type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
-								// `/publicPages/form/form?destApp=${this.appName}&type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
 							if (this.detail?.id) {
 								uni.navigateTo({
 									url: url
@@ -242,7 +253,110 @@
 						this.isOnButton = false;
 						break;
 					case 'customize':
-						if (e.application && e.operate_service) {
+						console.log(this.deepClone(e))
+						let buttonInfo = this.deepClone(e)
+						if (Array.isArray(buttonInfo.operate_params.condition) && buttonInfo.operate_params
+							.condition
+							.length > 0) {
+							buttonInfo.operate_params.condition.forEach(cond => {
+								if (typeof cond.value === 'object' && cond.value.value_type ===
+									'rowData') {
+									cond.value = this.detail[cond.value.value_key];
+								} else if (typeof cond.value === 'object' && cond.value.value_type ===
+									'constant') {
+									cond.value = cond.value.value;
+								}
+							});
+						}
+
+						if (Array.isArray(buttonInfo.operate_params.data) && buttonInfo.operate_params.data.length >
+							0) {
+							buttonInfo.operate_params.data.forEach(data => {
+								if (typeof data === 'object') {
+									Object.keys(data).forEach(item => {
+										if (typeof data[item] === 'object' && data[item].value_type ===
+											'rowData') {
+											data[item] = this.detail[data[item].value_key];
+										} else if (typeof data[item] === 'object' && data[item]
+											.value_type === 'constant') {
+											data[item] = data[item].value;
+										}
+									});
+								}
+							});
+						}
+
+						debugger
+
+						if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+							let req = [{
+								serviceName: buttonInfo.operate_service,
+								condition: buttonInfo.operate_params.condition,
+								data: buttonInfo.operate_params.data
+							}];
+							let app = this.appName || uni.getStorageSync('activeApp');
+							let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
+								buttonInfo.servcie_type);
+							let res = await this.$http.post(url, req);
+							// if (res.data.state === 'SUCCESS') {
+							// 	this.$refs.bxList.onRefresh();
+							// }
+							return
+						} else if (buttonInfo.operate_type === '更新弹出') {
+							// 自定义按钮
+							let moreConfig = buttonInfo.more_config;
+							if (moreConfig && typeof moreConfig === 'string') {
+								try {
+									moreConfig = JSON.parse(moreConfig);
+								} catch (e) {
+									//TODO handle the exception
+									console.log(e);
+								}
+							}
+							if (buttonInfo.servcie_type === 'add') {
+								let params = {
+									type: 'add',
+									serviceName: buttonInfo.service_name,
+									defaultVal: data.row,
+									eventOrigin: buttonInfo
+								};
+
+								return
+							} else if (buttonInfo.servcie_type === 'update') {
+								let params = {
+									type: 'update',
+									serviceName: buttonInfo.service_name,
+									condition : buttonInfo.operate_params.condition,
+									defaultVal: buttonInfo.operate_params.data,
+								};
+								let condition = buttonInfo.operate_params.condition
+								let fieldsCond = []
+								// let defaultVal = buttonInfo.operate_params.data
+								// if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+								// 	let obj = defaultVal[0]
+								// 	if(typeof obj == 'object'){
+								// 		Object.keys(obj).forEach(key => {
+								// 			fieldsCond.push({
+								// 				column: key,
+								// 				value: obj[key]
+								// 			})
+								// 		})
+								// 	}
+								// }
+
+								let url =
+									`/publicPages/form/form?params=${JSON.stringify(params)}&condition=${JSON.stringify(condition)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+									encodeURIComponent(JSON.stringify(fieldsCond));
+								if (this.appName) {
+									url += `&appName=${this.appName}`
+								}
+								debugger
+								uni.navigateTo({
+									url: url
+								});
+								return
+							}
+						} else if (e.application && e.operate_service) {
 							const url = this.getServiceUrl(e.application, e.operate_service, 'operate');
 							const req = [{
 								data: [e.requestData],
@@ -404,10 +518,12 @@
 
 	.button-box {
 		padding: 20rpx;
+		justify-content: center;
 
 		.cu-btn {
-			width: 45%;
+			min-width: 25%;
 			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 		}
 	}
 </style>

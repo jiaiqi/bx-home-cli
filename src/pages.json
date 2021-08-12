@@ -74,35 +74,36 @@
 					"style": {
 						"navigationBarTitleText": "listPage"
 					}
+				}, {
+					"path": "detail/detail",
+					"style": {
+						"navigationBarTitleText": "详情",
+						"enablePullDownRefresh": false
+					}
+
+				}, {
+					"path": "formPage/formPage",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+
+				}, {
+					"path": "batchAdd/batchAdd",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+
+				}, {
+					"path": "table/table",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": true
+					}
+
 				}
-			    ,{
-                    "path" : "detail/detail",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "详情",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "formPage/formPage",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "batchAdd/batchAdd",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+			]
 		},
 		{
 			"root": "storePages",
@@ -306,17 +307,21 @@
 					"style": {
 						"navigationBarTitleText": "朋友圈"
 					}
+				}, {
+					"path": "dashboard/dashboard",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+
+				}, {
+					"path": "schedule/schedule",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
 				}
-			    ,{
-                    "path" : "dashboard/dashboard",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+			]
 		}
 	],
 	"easycom": {

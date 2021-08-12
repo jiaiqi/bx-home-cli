@@ -4,7 +4,7 @@
 			<view class="search-form round">
 				<text class="cuIcon-search"></text>
 				<input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text"
-					v-model="searchVal" :placeholder="placeholder" confirm-type="search" />
+					v-model="searchVal" :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
 			</view>
 			<view class="action">
 				<button class="cu-btn bg-cyan shadow-blur round" @click="toSearch" v-if="searchVal">
@@ -26,11 +26,11 @@
 							v-for="(item, index) in orderCols" :key="item.columns"
 							@click.stop="changeOrderType(item, index)">
 							<view class="label">{{ item.label || "" }}</view>
-							<view class="order-option">
-								<text class="cuIcon-top text-gray" :class="{
+							<view class="order-option" v-if="item.selected">
+								<text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
 		              }"></text>
-								<text class="cuIcon-down text-gray" :class="{
+								<text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
 		              }"></text>
 							</view>
@@ -184,6 +184,10 @@
 </script>
 
 <style lang="scss" scoped>
+	.uni-picker-container {
+		z-index: 99999 !important;
+	}
+
 	.search-bar {
 		// position: absolute;
 		// top: 0;
@@ -229,6 +233,7 @@
 
 			.order-item {
 				margin-top: 10rpx;
+				line-height: 60rpx;
 				width: calc(50% - 10rpx);
 				padding: 10rpx 10rpx 10rpx 20rpx;
 				background-color: #fff;
@@ -273,6 +278,7 @@
 					.active {
 						animation: scale 0.2s;
 						color: #0bc99d;
+						background-color: rgba($color: #0bc99d, $alpha: 0.1);
 					}
 
 					@keyframes scale {

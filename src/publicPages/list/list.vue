@@ -377,7 +377,6 @@
 			},
 			handlerCustomizeButton(e) {
 				// 自定义按钮
-				debugger
 				if (e.servcie_type === 'add') {
 					let params = {
 						type: 'add',
@@ -650,7 +649,6 @@
 								}
 								let url =
 									`/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-								debugger
 								if (this.moreConfig?.detailPage === 'childTableList') {
 									url =
 										`/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`

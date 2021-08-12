@@ -43,6 +43,7 @@ const state = {
 	systemInfo:wx.getSystemInfoSync(),
 	hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
 	scene:0,//小程序进入场景
+	storeInfo:null // 当前店铺信息
 }
 let persistData = {}; //持久化数据
 const mutations = {
@@ -157,7 +158,10 @@ const mutations = {
 	},
 	SET_INTO_HOSPITAL_STATUS: (state, status) => {
 		state.hasIntoHospital = status
-	}
+	},
+	SET_STORE_INFO: (state, info) => {
+		state.storeInfo = info
+	},
 }
 
 const actions = {

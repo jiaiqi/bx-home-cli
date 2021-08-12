@@ -6,7 +6,7 @@
 		<scroll-view scroll-y="true">
 			<view>
 				<a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-					ref="bxForm" @value-blur="valueChange"></a-form>
+					ref="bxForm" @value-blur="valueChange" :defaultVal="defaultVal"></a-form>
 			</view>
 		</scroll-view>
 		<view class="button-box">
@@ -46,7 +46,7 @@
 				},
 				fields: [],
 				hideColumn: [], // 不显示的字段 
-				condition: [],
+				condition: null,
 				fieldsCond: [],
 				params: {},
 				defaultVal: null,
@@ -296,11 +296,11 @@
 				if (!this.isOnButton) {
 					this.isOnButton = true;
 				} else {
-					uni.showToast({
-						title: '正在处理中，请勿重复操作',
-						icon: 'none'
-					});
-					return;
+					// uni.showToast({
+					// 	title: '正在处理中，请勿重复操作',
+					// 	icon: 'none'
+					// });
+					// return;
 				}
 				let req = this.$refs.bxForm.getFieldModel();
 				for (let key in req) {
@@ -651,12 +651,15 @@
 					if (condition.find(item => item.colName === 'id')) {
 						condition = condition.filter(item => item.colName === 'id')
 					}
+					if (!condition || condition.length === 0) {
+						return
+					}
 					let app = this.appName || uni.getStorageSync('activeApp');
 					let url = this.getServiceUrl(app, serviceName, 'select');
 					let req = {
 						serviceName: serviceName,
 						colNames: ['*'],
-						condition: condition,
+						condition: this.condition || condition,
 						page: {
 							pageNo: 1,
 							rownumber: 2
@@ -719,8 +722,13 @@
 				switch (colVs.use_type) {
 					case 'update':
 					case 'detail':
-						defaultVal = self.defaultVal && self.defaultVal.id ? self.defaultVal : await self
+					debugger
+					
+						defaultVal = self.defaultVal ? self.defaultVal : await self
 							.getDefaultVal();
+							if(Array.isArray(defaultVal)&&defaultVal.length>0){
+								defaultVal = defaultVal[0]
+							}
 						let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
 							.defaultVal);
 						if (!fields) {
@@ -906,7 +914,21 @@
 				this.showChildService = option.showChildService;
 			}
 			if (option.params) {
-				this.params = JSON.parse(decodeURIComponent(option.params));
+				option.params = JSON.parse(decodeURIComponent(option.params));
+				if (option.params?.defaultVal) {
+					if(Array.isArray(option.params.defaultVal)&&option.params.defaultVal.length>0){
+						option.params.defaultVal = option.params.defaultVal[0]
+					}
+					this.defaultVal = option.params.defaultVal
+				}
+				this.params = option.params
+			}
+			if (option.condition) {
+				try {
+					this.condition = JSON.parse(decodeURIComponent(option.condition))
+				} catch (e) {
+					//TODO handle the exception
+				}
 			}
 			if (option.service) {
 				this.service = option.service
@@ -929,6 +951,7 @@
 				this.srvType = option.type;
 				this.use_type = option.type;
 			}
+
 			if (option.fieldsCond) {
 				try {
 					let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));

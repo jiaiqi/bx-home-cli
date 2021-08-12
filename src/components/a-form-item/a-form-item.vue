@@ -49,12 +49,13 @@
 			<!-- detail-详情-end -->
 			<!-- form-item-start -->
 			<bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
-				v-else-if="fieldData.type === 'radio'" @change="radioChange">
+				v-else-if="fieldData.type === 'radio'" @change="radioChange" :disabled="fieldData.disabled">
 				<bx-radio class="radio" color="#2979ff" v-for="item in fieldData.options" :key="item"
 					:disabled="fieldData.disabled|| false" :name="item">{{ item }}</bx-radio>
 			</bx-radio-group>
-			<bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
-				v-else-if="fieldData.type === 'radioFk'" @change="radioChange">
+			<bx-radio-group class="form-item-content_value radio-group" :mode="optionMode"
+				:disabled="fieldData.disabled" v-model="fieldData.value" v-else-if="fieldData.type === 'radioFk'"
+				@change="radioChange">
 				<bx-radio :iconSize="fieldData.iconSize" class="radio" color="#2979ff" v-for="item in radioOptions"
 					:key="item.value" :disabled="fieldData.disabled||false" :name="item.value"
 					:serial-char="item.serialChar">
@@ -62,7 +63,7 @@
 				</bx-radio>
 			</bx-radio-group>
 			<checkbox-group name="checkbox-group" class="form-item-content_value checkbox-group"
-				v-else-if="fieldData.type === 'checkbox'">
+				v-else-if="fieldData.type === 'checkbox'" :disabled="fieldData.disabled">
 				<label v-for="(item, index) in radioOptions" :key="index" class="checkbox">
 					<checkbox color="#2979ff" :value="item" :disabled="fieldData.disabled|| false"
 						:checked="isChecked(item)" />
@@ -84,14 +85,14 @@
           ">
 					<!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
-						v-model="fieldData.value" mode="button"  @change="onBlur()">
+						v-model="fieldData.value" mode="button" @change="onBlur()">
 						<bx-checkbox v-for="item in setOptionList" :name="item.value" :key="item.value"
 							v-model="item.checked">
 							{{ item.label }}
 						</bx-checkbox>
 					</bx-checkbox-group>
 					<bx-radio-group v-if="fieldData.type === 'Selector'" class="form-item-content_value radio-group"
-						v-model="fieldData.value" mode="button" @change="pickerChange">
+						v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
 						<bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
 						</bx-radio>
 					</bx-radio-group>
@@ -242,14 +243,14 @@
 							<text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
 							</text>
 						</view>
-						<bx-checkbox-group v-if="modalName === 'MultiSelector'"
-						 @change="onBlur()"
+						<bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur()"
 							class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
 							<bx-checkbox v-for="item in setOptionList" :key="item.label" :name="item.value"
 								v-model="item.checked">{{ item.label }}</bx-checkbox>
 						</bx-checkbox-group>
 						<bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
-							v-model="fieldData.value" mode="button" @change="pickerChange">
+							v-model="fieldData.value" mode="button" @change="pickerChange"
+							:disabled="fieldData.disabled">
 							<bx-radio v-for="item in selectorData" :key="item.value" :name="item.value">{{ item.label }}
 							</bx-radio>
 						</bx-radio-group>
@@ -407,13 +408,13 @@
 				) {
 					result = '100%';
 				}
-				if (((this.fieldData.type === 'textarea' && this.pageType == 'detail')) && (this.fieldData.value ||
-						this.pageType !== 'detail')) {
-					result = '100%';
-				}
-				if (this.fieldData.type === 'RichText') {
-					result = '100%';
-				}
+				// if (((this.fieldData.type === 'textarea' && this.pageType == 'detail')) && (this.fieldData.value ||
+				// 		this.pageType !== 'detail')) {
+				// 	result = '100%';
+				// }
+				// if (this.fieldData.type === 'RichText') {
+				// 	result = '100%';
+				// }
 				return result;
 			},
 			pickerMode() {

@@ -99,6 +99,12 @@
 					if (this.storeInfo?.telephone) {
 						url += `&phone=${this.storeInfo?.telephone}`
 					}
+					if (this.storeInfo?.store_no) {
+						url += `&storeNo=${this.storeInfo?.store_no}`
+					}
+					if (this.storeInfo?.wx_mch_id) {
+						url += `&wxMchId=${this.storeInfo?.wx_mch_id}`
+					}
 					uni.navigateTo({
 						url: url
 					});

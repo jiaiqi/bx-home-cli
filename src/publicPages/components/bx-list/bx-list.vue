@@ -151,7 +151,10 @@
 				if (this.moreConfig && this.moreConfig.searchColumn) {
 					return this.moreConfig.searchColumn
 				} else {
-					return this.searchCol
+					return Object.keys(this.finalViewTemp).reduce((res,cur)=>{
+						res.push(this.finalViewTemp[cur])
+						return res
+					},[])
 				}
 			},
 			onlyShowTitle() {

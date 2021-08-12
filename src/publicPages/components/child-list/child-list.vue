@@ -193,11 +193,8 @@
 					if (this.use_type === 'detaillist') {
 						ignoreBtn.push('add')
 					}
-
-					// const ignoreBtn = ['select', 'add', 'batch_delete', 'delete']
 					result = this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
 						.button_type))
-
 					if (this.config?.foreign_key?.moreConfig?.batch_add?.target_column) {
 						let batch_add = this.config.foreign_key.moreConfig.batch_add
 						let column = this.orderCols.find(item => item.columns === batch_add.target_column)

@@ -6,11 +6,10 @@
 					@toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
 					@search="toSearch" v-if="showSearchBar">
 				</list-bar>
-				<!-- <list-bar @change="changeSerchVal" :listButton="listButton" @search="toSearch"></list-bar> -->
 				<view class="add-box">
 					<view class="add-item-box">
 						<view class="add-item" v-for="(item,index) in list">
-							<view class="content " :class="{active:item.selected}" @click="clickItem(item,index)">
+							<view class="content" :class="{active:item.selected}" @click="clickItem(item,index)">
 								<image :src="getImagePath(item[params.imgCol])" mode="aspectFill"
 									v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
 								<view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">
@@ -28,6 +27,7 @@
 					</view>
 				</view>
 				<view class="button-box">
+					<button class="cu-btn bg-grey" @click="close">取消</button>
 					<button class="cu-btn bg-blue" @click="submit">确认</button>
 				</view>
 			</view>
@@ -49,11 +49,13 @@
 				params: null,
 				pageNo: 1,
 				showSearchBar: false,
+				searchVal: "",
 				list: [],
 				listV2Data: null,
 				orderCols: [],
 				order: null,
 				cond: null,
+				relation_condition: null,
 				listButton: [{
 					"page_type": "列表",
 					"button_name": "查询",
@@ -94,6 +96,79 @@
 			},
 		},
 		methods: {
+			clickAddButton(item) {
+				if (this.pageType === 'proc') {
+					// this.publicButton.map(item => {
+					if (item.button_type === 'add' || item.button_type === 'apply') {
+						uni.navigateTo({
+							url: '/pages/public/proc/apply/apply?serviceName=' + item.service_name +
+								'&cond=' + decodeURIComponent(JSON.stringify(this.condition))
+						});
+					}
+					// });
+				} else {
+					// this.publicButton.map(item => {
+					if (item.button_type === 'add') {
+						let fieldsCond = [];
+						if (Array.isArray(this.condition)) {
+							fieldsCond = this.condition.map(item => {
+								return {
+									column: item.colName,
+									value: item.value,
+									display: false
+								};
+							});
+						}
+						if (item.service_name.indexOf('health_plan_schedule') !== -1) {
+							if (fieldsCond.find(item => item.column === 'sdr_no')) {
+								fieldsCond.push({
+									column: 'play_srv',
+									value: '大夫开药',
+									display: false
+								});
+							}
+							if (this.patientInfo && this.patientInfo.no) {
+								fieldsCond.push({
+									column: 'owner_person_no',
+									value: this.patientInfo.no,
+									display: false
+								});
+							}
+							if (this.doctorInfo && this.doctorInfo.no) {
+								fieldsCond.push({
+									column: 'create_manager_no',
+									value: this.doctorInfo.no,
+									display: false
+								});
+							}
+						} else if (item.service_name === 'srvhealth_drug_schedule_doctor_detail_list_add') {
+							let ds_no = this.condition.find(item => item.colName === 'ds_no');
+							if (ds_no && ds_no.value) {
+								let url =
+									`/archivesPages/DrugSelect/DrugSelect?ds_no=${ds_no.value}&type=大夫开药&service_name=${item.service_name}`;
+								uni.navigateTo({
+									url: url
+								});
+							}
+							return;
+						}
+
+						let url =
+							`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+						url =
+							`/publicPages/formPage/formPage?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+
+						if (this.appName) {
+							url += `&appName=${this.appName}`
+						}
+						uni.navigateTo({
+							url: url
+						});
+					}
+					// });
+				}
+			},
 			submit() {
 				let arr = this.list.filter(item => item.selected).map(item => {
 					let obj = {
@@ -153,22 +228,19 @@
 			},
 			toOrder(e) {
 				this.order = e
-				this.getList({
-					order: e
-				})
+				this.getList()
 			},
 			toFilter(e) {
 				this.cond = e
-				this.getList({
-					cond: e
-				})
+				this.getList()
 
 			},
 			toSearch(e) {
-
+				this.searchVal = e
+				this.getList()
 			},
-			changeSerchVal() {
-
+			changeSerchVal(e) {
+				this.searchVal = e
 			},
 			getList(e = {}) {
 				let {
@@ -188,6 +260,32 @@
 					}
 					if (Array.isArray(this.cond) && this.cond.length > 0) {
 						req.condition = this.cond
+					}
+					if (this.searchVal) {
+						let cond = this.srvCols.map(item => {
+							let obj = {
+								colName: item.columns,
+								ruleType: 'like',
+								value: this.searchVal
+							}
+							return obj
+						})
+						if (cond.length > 0) {
+							req.relation_condition = {
+								"relation": "AND",
+								data: [{
+									"relation": "OR",
+									data: cond
+								}]
+							}
+							if (Array.isArray(this.cond) && this.cond.length > 0) {
+								req.relation_condition.data.push({
+									"relation": "AND",
+									data: this.cond
+								})
+							}
+							delete req.condition
+						}
 					}
 					if (Array.isArray(this.order) && this.order.length > 0) {
 						req.order = this.order
@@ -261,6 +359,7 @@
 				width: calc(25% - 10rpx);
 				margin-bottom: 20rpx;
 				margin-right: 10rpx;
+				padding-bottom: 20rpx;
 				overflow: hidden;
 				background-color: #fff;
 				display: flex;
