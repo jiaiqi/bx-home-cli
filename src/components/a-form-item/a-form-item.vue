@@ -133,7 +133,7 @@
 			</view>
 			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
 				<textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
-					v-model="fieldData.value" :placeholder="'开始输入'"></textarea>
+					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur"></textarea>
 			</view>
 			<view class="form-item-content_value location"
 				v-else-if="fieldData.type === 'addr' || fieldData.type === 'location'" @click="getLocation">
