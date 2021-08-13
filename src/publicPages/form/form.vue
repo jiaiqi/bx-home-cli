@@ -722,8 +722,6 @@
 				switch (colVs.use_type) {
 					case 'update':
 					case 'detail':
-					debugger
-					
 						defaultVal = self.defaultVal ? self.defaultVal : await self
 							.getDefaultVal();
 							if(Array.isArray(defaultVal)&&defaultVal.length>0){

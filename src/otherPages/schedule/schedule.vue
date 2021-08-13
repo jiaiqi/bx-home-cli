@@ -44,8 +44,8 @@
 			</view> -->
 		<!-- </view> -->
 		<gridTable :config="buildConfig" :table-data="buildTableData" @getQuery="getQuery" :showSummary="false"
-			:showTableFilter="false" v-if="buildConfig&&buildTableData" :scheduleConfig="scheduleConfig"
-			@clickItem="clickItem"></gridTable>
+			:showTableFilter="false" v-if="buildConfig&&buildConfig.length>0&&buildTableData&&buildTableData.length>0&&rowHeadList&&rowHeadList.length>0"
+			:scheduleConfig="scheduleConfig" @clickItem="clickItem"></gridTable>
 		<!-- 	<gridTable :config="config" :table-data="tableData" @getQuery="getQuery" :showSummary="false"
 				:showTableFilter="false"></gridTable> -->
 
@@ -120,6 +120,7 @@
 		},
 		data() {
 			return {
+				no: "",
 				login_user_info: null,
 				showCaledar: false,
 				scheduleConfig: {},
@@ -152,8 +153,9 @@
 								label: col[this.scheduleConfig.col_head_disp_col],
 								key: this.scheduleConfig.col_head_disp_col,
 								value: col[this.scheduleConfig.col_head_key_col],
-								width: 160
+								width: 100
 							}
+
 							let color = '#F2A19F'
 							switch (index) {
 								case 0:
@@ -179,6 +181,15 @@
 									break;
 							}
 							obj['bgColor'] = color
+							if (this.scheduleConfig.col_head_key_col === "calendar_date" && obj.value) {
+								if (obj.value === dayjs().format('YYYY-MM-DD')) {
+									obj.value = '今天'
+									obj.selfBgColor = '#0bc99d'
+									obj.color = '#fff'
+								} else {
+									obj.value = dayjs(obj.value).format('MM-DD')
+								}
+							}
 							result.push(obj)
 						})
 					}
@@ -207,8 +218,7 @@
 											.config.table_row_head_col
 										let colVal = col[config.col_head_key_col]
 
-										let schRowVal = schedule[
-											table_row_head_col]
+										let schRowVal = schedule[table_row_head_col]
 										if (rowVal === schRowVal) {
 											let obj = {}
 											if (colVal === schColVal) {
@@ -219,8 +229,8 @@
 												obj[col[config.col_head_disp_col]] =
 													schedule
 												let index = result.findIndex(item => item[
-														config.row_head_disp_col] ===
-													row[config.row_head_disp_col])
+														config.row_head_key_col] ===
+													row[config.row_head_key_col])
 												if (index !== -1) {
 													if (!result[index][col[config
 															.col_head_disp_col]]) {
@@ -371,6 +381,7 @@
 				}
 			},
 			changeSchedule(operate) {
+				debugger
 				if (this.scheduleConfig.col_head_disp_col === 'day_of_week_cn') {
 					let cond = {};
 					if (operate === 'prev') {
@@ -394,8 +405,8 @@
 								.format('YYYY-MM-DD')
 						};
 					}
-					if (this.$route.query.no) {
-						cond['no'] = this.$route.query.no;
+					if (this.no) {
+						cond['no'] = this.no;
 					}
 					this.getScheduleConfig(cond);
 				}
@@ -425,11 +436,20 @@
 					tip: scheduleConfig.table_row_head_col,
 					footer: scheduleConfig.table_col_head_col
 				};
+				if (Array.isArray(scheduleConfig.condition) && scheduleConfig.condition.length > 0) {
+					cond = [...cond, ...scheduleConfig.condition]
+				}
 				let url =
-					`/pages/public/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${	scheduleConfig.srv}&pageType=list&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
+					`/publicPages/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${scheduleConfig.srv}&pageType=list&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
 				if (scheduleConfig.page_type && scheduleConfig.page_type === 'proc') {
 					url =
 						`/publicPages/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${	scheduleConfig.srv}&pageType=proc&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
+				}
+				if (scheduleConfig.dest_page) {
+					url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.srv}&cond=${JSON.stringify(cond)}`
+				}
+				if (scheduleConfig.dest_column) {
+					url += `&columns=${scheduleConfig.dest_column}`
 				}
 				uni.navigateTo({
 					url
@@ -741,9 +761,19 @@
 							i['condition'].forEach(cond => {
 								const data = quertData;
 								cond.value = this.renderStr(cond.value, data)
+								if (cond.value === 'undefined') {
+									cond.value = null
+								}
 								req['condition'].push(cond)
 							})
 						}
+						req.condition = req.condition.filter(item => {
+							if (item.ruleType === 'eq') {
+								return item.value
+							} else {
+								return true
+							}
+						})
 						const res = await this.$http.post(url, req);
 						if (res.data.state === 'SUCCESS') {
 							scheduleItemList.push({
@@ -892,6 +922,7 @@
 				}
 			}
 			if (option.no) {
+				this.no = option.no
 				this.getScheduleConfig({
 					no: option.no
 				});

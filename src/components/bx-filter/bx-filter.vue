@@ -5,6 +5,9 @@
 		</view>
 		<view class="form-box">
 			<a-form :fields="filterCols" ref='filterForm' pageType="filter" v-if="filterCols"></a-form>
+			<view class="tip" v-if="!filterCols|| filterCols.length===0">
+				没有可筛选字段
+			</view>
 		</view>
 		<view class="button-box">
 			<button class="cu-btn bg-green light" @click="reset"><text
@@ -56,9 +59,9 @@
 						item.value = null
 						return item
 					})
-					this.filterCols = filterCols.filter(item => item.in_cond === 1 && !['images', 'input', 'text','number']
-						.includes(item.type) && !
-						/^\_.*\_disp$/.test(item.column))
+					let ignoreType = ['images', 'input', 'text','number']
+					// ignoreType = ['images']
+					this.filterCols = filterCols.filter(item => item.in_cond === 1&&item.in_list === 1 && !ignoreType.includes(item.type) && !/^\_.*\_disp$/.test(item.column))
 				}
 				this.$refs.filterForm.onReset()
 			}
@@ -86,6 +89,11 @@
 		.form-box {
 			max-height: calc(100vh - var(--window-bottom) - var(--window-top) - 300rpx);
 			overflow-y: scroll;
+			.tip{
+				height: 300rpx;
+				line-height: 300rpx;
+				text-align: center;
+			}
 		}
 
 		.button-box {

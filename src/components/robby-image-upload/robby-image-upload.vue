@@ -402,7 +402,7 @@ export default {
   }
 }
 .imageItem {
-  width: calc(33.33% - 20rpx / 3);
+  // width: calc(33.33% - 20rpx / 3);
 }
 .imageDel {
   position: relative;

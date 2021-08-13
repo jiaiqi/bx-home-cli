@@ -6,7 +6,7 @@
 					:src="getImagePath(detail[appTempColMap.img],true)" mode="aspectFit"></u-image>
 				<u-image class="u-image" v-else width="200" height="200"></u-image>
 			</view>
-			<view class="top-content">
+			<view class="top-content" @click="toDetail">
 				<view class="top-title-bar">
 					<view class="top-item title" v-if="appTempColMap.title">
 						<view class="label" v-if="labelMap[appTempColMap.title]">
@@ -58,7 +58,7 @@
 
 		<view class="child-service-box">
 			<view class="child-service" v-for="(item,index) in childService" :key="index">
-				<child-list :config="item" :appName="appName" :mainData="detail"></child-list>
+				<child-list :config="item" :appName="appName" :mainData="detail" @addChild="addChild" v-if="detail"></child-list>
 			</view>
 		</view>
 		<view class="button-box">
@@ -66,7 +66,7 @@
 				{{item.button_name||''}}
 			</button>
 		</view>
-	<!-- 	<view class="cu-modal" :class="{show:modalName==='updatePopup'}" @click="hideModal">
+		<!-- 	<view class="cu-modal" :class="{show:modalName==='updatePopup'}" @click="hideModal">
 			<view class="cu-dialog" @click.stop="">
 				<bxForm></bxForm>
 			</view>
@@ -116,7 +116,11 @@
 						if (item?.foreign_key?.section_name) {
 							item.label = item.foreign_key.section_name
 						}
+						item.use_type = 'detaillist'
 						return item
+					}).filter(item=>{
+						return true
+						// return item?.foreign_key?.foreign_key_type
 					})
 				}
 				return []
@@ -142,6 +146,44 @@
 			}
 		},
 		methods: {
+			async addChild(e) {
+				let {
+					row,
+					btn
+				} = e
+				let reqData = [{
+					serviceName: btn.service_name,
+					data: [row]
+				}];
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let type = "add"
+				let url = this.getServiceUrl(app, btn.service_name, type);
+				let res = await this.$http.post(url, reqData);
+				if (res.data.state === 'SUCCESS') {
+					uni.showModal({
+						title: '提示',
+						content: res.data.resultMessage,
+						showCancel: false
+					})
+				} else {
+					uni.showToast({
+						title: res.data.resultMessage,
+						mask: false,
+					});
+				}
+			},
+			toDetail() {
+				let fieldsCond = [{
+					column: 'id',
+					value: this.detail.id,
+					display: false
+				}]
+				let url =
+					`/publicPages/formPage/formPage?type=detail&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+				uni.navigateTo({
+					url
+				})
+			},
 			async getDetailV2() {
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let self = this;
@@ -285,9 +327,6 @@
 								}
 							});
 						}
-
-						debugger
-
 						if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
 							let req = [{
 								serviceName: buttonInfo.operate_service,
@@ -326,7 +365,7 @@
 								let params = {
 									type: 'update',
 									serviceName: buttonInfo.service_name,
-									condition : buttonInfo.operate_params.condition,
+									condition: buttonInfo.operate_params.condition,
 									defaultVal: buttonInfo.operate_params.data,
 								};
 								let condition = buttonInfo.operate_params.condition

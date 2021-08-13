@@ -1,8 +1,8 @@
 <template>
 	<view class="form-wrap">
 		<view class="main-form-edit">
-			<a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-				ref="bxForm" @value-blur="valueChange">
+			<a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
+				:formType="use_type" ref="bxForm" @value-blur="valueChange">
 			</a-form>
 		</view>
 
@@ -16,7 +16,7 @@
 
 		<view class="button-box" v-if="colsV2Data">
 			<button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
-				v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex" @click="onButton(btn)">
+				v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
 				{{ btn.button_name }}
 			</button>
 		</view>
@@ -53,6 +53,16 @@
 			}
 		},
 		computed: {
+			formButtons() {
+				let buttons = []
+				if (Array.isArray(this.colsV2Data?._formButtons)) {
+					buttons = this.colsV2Data?._formButtons
+					if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
+						buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
+					}
+					return buttons
+				}
+			},
 			appTempColMap() {
 				// 字段关系映射
 				if (this.moreConfig?.appTempColMa) {
@@ -94,11 +104,11 @@
 							if (item?.foreign_key?.section_name) {
 								item.label = item.foreign_key.section_name
 							}
-							if(item?.foreign_key?.more_config){
-								try{
+							if (item?.foreign_key?.more_config) {
+								try {
 									item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
-								}catch(e){
-									
+								} catch (e) {
+
 								}
 							}
 							return item
@@ -241,18 +251,18 @@
 
 				let result = null
 				if (Array.isArray(cols) && cols.length > 0) {
-					debugger
-					result = await this.evalX_IF(table_name, cols, fieldModel)
+					result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
 				}
 				for (let i = 0; i < this.fields.length; i++) {
 					const item = this.fields[i]
 					if (item.x_if) {
 						if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
 							if (item.table_name !== table_name) {
-								debugger
-								result = await this.evalX_IF(item.table_name, [item.column], fieldModel)
+								result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
 							}
 							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else if (result === true) {
 								item.display = true
 							} else {
 								item.display = false
@@ -282,6 +292,7 @@
 					if (condition.find(item => item.colName === 'id')) {
 						condition = condition.filter(item => item.colName === 'id')
 					}
+
 					let app = this.appName || uni.getStorageSync('activeApp');
 					let url = this.getServiceUrl(app, serviceName, 'select');
 					let req = {
@@ -293,6 +304,9 @@
 							rownumber: 1
 						}
 					};
+					if (this.colsV2Data?.vpage_no) {
+						req['vpage_no'] = this.colsV2Data.vpage_no
+					}
 					let res = await this.$http.post(url, req);
 					if (res.data.state === 'SUCCESS') {
 						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
@@ -313,7 +327,6 @@
 				let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type,
 					app);
 				this[`${this.srvType}V2`] = colVs
-
 				if (['update', 'add'].includes(this.srvType)) {
 					this.getDetailV2()
 				}
@@ -329,8 +342,6 @@
 				}
 
 				colVs = this.deepClone(colVs);
-
-				// 
 				if (colVs && colVs.service_view_name) {
 					uni.setNavigationBarTitle({
 						title: colVs.service_view_name
@@ -350,8 +361,6 @@
 						} else {
 							defaultVal = await this.getDefaultVal()
 						}
-						defaultVal = this.mainData && this.mainData.id ? this.mainData : await this
-							.getDefaultVal();
 						let fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal);
 						if (!fields) {
 							return;
@@ -413,6 +422,13 @@
 							}
 							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
 								this.fieldsCond.forEach(item => {
+									if (item.colName && !item.column) {
+										item.column = item.colName
+									}
+									if (!this.mainData) {
+										this.mainData = {}
+									}
+									this.mainData[item.column] = item.value
 									if (item.column === field.column) {
 										if (item.hasOwnProperty('display')) {
 											field.display = item.display;
@@ -452,16 +468,18 @@
 
 				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
 				const table_name = colVs.main_table
-				const result = await this.evalX_IF(table_name, cols, defaultVal)
+				const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
 
 				for (let i = 0; i < colVs._fieldInfo.length; i++) {
 					const item = colVs._fieldInfo[i]
 					if (item.x_if) {
 						if (Array.isArray(item.xif_trigger_col)) {
 							if (item.table_name !== table_name) {
-								result = await this.evalX_IF(item.table_name, [item.column], defaultVal)
+								result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
 							}
 							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else if (result === true) {
 								item.display = true
 							} else {
 								item.display = false

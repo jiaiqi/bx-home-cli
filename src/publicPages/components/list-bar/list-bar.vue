@@ -7,7 +7,7 @@
 					v-model="searchVal" :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
 			</view>
 			<view class="action">
-				<button class="cu-btn bg-cyan shadow-blur round" @click="toSearch" v-if="searchVal">
+				<button class="cu-btn bg-cyan shadow-blur round" @click="toSearch" >
 					<text class="cuIcon-search"></text>
 				</button>
 				<button class="cu-btn bg-cyan shadow-blur round margin-left-xs" @click="clickGridButton(btn)"

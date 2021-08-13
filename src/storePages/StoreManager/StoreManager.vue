@@ -28,73 +28,74 @@
 		</view>
 		<view class="manager-view">
 			<text class="text-grey title"><text class="margin-right">{{ buttonTitle || "管理" }}</text>
-				<text class="cuIcon-title text-orange margin-right">未回复</text>
-				<text class="cuIcon-title text-red">未读</text></text>
-			<view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
-				<view class="box-item" v-for="item in list" @click="clickGrid(item)">
-					<view class="cu-tag amount text-blue" v-if="storeInfo[item.type]">
-						{{ storeInfo[item.type] | overDisplay }}
-					</view>
-					<view class="box-item-content">
-						<text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
-						<text class="cu-tag badge-left" v-if="item.unback">{{
+				<!-- 		<text class="cuIcon-title text-orange margin-right">未回复</text>
+				<text class="cuIcon-title text-red">未读</text>-->
+				</text> 
+				<view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
+					<view class="box-item" v-for="item in list" @click="clickGrid(item)">
+						<view class="cu-tag amount text-blue" v-if="storeInfo[item.type]">
+							{{ storeInfo[item.type] | overDisplay }}
+						</view>
+						<view class="box-item-content">
+							<text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
+							<text class="cu-tag badge-left" v-if="item.unback">{{
               item.unback
             }}</text>
-						<text class="icon" :class="[
+							<text class="icon" :class="[
                 'cuIcon-' + item.icon,
                 item.color ? 'text-' + item.color : '',
               ]"></text>
-						<view class="label">{{ item.label }}</view>
+							<view class="label">{{ item.label }}</view>
+						</view>
 					</view>
 				</view>
-			</view>
-			<view class="manager-box" v-else>
-				<view class="box-item" v-for="item in buttonGroup" @click="clickButton(item)">
-					<view class="cu-tag amount text-blue" v-if="item.num && item.label === '用户列表'">
-						{{ item.num || 0 }}
-					</view>
-					<view class="box-item-content">
-						<text class="cu-tag badge" v-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
-						<text class="cu-tag badge-left" v-if="item.unback">{{
+				<view class="manager-box" v-else>
+					<view class="box-item" v-for="item in buttonGroup" @click="clickButton(item)">
+						<view class="cu-tag amount text-blue" v-if="item.num && item.label === '用户列表'">
+							{{ item.num || 0 }}
+						</view>
+						<view class="box-item-content">
+							<text class="cu-tag badge" v-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
+							<text class="cu-tag badge-left" v-if="item.unback">{{
               item.unback
             }}</text>
-						<text class="cu-tag badge" v-if="item.unread">{{
+							<text class="cu-tag badge" v-if="item.unread">{{
               item.unread
             }}</text>
-						<image :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
-						<text class="icon" v-else-if="item.icon && item.color" :class="[
+							<image :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
+							<text class="icon" v-else-if="item.icon && item.color" :class="[
                 'cuIcon-' + item.icon,
                 item.color ? 'text-' + item.color : '',
               ]"></text>
-						<view class="label">{{ item.label }}</view>
+							<view class="label">{{ item.label }}</view>
+						</view>
 					</view>
 				</view>
-			</view>
 
-			<view class="manager-box" v-if="storeInfo.mgmt_button_type === '自动'">
-				<view class="cu-bar justify-center bg-white">
-					<view class="action sub-title">
-						<text class="text-xl text-bold text-green">店铺子表</text>
-						<text class="bg-green" style="width: 2rem"></text>
-						<!-- last-child选择器-->
+				<view class="manager-box" v-if="storeInfo.mgmt_button_type === '自动'">
+					<view class="cu-bar justify-center bg-white">
+						<view class="action sub-title">
+							<text class="text-xl text-bold text-green">店铺子表</text>
+							<text class="bg-green" style="width: 2rem"></text>
+							<!-- last-child选择器-->
+						</view>
 					</view>
-				</view>
-				<view class="box-item" v-for="item in childTable" @click="toChildService(item)">
-					<view class="cu-tag amount text-blue" v-if="item.total">
-						{{ item.total || 0 }}
-					</view>
-					<view class="box-item-content">
-						<view class="label-icon shadow-blur bg-blue light" v-if="item.label">
-							<view class="text" v-for="text in item.label.slice(0, 4).split('')">
-								{{ text }}
+					<view class="box-item" v-for="item in childTable" @click="toChildService(item)">
+						<view class="cu-tag amount text-blue" v-if="item.total">
+							{{ item.total || 0 }}
+						</view>
+						<view class="box-item-content">
+							<view class="label-icon shadow-blur bg-blue light" v-if="item.label">
+								<view class="text" v-for="text in item.label.slice(0, 4).split('')">
+									{{ text }}
+								</view>
+							</view>
+							<view class="label">
+								{{ item.label }}
 							</view>
 						</view>
-						<view class="label">
-							{{ item.label }}
-						</view>
 					</view>
 				</view>
-			</view>
 		</view>
 	</view>
 </template>

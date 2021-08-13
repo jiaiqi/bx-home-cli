@@ -1,9 +1,9 @@
 <template>
 	<view class="page-wrap">
 		<view class="fixed cu-bar">
-			<list-bar @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton" @toOrder="toOrder"
-				@toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
-				v-if="showSearchBar">
+			<list-bar style="width: 100%;" @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton"
+				@toOrder="toOrder" @toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
+				@search="toSearch" v-if="showSearchBar">
 			</list-bar>
 		</view>
 		<view class="" style="height: 100rpx;">
@@ -21,7 +21,7 @@
 						:class="{'bg-orange':isTomorrow(item[col.columns],col.col_type),'bg-red':isToday(item[col.columns],col.col_type)}"
 						v-for="col in tableColumn">
 						<text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
-						<text v-else-if="isToday(item[col.columns],col.col_type)">明天</text>
+						<text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
 						<text v-else> {{item[col.columns]||''}}</text>
 					</view>
 				</view>
@@ -58,7 +58,7 @@
 				colV2: null,
 				loadStatus: 'more',
 				condition: [],
-				queryCond:null,
+				queryCond: null,
 				orderList: [],
 				searchWords: '',
 				showSearchBar: false,
@@ -85,7 +85,16 @@
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
 					if (Array.isArray(this.columns) && this.columns.length > 0) {
-						return this.srvCols.filter(item => this.columns.includes(item.columns))
+						let arr = []
+						this.columns.forEach(column=>{
+							this.srvCols.forEach(col=>{
+								if(col.columns===column){
+									arr.push(col)
+								}
+							})
+						})
+						return arr
+						// return this.srvCols.filter(item => this.columns.includes(item.columns))
 					} else {
 						const cols = this.srvCols.filter(item => item.columns && item.columns !== 'id' && item.columns
 							.indexOf('_no') == -1).slice(0, 4)
@@ -131,6 +140,9 @@
 					// 		};
 					// 	});
 					// }
+					if(Array.isArray(this.queryCond)&&this.queryCond.length>0){
+						fieldsCond = this.queryCond
+					}
 					let url =
 						`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
 
@@ -229,9 +241,13 @@
 						rownumber: 20,
 						pageNo: this.pageNo
 					},
-					order: this.orderList
+					order: this.orderList,
+					query_source: "list_page"
 				};
-
+				if(Array.isArray(req.order)&&req.order.length===0){
+					delete req.order
+				}
+				
 				if (this.colV2?.vpage_no) {
 					req['vpage_no'] = this.colV2.vpage_no
 				}
@@ -240,11 +256,11 @@
 				if (Array.isArray(this.condition) && this.condition.length > 0) {
 					req.condition = this.condition
 				}
-				if(Array.isArray(this.queryCond)&&this.queryCond.length>0){
-					req.condition = [...req.condition,...this.queryCond]
+				if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
+					req.condition = [...req.condition, ...this.queryCond]
 				}
 				if (this.searchWords) {
-					let cond = this.srvCols.map(item => {
+					let cond = this.tableColumn.map(item => {
 						let obj = {
 							colName: item.columns,
 							ruleType: 'like',
@@ -272,11 +288,11 @@
 				if (Array.isArray(this.orderList) && this.orderList.length > 0) {
 					req.order = this.orderList
 				}
-				if(Array.isArray(this.descCol)){
-					req.order = [...req.order,...this.descCol]
+				if (Array.isArray(this.descCol)) {
+					req.order = [...req.order, ...this.descCol]
 				}
-				if(Array.isArray(this.ascCol)){
-					req.order = [...req.order,...this.ascCol]
+				if (Array.isArray(this.ascCol)) {
+					req.order = [...req.order, ...this.ascCol]
 				}
 				let res = await this.$http.post(url, req);
 				if (res.data.state === 'SUCCESS') {
@@ -343,24 +359,36 @@
 						//TODO handle the exception
 					}
 				}
-				if(option.cond){
-					try{
+				if (option.cond) {
+					try {
 						let cond = JSON.parse(option.cond)
-						if(Array.isArray(cond)){
-							this.queryCond = cond
-						}else if(typeof cond==='object' && Object.keys(cond).length>0){
+						if (Array.isArray(cond)) {
+							this.queryCond = cond.filter(item => {
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
+						} else if (typeof cond === 'object' && Object.keys(cond).length > 0) {
 							let arr = []
-							Object.keys(cond).forEach(key=>{
+							Object.keys(cond).forEach(key => {
 								let obj = {
-									colName:key,
-									ruleType:'eq',
-									value:cond[key]
+									colName: key,
+									ruleType: 'eq',
+									value: cond[key]
 								}
 								arr.push(obj)
 							})
-							this.queryCond = arr
+							this.queryCond = arr.filter(item => {
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
 						}
-					}catch(e){
+					} catch (e) {
 						//TODO handle the exception
 					}
 				}
@@ -405,6 +433,7 @@
 			&.table-head {
 				font-size: 24rpx;
 				color: #000;
+				font-weight: bold;
 				background-color: #F1F1F1;
 			}
 

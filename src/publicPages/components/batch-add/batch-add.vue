@@ -81,6 +81,14 @@
 				}]
 			}
 		},
+		props: {
+			selectColInfo:{
+				type: Object
+			},
+			mainData: {
+				type: Object
+			},
+		},
 		computed: {
 			propListTop() {
 				return 100
@@ -200,7 +208,7 @@
 					}
 				}
 				this.listV2Data = colVs;
-
+				
 				// this.listButton = 
 				this.listButton = colVs.gridButton.filter(item => {
 					if (item.permission === true && ['select', 'add'].includes(item.button_type)) {
@@ -253,6 +261,7 @@
 					const req = {
 						"serviceName": this.option.serviceName,
 						"colNames": ["*"],
+						condition:[],
 						"page": {
 							"pageNo": this.pageNo,
 							"rownumber": 20
@@ -261,6 +270,12 @@
 					if (Array.isArray(this.cond) && this.cond.length > 0) {
 						req.condition = this.cond
 					}
+					if(Array.isArray(this.selectColInfo?.option_list_v2?.conditions)&&this.selectColInfo.option_list_v2.conditions.length>0){
+						this.selectColInfo.option_list_v2.conditions.forEach(item=>{
+							req.condition.push(item)
+						})
+					}
+					
 					if (this.searchVal) {
 						let cond = this.srvCols.map(item => {
 							let obj = {
@@ -303,7 +318,7 @@
 					})
 				}
 			},
-			open(e) {
+			open(e, info) {
 				this.params = e
 				this.show = true
 				if (!this.listV2Data) {

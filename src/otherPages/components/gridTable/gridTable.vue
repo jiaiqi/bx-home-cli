@@ -13,7 +13,7 @@
 				<view class="row">
 					<view class="col" v-for="(item, index) in noFixedKey" :key="index"
 						@touchstart="touchmove($event, item)">
-						<view class="item col-label" :style="{width:setUpxToPx(item.width), height: setUpxToPx(80)}">
+						<view class="item col-label" :style="{width:setUpxToPx(item.width), height: setUpxToPx(80),color:item.color,'background-color':item.selfBgColor}">
 							<span>{{ item.label }}</span>
 							<span>{{ item.value||'' }}</span>
 						</view>
@@ -25,7 +25,7 @@
 		<!--表格内容区域-->
 		<scroll-view class="table-content" :style="{marginTop: setUpxToPx(170), marginBottom: setUpxToPx(itemHeight)}"
 			scroll-y @scrolltolower="loadMore" @refresherrefresh="refresh">
-			<view class="content">
+			<view class="content" v-if="tableData.length>0">
 				<view class="left">
 					<view class="row" v-for="(item, index) in tableData" :key="index">
 						<view class="item header-bg"
@@ -38,9 +38,11 @@
 				<scroll-view class="scroll-view" scroll-x @scroll="scrollXFunc" @scrolltoupper="scrollToLeft">
 					<view class="scroll-view-item" v-for="(item, index) in tableData" :key="index"
 						:style="{ height: setUpxToPx(itemHeight)}">
-						<gridItem :data="item[v.label]" :width="setUpxToPx(v.width)" :height=" setUpxToPx(itemHeight)"
-							:config="scheduleConfig" v-for="(v, index2) in noFixedKey" :bgColor="v.bgColor"
-							:key="index2" @click.native="clickItem(item[v.label],v,index2,index)"></gridItem>
+						<view class="" v-if="noFixedKey.length>0">
+							<gridItem :data="item[v.label]" :width="setUpxToPx(v.width)" :height=" setUpxToPx(itemHeight)"
+								:config="scheduleConfig" v-for="(v, index2) in noFixedKey" :bgColor="v.bgColor"
+								:key="index2" @click.native="clickItem(item[v.label],v,index2,index)"></gridItem>
+						</view>
 					</view>
 				</scroll-view>
 			</view>
@@ -121,6 +123,18 @@
 				navBarHeight: 46
 			}
 		},
+		watch: {
+			tableData:{
+				handler(newValue, oldValue){
+					this.initConfig()
+				}
+			},
+			config: {
+				handler(newValue, oldValue){
+					this.initConfig()
+				}
+			}
+		},
 		computed: {
 			schedule_item_cfg() {
 				return this.scheduleConfig?.schedule_item_cfg || []
@@ -135,7 +149,6 @@
 			}
 		},
 		mounted() {
-
 			this.getSystemInfo()
 			this.initConfig()
 		},
@@ -167,11 +180,13 @@
 				return uni.upx2px(val ? val : 100) + 'px'
 			},
 			initConfig() {
+				this.fixedKey = []
+				this.noFixedKey = []
 				this.config.forEach(v => {
 					this.getKeys(v)
-					this.initSumRow(v)
+					// this.initSumRow(v)
 				})
-				this.countSum()
+				// this.countSum()
 			},
 			getQueryKey(item) {
 				return this.listQuery[item.filter && item.filter.key ? item.filter.key : item.key]

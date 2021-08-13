@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<a-form-item :procData="procData" :labelPosition="labelPosition" :optionMode="optionMode"
+		<a-form-item :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :optionMode="optionMode"
 			@on-value-change="onValChange" @on-value-blur="onValBlur" @chooseLocation="chooseLocation"
 			v-for="field in allField" :key="field.id" :field="field" :pageType="pageType" ref="fitem"></a-form-item>
 		<!-- <slot></slot> -->
@@ -40,6 +40,9 @@
 			optionMode: {
 				type: String,
 				default: 'button' //选项的样式 normal | button
+			},
+			srvApp:{
+				type: String
 			},
 			moreConfig: {
 				type: Object,

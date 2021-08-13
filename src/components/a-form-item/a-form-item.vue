@@ -72,8 +72,8 @@
 			</checkbox-group>
 			<bx-checkbox-group :mode="optionMode" v-model="fieldData.value"
 				class="form-item-content_value checkbox-group" v-else-if="fieldData.type === 'checkboxFk'"
-				:disabled="fieldData.disabled || false" @change="onBlur()">
-				<bx-checkbox v-model="item.checked" v-for="item in radioOptions" :key="item.value" :name="item.label">
+				:disabled="fieldData.disabled || false" @change="onBlur">
+				<bx-checkbox v-model="item.checked" v-for="item in radioOptions" :name="item.label">
 					{{ item.label }}
 				</bx-checkbox>
 			</bx-checkbox-group>
@@ -81,19 +81,19 @@
 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
 				<view v-if="
             (setOptionList.length < 15 && fieldData.type === 'Set') ||
-            (selectorData.length < 5 && fieldData.type === 'Selector')
+            (selectorData.length <= 6 && fieldData.type === 'Selector')
           ">
 					<!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
-						v-model="fieldData.value" mode="button" @change="onBlur()">
-						<bx-checkbox v-for="item in setOptionList" :name="item.value" :key="item.value"
+						v-model="fieldData.value" mode="button" @change="onBlur">
+						<bx-checkbox v-for="item in setOptionList" :name="item.value" 
 							v-model="item.checked">
 							{{ item.label }}
 						</bx-checkbox>
 					</bx-checkbox-group>
 					<bx-radio-group v-if="fieldData.type === 'Selector'" class="form-item-content_value radio-group"
 						v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
-						<bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
+						<bx-radio v-for="item in radioOptions" :name="item.value">{{ item.label }}
 						</bx-radio>
 					</bx-radio-group>
 				</view>
@@ -243,15 +243,15 @@
 							<text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
 							</text>
 						</view>
-						<bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur()"
+						<bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
 							class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
-							<bx-checkbox v-for="item in setOptionList" :key="item.label" :name="item.value"
+							<bx-checkbox v-for="item in setOptionList"  :name="item.value"
 								v-model="item.checked">{{ item.label }}</bx-checkbox>
 						</bx-checkbox-group>
 						<bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
 							v-model="fieldData.value" mode="button" @change="pickerChange"
 							:disabled="fieldData.disabled">
-							<bx-radio v-for="item in selectorData" :key="item.value" :name="item.value">{{ item.label }}
+							<bx-radio v-for="item in selectorData"  :name="item.value">{{ item.label }}
 							</bx-radio>
 						</bx-radio-group>
 					</view>
@@ -363,6 +363,9 @@
 			optionMode: {
 				type: String,
 				default: 'button' //选项的样式 normal | button
+			},
+			srvApp: {
+				type: String,
 			}
 		},
 		computed: {
@@ -796,12 +799,7 @@
 						rownumber: this.treePageInfo.rownumber
 					}
 				};
-				let appName = '';
-				if (self.fieldData.option_list_v2 && self.fieldData.option_list_v2.srv_app) {
-					appName = self.fieldData.option_list_v2.srv_app;
-				} else {
-					appName = uni.getStorageSync('activeApp');
-				}
+				let appName =self.fieldData?.option_list_v2?.srv_app|| self.srvApp || uni.getStorageSync('activeApp');
 				let fieldModelsData = self.deepClone(self.fieldsModel);
 				if (!self.procData.id) {
 					fieldModelsData = self.deepClone(self.fieldsModel);
@@ -811,6 +809,7 @@
 				// #ifdef H5
 				top.user = uni.getStorageSync('login_user_info');
 				// #endif
+				debugger
 				if (cond) {
 					req.condition = cond;
 				} else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
@@ -857,12 +856,11 @@
 				if (!req.serviceName) {
 					return;
 				}
+				if(!appName){
+					return
+				}
 				let res = await self.onRequest('select', req.serviceName, req, appName);
-				// if (res.data.state === 'SUCCESS' && res.data.page && res.data.page.total > res.data.page.rownumber * res.data.page.pageNo) {
-				// 	this.treeDataStatus = 'loadmore';
-				// } else {
-				// 	this.treeDataStatus = 'nomore';
-				// }
+			
 				if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 					if (res.data.page) {
 						this.treePageInfo = res.data.page;
@@ -924,6 +922,7 @@
 			},
 			bindTimeChange(e) {
 				this.fieldData.value = e.detail.value;
+				this.$emit('on-value-change', this.fieldData);
 			},
 			openModal(type) {
 				// 打开弹出层
@@ -952,7 +951,6 @@
 				// 输入框失去焦点 进行校验
 				console.log('on-blur');
 				this.getValid();
-				debugger
 				this.$emit('on-value-change', this.fieldData);
 			},
 			onInput() {
@@ -996,8 +994,7 @@
 			async uploadFile(tempFilePath) {
 				let self = this;
 				console.log(this.uploadFormData);
-				this.uploadFormData['app_no'] = this.fieldData.srvInfo && this.fieldData.srvInfo.appNo ? this.fieldData
-					.srvInfo.appNo : uni.getStorageSync('activeApp');
+				this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync('activeApp');
 				this.uploadFormData['columns'] = this.fieldData.column;
 				if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !==
 					undefined) {
@@ -1103,8 +1100,8 @@
 					table_name: '',
 					columns: ''
 				};
-				this.uploadFormData['app_no'] = this.fieldData.srvInfo && this.fieldData.srvInfo.appNo ? this.fieldData
-					.srvInfo.appNo : uni.getStorageSync('activeApp');
+				this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync(
+					'activeApp');
 				this.uploadFormData['columns'] = this.fieldData.column;
 				if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
 					this.uploadFormData['file_no'] = this.fieldData.value;

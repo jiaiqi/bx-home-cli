@@ -44,7 +44,7 @@
 		},
 		computed: {
 			colData() {
-				if (typeof this.data === 'object') {
+				if (this.data && typeof this.data === 'object') {
 					return Object.keys(this.data)
 				} else {
 					return []
@@ -65,7 +65,7 @@
 
 										if (typeof disp === 'string') {
 											str += disp;
-										} else if (typeof disp === 'object' && disp
+										} else if (disp&& typeof disp === 'object' && disp
 											.srv_col_val) {
 											if (!item[disp.srv_col_val]) {
 												item[disp.srv_col_val] = ''
@@ -132,6 +132,7 @@
 
 			.value {
 				flex: 1;
+				white-space: break-spaces;
 			}
 		}
 

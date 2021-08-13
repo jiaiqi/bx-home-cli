@@ -47,8 +47,8 @@
 							class="cuIcon-close"></text></button>
 				</view>
 				<view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
-					<a-form v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)" :fields="addV2._fieldInfo"
-						:pageType="use_type" :formType="use_type" ref="childForm" :key="modalName"></a-form>
+					<a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)" :fields="addV2._fieldInfo"
+						:pageType="use_type" :formType="use_type" ref="childForm" :key="modalName" @value-blur="valueChange"></a-form>
 				</view>
 				<view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
 					<button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
@@ -56,7 +56,7 @@
 				</view>
 			</view>
 		</view>
-		<batch-add ref="batchAdd" @submit="batchSubmit"></batch-add>
+		<batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit"></batch-add>
 		<view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
 			<view class="cu-dialog" @click.stop.prevent="">
 				<view class="close-btn text-right">
@@ -66,7 +66,7 @@
 				<view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
 					<a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)"
 						:fields="updateV2._fieldInfo" :pageType="use_type" :formType="use_type" ref="childForm"
-						:key="modalName"></a-form>
+						:key="modalName" ></a-form>
 				</view>
 				<view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
 					<button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
@@ -96,7 +96,8 @@
 				modalName: "",
 				memoryListData: [],
 				currentItemIndex: null,
-				currentItemType: null
+				currentItemType: null,
+				selectColInfo: null
 			}
 		},
 
@@ -191,7 +192,7 @@
 				if (Array.isArray(this.v2Data?.gridButton)) {
 					let ignoreBtn = ['select', 'batch_delete', 'delete']
 					if (this.use_type === 'detaillist') {
-						ignoreBtn.push('add')
+						// ignoreBtn.push('add')
 					}
 					result = this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
 						.button_type))
@@ -340,7 +341,7 @@
 				if (e && e.button_type) {
 					switch (e.button_type) {
 						case 'submit':
-							this.add2List()
+							this.add2List(e)
 							break;
 						case 'edit':
 							this.updateChildListItem()
@@ -353,14 +354,6 @@
 									this.listData[index]._dirtyFlags = 'delete'
 									this.$set(this.listData, index, this.listData[index])
 								}
-								// if (this.finalListData[index]) {
-								// 	if (this.finalListData[index]._isMemoryData === true) {
-								// 		let i = index - this.listData.length
-								// 		this.deleteMemoryListItem(i)
-								// 	} else {
-								// 		this.listData[index]._dirtyFlags = 'delete'
-								// 	}
-								// }
 							}
 							break;
 						case 'reset':
@@ -421,7 +414,7 @@
 					})
 				}
 			},
-			add2List() {
+			async add2List(e) {
 				let data = this.$refs.childForm.getFieldModel();
 				if (!data) {
 					return
@@ -435,12 +428,45 @@
 							delete data[key]
 						}
 					}
-					if (Object.keys(data).length > 0) {
-						data._isMemoryData = true
-						data._dirtyFlags = 'add'
-						this.memoryListData.push(data)
+					if(this.use_type==='detaillist'){
+						// 直接添加
+						// let {
+						// 	row,
+						// 	btn
+						// } = e
+						let reqData = [{
+							serviceName: e.service_name,
+							data: [data]
+						}];
+						let app = this.appName || uni.getStorageSync('activeApp');
+						let type = "add"
+						let url = this.getServiceUrl(app, e.service_name, type);
+						let res = await this.$http.post(url, reqData);
+						this.getList()
+						if (res.data.state === 'SUCCESS') {
+							uni.showModal({
+								title: '提示',
+								content: res.data.resultMessage,
+								showCancel: false
+							})
+						} else {
+							uni.showToast({
+								title: res.data.resultMessage,
+								mask: false,
+							});
+						}
+						// this.$emit('addChild',{row:data,btn:e})
+					}else{
+						// 添加到内存中，随主表一起添加
+						if (Object.keys(data).length > 0) {
+							data._isMemoryData = true
+							data._dirtyFlags = 'add'
+							this.memoryListData.push(data)
+						}
 					}
+			
 				}
+				
 				this.addV2._fieldInfo = this.addV2._fieldInfo.map(item => {
 					item.value = null
 					if (item.defaultValue && !item.value) {
@@ -454,10 +480,43 @@
 					}
 					return item
 				})
+				
 				this.modalName = ''
 
 			},
-			onButton(e, index) {
+			async valueChange(e, triggerField) {
+				const column = triggerField.column
+				const fieldModel = e
+				const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
+				const table_name = this.addV2.main_table
+			
+				let result = null
+				if (Array.isArray(cols) && cols.length > 0) {
+					result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+				}
+				for (let i = 0; i < this.addV2._fieldInfo.length; i++) {
+					const item = this.addV2._fieldInfo[i]
+					if (item.x_if) {
+						if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+							if (item.table_name !== table_name) {
+								result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+							}
+							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else if (result === true) {
+								item.display = true
+							} else {
+								item.display = false
+							}
+						}
+					}
+					if (e.hasOwnProperty(item.column)) {
+						item.value = e[item.column];
+					}
+					this.$set(this.addV2._fieldInfo, i, item)
+				}
+			},
+			async onButton(e, index) {
 				if (e && e.button_type) {
 					switch (e.button_type) {
 						case 'refresh':
@@ -469,7 +528,7 @@
 							})
 							break;
 						case 'add':
-							this.getAddV2()
+							this.getAddV2(e)
 							this.modalName = 'addChildData'
 							break;
 						case 'edit':
@@ -491,29 +550,14 @@
 							}
 							break
 						case 'batchAdd':
-							this.getAddV2()
+							let addV2 = await this.getAddV2();
 							this.$refs.batchAdd.open(e)
-							// let fk = this.config.foreign_key
-							// debugger
-							// let serviceName = e.column_option_list_v2?.serviceName
-							// if(fk&&serviceName){
-							// 	uni.navigateTo({
-							// 		url:'/publicPages/list/list?pageType=batchAdd'
-							// 	})
-							// }
 							break;
 					}
-					// this.$emit('onButton', {
-					// 	btn: this.deepClone(e),
-					// 	foreignKey: this.foreignKey,
-					// 	v2Data: this.deepClone(this.addV2),
-					// 	list: this.deepClone(this.listData)
-					// })
 				}
 			},
 			async getUpdateV2(row) {
 				if (this.updateV2?._fieldInfo) {
-					debugger
 					this.updateV2._fieldInfo = this.updateV2._fieldInfo.map(item => {
 						if (row && row[item.columns]) {
 							item.value = row[item.columns]
@@ -522,48 +566,139 @@
 					})
 					return
 				}
-				if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
-					let app = this.appName || uni.getStorageSync('activeApp');
-					let colVs = await this.getServiceV2(this.serviceName, 'update', 'update', app);
-					colVs._fieldInfo = colVs._fieldInfo.map(item => {
-						if (item.defaultValue) {
-							item.value = item.defaultValue
-						}
-						if (item.in_update === 1) {
-							item.display = true
-						}
-						if (item.columns === this.foreignKey?.referenced_column_name) {
-							item.display = false
-						}
-						if (row && row[item.columns]) {
-							item.value = row[item.columns]
-						}
-						return item
-					})
-					this.updateV2 = colVs
-				}
+				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let colVs = await this.getServiceV2(this.serviceName, 'update', 'update', app);
+				colVs._fieldInfo = colVs._fieldInfo.map(item => {
+					if (item.defaultValue) {
+						item.value = item.defaultValue
+					}
+					if (item.in_update === 1) {
+						item.display = true
+					}
+					if (item.columns === this.foreignKey?.referenced_column_name) {
+						item.display = false
+					}
+					if (row && row[item.columns]) {
+						item.value = row[item.columns]
+					}
+					return item
+				})
+				this.updateV2 = colVs
+				// }
 			},
-			async getAddV2() {
+			async getAddV2(btn) {
 				if (this.addV2) {
 					return
 				}
-				if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
-					let app = this.appName || uni.getStorageSync('activeApp');
-					let colVs = await this.getServiceV2(this.serviceName, 'add', 'add', app);
-					colVs._fieldInfo = colVs._fieldInfo.map(item => {
-						if (item.defaultValue) {
-							item.value = item.defaultValue
-						}
-						if (item.in_add === 1) {
-							item.display = true
-						}
-						if (item.columns === this.foreignKey?.referenced_column_name) {
-							item.display = false
-						}
-						return item
-					})
-					this.addV2 = colVs
+				console.log(btn)
+				let serviceName = btn?.service_name||this.serviceName
+				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let colVs = await this.getServiceV2(serviceName, 'add', 'add', app);
+				if(!colVs){
+					return
 				}
+				
+				colVs._fieldInfo = colVs._fieldInfo.map(item => {
+					if(this.mainData&&this.mainData[item.columns]){
+						item.value = this.mainData[item.columns]
+					}
+					if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
+						.length > 0){
+							item.option_list_v2.conditions = item.option_list_v2.conditions.map(op=>{
+								if (op.value && op.value.indexOf('data.') !== -1) {
+									let colName = op.value.slice(op.value.indexOf('data.') + 5);
+									if (this.mainData && this.mainData[colName]) {
+										op.value = this.mainData[colName];
+									}
+								} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
+									op.value = uni.getStorageSync('login_user_info').user_no;
+								} else if (op.value && op.value.indexOf("'") === 0 && op.value
+									.lastIndexOf(
+										"'") === op.value
+									.length - 1) {
+									op.value = op.value.replace(/\'/gi, '');
+								}
+								if (op.value_exp) {
+									delete op.value_exp;
+								}
+								return op
+							})
+						}
+					if (item.defaultValue) {
+						item.value = item.defaultValue
+					}
+					if (item.in_add === 1) {
+						item.display = true
+					}
+					if (item.columns === this.foreignKey?.referenced_column_name) {
+						item.display = false
+					}
+					return item
+				})
+				let defaultVal = colVs._fieldInfo.reduce((res,cur)=>{
+					if(cur.value){
+						res[cur.columns] = cur.value
+					}
+					return res
+				},{})
+				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+				const table_name = colVs.main_table
+				const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+				
+				for (let i = 0; i < colVs._fieldInfo.length; i++) {
+					const item = colVs._fieldInfo[i]
+					if (item.x_if) {
+						if (Array.isArray(item.xif_trigger_col)) {
+							if (item.table_name !== table_name) {
+								result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
+							}
+							if (result?.response && result.response[item.column]) {
+								item.display = true
+							} else if (result === true) {
+								item.display = true
+							} else {
+								item.display = false
+							}
+						}
+					}
+				}
+				
+				this.addV2 = colVs
+				if (Array.isArray(colVs?._fieldInfo)) {
+					let colInfo = null
+					let e = this.config?.foreign_key?.moreConfig?.batch_add
+					if (e) {
+						colInfo = colVs._fieldInfo.find(col => col.columns === e.target_column)
+						if (Array.isArray(colInfo?.option_list_v2?.conditions) && colInfo.option_list_v2.conditions
+							.length > 0) {
+							colInfo.option_list_v2.conditions = colInfo.option_list_v2.conditions.map(item => {
+								if (item.value && item.value.indexOf('data.') !== -1) {
+									let colName = item.value.slice(item.value.indexOf('data.') + 5);
+									if (this.mainData && this.mainData[colName]) {
+										item.value = this.mainData[colName];
+									}
+								} else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
+									item.value = uni.getStorageSync('login_user_info').user_no;
+								} else if (item.value && item.value.indexOf("'") === 0 && item.value
+									.lastIndexOf(
+										"'") === item.value
+									.length - 1) {
+									item.value = item.value.replace(/\'/gi, '');
+								}
+								if (item.value_exp) {
+									delete item.value_exp;
+								}
+								return item
+							})
+						}
+						
+						this.selectColInfo = colInfo
+					}
+				}
+				return colVs
+				// }
 			},
 			async getListV2() {
 				let app = this.appName || uni.getStorageSync('activeApp');
@@ -609,7 +744,6 @@
 				const foreignKey = this.foreignKey
 				const data = this.config
 				let formData = this.mainData;
-
 				const condition = this.condition
 				if (Array.isArray(condition) && condition.length > 0) {
 					let req = {

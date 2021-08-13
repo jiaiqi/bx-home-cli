@@ -2238,14 +2238,15 @@ export default {
 		}
 
 		// 后端计算xif并返回结果
-		Vue.prototype.evalX_IF = async (tableName, cols, data = {}) => {
+		Vue.prototype.evalX_IF = async (tableName, cols, data = {},appName) => {
 			if (!tableName || !cols) {
 				return
 			}
 			if (Array.isArray(cols)) {
 				cols = cols.toString()
 			}
-			const url = `${Vue.prototype.$api.serverURL}/health/operate/srvsys_table_col_show_hide_result`
+			const app = appName||uni.getStorageSync('activeApp')
+			const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_table_col_show_hide_result`
 			const req = [{
 				serviceName: "srvsys_table_col_show_hide_result",
 				condition: [{
@@ -2263,11 +2264,12 @@ export default {
 			if (data) {
 				req[0].data = [data]
 			}
-
 			const res = await _http.post(url, req)
 			if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
 				0) {
 				return res.data.response[0]
+			}else if(res.data.resultCode==='6666'){
+				return true
 			} else {
 				return false
 			}

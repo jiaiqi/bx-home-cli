@@ -334,6 +334,9 @@
 			flex: 1;
 			background-color: #fff;
 			min-height: 30vh;
+			position: inherit;
+			width: 100%;
+			pointer-events: auto;
 			.bx-radio-group {
 				margin: 0 20rpx;
 				max-height: 60vh;
