@@ -66,6 +66,12 @@
 		// padding: 20rpx 0;
 		.open-popup{
 			flex: 1;
+			display: flex;
+			align-items: center;
+			.value{
+				display: inline-block;
+				flex: 1;
+			}
 		}
 	}
 	.dialog-button {
@@ -170,7 +176,17 @@
 		color: #000;
 		font-size: var(--global-text-font-size);
 		overflow: hidden;
-	
+		// background-color: #F1F1F1;
+		border-radius: 10rpx;
+		input{
+			display: inline-block;
+			height: 50rpx;
+			padding:0 10rpx;
+			// border-radius: 10rpx;
+			// background-color: #F1F1F1;
+			// border-bottom: 1px solid #F1F1F1;
+			font-size: 28rpx;
+		}
 		&.form-detail {
 			padding: 0;
 		}
@@ -212,6 +228,13 @@
 			align-items: center;
 			.open-popup{
 				flex: 1;
+				display: flex;
+				align-items: center;
+				.value{
+					display: inline-block;
+					flex: 1;
+					padding: 10rpx;
+				}
 			}
 			.textarea-content {
 				width: 100%;
@@ -248,13 +271,20 @@
 				}
 			}
 			&.picker {
-				margin-right: 20px;
+				// margin-right: 20px;
 				.uni-picker {
 					width: 100%;
 					.picker-content {
 						width: 100%;
 						display: flex;
 						justify-content: space-between;
+						// padding:0 10rpx;
+						padding: 10rpx;
+						align-items: center;
+						border-radius: 10rpx;
+						.place-holder{
+							padding: 0;
+						}
 					}
 				}
 				.value {
@@ -284,10 +314,13 @@
 				}
 			}
 			.place-holder {
-				
+				display: flex;
 				color: grey;
 				width: 100%;
 				border-radius: 10rpx;
+				justify-content: space-between;
+				padding: 10rpx;
+				align-items: center;
 				&.picker{
 					background-color: #f1f1f1;
 					min-height: 100rpx;

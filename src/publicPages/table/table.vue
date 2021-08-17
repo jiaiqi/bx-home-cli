@@ -176,7 +176,10 @@
 						`/publicPages/form/form?type=detail&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
 					if (this.moreConfig?.detailPage === 'childTableList') {
 						url =
-							`/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+							`/publicPages/detail/detail?serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+					}
+					if(this.moreConfig?.clickTargetUrl){
+						url = this.renderStr(this.moreConfig.clickTargetUrl,row)
 					}
 					if (this.appName) {
 						url += `&appName=${this.appName}`
@@ -199,6 +202,7 @@
 					try {
 						colVs.moreConfig = JSON.parse(colVs.more_config)
 					} catch (e) {
+						debugger
 						//TODO handle the exception
 						console.info(e)
 					}

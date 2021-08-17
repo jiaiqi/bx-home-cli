@@ -1,18 +1,22 @@
 <template>
 	<view class="child-list">
 		<view class="section-name">
-			<view class="name">
+			<view class="name" @click="unfold">
 				<text>{{config.label||''}}</text>
 				<text class="cu-load margin-left-xs" :class="loading?'loading':''"></text>
+				<view class="unfold" v-if="config.unfold ===false">
+					<text class="cuIcon-unfold"></text>
+				</view>
 			</view>
-			<view class="to-more">
+
+			<view class="to-more" v-if="config.unfold !==false">
 				<button class="cu-btn sm line-blue border" v-for="btn in publicButton"
 					@click="onButton(btn)">{{btn.button_name||''}}</button>
 				<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})"
-					v-if="listData.length===5">查看更多</button>
+					v-if="listData.length>=rownumber">查看全部</button>
 			</view>
 		</view>
-		<view class="list-box">
+		<view class="list-box" v-if="config.unfold !==false">
 			<view class="list-item table-head">
 				<view class="col-item" v-for="col in showColumn">
 					{{col.label||''}}
@@ -40,6 +44,10 @@
 				</view>
 			</view>
 		</view>
+		<view class="unfold" v-if="config.isFold!==true&&config.unfold ===true" @click="unfold">
+			<!-- <text>向上折叠</text> -->
+			<text class="cuIcon-fold"></text>
+		</view>
 		<view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
 			<view class="cu-dialog" @click.stop.prevent="">
 				<view class="close-btn text-right">
@@ -47,8 +55,9 @@
 							class="cuIcon-close"></text></button>
 				</view>
 				<view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
-					<a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)" :fields="addV2._fieldInfo"
-						:pageType="use_type" :formType="use_type" ref="childForm" :key="modalName" @value-blur="valueChange"></a-form>
+					<a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)"
+						:fields="addV2._fieldInfo" :pageType="use_type" :formType="use_type" ref="childForm"
+						:key="modalName" @value-blur="valueChange"></a-form>
 				</view>
 				<view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
 					<button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
@@ -56,7 +65,8 @@
 				</view>
 			</view>
 		</view>
-		<batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit"></batch-add>
+		<batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit">
+		</batch-add>
 		<view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
 			<view class="cu-dialog" @click.stop.prevent="">
 				<view class="close-btn text-right">
@@ -66,7 +76,7 @@
 				<view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
 					<a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)"
 						:fields="updateV2._fieldInfo" :pageType="use_type" :formType="use_type" ref="childForm"
-						:key="modalName" ></a-form>
+						:key="modalName"></a-form>
 				</view>
 				<view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
 					<button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
@@ -91,6 +101,7 @@
 				localListData: [],
 				listData: [],
 				total: 0,
+				rownumber: 5,
 				orderCols: [],
 				loading: false,
 				modalName: "",
@@ -154,6 +165,11 @@
 				}
 			},
 			updateService() {
+				if (Array.isArray(this.v2Data?.rowButton) && this.v2Data.rowButton.find(item => item.button_type ===
+						'edit')) {
+					let buttonInfo = this.v2Data.rowButton.find(item => item.button_type === 'edit')
+					return buttonInfo?.service_name
+				}
 				if (this.serviceName) {
 					let index = this.serviceName.lastIndexOf('_')
 					return this.serviceName.slice(0, index) + '_update'
@@ -241,6 +257,9 @@
 			this.getListV2()
 		},
 		methods: {
+			unfold() {
+				this.$emit('unfold', this.config)
+			},
 			/**
 			 * 生成主子表同时提交的子表请求参数
 			 */
@@ -344,7 +363,7 @@
 							this.add2List(e)
 							break;
 						case 'edit':
-							this.updateChildListItem()
+							this.updateChildListItem(index)
 							break;
 						case 'delete':
 							if (typeof index === 'number' && index >= 0) {
@@ -366,6 +385,29 @@
 				let data = this.$refs.childForm.getFieldModel();
 
 				if (!data) {
+					return
+				}
+				if (this.use_type === 'detaillist') {
+					// 详情子表页面 直接发请求修改
+					let id = this.listData[this.currentItemIndex]['id']
+					if (id && this.updateService) {
+						let req = [{
+							"serviceName": this.updateService,
+							"condition": [{
+								"colName": 'id',
+								"ruleType": "eq",
+								"value": id
+							}],
+							"data": [data]
+						}]
+						let app = this.appName || uni.getStorageSync('activeApp');
+						let url = this.getServiceUrl(app, this.updateService, 'update');
+						this.$http.post(url, req).then(res => {
+							this.hideModal()
+							this.getList()
+						})
+					}
+
 					return
 				}
 
@@ -428,7 +470,7 @@
 							delete data[key]
 						}
 					}
-					if(this.use_type==='detaillist'){
+					if (this.use_type === 'detaillist') {
 						// 直接添加
 						// let {
 						// 	row,
@@ -456,7 +498,7 @@
 							});
 						}
 						// this.$emit('addChild',{row:data,btn:e})
-					}else{
+					} else {
 						// 添加到内存中，随主表一起添加
 						if (Object.keys(data).length > 0) {
 							data._isMemoryData = true
@@ -464,9 +506,9 @@
 							this.memoryListData.push(data)
 						}
 					}
-			
+
 				}
-				
+
 				this.addV2._fieldInfo = this.addV2._fieldInfo.map(item => {
 					item.value = null
 					if (item.defaultValue && !item.value) {
@@ -480,7 +522,7 @@
 					}
 					return item
 				})
-				
+
 				this.modalName = ''
 
 			},
@@ -489,7 +531,7 @@
 				const fieldModel = e
 				const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
 				const table_name = this.addV2.main_table
-			
+
 				let result = null
 				if (Array.isArray(cols) && cols.length > 0) {
 					result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
@@ -568,7 +610,7 @@
 				}
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
 				let app = this.appName || uni.getStorageSync('activeApp');
-				let colVs = await this.getServiceV2(this.serviceName, 'update', 'update', app);
+				let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
 					if (item.defaultValue) {
 						item.value = item.defaultValue
@@ -592,40 +634,40 @@
 					return
 				}
 				console.log(btn)
-				let serviceName = btn?.service_name||this.serviceName
+				let serviceName = btn?.service_name || this.serviceName
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let colVs = await this.getServiceV2(serviceName, 'add', 'add', app);
-				if(!colVs){
+				if (!colVs) {
 					return
 				}
-				
+
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
-					if(this.mainData&&this.mainData[item.columns]){
+					if (this.mainData && this.mainData[item.columns]) {
 						item.value = this.mainData[item.columns]
 					}
 					if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
-						.length > 0){
-							item.option_list_v2.conditions = item.option_list_v2.conditions.map(op=>{
-								if (op.value && op.value.indexOf('data.') !== -1) {
-									let colName = op.value.slice(op.value.indexOf('data.') + 5);
-									if (this.mainData && this.mainData[colName]) {
-										op.value = this.mainData[colName];
-									}
-								} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
-									op.value = uni.getStorageSync('login_user_info').user_no;
-								} else if (op.value && op.value.indexOf("'") === 0 && op.value
-									.lastIndexOf(
-										"'") === op.value
-									.length - 1) {
-									op.value = op.value.replace(/\'/gi, '');
+						.length > 0) {
+						item.option_list_v2.conditions = item.option_list_v2.conditions.map(op => {
+							if (op.value && op.value.indexOf('data.') !== -1) {
+								let colName = op.value.slice(op.value.indexOf('data.') + 5);
+								if (this.mainData && this.mainData[colName]) {
+									op.value = this.mainData[colName];
 								}
-								if (op.value_exp) {
-									delete op.value_exp;
-								}
-								return op
-							})
-						}
+							} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
+								op.value = uni.getStorageSync('login_user_info').user_no;
+							} else if (op.value && op.value.indexOf("'") === 0 && op.value
+								.lastIndexOf(
+									"'") === op.value
+								.length - 1) {
+								op.value = op.value.replace(/\'/gi, '');
+							}
+							if (op.value_exp) {
+								delete op.value_exp;
+							}
+							return op
+						})
+					}
 					if (item.defaultValue) {
 						item.value = item.defaultValue
 					}
@@ -637,16 +679,16 @@
 					}
 					return item
 				})
-				let defaultVal = colVs._fieldInfo.reduce((res,cur)=>{
-					if(cur.value){
+				let defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+					if (cur.value) {
 						res[cur.columns] = cur.value
 					}
 					return res
-				},{})
+				}, {})
 				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
 				const table_name = colVs.main_table
 				const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
-				
+
 				for (let i = 0; i < colVs._fieldInfo.length; i++) {
 					const item = colVs._fieldInfo[i]
 					if (item.x_if) {
@@ -664,7 +706,7 @@
 						}
 					}
 				}
-				
+
 				this.addV2 = colVs
 				if (Array.isArray(colVs?._fieldInfo)) {
 					let colInfo = null
@@ -693,7 +735,7 @@
 								return item
 							})
 						}
-						
+
 						this.selectColInfo = colInfo
 					}
 				}
@@ -751,7 +793,7 @@
 						colNames: ['*'],
 						condition: condition,
 						page: {
-							rownumber: 5,
+							rownumber: this.rownumber,
 							pageNo: 1
 						}
 					};
@@ -783,6 +825,13 @@
 		padding: 20rpx;
 		margin-bottom: 20rpx;
 
+		.unfold {
+			text-align: right;
+			margin-top: 10rpx;
+			color: #000;
+			flex: 1;
+		}
+
 		.section-name {
 			color: #000;
 			font-weight: bold;
@@ -794,6 +843,8 @@
 
 			.name {
 				display: flex;
+				flex: 1;
+				justify-content: space-between;
 				align-items: center;
 			}
 

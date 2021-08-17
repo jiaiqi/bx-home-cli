@@ -98,7 +98,10 @@
 					</bx-radio-group>
 				</view>
 				<view @click="openModal(fieldData.type)" class="open-popup" v-else>
-					<text class="place-holder" v-if="!fieldData.value">请选择</text>
+					<view class="place-holder" v-if="!fieldData.value">
+						<text>请选择</text>
+						<text class="cuIcon-right"></text>
+					</view>
 					<view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
 						{{ fieldData.value.toString() }}
 					</view>
@@ -108,7 +111,7 @@
 					<view class="value hidden" v-else-if="fieldData.value">{{
             fieldData.value
           }}</view>
-
+					<text class="cuIcon-right" v-if="fieldData.value"></text>
 				</view>
 			</view>
 			<!-- 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
@@ -389,6 +392,8 @@
 					} else {
 						return this.fieldData.options
 					}
+				}else if(Array.isArray(this.selectorData)&&this.selectorData.length>0){
+					return this.selectorData
 				}
 			},
 			uploadUrl() {
@@ -809,7 +814,6 @@
 				// #ifdef H5
 				top.user = uni.getStorageSync('login_user_info');
 				// #endif
-				debugger
 				if (cond) {
 					req.condition = cond;
 				} else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&

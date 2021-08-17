@@ -32,7 +32,12 @@
 
 					</view>
 					<view class="top-item" v-if="appTempColMap.left && detail[appTempColMap.left]">
-
+						<view class="label" v-if="labelMap[appTempColMap.left]">
+							{{labelMap[appTempColMap.left]||''}}:
+						</view>
+						<view class="value">
+							{{detail[appTempColMap.left]||''}}
+						</view>
 					</view>
 					<view class="top-item" v-if="appTempColMap.right&&detail[appTempColMap.right]">
 						<view class="label" v-if="labelMap[appTempColMap.right]">
@@ -54,14 +59,41 @@
 					</view>
 				</view>
 			</view>
-		</view>
-
-		<view class="child-service-box">
-			<view class="child-service" v-for="(item,index) in childService" :key="index">
-				<child-list :config="item" :appName="appName" :mainData="detail" @addChild="addChild" v-if="detail"></child-list>
+			<view class="detail-form">
+				<view class="form-wrap" :class="{show:showDetail}">
+					<a-form v-if="isArray(detailFields)" :fields="detailFields" :srvApp="appName" pageType="detail"
+						formType="detail" ref="bxForm">
+					</a-form>
+				</view>
+			</view>
+			<view class="show-or-hide" @click="changeDetailStatus">
+				<text class="margin-right">{{showDetail?"收起":"展开"}}详情 </text>
+				<text class="cuIcon-unfold" v-if="!showDetail"></text>
+				<text class="cuIcon-fold " v-else></text>
 			</view>
 		</view>
-		<view class="button-box">
+		<view class="child-service-fold">
+			<button
+				:class="{
+					'bg-orange':currentChild&&currentChild.foreign_key&&currentChild.foreign_key.id&&item&&item.foreign_key&&item.foreign_key.id===currentChild.foreign_key.id}"
+				class="cu-btn border bg-green shadow-blur margin-left-sm" @click="changeChild(item)"
+				v-for="item in foldChildService">{{item.label||''}}</button>
+		</view>
+		<view class="child-service-box" v-if="currentChild">
+			<view class="child-service">
+				<child-list :config="currentChild" :appName="appName" :mainData="detail" @addChild="addChild"
+					v-if="detail&&currentChild">
+				</child-list>
+			</view>
+		</view>
+		<view class="child-service-box" v-if="detail">
+			<view class="child-service" v-for="(item,index) in childService" :key="index">
+				<child-list :config="item" :appName="appName" :mainData="detail" @addChild="addChild"
+					@unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
+				</child-list>
+			</view>
+		</view>
+		<view class="button-box" v-if="detail">
 			<button class="cu-btn bg-blue " v-for="(item,index) in publicButton" :key="index" @click="onButton(item)">
 				{{item.button_name||''}}
 			</button>
@@ -91,10 +123,20 @@
 				v2Data: null,
 				orderCols: [],
 				detail: null,
-				modalName: ""
+				modalName: "",
+				showDetail: false,
+				currentChild: null
 			}
 		},
 		computed: {
+			detailFields() {
+				if (Array.isArray(this.v2Data?._fieldInfo) && typeof this.appTempColMap === 'object') {
+					let arr = Object.keys(this.appTempColMap).map(key => {
+						return this.appTempColMap[key]
+					})
+					return this.v2Data._fieldInfo.filter(item => !arr.includes(item.columns))
+				}
+			},
 			labelMap() {
 				// 字段对应的label
 				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
@@ -110,6 +152,11 @@
 				// 字段关系映射
 				return this.moreConfig?.appTempColMap || {}
 			},
+			foldChildService() {
+				if (Array.isArray(this.childService) && this.childService.length > 0) {
+					return this.childService.filter(item => item.isFold)
+				}
+			},
 			childService() {
 				if (Array.isArray(this.v2Data?.child_service)) {
 					return this.v2Data.child_service.map(item => {
@@ -118,7 +165,13 @@
 						}
 						item.use_type = 'detaillist'
 						return item
-					}).filter(item=>{
+					}).filter((item, index) => {
+						if (Array.isArray(this.detail?._child_tables) && this.v2Data.child_service.length === this
+							.detail._child_tables.length) {
+							if (this.detail._child_tables[index] === 0) {
+								return false
+							}
+						}
 						return true
 						// return item?.foreign_key?.foreign_key_type
 					})
@@ -146,6 +199,27 @@
 			}
 		},
 		methods: {
+			changeChild(e) {
+				let cur = null
+				if (e && typeof e === 'object') {
+					if (this.currentChild?.foreign_key?.id!==e?.foreign_key?.id) {
+						cur = this.deepClone(e)
+						cur.unfold = true
+					}
+				}
+				this.currentChild = cur
+			},
+			unfoldChild(item, index) {
+				this.v2Data.child_service = this.v2Data.child_service.map((c, i) => {
+					if (i === index) {
+						c.unfold = !c.unfold
+					}
+					return c
+				})
+			},
+			changeDetailStatus() {
+				this.showDetail = !this.showDetail
+			},
 			async addChild(e) {
 				let {
 					row,
@@ -173,13 +247,15 @@
 				}
 			},
 			toDetail() {
+				this.changeDetailStatus()
+				return
 				let fieldsCond = [{
 					column: 'id',
 					value: this.detail.id,
 					display: false
 				}]
 				let url =
-					`/publicPages/formPage/formPage?type=detail&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+					`/publicPages/formPage/formPage?type=detail&appName=${this.appName}&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
 				uni.navigateTo({
 					url
 				})
@@ -196,6 +272,33 @@
 						return true
 					}
 				})
+				if (Array.isArray(colVs?.child_service) && colVs.child_service.length > 0) {
+					colVs.child_service = colVs.child_service.map(item => {
+						if (item?.foreign_key?.more_config && typeof item.foreign_key.more_config ===
+							'string') {
+							try {
+								item.foreign_key.morConfig = JSON.parse(item.foreign_key.more_config)
+							} catch (e) {
+								//TODO handle the exception
+							}
+						}
+						item.unfold = true
+						if (item?.foreign_key?.morConfig?.unfold === false) {
+							// 折叠
+							item.unfold = false
+							item.isFold = true
+						} else if (item?.foreign_key?.morConfig?.unfold === true) {
+							item.unfold = true
+						}
+						if (item?.foreign_key?.morConfig?.fold === true) {
+							// 折叠
+							item.unfold = false
+						} else if (item?.foreign_key?.morConfig?.fold === false) {
+							item.unfold = true
+						}
+						return item
+					})
+				}
 				if (!this.navigationBarTitle) {
 					uni.setNavigationBarTitle({
 						title: colVs.service_view_name
@@ -220,7 +323,8 @@
 					})
 				}
 				this.v2Data = colVs;
-				this.getDetail()
+				let defaultVal = await this.getDetail()
+				colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
 			},
 			async getDetail() {
 				const url = this.getServiceUrl(this.srvApp, this.serviceName, 'select')
@@ -245,6 +349,7 @@
 				const res = await this.$http.post(url, req)
 				if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
 					this.detail = res.data.data[0]
+					return this.detail
 				}
 			},
 			async onButton(e) {
@@ -443,6 +548,43 @@
 				if (option.destApp) {
 					this.appName = option.destApp
 				}
+
+				if (option.cond) {
+					try {
+						let cond = JSON.parse(option.cond)
+						if (Array.isArray(cond)) {
+							this.fieldsCond = cond.filter(item => {
+								item.column = item.colName
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
+						} else if (typeof cond === 'object' && Object.keys(cond).length > 0) {
+							let arr = []
+							Object.keys(cond).forEach(key => {
+								let obj = {
+									colName: key,
+									ruleType: 'eq',
+									value: cond[key]
+								}
+								obj.column = obj.colName
+								arr.push(obj)
+							})
+							this.fieldsCond = arr.filter(item => {
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
+						}
+					} catch (e) {
+						//TODO handle the exception
+					}
+				}
+
 				if (option.fieldsCond) {
 					try {
 						this.fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond))
@@ -554,6 +696,45 @@
 	// 		}
 	// 	}
 	// }
+	.detail-form {
+		width: 100%;
+		background-color: #fff;
+		overflow: hidden;
+		height: auto;
+
+		.form-wrap {
+			opacity: 0;
+			height: 0;
+			transform: translateY(-500px);
+			transition: transform .5s ease-in-out;
+
+			&.show {
+				border-top: 1rpx solid #f1f1f1;
+				margin-bottom: 20rpx;
+				transform: translate(0);
+				height: auto;
+				opacity: 1;
+			}
+		}
+	}
+
+	.child-service-fold {
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: row-reverse;
+		padding: 20rpx 0;
+		.bg-green{
+			background-color: #0bc99d;
+		}
+		.bg-orange{
+			background-color: #f37b1d;
+		}
+		
+		.bg-blue {
+			background-color: #0081ff;
+			color: #ffffff;
+		}
+	}
 
 	.button-box {
 		padding: 20rpx;

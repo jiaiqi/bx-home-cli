@@ -1720,15 +1720,7 @@ export default {
               this.stepEcData = this.buildEcData(this.wxRunData, '步', '步数')
             } catch (e) {
               //TODO handle the exception
-              // uni.showModal({
-              // 	title:'提示2',
-              // 	content:e,
-              // })
             }
-            // uni.showModal({
-            // 	title:'提示2',
-            // 	content:JSON.stringify(this.stepEcData),
-            // })
             return stepList
           } else {
             return false

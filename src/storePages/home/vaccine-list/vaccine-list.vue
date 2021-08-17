@@ -214,8 +214,13 @@
 									<view v-if="radio.app_count" class="vaccine_app_count text-orange">
 										已约:{{radio.app_count||''}}人
 									</view>
+								<!-- 	<view class="" v-html="radio.app_desc">
+									</view> -->
 									<!-- <text v-if="radio.app_count" class="cu-tag badge">{{radio.app_count||''}}</text> -->
 								</view>
+							</view>
+							<view class="text-red padding" v-if="timeArr.length===0">
+								当前疫苗无可预约时间段
 							</view>
 							<view class="from-box">
 								<view class="form-title cuIcon-info text-gray">

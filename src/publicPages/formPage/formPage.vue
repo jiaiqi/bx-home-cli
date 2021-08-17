@@ -112,6 +112,14 @@
 								}
 							}
 							return item
+						}).filter((item, index) => {
+							if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
+								._child_tables.length) {
+								if (this.mainData._child_tables[index] === 0) {
+									return false
+								}
+							}
+							return true
 						})
 					}
 					return result
@@ -132,7 +140,8 @@
 			},
 			detailChildService() {
 				return this.detailV2?.child_service.filter(item => {
-					return item.foreign_key?.foreign_key_type === '字段引用'
+					// return item.foreign_key?.foreign_key_type === '字段引用'
+					return item.foreign_key?.foreign_key_type !== '主子表'
 				})
 			},
 		},

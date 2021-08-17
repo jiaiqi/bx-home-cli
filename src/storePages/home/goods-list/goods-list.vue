@@ -59,7 +59,7 @@
 						value: this.storeNo
 					}]
 				};
-				this.$fetch('select', 'srvhealth_store_goods_select', req, 'health').then(res => {
+				this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
 					if (Array.isArray(res.data)) {
 						if (Array.isArray(res.data)) {
 							this.goodsList = res.data.reduce((pre, cur) => {

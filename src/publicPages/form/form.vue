@@ -241,9 +241,23 @@
 				} else {
 					let url =
 						`/publicPages/form/form?type=${type}&serviceName=${this.getServiceName(this.serviceName)}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+					if (type === 'update' || type == 'detail') {
+						if (this.params?.submitData?.id) {
+							let fieldsCond = [{
+								column: 'id',
+								value: this.params.submitData.id,
+								display: false
+							}]
+							url =
+								`/publicPages/form/form?type=${type}&serviceName=${this.getServiceName(this.serviceName)}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+
+						}
+					}
+
 					if (Array.isArray(this.hideColumn) && this.hideColumn.length > 0) {
 						url += `&hideColumn=${JSON.stringify(this.hideColumn)}`
 					}
+
 					if (this.appName) {
 						url += `&appName=${this.appName}`
 					}
@@ -293,6 +307,7 @@
 				if (!e) {
 					return;
 				}
+				debugger
 				if (!this.isOnButton) {
 					this.isOnButton = true;
 				} else {
@@ -416,11 +431,18 @@
 						break;
 					case 'submit':
 						if (req) {
+
+							req = this.fields.reduce((res, cur) => {
+								res[cur.columns] = cur.value
+								return res
+							}, {})
+
 							for (let key in req) {
 								if (!req[key]) {
 									delete req[key];
 								}
 							}
+
 							this.params.defaultVal = req;
 							let data = this.deepClone(req);
 							req = [{
@@ -724,9 +746,9 @@
 					case 'detail':
 						defaultVal = self.defaultVal ? self.defaultVal : await self
 							.getDefaultVal();
-							if(Array.isArray(defaultVal)&&defaultVal.length>0){
-								defaultVal = defaultVal[0]
-							}
+						if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+							defaultVal = defaultVal[0]
+						}
 						let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
 							.defaultVal);
 						if (!fields) {
@@ -914,7 +936,7 @@
 			if (option.params) {
 				option.params = JSON.parse(decodeURIComponent(option.params));
 				if (option.params?.defaultVal) {
-					if(Array.isArray(option.params.defaultVal)&&option.params.defaultVal.length>0){
+					if (Array.isArray(option.params.defaultVal) && option.params.defaultVal.length > 0) {
 						option.params.defaultVal = option.params.defaultVal[0]
 					}
 					this.defaultVal = option.params.defaultVal

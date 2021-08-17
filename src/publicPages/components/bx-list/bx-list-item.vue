@@ -304,7 +304,6 @@
 			},
 			deRowButDisplay: function(item, button, index) {
 				if (Array.isArray(this.itemData._buttons)) {
-					debugger
 					if (typeof index === 'number' && (index || index === 0)) {
 						return this.itemData._buttons[index]
 					}
@@ -443,7 +442,6 @@
 					let arr = Object.values(this.viewTemp);
 					if (arr.length === 0 && this.srv_cols && this.srv_cols.length > 0) {
 						let arr2 = this.srv_cols.map(item => item.columns);
-						debugger
 						Object.keys(this.goodsData).forEach((item, index) => {
 							this.goodsData[item] = this.itemData[arr2[index]];
 						});
