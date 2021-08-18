@@ -613,6 +613,7 @@
 									uni.showToast({
 										title: '设置成功'
 									})
+									debugger
 									self.$store.commit('SET_USERINFO', res.data[0])
 								}
 							})

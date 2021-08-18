@@ -1,74 +1,75 @@
 <template>
 	<view class="wall-wrap">
-		<!-- 		<view class="wall-pic">
-			<view class="person-image" :style="{top:calcPos.top,left:calcPos.left}">
-
-			</view>
-		</view> -->
-		<view class="map-container">
+		<view class="map-container" v-if="act_info&&actRecordInfo&&totalStep">
 			<map id="wallMap" :latitude="latitude" :longitude="longitude" :polyline="polyline" :markers="markers"
-				:include-points="true" style="width: 100%;height: 500rpx;" @tap="clickMap" :scale="13.2"></map>
+				style="width: 100%;height: 500rpx;" @tap="clickMap" :scale="13.2"></map>
 		</view>
-		<view class="person-info">
-			<view class="profile-box">
-				<view class="profile-image">
-					<open-data type="userAvatarUrl"></open-data>
-				</view>
-				<view class="right-box">
-					<view class="nick-name">
-						<open-data type="userNickName"></open-data>
-					</view>
-					<view class="today-step">
-						今日行走{{todayStep||'0'}}步
-					</view>
-				</view>
-				<view class="right-button" @click="getwxStepInfoList">
-					<text class="refresh-btn">
-						<text class="cuIcon-refresh"></text>
-					</text>
-					<text>更新步数</text>
+		<view class="active-poster" v-else-if="act_info&&act_info.act_poster">
+			<image :src="getImagePath(act_info.act_poster,true)" mode="aspectFit"
+				@click="toPreviewImage(getImagePath(act_info.act_poster,true))"></image>
+		</view>
+		<view class="active-info" v-if="act_info">
+			<view class="title">
+				{{act_info.act_name||''}}
+			</view>
+			<view class="desc">
+				{{act_info.act_desc||''}}
+			</view>
+			<view class="join-button" v-if="!actRecordInfo" @click="getUserProfile">
+				<button class=" bg-blue text-btn" v-if="canIUseGetUserProfile">
+					<view class="text-bold">加入活动</view>
+					<!-- <view class="tip">（需要获取昵称头像及微信步数）</view> -->
+				</button>
+				<button class=" bg-blue text-btn" v-else open-type="getUserInfo" @click="getUserInfo">
+					<view class="text-bold">加入活动</view>
+				</button>
+			</view>
+		</view>
+		<person-info v-if="actRecordInfo" :rankList="personalRankList" :todayStep="totalStep"></person-info>
+	
+		<view class="rank-container">
+			<view class="rank-tab">
+				<view class="rank-title" v-for="(item,index) in rankTabList" :key="item.type" @click="changeRankTab(index)">
+					{{item.label}}
 				</view>
 			</view>
-			<view class="rank-info">
-				<view class="rank-item">
-					<view class="label">
-						总步数
-					</view>
-					<view class="value">
-						{{totalStep||'-'}}
-					</view>
-				</view>
-				<view class="rank-item">
-					<view class="label">
-						小队排名
-					</view>
-					<view class="value">
-						-
-					</view>
-				</view>
-				<view class="rank-item">
-					<view class="label">
-						个人排名
-					</view>
-					<view class="value">
-						-
-					</view>
-				</view>
-			</view>
+			<rank-list :total="rankPageInfo.total" :act_no="act_no" :type="rankTabType" :key="rankTabType">
+			</rank-list>
 		</view>
 	</view>
 </template>
 
 <script>
+	import {
+		mapState
+	} from 'vuex'
+	import rankList from './rank-list.vue'
+	import personInfo from './person-info.vue'
 	export default {
+		components: {
+			rankList,
+			personInfo
+		},
 		data() {
 			return {
+				act_no: "AT2108180002", // 活动编号
+				act_info: null,
+				actRecordInfo: null,
+				wxUserInfo: null,
 				latitude: 34.26358901033698,
 				longitude: 108.94700040367957,
 				top: '72%',
 				left: "45%",
-				distance: "",
 				step: 0,
+				rankTabIndex:1,
+				rankTabList:[{
+					label:'个人赛况',
+					type:'personal'
+				},
+				{
+					label:'小组赛况',
+					type:'group'
+				}],
 				markers: [{
 						latitude: 34.25122419619922,
 						longitude: 108.94698456143715,
@@ -200,7 +201,6 @@
 						}
 					},
 					{
-
 						latitude: 34.251898321998674,
 						longitude: 108.95406884455201,
 						width: 30,
@@ -280,17 +280,58 @@
 				}],
 				mapCtx: null,
 				bgImg: null,
-				stepInfoList:null
+				stepInfoList: null,
+				canIUseGetUserProfile: false,
+				rankList: null,
+				rankPageInfo: {
+					total: 0,
+					pageNo: 1,
+					rownumber: 10
+				}
 			}
 		},
 		computed: {
-			totalStep(){
-				return 0
+			// ...mapState({
+			// 	userInfo: state => state.user.userInfo
+			// }),
+			userInfo() {
+				return {
+					user_no: 'okMrXs-zyQb_v-wkKRC4ClS8dviA'
+				}
 			},
-			todayStep(){
-				if(Array.isArray(this.stepInfoList)&&this.stepInfoList.length>0){
-					let last = this.stepInfoList[this.stepInfoList.length-1]
-					if(last && last.date && last.date===this.formateDate()){
+			rankTabType(){
+				return this.rankTabList[this.rankTabIndex].type
+			},
+			personalRank() {
+				if (Array.isArray(this.rankList) && this.rankList.length > 0) {
+					let index = this.rankList.findIndex(item => item.user_no === this.userInfo.user_no)
+					if (index > -1) {
+						return index + 1
+					}
+				}
+			},
+			personalRankList() {
+				return [{
+						label: '总步数',
+						value: this.totalStep
+					},
+					{
+						label: '小队排名',
+						value: 0
+					},
+					{
+						label: '个人排名',
+						value: this.personalRank
+					}
+				]
+			},
+			totalStep() {
+				return this?.actRecordInfo?.walk_act_steps_sum
+			},
+			todayStep() {
+				if (Array.isArray(this.stepInfoList) && this.stepInfoList.length > 0) {
+					let last = this.stepInfoList.find(item => item.date === this.formateDate())
+					if (last && last.date) {
 						return last.step
 					}
 				}
@@ -344,10 +385,252 @@
 				return obj
 			}
 		},
-		onLoad() {
-			this.handleMap()
+		onLoad(option) {
+			if (wx.getUserProfile) {
+				this.canIUseGetUserProfile = true
+			}
+			if (option.act_no) {
+				this.act_no = option.act_no
+				this.getActiveInfo().then(_ => {
+					this.getTakeInInfo()
+					this.handleMap()
+
+				})
+			}
 		},
 		methods: {
+			changeRankTab(index){
+				this.rankTabIndex = index
+			},
+			getRankList() {
+				let req = {
+					"serviceName": "srvportal_act_atd_rcd_select",
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "act_no",
+						"ruleType": "eq",
+						"value": this.act_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 10
+					},
+					"order": [{
+						colName: "walk_act_steps_sum",
+						orderType: "desc"
+					}],
+				}
+				let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select')
+				this.$http.post(url, req).then(res => {
+					if (res.data.state === "SUCCESS" && Array.isArray(res.data.data)) {
+						this.rankList = res.data.data
+						this.rankPageInfo = res.data.page
+					}
+				})
+			},
+			getUserInfo(e) {
+				// 不推荐使用getUserInfo获取用户信息，预计自2021年4月13日起，getUserInfo将不再弹出弹窗，并直接返回匿名的用户个人信息
+				this.wxUserInfo = e.detail.userInfo
+			},
+			getUserProfile() {
+				// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
+				// 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
+				wx.getUserProfile({
+					desc: '用于完善及展示用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+					success: (res) => {
+						this.wxUserInfo = res.userInfo
+						this.addTakeInRecord(res.userInfo)
+					}
+				})
+			},
+
+			async getStepRecord(stepList) {
+				let url = this.getServiceUrl('bxportal', 'srvportal_walking_step_count_rcd_select', 'select')
+				let req = {
+					"serviceName": "srvportal_walking_step_count_rcd_select",
+					"colNames": ["*"],
+					"condition": [{
+							colName: 'act_no',
+							ruleType: 'eq',
+							value: this.act_no
+						},
+						{
+							colName: 'atd_no',
+							ruleType: 'eq',
+							value: this.actRecordInfo.aa_no
+						}
+					],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 31
+					}
+				}
+				if (stepList) {
+					let dates = stepList.map(item => item.date)
+					if (Array.isArray(dates) && dates.length > 0) {
+						req.condition.push({
+							"colName": "walk_date",
+							"value": dates.toString(),
+							"ruleType": "in"
+						})
+					}
+				}
+				let res = await this.$http.post(url, req)
+				if (stepList) {
+					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
+						.length > 0) {
+						let hasRecordDates = res.data.data.map(item => item.walk_date)
+						let noRecordDates = stepList.filter(item => !hasRecordDates.includes(item.date))
+						this.addStepRecord(noRecordDates)
+						let todayRecord = res.data.data.find(item => item.walk_date === this.formateDate())
+						if (todayRecord && todayRecord.walk_date) {
+							let todayStep = stepList.find(item => item.date === todayRecord.walk_date)
+							if (todayStep && todayStep.date && todayStep.step !== todayRecord.wx_step_count) {
+								todayStep.id = todayRecord.id
+								this.updateStepRecord(todayStep)
+							}
+						}
+						return noRecordDates
+					} else if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
+						.length == 0) {
+						this.addStepRecord(stepList)
+					}
+				} else {
+					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+						this.stepInfoList = res.data.data.map(item => {
+							item.date = item.walk_date
+							item.step = item.wx_step_count
+							return item
+						})
+					}
+				}
+
+			},
+			addStepRecord(data) {
+				if (Array.isArray(data) && data.length > 0) {
+					let req = [{
+						"serviceName": "srvportal_walking_step_count_rcd_add",
+						"condition": [],
+						"data": data.map(item => {
+							return {
+								"act_no": this.act_no,
+								"atd_no": this.actRecordInfo.aa_no,
+								"user_no": this.userInfo.user_no,
+								"walk_date": item.date,
+								"wx_step_count": item.step
+							}
+						}).reverse()
+					}]
+					let url = this.getServiceUrl('bxportal', 'srvportal_walking_step_count_rcd_add', 'operate')
+					this.$http.post(url, req).then(res => {
+						debugger
+					})
+				}
+			},
+			updateStepRecord(todayStep) {
+				let req = [{
+					"serviceName": "srvportal_walking_step_count_rcd_update",
+					"condition": [{
+						"colName": "id",
+						"ruleType": "eq",
+						"value": todayStep.id
+					}],
+					"data": [{
+						"wx_step_count": todayStep.step,
+					}]
+				}]
+				let url = this.getServiceUrl('bxportal', 'srvportal_walking_step_count_rcd_update', 'operate')
+				this.$http.post(url, req).then(res => {
+					if (res.data.state === 'SUCCESS') {
+						this.getTakeInInfo()
+					}
+				})
+			},
+			addTakeInRecord(userInfo) {
+				let req = [{
+					"serviceName": "srvportal_act_atd_rcd_add",
+					"condition": [],
+					"data": [{
+						"act_no": this.act_no,
+						"user_no": this.userInfo.user_no,
+						"atd_type": "个人",
+						nick_name: userInfo.nickName,
+						profile_url: userInfo.avatarUrl
+					}]
+				}]
+				let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_add', 'operate')
+				this.$http.post(url, req).then(res => {
+					if (res.data.state === 'SUCCESS') {
+						if (
+							Array.isArray(res.data.response) &&
+							res.data.response.length > 0 &&
+							res.data.response[0].response &&
+							Array.isArray(res.data.response[0].response.effect_data) &&
+							res.data.response[0].response.effect_data.length > 0
+						) {
+							this.actRecordInfo = res.data.response[0].response.effect_data[0]
+						}
+					}
+				})
+			},
+			async getTakeInInfo(stepList) {
+				// 活动参与记录
+				let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select')
+				let req = {
+					"serviceName": "srvportal_act_atd_rcd_select",
+					"colNames": ["*"],
+					"condition": [{
+							"colName": "user_no",
+							"value": this.userInfo.user_no,
+							"ruleType": "eq"
+						},
+						{
+							"colName": "act_no",
+							"value": this.act_no,
+							"ruleType": "eq"
+						}
+					],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					}
+				}
+
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
+					.length > 0) {
+					this.actRecordInfo = res.data.data[0]
+					this.getRankList()
+					this.getStepRecord()
+				} else {
+					return []
+				}
+			},
+			getActiveInfo() {
+				let url = this.getServiceUrl('bxportal', 'srvportal_act_mgmt_select', 'select')
+				let req = {
+					"serviceName": "srvportal_act_mgmt_select",
+					"colNames": ["*"],
+					"condition": [{
+						colName: 'act_no',
+						ruleType: 'eq',
+						value: this.act_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					}
+				}
+				return new Promise((resolve) => {
+					this.$http.post(url, req).then(res => {
+						if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
+							.length > 0) {
+							this.act_info = res.data.data[0]
+							resolve(res.data.data)
+						}
+					})
+				})
+			},
 			async getwxStepInfoList() {
 				// 获取微信运动记录
 				// #ifdef MP-WEIXIN
@@ -383,6 +666,8 @@
 								return item
 							})
 							this.stepInfoList = stepList
+							this.getStepRecord(stepList)
+
 							return stepList
 						} else {
 							return false
@@ -398,7 +683,7 @@
 				this.mapCtx = wx.createMapContext('wallMap', this)
 				this.bgImg = {
 					id: 1,
-					src: require('./wall-removebg-preview.png'),
+					src: require('./wall.png'),
 					opacity: 0.9,
 					bounds: {
 						southwest: {
@@ -423,111 +708,82 @@
 <style lang="scss">
 	.wall-wrap {
 		background-color: #F7F7F7;
-		height: 100vh;
-		.map-container{
+		height: calc(100vh - var(--window-top));
+		padding: 20rpx 0;
+		overflow: auto;
+
+		.map-container {
 			width: 100%;
 			background-color: #fff;
 		}
+
+		.active-poster {
+			text-align: center;
+		}
 	}
 
-	/* #ifdef H5 */
-	.wall-pic {
-		width: 100%;
-		height: 500rpx;
-		background-image: url(wall.png);
-		background-size: cover;
-		background-repeat: no-repeat;
-		position: relative;
+	.active-info {
+		padding: 20rpx;
+		text-align: center;
+		margin-bottom: 20rpx;
+		background-color: #fff;
 
-		.person-image {
-			width: 60rpx;
-			height: 60rpx;
-			background-image: url(boy.png);
-			background-size: contain;
-			background-repeat: no-repeat;
-			position: absolute;
-			top: 72%;
-			left: 45%;
-			z-index: 10;
+		.title {
+			font-weight: bold;
+			font-size: 36rpx;
+			line-height: 80rpx;
 		}
 
+		.desc {
+			color: #666;
+		}
+
+		.join-button {
+			margin: 20rpx 80rpx;
+
+			.text-btn {
+				display: flex;
+				flex-direction: column;
+				line-height: normal;
+
+				.text-bold {
+					font-size: 34rpx;
+					padding: 10rpx;
+					font-weight: normal;
+				}
+
+				.tip {
+					font-size: 24rpx;
+					color: #F0F0F0;
+					margin-bottom: 10rpx;
+				}
+			}
+		}
 	}
 
-	/* #endif */
 
-	.person-info {
+
+	.rank-container {
 		margin: 20rpx;
-		padding: 20rpx;
-		border-radius: 10rpx;
 		background-color: #fff;
+		border-radius: 20rpx;
+		padding: 0 0 20rpx;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
 
-		.profile-box {
+		.rank-tab {
 			display: flex;
-			align-items: center;
-			padding: 20rpx;
-			padding: 0 20rpx 20rpx;
+			background-color: #f7f7f7;
 
-			.profile-image {
-				width: 100rpx;
-				height: 100rpx;
-				border-radius: 50%;
-				overflow: hidden;
-			}
-
-			.right-box {
+			.rank-title {
 				flex: 1;
-				padding-left: 20rpx;
+				text-align: center;
+				font-weight: bold;
+				padding: 20rpx;
 
-				.nick-name {
-					font-weight: bold;
-					padding: 10rpx 0;
-				}
-			}
-
-			.right-button {
-				width: 100rpx;
-				height: 100rpx;
-				font-size: 24rpx;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				color: #09BB07;
-
-				.refresh-btn {
-					display: inline-block;
-					width: 60rpx;
-					height: 60rpx;
-					line-height: 60rpx;
-					text-align: center;
-					background-color: #09BB07;
-					border-radius: 50%;
-					color: #fff;
-					font-size: 40rpx;
-					color: #fff;
-				}
-			}
-		}
-
-		.rank-info {
-			padding: 20rpx 20rpx 0;
-			border-top: 1rpx solid #F1F1F1;
-			display: flex;
-
-			.rank-item {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				color: #999;
-				flex: 1;
-
-				.value {
-					color: #555;
-					font-weight: bold;
-					font-size: 40rpx;
-					margin-top: 10rpx;
+				&.active {
+					color: #0bc99d;
+					border-radius: 20rpx;
+					background-color: #fff;
 				}
 			}
 		}

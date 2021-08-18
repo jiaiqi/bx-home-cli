@@ -189,8 +189,8 @@ const selectPersonInfo = async () => {
 		},
 	}
 	let res = await http.post(url, req)
-	store.commit('SET_USERINFO', res.data.data[0])
 	if (res.data.state==='SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+		store.commit('SET_USERINFO', res.data.data[0])
 		let info = res.data.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
 		if (info && info.no) {
 			store.commit('SET_USERINFO', info)
