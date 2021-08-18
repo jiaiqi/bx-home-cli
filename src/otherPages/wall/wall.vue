@@ -29,7 +29,7 @@
 	
 		<view class="rank-container">
 			<view class="rank-tab">
-				<view class="rank-title" v-for="(item,index) in rankTabList" :key="item.type" @click="changeRankTab(index)">
+				<view class="rank-title" :class="{'active':index===rankTabIndex}" v-for="(item,index) in rankTabList" :key="item.type" @click="changeRankTab(index)">
 					{{item.label}}
 				</view>
 			</view>
@@ -291,20 +291,20 @@
 			}
 		},
 		computed: {
-			// ...mapState({
-			// 	userInfo: state => state.user.userInfo
-			// }),
-			userInfo() {
-				return {
-					user_no: 'okMrXs-zyQb_v-wkKRC4ClS8dviA'
-				}
-			},
+			...mapState({
+				userInfo: state => state.user.userInfo
+			}),
+			// userInfo() {
+			// 	return {
+			// 		userno: 'okMrXs-zyQb_v-wkKRC4ClS8dviA'
+			// 	}
+			// },
 			rankTabType(){
 				return this.rankTabList[this.rankTabIndex].type
 			},
 			personalRank() {
 				if (Array.isArray(this.rankList) && this.rankList.length > 0) {
-					let index = this.rankList.findIndex(item => item.user_no === this.userInfo.user_no)
+					let index = this.rankList.findIndex(item => item.user_no === this.userInfo.userno)
 					if (index > -1) {
 						return index + 1
 					}
@@ -515,7 +515,7 @@
 							return {
 								"act_no": this.act_no,
 								"atd_no": this.actRecordInfo.aa_no,
-								"user_no": this.userInfo.user_no,
+								"user_no": this.userInfo.userno,
 								"walk_date": item.date,
 								"wx_step_count": item.step
 							}
@@ -552,7 +552,7 @@
 					"condition": [],
 					"data": [{
 						"act_no": this.act_no,
-						"user_no": this.userInfo.user_no,
+						"user_no": this.userInfo.userno,
 						"atd_type": "个人",
 						nick_name: userInfo.nickName,
 						profile_url: userInfo.avatarUrl
@@ -581,7 +581,7 @@
 					"colNames": ["*"],
 					"condition": [{
 							"colName": "user_no",
-							"value": this.userInfo.user_no,
+							"value": this.userInfo.userno,
 							"ruleType": "eq"
 						},
 						{
