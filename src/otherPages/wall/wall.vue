@@ -579,6 +579,11 @@
 							"ruleType": "eq"
 						},
 						{
+							"colName": "atd_type",
+							"value": '个人',
+							"ruleType": "eq"
+						},
+						{
 							"colName": "act_no",
 							"value": this.act_no,
 							"ruleType": "eq"
