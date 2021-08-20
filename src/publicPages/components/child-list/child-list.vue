@@ -113,6 +113,12 @@
 		},
 
 		props: {
+			mainTable:{
+				type: String
+			},
+			mainServiceName: {
+				type: String
+			},
 			appName: {
 				type: String
 			},
@@ -121,6 +127,10 @@
 			},
 			mainData: {
 				type: Object
+			},
+			mainFkField: {
+				type: Array
+
 			}
 		},
 		computed: {
@@ -366,6 +376,10 @@
 							this.updateChildListItem(index)
 							break;
 						case 'delete':
+							if (this.use_type === "detaillist" && this.modalName === "updateChildData") {
+								debugger
+								return
+							}
 							if (typeof index === 'number' && index >= 0) {
 								if (isMem) {
 									this.deleteMemoryListItem(index)
@@ -598,6 +612,7 @@
 					}
 				}
 			},
+
 			async getUpdateV2(row) {
 				if (this.updateV2?._fieldInfo) {
 					this.updateV2._fieldInfo = this.updateV2._fieldInfo.map(item => {
@@ -626,6 +641,21 @@
 					}
 					return item
 				})
+				colVs.rowData = row
+				if (Array.isArray(colVs.formButton) && colVs.formButton.length > 0 && this.use_type === "detaillist") {
+					colVs.formButton = colVs.formButton.map(item => {
+						if (item.button_type === 'reset') {
+							let rowButton = this.v2Data?.rowButton
+							if (rowButton.length > 0) {
+								let delBtn = rowButton.find(item => item.button_type === 'delete')
+								if (delBtn) {
+									item = delBtn
+								}
+							}
+						}
+						return item
+					})
+				}
 				this.updateV2 = colVs
 				// }
 			},
@@ -633,7 +663,6 @@
 				if (this.addV2) {
 					return
 				}
-				console.log(btn)
 				let serviceName = btn?.service_name || this.serviceName
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
 				let app = this.appName || uni.getStorageSync('activeApp');
@@ -641,11 +670,23 @@
 				if (!colVs) {
 					return
 				}
-
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
-					if (this.mainData && this.mainData[item.columns]) {
-						item.value = this.mainData[item.columns]
-					}
+					// if (this.mainData && this.mainData[item.columns]) {
+					// 	item.value = this.mainData[item.columns]
+					// }
+					console.log(this.mainServiceName, this.mainData)
+	
+					// if (Array.isArray(this.mainFkField) && this.mainFkField.length > 0) {
+					// 	this.mainFkField.forEach(field => {
+					// 		if (field.option_list_v2?.refed_col === item?.option_list_v2?.refed_col &&
+					// 			field.option_list_v2?.serviceName === item.option_list_v2
+					// 			?.serviceName && field.option_list_v2?.srv_app === item.option_list_v2
+					// 			?.srv_app) {
+					// 			item.colData = field.colData
+					// 			item.value = field.value
+					// 		}
+					// 	})
+					// }
 					if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
 						.length > 0) {
 						item.option_list_v2.conditions = item.option_list_v2.conditions.map(op => {
@@ -676,6 +717,22 @@
 					}
 					if (item.columns === this.foreignKey?.referenced_column_name) {
 						item.display = false
+					}
+					if(item.col_type==this.mainTable){
+						debugger
+						if (this.mainData && this.mainData[item.columns]) {
+							item.value = this.mainData[item.columns]
+						}
+					}
+					if (item.col_type === 'fk') {
+						if (this.mainData && this.mainData[item.columns]) {
+							item.value = this.mainData[item.columns]
+						}
+						// if (
+						// 	item?.option_list_v2?.refed_col && this.mainData[item?.option_list_v2
+						// 		?.refed_col]) {
+						// 	item.value = this.mainData[item.columns]
+						// }
 					}
 					return item
 				})
@@ -799,6 +856,9 @@
 					};
 					if (this.loading) {
 						return
+					}
+					if (this.v2Data?.vpage_no) {
+						req.vpage_no = this.v2Data.vpage_no
 					}
 					this.loading = true
 					const res = await this.$http.post(url, req)

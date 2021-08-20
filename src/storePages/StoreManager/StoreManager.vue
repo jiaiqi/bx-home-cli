@@ -251,7 +251,7 @@
 				let req = [];
 				let url = this.getServiceUrl('health', 'select', 'multi');
 				if (this.childTable.length > 0) {
-					req = this.childTable.map(item => {
+					req = this.childTable.filter(item=>item?.foreign_key?.foreign_key_type=== "字段引用").map(item => {
 						let obj = {
 							colNames: ['*'],
 							condition: [{
@@ -897,7 +897,6 @@
 					this.gridList.push(obj)
 					return true
 				}
-
 			},
 			goNoticeList(item) {
 				let viewTemp = {
@@ -1017,7 +1016,7 @@
 				return
 			},
 			async getStoreInfo() {
-				this.selectStoreActivity()
+				await this.selectStoreActivity()
 				let req = {
 					condition: [{
 						colName: 'store_no',
@@ -1072,6 +1071,7 @@
 						this.gridList.push(obj)
 					}
 				}
+				return
 			}
 		},
 		onPullDownRefresh() {
@@ -1095,8 +1095,8 @@
 			})
 			if (option.store_no) {
 				this.storeNo = option.store_no;
+				await this.getStoreInfo();
 				await this.selectChild()
-				this.getStoreInfo();
 				this.getButtonGroup()
 			}
 		}

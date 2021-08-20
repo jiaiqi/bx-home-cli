@@ -47,6 +47,11 @@
 				default: 0
 			},
 		},
+		methods: {
+			getwxStepInfoList() {
+				this.$emit('refresh-step')
+			}
+		},
 	}
 </script>
 

@@ -158,7 +158,7 @@ export default {
       }
       if (e.store_no) {
 				let url = `/storePages/home/home?store_no=${e.store_no}`
-				if(e.type=='其它'&&e.para_cfg){
+				if(e.type=='其他'&&e.para_cfg){
 					try{
 						e.para_cfg = JSON.parse(e.para_cfg)
 					}catch(e){

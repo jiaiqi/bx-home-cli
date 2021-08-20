@@ -1,48 +1,70 @@
 <template>
 	<view class="wall-wrap">
-		<view class="map-container" v-if="act_info&&actRecordInfo&&totalStep">
+		<view class="map-container" v-if="act_info">
 			<map id="wallMap" :latitude="latitude" :longitude="longitude" :polyline="polyline" :markers="markers"
 				style="width: 100%;height: 500rpx;" @tap="clickMap" :scale="13.2"></map>
+			<!-- 	<cover-view class="success-tip" v-if="totalStep&&totalStep>=22000">
+				🏆🏆 恭喜您，已成功完成此活动！🏆🏆
+			</cover-view> -->
 		</view>
 		<view class="active-poster" v-else-if="act_info&&act_info.act_poster">
-			<image :src="getImagePath(act_info.act_poster,true)" mode="aspectFit"
+			<image :src="getImagePath( act_info.act_poster,true)" mode="aspectFit"
 				@click="toPreviewImage(getImagePath(act_info.act_poster,true))"></image>
 		</view>
 		<view class="active-info" v-if="act_info">
 			<view class="title">
 				{{act_info.act_name||''}}
 			</view>
+			<view class="slogan">
+				{{act_info.act_slogan||''}}
+			</view>
+			<view class="date">
+				<view class="cu-btn sm round bg-blue light margin-tb-sm">
+					{{act_info.start_date||''}} - {{act_info.end_date||''}}
+				</view>
+			</view>
 			<view class="desc">
 				{{act_info.act_desc||''}}
 			</view>
+			<scroll-view scroll-x="true">
+				<view class="active-photos">
+					<view class="image-box" v-for="(item,index) in relatedPhotots">
+						<image class="image" @click="toPreviewImage(allRelationPhoto,getPhotoIndex(index))"
+							:src="item.imgUrl" mode="aspectFill"></image>
+						<view class="label">
+							{{item.shooting_place||''}}
+						</view>
+					</view>
+				</view>
+			</scroll-view>
 			<view class="join-button" v-if="!actRecordInfo" @click="getUserProfile">
 				<button class=" bg-blue text-btn" v-if="canIUseGetUserProfile">
 					<view class="text-bold">加入活动</view>
 					<!-- <view class="tip">（需要获取昵称头像及微信步数）</view> -->
 				</button>
-				<button class=" bg-blue text-btn" v-else open-type="getUserInfo" @click="getUserInfo">
+				<button class="bg-blue text-btn" v-else open-type="getUserInfo" @click="getUserInfo">
 					<view class="text-bold">加入活动</view>
 				</button>
 			</view>
 		</view>
-		<person-info v-if="actRecordInfo" :rankList="personalRankList" :todayStep="totalStep"></person-info>
-	
+		<person-info v-if="actRecordInfo" :rankList="personalRankList" :todayStep="todayStep"
+			@refresh-step="getwxStepInfoList"></person-info>
 		<view class="rank-container">
 			<view class="rank-tab">
-				<view class="rank-title" :class="{'active':index===rankTabIndex}" v-for="(item,index) in rankTabList" :key="item.type" @click="changeRankTab(index)">
+				<view class="rank-title" :class="{'active':index===rankTabIndex}" v-for="(item,index) in rankTabList"
+					:key="item.type" @click="changeRankTab(index)">
 					{{item.label}}
 				</view>
 			</view>
-			<rank-list :total="rankPageInfo.total" :act_no="act_no" :type="rankTabType" :key="rankTabType">
+			<rank-list ref="rankList" :total="rankPageInfo.total" :act_no="act_no" :type="rankTabType"
+				:key="rankTabType">
 			</rank-list>
 		</view>
 	</view>
 </template>
 
 <script>
-	import {
-		mapState
-	} from 'vuex'
+	import geoData from './geoData.js'
 	import rankList from './rank-list.vue'
 	import personInfo from './person-info.vue'
 	export default {
@@ -53,6 +75,7 @@
 		data() {
 			return {
 				act_no: "AT2108180002", // 活动编号
+				relatedPhotots: [],
 				act_info: null,
 				actRecordInfo: null,
 				wxUserInfo: null,
@@ -61,223 +84,18 @@
 				top: '72%',
 				left: "45%",
 				step: 0,
-				rankTabIndex:1,
-				rankTabList:[{
-					label:'个人赛况',
-					type:'personal'
-				},
-				{
-					label:'小组赛况',
-					type:'group'
-				}],
-				markers: [{
-						latitude: 34.25122419619922,
-						longitude: 108.94698456143715,
-						width: 30,
-						height: 40,
-						title: "永宁门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
+				rankTabIndex: 0,
+				rankTabList: [{
+						label: '个人赛况',
+						type: 'personal'
 					},
 					{
-						latitude: 34.25182368811452,
-						longitude: 108.93224133506897,
-						width: 30,
-						height: 40,
-						title: "含光门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.25173988100353,
-						longitude: 108.92528260380709,
-						width: 30,
-						height: 40,
-						title: "西南城角",
-						iconPath: require('./turret.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.259378572983685,
-						longitude: 108.92533327149931,
-						width: 30,
-						height: 40,
-						title: "安定门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.275721173952554,
-						longitude: 108.92511381305951,
-						width: 30,
-						height: 40,
-						title: "西北城角",
-						iconPath: require('./turret.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.2759093154076,
-						longitude: 108.94725746078666,
-						width: 30,
-						height: 40,
-						title: "安远门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.276324480085236,
-						longitude: 108.9713510595609,
-						width: 30,
-						height: 40,
-						title: "东北城角",
-						iconPath: require('./turret.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.26428404821601,
-						longitude: 108.97117759452954,
-						width: 30,
-						height: 40,
-						title: "中山门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.25932988219592,
-						longitude: 108.97116321808574,
-						width: 30,
-						height: 40,
-						title: "长乐门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.2524059287666,
-						longitude: 108.97132258772899,
-						width: 30,
-						height: 40,
-						title: "东南城角",
-						iconPath: require('./turret.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					{
-						latitude: 34.251898321998674,
-						longitude: 108.95406884455201,
-						width: 30,
-						height: 40,
-						title: "文昌门",
-						iconPath: require('./gate.png'),
-						alpha: 0.8,
-						anchor: {
-							x: 0.5,
-							y: 0.5
-						}
-					},
-					// {
-					// 	latitude: 34.24958506198959,
-					// 	longitude: 108.94692576453258,
-					// 	width: 30,
-					// 	height: 40,
-					// 	title: "永宁门"
-					// }
+						label: '小组赛况',
+						type: 'group'
+					}
 				],
-				polyline: [{
-					points: [{
-							latitude: 34.25122419619922,
-							longitude: 108.94698456143715,
-						},
-						{
-							latitude: 34.25182368811452,
-							longitude: 108.93224133506897
-						},
-						{
-							latitude: 34.25173988100353,
-							longitude: 108.92528260380709
-						},
-						{
-							latitude: 34.259378572983685,
-							longitude: 108.92533327149931,
-						},
-						{
-							latitude: 34.275721173952554,
-							longitude: 108.92511381305951,
-						},
-						{
-							latitude: 34.2759093154076,
-							longitude: 108.94725746078666,
-						},
-						{
-							latitude: 34.276324480085236,
-							longitude: 108.9713510595609,
-						},
-						{
-							latitude: 34.26428404821601,
-							longitude: 108.97117759452954,
-						},
-						{
-							latitude: 34.25932988219592,
-							longitude: 108.97116321808574,
-						},
-						{
-							latitude: 34.2524059287666,
-							longitude: 108.97132258772899,
-						},
-						// {
-						// 	latitude: 34.251898321998674,
-						// 	longitude: 108.95406884455201,
-						// },
-						// {
-						// 	latitude: 34.25122419619922,
-						// 	longitude: 108.94698456143715,
-						// }
-					],
-					color: "#fa4609",
-					borderColor: "#fae600",
-					width: 10,
-					strokeWidth: 2,
-					arrowLine: true,
-					borderWidth: 0 //线的边框宽度
-				}],
+				markers: geoData.markers,
+				polyline: geoData.polyline,
 				mapCtx: null,
 				bgImg: null,
 				stepInfoList: null,
@@ -291,20 +109,15 @@
 			}
 		},
 		computed: {
-			...mapState({
-				userInfo: state => state.user.userInfo
-			}),
-			// userInfo() {
-			// 	return {
-			// 		userno: 'okMrXs-zyQb_v-wkKRC4ClS8dviA'
-			// 	}
-			// },
-			rankTabType(){
+			user_no() {
+				return uni.getStorageSync('login_user_info')?.user_no
+			},
+			rankTabType() {
 				return this.rankTabList[this.rankTabIndex].type
 			},
 			personalRank() {
 				if (Array.isArray(this.rankList) && this.rankList.length > 0) {
-					let index = this.rankList.findIndex(item => item.user_no === this.userInfo.userno)
+					let index = this.rankList.findIndex(item => item.user_no === this.user_no)
 					if (index > -1) {
 						return index + 1
 					}
@@ -336,54 +149,14 @@
 					}
 				}
 			},
-			calcPos() {
-				let obj = {
-					top: '72%',
-					left: "45%"
-				}
-				const step = this.step // 总步数
-				const long = step / 1600 //总距离
-				const inLong = long % 13.74 //一圈内的距离
-				if (inLong > 0 && inLong <= 1.55) {
-					// left:15% top:72
-					// left 30
-					obj.left = inLong * 30 / 1.55 + '%'
-					obj.top = '72%'
-				} else if (inLong > 1.55 && inLong <= 2.05) {
-					// left:5% top:72
-					obj.left = inLong * 10 / 0.5 + '%'
-					obj.top = '72%'
-				} else if (inLong > 2.05 && inLong <= 2.9) {
-					// left:5% top:50
-					obj.left = inLong * 10 / 0.5 + '%'
-					obj.top = inLong * 22 / 0.85 + '%'
-				} else if (inLong > 2.9 && inLong <= 4.72) {
-					// left:5% top:10
-				} else if (inLong > 4.72 && inLong <= 6.61) {
-					// left:45 top:10 
-				} else if (inLong > 6.61 && inLong <= 8.91) {
-					// left:87 top:10
-				} else if (inLong > 8.91 && inLong <= 10.31) {
-					// left:87 top:32 
-				} else if (inLong > 10.31 && inLong <= 11.59) {
-					// left:87 top:49
-				} else if (inLong > 10.31 && inLong <= 10.81) {
-					// left:87 top:72
-				} else if (inLong > 10.81 && inLong <= 13.125) {
-					// left:63 top:72
-				} else if (inLong > 13.125 && inLong <= 13.73) {
-					// left:46 top:72
-				}
-
-
-				obj = {
-					...obj,
-					step,
-					long,
-					inLong
-				}
-				return obj
-			}
+			allRelationPhoto() {
+				return this.relatedPhotots.reduce((res, cur) => {
+					if (Array.isArray(cur.imgList)) {
+						res = [...res, ...cur.imgList]
+					}
+					return res
+				}, [])
+			},
 		},
 		onLoad(option) {
 			if (wx.getUserProfile) {
@@ -392,17 +165,239 @@
 			if (option.act_no) {
 				this.act_no = option.act_no
 				this.getActiveInfo().then(_ => {
-					this.getTakeInInfo()
-					this.handleMap()
-
+					this.getTakeInInfo().then(_ => {
+						this.handleMap()
+					})
 				})
 			}
 		},
 		methods: {
-			changeRankTab(index){
+			getPhotoIndex(index) {
+				let num = 0
+				this.relatedPhotots.forEach((item, i) => {
+					if (i < index) {
+						num += item.fileList.length
+					}
+				})
+				return num
+			},
+			async getActiveRelatedPhotos() {
+				const req = {
+					"serviceName": "srvportal_walking_related_picture_select",
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "act_no",
+						"ruleType": "eq",
+						"value": this.act_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 20
+					},
+					"order": [{
+						"colName": "order_col",
+						"orderType": "asc"
+					}],
+				}
+				let step = this.actRecordInfo?.walk_act_steps_sum
+				if (step) {
+					req.condition.push({
+						"colName": "target_step_number",
+						"ruleType": "le",
+						"value": step
+					})
+				}
+				let url = this.getServiceUrl('bxportal', 'srvportal_walking_related_picture_select', 'select')
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS') {
+					if (Array.isArray(res.data.data)) {
+						for (let item of res.data.data) {
+							let photoCol = item.pictures
+							if (photoCol) {
+								let fileList = await this.getFilePath(photoCol)
+								fileList = fileList.map(file => {
+									file.imgUrl = this.$api.getFilePath + file.fileurl + '&bx_auth_ticket=' +
+										uni.getStorageSync('bx_auth_ticket')
+									return file
+								})
+								item.imgUrl = this.getImagePath(photoCol)
+								item.fileList = fileList
+								item.imgList = fileList.map(file => file.imgUrl)
+							}
+						}
+						this.relatedPhotots = res.data.data
+					}
+				}
+			},
+			buildLinePoint() {
+				this.polyline.length = 1
+				this.markers.length = 11
+				let arr = []
+				let marker = {
+					latitude: 34.25122419619922,
+					longitude: 108.94698456143715,
+					width: 30,
+					height: 30,
+					title: this.actRecordInfo?.nick_name || '',
+					iconPath: this.actRecordInfo?.profile_url || require('./gate.png'),
+					alpha: 1,
+					borderRadius: 100,
+					// label: {
+					// 	textAlign: 'center',
+					// 	content: this.userInfo?.nick_name || '',
+					// 	color: "#000",
+					// 	bgColor: "#fff",
+					// 	padding: 5
+					// },
+					anchor: {
+						x: 0.5,
+						y: 0.5
+					}
+				}
+				let step = this.totalStep
+				// let stepArr = [{
+				// 	step:2480,
+
+				// }]
+				if (step > 0) {
+					arr.push({
+						latitude: 34.25122419619922,
+						longitude: 108.94698456143715
+					})
+					if (step <= 2480) {
+						marker.longitude = 108.94698456143715 - (step / 2480) * 0.01474322636818
+						// marker.latitude = 34.25122419619922;
+						// marker.longitude = 108.94698456143715
+					}
+				}
+				if (step > 2480) {
+					arr.push({
+						latitude: 34.25182368811452,
+						longitude: 108.93224133506897,
+					})
+					if (step <= 3280) {
+						marker.longitude = 108.93224133506897 - ((3280 - step) / 800) * 0.00695873126188
+					}
+				}
+				if (step > 3280) {
+					arr.push({
+						latitude: 34.25173988100353,
+						longitude: 108.92528260380709,
+					})
+					if (step <= 4640) {
+						marker.longitude = 108.92528260380709
+						marker.latitude = 34.259378572983685 - ((4640 - step) / 1360) * 0.007638691980155
+					}
+				}
+				if (step > 4640) {
+					arr.push({
+						latitude: 34.259378572983685,
+						longitude: 108.92533327149931,
+					})
+					if (step <= 7552) {
+						marker.longitude = 108.92528260380709
+						marker.latitude = 34.275721173952554 - ((7552 - step) / 2912) * 0.016342600968869
+					}
+				}
+				if (step > 7552) {
+					arr.push({
+						latitude: 34.275721173952554,
+						longitude: 108.92511381305951,
+					})
+					if (step <= 10576) {
+						marker.latitude = 34.275721173952554
+						marker.longitude = 108.94725746078666 - ((10576 - step) / 3024) * 0.02214364772715
+					}
+				}
+				if (step > 10576) {
+					arr.push({
+						latitude: 34.2759093154076,
+						longitude: 108.94725746078666,
+					})
+					if (step <= 14256) {
+						marker.latitude = 34.275721173952554
+						marker.longitude = 108.9713510595609 - ((14256 - step) / 3680) * 0.02409359877424
+
+					}
+				}
+				if (step > 14256) {
+					arr.push({
+						latitude: 34.276324480085236,
+						longitude: 108.9713510595609,
+					})
+					if (step <= 16496) {
+						marker.latitude = 34.276324480085236 - ((16496 - step) / 2240) * 0.012040431869226
+						marker.longitude = 108.9713510595609
+						marker.textAlign = 'left'
+						// arr.push({
+						// 	latitude: marker.latitude,
+						// 	longitude: 108.9713510595609,
+						// })
+					}
+				}
+				if (step > 16496) {
+					arr.push({
+						latitude: 34.26428404821601,
+						longitude: 108.97117759452954,
+					})
+					if (step <= 17296) {
+						marker.latitude = 34.26428404821601 - ((17296 - step) / 800) * 0.00495416602009
+						marker.longitude = 108.97117759452954
+					}
+				}
+				if (step > 17296) {
+					arr.push({
+						latitude: 34.25932988219592,
+						longitude: 108.97116321808574,
+					})
+					if (step <= 18544) {
+						marker.latitude = 34.2524059287666 + ((18544 - step) / 1248) * 0.00692395342932
+						marker.longitude = 108.97117759452954
+					}
+				}
+				if (step > 18544) {
+					arr.push({
+						latitude: 34.2524059287666,
+						longitude: 108.97132258772899,
+					})
+					if (step <= 21009) {
+						marker.latitude = 34.2524059287666
+						marker.longitude = 108.95406884455201 + ((21009 - step) / 2465) * 0.01725374317698
+					}
+				}
+				if (step > 21009) {
+					arr.push({
+						latitude: 34.251898321998674,
+						longitude: 108.95406884455201,
+					})
+					if (step <= 21977) {
+						marker.latitude = 34.251898321998674
+						marker.longitude = 108.95406884455201 - ((21977 - step) / 968) * 0.00714308001943
+					}
+				}
+				if (step > 21977) {
+
+				}
+				let obj = {
+					points: arr,
+					color: "#e30000",
+					width: 5,
+					strokeWidth: 2,
+					arrowLine: true,
+					borderWidth: 0 //线的边框宽度
+				}
+				arr.push({
+					latitude: marker.latitude,
+					longitude: marker.longitude,
+				})
+				this.markers.push(marker)
+				// this.polyline[1] = obj 
+				this.polyline.push(obj)
+			},
+			changeRankTab(index) {
 				this.rankTabIndex = index
 			},
-			getRankList() {
+			async getRankList() {
 				let req = {
 					"serviceName": "srvportal_act_atd_rcd_select",
 					"colNames": ["*"],
@@ -421,12 +416,12 @@
 					}],
 				}
 				let url = this.getServiceUrl('bxportal', 'srvportal_act_atd_rcd_select', 'select')
-				this.$http.post(url, req).then(res => {
-					if (res.data.state === "SUCCESS" && Array.isArray(res.data.data)) {
-						this.rankList = res.data.data
-						this.rankPageInfo = res.data.page
-					}
-				})
+				let res = await this.$http.post(url, req)
+				if (res.data.state === "SUCCESS" && Array.isArray(res.data.data)) {
+					this.rankList = res.data.data
+					this.rankPageInfo = res.data.page
+				}
+				return
 			},
 			getUserInfo(e) {
 				// 不推荐使用getUserInfo获取用户信息，预计自2021年4月13日起，getUserInfo将不再弹出弹窗，并直接返回匿名的用户个人信息
@@ -487,7 +482,7 @@
 							let todayStep = stepList.find(item => item.date === todayRecord.walk_date)
 							if (todayStep && todayStep.date && todayStep.step !== todayRecord.wx_step_count) {
 								todayStep.id = todayRecord.id
-								this.updateStepRecord(todayStep)
+								await this.updateStepRecord(todayStep)
 							}
 						}
 						return noRecordDates
@@ -504,9 +499,9 @@
 						})
 					}
 				}
-
+				return
 			},
-			addStepRecord(data) {
+			async addStepRecord(data) {
 				if (Array.isArray(data) && data.length > 0) {
 					let req = [{
 						"serviceName": "srvportal_walking_step_count_rcd_add",
@@ -515,19 +510,17 @@
 							return {
 								"act_no": this.act_no,
 								"atd_no": this.actRecordInfo.aa_no,
-								"user_no": this.userInfo.userno,
+								"user_no": this.user_no,
 								"walk_date": item.date,
 								"wx_step_count": item.step
 							}
 						}).reverse()
 					}]
 					let url = this.getServiceUrl('bxportal', 'srvportal_walking_step_count_rcd_add', 'operate')
-					this.$http.post(url, req).then(res => {
-						debugger
-					})
+					return await this.$http.post(url, req)
 				}
 			},
-			updateStepRecord(todayStep) {
+			async updateStepRecord(todayStep) {
 				let req = [{
 					"serviceName": "srvportal_walking_step_count_rcd_update",
 					"condition": [{
@@ -540,11 +533,11 @@
 					}]
 				}]
 				let url = this.getServiceUrl('bxportal', 'srvportal_walking_step_count_rcd_update', 'operate')
-				this.$http.post(url, req).then(res => {
-					if (res.data.state === 'SUCCESS') {
-						this.getTakeInInfo()
-					}
-				})
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS') {
+					await this.getTakeInInfo()
+				}
+				return res
 			},
 			addTakeInRecord(userInfo) {
 				let req = [{
@@ -552,7 +545,7 @@
 					"condition": [],
 					"data": [{
 						"act_no": this.act_no,
-						"user_no": this.userInfo.userno,
+						"user_no": this.user_no,
 						"atd_type": "个人",
 						nick_name: userInfo.nickName,
 						profile_url: userInfo.avatarUrl
@@ -569,6 +562,7 @@
 							res.data.response[0].response.effect_data.length > 0
 						) {
 							this.actRecordInfo = res.data.response[0].response.effect_data[0]
+							this.buildLinePoint()
 						}
 					}
 				})
@@ -581,7 +575,7 @@
 					"colNames": ["*"],
 					"condition": [{
 							"colName": "user_no",
-							"value": this.userInfo.userno,
+							"value": this.user_no,
 							"ruleType": "eq"
 						},
 						{
@@ -600,11 +594,13 @@
 				if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
 					.length > 0) {
 					this.actRecordInfo = res.data.data[0]
-					this.getRankList()
-					this.getStepRecord()
-				} else {
-					return []
+					// await this.getRankList()
+					await this.getStepRecord()
+					this.buildLinePoint()
+					this.getActiveRelatedPhotos()
 				}
+				return
+
 			},
 			getActiveInfo() {
 				let url = this.getServiceUrl('bxportal', 'srvportal_act_mgmt_select', 'select')
@@ -635,12 +631,23 @@
 				// 获取微信运动记录
 				// #ifdef MP-WEIXIN
 				let result = await wx.getWeRunData()
-				debugger
+				uni.showLoading({
+					title: '更新中...'
+				})
 				if (result.errMsg === 'getWeRunData:ok') {
 					// this.wxRunData = result;
 					let data = await this.decryptData(result)
+					// this.getRankList()
+					this.$refs.rankList.getRankList()
 					return data
+				} else {
+					uni.showModal({
+						title: '提示',
+						content: result.errMsg,
+						showCancel: false
+					})
 				}
+				uni.hideLoading()
 				// #endif
 				return true
 			},
@@ -656,7 +663,6 @@
 						serviceName: 'srvwx_app_data_decrypt'
 					}]
 					let res = await this.$http.post(url, req)
-					debugger
 					if (res.data.state == 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
 						0) {
 						let stepList = res.data.response[0].response.stepInfoList
@@ -666,8 +672,7 @@
 								return item
 							})
 							this.stepInfoList = stepList
-							this.getStepRecord(stepList)
-
+							await this.getStepRecord(stepList)
 							return stepList
 						} else {
 							return false
@@ -709,12 +714,27 @@
 	.wall-wrap {
 		background-color: #F7F7F7;
 		height: calc(100vh - var(--window-top));
-		padding: 20rpx 0;
 		overflow: auto;
 
 		.map-container {
 			width: 100%;
 			background-color: #fff;
+			position: relative;
+
+			.success-tip {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 750rpx;
+				height: 500rpx;
+				line-height: 500rpx;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background-color: rgba($color: #000000, $alpha: 0.5);
+				color: #fff;
+				font-weight: bold;
+			}
 		}
 
 		.active-poster {
@@ -734,8 +754,33 @@
 			line-height: 80rpx;
 		}
 
+		.slogan {
+			color: #666;
+		}
+
 		.desc {
 			color: #666;
+		}
+
+		.active-photos {
+			display: flex;
+			// flex-wrap: wrap;
+			padding: 20rpx;
+
+			.image-box {
+				margin-right: 10rpx;
+				margin-bottom: 10rpx;
+
+				.label {
+					color: #666;
+				}
+			}
+
+			.image {
+				border: 1rpx solid #f1f1f1;
+				width: 100rpx;
+				height: 100rpx;
+			}
 		}
 
 		.join-button {
@@ -782,7 +827,7 @@
 
 				&.active {
 					color: #0bc99d;
-					border-radius: 20rpx;
+					border-radius: 20rpx 20rpx 0 0;
 					background-color: #fff;
 				}
 			}

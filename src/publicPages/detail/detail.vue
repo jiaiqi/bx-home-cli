@@ -66,10 +66,18 @@
 					</a-form>
 				</view>
 			</view>
-			<view class="show-or-hide" @click="changeDetailStatus">
-				<text class="margin-right">{{showDetail?"收起":"展开"}}详情 </text>
-				<text class="cuIcon-unfold" v-if="!showDetail"></text>
-				<text class="cuIcon-fold " v-else></text>
+			<view class="handler-bar">
+				<view class="show-or-hide" @click="changeDetailStatus">
+					<text class="margin-right">{{showDetail?"收起":"展开"}}详情 </text>
+					<text class="cuIcon-unfold" v-if="!showDetail"></text>
+					<text class="cuIcon-fold " v-else></text>
+				</view>
+				<view class="button-box" v-if="detail">
+					<button class="cu-btn bg-blue" v-for="(item,index) in publicButton" :key="index"
+						@click="onButton(item)">
+						{{item.button_name||''}}
+					</button>
+				</view>
 			</view>
 		</view>
 		<view class="child-service-fold">
@@ -81,23 +89,21 @@
 		</view>
 		<view class="child-service-box" v-if="currentChild">
 			<view class="child-service">
-				<child-list :config="currentChild" :appName="appName" :mainData="detail" @addChild="addChild"
+				<child-list :config="currentChild" :mainServiceName="serviceName" :mainTable="v2Data.main_table"
+					:mainFkField="fkFields" :appName="appName" :mainData="detail" @addChild="addChild"
 					v-if="detail&&currentChild">
 				</child-list>
 			</view>
 		</view>
 		<view class="child-service-box" v-if="detail">
 			<view class="child-service" v-for="(item,index) in childService" :key="index">
-				<child-list :config="item" :appName="appName" :mainData="detail" @addChild="addChild"
+				<child-list :config="item" :mainServiceName="serviceName" :mainTable="v2Data.main_table"
+					:mainFkField="fkFields" :appName="appName" :mainData="detail" @addChild="addChild"
 					@unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
 				</child-list>
 			</view>
 		</view>
-		<view class="button-box" v-if="detail">
-			<button class="cu-btn bg-blue " v-for="(item,index) in publicButton" :key="index" @click="onButton(item)">
-				{{item.button_name||''}}
-			</button>
-		</view>
+
 		<!-- 	<view class="cu-modal" :class="{show:modalName==='updatePopup'}" @click="hideModal">
 			<view class="cu-dialog" @click.stop="">
 				<bxForm></bxForm>
@@ -129,6 +135,11 @@
 			}
 		},
 		computed: {
+			fkFields() {
+				if (Array.isArray(this.v2Data?._fieldInfo)) {
+					return this.v2Data._fieldInfo.filter(item => item.col_type == 'fk' && item.option_list_v2?.refed_col)
+				}
+			},
 			detailFields() {
 				if (Array.isArray(this.v2Data?._fieldInfo) && typeof this.appTempColMap === 'object') {
 					let arr = Object.keys(this.appTempColMap).map(key => {
@@ -192,6 +203,7 @@
 						} else {
 							return item.permission === true
 						}
+						return true
 					})
 				} else {
 					return []
@@ -202,7 +214,7 @@
 			changeChild(e) {
 				let cur = null
 				if (e && typeof e === 'object') {
-					if (this.currentChild?.foreign_key?.id!==e?.foreign_key?.id) {
+					if (this.currentChild?.foreign_key?.id !== e?.foreign_key?.id) {
 						cur = this.deepClone(e)
 						cur.unfold = true
 					}
@@ -540,6 +552,7 @@
 			},
 		},
 		onLoad(option) {
+			debugger
 			if (option.serviceName) {
 				this.serviceName = option.serviceName;
 				if (option.appName) {
@@ -723,27 +736,38 @@
 		flex-wrap: wrap;
 		flex-direction: row-reverse;
 		padding: 20rpx 0;
-		.bg-green{
+
+		.bg-green {
 			background-color: #0bc99d;
 		}
-		.bg-orange{
+
+		.bg-orange {
 			background-color: #f37b1d;
 		}
-		
+
 		.bg-blue {
 			background-color: #0081ff;
 			color: #ffffff;
 		}
 	}
 
-	.button-box {
-		padding: 20rpx;
-		justify-content: center;
-
-		.cu-btn {
-			min-width: 25%;
-			margin-right: 20rpx;
-			margin-bottom: 20rpx;
+	.handler-bar {
+		display: flex;
+		width: 100%;
+		.show-or-hide{
+			flex: 1;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.button-box {
+			justify-content: flex-end;
+			padding-right: 20rpx;
+			.cu-btn {
+				min-width: 25%;
+				// margin-right: 20rpx;
+				margin-left: 20rpx;
+			}
 		}
 	}
 </style>

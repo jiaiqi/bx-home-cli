@@ -1126,9 +1126,15 @@
 				}
 				self.getSelectorData(cond).then(_ => {
 					if (self.fieldData.value) {
-						self.fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value) ?
-							self.selectorData.find(item => item.value === self.fieldData.value).label :
-							'请选择';
+						let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
+						if(fkFieldLabel&&fkFieldLabel.label){
+							self.fkFieldLabel =fkFieldLabel.label
+						}else if(self.fieldData.value){
+							self.fkFieldLabel =self.fieldData.value
+						}
+						// self.fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value) ?
+						// 	self.selectorData.find(item => item.value === self.fieldData.value).label :
+						// 	'请选择';
 					}
 				});
 			}

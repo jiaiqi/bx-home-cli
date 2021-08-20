@@ -172,6 +172,7 @@
 						value: row.id,
 						display: false
 					}]
+					debugger
 					let url =
 						`/publicPages/form/form?type=detail&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
 					if (this.moreConfig?.detailPage === 'childTableList') {
@@ -184,6 +185,7 @@
 					if (this.appName) {
 						url += `&appName=${this.appName}`
 					}
+					debugger
 					uni.navigateTo({
 						url: url
 					})
