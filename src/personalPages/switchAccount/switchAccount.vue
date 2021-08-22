@@ -70,7 +70,7 @@
 						let result = res.data.response[0]
 						if (result.response) {
 							const response = result.response
-							uni.clearStorage()
+							// uni.clearStorage()
 							let expire_timestamp = parseInt(new Date().getTime() / 1000) + response
 								.expire_time; //过期时间的时间戳(秒)
 							uni.setStorageSync('bx_auth_ticket', response.bx_auth_ticket);

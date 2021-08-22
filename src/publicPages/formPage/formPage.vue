@@ -184,6 +184,7 @@
 				// 	return;
 				// }
 				let req = this.$refs.bxForm.getFieldModel();
+				debugger
 				for (let key in req) {
 					if (Array.isArray(req[key])) {
 						req[key] = req[key].toString();
@@ -222,7 +223,7 @@
 									return false
 								}
 							}
-							let url = this.getServiceUrl(app, e.service_name, type);
+							let url = this.getServiceUrl(app, e.service_name, 'operate');
 							let res = await this.$http.post(url, reqData);
 							if (res.data.state === 'SUCCESS') {
 								uni.showModal({

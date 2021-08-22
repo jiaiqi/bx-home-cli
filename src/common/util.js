@@ -154,9 +154,9 @@ export default {
 				case "add":
 					cols = cols.filter((item, index) => {
 						// if (item.in_add !== 0) {
-						// if (item.in_add === 1 || item.in_add === 2) {
+						if (item.in_add === 1 || item.in_add === 2) {
 							return item
-						// }
+						}
 					})
 					break;
 				case "update":

@@ -378,6 +378,48 @@
 						case 'delete':
 							if (this.use_type === "detaillist" && this.modalName === "updateChildData") {
 								debugger
+								uni.showModal({
+									content: "是否确认删除操作？",
+									success: (res) =>{
+										if (res.confirm) {
+											console.log('用户点击确定');
+											let req = [{
+												"serviceName": e.service_name,
+												"colNames": ["*"],
+												"condition": [{
+													colName:'id',
+													ruleType:'eq',
+													value:this.updateV2?.rowData?.id
+												}]
+											}]
+											if(!this.updateV2?.rowData?.id){
+												return
+											}
+											let appName = this.appName || uni.getStorageSync('activeApp');
+											this.onRequest("delete", e.service_name,
+												req, appName).then((res) => {
+													this.hideModal()
+													this.getList()
+												if (res.data.state === "SUCCESS") {
+													uni.showToast({
+														title:'操作成功',
+														
+													})
+												} else {
+													uni.showModal({
+														title: '提示',
+														content: res.data
+															.resultMessage,
+														showCancel: false,
+													})
+												}
+								
+											})
+										} else if (res.cancel) {
+											resolve('用户点击取消')
+										}
+									}
+								})
 								return
 							}
 							if (typeof index === 'number' && index >= 0) {
