@@ -200,6 +200,11 @@
 					return this.v2Data.formButton.filter((item, index) => {
 						if (Array.isArray(this.detail?._buttons) && this.detail._buttons.length > 0) {
 							return this.detail._buttons[index] === 1
+						} else if (this.detail?._buttons && typeof this.detail._buttons === 'string') {
+							let arr = this.detail._buttons.split(',')
+							if (Array.isArray(arr) && arr.length > 0) {
+								return Number(arr[index]) === 1
+							}
 						} else {
 							return item.permission === true
 						}
@@ -506,7 +511,6 @@
 								if (this.appName) {
 									url += `&appName=${this.appName}`
 								}
-								debugger
 								uni.navigateTo({
 									url: url
 								});
@@ -552,7 +556,6 @@
 			},
 		},
 		onLoad(option) {
-			debugger
 			if (option.serviceName) {
 				this.serviceName = option.serviceName;
 				if (option.appName) {
@@ -754,15 +757,18 @@
 	.handler-bar {
 		display: flex;
 		width: 100%;
-		.show-or-hide{
+
+		.show-or-hide {
 			flex: 1;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 		}
+
 		.button-box {
 			justify-content: flex-end;
 			padding-right: 20rpx;
+
 			.cu-btn {
 				min-width: 25%;
 				// margin-right: 20rpx;

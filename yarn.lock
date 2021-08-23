@@ -3260,13 +3260,6 @@
   "resolved" "https://registry.npm.taobao.org/binary-extensions/download/binary-extensions-2.2.0.tgz?cache=0&sync_timestamp=1610299640881&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fbinary-extensions%2Fdownload%2Fbinary-extensions-2.2.0.tgz"
   "version" "2.2.0"
 
-"bindings@^1.5.0":
-  "integrity" "sha1-EDU8npRTNLwFEabZCzj7x8nFBN8="
-  "resolved" "https://registry.npm.taobao.org/bindings/download/bindings-1.5.0.tgz"
-  "version" "1.5.0"
-  dependencies:
-    "file-uri-to-path" "1.0.0"
-
 "bl@^4.0.3":
   "integrity" "sha1-RRU1JkGCvsL7vIOmKrmM8R2fezo="
   "resolved" "https://registry.npm.taobao.org/bl/download/bl-4.1.0.tgz"
@@ -5777,19 +5770,6 @@
   "integrity" "sha1-FQStJSMVjKpA20onh8sBQRmU6k8="
   "resolved" "https://registry.npm.taobao.org/fs.realpath/download/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
-
-"fsevents@^1.2.7":
-  "integrity" "sha1-8yXLBFVZJCi88Rs4M3DvcOO/zDg="
-  "resolved" "https://registry.npm.taobao.org/fsevents/download/fsevents-1.2.13.tgz"
-  "version" "1.2.13"
-  dependencies:
-    "bindings" "^1.5.0"
-    "nan" "^2.12.1"
-
-"fsevents@^2.1.2", "fsevents@~2.3.1":
-  "integrity" "sha1-ilJveLj99GI7cJ4Ll1xSwkwC/Ro="
-  "resolved" "https://registry.npm.taobao.org/fsevents/download/fsevents-2.3.2.tgz"
-  "version" "2.3.2"
 
 "ftp-response-parser@^1.0.1":
   "integrity" "sha1-O50z+O3V+45HALj3eMRi5bFYH4k="
@@ -8303,11 +8283,6 @@
     "any-promise" "^1.0.0"
     "object-assign" "^4.0.1"
     "thenify-all" "^1.0.0"
-
-"nan@^2.12.1":
-  "integrity" "sha1-9TdkAGlRaPTMaUrJOT0MlYXu6hk="
-  "resolved" "https://registry.npm.taobao.org/nan/download/nan-2.14.2.tgz"
-  "version" "2.14.2"
 
 "nanomatch@^1.2.9":
   "integrity" "sha1-uHqKpPwN6P5r6IiVs4mD/yZb0Rk="
@@ -11914,13 +11889,6 @@
   "version" "1.0.7"
   dependencies:
     "makeerror" "1.0.x"
-
-"watchpack-chokidar2@^2.0.1":
-  "integrity" "sha1-OFAAcu5uzmbzdpk2lQ6hdxvhyVc="
-  "resolved" "https://registry.npm.taobao.org/watchpack-chokidar2/download/watchpack-chokidar2-2.0.1.tgz?cache=0&sync_timestamp=1604989063099&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fwatchpack-chokidar2%2Fdownload%2Fwatchpack-chokidar2-2.0.1.tgz"
-  "version" "2.0.1"
-  dependencies:
-    "chokidar" "^2.1.8"
 
 "watchpack@^1.7.4":
   "integrity" "sha1-EmfmxV4Lm1vkTCAjrtVDeiwmxFM="

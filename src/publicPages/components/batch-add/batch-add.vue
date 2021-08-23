@@ -20,8 +20,8 @@
 								</view>
 							</view>
 							<view class="number-box" v-if="params&&params.numCol">
-								<u-number-box :input-width="30" :input-height="40" :positive-integer="false" :min="1"
-									:step="1" v-model="item[params.numCol]"></u-number-box>
+								<u-number-box :input-width="30" :index="index" :input-height="40" :positive-integer="false" :min="0"
+									:step="1" :value="item[params.numCol]" @change="numberChange"></u-number-box>
 							</view>
 						</view>
 					</view>
@@ -104,6 +104,7 @@
 			},
 		},
 		methods: {
+	
 			clickAddButton(item) {
 				if (this.pageType === 'proc') {
 					// this.publicButton.map(item => {
@@ -188,10 +189,33 @@
 					}
 					return item
 				})
+				this.list = this.list.map(item => {
+					item.selected = false
+					if (this.params?.numCol) {
+						item[this.params.numCol] = 1
+					}
+					return item
+				})
 				this.$emit('submit', arr)
+			},
+			numberChange(e){
+				// debugger
+				console.log(e)
+				let { value,index} = e
+				let item = this.list[index]
+				if(value===0){
+					item.selected = false
+				}else{
+					item.selected = true
+				}
+				item[this.params.numCol] = value
+				this.$set(this.list, index, item)
 			},
 			clickItem(item, index) {
 				item.selected = !item.selected
+				if(!item[this.params.numCol]){
+					item[this.params.numCol] = 1
+				}
 				this.$set(this.list, index, item)
 			},
 			async getListV2() {

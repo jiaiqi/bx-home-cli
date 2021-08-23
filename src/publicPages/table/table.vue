@@ -9,19 +9,23 @@
 		<view class="" style="height: 100rpx;">
 
 		</view>
-		<view class="table-wrap">
+		<scroll-view scroll-x="true">
 			<view class="list-box ">
 				<view class="list-item table-head">
-					<view class="col-item" v-for="col in tableColumn">
+					<view class="col-item"
+						:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
+						v-for="col in tableColumn">
 						{{col.label||''}}
 					</view>
 				</view>
 				<view class="list-item" v-for="(item,index) in list" :key="index" @click="toDetail(item)">
 					<view class="col-item"
+						:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
 						:class="{'bg-orange':isTomorrow(item[col.columns],col.col_type),'bg-red':isToday(item[col.columns],col.col_type)}"
 						v-for="col in tableColumn">
 						<text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
 						<text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
+						<text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
 						<text v-else> {{item[col.columns]||''}}</text>
 					</view>
 				</view>
@@ -36,7 +40,7 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</scroll-view>
 	</view>
 </template>
 
@@ -64,7 +68,18 @@
 				showSearchBar: false,
 				listButton: [],
 				descCol: null,
-				ascCol: null
+				ascCol: null,
+				colMinWidth: null,
+				initCond: null
+			}
+		},
+		filters: {
+			hideYear: function(value) {
+				if (value) {
+					let year = (new Date()).getFullYear()
+					value = value.replace(`${year}-`, '')
+				}
+				return value || ''
 			}
 		},
 		computed: {
@@ -86,14 +101,15 @@
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
 					if (Array.isArray(this.columns) && this.columns.length > 0) {
 						let arr = []
-						this.columns.forEach(column=>{
-							this.srvCols.forEach(col=>{
-								if(col.columns===column){
+						this.columns.forEach(column => {
+							this.srvCols.forEach(col => {
+								if (col.columns === column) {
 									arr.push(col)
 								}
 							})
 						})
 						return arr
+						// .slice(0,4)
 						// return this.srvCols.filter(item => this.columns.includes(item.columns))
 					} else {
 						const cols = this.srvCols.filter(item => item.columns && item.columns !== 'id' && item.columns
@@ -140,7 +156,7 @@
 					// 		};
 					// 	});
 					// }
-					if(Array.isArray(this.queryCond)&&this.queryCond.length>0){
+					if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
 						fieldsCond = this.queryCond
 					}
 					let url =
@@ -179,8 +195,8 @@
 						url =
 							`/publicPages/detail/detail?serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
 					}
-					if(this.moreConfig?.clickTargetUrl){
-						url = this.renderStr(this.moreConfig.clickTargetUrl,row)
+					if (this.moreConfig?.clickTargetUrl) {
+						url = this.renderStr(this.moreConfig.clickTargetUrl, row)
 					}
 					if (this.appName) {
 						url += `&appName=${this.appName}`
@@ -235,7 +251,7 @@
 				})
 				return colVs;
 			},
-			async getList() {
+			async getList(option) {
 				let serviceName = this.serviceName;
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let url = this.getServiceUrl(app, serviceName, 'select');
@@ -250,20 +266,22 @@
 					order: this.orderList,
 					query_source: "list_page"
 				};
-				if(Array.isArray(req.order)&&req.order.length===0){
+				if (Array.isArray(req.order) && req.order.length === 0) {
 					delete req.order
 				}
-				
+
 				if (this.colV2?.vpage_no) {
 					req['vpage_no'] = this.colV2.vpage_no
 				}
-
 
 				if (Array.isArray(this.condition) && this.condition.length > 0) {
 					req.condition = this.condition
 				}
 				if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
 					req.condition = [...req.condition, ...this.queryCond]
+				}
+				if (option && Array.isArray(option.initCond) && option.initCond.length > 0) {
+					req.condition = [...req.condition, ...option.initCond]
 				}
 				if (this.searchWords) {
 					let cond = this.tableColumn.map(item => {
@@ -327,7 +345,9 @@
 		},
 		onPullDownRefresh() {
 			this.pageNo = 1;
-			this.getList()
+			this.getList({
+				initCond: this.initCond
+			})
 			setTimeout(_ => {
 				uni.stopPullDownRefresh()
 			})
@@ -338,8 +358,49 @@
 				if (option.destApp) {
 					this.appName = option.destApp
 				}
+				if (option.initCond) {
+					try {
+						let initCond = JSON.parse(option.initCond)
+						if (Array.isArray(initCond)) {
+							this.initCond = initCond.filter(item => {
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
+						} else if (typeof initCond === 'object' && Object.keys(initCond).length > 0) {
+							let arr = []
+							Object.keys(initCond).forEach(key => {
+								let obj = {
+									colName: key,
+									ruleType: 'eq',
+									value: initCond[key]
+								}
+								arr.push(obj)
+							})
+							this.initCond = arr.filter(item => {
+								if (item.ruleType === 'eq') {
+									return item.value
+								} else {
+									return true
+								}
+							})
+						}
+					} catch (e) {
+						//TODO handle the exception
+					}
+				}
 				if (option.columns) {
 					this.columns = option.columns.split(',')
+
+				}
+				if (option.col_min_width) {
+					try {
+						this.colMinWidth = JSON.parse(option.col_min_width)
+					} catch (e) {
+						//TODO handle the exception
+					}
 				}
 				if (option.descCol) {
 					try {
@@ -399,7 +460,9 @@
 					}
 				}
 				this.getColV2().then(_ => {
-					this.getList()
+					this.getList({
+						initCond: this.initCond
+					})
 				})
 			}
 		}
@@ -407,9 +470,9 @@
 </script>
 
 <style lang="scss" scoped>
-	.page-wrap {
-		overflow: hidden;
-	}
+	// .page-wrap {
+	// 	overflow: hidden;
+	// }
 
 	.fixed {
 		position: fixed;
@@ -417,14 +480,10 @@
 		top: var(--window-top);
 	}
 
-	.table-wrap {
-		// padding: 20rpx;
-		overflow: scroll;
-	}
+
 
 	.list-box {
 		.list-item {
-
 			padding: 10rpx 20rpx;
 			display: flex;
 			// border: 1px solid #f1f1f1;
@@ -445,13 +504,16 @@
 
 			.col-item {
 				flex: 1;
-				min-width: 25%;
-				overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;
+				// min-width: 25%;
 				text-align: center;
 				// border-right: 1px solid #f1f1f1;
 				padding: 10rpx 0;
+				word-break: break-all;
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				/**指定行数*/
+				-webkit-box-orient: vertical;
+				overflow: hidden;
 
 				&:last-child {
 					border-right: none;

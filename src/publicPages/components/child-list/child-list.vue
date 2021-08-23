@@ -377,7 +377,8 @@
 							break;
 						case 'delete':
 							if (this.use_type === "detaillist" && this.modalName === "updateChildData") {
-								debugger
+								
+								let id = this.listData[this.currentItemIndex]['id']
 								uni.showModal({
 									content: "是否确认删除操作？",
 									success: (res) =>{
@@ -389,10 +390,10 @@
 												"condition": [{
 													colName:'id',
 													ruleType:'eq',
-													value:this.updateV2?.rowData?.id
+													value:id
 												}]
 											}]
-											if(!this.updateV2?.rowData?.id){
+											if(!id){
 												return
 											}
 											let appName = this.appName || uni.getStorageSync('activeApp');
@@ -663,6 +664,7 @@
 						}
 						return item
 					})
+					this.updataV2.rowData = row
 					return
 				}
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {

@@ -102,7 +102,9 @@ export default {
 			// 通过子组件传递过来的val值(此被选中的子组件内部已将parentValue设置等于val的值)，将其他
 			// bx-radio设置未选中的状态
 			this.children.map(child => {
-				if (child.parentData.value != val) child.parentData.value = '';
+				if (child.parentData.value != val) {
+					child.parentData.value = '';
+				}
 			});
 			// 通过emit事件，设置父组件通过v-model双向绑定的值
 			this.$emit('input', val);

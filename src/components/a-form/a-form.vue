@@ -53,7 +53,9 @@
 		},
 		mounted() {
 			this.fieldModel = this.oldField.reduce((res, cur) => {
-				res[cur.columns] = cur.value
+				if(cur.value){
+					res[cur.columns] = cur.value
+				}
 				return res
 			}, {})
 		},
@@ -82,7 +84,7 @@
 						}
 					}
 				});
-
+				debugger
 				if (valid === showsNum) {
 					console.log('表单校验通过', showsNum, valid, this.fieldModel);
 					let model = {};

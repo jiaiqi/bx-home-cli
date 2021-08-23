@@ -157,7 +157,7 @@
 						value: no
 					}]
 				};
-				this.$fetch('select', 'srvhealth_store_goods_select', req, 'health').then(res => {
+				this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
 					if (Array.isArray(res.data) && res.data.length > 0) {
 						this.goodsInfo = res.data[0];
 						this.getSwiperList(this.goodsInfo);

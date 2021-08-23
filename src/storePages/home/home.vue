@@ -294,7 +294,7 @@
 							break;
 						case '商品列表':
 							reqBody = {
-								serviceName: "srvhealth_store_goods_select",
+								serviceName: "srvhealth_store_goods_guest_select",
 								"colNames": ["*"],
 								condition: [{
 									colName: 'store_no',
@@ -468,7 +468,7 @@
 						value: this.storeNo
 					}]
 				};
-				this.$fetch('select', 'srvhealth_store_goods_select', req, 'health').then(res => {
+				this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
 					if (Array.isArray(res.data)) {
 						this.goodsListData = res.data;
 					}

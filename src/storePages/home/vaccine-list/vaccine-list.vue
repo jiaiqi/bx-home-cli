@@ -15,8 +15,8 @@
 		</view>
 		<swiper class="swiper rectangle-dot" indicator-active-color="#00aaff" indicator-color="#ccc"
 			:indicator-dots="true" :autoplay="false">
-			<swiper-item v-for="(child,index) in list" :key="index" class="swiper-item">
-				<view class="vaccine-item" v-for="(item,itemIndex) in child" :key="itemIndex" @click="showInfo(item)">
+			<swiper-item v-for="(child,index) in list" class="swiper-item">
+				<view class="vaccine-item" v-for="(item,itemIndex) in child" @click="showInfo(item)">
 					<view class="title">
 						{{item.vaccine_drug_name}}
 					</view>
@@ -205,7 +205,8 @@
 								<view class="date-item"
 									:class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no,disabled:disabledTime(radio)}"
 									v-for="radio in timeArr" :key="radio.sa_no" @click="selectItem(radio)">
-									<text v-if="vaccineInfo.persons_count===1||radio.appoint_name">{{radio.appoint_name}}</text>
+									<text
+										v-if="vaccineInfo.persons_count===1||radio.appoint_name">{{radio.appoint_name}}</text>
 									<view v-else-if="radio.app_date">{{dayjs(radio.app_date).format('MM-DD')}}
 										{{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
 										-
@@ -214,7 +215,7 @@
 									<view v-if="radio.app_count" class="vaccine_app_count text-orange">
 										已约:{{radio.app_count||''}}人
 									</view>
-								<!-- 	<view class="" v-html="radio.app_desc">
+									<!-- 	<view class="" v-html="radio.app_desc">
 									</view> -->
 									<!-- <text v-if="radio.app_count" class="cu-tag badge">{{radio.app_count||''}}</text> -->
 								</view>
@@ -224,7 +225,7 @@
 							</view>
 							<view class="from-box">
 								<view class="form-title cuIcon-info text-gray">
-									填写就诊人相关信息
+									请填写接种人相关信息
 								</view>
 								<view class="cu-form-group">
 									<text class="text-red">*</text>
@@ -505,6 +506,9 @@
 			},
 			disabledTime(e) {
 				// 判断是否过期 已过期则禁用
+				if (e.app_count_limit <= e.app_count&&e.appoint_type!=='登记') {
+					return true
+				}
 				let time = new Date(e.app_date + ' ' + e.app_time_start)
 				let now = new Date()
 				if (time.getTime() < now.getTime()) {
@@ -868,6 +872,13 @@
 				this.activeField = ''
 			},
 			selectItem(e) {
+				if (e.app_count_limit <= e.app_count&&e.appoint_type!=='登记') {
+					uni.showToast({
+						title: '预约人数已满',
+						icon: 'none'
+					})
+					return 
+				}
 				if (this.disabledTime(e)) {
 					uni.showToast({
 						title: '已过期,不可预约',

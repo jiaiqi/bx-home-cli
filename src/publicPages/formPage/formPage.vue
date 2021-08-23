@@ -195,11 +195,15 @@
 					case 'edit':
 					case 'submit':
 						if (req) {
-							for (let key in req) {
-								if (!req[key]) {
-									delete req[key];
-								}
-							}
+							// for (let key in req) {
+							// 	if (!req[key]) {
+							// 		if(this.mainData?.[key]===null){
+										
+							// 		}else{
+							// 			delete req[key];
+							// 		}
+							// 	}
+							// }
 							let data = this.deepClone(req);
 
 							data.child_data_list = []
@@ -208,6 +212,7 @@
 							})
 							let reqData = [{
 								serviceName: e.service_name,
+								condition: [],
 								data: [data]
 							}];
 							let app = this.appName || uni.getStorageSync('activeApp');
@@ -240,8 +245,9 @@
 								})
 							} else {
 								uni.showToast({
-									title: res.data.resultMessage,
+									title: res.data.resultMessage || res.data.resultCode,
 									mask: false,
+									icon: 'none'
 								});
 							}
 

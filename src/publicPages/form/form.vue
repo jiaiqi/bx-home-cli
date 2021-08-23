@@ -323,6 +323,7 @@
 						req[key] = req[key].toString();
 					}
 				}
+				debugger
 				switch (e.button_type) {
 					case 'edit':
 						if (e.page_type === '详情' && this.use_type === 'detail') {

@@ -3,7 +3,7 @@
 		<view class="total-count">
 			{{totalCount||''}}
 		</view>
-		<view class="rank-item" v-for="(item,index) in rankList">
+		<view class="rank-item" v-for="(item,index) in rankList" @click="toDetail(item)">
 			<view class="index">
 				{{index+1}}
 			</view>
@@ -168,6 +168,9 @@
 			this.getRankList()
 		},
 		methods: {
+			toDetail(e){
+				debugger
+			},
 			showModal(e) {
 				this.modalName = e
 			},
@@ -186,6 +189,11 @@
 							colName: 'user_no',
 							ruleType: 'eq',
 							value: uni.getStorageSync('login_user_info').user_no
+						},
+						{
+							colName:"act_no",
+							ruleType:"eq",
+							value: this.act_no
 						}
 					],
 					"page": {
@@ -319,6 +327,12 @@
 					this.rankList = res.data.data
 					this.pageInfo.total = res?.data?.page?.total || 0
 				}
+				let obj = {
+					page:res?.data?.page,
+					data:res?.data?.data
+				}
+				this.$emit('loaded',obj)
+				return obj
 			},
 		},
 	}

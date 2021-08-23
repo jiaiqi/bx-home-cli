@@ -766,7 +766,9 @@
 				if (this.fieldData.type === 'Selector') {
 					let selectorData = this.radioOptions || this.selectorData
 					let optionData = selectorData.find(item => item.value === e);
-					this.fkFieldLabel = optionData.label;
+					if(optionData?.label){
+						this.fkFieldLabel = optionData.label;
+					}
 					this.fieldData['colData'] = optionData;
 					this.hideModal();
 					this.onBlur()
