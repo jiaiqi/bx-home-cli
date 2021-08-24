@@ -12,8 +12,11 @@
 	export default {
 		name: 'aForm',
 		props: {
-			defaultVal: {
-				type: [Array, Object],
+			// defaultVal: {
+			// 	type: [Array, Object],
+			// },
+			mainData: {
+				type: Object
 			},
 			fields: {
 				type: Array,
@@ -41,7 +44,7 @@
 				type: String,
 				default: 'button' //选项的样式 normal | button
 			},
-			srvApp:{
+			srvApp: {
 				type: String
 			},
 			moreConfig: {
@@ -53,7 +56,7 @@
 		},
 		mounted() {
 			this.fieldModel = this.oldField.reduce((res, cur) => {
-				if(cur.value){
+				if (cur.value) {
 					res[cur.columns] = cur.value
 				}
 				return res
@@ -84,7 +87,6 @@
 						}
 					}
 				});
-				debugger
 				if (valid === showsNum) {
 					console.log('表单校验通过', showsNum, valid, this.fieldModel);
 					let model = {};
@@ -143,7 +145,6 @@
 				// const triggerColumns = this.allField.filter((item)=>item.)
 				for (let index = 0; index < this.allField.length; index++) {
 					const item = this.allField[index]
-
 					if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
 							.colData) !==
 						true && Object.keys(e.colData).length > 0) {
@@ -178,7 +179,7 @@
 					}
 
 					if (!item.value && this.pageType === 'filter') {
-						item.value = '全部'
+						// item.value = '全部'
 					}
 
 					this.$set(this.allField, index, item)
@@ -250,8 +251,14 @@
 				if (Array.isArray(this.oldField) && this.oldField.length > 0) {
 					this.allField = this.oldField.map((item, index) => {
 						this.$refs.fitem[index].fieldData.value = item.value;
+						this.fieldModel[item.columns] = item.value
 						if (this.pageType === 'filter') {
-							item.value = '全部'
+							if (item.type === 'Selector') {
+								item.value = '全部'
+								if (this.fieldModel[item.columns]) {
+									this.fieldModel[item.columns] = '全部'
+								}
+							}
 						}
 						if (item.type === 'Set') {
 							this.$refs.fitem[index].initSetOptions()
@@ -276,7 +283,7 @@
 						}
 						this.allField = newValue.map(item => {
 							if (!item.value && this.pageType === 'filter') {
-								item.value = '全部'
+								// item.value = '全部'
 							}
 							return item
 						});

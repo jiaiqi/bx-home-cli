@@ -280,7 +280,7 @@ export default {
 					}]
 				} else if (fieldInfo.type === 'addr') {
 					fieldInfo.type = 'location'
-				} else if(item.bx_col_type === "string" && item.col_type === "fk"){
+				} else if (item.bx_col_type === "string" && item.col_type === "fk") {
 					fieldInfo.type = "Selector"
 				} else {
 					fieldInfo.type = item.col_type
@@ -2207,19 +2207,55 @@ export default {
 			return content;
 		}
 
-		Vue.prototype.renderStr = (str, obj) => {
-			return str.replace(/\$\{(.*?)\}/g, (match, key) => {
-				key = key.trim()
-				let result = obj[key]
-				let arr = key.split('.')
-				if (arr.length > 1) {
-					result = obj
-					arr.forEach(item => {
-						result = result[item]
-					})
+		Vue.prototype.evalConditions = (conditions, mainData) => {
+			conditions = conditions.map(op => {
+				let regVar = /\$\{(.*?)\}/
+				debugger
+				if (op.value && regVar.test(op.value)) {
+					op.value = Vue.prototype.renderStr(op.value, mainData)
+				} else if (op.value && op.value.indexOf('data.') !== -1) {
+					let colName = op.value.slice(op.value.indexOf('data.') + 5);
+					if (mainData && typeof mainData === 'object' && mainData[colName]) {
+						op.value = mainData[colName];
+					}
+				} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
+					let login_user_info = uni.getStorageSync('login_user_info')
+					op.value = login_user_info?.user_no || '';
+				} else if (op.value && op.value.indexOf("'") === 0 && op.value
+					.lastIndexOf(
+						"'") === op.value
+					.length - 1) {
+					op.value = op.value.replace(/\'/gi, '');
 				}
-				return result
+				if (op.value_exp) {
+					delete op.value_exp;
+				}
+				return op
 			})
+			return conditions
+		}
+
+		Vue.prototype.renderStr = (str, obj) => {
+			if (typeof obj === 'object' && str) {
+				return str.replace(/\$\{(.*?)\}/g, (match, key) => {
+					key = key.trim()
+					let result = obj[key]
+					let arr = key.split('.')
+					if (arr.length > 1) {
+						result = obj
+						arr.forEach(item => {
+							try{
+								result = result[item]
+							}catch(e){
+								//TODO handle the exception
+							}
+						})
+					}
+					return result
+				})
+			} else {
+				return str
+			}
 		}
 
 		Vue.prototype.toArticle = (no) => {
@@ -2238,14 +2274,14 @@ export default {
 		}
 
 		// 后端计算xif并返回结果
-		Vue.prototype.evalX_IF = async (tableName, cols, data = {},appName) => {
+		Vue.prototype.evalX_IF = async (tableName, cols, data = {}, appName) => {
 			if (!tableName || !cols) {
 				return
 			}
 			if (Array.isArray(cols)) {
 				cols = cols.toString()
 			}
-			const app = appName||uni.getStorageSync('activeApp')
+			const app = appName || uni.getStorageSync('activeApp')
 			const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_table_col_show_hide_result`
 			const req = [{
 				serviceName: "srvsys_table_col_show_hide_result",
@@ -2268,7 +2304,7 @@ export default {
 			if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
 				0) {
 				return res.data.response[0]
-			}else if(res.data.resultCode==='6666'){
+			} else if (res.data.resultCode === '6666') {
 				return true
 			} else {
 				return false

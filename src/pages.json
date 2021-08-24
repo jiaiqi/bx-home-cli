@@ -330,6 +330,15 @@
                 }
                 
                 }
+                ,{
+                    "path" : "groupRanking/groupRanking",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
             ]
 		}
 	],

@@ -6,7 +6,7 @@
 		<scroll-view scroll-y="true">
 			<view>
 				<a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-					ref="bxForm" @value-blur="valueChange" :defaultVal="defaultVal"></a-form>
+					ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
 			</view>
 		</scroll-view>
 		<view class="button-box">
@@ -307,7 +307,6 @@
 				if (!e) {
 					return;
 				}
-				debugger
 				if (!this.isOnButton) {
 					this.isOnButton = true;
 				} else {
@@ -323,7 +322,6 @@
 						req[key] = req[key].toString();
 					}
 				}
-				debugger
 				switch (e.button_type) {
 					case 'edit':
 						if (e.page_type === '详情' && this.use_type === 'detail') {
@@ -624,7 +622,7 @@
 							}
 						}
 					}
-					if (e.hasOwnProperty(item.column)) {
+					if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
 						item.value = e[item.column];
 					}
 					this.$set(this.fields, i, item)
@@ -756,6 +754,12 @@
 							return;
 						}
 						self.fields = fields.map(field => {
+							if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+								.conditions
+								.length > 0) {
+								field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+									.conditions, this.defaultVal)
+							}
 							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
 								field.option_list_v2 = field.option_list_v2.map(item => {
 									item.checked = false;
@@ -786,6 +790,7 @@
 						}).filter(item => !self.hideColumn.includes(item.column))
 						break;
 					case 'add':
+
 						self.fields = colVs._fieldInfo.map(field => {
 							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
 								field.option_list_v2 = field.option_list_v2.map(item => {

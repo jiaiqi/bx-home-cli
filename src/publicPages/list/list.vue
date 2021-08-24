@@ -18,7 +18,7 @@
 				</view>
 			</view>
 		</view> -->
-		<list-bar @change="changeSerchVal" :srvCols="srvCols" :placholder="placeholder" :listButton="listButton"
+		<list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols" :placholder="placeholder" :listButton="listButton"
 			@toOrder="toOrder" @toFilter="toFilter" @handelCustomButton="handlerCustomizeButton"
 			@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch" v-if="showSearchBar">
 		</list-bar>
@@ -118,6 +118,13 @@
 			}),
 			srvCols() {
 				return this.listConfig?._fieldInfo || []
+			},
+			filterCols() {
+				let cols = this.moreConfig?.appTempColMap
+				if (typeof cols === 'object') {
+					cols = Object.keys(cols).map(key => cols[key]).filter(item => item && item)
+					return this.srvCols.filter(item => cols.includes(item.columns) && !['Image'].includes(item.col_type))
+				}
 			},
 			orderList() {
 				let cols = this.orderCols.filter(item => item.selected)
@@ -490,9 +497,9 @@
 			toOrder(e) {
 				this.order = e
 				// this.orderCols = e
-				setTimeout(_=>{
+				setTimeout(_ => {
 					this.$refs.bxList.getListData()
-				},100)
+				}, 100)
 				// this.$refs.bxList.getListData()
 				// this.hideModal()
 			},
@@ -597,6 +604,9 @@
 
 						if (this.appName) {
 							url += `&appName=${this.appName}`
+						}
+						if(this.main_data){
+							url+=`&main_data=${JSON.stringify(this.main_data)}`
 						}
 						uni.navigateTo({
 							url: url

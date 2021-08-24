@@ -1,19 +1,19 @@
 <template>
   <view class="article-wrap">
     <view class="top">
+			<view
+			  class="head-image"
+			  v-if="
+			    articleData.icon_image && articleData.cover_pic_style === '下一'
+			  "
+			>
+			  <image
+			    class="image"
+			    :src="getImagePath(articleData.icon_image, true)"
+			    mode="aspectFill"
+			  ></image>
+			</view>
       <view class="left">
-        <view
-          class="head-image"
-          v-if="
-            articleData.icon_image && articleData.cover_pic_style === '下一'
-          "
-        >
-          <image
-            class="image"
-            :src="getImagePath(articleData.icon_image, true)"
-            mode="aspectFill"
-          ></image>
-        </view>
         <view class="header">
           <view class="title" v-if="articleData.title">{{
             articleData.title
@@ -302,7 +302,7 @@ export default {
 
   .top {
     display: flex;
-
+		flex-wrap: wrap;
     .left {
       flex: 1;
     }
@@ -311,7 +311,9 @@ export default {
   .head-image {
     width: 100%;
     height: 250rpx;
-
+		margin-bottom: 20rpx;
+		border-radius: 20rpx;
+		overflow: hidden;
     .image {
       width: 100%;
       height: 100%;

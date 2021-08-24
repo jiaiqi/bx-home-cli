@@ -73,7 +73,7 @@
 					<text class="cuIcon-fold " v-else></text>
 				</view>
 				<view class="button-box" v-if="detail">
-					<button class="cu-btn bg-blue" v-for="(item,index) in publicButton" :key="index"
+					<button class="cu-btn bg-cyan" v-for="(item,index) in publicButton" :key="index"
 						@click="onButton(item)">
 						{{item.button_name||''}}
 					</button>
@@ -768,7 +768,9 @@
 		.button-box {
 			justify-content: flex-end;
 			padding-right: 20rpx;
-
+			.bg-cyan{
+				background-color: #0BC99D;
+			}
 			.cu-btn {
 				min-width: 25%;
 				// margin-right: 20rpx;

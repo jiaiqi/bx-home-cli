@@ -31,7 +31,6 @@
 				let res = await this.$fetch('select', 'srvdaq_activity_cfg_select', req, 'daq')
 				if (res.success) {
 					let res2 = await this.getListDetail()
-					debugger
 					if (Array.isArray(res2) && res2.length > 0) {
 						res.data = res.data.map(item => {
 							res2.forEach(item2 => {

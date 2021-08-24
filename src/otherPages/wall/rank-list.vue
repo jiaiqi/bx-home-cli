@@ -3,7 +3,7 @@
 		<view class="total-count">
 			{{totalCount||''}}
 		</view>
-		<view class="rank-item" v-for="(item,index) in rankList" @click="toDetail(item)">
+		<view class="rank-item" v-for="(item,index) in rankList" @click="toDetail(item,index+1)">
 			<view class="index">
 				{{index+1}}
 			</view>
@@ -168,8 +168,10 @@
 			this.getRankList()
 		},
 		methods: {
-			toDetail(e){
-				debugger
+			toDetail(e,index){
+				if(e.org_no&&index){
+					this.$emit('toGroup', {info:e,index} )
+				}
 			},
 			showModal(e) {
 				this.modalName = e

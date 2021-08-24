@@ -152,7 +152,9 @@
 					return this.moreConfig.searchColumn
 				} else {
 					return Object.keys(this.finalViewTemp).reduce((res,cur)=>{
-						res.push(this.finalViewTemp[cur])
+						if(this.finalViewTemp[cur]){
+							res.push(this.finalViewTemp[cur])
+						}
 						return res
 					},[])
 				}
@@ -439,9 +441,9 @@
 								relation: "AND",
 								data: [{
 										relation: "OR",
-										data: this.finalSearchColumn.map(itme => {
+										data: this.finalSearchColumn.map(item => {
 											return {
-												"colName": itme,
+												"colName": item,
 												"value": keywords,
 												"ruleType": 'like'
 											}

@@ -7,7 +7,7 @@
 					v-model="searchVal" :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
 			</view>
 			<view class="action">
-				<button class="cu-btn bg-cyan shadow-blur round" @click="toSearch" >
+				<button class="cu-btn bg-cyan shadow-blur round" @click="toSearch">
 					<text class="cuIcon-search"></text>
 				</button>
 				<button class="cu-btn bg-cyan shadow-blur round margin-left-xs" @click="clickGridButton(btn)"
@@ -48,7 +48,7 @@
 
 		<view class="cu-modal bottom-modal" :class="{ show: modalName==='showFilter' }" @click.stop="hideModal">
 			<view class="cu-dialog" @click.stop="">
-				<bx-filter v-if="srvCols&&srvCols.length>0" :fieldInfo="srvCols" @toFilter="toFilter"
+				<bx-filter v-if="filterCol&&filterCol.length>0" :srvApp="srvApp" :fieldInfo="filterCol" @toFilter="toFilter"
 					@cancel="hideModal"></bx-filter>
 			</view>
 		</view>
@@ -74,12 +74,21 @@
 			},
 			srvCols: {
 				type: Array
+			},
+			srvApp:{
+				type: String
+			},
+			filterCols: {
+				type: Array
 			}
 			// orderCols:{
 			// 	type:Array
 			// }
 		},
 		computed: {
+			filterCol() {
+				return Array.isArray(this.filterCols) && this.filterCols.length > 0 ? this.filterCols : this.srvCols
+			},
 			orderList() {
 				let cols = this.orderCols.filter(item => item.selected)
 				if (cols.length === 0) {
@@ -112,7 +121,7 @@
 				this.searchVal = ''
 				this.hideModal()
 				if (Array.isArray(e)) {
-					let cond = e.filter(item => item.value !== '全部').map(item => {
+					let cond = e.filter(item => item.value !== '全部' && item.column).map(item => {
 						let obj = {
 							colName: item.column,
 							ruleType: 'like',

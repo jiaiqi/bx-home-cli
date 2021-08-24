@@ -179,7 +179,8 @@
 				}
 			},
 			submit() {
-				let arr = this.list.filter(item => item.selected).map(item => {
+				let list = this.deepClone(this.list)
+				let arr = list.filter(item => item.selected).map(item => {
 					let obj = {
 						[this.option.refed_col]: item[this.option.refed_col],
 						[this.option.key_disp_col]: item[this.option.key_disp_col],

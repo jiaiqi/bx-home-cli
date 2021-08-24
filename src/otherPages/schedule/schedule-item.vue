@@ -1,5 +1,5 @@
 <template>
-	<view class="course-row-item" :class="{ 'no-bg': !newRowData || Object.keys(newRowData).length === 0 }">
+	<view class="course-row-item" :class="{ 'no-bg': noData }">
 		<view class="" v-for="(column, columnIndex) in colData" :key="column">
 			<text v-if="newRowData && newRowData[column]">{{ column + '(' + newRowData[column].length + ')' }}:</text>
 			<view v-if="newRowData && newRowData[column] && Array.isArray(newRowData[column])">
@@ -10,8 +10,7 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="!newRowData || Object.keys(newRowData).length === 0"><text class="cuIcon-add"
-				style="font-size: 20upx;"></text></view>
+		<view v-if="noData"><text class="cuIcon-add" style="font-size: 20upx;"></text></view>
 	</view>
 </template>
 
@@ -47,7 +46,8 @@
 													if (disp.max_char && Number(disp.max_char)
 														.toString() !== 'NaN') {
 														let maxChar = Number(disp.max_char);
-														if (item&&item[disp.srv_col_val]&&item[disp.srv_col_val].length >
+														if (item && item[disp.srv_col_val] && item[
+																disp.srv_col_val].length >
 															maxChar) {
 															str += item[disp.srv_col_val].slice(0,
 																maxChar - 1) + '...';
@@ -72,7 +72,15 @@
 				}
 			}
 		},
-
+		computed: {
+			noData() {
+				if (this.newRowData && typeof this.newRowData === 'object' && Object.keys(this.newRowData).length > 0) {
+					return false
+				} else {
+					return true
+				}
+			}
+		},
 		props: {
 			rowData: {
 				type: Object,

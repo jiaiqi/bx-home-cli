@@ -1,6 +1,6 @@
 <template>
 	<view class="grid-item-box" :style="{width:width,height:height,'--background-color':bgColor}"
-		:class="{ 'no-bg': !gridData || colData.length === 0 }">
+		:class="{ 'no-bg':noData}">
 		<view class="grid-content" v-for="(column, columnIndex) in colData" :key="column">
 			<view class="label" v-if="gridData && gridData[column]">{{ column + '(' + gridData[column].length + ')' }}:
 			</view>
@@ -12,7 +12,7 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="!gridData ||colData.length === 0"
+		<view v-if="noData"
 			:style="{'font-size': '40rpx','text-align':'center','line-height':height}"><text class="cuIcon-add"></text>
 		</view>
 	</view>
@@ -43,6 +43,15 @@
 			}
 		},
 		computed: {
+			noData() {
+				if (this.gridData && typeof this.gridData === 'object' && Object.keys(this.gridData).length > 0) {
+					return false
+				}else if(this.colData.length === 0){
+					return true
+				} else {
+					return true
+				}
+			},
 			colData() {
 				if (this.data && typeof this.data === 'object') {
 					return Object.keys(this.data)

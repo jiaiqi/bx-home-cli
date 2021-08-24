@@ -1,7 +1,7 @@
 <template>
 	<view class="page-wrap">
 		<view class="fixed cu-bar">
-			<list-bar style="width: 100%;" @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton"
+			<list-bar style="width: 100%;" :srvApp="appName" @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton"
 				@toOrder="toOrder" @toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
 				@search="toSearch" v-if="showSearchBar">
 			</list-bar>
@@ -188,7 +188,6 @@
 						value: row.id,
 						display: false
 					}]
-					debugger
 					let url =
 						`/publicPages/form/form?type=detail&serviceName=${this.serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
 					if (this.moreConfig?.detailPage === 'childTableList') {
@@ -201,7 +200,6 @@
 					if (this.appName) {
 						url += `&appName=${this.appName}`
 					}
-					debugger
 					uni.navigateTo({
 						url: url
 					})

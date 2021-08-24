@@ -198,7 +198,7 @@
 							// for (let key in req) {
 							// 	if (!req[key]) {
 							// 		if(this.mainData?.[key]===null){
-										
+
 							// 		}else{
 							// 			delete req[key];
 							// 		}
@@ -285,7 +285,7 @@
 							}
 						}
 					}
-					if (e.hasOwnProperty(item.column)) {
+					if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
 						item.value = e[item.column];
 					}
 					this.$set(this.fields, i, item)
@@ -425,6 +425,49 @@
 									return item;
 								});
 							}
+							if (Array.isArray(field?.option_list_v2?.mconditions) && field.option_list_v2
+								.mconditions.length > 0) {
+								let mconditions = field.option_list_v2.mconditions.map(
+									field => {
+										field.value = this.renderStr(field.value, this.mainData)
+										return field
+									})
+								if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+									.conditions
+									.length > 0) {
+									field.option_list_v2.conditions = [...field.option_list_v2
+										.conditions, ...mconditions
+									]
+								} else {
+									field.option_list_v2.conditions = mconditions
+								}
+							}
+							if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+								.conditions
+								.length > 0) {
+									field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,this.mainData)
+								// field.option_list_v2.conditions = field.option_list_v2.conditions.map(op => {
+								// 	if (op.value && op.value.indexOf('data.') !== -1) {
+								// 		let colName = op.value.slice(op.value.indexOf('data.') + 5);
+								// 		if (this.mainData && this.mainData[colName]) {
+								// 			op.value = this.mainData[colName];
+								// 		}
+								// 	} else if (op.value && op.value.indexOf('top.user.user_no') !== -
+								// 		1) {
+								// 		op.value = uni.getStorageSync('login_user_info').user_no;
+								// 	} else if (op.value && op.value.indexOf("'") === 0 && op.value
+								// 		.lastIndexOf(
+								// 			"'") === op.value
+								// 		.length - 1) {
+								// 		op.value = op.value.replace(/\'/gi, '');
+								// 	}
+								// 	if (op.value_exp) {
+								// 		delete op.value_exp;
+								// 	}
+								// 	return op
+								// })
+							}
+							
 							if (this.defaultCondition && Array.isArray(this
 									.defaultCondition) && colVs
 								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
@@ -444,6 +487,7 @@
 									if (!this.mainData) {
 										this.mainData = {}
 									}
+
 									this.mainData[item.column] = item.value
 									if (item.column === field.column) {
 										if (item.hasOwnProperty('display')) {
@@ -511,6 +555,13 @@
 		onLoad(option) {
 			if (option.destApp) {
 				this.appName = option.destApp
+			}
+			if (option.main_data) {
+				try {
+					this.mainData = JSON.parse(option.main_data)
+				} catch (e) {
+					//TODO handle the exception
+				}
 			}
 			if (option.appName) {
 				this.appName = option.appName

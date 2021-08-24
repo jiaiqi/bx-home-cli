@@ -10,9 +10,9 @@
 			</view>
 
 			<view class="to-more" v-if="config.unfold !==false">
-				<button class="cu-btn sm line-blue border" v-for="btn in publicButton"
+				<button class="cu-btn sm line-cyan border" v-for="btn in publicButton"
 					@click="onButton(btn)">{{btn.button_name||''}}</button>
-				<button class="cu-btn sm line-blue border" @click="onButton({button_type:'list'})"
+				<button class="cu-btn sm line-cyan border" @click="onButton({button_type:'list'})"
 					v-if="listData.length>=rownumber">查看全部</button>
 			</view>
 		</view>
@@ -75,8 +75,8 @@
 				</view>
 				<view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
 					<a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)"
-						:fields="updateV2._fieldInfo" :pageType="use_type" :formType="use_type" ref="childForm"
-						:key="modalName"></a-form>
+						:fields="updateV2._fieldInfo" :main-data="mainData" :pageType="use_type" :formType="use_type"
+						ref="childForm" :key="modalName"></a-form>
 				</view>
 				<view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
 					<button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
@@ -113,7 +113,7 @@
 		},
 
 		props: {
-			mainTable:{
+			mainTable: {
 				type: String
 			},
 			mainServiceName: {
@@ -377,34 +377,34 @@
 							break;
 						case 'delete':
 							if (this.use_type === "detaillist" && this.modalName === "updateChildData") {
-								
+
 								let id = this.listData[this.currentItemIndex]['id']
 								uni.showModal({
 									content: "是否确认删除操作？",
-									success: (res) =>{
+									success: (res) => {
 										if (res.confirm) {
 											console.log('用户点击确定');
 											let req = [{
 												"serviceName": e.service_name,
 												"colNames": ["*"],
 												"condition": [{
-													colName:'id',
-													ruleType:'eq',
-													value:id
+													colName: 'id',
+													ruleType: 'eq',
+													value: id
 												}]
 											}]
-											if(!id){
+											if (!id) {
 												return
 											}
 											let appName = this.appName || uni.getStorageSync('activeApp');
 											this.onRequest("delete", e.service_name,
 												req, appName).then((res) => {
-													this.hideModal()
-													this.getList()
+												this.hideModal()
+												this.getList()
 												if (res.data.state === "SUCCESS") {
 													uni.showToast({
-														title:'操作成功',
-														
+														title: '操作成功',
+
 													})
 												} else {
 													uni.showModal({
@@ -414,7 +414,7 @@
 														showCancel: false,
 													})
 												}
-								
+
 											})
 										} else if (res.cancel) {
 											resolve('用户点击取消')
@@ -515,6 +515,7 @@
 			},
 			async add2List(e) {
 				let data = this.$refs.childForm.getFieldModel();
+				debugger
 				if (!data) {
 					return
 				}
@@ -552,6 +553,7 @@
 							uni.showToast({
 								title: res.data.resultMessage,
 								mask: false,
+								icon: "none"
 							});
 						}
 						// this.$emit('addChild',{row:data,btn:e})
@@ -609,7 +611,7 @@
 							}
 						}
 					}
-					if (e.hasOwnProperty(item.column)) {
+					if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
 						item.value = e[item.column];
 					}
 					this.$set(this.addV2._fieldInfo, i, item)
@@ -623,7 +625,7 @@
 							break;
 						case 'list':
 							uni.navigateTo({
-								url: `/publicPages/list/list?pageType=list&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
+								url: `/publicPages/list/list?pageType=list&main_data=${JSON.stringify(this.mainData)}&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
 							})
 							break;
 						case 'add':
@@ -671,6 +673,12 @@
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
+					if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
+						.conditions
+						.length > 0) {
+						item.option_list_v2.conditions = this.evalConditions(item.option_list_v2
+							.conditions, this.mainData)
+					}
 					if (item.defaultValue) {
 						item.value = item.defaultValue
 					}
@@ -704,22 +712,27 @@
 				// }
 			},
 			async getAddV2(btn) {
-				if (this.addV2) {
-					return
-				}
+
 				let serviceName = btn?.service_name || this.serviceName
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
 				let app = this.appName || uni.getStorageSync('activeApp');
-				let colVs = await this.getServiceV2(serviceName, 'add', 'add', app);
+				let colVs = null
+
+				if (this.addV2) {
+					colVs = this.addV2
+				} else {
+					colVs = await this.getServiceV2(serviceName, 'add', 'add', app);
+				}
 				if (!colVs) {
 					return
 				}
+
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
 					// if (this.mainData && this.mainData[item.columns]) {
 					// 	item.value = this.mainData[item.columns]
 					// }
 					console.log(this.mainServiceName, this.mainData)
-	
+
 					// if (Array.isArray(this.mainFkField) && this.mainFkField.length > 0) {
 					// 	this.mainFkField.forEach(field => {
 					// 		if (field.option_list_v2?.refed_col === item?.option_list_v2?.refed_col &&
@@ -731,27 +744,45 @@
 					// 		}
 					// 	})
 					// }
+					if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2
+						.mconditions.length > 0) {
+						let mconditions = item.option_list_v2.mconditions
+						mconditions = mconditions.map(
+							item => {
+								item.value = this.renderStr(item.value, this.mainData)
+								return item
+							})
+						if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
+							.length > 0) {
+							item.option_list_v2.conditions = [...item.option_list_v2.conditions, ...
+								mconditions
+							]
+						} else {
+							item.option_list_v2.conditions = mconditions
+						}
+					}
 					if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
 						.length > 0) {
-						item.option_list_v2.conditions = item.option_list_v2.conditions.map(op => {
-							if (op.value && op.value.indexOf('data.') !== -1) {
-								let colName = op.value.slice(op.value.indexOf('data.') + 5);
-								if (this.mainData && this.mainData[colName]) {
-									op.value = this.mainData[colName];
-								}
-							} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
-								op.value = uni.getStorageSync('login_user_info').user_no;
-							} else if (op.value && op.value.indexOf("'") === 0 && op.value
-								.lastIndexOf(
-									"'") === op.value
-								.length - 1) {
-								op.value = op.value.replace(/\'/gi, '');
-							}
-							if (op.value_exp) {
-								delete op.value_exp;
-							}
-							return op
-						})
+						item.option_list_v2.conditions = this.evalConditions(item.option_list_v2.conditions,
+							this.mainData)
+
+						// item.option_list_v2.conditions = item.option_list_v2.conditions.map(op => {
+						// 	if (op.value && op.value.indexOf('data.') !== -1) {
+						// 		let colName = op.value.slice(op.value.indexOf('data.') + 5);
+						// 		if (this.mainData && this.mainData[colName]) {
+						// 			op.value = this.mainData[colName];
+						// 		}
+						// 	} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
+						// 		op.value = uni.getStorageSync('login_user_info').user_no;
+						// 	} else if (op.value && op.value.indexOf("'") === 0 && op.value.lastIndexOf("'") === op.value
+						// 		.length - 1) {
+						// 		op.value = op.value.replace(/\'/gi, '');
+						// 	}
+						// 	if (op.value_exp) {
+						// 		delete op.value_exp;
+						// 	}
+						// 	return op
+						// })
 					}
 					if (item.defaultValue) {
 						item.value = item.defaultValue
@@ -762,8 +793,7 @@
 					if (item.columns === this.foreignKey?.referenced_column_name) {
 						item.display = false
 					}
-					if(item.col_type==this.mainTable){
-						debugger
+					if (item.col_type == this.mainTable) {
 						if (this.mainData && this.mainData[item.columns]) {
 							item.value = this.mainData[item.columns]
 						}
@@ -983,6 +1013,10 @@
 		.to-more {
 			text-align: right;
 			padding-top: 20rpx;
+
+			.line-cyan {
+				color: #0BC99D;
+			}
 
 			.cu-btn {
 				margin-left: 10rpx;

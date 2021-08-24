@@ -86,8 +86,7 @@
 					<!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
 						v-model="fieldData.value" mode="button" @change="onBlur">
-						<bx-checkbox v-for="item in setOptionList" :name="item.value" 
-							v-model="item.checked">
+						<bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
 							{{ item.label }}
 						</bx-checkbox>
 					</bx-checkbox-group>
@@ -248,13 +247,14 @@
 						</view>
 						<bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
 							class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
-							<bx-checkbox v-for="item in setOptionList"  :name="item.value"
-								v-model="item.checked">{{ item.label }}</bx-checkbox>
+							<bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
+								{{ item.label }}
+							</bx-checkbox>
 						</bx-checkbox-group>
 						<bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
 							v-model="fieldData.value" mode="button" @change="pickerChange"
 							:disabled="fieldData.disabled">
-							<bx-radio v-for="item in selectorData"  :name="item.value">{{ item.label }}
+							<bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
 							</bx-radio>
 						</bx-radio-group>
 					</view>
@@ -319,6 +319,8 @@
 					val = val;
 				} else if (typeof val === 'object') {
 					val = JSON.stringify(val);
+				} else if(val===0){
+					val = '0'
 				} else if (!val) {
 					val = '';
 				}
@@ -392,7 +394,7 @@
 					} else {
 						return this.fieldData.options
 					}
-				}else if(Array.isArray(this.selectorData)&&this.selectorData.length>0){
+				} else if (Array.isArray(this.selectorData) && this.selectorData.length > 0) {
 					return this.selectorData
 				}
 			},
@@ -407,15 +409,15 @@
 				if (this.labelPosition === 'left') {
 					result = 'auto';
 				}
-				if (
-					this.pageType !== 'detail' &&
-					((this.setOptionList.length > 3 && this.setOptionList.length < 15 && this.fieldData.type === 'Set') ||
-						(
-							this.selectorData.length > 3 && this.selectorData.length < 5 &&
-							this.fieldData.type === 'Selector'))
-				) {
-					result = '100%';
-				}
+				// if (
+				// 	this.pageType !== 'detail' &&
+				// 	((this.setOptionList.length > 6 && this.setOptionList.length < 15 && this.fieldData.type === 'Set') ||
+				// 		(
+				// 			this.selectorData.length > 6 &&
+				// 			this.fieldData.type === 'Selector'))
+				// ) {
+				// 	result = '100%';
+				// }
 				// if (((this.fieldData.type === 'textarea' && this.pageType == 'detail')) && (this.fieldData.value ||
 				// 		this.pageType !== 'detail')) {
 				// 	result = '100%';
@@ -556,6 +558,7 @@
 					}
 				}
 				this.modalName = '';
+				this.onBlur()
 			},
 			longpressNumEnd() {
 				clearInterval(this.longpressTimer);
@@ -592,10 +595,12 @@
 						}
 					}
 				}
+				this.onBlur()
 			},
 			changeSlider(e) {
 				console.log('value 发生变化：' + e.detail.value);
 				this.fieldData.value = e.detail.value;
+				this.onBlur()
 			},
 			previewImage(urls) {
 				if (!urls) {
@@ -766,7 +771,7 @@
 				if (this.fieldData.type === 'Selector') {
 					let selectorData = this.radioOptions || this.selectorData
 					let optionData = selectorData.find(item => item.value === e);
-					if(optionData?.label){
+					if (optionData?.label) {
 						this.fkFieldLabel = optionData.label;
 					}
 					this.fieldData['colData'] = optionData;
@@ -806,7 +811,8 @@
 						rownumber: this.treePageInfo.rownumber
 					}
 				};
-				let appName =self.fieldData?.option_list_v2?.srv_app|| self.srvApp || uni.getStorageSync('activeApp');
+				let appName = self.fieldData?.option_list_v2?.srv_app || self.srvApp || uni.getStorageSync(
+					'activeApp');
 				let fieldModelsData = self.deepClone(self.fieldsModel);
 				if (!self.procData.id) {
 					fieldModelsData = self.deepClone(self.fieldsModel);
@@ -862,11 +868,11 @@
 				if (!req.serviceName) {
 					return;
 				}
-				if(!appName){
+				if (!appName) {
 					return
 				}
 				let res = await self.onRequest('select', req.serviceName, req, appName);
-			
+
 				if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 					if (res.data.page) {
 						this.treePageInfo = res.data.page;
@@ -1000,7 +1006,8 @@
 			async uploadFile(tempFilePath) {
 				let self = this;
 				console.log(this.uploadFormData);
-				this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync('activeApp');
+				this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync(
+					'activeApp');
 				this.uploadFormData['columns'] = this.fieldData.column;
 				if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !==
 					undefined) {
@@ -1129,10 +1136,10 @@
 				self.getSelectorData(cond).then(_ => {
 					if (self.fieldData.value) {
 						let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
-						if(fkFieldLabel&&fkFieldLabel.label){
-							self.fkFieldLabel =fkFieldLabel.label
-						}else if(self.fieldData.value){
-							self.fkFieldLabel =self.fieldData.value
+						if (fkFieldLabel && fkFieldLabel.label) {
+							self.fkFieldLabel = fkFieldLabel.label
+						} else if (self.fieldData.value) {
+							self.fkFieldLabel = self.fieldData.value
 						}
 						// self.fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value) ?
 						// 	self.selectorData.find(item => item.value === self.fieldData.value).label :

@@ -555,15 +555,15 @@ export default {
       &.layout-center-single-image,
       &.layout-center-single-image-top {
         flex-direction: column-reverse;
-        border-radius: 10rpx;
+        // border-radius: 10rpx;
         padding: 0;
-        border: none;
+        // border: none;
         overflow: hidden;
-        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+        // box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
         margin-bottom: 20rpx;
 
         .image-icon {
-          width: 100%;
+          width: 100%!important;
           height: 200rpx;
         }
 

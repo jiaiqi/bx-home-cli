@@ -56,7 +56,7 @@
 					{{item.label}}
 				</view>
 			</view>
-			<rank-list ref="rankList" @loaded="listLoaded" :total="rankPageInfo.total" :act_no="act_no"
+			<rank-list ref="rankList" @loaded="listLoaded" @toGroup="toGroup" :total="rankPageInfo.total" :act_no="act_no"
 				:type="rankTabType" :key="rankTabType">
 			</rank-list>
 		</view>
@@ -193,6 +193,12 @@
 			}
 		},
 		methods: {
+			toGroup(e){
+				let {info,index} = e
+				uni.navigateTo({
+					url:`../groupRanking/groupRanking?rank=${index}&org_no=${info.org_no}&total=${info.walk_act_steps_sum}`
+				})
+			},
 			listLoaded(e) {
 				if (e?.data) {
 					this.rankList = e.data
@@ -283,7 +289,6 @@
 					}
 				}
 				let step = this.totalStep
-				debugger
 				if (step > 0) {
 					arr.push({
 						latitude: 34.25122419619922,

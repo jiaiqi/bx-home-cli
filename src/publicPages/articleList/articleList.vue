@@ -1,9 +1,7 @@
 <template>
-  <view class="list-wrap">
-    <view class="content news-list">
-      <view
-        class="news-item"
-        :class="{
+	<view class="list-wrap">
+		<view class="content news-list">
+			<view class="news-item" :class="{
           'none-image': !item.icon_image,
           'layout-right-image': item.icon_image,
           'layout-left-image':
@@ -12,385 +10,350 @@
             item.cover_pic_style === '下一' && item.icon_image,
           'layout-center-multi-image':
             item.cover_pic_style === '下三' && item.icon_image,
-        }"
-        v-for="(item, noticeIndex) in articleList"
-        :key="noticeIndex"
-        @click="toArticle(item)"
-      >
-        <image
-          class="image-icon"
-          :src="getImagePath(item.icon_image)"
-          v-if="item.icon_image"
-        >
-        </image>
-        <view class="content-box">
-          <text class="title-text">
-            <text> {{ item.title }}</text>
-            <text
-              class="text-red cuIcon-hotfill"
-              v-if="item && item.other_status && item.other_status === '热门'"
-              >hot</text
-            >
-            <text
-              class="line-red"
-              v-if="item && item.other_status && item.other_status === '精选'"
-              >精选</text
-            >
-            <text
-              class="line-red"
-              v-if="item && item.other_status && item.other_status === '最新'"
-              >最新</text
-            >
-            <text
-              class="line-red"
-              v-if="item && item.top_status && item.top_status === '是'"
-              >置顶</text
-            >
-          </text>
-          <text class="date">{{
+        }" v-for="(item, noticeIndex) in articleList" :key="noticeIndex" @click="toArticle(item)">
+				<image mode="aspectFill" class="image-icon" :src="getImagePath(item.icon_image)" v-if="item.icon_image">
+				</image>
+				<view class="content-box">
+					<text class="title-text">
+						<text> {{ item.title }}</text>
+						<text class="text-red cuIcon-hotfill"
+							v-if="item && item.other_status && item.other_status === '热门'">hot</text>
+						<text class="line-red" v-if="item && item.other_status && item.other_status === '精选'">精选</text>
+						<text class="line-red" v-if="item && item.other_status && item.other_status === '最新'">最新</text>
+						<text class="line-red" v-if="item && item.top_status && item.top_status === '是'">置顶</text>
+					</text>
+					<text class="date">{{
             dayjs(item.create_time).format("YYYY-MM-DD")
           }}</text>
-        </view>
-      </view>
-      <!-- <view class="news-item" v-if="articleList && articleList.length > 0">
+				</view>
+			</view>
+			<!-- <view class="news-item" v-if="articleList && articleList.length > 0">
         <ad-custom
           unit-id="adunit-5816ffb522d52580"
           style="width: 100%"
         ></ad-custom>
       </view> -->
-    </view>
-    <u-empty
-      text="数据为空"
-      mode="list"
-      style="margin-top: 30vh"
-      v-if="loadStatus === 'noMore' && articleList.length === 0"
-    >
-    </u-empty>
-    <uni-load-more
-      :status="loadStatus"
-      v-if="
+		</view>
+		<u-empty text="数据为空" mode="list" style="margin-top: 30vh"
+			v-if="loadStatus === 'noMore' && articleList.length === 0">
+		</u-empty>
+		<uni-load-more :status="loadStatus" v-if="
         loadStatus !== 'noMore' ||
         (loadStatus === 'noMore' && articleList.length !== 0)
-      "
-    ></uni-load-more>
-    <view
-      class="news-item"
-      style="margin-top: 200rpx"
-      v-if="articleList && articleList.length > 0"
-    >
-      <ad-custom
-        unit-id="adunit-5816ffb522d52580"
-        style="width: 100%"
-      ></ad-custom>
-    </view>
-  </view>
+      "></uni-load-more>
+		<!-- #ifdef MP-WEIXIN -->
+		<view class="news-item" style="margin-top: 200rpx" v-if="articleList && articleList.length > 0">
+			<ad-custom unit-id="adunit-5816ffb522d52580" style="width: 100%"></ad-custom>
+		</view>
+		<!-- #endif -->
+	</view>
 </template>
 
 <script>
-export default {
-  data () {
-    return {
-      cateNo: '', // 栏目编号
-      cate_name: '',
-      articleList: [],
-      storeNo: '',
-      storeName: "",
-      shareLogo: "",
-      condition: [], // 查询条件
-      loadStatus: 'noMore', //more,loading,noMore
-      page: {
-        total: 0,
-        rownumber: 10,
-        pageNo: 1
-      }
-    }
-  },
-  methods: {
-    async getListData (type = 'refresh') {
-      if (type === 'refresh') {
-        this.page.pageNo = 1
-      }
-      let req = {
-        condition: this.condition,
-        // order: [{
-        // 		colName: 'seq',
-        // 		orderType: "asc"
-        // 	},
-        // 	{
-        // 		colName: "create_time",
-        // 		orderType: "desc"
-        // 	}
-        // ],
-        page: {
-          pageNo: this.page.pageNo,
-          rownumber: this.page.rownumber
-        },
-        serviceName: "srvdaq_cms_content_select"
-      }
-      this.loadStatus = 'loading'
-      let res = await this.$fetch('select', 'srvdaq_cms_content_select', req, 'daq')
-      if (res.success) {
-        let list = []
-        if (type === 'refresh') {
-          list = res.data
-        } else {
-          list = [ ...this.articleList, ...res.data ]
-        }
-        let topList = list.filter(item => item.top_status === '是')
-        let statusList = list.filter(item => !!item.other_status && item.top_status !== '是')
-        let normalList = list.filter(item => !item.other_status && item.top_status !== '是')
-        this.articleList = [ ...topList, ...statusList, ...normalList ]
+	export default {
+		data() {
+			return {
+				cateNo: '', // 栏目编号
+				cate_name: '',
+				articleList: [],
+				storeNo: '',
+				storeName: "",
+				shareLogo: "",
+				condition: [], // 查询条件
+				loadStatus: 'noMore', //more,loading,noMore
+				page: {
+					total: 0,
+					rownumber: 10,
+					pageNo: 1
+				}
+			}
+		},
+		methods: {
+			async getListData(type = 'refresh') {
+				if (type === 'refresh') {
+					this.page.pageNo = 1
+				}
+				let req = {
+					condition: this.condition,
+					// order: [{
+					// 		colName: 'seq',
+					// 		orderType: "asc"
+					// 	},
+					// 	{
+					// 		colName: "create_time",
+					// 		orderType: "desc"
+					// 	}
+					// ],
+					page: {
+						pageNo: this.page.pageNo,
+						rownumber: this.page.rownumber
+					},
+					serviceName: "srvdaq_cms_content_select"
+				}
+				this.loadStatus = 'loading'
+				let res = await this.$fetch('select', 'srvdaq_cms_content_select', req, 'daq')
+				if (res.success) {
+					let list = []
+					if (type === 'refresh') {
+						list = res.data
+					} else {
+						list = [...this.articleList, ...res.data]
+					}
+					let topList = list.filter(item => item.top_status === '是')
+					let statusList = list.filter(item => !!item.other_status && item.top_status !== '是')
+					let normalList = list.filter(item => !item.other_status && item.top_status !== '是')
+					this.articleList = [...topList, ...statusList, ...normalList]
 
-        if (res.page) {
-          if (res.page.total > res.page.rownumber * res.page.pageNo) {
-            this.loadStatus = 'more'
-            this.page.pageNo++
-          } else {
-            this.loadStatus = 'noMore'
-          }
-        }
-      }
-    },
-    toArticle (e) {
-      if (e.content_no) {
-        let url =
-          `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
-        if (this.storeInfo && this.storeInfo.name) {
-          url += `&store_name=${this.storeInfo.name}`
-        }
-        if (this.storeNo) {
-          url += `&store_no=${this.storeNo}`
-        }
-        if (this.storeName) {
-          url += `&store_name=${this.storeName}`
-        }
-        if (this.shareLogo) {
-          url += `&logo=${this.shareLogo}`
-        }
-        uni.navigateTo({
-          url: url
-        });
-      }
-    },
-  },
-  onPullDownRefresh () {
-    this.getListData().then(_ => {
-      uni.stopPullDownRefresh()
-    })
-  },
-  onReachBottom () {
-    if (this.loadStatus !== 'noMore') {
-      this.getListData('loadmore')
-    }
-  },
-  onLoad (option) {
-    if (option.cate_name) {
-      this.cate_name = option.cate_name
-      uni.setNavigationBarTitle({
-        title: option.cate_name
-      })
-    }
-    if (option.cateNo) {
-      this.cateNo = option.cateNo
-      this.getListData()
-    }
-    if (option.store_no) {
-      this.storeNo = option.store_no
-    }
-    if (option.logo) {
-      this.shareLogo = decodeURIComponent(option.logo)
-    }
-    if (option.store_name) {
-      this.storeName = option.store_name
-    }
-    if (option.condition) {
-      this.condition = JSON.parse(option.condition)
-    }
-    if (Array.isArray(this.condition) && this.cateNo) {
-      this.condition.push({
-        colName: 'no',
-        ruleType: 'eq',
-        value: this.cateNo
-      })
-    }
-    if (Array.isArray(this.condition)) {
-      this.condition.push({
-        colName: 'content_status',
-        ruleType: 'eq',
-        value: '发布'
-      })
-    }
-  }
-}
+					if (res.page) {
+						if (res.page.total > res.page.rownumber * res.page.pageNo) {
+							this.loadStatus = 'more'
+							this.page.pageNo++
+						} else {
+							this.loadStatus = 'noMore'
+						}
+					}
+				}
+			},
+			toArticle(e) {
+				if (e.content_no) {
+					let url =
+						`/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
+					if (this.storeInfo && this.storeInfo.name) {
+						url += `&store_name=${this.storeInfo.name}`
+					}
+					if (this.storeNo) {
+						url += `&store_no=${this.storeNo}`
+					}
+					if (this.storeName) {
+						url += `&store_name=${this.storeName}`
+					}
+					if (this.shareLogo) {
+						url += `&logo=${this.shareLogo}`
+					}
+					uni.navigateTo({
+						url: url
+					});
+				}
+			},
+		},
+		onPullDownRefresh() {
+			this.getListData().then(_ => {
+				uni.stopPullDownRefresh()
+			})
+		},
+		onReachBottom() {
+			if (this.loadStatus !== 'noMore') {
+				this.getListData('loadmore')
+			}
+		},
+		onLoad(option) {
+			if (option.cate_name) {
+				this.cate_name = option.cate_name
+				uni.setNavigationBarTitle({
+					title: option.cate_name
+				})
+			}
+			if (option.cateNo) {
+				this.cateNo = option.cateNo
+				this.getListData()
+			}
+			if (option.store_no) {
+				this.storeNo = option.store_no
+			}
+			if (option.logo) {
+				this.shareLogo = decodeURIComponent(option.logo)
+			}
+			if (option.store_name) {
+				this.storeName = option.store_name
+			}
+			if (option.condition) {
+				this.condition = JSON.parse(option.condition)
+			}
+			if (Array.isArray(this.condition) && this.cateNo) {
+				this.condition.push({
+					colName: 'no',
+					ruleType: 'eq',
+					value: this.cateNo
+				})
+			}
+			if (Array.isArray(this.condition)) {
+				this.condition.push({
+					colName: 'content_status',
+					ruleType: 'eq',
+					value: '发布'
+				})
+			}
+		}
+	}
 </script>
 
 <style scoped lang="scss">
-.list-wrap {
-  // 简介
-  margin-bottom: 20rpx;
-  padding: 20rpx;
-  min-height: calc(100vh - var(--window-top) - var(--window-bottom));
+	.list-wrap {
+		// 简介
+		margin-bottom: 20rpx;
+		padding: 20rpx;
+		min-height: calc(100vh - var(--window-top) - var(--window-bottom));
 
-  .title {
-    font-size: 28rpx;
-    font-weight: 700;
-    padding: 10rpx 0;
-    color: rgb(48, 49, 51);
-    display: flex;
-    justify-content: space-between;
+		.title {
+			font-size: 28rpx;
+			font-weight: 700;
+			padding: 10rpx 0;
+			color: rgb(48, 49, 51);
+			display: flex;
+			justify-content: space-between;
 
-    .to-more {
-      width: 100rpx;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
+			.to-more {
+				width: 100rpx;
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+			}
 
-    .cuIcon-right {
-      font-weight: 200;
-    }
-  }
+			.cuIcon-right {
+				font-weight: 200;
+			}
+		}
 
-  .news-list {
-    .news-item {
-      display: flex;
-      padding: 20rpx 0;
-      border-bottom: 1rpx solid #f1f1f1;
-      align-items: center;
+		.news-list {
+			.news-item {
+				display: flex;
+				padding: 20rpx 0;
+				border-bottom: 1rpx solid #f1f1f1;
+				align-items: center;
 
-      .title-text {
-        width: 70%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        // white-space: nowrap;
-        font-size: 32rpx;
+				.title-text {
+					width: 70%;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					// white-space: nowrap;
+					font-size: 32rpx;
 
-        .text-red {
-          display: inline-block;
-          margin-left: 10rpx;
-          font-size: 24rpx;
-          position: relative;
-          top: -10rpx;
-          font-weight: bold;
-        }
+					.text-red {
+						display: inline-block;
+						margin-left: 10rpx;
+						font-size: 24rpx;
+						position: relative;
+						top: -10rpx;
+						font-weight: bold;
+					}
 
-        .line-red {
-          border-radius: 5px;
-          margin-left: 10rpx;
-          padding: 2px 4px;
-          font-size: 12px;
-          font-weight: bold;
-          border: 1rpx solid #e54d42;
-        }
-      }
+					.line-red {
+						border-radius: 5px;
+						margin-left: 10rpx;
+						padding: 2px 4px;
+						font-size: 12px;
+						font-weight: bold;
+						border: 1rpx solid #e54d42;
+					}
+				}
 
-      .content-box {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
+				.content-box {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+				}
 
-      .date {
-        color: #ccc;
-      }
+				.date {
+					color: #ccc;
+				}
 
-      &.none-image {
-        // 无图
-        flex-direction: column;
-        align-items: flex-start;
+				&.none-image {
+					// 无图
+					flex-direction: column;
+					align-items: flex-start;
 
-        .content-box {
-          height: auto;
-          min-height: 50rpx;
-        }
+					.content-box {
+						height: auto;
+						min-height: 50rpx;
+					}
 
-        .title-text {
-          font-size: 16px;
-          width: 100%;
-          white-space: normal;
-          padding-bottom: 10px;
-        }
+					.title-text {
+						font-size: 16px;
+						width: 100%;
+						white-space: normal;
+						padding-bottom: 10px;
+					}
 
-        .date {
-          font-size: 12px;
-        }
-      }
+					.date {
+						font-size: 12px;
+					}
+				}
 
-      &.layout-center-single-image,
-      &.layout-center-single-image-top {
-        flex-direction: column-reverse;
-        border-radius: 10rpx;
-        padding: 0;
-        border: none;
-        overflow: hidden;
-        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-        margin-bottom: 20rpx;
+				&.layout-center-single-image,
+				&.layout-center-single-image-top {
+					flex-direction: column-reverse;
+					// border-radius: 10rpx;
+					padding: 0;
+					// border: none;
+					overflow: hidden;
+					// box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+					margin-bottom: 20rpx;
 
-        .image-icon {
-          width: 100%;
-          height: 200rpx;
-        }
+					.image-icon {
+						width: 100% !important;
+						height: 200rpx;
+					}
 
-        .content-box {
-          padding: 10rpx 20rpx;
-          width: 100%;
-          display: flex;
-          flex-direction: row;
+					.content-box {
+						padding: 10rpx 20rpx;
+						width: 100%;
+						display: flex;
+						flex-direction: row;
 
-          .title-text {
-            font-weight: bold;
-            margin-left: 0;
-            width: calc(100% - 250rpx);
-            flex: 1;
-          }
-        }
-      }
+						.title-text {
+							font-weight: bold;
+							margin-left: 0;
+							width: calc(100% - 250rpx);
+							flex: 1;
+						}
+					}
+				}
 
-      &.layout-center-single-image-top {
-        flex-direction: column;
-      }
+				&.layout-center-single-image-top {
+					flex-direction: column;
+				}
 
-      &.layout-right-image,
-      &.layout-left-image {
-        // 左图
-        flex-direction: row;
-        flex-wrap: wrap;
+				&.layout-right-image,
+				&.layout-left-image {
+					// 左图
+					flex-direction: row;
+					flex-wrap: wrap;
 
-        .content-box {
-          min-height: 150rpx;
-          width: calc(100% - 250rpx);
-        }
+					.content-box {
+						min-height: 150rpx;
+						width: calc(100% - 250rpx);
+					}
 
-        .image-icon {
-          width: 200rpx;
-          height: 150rpx;
-          border-radius: 5px;
-        }
+					.image-icon {
+						width: 200rpx;
+						height: 150rpx;
+						border-radius: 5px;
+					}
 
-        .title-text {
-          margin-left: 20rpx;
-          flex: 1;
-          width: 100%;
-        }
+					.title-text {
+						margin-left: 20rpx;
+						flex: 1;
+						width: 100%;
+					}
 
-        .date {
-          margin-left: 20rpx;
-        }
-      }
+					.date {
+						margin-left: 20rpx;
+					}
+				}
 
-      &.layout-right-image {
-        // 右图
-        flex-direction: row-reverse;
+				&.layout-right-image {
+					// 右图
+					flex-direction: row-reverse;
 
-        .title-text {
-          margin-left: 0;
-        }
+					.title-text {
+						margin-left: 0;
+					}
 
-        .date {
-          margin-left: 0;
-        }
-      }
-    }
-  }
-}
+					.date {
+						margin-left: 0;
+					}
+				}
+			}
+		}
+	}
 </style>
