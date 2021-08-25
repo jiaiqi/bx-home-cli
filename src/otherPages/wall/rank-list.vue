@@ -27,7 +27,7 @@
 		<view class="button-box" v-if="type==='group'&&!groupInfo">
 			<!-- 			<button class="cu-btn border line-blue" @click="joinInOrg"><text
 					class="cuIcon-search margin-right-xs"></text>加入小队 </button> -->
-			<button class="cu-btn border line-cyan" @click="showModal('createGroup')">创建小队</button>
+			<button class="cu-btn border line-cyan" @click="showModal('createGroup')">创建团队</button>
 		</view>
 
 		<view class="cu-modal bottom-modal" :class="{show:modalName==='createGroup'}" @click="hideModal">

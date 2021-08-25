@@ -196,7 +196,7 @@
 			toGroup(e){
 				let {info,index} = e
 				uni.navigateTo({
-					url:`../groupRanking/groupRanking?rank=${index}&org_no=${info.org_no}&total=${info.walk_act_steps_sum}`
+					url:`../groupRanking/groupRanking?act_no=${this.act_no}&rank=${index}&org_no=${info.org_no}&total=${info.walk_act_steps_sum}`
 				})
 			},
 			listLoaded(e) {

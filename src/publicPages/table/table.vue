@@ -1,9 +1,10 @@
 <template>
 	<view class="page-wrap">
 		<view class="fixed cu-bar">
-			<list-bar style="width: 100%;" :srvApp="appName" @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton"
-				@toOrder="toOrder" @toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-				@search="toSearch" v-if="showSearchBar">
+			<list-bar style="width: 100%;" :srvApp="appName" @change="changeSerchVal" :srvCols="filterCols"
+				:listButton="listButton" @toOrder="toOrder" :main-data="mainData" @toFilter="toFilter"
+				@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
+				v-if="showSearchBar">
 			</list-bar>
 		</view>
 		<view class="" style="height: 100rpx;">
@@ -70,7 +71,7 @@
 				descCol: null,
 				ascCol: null,
 				colMinWidth: null,
-				initCond: null
+				initCond: null,
 			}
 		},
 		filters: {
@@ -83,6 +84,19 @@
 			}
 		},
 		computed: {
+			mainData() {
+				let obj = {}
+				if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
+					this.queryCond.forEach(item => {
+						obj[item.colName] === item.value
+					})
+					obj = this.queryCond.reduce((res, cur) => {
+						res[cur.colName] = cur.value
+						return res
+					}, {})
+				}
+				return obj
+			},
 			today() {
 				let today = dayjs().format('YYYY-MM-DD')
 				return today
@@ -96,6 +110,9 @@
 			},
 			srvCols() {
 				return this.colV2?._fieldInfo || []
+			},
+			filterCols(){
+				return this.colV2?._fieldInfo.filter(item=>item.in_cond)
 			},
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
@@ -209,6 +226,27 @@
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let colVs = await this.getServiceV2(this.serviceName, 'list', 'list', app);
 				colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+				colVs._fieldInfo = colVs._fieldInfo.map(item => {
+					if(Array.isArray(this.initCond)&&this.initCond.length>0){
+						if (item.type === 'Selector') {
+							item.value = '全部'
+							item.defaultValue = '全部'
+						}
+						let cond = this.initCond.find(cond=>cond.colName===item.columns)
+						if(cond&&cond.value){
+							item.defaultValue = cond.value
+							item.value = cond.value
+						}
+					}
+					if (this.mainData && Object.keys(this.mainData).length > 0 && Array.isArray(item
+							?.option_list_v2?.conditions) && item.option_list_v2
+						.conditions
+						.length > 0) {
+						item.option_list_v2.conditions = this.evalConditions(item.option_list_v2.conditions,
+							this.mainData)
+					}
+					return item
+				})
 				if (!this.navigationBarTitle) {
 					uni.setNavigationBarTitle({
 						title: colVs.service_view_name
@@ -325,9 +363,9 @@
 					// this.pageInfo.total = res.data.page.total;
 					let page = res.data.page;
 					if (page.rownumber * page.pageNo >= page.total) {
-						this.loadStatus === 'noMore'
+						this.loadStatus = 'noMore'
 					} else {
-						this.loadStatus === 'more'
+						this.loadStatus = 'more'
 					}
 					return this.list;
 				}
@@ -391,7 +429,6 @@
 				}
 				if (option.columns) {
 					this.columns = option.columns.split(',')
-
 				}
 				if (option.col_min_width) {
 					try {
@@ -453,6 +490,7 @@
 								}
 							})
 						}
+
 					} catch (e) {
 						//TODO handle the exception
 					}

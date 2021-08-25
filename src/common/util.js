@@ -2210,7 +2210,6 @@ export default {
 		Vue.prototype.evalConditions = (conditions, mainData) => {
 			conditions = conditions.map(op => {
 				let regVar = /\$\{(.*?)\}/
-				debugger
 				if (op.value && regVar.test(op.value)) {
 					op.value = Vue.prototype.renderStr(op.value, mainData)
 				} else if (op.value && op.value.indexOf('data.') !== -1) {

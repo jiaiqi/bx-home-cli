@@ -55,12 +55,14 @@
 			}
 		},
 		mounted() {
-			this.fieldModel = this.oldField.reduce((res, cur) => {
+			let oldFieldModel = this.oldField.reduce((res, cur) => {
 				if (cur.value) {
 					res[cur.columns] = cur.value
 				}
 				return res
 			}, {})
+			this.oldFieldModel = this.deepClone(oldFieldModel)
+			this.fieldModel = this.deepClone(oldFieldModel)
 		},
 		data() {
 			return {
@@ -104,26 +106,43 @@
 									delete this.fieldModel[key];
 								}
 							}
-							model = this.fieldModel;
+							model = this.deepClone(this.fieldModel);
+							break;
+						case 'detaillist':
+							for (let key in this.fieldModel) {
+								if (this.oldFieldModel[key] !== this.fieldModel[key]) {
+									model[key] = this.fieldModel[key];
+								}
+							}
 							break;
 						default:
-							model = this.fieldModel;
+							for (let key in this.fieldModel) {
+								if (this.oldFieldModel[key] !== this.fieldModel[key]) {
+									model[key] = this.fieldModel[key];
+								}
+							}
 							break;
 					}
 					if (Object.keys(model).length > 0) {
+						// this.oldField.forEach(item => {
+						// 	if (model[item.columns] === item.value) {
+						// 		delete model[item.columns]
+						// 	}
+						// })
+						debugger
 						return model;
 					} else {
-						return this.allField.reduce((res, cur) => {
-							if (cur.value) {
-								res[cur.columns] = cur.value
-							}
-							return res
-						}, {});
-						// uni.showToast({
-						// 	title: '没有需要提交的数据',
-						// 	icon: 'none'
-						// });
-						// return false;
+						// return this.allField.reduce((res, cur) => {
+						// 	if (cur.value) {
+						// 		res[cur.columns] = cur.value
+						// 	}
+						// 	return res
+						// }, {});
+						uni.showToast({
+							title: '没有需要提交的数据',
+							icon: 'none'
+						});
+						return false;
 					}
 				} else {
 					console.log('表单校验失败', showsNum, valid, this.fieldModel);
@@ -253,7 +272,9 @@
 						this.$refs.fitem[index].fieldData.value = item.value;
 						this.fieldModel[item.columns] = item.value
 						if (this.pageType === 'filter') {
-							if (item.type === 'Selector') {
+							if (item.defaultValue) {
+								item.value = item.defaultValue
+							} else if (item.type === 'Selector') {
 								item.value = '全部'
 								if (this.fieldModel[item.columns]) {
 									this.fieldModel[item.columns] = '全部'

@@ -54,10 +54,16 @@
 			getGoodsListData() {
 				let req = {
 					condition: [{
-						colName: 'store_no',
-						ruleType: 'eq',
-						value: this.storeNo
-					}]
+							colName: 'store_no',
+							ruleType: 'eq',
+							value: this.storeNo
+						},
+						{
+							colName: "online_state",
+							ruleType: 'eq',
+							value: "上线"
+						}
+					]
 				};
 				this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
 					if (Array.isArray(res.data)) {

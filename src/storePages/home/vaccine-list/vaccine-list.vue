@@ -207,7 +207,7 @@
 									v-for="radio in timeArr" :key="radio.sa_no" @click="selectItem(radio)">
 									<text
 										v-if="vaccineInfo.persons_count===1||radio.appoint_name">{{radio.appoint_name}}</text>
-									<view v-else-if="radio.app_date">{{dayjs(radio.app_date).format('MM-DD')}}
+									<view v-if="radio.app_date">{{dayjs(radio.app_date).format('MM-DD')}}
 										{{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
 										-
 										{{radio.app_time_end?radio.app_time_end.slice(0,5):''}}

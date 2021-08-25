@@ -4,7 +4,7 @@
 
 		</view>
 		<view class="form-box">
-			<a-form :fields="filterCols" :srvApp="srvApp" ref='filterForm' pageType="filter" v-if="filterCols"></a-form>
+			<a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter" v-if="filterCols"></a-form>
 			<view class="tip" v-if="!filterCols|| filterCols.length===0">
 				没有可筛选字段
 			</view>
@@ -28,6 +28,9 @@
 	 */
 	export default {
 		props: {
+			mainData:{
+				type:Object
+			},
 			fieldInfo: {
 				type: [Object, Array]
 			},
@@ -51,7 +54,6 @@
 					}
 					return item
 				})
-				debugger
 				this.$emit('toFilter', result)
 			},
 			cancel() {
@@ -63,6 +65,9 @@
 					let filterCols = this.fieldInfo
 					filterCols = filterCols.map(item => {
 						item.value = null
+						if(item.defaultValue){
+							item.value = item.defaultValue
+						}
 						return item
 					})
 					let ignoreType = ['images', 'input', 'text','number']

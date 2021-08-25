@@ -446,26 +446,6 @@
 								.conditions
 								.length > 0) {
 									field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,this.mainData)
-								// field.option_list_v2.conditions = field.option_list_v2.conditions.map(op => {
-								// 	if (op.value && op.value.indexOf('data.') !== -1) {
-								// 		let colName = op.value.slice(op.value.indexOf('data.') + 5);
-								// 		if (this.mainData && this.mainData[colName]) {
-								// 			op.value = this.mainData[colName];
-								// 		}
-								// 	} else if (op.value && op.value.indexOf('top.user.user_no') !== -
-								// 		1) {
-								// 		op.value = uni.getStorageSync('login_user_info').user_no;
-								// 	} else if (op.value && op.value.indexOf("'") === 0 && op.value
-								// 		.lastIndexOf(
-								// 			"'") === op.value
-								// 		.length - 1) {
-								// 		op.value = op.value.replace(/\'/gi, '');
-								// 	}
-								// 	if (op.value_exp) {
-								// 		delete op.value_exp;
-								// 	}
-								// 	return op
-								// })
 							}
 							
 							if (this.defaultCondition && Array.isArray(this

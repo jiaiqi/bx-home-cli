@@ -414,6 +414,7 @@
 			goPage(e) {
 				let cond = [];
 				let scheduleConfig = {};
+				debugger
 				if (e.data && e.data.length > 0) {
 					scheduleConfig = e.data[0].scheduleConfig;
 					cond = [{
@@ -446,7 +447,20 @@
 						`/publicPages/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${	scheduleConfig.srv}&pageType=proc&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
 				}
 				if (scheduleConfig.dest_page) {
+					if(Array.isArray(scheduleConfig?.custom_condition)&&scheduleConfig.custom_condition.length>0){
+						if(e.data&&e.data.length>0){
+							let data = e.data[0]
+							cond = scheduleConfig.custom_condition.map(cond=>{
+								cond.value = this.renderStr(cond.value, data)
+								return cond
+							})
+						}
+					}
 					url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.srv}&cond=${JSON.stringify(cond)}`
+					if(scheduleConfig?.dest_page_srv){
+						url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.dest_page_srv}&cond=${JSON.stringify(cond)}`
+					}
+					
 				}
 				if (scheduleConfig.dest_column) {
 					url += `&columns=${scheduleConfig.dest_column}`

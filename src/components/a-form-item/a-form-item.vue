@@ -319,7 +319,7 @@
 					val = val;
 				} else if (typeof val === 'object') {
 					val = JSON.stringify(val);
-				} else if(val===0){
+				} else if (val === 0) {
 					val = '0'
 				} else if (!val) {
 					val = '';
@@ -738,25 +738,48 @@
 					if (!option.key_disp_col && !option.refed_col) {
 						return;
 					}
+					debugger
+
 					if (option.key_disp_col) {
+						// relation_condition.data.push({
+						// 	relation: 'AND',
+						// 	data: [{
+						// 		colName: option.key_disp_col,
+						// 		value: e.detail.value,
+						// 		ruleType: '[like]'
+						// 	}]
+						// });
 						relation_condition.data.push({
-							relation: 'AND',
-							data: [{
-								colName: option.key_disp_col,
-								value: e.detail.value,
-								ruleType: '[like]'
-							}]
-						});
+							colName: option.key_disp_col,
+							value: e.detail.value,
+							ruleType: '[like]'
+						})
 					}
 					if (option.refed_col) {
+						// relation_condition.data.push({
+						// 	relation: 'AND',
+						// 	data: [{
+						// 		colName: option.refed_col,
+						// 		value: e.detail.value,
+						// 		ruleType: '[like]'
+						// 	}]
+						// });
 						relation_condition.data.push({
+							colName: option.refed_col,
+							value: e.detail.value,
+							ruleType: '[like]'
+						})
+					}
+					if (Array.isArray(option.conditions) && option.conditions.length > 0) {
+						let data = this.deepClone(relation_condition.data)
+						debugger
+						relation_condition = {
 							relation: 'AND',
-							data: [{
-								colName: option.refed_col,
-								value: e.detail.value,
-								ruleType: '[like]'
+							data: [...option.conditions, {
+								relation: 'OR',
+								data: data
 							}]
-						});
+						}
 					}
 					this.getSelectorData(null, null, relation_condition);
 				} else {
@@ -924,6 +947,11 @@
 							self.fieldData['colData'] = item;
 						}
 					});
+				}else if(res.data.state === 'SUCCESS' && res.data.data.length == 0){
+					if (res.data.page) {
+						this.treePageInfo = res.data.page;
+					}
+					self.selectorData = []
 				} else if (req.serviceName === 'srvsys_service_columnex_v2_select' && res.data && res.data.data &&
 					Array.isArray(res.data.data.srv_cols)) {
 					self.selectorData = res.data.data.srv_cols.map(item => {

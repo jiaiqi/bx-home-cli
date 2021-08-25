@@ -48,7 +48,7 @@
 
 		<view class="cu-modal bottom-modal" :class="{ show: modalName==='showFilter' }" @click.stop="hideModal">
 			<view class="cu-dialog" @click.stop="">
-				<bx-filter v-if="filterCol&&filterCol.length>0" :srvApp="srvApp" :fieldInfo="filterCol" @toFilter="toFilter"
+				<bx-filter v-if="filterCol&&filterCol.length>0" :mainData="mainData" :srvApp="srvApp" :fieldInfo="filterCol" @toFilter="toFilter"
 					@cancel="hideModal"></bx-filter>
 			</view>
 		</view>
@@ -66,6 +66,9 @@
 			}
 		},
 		props: {
+			mainData:{
+				type:Object,
+			},
 			placeholder: {
 				type: String
 			},

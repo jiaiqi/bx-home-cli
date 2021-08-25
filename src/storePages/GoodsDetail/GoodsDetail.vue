@@ -13,9 +13,9 @@
 			<view class="title">简介</view>
 			<view class="">{{ goodsInfo.goods_desc }}</view>
 		</view>
-		<view class="store-info">
-			<image :src="getImagePath(goodsInfo.store_image)" class="store-icon"></image>
-			<view class="store-name">{{ goodsInfo.store_name }}</view>
+		<view class="store-info" v-if="storeInfo&&storeInfo.store_no">
+			<image :src="getImagePath(storeInfo.logo)" class="store-icon"></image>
+			<view class="store-name">{{ storeInfo.name}}</view>
 			<view class="phoneCall" v-if="phone" @click="phoneCall"><text class="cuIcon-phone text-cyan"></text></view>
 		</view>
 		<view class="detail">
@@ -49,6 +49,7 @@
 	export default {
 		data() {
 			return {
+				storeInfo: {},
 				goodsInfo: {},
 				swiperList: [],
 				goodsDetailImage: [],
@@ -63,6 +64,32 @@
 			})
 		},
 		methods: {
+			async getStoreInfo() {
+				let req = {
+					condition: [{
+						colName: 'store_no',
+						ruleType: 'eq',
+						value: this.storeNo
+					}],
+					page: {
+						pageNo: 1,
+						rownumber: 1
+					},
+				};
+				let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
+				if (Array.isArray(res.data) && res.data.length > 0) {
+					this.storeInfo = res.data[0];
+					this.$store.commit('SET_STORE_INFO', res.data[0])
+					if (this.storeInfo.type === '健康服务') {}
+				} else {
+					uni.showModal({
+						title: '未查找到机构信息',
+						content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
+						showCancel: false
+					})
+				}
+
+			},
 			phoneCall() {
 				uni.makePhoneCall({
 					phoneNumber: this.phone || '10086' //仅为示例
@@ -88,7 +115,7 @@
 				if (this.wxMchId) {
 					url += `&wxMchId=${this.wxMchId}`
 				}
-				
+
 				uni.navigateTo({
 					url
 				});
@@ -175,6 +202,7 @@
 			}
 			if (option.storeNo) {
 				this.storeNo = option.storeNo
+				this.getStoreInfo()
 			}
 			if (option.phone) {
 				this.phone = option.phone
