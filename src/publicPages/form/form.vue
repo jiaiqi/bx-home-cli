@@ -790,7 +790,7 @@
 						}).filter(item => !self.hideColumn.includes(item.column))
 						break;
 					case 'add':
-
+						debugger
 						self.fields = colVs._fieldInfo.map(field => {
 							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
 								field.option_list_v2 = field.option_list_v2.map(item => {
@@ -802,7 +802,7 @@
 								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
 								self.defaultCondition.forEach(cond => {
 									colVs._fieldInfo.forEach(field => {
-										if (cond.colName === field.column) {
+										if (cond.colName === field.column && !['Image'].includes(field.col_type)) {
 											field['value'] = cond['value'];
 											// field['disabled'] = true;
 										}
@@ -815,7 +815,9 @@
 										if (item.hasOwnProperty('display')) {
 											field.display = item.display;
 										}
-										if (item.hasOwnProperty('value')) {
+										
+										if (item.hasOwnProperty('value') && !['Image'].includes(field.col_type)) {
+											// 不复制照片字段
 											field.value = item.value;
 										}
 										if (field.option_list_v2 && Array.isArray(field.option_list_v2
@@ -830,7 +832,7 @@
 								});
 							}
 							return field;
-						}).filter(item => !self.hideColumn.includes(item.column))
+						}).filter(item => !self.hideColumn.includes(item.column) )
 						break;
 				}
 			},
@@ -977,63 +979,71 @@
 				this.srvType = option.type;
 				this.use_type = option.type;
 			}
-
+			debugger
 			if (option.fieldsCond) {
+				let fieldsCond = null
 				try {
-					let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
-					if (Array.isArray(fieldsCond) && fieldsCond.length > 0) {
-						if (option.serviceName === 'srvhealth_see_doctor_record_add') {
-							if (this.doctorInfo && this.doctorInfo.no) {
-								console.log(this.doctorInfo);
-								this.getStoreUserInfo(this.doctorInfo.store_no).then(res => {
-									this.getStoreInfo(this.doctorInfo.store_no).then(data => {
-										if (!Array.isArray(res) || res.length === 0) {
-											// 当前用户不在此诊所中 则添加当前用户到此诊所中
-											if (option.store_no && option.invite_user_no) {
-												if (Array.isArray(data) && data.length > 0) {
-													this.addToStore(option.store_no, option
-														.invite_user_no, data[0]);
-												} else {
-													this.addToStore(option.store_no, option
-														.invite_user_no);
-												}
-											} else {
-												if (this.doctorInfo.store_no) {
-													this.addToStore(this.doctorInfo.store_no);
-												}
-											}
-										}
-									});
-								});
-								fieldsCond.push({
-									column: 'doctor_no',
-									value: this.doctorInfo.no,
-									display: false
-								});
-								fieldsCond.push({
-									column: 'doctor_name',
-									display: false
-								});
-							}
-						}
-						this.fieldsCond = fieldsCond.map(item => {
-							if (option.serviceName.indexOf('srvhealth_see_doctor') === -1) {
-								if (item.column === 'user_info_no' && this.userInfo.no && !item.value) {
-									item.value = this.userInfo.no;
-								}
-								if (item.column === 'user_no' && this.userInfo.userno && !item.value) {
-									item.value = this.userInfo.userno;
-								}
-								if (item.column === 'store_no' && this.doctorInfo.store_no && !item.value) {
-									item.value = this.doctorInfo.store_no;
-									item.display = false;
-								}
-							}
-							return item;
-						});
-					}
+					fieldsCond = JSON.parse(option.fieldsCond);
 				} catch (e) {
 					console.warn(e);
+					try {
+						fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+					} catch (err) {
+						//TODO handle the exception
+						console.warn(err);
+					}
+				}
+				if (Array.isArray(fieldsCond) && fieldsCond.length > 0) {
+					if (option.serviceName === 'srvhealth_see_doctor_record_add') {
+						if (this.doctorInfo && this.doctorInfo.no) {
+							console.log(this.doctorInfo);
+							this.getStoreUserInfo(this.doctorInfo.store_no).then(res => {
+								this.getStoreInfo(this.doctorInfo.store_no).then(data => {
+									if (!Array.isArray(res) || res.length === 0) {
+										// 当前用户不在此诊所中 则添加当前用户到此诊所中
+										if (option.store_no && option.invite_user_no) {
+											if (Array.isArray(data) && data.length > 0) {
+												this.addToStore(option.store_no, option
+													.invite_user_no, data[0]);
+											} else {
+												this.addToStore(option.store_no, option
+													.invite_user_no);
+											}
+										} else {
+											if (this.doctorInfo.store_no) {
+												this.addToStore(this.doctorInfo.store_no);
+											}
+										}
+									}
+								});
+							});
+							fieldsCond.push({
+								column: 'doctor_no',
+								value: this.doctorInfo.no,
+								display: false
+							});
+							fieldsCond.push({
+								column: 'doctor_name',
+								display: false
+							});
+						}
+					}
+					debugger
+					this.fieldsCond = fieldsCond.map(item => {
+						if (option.serviceName.indexOf('srvhealth_see_doctor') === -1) {
+							if (item.column === 'user_info_no' && this.userInfo.no && !item.value) {
+								item.value = this.userInfo.no;
+							}
+							if (item.column === 'user_no' && this.userInfo.userno && !item.value) {
+								item.value = this.userInfo.userno;
+							}
+							if (item.column === 'store_no' && this.doctorInfo.store_no && !item.value) {
+								item.value = this.doctorInfo.store_no;
+								item.display = false;
+							}
+						}
+						return item;
+					});
 				}
 			}
 			this.getDefaultVal();

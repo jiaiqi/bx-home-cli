@@ -123,6 +123,22 @@
 					<text class="value hidden" v-else>{{ fkFieldLabel ? fkFieldLabel : '' }}</text>
 				</view>
 			</view> -->
+			<view class="form-item-content_value picker"
+				v-else-if="pickerFieldList.includes(fieldData.type)&&pageType==='filter'">
+				<date-range-picker  :mode="pickerMode" @change="bindTimeChange" v-model="fieldData.value">
+				</date-range-picker>
+				<!-- 		<picker class="uni-picker" :mode="pickerMode" :end="fieldData.end" :value="fieldData.value"
+					@change="bindTimeChange" v-if="fieldData.type==='Time'">
+					<view class="picker-content">
+						<view class="place-holder" v-if="!fieldData.value">请选择</view>
+						<view class="value" v-else>{{ fieldData.value }}</view>
+						<text class="cuIcon-calendar"></text>
+					</view>
+				</picker> -->
+				<!-- 			<view class="example-body" v-if="fieldData.type==='DateTime'||fieldData.type==='dateTime'">
+					<uni-datetime-picker v-model="fieldData.value" type="datetimerange" rangeSeparator="至" />
+				</view> -->
+			</view>
 			<view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
 				<picker class="uni-picker" :mode="pickerMode" :end="fieldData.end" :value="fieldData.value"
 					@change="bindTimeChange">
@@ -374,6 +390,12 @@
 			}
 		},
 		computed: {
+			startVal() {
+				return this.fieldData?.startVal
+			},
+			endVal() {
+				return this.fieldData?.endVal
+			},
 			canLink() {
 				if (this.fieldData.value && this.fieldData.bx_col_type === 'fk') {
 					return true
@@ -947,7 +969,7 @@
 							self.fieldData['colData'] = item;
 						}
 					});
-				}else if(res.data.state === 'SUCCESS' && res.data.data.length == 0){
+				} else if (res.data.state === 'SUCCESS' && res.data.data.length == 0) {
 					if (res.data.page) {
 						this.treePageInfo = res.data.page;
 					}
@@ -960,8 +982,39 @@
 					});
 				}
 			},
-			bindTimeChange(e) {
-				this.fieldData.value = e.detail.value;
+			bindTimeChange(e, type) {
+				debugger
+				if (type) {
+					this.$set(this.fieldData, type, e.detail.value)
+					// this.fieldData[type] = e.detail.value;
+					if (!this.fieldData.value) {
+						this.fieldData.value = [null, null]
+					}
+					if (type === 'startVal') {
+						this.fieldData.value[0] = e.detail.value
+					} else if (type === 'endVal') {
+						this.fieldData.value[1] = e.detail.value
+					}
+				} else if(Array.isArray(e)&&e.length>0){
+					this.fieldData.value  = e
+				} else if (e && typeof e === 'object' && e.startDate && e.endDate) {
+					if (!this.fieldData.value) {
+						this.fieldData.value = [null, null]
+					}
+					this.fieldData.value[0] = e.startDate
+					this.fieldData.value[1] = e.endDate
+				} else if (e && typeof e === 'object' && e.startTime && e.endTime) {
+					if (!this.fieldData.value) {
+						this.fieldData.value = [null, null]
+					}
+					this.fieldData.value[0] = e.startTime
+					this.fieldData.value[1] = e.endTime
+				} else if (Array.isArray(e)) {
+					// this.fieldData.value = e;
+					debugger
+				} else {
+					this.fieldData.value = e.detail.value;
+				}
 				this.$emit('on-value-change', this.fieldData);
 			},
 			openModal(type) {

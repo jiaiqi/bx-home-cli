@@ -12,13 +12,14 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="noData"
-			:style="{'font-size': '40rpx','text-align':'center','line-height':height}"><text class="cuIcon-add"></text>
+		<view v-if="noData" :style="{'font-size': '40rpx','text-align':'center','line-height':height}"><text
+				class="cuIcon-add"></text>
 		</view>
 	</view>
 </template>
 
 <script>
+	const dayjs = require('dayjs')
 	export default {
 		props: {
 			data: {
@@ -46,7 +47,7 @@
 			noData() {
 				if (this.gridData && typeof this.gridData === 'object' && Object.keys(this.gridData).length > 0) {
 					return false
-				}else if(this.colData.length === 0){
+				} else if (this.colData.length === 0) {
 					return true
 				} else {
 					return true
@@ -74,25 +75,36 @@
 
 										if (typeof disp === 'string') {
 											str += disp;
-										} else if (disp&& typeof disp === 'object' && disp
+										} else if (disp && typeof disp === 'object' && disp
 											.srv_col_val) {
 											if (!item[disp.srv_col_val]) {
 												item[disp.srv_col_val] = ''
 											}
+											
+											let val = item[disp.srv_col_val] || ''
+											if (disp.format && ['date', 'time', 'dateTime',
+													'timeDate'
+												].includes(disp.type)) {
+												if (disp.type == 'time') {
+													val = dayjs().format('YYYY-MM-DD ') + val
+												}
+												val = dayjs(val).format(disp.format)
+											}
+											
 											if (disp.max_char && Number(disp.max_char)
 												.toString() !== 'NaN') {
 												let maxChar = Number(disp.max_char);
 
-												if (item && item[disp.srv_col_val] && item[disp
+												if (item && val && item[disp
 														.srv_col_val].length >
 													maxChar) {
-													str += item[disp.srv_col_val].slice(0,
+													str += val.slice(0,
 														maxChar - 1) + '...';
 												} else {
-													str += item[disp.srv_col_val];
+													str += val;
 												}
 											} else {
-												str += item[disp.srv_col_val];
+												str += val;
 											}
 										}
 									});

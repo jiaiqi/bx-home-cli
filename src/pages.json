@@ -69,12 +69,13 @@
 						"navigationBarTitleText": "群公告"
 					}
 				},
+				// {
+				// 	"path": "listPage/listPage",
+				// 	"style": {
+				// 		"navigationBarTitleText": "listPage"
+				// 	}
+				// },
 				{
-					"path": "listPage/listPage",
-					"style": {
-						"navigationBarTitleText": "listPage"
-					}
-				}, {
 					"path": "detail/detail",
 					"style": {
 						"navigationBarTitleText": "详情",
@@ -88,20 +89,14 @@
 						"enablePullDownRefresh": false
 					}
 
-				}, {
-					"path": "batchAdd/batchAdd",
-					"style": {
-						"navigationBarTitleText": "",
-						"enablePullDownRefresh": false
-					}
-
-				}, {
+				},
+	
+				{
 					"path": "table/table",
 					"style": {
 						"navigationBarTitleText": "",
 						"enablePullDownRefresh": true
 					}
-
 				}
 			]
 		},
@@ -287,15 +282,16 @@
 		},
 		{
 			"root": "otherPages",
-			"pages": [{
-					"path": "activity/activity",
-					"style": {
-						// "navigationStyle": "custom",
-						"navigationBarBackgroundColor": "#8a1b1f"
-						// ,
-						// "navigationBarTitleText": "建党100周年祝福接力"
-					}
-				},
+			"pages": [
+				// {
+				// 	"path": "activity/activity",
+				// 	"style": {
+				// 		// "navigationStyle": "custom",
+				// 		"navigationBarBackgroundColor": "#8a1b1f"
+				// 		// ,
+				// 		// "navigationBarTitleText": "建党100周年祝福接力"
+				// 	}
+				// },
 				{
 					"path": "publish/publish",
 					"style": {
@@ -320,26 +316,20 @@
 						"navigationBarTitleText": "",
 						"enablePullDownRefresh": false
 					}
+				}, {
+					"path": "wall/wall",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+				}, {
+					"path": "groupRanking/groupRanking",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
 				}
-			    ,{
-                    "path" : "wall/wall",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "groupRanking/groupRanking",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+			]
 		}
 	],
 	"easycom": {

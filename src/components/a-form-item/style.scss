@@ -272,8 +272,9 @@
 			}
 			&.picker {
 				// margin-right: 20px;
-				.uni-picker {
+				::v-deep .uni-picker {
 					width: 100%;
+					z-index: 6666;
 					.picker-content {
 						width: 100%;
 						display: flex;

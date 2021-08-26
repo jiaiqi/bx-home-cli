@@ -1,32 +1,12 @@
 {
-	"name": "bx-health",
-	"version": "1.0.0",
-	"description": "百想健康助理",
-	"main": "main.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "",
-	"license": "ISC",
-	"dependencies": {},
-	"uni-app": {
-		"scripts": {
-			"h5-weixin": {
-				"title": "运行到Chrome",
-				"BROWSER": "Chrome",
-				"env": {
-					"UNI_PLATFORM": "h5"
-				},
-				"define": {
-					"H5-WEIXIN": true
-				}
-			},
-			"mp-dingtalk": {
-				"title": "运行到微信小程序",
-				"env": {
-					"UNI_PLATFORM": "mp-weixin"
-				}
-			}
-		}
-	}
+    "id": "uni-datetime-picker",
+    "name": "前端组件-测试",
+    "version": "1.0.4",
+    "description": "test",
+    "keywords": [
+        "前端",
+        "组件",
+        "测试",
+        "通用"
+    ]
 }

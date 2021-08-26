@@ -18,9 +18,10 @@
 				</view>
 			</view>
 		</view> -->
-		<list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols" :placholder="placeholder" :listButton="listButton"
-			@toOrder="toOrder" @toFilter="toFilter" @handelCustomButton="handlerCustomizeButton"
-			@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch" v-if="showSearchBar">
+		<list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols"
+			:placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
+			@handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton"
+			@clickAddButton="clickAddButton" @search="toSearch" v-if="showSearchBar">
 		</list-bar>
 		<bx-list ref="bxList" :serviceName="serviceName" :condition="condition"
 			:order="orderList.length > 0 ? orderList : order" :relation_condition="relation_condition"
@@ -605,8 +606,8 @@
 						if (this.appName) {
 							url += `&appName=${this.appName}`
 						}
-						if(this.main_data){
-							url+=`&main_data=${JSON.stringify(this.main_data)}`
+						if (this.main_data) {
+							url += `&main_data=${JSON.stringify(this.main_data)}`
 						}
 						uni.navigateTo({
 							url: url
@@ -1073,14 +1074,19 @@
 									})
 								})
 							}
+							debugger
 							Object.keys(data.row).forEach(key => {
 								if (!['id', 'modify_user_disp', 'modify_user', 'modify_time',
-										'create_user_disp', 'create_user', 'create_time'
-									].includes(key)) {
-									fieldsCond.push({
-										column: key,
-										value: data.row[key],
-									})
+										'create_user_disp', 'create_user', 'create_time', 'del_flag',
+										'_buttons'
+									].includes(key) && data.row[key]) {
+									if (!fieldsCond.find(item => item.column === key)) {
+										fieldsCond.push({
+											column: key,
+											display: true,
+											value: data.row[key],
+										})
+									}
 								}
 							})
 
@@ -1100,7 +1106,8 @@
 								eventOrigin: res.button
 							};
 							uni.navigateTo({
-								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+									params)
 							});
 						} else if (data.button && data.button.operate_type === '流程申请') {
 							uni.navigateTo({
@@ -1115,7 +1122,8 @@
 			async getListV2() {
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let self = this;
-				let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ? 'proclist' :
+				let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ?
+					'proclist' :
 					'list', app);
 				colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
 				if (!this.navigationBarTitle) {
@@ -1162,9 +1170,12 @@
 								break;
 							case 'customize':
 								if (item.application === 'zhxq' && item.button_name === '住户录入') {
-									if (self.queryOption && self.queryOption.hasOwnProperty('showAdd')) {
-										self.showAdd = self.queryOption.showAdd === 'false' ? false : self
-											.queryOption.showAdd == 'true' ? true : self.queryOption.showAdd;
+									if (self.queryOption && self.queryOption.hasOwnProperty(
+											'showAdd')) {
+										self.showAdd = self.queryOption.showAdd === 'false' ? false :
+											self
+											.queryOption.showAdd == 'true' ? true : self.queryOption
+											.showAdd;
 									} else {
 										self.showAdd = true;
 									}

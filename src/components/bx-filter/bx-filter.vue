@@ -4,7 +4,8 @@
 
 		</view>
 		<view class="form-box">
-			<a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter" v-if="filterCols"></a-form>
+			<a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter"
+				v-if="filterCols"></a-form>
 			<view class="tip" v-if="!filterCols|| filterCols.length===0">
 				没有可筛选字段
 			</view>
@@ -28,14 +29,14 @@
 	 */
 	export default {
 		props: {
-			mainData:{
-				type:Object
+			mainData: {
+				type: Object
 			},
 			fieldInfo: {
 				type: [Object, Array]
 			},
-			srvApp:{
-				type:String
+			srvApp: {
+				type: String
 			}
 		},
 		data() {
@@ -46,7 +47,7 @@
 		methods: {
 			toFilter() {
 				let model = this.$refs.filterForm.getFieldModel();
-				let result =[]
+				let result = []
 				this.filterCols = this.filterCols.map((item) => {
 					if (model[item.column]) {
 						item['value'] = model[item.column]
@@ -65,14 +66,19 @@
 					let filterCols = this.fieldInfo
 					filterCols = filterCols.map(item => {
 						item.value = null
-						if(item.defaultValue){
+						if (item.defaultValue) {
 							item.value = item.defaultValue
+						}
+						if (['date', 'dateTime', 'time', 'Time', 'Date'].includes(item.type)) {
+							item.startVal = ''
+							item.endVal = ''
 						}
 						return item
 					})
-					let ignoreType = ['images', 'input', 'text','number']
+					let ignoreType = ['images', 'input', 'text', 'number']
 					ignoreType = ['images']
-					this.filterCols = filterCols.filter(item => item.in_cond === 1&&item.in_list === 1 && !ignoreType.includes(item.type) && !/^\_.*\_disp$/.test(item.column))
+					this.filterCols = filterCols.filter(item => item.in_cond === 1 && item.in_list === 1 && !ignoreType
+						.includes(item.type) && !/^\_.*\_disp$/.test(item.column))
 				}
 				this.$refs.filterForm.onReset()
 			}
@@ -100,7 +106,8 @@
 		.form-box {
 			max-height: calc(100vh - var(--window-bottom) - var(--window-top) - 300rpx);
 			overflow-y: scroll;
-			.tip{
+
+			.tip {
 				height: 300rpx;
 				line-height: 300rpx;
 				text-align: center;

@@ -56,7 +56,7 @@
 				</view>
 				<view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
 					<a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)"
-						:fields="addV2._fieldInfo" :pageType="use_type" :formType="use_type" ref="childForm"
+						:fields="addV2._fieldInfo" :pageType="use_type" :formType="'add'" ref="childForm"
 						:key="modalName" @value-blur="valueChange"></a-form>
 				</view>
 				<view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
@@ -75,7 +75,7 @@
 				</view>
 				<view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
 					<a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)"
-						:fields="updateV2._fieldInfo" :main-data="mainData" :pageType="use_type" :formType="use_type"
+						:fields="updateV2._fieldInfo" :main-data="mainData" :pageType="use_type" :formType="'update'"
 						ref="childForm" :key="modalName"></a-form>
 				</view>
 				<view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">

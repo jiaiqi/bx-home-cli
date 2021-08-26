@@ -8,46 +8,12 @@
 				<text class="cuIcon-right" @click="changeSchedule('next')"></text>
 			</view>
 		</view>
-		<!-- <view class="course-wrap"> -->
-		<!-- 			<view class="header">
-				<view class="colhead-selector" v-if="timeRange.start && timeRange.end">
-					<text class="cuIcon-back" @click="changeSchedule('prev')"></text>
-					<text class="current-select"
-						@click="selectCol">{{ getTimeExplain(timeRange.start, timeRange.end) }}</text>
-					<text class="cuIcon-right" @click="changeSchedule('next')"></text>
-				</view>
-			</view> -->
-		<!-- <view class="course" v-if="colHeadList.length > 0">
-				<view class="time-area" :style="{ width: rowLabelWidth + 'rpx' }">
-					<view class="week">
-						<view class="week-item" v-if="colHeadList.length > 0"></view>
-					</view>
-					<view class="time-item" v-for="(item, index) in rowHeadList" :key="index"
-						:class="{ 'bg-blue': scheduleConfig.row_head_key_col === 'user_no' && login_user_info.user_no === item[scheduleConfig.row_head_key_col] }">
-						<view class="time" v-if="item[scheduleConfig.row_head_disp_col]">
-							{{ item[scheduleConfig.row_head_disp_col] }}
-						</view>
-					</view>
-				</view>
-				<view class="course-area" v-if="colHeadList.length > 0">
-					<view class="week">
-						<view class="week-item" v-for="(item, index) in colHeadList" :key="item.id">
-							{{ item && item[scheduleConfig.col_head_disp_col] ? item[scheduleConfig.col_head_disp_col] : '' }}
-						</view>
-					</view>
-					<view class="course-row" v-for="(row, rowIndex) in rowHeadList" :key="rowIndex">
-						<grid-item class="course-row-item" v-for="(col, colIndex) in row.newRowDataList" :key="colIndex"
-							@click.native="clickRow(col, row, colIndex, rowIndex)" :rowData="col"
-							:colData="row.rowDataListCol"></grid-item>
-					</view>
-				</view>
-			</view> -->
-		<!-- </view> -->
+
 		<gridTable :config="buildConfig" :table-data="buildTableData" @getQuery="getQuery" :showSummary="false"
-			:showTableFilter="false" v-if="buildConfig&&buildConfig.length>0&&buildTableData&&buildTableData.length>0&&rowHeadList&&rowHeadList.length>0"
-			:scheduleConfig="scheduleConfig" @clickItem="clickItem"></gridTable>
-		<!-- 	<gridTable :config="config" :table-data="tableData" @getQuery="getQuery" :showSummary="false"
-				:showTableFilter="false"></gridTable> -->
+			:showTableFilter="false"
+			v-if="buildConfig&&buildConfig.length>0&&buildTableData&&buildTableData.length>0&&rowHeadList&&rowHeadList.length>0"
+			:scheduleConfig="scheduleConfig" @clickItem="clickItem" />
+
 
 		<view class="cu-modal" :class="{ show: showModal }" @click.stop.prevent="showModal = false"
 			@touchmove.stop.prevent="clear">
@@ -81,7 +47,6 @@
 				<view class="padding-sm" @tap="showModal = false" style="text-align: center;font-size: 20px;">
 					<button class="cu-btn bg-red" @tap="showModal = false">关闭</button>
 				</view>
-
 			</view>
 		</view>
 	</view>
@@ -94,7 +59,7 @@
 	dayjs.locale('zh-cn');
 	const weekday = require('dayjs/plugin/weekday');
 	dayjs.extend(weekday);
-	import gridItem from './schedule-item.vue';
+	// import gridItem from './schedule-item.vue';
 	import gridTable from '../components/gridTable/gridTable.vue'
 	import {
 		formatDate,
@@ -115,7 +80,7 @@
 	} from '@/common/date_util.js';
 	export default {
 		components: {
-			gridItem,
+			// gridItem,
 			gridTable
 		},
 		data() {
@@ -447,20 +412,21 @@
 						`/publicPages/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${	scheduleConfig.srv}&pageType=proc&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
 				}
 				if (scheduleConfig.dest_page) {
-					if(Array.isArray(scheduleConfig?.custom_condition)&&scheduleConfig.custom_condition.length>0){
-						if(e.data&&e.data.length>0){
+					if (Array.isArray(scheduleConfig?.custom_condition) && scheduleConfig.custom_condition.length > 0) {
+						if (e.data && e.data.length > 0) {
 							let data = e.data[0]
-							cond = scheduleConfig.custom_condition.map(cond=>{
+							cond = scheduleConfig.custom_condition.map(cond => {
 								cond.value = this.renderStr(cond.value, data)
 								return cond
 							})
 						}
 					}
 					url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.srv}&cond=${JSON.stringify(cond)}`
-					if(scheduleConfig?.dest_page_srv){
-						url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.dest_page_srv}&cond=${JSON.stringify(cond)}`
+					if (scheduleConfig?.dest_page_srv) {
+						url =
+							`${scheduleConfig.dest_page}&serviceName=${scheduleConfig.dest_page_srv}&cond=${JSON.stringify(cond)}`
 					}
-					
+
 				}
 				if (scheduleConfig.dest_column) {
 					url += `&columns=${scheduleConfig.dest_column}`
@@ -484,7 +450,15 @@
 									if (typeof disp === 'string') {
 										str += disp;
 									} else if (typeof disp === 'object' && disp.srv_col_val) {
-										str += column[disp.srv_col_val];
+										let val = column[disp.srv_col_val] || ''
+										if (disp.format && ['date', 'time', 'dateTime', 'timeDate']
+											.includes(disp.type)) {
+											if (disp.type == 'time') {
+												val = dayjs().format('YYYY-MM-DD ') + val
+											}
+											val = dayjs(val).format(disp.format)
+										}
+										str += val;
 									}
 								});
 								column['labelText'] = str;

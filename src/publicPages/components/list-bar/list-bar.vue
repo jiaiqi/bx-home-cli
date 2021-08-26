@@ -48,8 +48,8 @@
 
 		<view class="cu-modal bottom-modal" :class="{ show: modalName==='showFilter' }" @click.stop="hideModal">
 			<view class="cu-dialog" @click.stop="">
-				<bx-filter v-if="filterCol&&filterCol.length>0" :mainData="mainData" :srvApp="srvApp" :fieldInfo="filterCol" @toFilter="toFilter"
-					@cancel="hideModal"></bx-filter>
+				<bx-filter v-if="filterCol&&filterCol.length>0" :mainData="mainData" :srvApp="srvApp"
+					:fieldInfo="filterCol" @toFilter="toFilter" @cancel="hideModal"></bx-filter>
 			</view>
 		</view>
 
@@ -66,8 +66,8 @@
 			}
 		},
 		props: {
-			mainData:{
-				type:Object,
+			mainData: {
+				type: Object,
 			},
 			placeholder: {
 				type: String
@@ -78,7 +78,7 @@
 			srvCols: {
 				type: Array
 			},
-			srvApp:{
+			srvApp: {
 				type: String
 			},
 			filterCols: {
@@ -133,6 +133,10 @@
 						if (item.col_type === 'Set') {
 							obj.ruleType = 'inset'
 						}
+						if (['date', 'dateTime', 'time', 'Time', 'Date'].includes(item.type) && Array.isArray(item
+								.value)) {
+							obj.ruleType = 'between'
+						}
 						return obj
 					})
 					this.$emit('toFilter', cond)
@@ -182,6 +186,14 @@
 						// this.handlerCustomizeButton(e)
 						this.$emit('handelCustomButton', e)
 						break;
+					case 'navigateTo':
+						if(e.url){
+							debugger
+							uni.navigateTo({
+								url:e.url
+							})
+						}
+						break;
 				}
 
 			},
@@ -195,17 +207,21 @@
 	}
 </script>
 
-<style lang="scss" scoped>
-	.uni-picker-container {
-		z-index: 99999 !important;
-	}
-
+<style lang="scss">
 	.search-bar {
 		// position: absolute;
 		// top: 0;
 		// left: 0;
 		// right: 0;
 		width: 100%;
+
+		::v-deep .uni-picker-container {
+			z-index: 99999 !important;
+		}
+
+		.cu-bar {
+			z-index: 1 !important;
+		}
 
 		// height: 100px;
 		.search-form {

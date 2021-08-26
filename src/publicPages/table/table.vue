@@ -2,8 +2,8 @@
 	<view class="page-wrap">
 		<view class="fixed cu-bar">
 			<list-bar style="width: 100%;" :srvApp="appName" @change="changeSerchVal" :srvCols="filterCols"
-				:listButton="listButton" @toOrder="toOrder" :main-data="mainData" @toFilter="toFilter"
-				@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
+				:listButton="customButton" :custom-button="customButton" @toOrder="toOrder" :main-data="mainData"
+				@toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
 				v-if="showSearchBar">
 			</list-bar>
 		</view>
@@ -30,13 +30,14 @@
 						<text v-else> {{item[col.columns]||''}}</text>
 					</view>
 				</view>
-				<view class="list-item" v-if="list.length===0">
-					<view class="col-item">
+				<view class="list-item">
+					<view class="col-item" v-if="list.length===0&&loadStatus==='noMore'">
 						暂无数据
 					</view>
-				</view>
-				<view class="list-item" v-if="list.length>0&&loadStatus==='noMore'">
-					<view class="col-item">
+					<view class="col-item" v-if="loadStatus==='loading'">
+						加载中...
+					</view>
+					<view class="col-item" v-if="list.length>0&&loadStatus==='noMore'">
 						数据已全部加载
 					</view>
 				</view>
@@ -72,6 +73,7 @@
 				ascCol: null,
 				colMinWidth: null,
 				initCond: null,
+				custom_btn: null
 			}
 		},
 		filters: {
@@ -84,6 +86,46 @@
 			}
 		},
 		computed: {
+			customButton() {
+				let arr = []
+				if (Array.isArray(this.custom_btn) && this.custom_btn.length > 0) {
+					this.custom_btn.forEach(item => {
+						let obj = {
+							"button_name": "跳转",
+							"button_type": "navigateTo",
+							"icon": "cuIcon-fork",
+							url: ''
+						}
+						let url = item.target
+						if (item.service) {
+							url += `?serviceName=${item.service}`
+						}
+						if (item.destApp) {
+							url += `&destApp=${item.destApp}`
+						}
+						if (item.columns) {
+							url += `&columns=${item.columns}`
+						}
+						if (item.cond) {
+							try {
+								url += `&cond=${JSON.stringify(item.cond)}`
+							} catch (e) {
+								//TODO handle the exception
+							}
+						}
+						if (item.col_min_width) {
+							try {
+								url += `&col_min_width=${JSON.stringify(item.col_min_width)}`
+							} catch (e) {
+								//TODO handle the exception
+							}
+						}
+						obj.url = url
+						arr.push(obj)
+					})
+				}
+				return [...arr, ...this.listButton]
+			},
 			mainData() {
 				let obj = {}
 				if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
@@ -111,8 +153,8 @@
 			srvCols() {
 				return this.colV2?._fieldInfo || []
 			},
-			filterCols(){
-				return this.colV2?._fieldInfo.filter(item=>item.in_cond)
+			filterCols() {
+				return this.colV2?._fieldInfo.filter(item => item.in_cond)
 			},
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
@@ -227,13 +269,13 @@
 				let colVs = await this.getServiceV2(this.serviceName, 'list', 'list', app);
 				colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
-					if(Array.isArray(this.initCond)&&this.initCond.length>0){
+					if (Array.isArray(this.initCond) && this.initCond.length > 0) {
 						if (item.type === 'Selector') {
 							item.value = '全部'
 							item.defaultValue = '全部'
 						}
-						let cond = this.initCond.find(cond=>cond.colName===item.columns)
-						if(cond&&cond.value){
+						let cond = this.initCond.find(cond => cond.colName === item.columns)
+						if (cond && cond.value) {
 							item.defaultValue = cond.value
 							item.value = cond.value
 						}
@@ -354,6 +396,7 @@
 				if (Array.isArray(this.ascCol)) {
 					req.order = [...req.order, ...this.ascCol]
 				}
+				this.loadStatus = 'loading'
 				let res = await this.$http.post(url, req);
 				if (res.data.state === 'SUCCESS') {
 					if (this.pageNo === 1) {
@@ -369,6 +412,7 @@
 					}
 					return this.list;
 				}
+				this.loadStatus = 'noMore'
 
 			},
 
@@ -389,6 +433,15 @@
 			})
 		},
 		onLoad(option) {
+			if (option.custom_btn) {
+				try {
+					let custom_btn = JSON.parse(option.custom_btn)
+					this.custom_btn = custom_btn
+				} catch (e) {
+					console.log(e)
+					//TODO handle the exception
+				}
+			}
 			if (option.serviceName) {
 				this.serviceName = option.serviceName
 				if (option.destApp) {
@@ -514,6 +567,7 @@
 		position: fixed;
 		width: 100%;
 		top: var(--window-top);
+		z-index: 1;
 	}
 
 

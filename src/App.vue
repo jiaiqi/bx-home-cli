@@ -85,6 +85,7 @@ export default {
 @import "./static/iconfont.css"; //引入字体文件
 @import "colorui/main.css";
 @import "colorui/icon.css";
+@import "uview-ui/index.scss";
 // @import "@/common/uni.css";
 
 /*每个页面公共css */
