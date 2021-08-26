@@ -72,7 +72,6 @@
 								if (config.disp_info && Array.isArray(config.disp_info)) {
 									let str = '';
 									config.disp_info.forEach(disp => {
-
 										if (typeof disp === 'string') {
 											str += disp;
 										} else if (disp && typeof disp === 'object' && disp
@@ -80,7 +79,6 @@
 											if (!item[disp.srv_col_val]) {
 												item[disp.srv_col_val] = ''
 											}
-											
 											let val = item[disp.srv_col_val] || ''
 											if (disp.format && ['date', 'time', 'dateTime',
 													'timeDate'
@@ -90,11 +88,9 @@
 												}
 												val = dayjs(val).format(disp.format)
 											}
-											
 											if (disp.max_char && Number(disp.max_char)
 												.toString() !== 'NaN') {
 												let maxChar = Number(disp.max_char);
-
 												if (item && val && item[disp
 														.srv_col_val].length >
 													maxChar) {

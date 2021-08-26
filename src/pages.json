@@ -317,6 +317,12 @@
 						"enablePullDownRefresh": false
 					}
 				}, {
+					"path": "scheduleB/scheduleB",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+				}, {
 					"path": "wall/wall",
 					"style": {
 						"navigationBarTitleText": "",

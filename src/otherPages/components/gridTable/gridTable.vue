@@ -80,7 +80,7 @@
 		components: {
 			gridItem
 		},
-		name: 'ws-table',
+		name: 'grid-table',
 		props: {
 			config: {
 				type: Array,
@@ -310,7 +310,7 @@
 			top: 0;
 			left: 0;
 			right: 0;
-			// z-index: 999;
+			z-index: 9;
 			// color: #fff;
 			// background-color: #0bc99d;
 			.left {
