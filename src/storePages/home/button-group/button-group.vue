@@ -565,6 +565,7 @@ export default {
         navType = e.navType;
       }
       if (navType === "miniProgram") {
+				url+=`&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
         if (e.appid) {
           uni.navigateToMiniProgram({
             appId: e.appid,
