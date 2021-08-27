@@ -18,6 +18,11 @@
     <view class="left" @click="toPages('instroduce')">
       <view class="top">
         <view class="name">{{ storeInfo.name || "机构名称" }}</view>
+				<view class="bind" v-if="isBind === true">
+					<button class="cu-btn border sm round bg-blue" @click.stop="toSetting">
+						<text class="cuIcon-settings"></text>
+					</button>
+				</view>
         <view class="bind" v-if="isBind === false"
           ><button
             @click.stop="bindStore(true)"
@@ -158,6 +163,9 @@ export default {
     }
   },
   methods: {
+		toSetting(){
+			this.$emit('toSetting')
+		},
     qrcodeCanvasComplete (e) {
       this.qrcodePath = this.storeInfo?.barcode_pic || e;
     },

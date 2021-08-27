@@ -12,7 +12,7 @@
 			:pageItem="pageItem"></slide-list>
 		<store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
 			v-else-if="pageItem.type === '店铺信息'" :isBind="isBind" :pageItem="pageItem" @setHomePage="setHomePage"
-			@addToStore="addToStore" @toConsult="toConsult"></store-info>
+			@addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"></store-info>
 		<button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
 			@addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
 		<goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo" :storeInfo="storeInfo"
@@ -109,6 +109,9 @@
 			})
 		},
 		methods: {
+			toSetting(){
+				this.$emit('toSetting')
+			},
 			toMore() {
 				let url = '/otherPages/timeline/timeline'
 				if (this.storeNo) {

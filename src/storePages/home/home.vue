@@ -13,7 +13,7 @@
 		<store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
 			:pageItem="getConfig(pageItem)" :storeInfo="storeInfo" :userInfo="userInfo" :is-bind="isBind"
 			:bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
-			@bindStore="bindStore" @setHomePage="setHomePage">
+			@bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting">
 		</store-item>
 
 		<view class="cu-modal bottom-modal" @click="hideModal" :class="{ show: showHomePageSelector }">
@@ -26,7 +26,47 @@
 			</view>
 		</view>
 
-
+		<view class="cu-modal" @click="hideModal" :class="{ show: modalName==='setting' }">
+			<view class="cu-dialog" @tap.stop>
+				<view class="store-user-box" v-if="bindUserInfo">
+					<view class="profile-box">
+						<image class="user-profile" :src="bindUserInfo.profile_url"></image>
+						<view class="user-name">
+							{{bindUserInfo.person_name||bindUserInfo.nick_name||''}}
+						</view>
+						<view class="account-status cu-tag round sm light" :class="{
+							'bg-blue':bindUserInfo.member_status==='正常',
+							'bg-orange':bindUserInfo.member_status==='待审核',
+							'bg-grey':bindUserInfo.member_status==='退出'
+						}">
+							{{bindUserInfo.member_status||''}}
+						</view>
+					</view>
+					<view class="setting-item">
+						<view class="setting-label">
+							接收消息推送设置
+						</view>
+						<view class="setting-content">
+							<bx-checkbox-group class="form-item-content_value checkbox-group" v-model="push_msg_set"
+								mode="button">
+								<bx-checkbox v-for="item in pushMsgSetOptions" :name="item.value"
+									v-model="item.checked">
+									{{ item.label }}
+								</bx-checkbox>
+							</bx-checkbox-group>
+						</view>
+					</view>
+					<view class="exit-store-user" v-if="bindUserInfo&&bindUserInfo.store_user_no">
+						<button class="cu-btn bg-blue" v-if="push_msg_set!==bindUserInfo.push_msg_set"
+							@click="savePushSet">保存设置</button>
+						<button class="cu-btn bg-red" v-if="bindUserInfo.member_status!=='退出'" @click="exitStore"><text
+								class="cuIcon-exit "></text> 取消关注</button>
+						<button class="cu-btn bg-blue" v-if="bindUserInfo.member_status==='退出'" @click="joinStore"><text
+								class="cuIcon-exit "></text> 加入店铺</button>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 	<bx-auth v-else @auth-complete="initPage"></bx-auth>
 </template>
@@ -44,27 +84,19 @@
 		data() {
 			return {
 				networkErrTimes: 0,
-				showAd: false, //是否显示底部banner广告
 				showHomeBtn: true,
 				showHomePageSelector: false,
-				selectVal: '',
 				client_env: uni.getStorageSync('client_env'),
 				isBind: true, //当前用户是否绑定此诊所
 				bindUserInfo: {},
-				swiperList: [],
 				goodsListData: [],
 				storeNo: '',
-				fullIntro: false,
 				storeInfo: {},
-				deptList: [], //科室
-				noticeList: [], // 通知公告
-				newsList: [], // 新闻
-				menuList: [],
-				// msgNum: 0,
 				kefuSessionInfo: {},
-				vaccineList: [], // 可预约疫苗列表
 				pageItemList: [],
 				storeList: [],
+				modalName: "",
+				push_msg_set: ''
 			};
 		},
 		computed: {
@@ -75,9 +107,86 @@
 				subscsribeStatus: state => state.app.subscsribeStatus, //是否关注公众号
 				authBoxDisplay: state => state.app.authBoxDisplay //授权访问用户信息
 			}),
+			pushMsgSetOptions() {
+				let arr = [{
+						label: "群消息",
+						value: "群消息",
+						checked: false
+					},
+					{
+						label: "群公告所有人",
+						value: "群公告所有人",
+						checked: false
+					},
+					{
+						label: "客服回复消息",
+						value: "客服回复消息",
+						checked: false
+					},
+					{
+						label: "预约通知",
+						value: "预约通知",
+						checked: false
+					}
+				]
+				arr = arr.map(item => {
+					if (this.bindUserInfo?.push_msg_set) {
+						let push_msg_set = this.bindUserInfo.push_msg_set
+						if (push_msg_set.indexOf(item.value) !== -1) {
+							item.checked = true
+						}
+					}
+					return item
+				})
+				return arr
+			},
 		},
 		methods: {
+			savePushSet() {
+				// 保存通知设置
+				let data = {
+					push_msg_set: this.push_msg_set
+				}
+				this.updateStoreUser(data)
+			},
+			joinStore() {
+				// 加入店铺 店铺用户状态改为正常
+				let data = {
+					member_status: '正常'
+				}
+				this.updateStoreUser(data)
+			},
+			exitStore() {
+				// 退出店铺 店铺用户状态改为退出
+				let data = {
+					member_status: '退出'
+				}
+				this.updateStoreUser(data)
+			},
+			async updateStoreUser(data) {
+				let req = [{
+					"serviceName": "srvhealth_store_user_update",
+					"condition": [{
+						"colName": "id",
+						"ruleType": "eq",
+						"value": this.bindUserInfo.id
+					}],
+					"data": [data]
+				}]
+				let res = await this.$fetch('operate', 'srvhealth_store_user_update', req, 'health')
+				this.hideModal()
+				if (res.success) {
+					uni.showToast({
+						title: '操作成功'
+					})
+					this.selectBindUser()
+				}
+			},
+			toSetting() {
+				this.modalName = 'setting'
+			},
 			hideModal() {
+				this.modalName = null
 				this.showHomePageSelector = false
 			},
 			switchStore(e) {
@@ -436,8 +545,13 @@
 				if (Array.isArray(userList)) {
 					let isBind = userList.find(item => item.person_no === this.userInfo.no)
 					if (isBind && isBind.person_no) {
-						this.isBind = true
+						if (isBind.member_status !== '退出') {
+							this.isBind = true
+						} else {
+							this.isBind = false
+						}
 						this.bindUserInfo = isBind
+						this.push_msg_set = this.bindUserInfo.push_msg_set
 						this.$store.commit('SET_STORE_USER', this.bindUserInfo)
 					} else {
 						this.isBind = false
@@ -445,20 +559,6 @@
 				} else {
 					this.isBind = false
 				}
-			},
-			selectDepartList() {
-				let req = {
-					condition: [{
-						colName: 'store_no',
-						ruleType: 'eq',
-						value: this.storeNo
-					}]
-				};
-				this.$fetch('select', 'srvhealth_store_dept_select', req, 'health').then(res => {
-					if (Array.isArray(res.data)) {
-						this.deptList = res.data;
-					}
-				});
 			},
 			getGoodsListData() {
 				let req = {
@@ -515,6 +615,10 @@
 				if (!this.userInfo || !this.userInfo.no) {
 					await this.toAddPage()
 				}
+				if (this.bindUserInfo.member_status === '退出') {
+					this.joinStore()
+					return
+				}
 				let req = [{
 					"serviceName": "srvhealth_store_user_add",
 					"condition": [],
@@ -541,15 +645,16 @@
 				}]
 				let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
 				if (res.success) {
+					debugger
 					this.isBind = true
 					if (res.data.length > 0) {
 						this.bindUserInfo = res.data[0]
+						this.push_msg_set = this.bindUserInfo.push_msg_set
 						this.$store.commit('SET_STORE_USER', this.bindUserInfo)
 						return this.bindUserInfo
 					}
 				} else {
 					this.isBind = false
-
 					return res
 				}
 			},
@@ -966,6 +1071,75 @@
 			padding: 20rpx;
 			border-bottom: 1rpx solid #f1f1f1;
 			font-weight: bold;
+		}
+	}
+
+	.store-user-box {
+		padding: 20rpx;
+
+		.profile-box {
+			display: flex;
+			padding: 20rpx;
+			align-items: center;
+
+			.user-profile {
+				width: 100rpx;
+				height: 100rpx;
+				border-radius: 50%;
+			}
+
+			.user-name {
+				font-weight: 700;
+				margin-left: 20rpx;
+			}
+
+			.account-status {
+				padding: 20rpx;
+				margin-left: 20rpx;
+			}
+		}
+
+		.setting-item {
+			padding: 20rpx;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+
+			.setting-content {
+				border: 1rpx solid #ebebeb;
+				border-radius: 20rpx;
+			}
+
+			.setting-label {
+				position: relative;
+				padding-left: 20rpx;
+				margin-bottom: 10rpx;
+
+				&::before {
+					position: absolute;
+					left: 0;
+					top: 10%;
+					content: '';
+					width: 4px;
+					height: 80%;
+					background-color: #0bc99d;
+					border-radius: 10rpx;
+				}
+			}
+		}
+
+		.exit-store-user {
+			padding: 20rpx;
+			display: flex;
+			justify-content: center;
+
+			.cu-btn {
+				margin-right: 20rpx;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
 		}
 	}
 </style>
