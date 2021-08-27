@@ -726,24 +726,8 @@
 				if (!colVs) {
 					return
 				}
-
+				debugger
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
-					// if (this.mainData && this.mainData[item.columns]) {
-					// 	item.value = this.mainData[item.columns]
-					// }
-					console.log(this.mainServiceName, this.mainData)
-
-					// if (Array.isArray(this.mainFkField) && this.mainFkField.length > 0) {
-					// 	this.mainFkField.forEach(field => {
-					// 		if (field.option_list_v2?.refed_col === item?.option_list_v2?.refed_col &&
-					// 			field.option_list_v2?.serviceName === item.option_list_v2
-					// 			?.serviceName && field.option_list_v2?.srv_app === item.option_list_v2
-					// 			?.srv_app) {
-					// 			item.colData = field.colData
-					// 			item.value = field.value
-					// 		}
-					// 	})
-					// }
 					if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2
 						.mconditions.length > 0) {
 						let mconditions = item.option_list_v2.mconditions
@@ -796,11 +780,13 @@
 					if (item.col_type == this.mainTable) {
 						if (this.mainData && this.mainData[item.columns]) {
 							item.value = this.mainData[item.columns]
+							item.disabled = true
 						}
 					}
 					if (item.col_type === 'fk') {
 						if (this.mainData && this.mainData[item.columns]) {
 							item.value = this.mainData[item.columns]
+							item.disabled = true
 						}
 						// if (
 						// 	item?.option_list_v2?.refed_col && this.mainData[item?.option_list_v2

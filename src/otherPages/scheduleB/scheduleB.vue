@@ -9,7 +9,7 @@
 			</view>
 		</view>
 
-		<gridTable :config="buildConfig" :table-data="buildTableData" @getQuery="getQuery" :showSummary="false"
+		<gridTable rowHeadOrientation="horizontal" :config="buildConfig" :table-data="buildTableData" @getQuery="getQuery" :showSummary="false"
 			:showTableFilter="false"
 			v-if="buildConfig&&buildConfig.length>0&&buildTableData&&buildTableData.length>0&&rowHeadList&&rowHeadList.length>0"
 			:scheduleConfig="scheduleConfig" @clickItem="clickItem" />

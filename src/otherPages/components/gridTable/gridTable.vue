@@ -13,7 +13,8 @@
 				<view class="row">
 					<view class="col" v-for="(item, index) in noFixedKey" :key="index"
 						@touchstart="touchmove($event, item)">
-						<view class="item col-label" :style="{width:setUpxToPx(item.width), height: setUpxToPx(80),color:item.color,'background-color':item.selfBgColor}">
+						<view class="item col-label"
+							:style="{width:setUpxToPx(item.width), height: setUpxToPx(80),color:item.color,'background-color':item.selfBgColor}">
 							<span>{{ item.label }}</span>
 							<span>{{ item.value||'' }}</span>
 						</view>
@@ -28,9 +29,10 @@
 			<view class="content" v-if="tableData.length>0">
 				<view class="left">
 					<view class="row" v-for="(item, index) in tableData" :key="index">
-						<view class="item header-bg"
-							:style="{width:setUpxToPx(v.width/2), height: setUpxToPx(itemHeight)}"
-							v-for="(v, index2) in fixedKey" :key="index2">
+						<view class="item header-bg" :style="{width:setUpxToPx(v.width/2), height: setUpxToPx(itemHeight),
+							letterSpacing:rowHeadOrientation==='horizontal' ?'0':'5px',
+							writingMode:rowHeadOrientation==='horizontal' ?'horizontal-tb':'vertical-rl'}" v-for="(v, index2) in fixedKey"
+							:key="index2">
 							<span>{{ item[v.key] || '-' }}</span>
 						</view>
 					</view>
@@ -39,9 +41,10 @@
 					<view class="scroll-view-item" v-for="(item, index) in tableData" :key="index"
 						:style="{ height: setUpxToPx(itemHeight)}">
 						<view class="" v-if="noFixedKey.length>0">
-							<gridItem :data="item[v.label]" :width="setUpxToPx(v.width)" :height=" setUpxToPx(itemHeight)"
-								:config="scheduleConfig" v-for="(v, index2) in noFixedKey" :bgColor="v.bgColor"
-								:key="index2" @click.native="clickItem(item[v.label],v,index2,index)"></gridItem>
+							<gridItem :data="item[v.label]" :width="setUpxToPx(v.width)"
+								:height=" setUpxToPx(itemHeight)" :config="scheduleConfig"
+								v-for="(v, index2) in noFixedKey" :bgColor="v.bgColor" :key="index2"
+								@click.native="clickItem(item[v.label],v,index2,index)"></gridItem>
 						</view>
 					</view>
 				</scroll-view>
@@ -82,6 +85,10 @@
 		},
 		name: 'grid-table',
 		props: {
+			rowHeadOrientation: {
+				type: String,
+				default: 'vertical'
+			},
 			config: {
 				type: Array,
 				default: () => {
@@ -124,13 +131,13 @@
 			}
 		},
 		watch: {
-			tableData:{
-				handler(newValue, oldValue){
+			tableData: {
+				handler(newValue, oldValue) {
 					this.initConfig()
 				}
 			},
 			config: {
-				handler(newValue, oldValue){
+				handler(newValue, oldValue) {
 					this.initConfig()
 				}
 			}
@@ -311,6 +318,7 @@
 			left: 0;
 			right: 0;
 			z-index: 9;
+
 			// color: #fff;
 			// background-color: #0bc99d;
 			.left {
@@ -330,7 +338,7 @@
 						justify-content: center;
 						letter-spacing: 5px;
 					}
-					
+
 				}
 			}
 
@@ -346,9 +354,11 @@
 							margin-left: 2px;
 							margin-bottom: 2px;
 						}
-						.col-label{
+
+						.col-label {
 							flex-direction: column;
-							.value{
+
+							.value {
 								font-size: 24rpx;
 							}
 						}

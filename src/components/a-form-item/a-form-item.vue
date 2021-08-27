@@ -1019,6 +1019,9 @@
 			},
 			openModal(type) {
 				// 打开弹出层
+				if(this.fieldData.disabled){
+					return
+				}
 				let fieldData = this.deepClone(this.fieldData);
 				switch (type) {
 					case 'Set':

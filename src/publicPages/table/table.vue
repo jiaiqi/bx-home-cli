@@ -71,7 +71,7 @@
 				listButton: [],
 				descCol: null,
 				ascCol: null,
-				colMinWidth: null,
+				// colMinWidth: null,
 				initCond: null,
 				custom_btn: null
 			}
@@ -86,10 +86,15 @@
 			}
 		},
 		computed: {
+			colMinWidth() {
+				return this.tableConfig.col_min_width
+			},
 			customButton() {
 				let arr = []
-				if (Array.isArray(this.custom_btn) && this.custom_btn.length > 0) {
-					this.custom_btn.forEach(item => {
+				let customBtn = this.tableConfig?.custom_btn || this.custom_btn
+
+				if (Array.isArray(customBtn) && customBtn.length > 0) {
+					customBtn.forEach(item => {
 						let obj = {
 							"button_name": "跳转",
 							"button_type": "navigateTo",
@@ -106,13 +111,22 @@
 						if (item.columns) {
 							url += `&columns=${item.columns}`
 						}
-						if (item.cond) {
+						// if (item.cond) {
+						// 	try {
+						// 		url += `&cond=${JSON.stringify(item.cond)}`
+						// 	} catch (e) {
+						// 		//TODO handle the exception
+						// 	}
+						// }
+
+						if (this.queryCond) {
 							try {
-								url += `&cond=${JSON.stringify(item.cond)}`
+								url += `&cond=${JSON.stringify(this.queryCond)}`
 							} catch (e) {
 								//TODO handle the exception
 							}
 						}
+
 						if (item.col_min_width) {
 							try {
 								url += `&col_min_width=${JSON.stringify(item.col_min_width)}`
@@ -150,6 +164,9 @@
 			moreConfig() {
 				return this.colV2?.moreConfig
 			},
+			tableConfig() {
+				return this.moreConfig?.tableConfig
+			},
 			srvCols() {
 				return this.colV2?._fieldInfo || []
 			},
@@ -158,9 +175,13 @@
 			},
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
-					if (Array.isArray(this.columns) && this.columns.length > 0) {
+					let columns = this.tableConfig?.columns || this.columns
+					if (columns && typeof columns === 'string') {
+						columns = columns.split(',')
+					}
+					if (Array.isArray(columns) && columns.length > 0) {
 						let arr = []
-						this.columns.forEach(column => {
+						columns.forEach(column => {
 							this.srvCols.forEach(col => {
 								if (col.columns === column) {
 									arr.push(col)
@@ -413,9 +434,7 @@
 					return this.list;
 				}
 				this.loadStatus = 'noMore'
-
 			},
-
 		},
 		onReachBottom() {
 			if (this.loadStatus === 'more') {
@@ -430,18 +449,24 @@
 			})
 			setTimeout(_ => {
 				uni.stopPullDownRefresh()
-			})
+			}, 1000)
 		},
 		onLoad(option) {
-			if (option.custom_btn) {
-				try {
-					let custom_btn = JSON.parse(option.custom_btn)
-					this.custom_btn = custom_btn
-				} catch (e) {
-					console.log(e)
-					//TODO handle the exception
+			// if (option.custom_btn) {
+			// 	try {
+			// 		let custom_btn = JSON.parse(option.custom_btn)
+			// 		this.custom_btn = custom_btn
+			// 	} catch (e) {
+			// 		console.log(e)
+			// 		//TODO handle the exception
+			// 	}
+			// }
+			uni.$on('dataChange', srv => {
+				if (this.serviceName && this.appName && srv && this.serviceName.indexOf(srv) !== -1) {
+					uni.startPullDownRefresh()
+					this.getList()
 				}
-			}
+			})
 			if (option.serviceName) {
 				this.serviceName = option.serviceName
 				if (option.destApp) {
@@ -480,16 +505,16 @@
 						//TODO handle the exception
 					}
 				}
-				if (option.columns) {
-					this.columns = option.columns.split(',')
-				}
-				if (option.col_min_width) {
-					try {
-						this.colMinWidth = JSON.parse(option.col_min_width)
-					} catch (e) {
-						//TODO handle the exception
-					}
-				}
+				// if (option.columns) {
+				// 	this.columns = option.columns.split(',')
+				// }
+				// if (option.col_min_width) {
+				// 	try {
+				// 		this.colMinWidth = JSON.parse(option.col_min_width)
+				// 	} catch (e) {
+				// 		//TODO handle the exception
+				// 	}
+				// }
 				if (option.descCol) {
 					try {
 						this.descCol = option.descCol.split(',').map(item => {
@@ -543,12 +568,12 @@
 								}
 							})
 						}
-
 					} catch (e) {
 						//TODO handle the exception
 					}
 				}
 				this.getColV2().then(_ => {
+					// uni.startPullDownRefresh()
 					this.getList({
 						initCond: this.initCond
 					})

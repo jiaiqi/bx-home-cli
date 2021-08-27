@@ -195,15 +195,7 @@
 					case 'edit':
 					case 'submit':
 						if (req) {
-							// for (let key in req) {
-							// 	if (!req[key]) {
-							// 		if(this.mainData?.[key]===null){
-
-							// 		}else{
-							// 			delete req[key];
-							// 		}
-							// 	}
-							// }
+					
 							let data = this.deepClone(req);
 
 							data.child_data_list = []
@@ -229,8 +221,10 @@
 								}
 							}
 							let url = this.getServiceUrl(app, e.service_name, 'operate');
+							let service =  e.service_name.slice(0,e.service_name.lastIndexOf('_'))
 							let res = await this.$http.post(url, reqData);
 							if (res.data.state === 'SUCCESS') {
+								uni.$emit('dataChange',service)
 								uni.showModal({
 									title: '提示',
 									content: res.data.resultMessage,
@@ -250,13 +244,9 @@
 									icon: 'none'
 								});
 							}
-
-
 						}
 						break;
-
 				}
-
 
 			},
 			async valueChange(e, triggerField) {

@@ -89,14 +89,31 @@
 						}
 					}
 				});
+				let defaultValue = this.allField.reduce((res, cur) => {
+					if (cur.defaultValue) {
+						res[cur.columns] = cur.defaultValue
+					}
+					return res
+				}, {})
 				if (valid === showsNum) {
 					console.log('表单校验通过', showsNum, valid, this.fieldModel);
 					let model = {};
 					if (this.formType === 'add') {
 						model = this.deepClone(this.fieldModel)
+						if (Object.keys(model).length === 0) {
+							model = this.allField.reduce((res, cur) => {
+								if (cur.value) {
+									res[cur.columns] = cur.value
+								}
+								return res
+							}, {})
+						}
 					} else {
 						switch (this.pageType) {
 							case 'update':
+								for (let key in defaultValue) {
+									model[key] = defaultValue[key];
+								}
 								for (let key in this.fieldModel) {
 									if (this.oldFieldModel[key] !== this.fieldModel[key]) {
 										model[key] = this.fieldModel[key];
@@ -117,14 +134,13 @@
 										model[key] = this.fieldModel[key];
 									}
 								}
-								break;
-							default:
-								for (let key in this.fieldModel) {
-									if (this.oldFieldModel[key] !== this.fieldModel[key]) {
-										model[key] = this.fieldModel[key];
+								default:
+									for (let key in this.fieldModel) {
+										if (this.oldFieldModel[key] !== this.fieldModel[key]) {
+											model[key] = this.fieldModel[key];
+										}
 									}
-								}
-								break;
+									break;
 						}
 					}
 					if (Object.keys(model).length > 0) {
@@ -142,10 +158,10 @@
 						// 	}
 						// 	return res
 						// }, {});
-						uni.showToast({
-							title: '没有需要提交的数据',
-							icon: 'none'
-						});
+						// uni.showToast({
+						// 	title: '没有需要提交的数据',
+						// 	icon: 'none'
+						// });
 						return false;
 					}
 				} else {

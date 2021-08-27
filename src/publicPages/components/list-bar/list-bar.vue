@@ -258,11 +258,11 @@
 			display: flex;
 			flex-wrap: wrap;
 			padding: 20rpx;
-
+			justify-content: center;
 			.order-item {
 				margin-top: 10rpx;
 				line-height: 60rpx;
-				width: calc(50% - 10rpx);
+				width: calc(50% - 30rpx);
 				padding: 10rpx 10rpx 10rpx 20rpx;
 				background-color: #fff;
 				margin-right: 20rpx;

@@ -354,7 +354,9 @@
 									return;
 								}
 								let res = await this.onRequest('update', e.service_name, req, app);
+								let service =  e.service_name.slice(0,e.service_name.lastIndexOf('_'))
 								if (res.data.state === 'SUCCESS') {
+									uni.$emit('dataChange',service)
 									if (
 										Array.isArray(res.data.response) &&
 										res.data.response.length > 0 &&
