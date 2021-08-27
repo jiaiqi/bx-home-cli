@@ -30,7 +30,9 @@
 			<view class="cu-dialog" @tap.stop>
 				<view class="store-user-box" v-if="bindUserInfo">
 					<view class="profile-box">
-						<image class="user-profile" :src="bindUserInfo.profile_url"></image>
+						<view class="user-profile">
+							<open-data type="userAvatarUrl"></open-data>
+						</view>
 						<view class="user-name">
 							{{bindUserInfo.person_name||bindUserInfo.nick_name||''}}
 						</view>
@@ -1086,6 +1088,7 @@
 				width: 100rpx;
 				height: 100rpx;
 				border-radius: 50%;
+				overflow: hidden;
 			}
 
 			.user-name {
