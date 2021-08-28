@@ -11,8 +11,6 @@
 			微信登录
 		</button>
 		<view class="tips">{{ tips }}</view>
-		<!-- <button type="primary" class="cu-btn bg-green" lang="zh_CN" :open-type="openType" @getuserinfo="getuserinfo">微信登录</button> -->
-		<!-- <button type="primary" class="cu-btn bg-green button" lang="zh_CN" @click="toAuthPage">去登录</button> -->
 		<view class="bottom">
 			登录代表您已同意<text class="text-cyan" @click="toArticle('CT2021012816330102')">百想用户协议</text>
 			、
@@ -57,7 +55,6 @@
 			},
 			getUserInfo(e) {
 				// 不推荐使用getUserInfo获取用户信息，预计自2021年4月13日起，getUserInfo将不再弹出弹窗，并直接返回匿名的用户个人信息
-				
 				this.handleUserInfo(e.detail)
 				this.$store.commit('SET_AUTH_USER', e)
 				this.$emit('getuserinfo', e);
@@ -91,9 +88,6 @@
 					url: '/publicPages/accountExec/accountExec'
 				});
 			},
-			// getuserinfo(e) {
-			// 	this.$emit('getuserinfo', e);
-			// }
 		}
 	};
 </script>

@@ -37,7 +37,10 @@
 					</view>
 				</view>
 			</scroll-view>
-			<view class="join-button" v-if="!actRecordInfo" @click="getUserProfile">
+			<!-- 	<view class="join-button" v-if="!isLogin">
+				<button type="primary" class="cu-btn" @click="toAddPage">请先登录</button>
+			</view> -->
+			<view class="join-button" v-if="!inActivity" @click="getUserProfile">
 				<button class=" bg-blue text-btn" v-if="canIUseGetUserProfile">
 					<view class="text-bold">加入活动</view>
 					<!-- <view class="tip">（需要获取昵称头像及微信步数）</view> -->
@@ -49,18 +52,20 @@
 		</view>
 		<person-info v-if="actRecordInfo" :rankList="personalRankList" :todayStep="todayStep"
 			@refresh-step="getwxStepInfoList"></person-info>
-		<view class="rank-container">
+		<view class="rank-container" v-if="isLogin">
 			<view class="rank-tab">
 				<view class="rank-title" :class="{'active':index===rankTabIndex}" v-for="(item,index) in rankTabList"
 					:key="item.type" @click="changeRankTab(index)">
 					{{item.label}}
 				</view>
 			</view>
-			<rank-list ref="rankList" @loaded="listLoaded" @toGroup="toGroup" :total="rankPageInfo.total" :act_no="act_no"
-				:type="rankTabType" :key="rankTabType">
+			<rank-list ref="rankList" @loaded="listLoaded" @toGroup="toGroup" :total="rankPageInfo.total"
+				:act_no="act_no" :type="rankTabType" :key="rankTabType">
 			</rank-list>
 		</view>
 	</view>
+	<!-- 	<view class="login-button-box" v-else>
+	</view> -->
 </template>
 
 <script>
@@ -105,12 +110,28 @@
 					total: 0,
 					pageNo: 1,
 					rownumber: 10
+				},
+				inActivity: true, //是否参加了活动
+			}
+		},
+		watch: {
+			user_no: {
+				handler(newValue, oldValue) {
+					if (newValue) {
+						this.getTakeInInfo()
+					}
 				}
 			}
 		},
 		computed: {
+			isLogin() {
+				return this.$store?.state?.app?.isLogin
+			},
+			userInfo() {
+				return this.$store?.state?.user?.userInfo
+			},
 			user_no() {
-				return uni.getStorageSync('login_user_info')?.user_no
+				return this.userInfo?.userno || uni.getStorageSync('login_user_info')?.user_no
 			},
 			rankTabType() {
 				return this.rankTabList[this.rankTabIndex].type
@@ -157,6 +178,7 @@
 					return res
 				}, [])
 			},
+
 		},
 		onShareAppMessage() {
 			let path =
@@ -179,24 +201,35 @@
 				query: query
 			};
 		},
-		onLoad(option) {
+
+		async onLoad(option) {
+			this.checkOptionParams(option)
 			if (wx.getUserProfile) {
 				this.canIUseGetUserProfile = true
 			}
 			if (option.act_no) {
 				this.act_no = option.act_no
-				this.getActiveInfo().then(_ => {
-					this.getTakeInInfo().then(_ => {
-						this.handleMap()
-					})
-				})
 			}
+			await this.toAddPage()
+			await this.initPage()
 		},
 		methods: {
-			toGroup(e){
-				let {info,index} = e
+			initPage() {
+				this.getActiveInfo().then(_ => {
+					if (this.user_no) {
+						this.getTakeInInfo().then(_ => {
+							this.handleMap()
+						})
+					}
+				})
+			},
+			toGroup(e) {
+				let {
+					info,
+					index
+				} = e
 				uni.navigateTo({
-					url:`../groupRanking/groupRanking?act_no=${this.act_no}&rank=${index}&org_no=${info.org_no}&total=${info.walk_act_steps_sum}`
+					url: `../groupRanking/groupRanking?act_no=${this.act_no}&rank=${index}&org_no=${info.org_no}&total=${info.walk_act_steps_sum}`
 				})
 			},
 			listLoaded(e) {
@@ -294,69 +327,75 @@
 						latitude: 34.25122419619922,
 						longitude: 108.94698456143715
 					})
-					if (step <= 1550*ratio) {
-						marker.longitude = 108.94698456143715 - (step / (1550*ratio)) * (0.01474322636818/zoomRatio)
+					if (step <= 1550 * ratio) {
+						marker.longitude = 108.94698456143715 - (step / (1550 * ratio)) * (0.01474322636818 / zoomRatio)
 						// marker.latitude = 34.25122419619922;
 						// marker.longitude = 108.94698456143715
 					}
 				}
-				if (step > 1550*ratio) {
+				if (step > 1550 * ratio) {
 					arr.push({
 						latitude: 34.25182368811452,
 						longitude: 108.93224133506897,
 					})
-					if (step <= 2050*ratio) {
-						marker.longitude = 108.93224133506897 - ((2050*ratio - step) / (500*ratio)) * (0.00695873126188/zoomRatio)
+					if (step <= 2050 * ratio) {
+						marker.longitude = 108.93224133506897 - ((2050 * ratio - step) / (500 * ratio)) * (
+							0.00695873126188 / zoomRatio)
 					}
 				}
-				if (step > 2050*ratio) {
+				if (step > 2050 * ratio) {
 					arr.push({
 						latitude: 34.25173988100353,
 						longitude: 108.92528260380709,
 					})
-					if (step <= 2900*ratio) {
+					if (step <= 2900 * ratio) {
 						marker.longitude = 108.92528260380709
-						marker.latitude = 34.259378572983685 - ((2900*ratio - step) / (850*ratio)) * (0.007638691980155/zoomRatio)
+						marker.latitude = 34.259378572983685 - ((2900 * ratio - step) / (850 * ratio)) * (
+							0.007638691980155 / zoomRatio)
 					}
 				}
-				if (step > 2900*ratio) {
+				if (step > 2900 * ratio) {
 					arr.push({
 						latitude: 34.259378572983685,
 						longitude: 108.92533327149931,
 					})
-					if (step <= 4720*ratio) {
+					if (step <= 4720 * ratio) {
 						marker.longitude = 108.92528260380709
-						marker.latitude = 34.275721173952554 - ((4720*ratio - step) / (1820*ratio)) * (0.016342600968869/zoomRatio)
+						marker.latitude = 34.275721173952554 - ((4720 * ratio - step) / (1820 * ratio)) * (
+							0.016342600968869 / zoomRatio)
 					}
 				}
-				if (step > 4720*ratio) {
+				if (step > 4720 * ratio) {
 					arr.push({
 						latitude: 34.275721173952554,
 						longitude: 108.92511381305951,
 					})
-					if (step <= 6610*ratio) {
+					if (step <= 6610 * ratio) {
 						marker.latitude = 34.275721173952554
-						marker.longitude = 108.94725746078666 - ((6610*ratio - step) / (1890*ratio)) * (0.02214364772715/zoomRatio)
+						marker.longitude = 108.94725746078666 - ((6610 * ratio - step) / (1890 * ratio)) * (
+							0.02214364772715 / zoomRatio)
 					}
 				}
-				if (step > 6610*ratio) {
+				if (step > 6610 * ratio) {
 					arr.push({
 						latitude: 34.2759093154076,
 						longitude: 108.94725746078666,
 					})
-					if (step <= 8910*ratio) {
+					if (step <= 8910 * ratio) {
 						marker.latitude = 34.275721173952554
-						marker.longitude = 108.9713510595609 - ((8910*ratio - step) / (2300*ratio)) * (0.02409359877424/zoomRatio)
+						marker.longitude = 108.9713510595609 - ((8910 * ratio - step) / (2300 * ratio)) * (
+							0.02409359877424 / zoomRatio)
 
 					}
 				}
-				if (step > 8910*ratio) {
+				if (step > 8910 * ratio) {
 					arr.push({
 						latitude: 34.276324480085236,
 						longitude: 108.9713510595609,
 					})
-					if (step <= 10310*ratio) {
-						marker.latitude = 34.276324480085236 - ((10310*ratio - step) / (1400*ratio)) * (0.012040431869226/zoomRatio)
+					if (step <= 10310 * ratio) {
+						marker.latitude = 34.276324480085236 - ((10310 * ratio - step) / (1400 * ratio)) * (
+							0.012040431869226 / zoomRatio)
 						marker.longitude = 108.9713510595609
 						marker.textAlign = 'left'
 						// arr.push({
@@ -365,47 +404,51 @@
 						// })
 					}
 				}
-				if (step > 10310*ratio) {
+				if (step > 10310 * ratio) {
 					arr.push({
 						latitude: 34.26428404821601,
 						longitude: 108.97117759452954,
 					})
-					if (step <= 10810*ratio) {
-						marker.latitude = 34.26428404821601 - ((10810*ratio - step) / (500*ratio)) * (0.00495416602009/zoomRatio)
+					if (step <= 10810 * ratio) {
+						marker.latitude = 34.26428404821601 - ((10810 * ratio - step) / (500 * ratio)) * (
+							0.00495416602009 / zoomRatio)
 						marker.longitude = 108.97117759452954
 					}
 				}
-				if (step > 10810*ratio) {
+				if (step > 10810 * ratio) {
 					arr.push({
 						latitude: 34.25932988219592,
 						longitude: 108.97116321808574,
 					})
-					if (step <= 11590*ratio) {
-						marker.latitude = 34.2524059287666 + ((11590*ratio - step) / (780*ratio)) * (0.00692395342932/zoomRatio)
+					if (step <= 11590 * ratio) {
+						marker.latitude = 34.2524059287666 + ((11590 * ratio - step) / (780 * ratio)) * (0.00692395342932 /
+							zoomRatio)
 						marker.longitude = 108.97117759452954
 					}
 				}
-				if (step > 11590*ratio) {
+				if (step > 11590 * ratio) {
 					arr.push({
 						latitude: 34.2524059287666,
 						longitude: 108.97132258772899,
 					})
-					if (step <= 13125*ratio) {
+					if (step <= 13125 * ratio) {
 						marker.latitude = 34.2524059287666
-						marker.longitude = 108.95406884455201 + ((13125*ratio - step) / (1535*ratio)) * (0.01725374317698/zoomRatio)
+						marker.longitude = 108.95406884455201 + ((13125 * ratio - step) / (1535 * ratio)) * (
+							0.01725374317698 / zoomRatio)
 					}
 				}
-				if (step > 13125*ratio) {
+				if (step > 13125 * ratio) {
 					arr.push({
 						latitude: 34.251898321998674,
 						longitude: 108.95406884455201,
 					})
-					if (step <= 13730*ratio) {
+					if (step <= 13730 * ratio) {
 						marker.latitude = 34.251898321998674
-						marker.longitude = 108.95406884455201 - ((13730*ratio - step) / (605*ratio)) * (0.00714308001943/zoomRatio)
+						marker.longitude = 108.95406884455201 - ((13730 * ratio - step) / (605 * ratio)) * (
+							0.00714308001943 / zoomRatio)
 					}
 				}
-				if (step > 13730*ratio) {
+				if (step > 13730 * ratio) {
 
 				}
 				let obj = {
@@ -594,6 +637,7 @@
 							res.data.response[0].response.effect_data.length > 0
 						) {
 							this.actRecordInfo = res.data.response[0].response.effect_data[0]
+							this.inActivity = true
 							this.buildLinePoint()
 						}
 					}
@@ -631,10 +675,13 @@
 				if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
 					.length > 0) {
 					this.actRecordInfo = res.data.data[0]
-					// await this.getRankList()
+					this.inActivity = true
 					await this.getStepRecord()
 					this.buildLinePoint()
 					this.getActiveRelatedPhotos()
+				} else if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
+					.length === 0) {
+					this.inActivity = false
 				}
 				return
 

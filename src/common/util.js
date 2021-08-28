@@ -1897,7 +1897,6 @@ export default {
 			// #endif
 		}
 		Vue.prototype.toAddPage = async () => {
-
 			let isLogin = store.state.app.isLogin
 			if (!isLogin) {
 				isLogin = await wxVerifyLogin()
@@ -1933,7 +1932,6 @@ export default {
 					Vue.prototype.setWxUserInfo(rawData);
 					store.commit('SET_WX_USERINFO', rawData);
 					store.commit('SET_AUTH_USERINFO', true);
-					// await this.toAddPage()
 				}
 			}
 
@@ -1954,11 +1952,6 @@ export default {
 					Vue.prototype.updateUserInfo(wxUserInfo)
 				}
 			}
-
-			// if (store.state.app.authBoxDisplay) {
-			// 	store.commit('SET_REGIST_STATUS', false)
-			// 	return
-			// }
 
 			// 没有基本信息 创建基本信息
 			let login_user_info = uni.getStorageSync('login_user_info')
@@ -2081,6 +2074,7 @@ export default {
 				}
 				return false
 			}
+			return
 		}
 
 		Vue.prototype.getVideoPath = (no) => {
