@@ -11,22 +11,25 @@
 
 		</view>
 		<scroll-view scroll-x="true">
-			<bx-checkbox-group :mode="'normal'" v-model="selectedDeleteItem" class="checkbox-group ">
+			<checkbox-group @change="checkboxChange">
+
+				<!-- <bx-checkbox-group :mode="'normal'" v-model="selectedDeleteItem" class="checkbox-group "> -->
 				<view class="list-box">
 					<view class="list-item table-head">
-						<bx-checkbox style="opacity: 0;" v-if="showCheckBox" @change="selectAll">
-						</bx-checkbox>
+						<!-- <bx-checkbox style="opacity: 0;" v-if="showCheckBox" @change="selectAll"></bx-checkbox> -->
+						<checkbox style="opacity: 0;transform:scale(0.7);" v-if="showCheckBox" />
 						<view class="col-item"
 							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
 							v-for="col in tableColumn">
 							{{col.label||''}}
 						</view>
 					</view>
-					<view class="list-item" v-for="(item,index) in list" :key="index" @click="toDetail(item)"
-						@longtap="longTap">
-						<bx-checkbox v-model="item.checked" :name="item.id" v-if="showCheckBox">
-						</bx-checkbox>
-						<view class="col-item"
+					<view class="list-item" v-for="(item,index) in list" :key="index" @longtap="longTap">
+						<!-- 	<bx-checkbox v-model="item.checked" :name="item.id" v-if="showCheckBox">
+						</bx-checkbox> -->
+						<checkbox color="#0BC99D" :value="item.id" :checked="item.checked" v-if="showCheckBox"
+							style="transform:scale(0.7)" />
+						<view class="col-item" @click="toDetail(item)"
 							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
 							:class="{'bg-orange':isTomorrow(item[col.columns],col.col_type),'bg-red':isToday(item[col.columns],col.col_type)}"
 							v-for="col in tableColumn">
@@ -48,7 +51,8 @@
 						</view>
 					</view>
 				</view>
-			</bx-checkbox-group>
+			</checkbox-group>
+			<!-- </bx-checkbox-group> -->
 		</scroll-view>
 	</view>
 </template>
@@ -96,7 +100,7 @@
 		},
 		computed: {
 			colMinWidth() {
-				return this.tableConfig.col_min_width
+				return this.tableConfig?.col_min_width
 			},
 			customButton() {
 				let arr = []
@@ -179,7 +183,7 @@
 				return this.colV2?._fieldInfo || []
 			},
 			filterCols() {
-				return this.colV2?._fieldInfo.filter(item => item.in_cond)
+				return this.colV2?._fieldInfo.filter(item => item.in_cond&&!['text','textarea'].includes(item.type))
 			},
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
@@ -210,6 +214,18 @@
 			}
 		},
 		methods: {
+			checkboxChange(e) {
+				var items = this.list,
+					values = e.detail.value;
+				for (var i = 0, lenI = items.length; i < lenI; ++i) {
+					const item = items[i]
+					if (values.includes(item.id) || values.includes(item.id.toString())) {
+						this.$set(item, 'checked', true)
+					} else {
+						this.$set(item, 'checked', false)
+					}
+				}
+			},
 			isTomorrow(val, type) {
 				let tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
 				return val && type === "Date" && val.indexOf(tomorrow) !== -1
@@ -230,25 +246,41 @@
 			},
 			clickGridButton(e) {
 				if (e.button_type && ['delete', 'batch_delete'].includes(e.button_type)) {
-					if (this.selectedDeleteItem) {
+					// let arr = this.selectedDeleteItem.split(',').filter(item => item && item)
+					let arr = this.list.filter(item => item.checked).map(item => item.id)
+					if (arr.length > 0) {
 						let req = [{
 							"serviceName": e.service_name,
 							"condition": [{
 								"colName": "id",
 								"ruleType": "in",
-								"value": this.selectedDeleteItem
+								"value": arr.toString()
 							}]
 						}]
 						if (e.service_name) {
 							let url = this.getServiceUrl(e.application || this.appName, e.service_name, 'operate');
-							this.$http.post(url, req).then(res => {
-								this.showCheckBox = false
-								if (res.data.state === 'SUCCESS') {
-									uni.showToast({
-										title: '操作成功',
-										duration: 3000
-									})
-									uni.startPullDownRefresh()
+							uni.showModal({
+								title: '提示',
+								content: `即将删除${arr.length}条数据，确认进行删除操作?`,
+								success: (res) => {
+									if (res.confirm) {
+										this.$http.post(url, req).then(res => {
+											this.showCheckBox = false
+											if (res.data.state === 'SUCCESS') {
+												// uni.startPullDownRefresh()
+												this.pageNo = 1;
+												this.getList({
+													initCond: this.initCond
+												}).then(_=>{
+													uni.showToast({
+														title: '操作成功',
+														duration: 1000,
+														mask:true
+													})
+												})
+											}
+										})
+									}
 								}
 							})
 						} else {
@@ -284,7 +316,10 @@
 					// 	});
 					// }
 					if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
-						fieldsCond = this.queryCond
+						fieldsCond = this.queryCond.map(item=>{
+							item.disabled = true;
+							return item
+						})
 					}
 					let url =
 						`/publicPages/form/form?type=add&serviceName=${item.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
@@ -312,7 +347,7 @@
 				this.showCheckBox = true
 			},
 			selectAll() {
-				
+
 				if (this.selectedDeleteItem) {
 					let arr = this.selectedDeleteItem.split(',').filter(item => item && item)
 					if (arr.length === this.list.length) {
@@ -507,7 +542,7 @@
 					if (this.pageNo === 1) {
 						this.list = [];
 					}
-					this.list = this.list.concat(res.data.data);
+					this.list = [...this.list,...res.data.data] ;
 					// this.pageInfo.total = res.data.page.total;
 					let page = res.data.page;
 					if (page.rownumber * page.pageNo >= page.total) {
@@ -518,6 +553,7 @@
 					return this.list;
 				}
 				this.loadStatus = 'noMore'
+				return
 			},
 		},
 		onReachBottom() {
@@ -547,8 +583,12 @@
 			// }
 			uni.$on('dataChange', srv => {
 				if (this.serviceName && this.appName && srv && this.serviceName.indexOf(srv) !== -1) {
-					uni.startPullDownRefresh()
-					this.getList()
+					// uni.startPullDownRefresh()
+					// this.getList()
+					this.pageNo = 1;
+					this.getList({
+						initCond: this.initCond
+					})
 				}
 			})
 			if (option.serviceName) {

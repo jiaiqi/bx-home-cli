@@ -35,6 +35,9 @@
 		              }"></text>
 							</view>
 						</view>
+						<view class="order-item" style="opacity: 0;" v-if="orderCols.length%2===1">
+							
+						</view>
 					</view>
 					<view class="button-box">
 						<button class="cu-btn bg-gray" @click="hideModal">取消</button>

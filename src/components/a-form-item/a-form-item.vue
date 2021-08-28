@@ -125,7 +125,7 @@
 			</view> -->
 			<view class="form-item-content_value picker"
 				v-else-if="pickerFieldList.includes(fieldData.type)&&pageType==='filter'">
-				<date-range-picker  :mode="pickerMode" @change="bindTimeChange" v-model="fieldData.value">
+				<date-range-picker style="width: 100%;" :mode="pickerMode" @change="bindTimeChange" v-model="fieldData.value">
 				</date-range-picker>
 				<!-- 		<picker class="uni-picker" :mode="pickerMode" :end="fieldData.end" :value="fieldData.value"
 					@change="bindTimeChange" v-if="fieldData.type==='Time'">

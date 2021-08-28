@@ -195,7 +195,7 @@
 					case 'edit':
 					case 'submit':
 						if (req) {
-					
+
 							let data = this.deepClone(req);
 
 							data.child_data_list = []
@@ -221,10 +221,10 @@
 								}
 							}
 							let url = this.getServiceUrl(app, e.service_name, 'operate');
-							let service =  e.service_name.slice(0,e.service_name.lastIndexOf('_'))
+							let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
 							let res = await this.$http.post(url, reqData);
 							if (res.data.state === 'SUCCESS') {
-								uni.$emit('dataChange',service)
+								uni.$emit('dataChange', service)
 								uni.showModal({
 									title: '提示',
 									content: res.data.resultMessage,
@@ -435,9 +435,10 @@
 							if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
 								.conditions
 								.length > 0) {
-									field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,this.mainData)
+								field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+									.conditions, this.mainData)
 							}
-							
+
 							if (this.defaultCondition && Array.isArray(this
 									.defaultCondition) && colVs
 								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
@@ -462,6 +463,9 @@
 									if (item.column === field.column) {
 										if (item.hasOwnProperty('display')) {
 											field.display = item.display;
+										}
+										if (item.hasOwnProperty('disabled')) {
+											field.disabled = item.disabled;
 										}
 										if (item.hasOwnProperty('value')) {
 											field.value = item.value;
