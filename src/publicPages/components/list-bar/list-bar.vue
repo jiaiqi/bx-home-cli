@@ -171,6 +171,7 @@
 			},
 			clickGridButton(e) {
 				// this.$emit('onGridButton', e)
+				debugger
 				switch (e.button_type) {
 					case 'select':
 						this.modalName = 'showFilter'
@@ -187,12 +188,14 @@
 						this.$emit('handelCustomButton', e)
 						break;
 					case 'navigateTo':
-						if(e.url){
-							debugger
+						if (e.url) {
 							uni.navigateTo({
-								url:e.url
+								url: e.url
 							})
 						}
+						break;
+					default:
+						this.$emit('onGridButton', e)
 						break;
 				}
 
@@ -259,6 +262,7 @@
 			flex-wrap: wrap;
 			padding: 20rpx;
 			justify-content: center;
+
 			.order-item {
 				margin-top: 10rpx;
 				line-height: 60rpx;

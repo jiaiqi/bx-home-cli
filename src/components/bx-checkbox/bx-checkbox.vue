@@ -1,5 +1,5 @@
 <template>
-	<view class="bx-checkbox" :style="[checkboxStyle]" :class="checkboxClass" @tap="toggle">
+	<view class="bx-checkbox" :style="[checkboxStyle]" :class="checkboxClass" @tap.stop="toggle">
 		<view class="bx-checkbox-icon" :class="{ checked: checked }" :style="{
 			'width':checkboxIconSize+'px','height':checkboxIconSize+'px'
 		}">

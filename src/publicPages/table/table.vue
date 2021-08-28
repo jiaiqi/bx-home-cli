@@ -11,37 +11,42 @@
 
 		</view>
 		<scroll-view scroll-x="true">
-			<view class="list-box ">
-				<view class="list-item table-head">
-					<view class="col-item"
-						:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
-						v-for="col in tableColumn">
-						{{col.label||''}}
+			<bx-checkbox-group :mode="'normal'" v-model="selectedDeleteItem" class="checkbox-group ">
+				<view class="list-box">
+					<view class="list-item table-head">
+						<view class="col-item"
+							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
+							v-for="col in tableColumn">
+							{{col.label||''}}
+						</view>
+					</view>
+					<view class="list-item" v-for="(item,index) in list" :key="index" @click="toDetail(item)"
+						@longtap="longTap">
+						<bx-checkbox v-model="item.checked" :name="item.id" v-if="showCheckBox">
+						</bx-checkbox>
+						<view class="col-item"
+							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
+							:class="{'bg-orange':isTomorrow(item[col.columns],col.col_type),'bg-red':isToday(item[col.columns],col.col_type)}"
+							v-for="col in tableColumn">
+							<text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
+							<text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
+							<text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
+							<text v-else> {{item[col.columns]||''}}</text>
+						</view>
+					</view>
+					<view class="list-item">
+						<view class="col-item" v-if="list.length===0&&loadStatus==='noMore'">
+							暂无数据
+						</view>
+						<view class="col-item" v-if="loadStatus==='loading'">
+							加载中...
+						</view>
+						<view class="col-item" v-if="list.length>0&&loadStatus==='noMore'">
+							数据已全部加载
+						</view>
 					</view>
 				</view>
-				<view class="list-item" v-for="(item,index) in list" :key="index" @click="toDetail(item)">
-					<view class="col-item"
-						:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
-						:class="{'bg-orange':isTomorrow(item[col.columns],col.col_type),'bg-red':isToday(item[col.columns],col.col_type)}"
-						v-for="col in tableColumn">
-						<text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
-						<text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
-						<text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
-						<text v-else> {{item[col.columns]||''}}</text>
-					</view>
-				</view>
-				<view class="list-item">
-					<view class="col-item" v-if="list.length===0&&loadStatus==='noMore'">
-						暂无数据
-					</view>
-					<view class="col-item" v-if="loadStatus==='loading'">
-						加载中...
-					</view>
-					<view class="col-item" v-if="list.length>0&&loadStatus==='noMore'">
-						数据已全部加载
-					</view>
-				</view>
-			</view>
+			</bx-checkbox-group>
 		</scroll-view>
 	</view>
 </template>
@@ -56,6 +61,8 @@
 		},
 		data() {
 			return {
+				showCheckBox: false,
+				selectedDeleteItem: "",
 				serviceName: "",
 				columns: null,
 				appName: "",
@@ -92,7 +99,6 @@
 			customButton() {
 				let arr = []
 				let customBtn = this.tableConfig?.custom_btn || this.custom_btn
-
 				if (Array.isArray(customBtn) && customBtn.length > 0) {
 					customBtn.forEach(item => {
 						let obj = {
@@ -220,8 +226,39 @@
 				this.pageNo = 1
 				this.getList()
 			},
-			clickGridButton() {
-
+			clickGridButton(e) {
+				if (e.button_type && ['delete', 'batch_delete'].includes(e.button_type)) {
+					if (this.selectedDeleteItem) {
+						let req = [{
+							"serviceName": e.service_name,
+							"condition": [{
+								"colName": "id",
+								"ruleType": "in",
+								"value": this.selectedDeleteItem
+							}]
+						}]
+						if (e.service_name) {
+							let url = this.getServiceUrl(e.application || this.appName, e.service_name, 'operate');
+							this.$http.post(url, req).then(res => {
+								if (res.data.state === 'SUCCESS') {
+									uni.showToast({
+										title: '操作成功'
+									})
+									uni.startPullDownRefresh()
+									// this.getList()
+								}
+							})
+						}
+					} else {
+						uni.showModal({
+							title: '提示',
+							content: '请选择要删除的数据',
+							confirmText: '知道了',
+							showCancel: false
+						})
+						this.showCheckBox = true
+					}
+				}
 			},
 			clickAddButton(item) {
 
@@ -260,6 +297,9 @@
 			},
 			changeSerchVal(val) {
 				this.searchWords = val
+			},
+			longTap() {
+				this.showCheckBox = true
 			},
 			toDetail(row) {
 				if (row && row.id) {
@@ -327,8 +367,14 @@
 				this.colV2 = colVs;
 
 				this.listButton = colVs.gridButton.filter(item => {
-					if (item.permission === true && ['select', 'add'].includes(item.button_type)) {
+					if (item.permission === true && ['select', 'add', 'delete', 'batch_delete'].includes(item
+							.button_type)) {
 						switch (item.button_type) {
+							case 'batch_delete':
+							case 'delete':
+								item.icon = 'cuIcon-delete'
+								return item
+								break;
 							case 'add':
 							case 'apply':
 								item.icon = 'cuIcon-add'
@@ -420,6 +466,10 @@
 				this.loadStatus = 'loading'
 				let res = await this.$http.post(url, req);
 				if (res.data.state === 'SUCCESS') {
+					res.data.data = res.data.data.map(item => {
+						item.checked = false
+						return item
+					})
 					if (this.pageNo === 1) {
 						this.list = [];
 					}
@@ -598,6 +648,8 @@
 
 
 	.list-box {
+		width: 100%;
+
 		.list-item {
 			padding: 10rpx 20rpx;
 			display: flex;
