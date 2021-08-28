@@ -14,6 +14,8 @@
 			<bx-checkbox-group :mode="'normal'" v-model="selectedDeleteItem" class="checkbox-group ">
 				<view class="list-box">
 					<view class="list-item table-head">
+						<bx-checkbox style="opacity: 0;" v-if="showCheckBox" @change="selectAll">
+						</bx-checkbox>
 						<view class="col-item"
 							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
 							v-for="col in tableColumn">
@@ -240,13 +242,21 @@
 						if (e.service_name) {
 							let url = this.getServiceUrl(e.application || this.appName, e.service_name, 'operate');
 							this.$http.post(url, req).then(res => {
+								this.showCheckBox = false
 								if (res.data.state === 'SUCCESS') {
 									uni.showToast({
-										title: '操作成功'
+										title: '操作成功',
+										duration: 3000
 									})
 									uni.startPullDownRefresh()
-									// this.getList()
 								}
+							})
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '按钮配置有误',
+								confirmText: '知道了',
+								showCancel: false
 							})
 						}
 					} else {
@@ -300,6 +310,30 @@
 			},
 			longTap() {
 				this.showCheckBox = true
+			},
+			selectAll() {
+				
+				if (this.selectedDeleteItem) {
+					let arr = this.selectedDeleteItem.split(',').filter(item => item && item)
+					if (arr.length === this.list.length) {
+						this.list = this.list.map(item => {
+							item.checked = false
+							return item
+						})
+					} else {
+						this.list = this.list.map(item => {
+							item.checked = true
+							return item
+						})
+						this.selectedDeleteItem = this.list.map(item => item.id).toString()
+					}
+				} else {
+					this.list = this.list.map(item => {
+						item.checked = true
+						return item
+					})
+					this.selectedDeleteItem = this.list.map(item => item.id).toString()
+				}
 			},
 			toDetail(row) {
 				if (row && row.id) {
