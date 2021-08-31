@@ -39,7 +39,8 @@
 								{{ item.data.length > 1 ? taskIndex + 1 + '.' : '1. ' }}
 								{{ task['labelText'].replace('null','') }}
 								<!-- {{ task[task.scheduleConfig.schedule_col] }} -->
-								<button class="cu-btn sm bg-blue margin-left" @tap.stop="goPage(item,task)">进入</button>
+								<button class="cu-btn sm bg-blue margin-left" @tap.stop="goPage(item,task)"
+									v-if="task.scheduleConfig&&task.scheduleConfig.showItemDetailBtn">{{task.scheduleConfig.detailBtnText||'进入'}}</button>
 							</view>
 							<view class="margin-left" v-if="!item.data || item.data.length === 0">无</view>
 						</view>
@@ -476,7 +477,7 @@
 				}
 				uni.navigateTo({
 					url,
-					success:()=> {
+					success: () => {
 						// this.showModal = false
 					}
 				})
