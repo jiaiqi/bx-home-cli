@@ -9,8 +9,8 @@
 			</view>
 		</view>
 
-		<gridTable rowHeadOrientation="horizontal" :config="buildConfig" :table-data="buildTableData" @getQuery="getQuery" :showSummary="false"
-			:showTableFilter="false"
+		<gridTable rowHeadOrientation="horizontal" :config="buildConfig" :table-data="buildTableData"
+			@getQuery="getQuery" :showSummary="false" :showTableFilter="false"
 			v-if="buildConfig&&buildConfig.length>0&&buildTableData&&buildTableData.length>0&&rowHeadList&&rowHeadList.length>0"
 			:scheduleConfig="scheduleConfig" @clickItem="clickItem" />
 
@@ -39,6 +39,7 @@
 								{{ item.data.length > 1 ? taskIndex + 1 + '.' : '1. ' }}
 								{{ task['labelText'].replace('null','') }}
 								<!-- {{ task[task.scheduleConfig.schedule_col] }} -->
+								<button class="cu-btn sm bg-blue margin-left" @tap.stop="goPage(item,task)">进入</button>
 							</view>
 							<view class="margin-left" v-if="!item.data || item.data.length === 0">无</view>
 						</view>
@@ -111,7 +112,7 @@
 				}
 				return data
 			},
-			withoutNav(){
+			withoutNav() {
 				return this.rowHeadCustomData?.withoutNav
 			},
 			buildConfig() {
@@ -411,10 +412,9 @@
 					this.getScheduleConfig(cond);
 				}
 			},
-			goPage(e) {
+			goPage(e, task) {
 				let cond = [];
 				let scheduleConfig = {};
-				debugger
 				if (e.data && e.data.length > 0) {
 					scheduleConfig = e.data[0].scheduleConfig;
 					cond = [{
@@ -448,12 +448,20 @@
 				}
 				if (scheduleConfig.dest_page) {
 					if (Array.isArray(scheduleConfig?.custom_condition) && scheduleConfig.custom_condition.length > 0) {
-						if (e.data && e.data.length > 0) {
-							let data = e.data[0]
-							cond = scheduleConfig.custom_condition.map(cond => {
-								cond.value = this.renderStr(cond.value, data)
-								return cond
+						let custom_condition = this.deepClone(scheduleConfig.custom_condition)
+						if (task && scheduleConfig.showItemDetailBtn) {
+							cond = custom_condition.map(c => {
+								c.value = this.renderStr(c.value, this.deepClone(task))
+								return c
 							})
+						} else {
+							if (e.data && e.data.length > 0) {
+								let data = e.data[0]
+								cond = custom_condition.map(c => {
+									c.value = this.renderStr(c.value, data)
+									return c
+								})
+							}
 						}
 					}
 					url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.srv}&cond=${JSON.stringify(cond)}`
@@ -461,13 +469,16 @@
 						url =
 							`${scheduleConfig.dest_page}&serviceName=${scheduleConfig.dest_page_srv}&cond=${JSON.stringify(cond)}`
 					}
-
 				}
+
 				if (scheduleConfig.dest_column) {
 					url += `&columns=${scheduleConfig.dest_column}`
 				}
 				uni.navigateTo({
-					url
+					url,
+					success:()=> {
+						// this.showModal = false
+					}
 				})
 			},
 			clickItem(col, row, colIndex, rowIndex) {

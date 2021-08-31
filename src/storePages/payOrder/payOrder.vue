@@ -57,6 +57,15 @@
 						</view>
 					</view>
 				</view>
+				<view class="id-number-edit" v-if="needIdNum">
+					<view class="cu-form-group ">
+						<view class="title">身份证号</view>
+						<input :placeholder="'请输入身份证号'" name="input" v-model="idNum" placeholder-style="fontSize:24rpx;"></input>
+					</view>
+					<view class="remark text-cyan">
+					<text class="cuIcon-info"></text>	{{needIdRemark||''}}
+					</view>
+				</view>
 			</view>
 		</view>
 		<view class="handler-bar">
@@ -93,6 +102,7 @@
 					fullAddress: ''
 				},
 				wxMchId: "", //商户号
+				idNum:'', //身份证号
 			};
 		},
 		computed: {
@@ -101,6 +111,21 @@
 				loginUserInfo: state => state.user.loginUserInfo,
 				cartInfo: state => state.order.cartInfo
 			}),
+			needIdNum(){
+				let goods = this.orderInfo.goodsList;
+				if(Array.isArray(goods)&&goods.length>0){
+					return goods.some(item=>item.need_id_num=='是')
+				}
+			},
+			needIdRemark(){
+				let goods = this.orderInfo.goodsList;
+				if(Array.isArray(goods)&&goods.length>0){
+					let good = goods.find(item=>item.need_id_num=='是')
+					if(good&&good.remark){
+						return good.remark
+					}
+				}
+			},
 			totalAmount() {
 				if (Array.isArray(this.orderInfo.goodsList)) {
 					return this.orderInfo.goodsList.reduce((pre, cur) => {
@@ -199,6 +224,15 @@
 				}
 			},
 			submitOrder() {
+				if(this.needIdNum&&!this.idNum){
+					uni.showModal({
+						title:'提示',
+						content:'请输入身份证号',
+						showCancel:false,
+						confirmText:'知道了'
+					})
+					return
+				}
 				if (!this.addressInfo.fullAddress) {
 					uni.showToast({
 						title: '请先选择您的地址信息',
@@ -272,7 +306,9 @@
 						}]
 					}]
 				}];
-
+				if(this.needIdNum&&this.idNum){
+					req[0].data[0].id_num = this.idNum
+				}
 				this.$fetch('operate', 'srvhealth_store_order_add', req, 'health').then(res => {
 					if (res.success && Array.isArray(res.data) && res.data.length > 0) {
 						console.log(res.data[0]);
@@ -429,7 +465,21 @@
 			.title-bar {
 				padding: 20rpx 0 30rpx;
 			}
-
+			.id-number-edit{
+				margin-top: 20rpx;
+				.cu-form-group {
+					border: 1rpx solid #f1f1f1;
+					min-height: 80rpx;
+				}
+				.remark{
+					font-size: 24rpx;
+					padding: 10rpx 20rpx;
+					
+				}
+				.text-cyan{
+					color: #0bc99d;
+				}
+			}
 			.store-logo {
 				width: 20px;
 				height: 20px;
@@ -442,7 +492,6 @@
 
 			.goods-item {
 				display: flex;
-
 				&+.goods-item {
 					margin-top: 20px;
 				}

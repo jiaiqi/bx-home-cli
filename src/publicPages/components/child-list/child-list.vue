@@ -685,6 +685,9 @@
 					if (item.in_update === 1) {
 						item.display = true
 					}
+					if (item.columns === this.foreignKey?.ref_service_column) {
+						item.display = false
+					}
 					if (item.columns === this.foreignKey?.referenced_column_name) {
 						item.display = false
 					}

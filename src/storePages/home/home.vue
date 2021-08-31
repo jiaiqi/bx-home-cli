@@ -31,8 +31,14 @@
 				<view class="store-user-box" v-if="bindUserInfo">
 					<view class="profile-box">
 						<view class="user-profile">
+							<!-- #ifdef MP-WEIXIN -->
 							<open-data type="userAvatarUrl"></open-data>
+							<!-- #endif -->
+							<!-- #ifdef H5 -->
+							<image :src="bindUserInfo.profile_url" class="user-profile" mode="scaleToFill"></image>
+							<!-- #endif -->
 						</view>
+
 						<view class="user-name">
 							{{bindUserInfo.person_name||bindUserInfo.nick_name||''}}
 						</view>
@@ -58,13 +64,28 @@
 							</bx-checkbox-group>
 						</view>
 					</view>
+					<view class="setting-item" v-if="bindUserInfo&&bindUserInfo.member_status==='正常'">
+						<view class="setting-label">
+							店铺用户状态设置
+						</view>
+						<view class="setting-content">
+							<bx-checkbox-group class="form-item-content_value checkbox-group" v-model="member_status"
+								mode="button">
+								<bx-checkbox name="退出" :value="member_status=='退出'">
+									退出店铺
+								</bx-checkbox>
+							</bx-checkbox-group>
+						</view>
+					</view>
 					<view class="exit-store-user" v-if="bindUserInfo&&bindUserInfo.store_user_no">
-						<button class="cu-btn bg-blue" v-if="push_msg_set!==bindUserInfo.push_msg_set"
+						<button class="cu-btn bg-grey" @tap="hideModal">取消</button>
+						<button class="cu-btn bg-blue margin-right"
+							:disabled="push_msg_set==bindUserInfo.push_msg_set&&member_status!=='退出'"
 							@click="savePushSet">保存设置</button>
-						<button class="cu-btn bg-red" v-if="bindUserInfo.member_status!=='退出'" @click="exitStore"><text
+						<!-- 	<button class="cu-btn bg-red" v-if="bindUserInfo.member_status!=='退出'" @click="exitStore"><text
 								class="cuIcon-exit "></text> 取消关注</button>
 						<button class="cu-btn bg-blue" v-if="bindUserInfo.member_status==='退出'" @click="joinStore"><text
-								class="cuIcon-exit "></text> 加入店铺</button>
+								class="cuIcon-exit "></text> 加入店铺</button> -->
 					</view>
 				</view>
 			</view>
@@ -98,7 +119,8 @@
 				pageItemList: [],
 				storeList: [],
 				modalName: "",
-				push_msg_set: ''
+				push_msg_set: '',
+				member_status: ""
 			};
 		},
 		computed: {
@@ -554,6 +576,7 @@
 						}
 						this.bindUserInfo = isBind
 						this.push_msg_set = this.bindUserInfo.push_msg_set
+						this.member_status = this.bindUserInfo.member_status
 						this.$store.commit('SET_STORE_USER', this.bindUserInfo)
 					} else {
 						this.isBind = false
@@ -652,6 +675,7 @@
 					if (res.data.length > 0) {
 						this.bindUserInfo = res.data[0]
 						this.push_msg_set = this.bindUserInfo.push_msg_set
+						this.member_status = this.bindUserInfo.member_status
 						this.$store.commit('SET_STORE_USER', this.bindUserInfo)
 						return this.bindUserInfo
 					}
@@ -1109,6 +1133,7 @@
 			align-items: flex-start;
 
 			.setting-content {
+				width: 100%;
 				border: 1rpx solid #ebebeb;
 				border-radius: 20rpx;
 			}
@@ -1138,6 +1163,7 @@
 
 			.cu-btn {
 				margin-right: 20rpx;
+				min-width: 35%;
 
 				&:last-child {
 					margin-right: 0;
