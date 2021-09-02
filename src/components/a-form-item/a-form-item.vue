@@ -113,41 +113,10 @@
 					<text class="cuIcon-right" v-if="fieldData.value"></text>
 				</view>
 			</view>
-			<!-- 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
-					<view @click="openModal(fieldData.type)" class="open-popup">
-					<text class="place-holder" v-if="!fieldData.value">请选择</text>
-					<view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
-						{{ fieldData.value.toString() }}
-					</view>
-					<view class="value hidden" v-else-if="fieldData.value">{{ fieldData.value }}</view>
-					<text class="value hidden" v-else>{{ fkFieldLabel ? fkFieldLabel : '' }}</text>
-				</view>
-			</view> -->
-			<view class="form-item-content_value picker"
-				v-else-if="pickerFieldList.includes(fieldData.type)&&pageType==='filter'">
-				<date-range-picker style="width: 100%;" :mode="pickerMode" @change="bindTimeChange" v-model="fieldData.value">
-				</date-range-picker>
-				<!-- 		<picker class="uni-picker" :mode="pickerMode" :end="fieldData.end" :value="fieldData.value"
-					@change="bindTimeChange" v-if="fieldData.type==='Time'">
-					<view class="picker-content">
-						<view class="place-holder" v-if="!fieldData.value">请选择</view>
-						<view class="value" v-else>{{ fieldData.value }}</view>
-						<text class="cuIcon-calendar"></text>
-					</view>
-				</picker> -->
-				<!-- 			<view class="example-body" v-if="fieldData.type==='DateTime'||fieldData.type==='dateTime'">
-					<uni-datetime-picker v-model="fieldData.value" type="datetimerange" rangeSeparator="至" />
-				</view> -->
-			</view>
 			<view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
-				<picker class="uni-picker" :mode="pickerMode" :end="fieldData.end" :value="fieldData.value"
-					@change="bindTimeChange">
-					<view class="picker-content">
-						<view class="place-holder" v-if="!fieldData.value">请选择</view>
-						<view class="value" v-else>{{ fieldData.value }}</view>
-						<text class="cuIcon-calendar"></text>
-					</view>
-				</picker>
+				<date-range-picker style="width: 100%;" :mode="pickerMode" :isRange="pageType==='filter'"
+					@change="bindTimeChange" v-model="fieldData.value">
+				</date-range-picker>
 			</view>
 			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
 				<textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
@@ -995,8 +964,8 @@
 					} else if (type === 'endVal') {
 						this.fieldData.value[1] = e.detail.value
 					}
-				} else if(Array.isArray(e)&&e.length>0){
-					this.fieldData.value  = e
+				} else if (Array.isArray(e) && e.length > 0) {
+					this.fieldData.value = e
 				} else if (e && typeof e === 'object' && e.startDate && e.endDate) {
 					if (!this.fieldData.value) {
 						this.fieldData.value = [null, null]
@@ -1019,7 +988,7 @@
 			},
 			openModal(type) {
 				// 打开弹出层
-				if(this.fieldData.disabled){
+				if (this.fieldData.disabled) {
 					return
 				}
 				let fieldData = this.deepClone(this.fieldData);

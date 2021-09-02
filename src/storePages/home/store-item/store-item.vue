@@ -9,14 +9,14 @@
       </view> -->
 		</view>
 		<slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
-			:pageItem="pageItem"></slide-list>
+			@setHomePage="setHomePage" :pageItem="pageItem"></slide-list>
 		<store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
 			v-else-if="pageItem.type === '店铺信息'" :isBind="isBind" :pageItem="pageItem" @setHomePage="setHomePage"
 			@addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"></store-info>
 		<button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
 			@addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
-		<goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo" :storeInfo="storeInfo"
-			image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
+		<goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo"
+			:storeInfo="storeInfo" image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
 		<vaccine-list :storeInfo="storeInfo" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList"></vaccine-list>
 		<staff-manage :storeNo="storeNo" :pageItem="pageItem" v-else-if="pageItem.type === '人员列表'"
 			@toDoctorDetail="toDoctorDetail" ref="staffList">
@@ -109,7 +109,7 @@
 			})
 		},
 		methods: {
-			toSetting(){
+			toSetting() {
 				this.$emit('toSetting')
 			},
 			toMore() {

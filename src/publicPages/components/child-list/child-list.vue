@@ -18,22 +18,25 @@
 		</view>
 		<view class="list-box" v-if="config.unfold !==false">
 			<view class="list-item table-head">
-				<view class="col-item" v-for="col in showColumn">
+				<view class="col-item" v-for="col in showColumn"
+					:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
 					{{col.label||''}}
 				</view>
 			</view>
 			<view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
 				@click="onButton({button_type:'edit'},index)">
-				<view class="col-item" v-for="col in showColumn">
-					{{item[col.columns]||''}}
+				<view class="col-item" v-for="col in showColumn"
+					:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
+					{{item[col.columns]||''|hideYear(removeYearFromDate)}}
 				</view>
 				<text class="cuIcon-delete text-black" v-if="showDelete"
 					@click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
 			</view>
 			<view class="list-item" v-for="(item,index) in memoryListData"
 				@click="onButton({button_type:'editMem'},index)">
-				<view class="col-item" v-for="col in showColumn">
-					{{item[col.columns]||''}}
+				<view class="col-item" v-for="col in showColumn"
+					:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
+					{{item[col.columns]||''|hideYear(removeYearFromDate)}}
 				</view>
 				<text class="cuIcon-delete text-black" v-if="showDelete"
 					@click.stop="onChildFormBtn({button_type:'delete'},index,true)"></text>
@@ -111,7 +114,15 @@
 				selectColInfo: null
 			}
 		},
-
+		filters: {
+			hideYear: (value, isHide) => {
+				if (value && isHide) {
+					let year = (new Date()).getFullYear()
+					value = value.replace(`${year}-`, '')
+				}
+				return value || ''
+			}
+		},
 		props: {
 			mainTable: {
 				type: String
@@ -241,7 +252,31 @@
 				}
 				return result
 			},
+			colMinWidth() {
+				return this.moreConfig?.tableConfig?.col_min_width
+			},
+			removeYearFromDate() {
+				return this.moreConfig?.removeYearFromDate
+			},
 			showColumn() {
+				if (Array.isArray(this.moreConfig?.tableConfig?.columns) && this.moreConfig.tableConfig.columns.length >
+					0) {
+					return this.orderCols.filter(item => this.moreConfig.tableConfig.columns.includes(item.columns))
+				} else if (this.moreConfig?.tableConfig?.columns && !Array.isArray(this.moreConfig?.tableConfig
+						?.columns)) {
+					let columns = []
+					try {
+						columns = this.moreConfig.tableConfig.columns.split(',')
+						columns = this.orderCols.filter(item => columns.includes(item.columns))
+					} catch (e) {
+						//TODO handle the exception
+						console.info(e)
+					}
+					if (columns.length > 0) {
+						return columns
+					}
+				}
+
 				if (Array.isArray(this.moreConfig?.childTableColumn) && this.moreConfig.childTableColumn.length > 0) {
 					return this.orderCols.filter(item => this.moreConfig.childTableColumn.includes(item.columns))
 				}
@@ -666,7 +701,7 @@
 						}
 						return item
 					})
-					this.updataV2.rowData = row
+					this.updateV2.rowData = row
 					return
 				}
 				// if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {

@@ -1,65 +1,62 @@
 <template>
 	<view class="store-info" :style="[calcStyle]">
-		<image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
-		<view class="logo" v-else-if="storeInfo.name">{{
-      storeInfo.name.slice(0, 1)
-    }}</view>
-		<view class="home-btn" @click="setHomePage" v-if="pageItem.show_set_home">
-			<button class="cuIcon-home cu-btn bg-cyan"
-				v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no"></button>
-		</view>
-		<view class="left" @click="toPages('instroduce')">
-			<view class="top">
-				<view class="name">{{ storeInfo.name || "机构名称" }}</view>
-				<view class="bind" v-if="isBind === true">
-					<button class="cu-btn border sm round bg-blue" @click.stop="toSetting">
-						<text class="cuIcon-settings"></text>
-					</button>
-				</view>
-				<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
-						class="bg-blue cu-btn round shadow-blur">
-						加入
-					</button></view>
+		<view class="store-top">
+			<image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
+			<view class="logo" v-else-if="storeInfo.name">
+				{{ storeInfo.name.slice(0, 1) }}
 			</view>
-			<!-- <view class="bottom" v-if="introduction && introduction.length < 25">{{ introduction }}</view> -->
-			<view class="bottom" v-if="storeInfo.address">
-				<view class="address" @click.stop="getCurrentLocation">
-					<text class="content">{{ storeInfo.address || "机构地址" }}
-						<text class="cuIcon-locationfill text-blue margin-left-xs"
-							style="font-size: 20px"></text></text>
+	<!-- 		<view class="home-btn" @click="setHomePage" v-if="pageItem.show_set_home">
+				<button class="cuIcon-home cu-btn bg-cyan"
+					v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no"></button>
+			</view> -->
+			<view class="left" @click="toPages('instroduce')">
+				<view class="top">
+					<view class="name">{{ storeInfo.name || "机构名称" }}</view>
+					<view class="bind" v-if="isBind === true">
+						<button class="cu-btn border sm round bg-blue" @click.stop="toSetting">
+							<text class="cuIcon-settings"></text>
+						</button>
+					</view>
+					<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
+							class="bg-blue cu-btn round shadow-blur">
+							加入
+						</button></view>
+				</view>
+				<view class="bottom" v-if="storeInfo.address">
+					<view class="address" @click.stop="getCurrentLocation">
+						<text class="content">{{ storeInfo.address || "机构地址" }}
+							<text class="cuIcon-locationfill text-blue margin-left-xs"
+								style="font-size: 20px"></text></text>
+					</view>
 				</view>
 			</view>
 		</view>
-		<!-- 		<view class="qr-code">
-			<uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" v-if="qrCodeText" :size="codeSize" class="qrcode-canvas"
-				foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete"></uni-qrcode>
-			<image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrCodeText&&qrcodePath"
-				@click="toPreviewImage(qrcodePath)"></image>
-		</view> -->
-		<view class="instroduce" @click="toPages('instroduce')">
-			<view v-html="storeInfo.introduction"></view>
+		<view class="instroduce" @click="showModal">
+			<view v-html="storeInfo.introduction" class="introduce-content"></view>
 		</view>
 		<view class="right">
 			<view class="qr-code" v-if="qrCodeText">
 				<uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" :size="codeSize" class="qrcode-canvas"
-					foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas"></uni-qrcode>
+					foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
+				</uni-qrcode>
 				<image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
 					@click="toPreviewImage(qrcodePath)"></image>
-					<view class="qr-code-image" v-else @click="makeQrCode">
-						<text class="cuIcon-refresh"></text>
-					</view>
-			</view>
-			<!-- 		<view class="right-item" @click="makePhoneCall">
-				<image class="image" src="../../../static/icon/makePhone.png" mode="aspectFit"></image>
-				<text>电话</text>
-			</view> -->
-			<!-- 			<view class="right-item" @click="toConsult" v-if="pageItem.show_consult">
-				<view class="image-box">
-					<view class="cu-tag badge" v-if="msgNum">{{msgNum}}</view>
-					<image class="image" src="../../../static/icon/msg.png" mode="aspectFit"></image>
+				<view class="qr-code-image" v-else @click="makeQrCode">
+					<text class="cuIcon-refresh"></text>
 				</view>
-				<text>在线咨询</text>
-			</view> -->
+			</view>
+		</view>
+		<view class="cu-modal" @click="hideModal" :class="{show:showNoticeModal}">
+			<view class="cu-dialog" @click.stop style="width: 70%;">
+				<view class="notice-wrap" v-if="storeInfo&&storeInfo.introduction">
+					<view v-html="storeInfo.introduction">
+						
+					</view>
+					<view class="button-box">
+						<button class="cu-btn bg-cyan round margin-top shadow-blur" @click="hideModal">知道了</button>
+					</view>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -85,6 +82,11 @@
 			}
 		},
 		watch: {
+			qrcodePath(newValue){
+				if(!newValue){
+					this.makeQrCode()
+				}
+			},
 			storeInfo: {
 				deep: true,
 				immediate: true,
@@ -135,14 +137,21 @@
 				codeSize: uni.upx2px(700),
 				qrcodePath: '', //图片url
 				qrCodeLogo: "",
+				showNoticeModal:false,
 			}
 		},
 		methods: {
+			hideModal(){
+				this.showNoticeModal = false
+			},
+			showModal(){
+				this.showNoticeModal = true
+			},
 			toSetting() {
 				this.$emit('toSetting')
 			},
-			makeQrCode(){
-				if(this.$refs.qrcodeCanvas){
+			makeQrCode() {
+				if (this.$refs.qrcodeCanvas) {
 					this.$refs.qrcodeCanvas.make()
 				}
 			},
@@ -202,33 +211,36 @@
 			async toConsult() {
 				// 在线咨询
 				this.$emit('toConsult')
-				// if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
-				// 	this.bindUserInfo = await this.bindStore()
-				// 	this.$store.commit('SET_STORE_USER', this.bindUserInfo)
-				// }
-				// if (this.bindUserInfo && this.bindUserInfo.store_user_no && this.storeInfo && this.storeInfo
-				// 	.store_no) {
-				// 	uni.navigateTo({
-				// 		url: `/personalPages/chat/chat?type=机构用户客服&identity=客户&storeNo=${this.storeInfo.store_no}&store_user_no=${this.bindUserInfo.store_user_no}`
-				// 	})
-				// }
 			},
 		}
 	}
 </script>
 
 <style scoped lang="scss">
+	.notice-wrap{
+		width: 100%;
+		padding: 30rpx;
+		color: #666;
+		// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
+		.button-box{
+			margin-bottom: 0;
+			.cu-btn{
+				// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
+			}
+		}
+	}
 	.right {
 		padding: 10rpx;
-		background-color: #f1f1f1;
+		background-color: #EBF9FA;
 		border-radius: 10rpx;
 		margin-bottom: 10rpx;
 	}
 
 	.qr-code {
 		background-color: #fff;
-		width: 150rpx;
-		height: 150rpx;
+		padding: 10rpx;
+		width: 170rpx;
+		height: 170rpx;
 		margin: 0 auto;
 
 		.qrcode-canvas {
@@ -253,20 +265,41 @@
 		padding-top: 20rpx;
 		flex-wrap: wrap;
 
+		.store-top {
+			width: 100%;
+			display: flex;
+			margin-bottom: 20rpx;
+		}
+
 		.instroduce {
 			width: 65%;
-			background-color: #f8f8f8;
-			border-radius: 10rpx;
+			background-color: #EBF9FA;
+			background: linear-gradient(to right, #EBF9FA, #EEF0FE);
+			border-radius: 20rpx;
 			padding: 10rpx 20rpx;
-			margin: 20rpx 0;
+			margin: 0 0 10rpx;
 			flex: 1;
 			// max-height: 180rpx;
-			word-break: break-all;
-			display: -webkit-box;
-			-webkit-line-clamp: 4;
-			/**指定行数*/
-			-webkit-box-orient: vertical;
-			overflow: hidden;
+	
+			position: relative;
+			color: #666;
+			
+			&::after {
+				position: absolute;
+				left: 20px;
+				top: -20px;
+				content: '';
+				border: 10px solid;
+				border-color: transparent transparent #EBF9FA transparent;
+			}
+			.introduce-content{
+				overflow: hidden;
+				word-break: break-all;
+				display: -webkit-box;
+				-webkit-line-clamp: 4;
+				/**指定行数*/
+				-webkit-box-orient: vertical;
+			}
 		}
 
 		.home-btn {
@@ -298,7 +331,8 @@
 			line-height: 100rpx;
 			text-align: center;
 			// position: absolute;
-			border: 4rpx solid #fff;
+			border: 4rpx solid #EBF9FA;
+			// background-color: #EBF9FA;
 		}
 
 		.left {

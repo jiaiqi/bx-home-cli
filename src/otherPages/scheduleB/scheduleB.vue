@@ -31,6 +31,7 @@
 						<view class="item-title">
 							<view class="left">{{ item.group }} ({{ item.data.length }}):</view>
 							<text class="btn bg-blue" @click="goPage(item)" v-if="!withoutNav">进入</text>
+							<text class="btn bg-blue" @click="goPage(item,'add')" v-if="showAdd">添加</text>
 						</view>
 						<view class="item-content">
 							<view class="item-list"
@@ -112,6 +113,9 @@
 					}
 				}
 				return data
+			},
+			showAdd() {
+				return this.rowHeadCustomData?.showAdd && this.rowHeadCustomData?.add_page
 			},
 			withoutNav() {
 				return this.rowHeadCustomData?.withoutNav
@@ -446,8 +450,16 @@
 				if (scheduleConfig.page_type && scheduleConfig.page_type === 'proc') {
 					url =
 						`/publicPages/list/list?cond=${decodeURIComponent(JSON.stringify(cond))}&serviceName=${	scheduleConfig.srv}&pageType=proc&viewTemp=${decodeURIComponent(JSON.stringify(viewTemp))}&destApp=${scheduleConfig.app}`
+				} else if (this.showAdd&&task==='add') {
+					let fieldsCond = cond.map(item => {
+						item.column = item.colName
+						item.display = true
+						return item
+					})
+					url =
+						`${this.rowHeadCustomData.add_page}?type=add&fieldsCond=${decodeURIComponent(JSON.stringify(fieldsCond))}&serviceName=${this.rowHeadCustomData.add_srv}&destApp=${scheduleConfig.app}`
 				}
-				if (scheduleConfig.dest_page) {
+				if (scheduleConfig.dest_page && (!this.showAdd||task!=='add')) {
 					if (Array.isArray(scheduleConfig?.custom_condition) && scheduleConfig.custom_condition.length > 0) {
 						let custom_condition = this.deepClone(scheduleConfig.custom_condition)
 						if (task && scheduleConfig.showItemDetailBtn) {
@@ -458,6 +470,10 @@
 						} else {
 							if (e.data && e.data.length > 0) {
 								let data = e.data[0]
+								data = {
+									...quertData,
+									...data
+								}
 								cond = custom_condition.map(c => {
 									c.value = this.renderStr(c.value, data)
 									return c
@@ -977,7 +993,7 @@
 		// width: 96%;
 		height: auto;
 		// left: 2%;
-		min-height: 500upx;
+		// min-height: 500upx;
 		background-color: #fff;
 
 		.modal-list {

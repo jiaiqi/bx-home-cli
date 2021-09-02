@@ -413,13 +413,21 @@
 				}
 				if (scheduleConfig.dest_page) {
 					if (Array.isArray(scheduleConfig?.custom_condition) && scheduleConfig.custom_condition.length > 0) {
+						let custom_condition = this.deepClone(scheduleConfig.custom_condition)
+						let data = {}
 						if (e.data && e.data.length > 0) {
-							let data = e.data[0]
-							cond = scheduleConfig.custom_condition.map(cond => {
-								cond.value = this.renderStr(cond.value, data)
-								return cond
-							})
+							data = e.data[0]
+						} else if (e.cond && e.cond.length > 0) {
+							data = e.cond.reduce((res, cur) => {
+								res[cur.colName] = cur.value
+								return res
+							}, {})
 						}
+						data = {...quertData,...data}
+						cond = custom_condition.map(cond => {
+							cond.value = this.renderStr(cond.value, data)
+							return cond
+						})
 					}
 					url = `${scheduleConfig.dest_page}&serviceName=${scheduleConfig.srv}&cond=${JSON.stringify(cond)}`
 					if (scheduleConfig?.dest_page_srv) {

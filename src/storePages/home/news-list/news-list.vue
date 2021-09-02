@@ -90,7 +90,7 @@
         :key="index"
         @tap="changeTab(index)"
       >
-        {{ item.name }}
+        <text class="tab-title">{{ item.name }}</text>
       </view>
     </scroll-view>
     <view class="content news-list">
@@ -450,13 +450,36 @@ export default {
 <style scoped lang="scss">
 .list-wrap {
   // 简介
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   margin-bottom: 20rpx;
-
+	.cu-item{
+		padding-bottom: 20rpx;
+		&.cur{
+			position: relative;
+			border-bottom:none;
+			&::after{
+				position: absolute;
+				content: '';
+				bottom: 0;
+				width: 80rpx;
+				left: calc(50% - 40rpx);
+				height: 6rpx;
+				background-color: #6AD8D4;
+			}
+		}
+	}
   &.tab-list {
     padding: 20rpx;
     margin-bottom: 10px;
     background-color: #fff;
+		.cur{
+			.tab-title{
+				color: #333;
+				font-size:36rpx;
+				font-weight: 900;
+			}
+		}
+		
   }
 
   .news {

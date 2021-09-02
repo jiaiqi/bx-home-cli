@@ -211,6 +211,10 @@ export default {
 				fieldInfo.seq = item.seq
 				if (item.init_expr) {
 					item.init_expr = item.init_expr.replace(/\'/g, '')
+					if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
+						let login_user_info = uni.getStorageSync('login_user_info')
+						item.init_expr = login_user_info?.user_no || '';
+					}
 					fieldInfo.defaultValue = item.init_expr
 					fieldInfo.value = item.init_expr
 				}
@@ -680,6 +684,16 @@ export default {
 				return date.getDay()
 			}
 
+		}
+		Vue.prototype.getDayOfWeek = (date)=>{
+			if(!date){
+				date = new Date()
+			}else{
+				date = new Date(date)
+			}
+			let arr = ["日", "一", "二", "三", "四", "五", "六"]
+			let day = date.getDay()
+			return `周${arr[day]}`
 		}
 		Vue.prototype.formateTime = (date, returnNull, formate) => {
 			// TODO 上午下午 昨天前天 
@@ -2237,9 +2251,9 @@ export default {
 					if (arr.length > 1) {
 						result = obj
 						arr.forEach(item => {
-							try{
+							try {
 								result = result[item]
-							}catch(e){
+							} catch (e) {
 								//TODO handle the exception
 							}
 						})

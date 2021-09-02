@@ -800,6 +800,12 @@
 									return item;
 								});
 							}
+							if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+								.conditions
+								.length > 0) {
+								field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+									.conditions, this.fieldModel)
+							}
 							if (self.defaultCondition && Array.isArray(self.defaultCondition) && colVs
 								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
 								self.defaultCondition.forEach(cond => {

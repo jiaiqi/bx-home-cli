@@ -323,6 +323,10 @@
 							this.oldField = this.deepClone(newValue);
 						}
 						this.allField = newValue.map(item => {
+							// if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
+							// 	let login_user_info = uni.getStorageSync('login_user_info')
+							// 	item.value = login_user_info?.user_no || '';
+							// }
 							if (!item.value && this.pageType === 'filter') {
 								// item.value = '全部'
 							}

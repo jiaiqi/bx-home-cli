@@ -260,7 +260,7 @@
 					let config = {}
 					switch (type) {
 						case '轮播图':
-							keys = ['swiper_image', 'image_origin', 'margin']
+							keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home']
 							break;
 						case '店铺信息':
 							keys = ['show_consult', 'show_set_home', 'margin']
@@ -1023,7 +1023,7 @@
 
 <style lang="scss" scoped>
 	.page-wrap {
-		background-color: #f1f1f1;
+		// background-color: #f1f1f1;
 
 		::v-deep swiper.rectangle-dot {
 

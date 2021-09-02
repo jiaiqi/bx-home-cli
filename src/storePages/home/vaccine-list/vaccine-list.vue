@@ -205,15 +205,21 @@
 								<view class="date-item"
 									:class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no,disabled:disabledTime(radio)}"
 									v-for="radio in timeArr" :key="radio.sa_no" @click="selectItem(radio)">
-									<text
-										v-if="vaccineInfo.persons_count===1||radio.appoint_name">{{radio.appoint_name}}</text>
+									<view class="">
+										<text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
+											{{radio.appoint_name}}
+										</text>
+										<text class="text-sm">-{{
+												getDayOfWeek(radio.app_date)
+											}}</text>
+									</view>
 									<view v-if="radio.app_date">{{dayjs(radio.app_date).format('MM-DD')}}
 										{{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
 										-
 										{{radio.app_time_end?radio.app_time_end.slice(0,5):''}}
 									</view>
 									<view v-if="radio.app_count" class="vaccine_app_count text-orange">
-										已约:{{radio.app_count||''}}人
+										已约:{{radio.app_count||'-'}}人,可约{{radio.app_count_limit||'-'}}人
 									</view>
 									<!-- 	<view class="" v-html="radio.app_desc">
 									</view> -->
@@ -506,7 +512,7 @@
 			},
 			disabledTime(e) {
 				// 判断是否过期 已过期则禁用
-				if (e.app_count_limit <= e.app_count&&e.appoint_type!=='登记') {
+				if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
 					return true
 				}
 				let time = new Date(e.app_date + ' ' + e.app_time_start)
@@ -872,12 +878,12 @@
 				this.activeField = ''
 			},
 			selectItem(e) {
-				if (e.app_count_limit <= e.app_count&&e.appoint_type!=='登记') {
+				if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
 					uni.showToast({
 						title: '预约人数已满',
 						icon: 'none'
 					})
-					return 
+					return
 				}
 				if (this.disabledTime(e)) {
 					uni.showToast({
