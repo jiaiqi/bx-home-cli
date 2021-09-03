@@ -2,17 +2,25 @@
 	<view class="page-bg">
 		<view class="page-wrap">
 			<view class="head">
-				<image :src="getImagePath(storeInfo.image)" class="logo" mode="aspectFit" @click="toStoreDetail"></image>
-				<view class="store-name" @click="toStoreDetail">
-					<view class="name">{{ storeInfo.name }}</view>
-					<view class="address" v-if="storeInfo.address" @click="openLocation">
-						{{ storeInfo.address }}
-						<text class="location cuIcon-locationfill text-blue margin-left-xs"></text>
+				<view class="store-name">
+					<view class="name" @click="toStoreDetail">
+						{{storeInfo.name||''}}
+					</view>
+					<view class="phone" @click.stop="makePhoneCall">
+						<u-icon name="phone-fill"></u-icon>
 					</view>
 				</view>
-				<view class="phone" @click="makePhoneCall" v-if="storeInfo.telephone">
-					<image src="../../static/icon/makePhone.png" mode="aspectFit"></image>
+				<view class="store-info" v-if="storeInfo.address">
+					<image :src="getImagePath(storeInfo.image)" class="logo" @click="toStoreDetail">
+					</image>
+					<view class="store-address">
+						<view class="address" @click="openLocation">
+							<text class="location cuIcon-locationfill margin-left-xs"></text>
+							{{ storeInfo.address }}
+						</view>
+					</view>
 				</view>
+
 			</view>
 			<view class="statis-box" v-if="statisConfig&&statisConfig.labels&&storeInfo" @click="toDashboard">
 				<view class="statis-item" v-for="item in statisConfig.labels">
@@ -28,75 +36,80 @@
 				</view>
 			</view>
 			<view class="manager-view">
-				<text class="text-grey title"><text class="margin-right">{{ buttonTitle || "管理" }}</text>
+				<view class="text-bold title">
+					<text class="margin-right">{{ buttonTitle || "管理" }}</text>
 					<!-- 		<text class="cuIcon-title text-orange margin-right">未回复</text>
 					<text class="cuIcon-title text-red">未读</text>-->
-					</text> 
-					<view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
-						<view class="box-item" v-for="item in list" @click="clickGrid(item)">
-							<view class="cu-tag amount text-blue" v-if="storeInfo[item.type]">
-								{{ storeInfo[item.type] | overDisplay }}
-							</view>
-							<view class="box-item-content">
-								<text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
-								<text class="cu-tag badge-left" v-if="item.unback">{{
+					<view class="buttons">
+						<button class="cu-btn round" @tap="toDetail(storeInfo)"><text
+								class="cuIcon-settingsfill"></text>设置</button>
+					</view>
+				</view>
+				<view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
+					<view class="box-item" v-for="item in list" @click="clickGrid(item)">
+						<view class="cu-tag amount text-blue" v-if="storeInfo[item.type]">
+							{{ storeInfo[item.type] | overDisplay }}
+						</view>
+						<view class="box-item-content">
+							<text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
+							<text class="cu-tag badge-left" v-if="item.unback">{{
 		            item.unback
 		          }}</text>
-								<text class="icon" :class="[
+							<text class="icon" :class="[
 		              'cuIcon-' + item.icon,
 		              item.color ? 'text-' + item.color : '',
 		            ]"></text>
-								<view class="label">{{ item.label }}</view>
-							</view>
+							<view class="label">{{ item.label }}</view>
 						</view>
 					</view>
-					<view class="manager-box" v-else>
-						<view class="box-item" v-for="item in buttonGroup" @click="clickButton(item)">
-							<view class="cu-tag amount text-blue" v-if="item.num && item.label === '用户列表'">
-								{{ item.num || 0 }}
-							</view>
-							<view class="box-item-content">
-								<text class="cu-tag badge" v-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
-								<text class="cu-tag badge-left" v-if="item.unback">{{
+				</view>
+				<view class="manager-box" v-else>
+					<view class="box-item" v-for="item in buttonGroup" @click="clickButton(item)">
+						<view class="cu-tag amount text-blue" v-if="item.num && item.label === '用户列表'">
+							{{ item.num || 0 }}
+						</view>
+						<view class="box-item-content">
+							<text class="cu-tag badge" v-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
+							<text class="cu-tag badge-left" v-if="item.unback">{{
 		            item.unback
 		          }}</text>
-								<text class="cu-tag badge" v-if="item.unread">{{
+							<text class="cu-tag badge" v-if="item.unread">{{
 		            item.unread
 		          }}</text>
-								<image :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
-								<text class="icon" v-else-if="item.icon && item.color" :class="[
+							<image :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
+							<text class="icon" v-else-if="item.icon && item.color" :class="[
 		              'cuIcon-' + item.icon,
 		              item.color ? 'text-' + item.color : '',
 		            ]"></text>
-								<view class="label">{{ item.label }}</view>
+							<view class="label">{{ item.label }}</view>
+						</view>
+					</view>
+				</view>
+
+				<view class="manager-box" v-if="storeInfo.mgmt_button_type === '自动'">
+					<view class="cu-bar justify-center bg-white">
+						<view class="action sub-title">
+							<text class="text-xl text-bold text-green">店铺子表</text>
+							<text class="bg-green" style="width: 2rem"></text>
+							<!-- last-child选择器-->
+						</view>
+					</view>
+					<view class="box-item" v-for="item in childTable" @click="toChildService(item)">
+						<view class="cu-tag amount text-blue" v-if="item.total">
+							{{ item.total || 0 }}
+						</view>
+						<view class="box-item-content">
+							<view class="label-icon shadow-blur bg-blue light" v-if="item.label">
+								<view class="text" v-for="text in item.label.slice(0, 4).split('')">
+									{{ text }}
+								</view>
+							</view>
+							<view class="label">
+								{{ item.label }}
 							</view>
 						</view>
 					</view>
-		
-					<view class="manager-box" v-if="storeInfo.mgmt_button_type === '自动'">
-						<view class="cu-bar justify-center bg-white">
-							<view class="action sub-title">
-								<text class="text-xl text-bold text-green">店铺子表</text>
-								<text class="bg-green" style="width: 2rem"></text>
-								<!-- last-child选择器-->
-							</view>
-						</view>
-						<view class="box-item" v-for="item in childTable" @click="toChildService(item)">
-							<view class="cu-tag amount text-blue" v-if="item.total">
-								{{ item.total || 0 }}
-							</view>
-							<view class="box-item-content">
-								<view class="label-icon shadow-blur bg-blue light" v-if="item.label">
-									<view class="text" v-for="text in item.label.slice(0, 4).split('')">
-										{{ text }}
-									</view>
-								</view>
-								<view class="label">
-									{{ item.label }}
-								</view>
-							</view>
-						</view>
-					</view>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -182,12 +195,12 @@
 						color: 'yellow',
 						type: 'manual'
 					},
-					{
-						label: '店铺设置',
-						icon: 'settings',
-						color: 'blue',
-						type: 'setting'
-					}
+					// {
+					// 	label: '店铺设置',
+					// 	icon: 'settings',
+					// 	color: 'blue',
+					// 	type: 'setting'
+					// }
 				],
 				sessionList: [],
 				buttonGroup: [],
@@ -253,7 +266,7 @@
 				let req = [];
 				let url = this.getServiceUrl('health', 'select', 'multi');
 				if (this.childTable.length > 0) {
-					req = this.childTable.filter(item=>item?.foreign_key?.foreign_key_type=== "字段引用").map(item => {
+					req = this.childTable.filter(item => item?.foreign_key?.foreign_key_type === "字段引用").map(item => {
 						let obj = {
 							colNames: ['*'],
 							condition: [{
@@ -487,12 +500,12 @@
 					}
 					const buttons = await this.getButtons(buttonGroup)
 					if (Array.isArray(buttons)) {
-						buttons.push({
-							label: '店铺设置',
-							icon: 'settings',
-							color: 'blue',
-							type: 'setting'
-						})
+						// buttons.push({
+						// 	label: '店铺设置',
+						// 	icon: 'settings',
+						// 	color: 'blue',
+						// 	type: 'setting'
+						// })
 						this.buttonGroup = buttons
 					}
 				}
@@ -1035,9 +1048,9 @@
 					this.unreadNum = storeInfo.data[0].kefu_unread_msg
 					this.unreadNumber = storeInfo.data[0].kefu_unack_msg
 					this.storeInfo = storeInfo.data[0];
-					if(this.storeInfo?.name){
+					if (this.storeInfo?.name) {
 						uni.setNavigationBarTitle({
-							title:this.storeInfo?.name||''
+							title: this.storeInfo?.name || ''
 						})
 					}
 					if (this.storeInfo.para_cfg) {
@@ -1111,10 +1124,11 @@
 </script>
 
 <style lang="scss" scoped>
-	.page-bg{
+	.page-bg {
 		background-color: #35C6C4;
 		min-height: calc(100vh - var(--window-top));
 	}
+
 	.page-wrap {
 		// background-color: #f1f1f1;
 		min-height: calc(100vh - var(--window-top));
@@ -1127,23 +1141,31 @@
 		display: flex;
 		flex-wrap: wrap;
 		// background-color: #fff;
-		margin: 20rpx 0;
+		margin: 20rpx;
 		// border-radius: 20rpx;
 		justify-content: space-around;
+
 		.statis-item {
-			padding:30rpx 20rpx;
-			min-width: 25%;
+			padding: 30rpx 20rpx;
+			min-width: 30%;
 			text-align: center;
-			background-image: linear-gradient(to right,#EAF9F9,#ECF1FE);
+			background-image: linear-gradient(to right, #EAF9F9, #ECF1FE);
 			border-radius: 20rpx;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			flex-direction: column;
-			min-height: 180rpx;
+			min-height: 200rpx;
+
 			.item-label {
-				color: #999;
 				margin-top: 10rpx;
+				height: 16px;
+				font-size: 11px;
+				font-family: 苹方-简;
+				font-weight: normal;
+				line-height: 22px;
+				color: #9092A5;
+				opacity: 1;
 			}
 
 			.item-value {
@@ -1157,16 +1179,58 @@
 	.head {
 		margin-top: 20rpx;
 		background-color: #fff;
-		padding: 20rpx;
+		padding: 20rpx 30rpx;
 		display: flex;
+		flex-wrap: wrap;
+
+		.store-address {
+			flex: 1;
+			padding: 20rpx;
+			color: #9092A5;
+			font-size: 32rpx;
+			font-family: 苹方-简;
+
+			.location {
+				margin: 0;
+				padding-right: 10rpx;
+				font-size: 36rpx;
+			}
+		}
+
+		.store-info {
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+		}
 
 		.store-name {
-			margin-left: 20rpx;
-			flex-wrap: wrap;
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
 
 			.name {
-				font-weight: bold;
-				font-size: 16px;
+				font-size: 34rpx;
+				display: flex;
+				align-items: center;
+				margin-bottom: 20rpx;
+			}
+
+			.phone {
+				width: 76rpx;
+				height: 76rpx;
+				background: #FFBD37;
+				box-shadow: 0px 3px 7px #FFE8BF;
+				opacity: 1;
+				border-radius: 20px;
+				text-align: center;
+				line-height: 76rpx;
+				color: #fff;
+				font-size: 36rpx;
+
+				.image {
+					width: 50rpx;
+					height: 50rpx;
+				}
 			}
 
 			.address {
@@ -1178,17 +1242,17 @@
 			}
 		}
 
-		.phone {
-			flex: 1;
-			display: flex;
-			justify-content: flex-end;
-			align-items: center;
+		// .phone {
+		// 	flex: 1;
+		// 	display: flex;
+		// 	justify-content: flex-end;
+		// 	align-items: center;
 
-			image {
-				width: 50rpx;
-				height: 50rpx;
-			}
-		}
+		// 	image {
+		// 		width: 50rpx;
+		// 		height: 50rpx;
+		// 	}
+		// }
 	}
 
 	.logo {
@@ -1200,10 +1264,24 @@
 
 	.manager-view {
 		background-color: #fff;
+		padding: 0 20rpx;
 
 		.title {
-			display: inline-block;
-			padding: 20rpx 20rpx 20rpx;
+			display: flex;
+			padding: 20rpx 20rpx 10rpx;
+			align-items: center;
+			justify-content: space-between;
+
+			.cu-btn {
+				background-image: linear-gradient(to right, #EAF9F8, #ECF1FE);
+				font-size: 24rpx;
+
+				[class*="cuIcon-"] {
+					color: #DC84FB;
+					font-size: 36rpx;
+					margin-right: 10rpx;
+				}
+			}
 		}
 	}
 
@@ -1229,7 +1307,8 @@
 			justify-content: center;
 			position: relative;
 			width: 25%;
-			padding:10rpx;
+			padding: 10rpx;
+
 			.amount {
 				position: absolute;
 				right: 0;
@@ -1257,11 +1336,11 @@
 				justify-content: center;
 				align-items: center;
 				background-color: #FAFBFC;
-				border: 1rpx solid #f8f8f8;
 				width: 100%;
 				min-height: 180rpx;
 				text-align: center;
 				border-radius: 20rpx;
+
 				.label-icon {
 					margin: auto;
 					padding: 15rpx;

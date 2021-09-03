@@ -143,19 +143,19 @@
 			},
 			menuList() {
 				let list = [];
-				if (this.pageItem.show_subscribe && this.showPublic) {
-					// 检测是否关注公众号
-					if (!this.$store.state?.app?.subscsribeStatus) {
-						list.push({
-							icon: "cuIcon-notice text-orange",
-							iconType: "font",
-							label: "通知设置",
-							eventType: "toPage",
-							type: "subscsribe",
-							num: "请设置",
-						});
-					}
-				}
+				// if (this.pageItem.show_subscribe && this.showPublic) {
+				// 	// 检测是否关注公众号
+				// 	if (!this.$store.state?.app?.subscsribeStatus) {
+				// 		list.push({
+				// 			icon: "cuIcon-notice text-orange",
+				// 			iconType: "font",
+				// 			label: "通知设置",
+				// 			eventType: "toPage",
+				// 			type: "subscsribe",
+				// 			num: "请设置",
+				// 		});
+				// 	}
+				// }
 				if (Array.isArray(this.groupList)) {
 					let groupList = this.groupList.map((item) => {
 						return {
@@ -169,29 +169,34 @@
 					});
 					list = [...list, ...groupList];
 				}
-				if (
-					this.bindUserInfo &&
-					this.showPublic &&
-					this.bindUserInfo.user_role
-				) {
-					let showManager = this.bindUserInfo.user_role.match(/工作人员|管理员|客户经理/g)
-					if (!showManager) {
-						return
-					}
-					list.push({
-						icon: "cuIcon-shop",
-						iconType: "font",
-						label: "管理入口",
-						eventType: "toPage",
-						num: this.storeInfo && this.storeInfo.kefu_unread_msg ?
-							this.storeInfo.kefu_unread_msg :
-							0,
-						unbacknum: this.storeInfo && this.storeInfo.kefu_unack_msg ?
-							this.storeInfo.kefu_unack_msg :
-							null,
-						type: "manager",
-					});
-				}
+				// if (
+				// 	this.bindUserInfo &&
+				// 	this.showPublic &&
+				// 	this.bindUserInfo.user_role
+				// ) {
+				// 	let showManager = false
+				// 	let arr = this.bindUserInfo.user_role.split(',').map(item=>item.trim()).filter(item=>item&&item!=='用户')
+				// 	if(arr.length>0){
+				// 		showManager = true
+				// 	}
+				// 	// let showManager = this.bindUserInfo.user_role.match(/工作人员|管理员|客户经理/g)
+				// 	if (!showManager) {
+				// 		return
+				// 	}
+				// 	list.push({
+				// 		icon: "cuIcon-shop",
+				// 		iconType: "font",
+				// 		label: "管理入口",
+				// 		eventType: "toPage",
+				// 		num: this.storeInfo && this.storeInfo.kefu_unread_msg ?
+				// 			this.storeInfo.kefu_unread_msg :
+				// 			0,
+				// 		unbacknum: this.storeInfo && this.storeInfo.kefu_unack_msg ?
+				// 			this.storeInfo.kefu_unack_msg :
+				// 			null,
+				// 		type: "manager",
+				// 	});
+				// }
 				if (Array.isArray(this.buttons) && this.buttons.length > 0) {
 					this.buttons.forEach((btn) => {
 						let num = 0;
@@ -656,8 +661,8 @@
 	.menu-list {
 		display: flex;
 		flex-wrap: wrap;
-		background-color: #fff;
 		margin-bottom: 20rpx;
+		background: #FAFBFC;
 
 		.swiper {
 			width: 100%;
@@ -701,7 +706,6 @@
 			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			background-color: #fcfcfc;
 			border-radius: 5px;
 			margin-left: 5px;
 			padding: 20rpx;
@@ -714,8 +718,9 @@
 			}
 
 			.badge {
-				top: 10px;
+				top: 5px;
 				right: 10px;
+				z-index: 1;
 			}
 
 			.badge-left {
@@ -731,15 +736,14 @@
 			}
 
 			&.grid-style {
-				background-color: #fff;
 				padding: 0;
 				box-shadow: none;
 				// padding-top: 20rpx;
 			}
 
 			.icon {
-				width: 30px;
-				height: 30px;
+				width: 80rpx;
+				height: 80rpx;
 				font-size: 30px;
 				text-align: center;
 				line-height: 100rpx;
@@ -752,7 +756,11 @@
 				text-align: center;
 				// min-height: 70rpx;
 				margin-top: 10rpx;
-				font-size: 14px;
+				font-size: 12px;
+				font-family: 苹方-简;
+				font-weight: normal;
+				line-height: 22px;
+				color: #9092A5;
 			}
 		}
 	}

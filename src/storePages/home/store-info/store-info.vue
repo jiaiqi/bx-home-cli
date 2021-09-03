@@ -1,32 +1,37 @@
 <template>
 	<view class="store-info" :style="[calcStyle]">
 		<view class="store-top">
+			<view class="top">
+				<view class="name">{{ storeInfo.name || "机构名称" }}</view>
+				<view class="bind" v-if="isBind === true">
+					<button class="cu-btn border round" @click.stop="toManage" v-if="isManager">
+						<text class="cuIcon-settingsfill margin-right-xs"></text>
+						<text class="text-black">管理</text>
+					</button>
+					<button class="cu-btn border  round" @click.stop="toSetting">
+						<text class="cuIcon-peoplefill"></text>
+						<!-- <text class="text-black">个人</text> -->
+					</button>
+					<button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
+						<text class="cuIcon-notice_forbid_fill "></text>
+						<text class="cu-tag badge">待设置</text>
+					</button>
+				</view>
+				<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
+						class="bg-blue cu-btn round shadow-blur">
+						加入
+					</button></view>
+			</view>
 			<image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
 			<view class="logo" v-else-if="storeInfo.name">
 				{{ storeInfo.name.slice(0, 1) }}
 			</view>
-	<!-- 		<view class="home-btn" @click="setHomePage" v-if="pageItem.show_set_home">
-				<button class="cuIcon-home cu-btn bg-cyan"
-					v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no"></button>
-			</view> -->
 			<view class="left" @click="toPages('instroduce')">
-				<view class="top">
-					<view class="name">{{ storeInfo.name || "机构名称" }}</view>
-					<view class="bind" v-if="isBind === true">
-						<button class="cu-btn border sm round bg-blue" @click.stop="toSetting">
-							<text class="cuIcon-settings"></text>
-						</button>
-					</view>
-					<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
-							class="bg-blue cu-btn round shadow-blur">
-							加入
-						</button></view>
-				</view>
 				<view class="bottom" v-if="storeInfo.address">
 					<view class="address" @click.stop="getCurrentLocation">
-						<text class="content">{{ storeInfo.address || "机构地址" }}
-							<text class="cuIcon-locationfill text-blue margin-left-xs"
-								style="font-size: 20px"></text></text>
+						<text class="content"><text class="cuIcon-locationfill"
+								style="font-size: 20px"></text>{{ storeInfo.address || "机构地址" }}
+						</text>
 					</view>
 				</view>
 			</view>
@@ -50,7 +55,7 @@
 			<view class="cu-dialog" @click.stop style="width: 70%;">
 				<view class="notice-wrap" v-if="storeInfo&&storeInfo.introduction">
 					<view v-html="storeInfo.introduction">
-						
+
 					</view>
 					<view class="button-box">
 						<button class="cu-btn bg-cyan round margin-top shadow-blur" @click="hideModal">知道了</button>
@@ -82,8 +87,8 @@
 			}
 		},
 		watch: {
-			qrcodePath(newValue){
-				if(!newValue){
+			qrcodePath(newValue) {
+				if (!newValue) {
 					this.makeQrCode()
 				}
 			},
@@ -109,7 +114,27 @@
 				}
 			}
 		},
+
 		computed: {
+			isAttention() {
+				// 是否关注公众号
+				if (this.$store.state?.app?.subscsribeStatus) {
+					return true
+				}
+			},
+			isManager() {
+				// 是否为用户之外的角色
+				if (!this.bindUserInfo?.user_role) {
+					return false
+				}
+				let showManager = false
+				let arr = this.bindUserInfo?.user_role.split(',').map(item => item.trim()).filter(item => item && item !==
+					'用户')
+				if (arr.length > 0) {
+					showManager = true
+				}
+				return showManager
+			},
 			calcStyle() {
 				if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
 					return {
@@ -137,14 +162,29 @@
 				codeSize: uni.upx2px(700),
 				qrcodePath: '', //图片url
 				qrCodeLogo: "",
-				showNoticeModal:false,
+				showNoticeModal: false,
 			}
 		},
 		methods: {
-			hideModal(){
+			toManage() {
+				let url = `/storePages/StoreManager/StoreManager?store_no=${this.storeInfo.store_no}`;
+				if (this.storeInfo.store_no) {
+					uni.navigateTo({
+						url
+					})
+				}
+			},
+			toAttention() {
+				let url = "/publicPages/webviewPage/webviewPage"
+				url += `?webUrl=${encodeURIComponent("https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ")}`
+				uni.navigateTo({
+					url
+				})
+			},
+			hideModal() {
 				this.showNoticeModal = false
 			},
-			showModal(){
+			showModal() {
 				this.showNoticeModal = true
 			},
 			toSetting() {
@@ -217,18 +257,21 @@
 </script>
 
 <style scoped lang="scss">
-	.notice-wrap{
+	.notice-wrap {
 		width: 100%;
 		padding: 30rpx;
 		color: #666;
+
 		// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
-		.button-box{
+		.button-box {
 			margin-bottom: 0;
-			.cu-btn{
+
+			.cu-btn {
 				// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
 			}
 		}
 	}
+
 	.right {
 		padding: 10rpx;
 		background-color: #EBF9FA;
@@ -265,10 +308,122 @@
 		padding-top: 20rpx;
 		flex-wrap: wrap;
 
+		.top {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+			padding: 10rpx 0;
+
+			.name {
+				width: 500rpx;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: wrap;
+				font-size: 32rpx;
+				color: #333;
+				font-weight: bold;
+				flex: 1;
+				display: flex;
+				align-items: center;
+			}
+
+			.tags {
+				display: flex;
+
+				.tag {
+					display: inline-block;
+					margin-left: 10rpx;
+					padding: 5rpx 10rpx;
+					background-color: #0ea8ff;
+					color: #fff;
+					border-radius: 10rpx;
+				}
+			}
+		}
+
 		.store-top {
 			width: 100%;
 			display: flex;
 			margin-bottom: 20rpx;
+			justify-content: space-between;
+			flex-wrap: wrap;
+
+			.name {
+				flex: 1;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.top {
+				.bind {
+					.cu-btn {
+						padding: 0 20rpx;
+						background-image: linear-gradient(to right, #EAF9F8, #EDEEFE);
+						color: #CF79EE;
+						font-size: 24rpx;
+						margin-right: 10rpx;
+
+						&.notice-setting {
+							color: #FFBA2F;
+
+							.badge {
+								transform: scale(0.8);
+								right: -30rpx;
+								top: -15rpx;
+								font-size: 24rpx;
+
+							}
+						}
+					}
+
+					[class*="cuIcon-"] {
+						font-size: 40rpx;
+					}
+				}
+			}
+
+			.logo {
+				width: 130rpx;
+				height: 130rpx;
+				border-radius: 20rpx;
+				margin-right: 20rpx;
+				font-size: 60rpx;
+				font-weight: bold;
+				line-height: 100rpx;
+				text-align: center;
+				border: 4rpx solid #EBF9FA;
+			}
+
+			.left {
+				display: flex;
+				flex-direction: column;
+				width: calc(100% - 150rpx);
+				// padding-right: 20rpx;
+
+
+
+				.bottom {
+					padding-top: 10rpx;
+					color: #aaa;
+
+					.address {
+						width: 100%;
+						display: flex;
+						align-items: center;
+						font-size: 16px;
+						font-family: 苹方-简;
+						font-weight: normal;
+						color: #9092A5;
+
+						.content {
+							flex: 1;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							// white-space: nowrap;
+						}
+					}
+				}
+			}
 		}
 
 		.instroduce {
@@ -280,10 +435,10 @@
 			margin: 0 0 10rpx;
 			flex: 1;
 			// max-height: 180rpx;
-	
+
 			position: relative;
 			color: #666;
-			
+
 			&::after {
 				position: absolute;
 				left: 20px;
@@ -292,7 +447,8 @@
 				border: 10px solid;
 				border-color: transparent transparent #EBF9FA transparent;
 			}
-			.introduce-content{
+
+			.introduce-content {
 				overflow: hidden;
 				word-break: break-all;
 				display: -webkit-box;
@@ -321,79 +477,9 @@
 			}
 		}
 
-		.logo {
-			width: 120rpx;
-			height: 120rpx;
-			border-radius: 20rpx;
-			margin-right: 20rpx;
-			font-size: 60rpx;
-			font-weight: bold;
-			line-height: 100rpx;
-			text-align: center;
-			// position: absolute;
-			border: 4rpx solid #EBF9FA;
-			// background-color: #EBF9FA;
-		}
 
-		.left {
-			display: flex;
-			flex-direction: column;
-			width: calc(100% - 150rpx);
-			// padding-right: 20rpx;
 
-			.top {
-				display: flex;
-				justify-content: space-between;
-				// .bind{
-				//   .cu-btn{
 
-				//   }
-				// }
-				.name {
-					width: 500rpx;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: wrap;
-					font-size: 32rpx;
-					color: #333;
-					font-weight: bold;
-					flex: 1;
-					display: flex;
-					align-items: center;
-				}
-
-				.tags {
-					display: flex;
-
-					.tag {
-						display: inline-block;
-						margin-left: 10rpx;
-						padding: 5rpx 10rpx;
-						background-color: #0ea8ff;
-						color: #fff;
-						border-radius: 10rpx;
-					}
-				}
-			}
-
-			.bottom {
-				padding-top: 10rpx;
-				color: #aaa;
-
-				.address {
-					width: 100%;
-					display: flex;
-					align-items: center;
-
-					.content {
-						flex: 1;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						// white-space: nowrap;
-					}
-				}
-			}
-		}
 
 		.right {
 			display: flex;

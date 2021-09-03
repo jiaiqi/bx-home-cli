@@ -210,6 +210,8 @@
 			}
 			&.text {
 				overflow: scroll;
+				display: flex;
+				align-items: center;
 			}
 			&.rich-text{
 				background-color: #f1f1f1;
