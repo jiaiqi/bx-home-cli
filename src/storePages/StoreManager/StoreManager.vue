@@ -1313,6 +1313,7 @@
 				position: absolute;
 				right: 0;
 				top: 0;
+				z-index: 1;
 			}
 
 			.badge-left {
@@ -1325,6 +1326,7 @@
 				padding: 0px 5px;
 				height: 14px;
 				color: #ffffff;
+				z-index: 1;
 			}
 
 			.badge-right {}
