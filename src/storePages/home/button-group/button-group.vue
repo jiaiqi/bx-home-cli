@@ -513,7 +513,9 @@
 					navType = e.navType;
 				}
 				if (navType === "miniProgram") {
-					url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+					if(url){
+						url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+					}
 					if (e.appid) {
 						uni.navigateToMiniProgram({
 							appId: e.appid,
@@ -661,9 +663,10 @@
 	.menu-list {
 		display: flex;
 		flex-wrap: wrap;
+		margin: 0 20rpx;
 		margin-bottom: 20rpx;
 		background: #FAFBFC;
-
+		border-radius: 20rpx;
 		.swiper {
 			width: 100%;
 			height: 110px;
@@ -688,12 +691,12 @@
 		.swiper-item {
 			width: 100%;
 			display: flex;
-			padding: 20rpx 20rpx 0;
+			// padding: 20rpx 20rpx 0;
+			padding: 20rpx;
 			flex-wrap: wrap;
 
 			&.single-layout {
-				padding: 20rpx;
-
+				padding: 20rpx 0;
 				.menu-item.last-row {
 					margin-bottom: 0;
 				}

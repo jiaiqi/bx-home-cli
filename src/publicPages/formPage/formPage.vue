@@ -378,6 +378,12 @@
 									return item;
 								});
 							}
+							if(Array.isArray(field.option_list_v2?.conditions)){
+								debugger
+								field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,
+									defaultVal)
+							}
+							
 							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
 								this.fieldsCond.forEach(item => {
 									if (item.column === field.column) {

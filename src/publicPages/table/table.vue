@@ -183,7 +183,7 @@
 				return this.colV2?._fieldInfo || []
 			},
 			filterCols() {
-				return this.colV2?._fieldInfo.filter(item => item.in_cond&&!['text','textarea'].includes(item.type))
+				return this.colV2?._fieldInfo.filter(item => item.in_cond && !['text', 'textarea'].includes(item.type))
 			},
 			tableColumn() {
 				if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
@@ -242,6 +242,7 @@
 			toFilter(e) {
 				this.condition = e
 				this.pageNo = 1
+				this.initCond = e
 				this.getList()
 			},
 			clickGridButton(e) {
@@ -271,11 +272,11 @@
 												this.pageNo = 1;
 												this.getList({
 													initCond: this.initCond
-												}).then(_=>{
+												}).then(_ => {
 													uni.showToast({
 														title: '操作成功',
 														duration: 1000,
-														mask:true
+														mask: true
 													})
 												})
 											}
@@ -316,7 +317,7 @@
 					// 	});
 					// }
 					if (Array.isArray(this.queryCond) && this.queryCond.length > 0) {
-						fieldsCond = this.queryCond.map(item=>{
+						fieldsCond = this.queryCond.map(item => {
 							item.disabled = true;
 							return item
 						})
@@ -487,7 +488,6 @@
 				if (this.colV2?.vpage_no) {
 					req['vpage_no'] = this.colV2.vpage_no
 				}
-
 				if (Array.isArray(this.condition) && this.condition.length > 0) {
 					req.condition = this.condition
 				}
@@ -542,7 +542,7 @@
 					if (this.pageNo === 1) {
 						this.list = [];
 					}
-					this.list = [...this.list,...res.data.data] ;
+					this.list = [...this.list, ...res.data.data];
 					// this.pageInfo.total = res.data.page.total;
 					let page = res.data.page;
 					if (page.rownumber * page.pageNo >= page.total) {
@@ -559,7 +559,9 @@
 		onReachBottom() {
 			if (this.loadStatus === 'more') {
 				this.pageNo++
-				this.getList()
+				this.getList({
+					initCond: this.initCond
+				})
 			}
 		},
 		onPullDownRefresh() {
