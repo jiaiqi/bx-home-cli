@@ -43,12 +43,6 @@
           </view>
         </view>
       </view>
-      <!-- <view
-        class="store-item animation-fade"
-        v-if="list && list.length > 0 && showAd"
-      >
-        <ad unit-id="adunit-1179c9d61b074e7d"></ad>
-      </view> -->
     </view>
     <view class="consult-button text-yellow" @click="toChatBXHeahth">
       <view class="icon">
@@ -62,7 +56,6 @@
       v-if="loadStatus === 'noMore' && list.length === 0"
     >
       暂无数据
-      <!-- <u-empty text="暂无数据" mode="list"> </u-empty> -->
     </view>
     <uni-load-more
       :status="loadStatus"
@@ -342,10 +335,7 @@ export default {
   onLoad (option) {
     if (option.store_no) {
       uni.redirectTo({
-        url: '/storePages/home/home?store_no=' + option.store_no,
-        fail: (err) => {
-
-        }
+        url: '/storePages/home/home?store_no=' + option.store_no
       })
     } else {
       this.initLogin()

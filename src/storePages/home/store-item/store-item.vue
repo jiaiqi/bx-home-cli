@@ -50,6 +50,7 @@
 	import staffManage from '../staff-manage/staff-manage.vue'
 	import noticeList from '../notice-list/notice-list.vue'
 	import relationStore from '../relation-store/relation-store.vue'
+	import timelineList from './timeline-list/timeline-list.vue'
 	export default {
 		components: {
 			slideList,
@@ -60,7 +61,8 @@
 			staffManage,
 			newsList,
 			noticeList,
-			relationStore
+			relationStore,
+			timelineList
 		},
 		props: {
 			pageItem: {

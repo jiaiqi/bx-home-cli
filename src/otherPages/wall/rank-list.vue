@@ -222,7 +222,7 @@
 					let res = await this.$http.post(url, req)
 					if (res.data.state === 'SUCCESS') {
 						if (Array.isArray(res.data.response) && res.data.response
-							.length > 0 && res.data.response[0].response?.effect_data?. [0]?.org_no) {
+							.length > 0 && res.data.response[0].response?.effect_data?.[0]?.org_no) {
 							let result = res.data.response[0].response.effect_data[0]
 							await this.createGroup(result.org_no)
 							this.getGroupInfo()

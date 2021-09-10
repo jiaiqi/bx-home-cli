@@ -1,6 +1,5 @@
 <template>
 	<view class="">
-
 	</view>
 </template>
 <script>

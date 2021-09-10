@@ -169,7 +169,8 @@
 			savePushSet() {
 				// 保存通知设置
 				let data = {
-					push_msg_set: this.push_msg_set
+					push_msg_set: this.push_msg_set,
+					member_status:this.member_status
 				}
 				this.updateStoreUser(data)
 			},
@@ -234,10 +235,14 @@
 						"colName": "person_no",
 						"ruleType": "eq",
 						"value": this.userInfo.no
+					}, {
+						"colName": "member_status",
+						"ruleType": "eq",
+						"value": '正常'
 					}],
 					"page": {
 						"pageNo": 1,
-						"rownumber": 10
+						"rownumber": 20
 					},
 				}
 				let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health')

@@ -351,6 +351,7 @@
             "navigationBarTitleText": "wifi配置",
             "enablePullDownRefresh": false
           }
+
         }
       ]
     }

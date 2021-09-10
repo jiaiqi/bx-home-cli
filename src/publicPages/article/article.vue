@@ -55,18 +55,9 @@
     </view>
 
     <view class="content">
-      <!-- <view class="content" v-if="articleData.content"> -->
-
       <rich-text :nodes="richTextNodes" space="nbsp"></rich-text>
-      <!-- 		<view class=""
-				v-html="JSON.parse(JSON.stringify(articleData.content).replace(/\<img/gi, '<img width=100% height=100%'))">
-			</view> -->
     </view>
-    <!-- 	<view class="content" v-if="articleData.introduce">
-			<view class=""
-				v-html="JSON.parse(JSON.stringify(articleData.introduce).replace(/\<img/gi, '<img width=100% height=100%'))">
-			</view>
-		</view> -->
+
     <view class="footer">
       <ad
         unit-id="adunit-7318fe2284dd9c26"
