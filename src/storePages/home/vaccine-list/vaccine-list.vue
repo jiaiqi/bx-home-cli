@@ -194,7 +194,28 @@
 									<text class="cuIcon-close text-red"></text>
 								</view>
 							</view> -->
-              <view class="date-area" v-if="isArray(timeArr)&&timeArr.length>0">
+              <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
+                <view class="tips">
+                  {{vaccineTip}}
+                </view>
+                <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
+                  <view class="title">
+                    <text class="text-orange">{{item.app_date}}-{{getDayOfWeek(item.app_date)}} </text>
+                    <text class="text-orange">( 已约:{{item.app_count||'-'}}人,可约{{item.app_count_limit||'-'}}人)</text>
+                  </view>
+                  <view class="date-area ">
+                    <view class="date-item"
+                      :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
+                      v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
+                      <view v-if="radio.app_date">
+                        {{radio.timeStart||''}} - {{radio.timeEnd||''}}
+                      </view>
+                      <text class="text-orange text-sm">已约:{{radio.app_amount||'0'}}人,可约{{radio.time_range_appointment_limit||'-'}}人</text>
+                    </view>
+                  </view>
+                </view>
+              </view>
+              <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
                 <view class="tips">
                   {{vaccineTip}}
                 </view>
@@ -360,7 +381,47 @@
       rangeLimit() {
         // 时间粒度内可预约数量限制
         return this.selectedVaccine?.time_range_appointment_limit
-      }
+      },
+      getRange() {
+        if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
+          let timeArr = this.deepClone(this.timeArr)
+          let arr = []
+          for (let item of timeArr) {
+            let obj1 = this.deepClone(item)
+            if (item.time_range && item.time_range_appointment_limit) {
+              let date1 = item?.app_time_start
+              let date2 = item?.app_time_end
+              date1 = dayjs(`${item.app_date} ${date1}`)
+              date2 = dayjs(`${item.app_date} ${date2}`)
+              let diff = date2.diff(date1, 'minute') / item.time_range
+              let arr2 = []
+              let start = item?.app_time_start.slice(0, 5)
+              for (let i = 0; i < diff; i++) {
+                let obj = this.deepClone(item)
+                obj.timeStart = start;
+                if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
+                  let data = obj.recordList.find(e => e.sa_no === obj.sa_no && e.app_time_start.indexOf(start) !== -1)
+                  if (data && data.amount) {
+                    obj.app_amount = data.amount
+                  }
+                }
+                obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute').format(
+                  "HH:mm")
+                arr2.push(this.deepClone(obj))
+                start = obj.timeEnd
+              }
+
+              debugger
+              obj1.list = arr2
+              // return arr
+            }else{
+              return
+            }
+            arr.push(this.deepClone(obj1))
+          }
+          return arr
+        }
+      },
     },
     data() {
       return {
@@ -411,30 +472,48 @@
       }
     },
     methods: {
-      async getWithin5minAppCount() {
+      async getWithin5minAppCount(item) {
         // 查找当前疫苗最近x分钟内预约次数
-        if (!this.timeRange || !this.rangeLimit) {
-          return true
+        if (!item.time_range || !item.time_range_appointment_limit) {
+          // return true
+          return
         }
         let req = {
           "serviceName": "srvhealth_store_vaccination_appoint_record_select",
           "colNames": ["*"],
           "condition": [{
               "colName": "sa_no",
-              "ruleType": "like",
-              "value": this.selectedVaccine?.sa_no
+              "ruleType": "eq",
+              "value": item.sa_no
             },
             {
-              colName: 'create_time',
-              ruleType: 'ge',
-              value: dayjs().subtract(this.timeRange, 'minute').format('YYYY-MM-DD HH:mm')
+              "colName": "app_date",
+              "ruleType": "eq",
+              "value": item.app_date
             }
+            // {
+            //   colName: 'create_time',
+            //   ruleType: 'ge',
+            //   value: dayjs().subtract(this.timeRange, 'minute').format('YYYY-MM-DD HH:mm')
+            // }
           ],
-          // "group": [{
-          //   "colName": "id",
-          //   "type": "count",
-          //   aliasName: "amount"
-          // }],
+          "group": [{
+              "colName": "app_time_start",
+              "type": "by_hour"
+            },
+            {
+              "colName": "sa_no",
+              "type": "by"
+            },
+            {
+              "colName": "app_date",
+              "type": "by",
+            }, {
+              "colName": "id",
+              "type": "count",
+              aliasName: "amount"
+            },
+          ],
           "page": {
             "pageNo": 1,
             "rownumber": 10
@@ -445,30 +524,32 @@
           }]
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
+        debugger
         if (res.success) {
           if (res.data.length > 0) {
-            if (res.data.length >= this.rangeLimit) {
-              let result = res.data[this.rangeLimit - 1]
-              let after = dayjs(result.create_time).add(this.timeRange, 'minute').format('HH:mm')
-              uni.showModal({
-                title: '提示',
-                content: `${this.timeRange}分钟内可预约人数已达到上限,请在${after+'之'||this.timeRange+'分钟'}后再进行预约`,
-                showCancel: false,
-                confirmText: '知道了'
-              })
-              return false
-            } else {
-              return true
-            }
+            return res.data
+            // if (res.data.length >= this.rangeLimit) {
+            //   let result = res.data[this.rangeLimit - 1]
+            //   let after = dayjs(result.create_time).add(this.timeRange, 'minute').format('HH:mm')
+            //   uni.showModal({
+            //     title: '提示',
+            //     content: `${this.timeRange}分钟内可预约人数已达到上限,请在${after+'之'||this.timeRange+'分钟'}后再进行预约`,
+            //     showCancel: false,
+            //     confirmText: '知道了'
+            //   })
+            //   return false
+            // } else {
+            //   return true
+            // }
           }
-          return true
+          // return true
         } else {
-          uni.showToast({
-            title: '系统错误，请尝试重新提交',
-            icon: 'none'
-          })
+          // uni.showToast({
+          //   title: '系统错误，请尝试重新提交',
+          //   icon: 'none'
+          // })
 
-          return false
+          // return false
         }
       },
       changeSub(index) {
@@ -761,8 +842,8 @@
             "sa_no": this.selectedVaccine.sa_no,
             "appoint_name": this.selectedVaccine.appoint_name,
             "app_date": this.selectedVaccine.app_date,
-            "app_time_start": this.selectedVaccine.app_time_start,
-            "app_time_end": this.selectedVaccine.app_time_end,
+            "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
+            "app_time_end": this.selectedVaccine.timeEnd || this.selectedVaccine.app_time_end,
             "customer_name": this.formModel.customer_name,
             "customer_birth_day": this.formModel.customer_birth_day,
             "customer_phone": this.formModel.customer_phone,
@@ -816,18 +897,17 @@
           })
           return
         }
-        let appCountLimit = await this.getWithin5minAppCount()
-        if (!appCountLimit) {
-          return
-        }
+        // let appCountLimit = await this.getWithin5minAppCount()
+        // if (!appCountLimit) {
+        //   return
+        // }
         this.submitForm().then(res => {
           if (res !== true) {
-
             if (res.msg) {
               this.hideModal()
               if (res.code === '4444') {
                 uni.showToast({
-                  title: '取消预约后不能再预约同一批次同一时间段的疫苗',
+                  title: '重复预约！',
                   icon: 'none',
                   mask: true,
                   duration: 2000
@@ -911,6 +991,15 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
         if (res.success) {
+          for (let index = 0; index < res.data.length; index++) {
+            let item = res.data[index]
+            let result = await this.getWithin5minAppCount(item)
+            if (Array.isArray(result) && result.length > 0) {
+              item.recordList = result
+              this.$set(res.data, index, item)
+            }
+          }
+
           this.timeArr = res.data
           this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
           this.formModel.customer_phone = this.userInfo.phone || ''
@@ -1260,6 +1349,37 @@
       color: rgba($color: #39c5a9, $alpha: 1);
     }
 
+    .date-time-box {
+      box-shadow: 6px 5px 13px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+      padding: 10rpx;
+
+      .title {
+        margin-bottom: 10rpx;
+        text-align: left;
+      }
+    }
+
+    .time-area {
+      display: flex;
+      flex-wrap: wrap;
+
+      // .date-item {
+      //   min-width: 30%;
+      //   max-width: calc(33% - 20rpx/3);
+      //   flex: 1;
+      //   margin-bottom: 5px;
+      //   padding: 5px;
+      //   margin-left: 5px;
+
+      //   // &:nth-child(2n + 1) {
+      //   //   margin-left: 0;
+      //   // }
+      //   &:nth-child(3n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+    }
+
     .date-item {
       display: flex;
       justify-content: center;
@@ -1267,8 +1387,9 @@
       border-radius: 5px;
       background-color: #f1f1f1;
       position: relative;
-      margin-bottom: 10px;
-      width: calc(50% - 5px);
+      margin-bottom: 5px;
+      margin-right: 5px;
+      width: calc(50% - 10px);
       transition: all 0.5s ease;
       flex-wrap: wrap;
       border: 1rpx solid transparent;
@@ -1285,7 +1406,7 @@
       }
 
       &:nth-child(2n + 1) {
-        margin-left: 10px;
+        margin-left: 5px;
       }
 
       &.line-cyan {
