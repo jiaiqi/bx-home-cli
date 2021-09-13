@@ -351,10 +351,78 @@
 			},
 			...mapState({
 				userInfo: state => state.user.userInfo
-			})
+			}),
+      timeRange() {
+        // 时间粒度
+        return this.selectedVaccine?.time_range
+      },
+      rangeLimit() {
+        // 时间粒度内可预约数量限制
+        return this.selectedVaccine?.time_range_appointment_limit
+      }
 		},
 
 		methods: {
+      async getWithin5minAppCount() {
+        // 查找当前疫苗最近x分钟内预约次数
+        if (!this.timeRange || !this.rangeLimit) {
+          return true
+        }
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appoint_record_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "sa_no",
+              "ruleType": "like",
+              "value": this.selectedVaccine?.sa_no
+            },
+            {
+              colName: 'create_time',
+              ruleType: 'ge',
+              value: dayjs().subtract(this.timeRange, 'minute').format('YYYY-MM-DD HH:mm')
+            }
+          ],
+          // "group": [{
+          //   "colName": "id",
+          //   "type": "count",
+          //   aliasName: "amount"
+          // }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 10
+          },
+          "order": [{
+            "colName": "create_time",
+            "orderType": "desc"
+          }]
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
+        if (res.success) {
+          if (res.data.length > 0) {
+            if (res.data.length >= this.rangeLimit) {
+              let result = res.data[this.rangeLimit - 1]
+              let after = dayjs(result.create_time).add(this.timeRange, 'minute').format('HH:mm')
+              uni.showModal({
+                title: '提示',
+                content: `${this.timeRange}分钟内可预约人数已达到上限,请在${after+'之'||this.timeRange+'分钟'}后再进行预约`,
+                showCancel: false,
+                confirmText: '知道了'
+              })
+              return false
+            } else {
+              return true
+            }
+          }
+          return true
+        } else {
+          uni.showToast({
+            title: '系统错误，请尝试重新提交',
+            icon: 'none'
+          })
+      
+          return false
+        }
+      },
 			async updateUserInfo() {
 				let data = {}
 				if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
@@ -495,6 +563,10 @@
 					})
 					return
 				}
+        let appCountLimit = await this.getWithin5minAppCount()
+        if (!appCountLimit) {
+          return
+        }
 				let req = [{
 					"serviceName": "srvhealth_store_vaccination_appoint_record_add",
 					"condition": [],
