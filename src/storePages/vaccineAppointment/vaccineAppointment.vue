@@ -379,7 +379,16 @@
               this.$set(res.data, index, item)
             }
           }
-          this.timeArr = res.data
+          this.timeArr = res.data.filter(item=>{
+			  if(item.app_date===dayjs().format("YYYY-MM-DD")){
+				  if(dayjs(item.app_date + ' '+item.app_time_end).format("HH")<dayjs().format("HH")){
+					  return false
+				  }else{
+					  return true
+				  }
+			  }
+			  return true
+		  })
           this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
           this.formModel.customer_phone = this.userInfo.phone || ''
           this.formModel.customer_birth_day = this.userInfo.birthday || ''
