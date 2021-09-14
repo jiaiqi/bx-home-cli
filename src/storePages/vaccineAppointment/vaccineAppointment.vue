@@ -42,7 +42,7 @@
                   :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
                   v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
                   <view v-if="radio.app_date">
-                    {{radio.timeStart||''}} - {{radio.timeEnd||''}}
+                    {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
                   </view>
                   <text
                     class="vaccine_app_count ">已约:{{radio.app_amount||'0'}}人,可约{{radio.time_range_appointment_limit||'0'}}人</text>
@@ -179,16 +179,16 @@
           let arr = []
           for (let item of timeArr) {
             let obj1 = this.deepClone(item)
-            if (item.time_range && item.time_range_appointment_limit) {
-              let date1 = item?.app_time_start
-              let date2 = item?.app_time_end
-              date1 = dayjs(`${item.app_date} ${date1}`)
-              date2 = dayjs(`${item.app_date} ${date2}`)
-              let diff = date2.diff(date1, 'minute') / item.time_range
+            if (obj1.time_range && obj1.time_range_appointment_limit) {
+              let date1 = obj1.app_time_start
+              let date2 = obj1.app_time_end
+              date1 = dayjs(`${obj1.app_date} ${date1}`)
+              date2 = dayjs(`${obj1.app_date} ${date2}`)
+              let diff = date2.diff(date1, 'minute') / obj1.time_range
               let arr2 = []
-              let start = item?.app_time_start.slice(0, 5)
+              let start = obj1?.app_time_start.slice(0, 5)
               for (let i = 0; i < diff; i++) {
-                let obj = this.deepClone(item)
+                let obj = this.deepClone(obj1)
                 obj.timeStart = start;
                 if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
                   let data = obj.recordList.find(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
@@ -197,10 +197,10 @@
                     obj.app_amount = data.amount
                   }
                 }
-                obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute')
-                let diff = obj.timeEnd.diff(dayjs(item.app_date + ' ' + item.app_time_end), 'minute')
+                obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
+                let diff = obj.timeEnd.diff(dayjs(obj1.app_date + ' ' + obj1.app_time_end), 'minute')
                 if (diff > 0) {
-                  obj.timeEnd = dayjs(item.app_date + ' ' + item.app_time_end).format('HH:mm')
+                  obj.timeEnd = dayjs(obj1.app_date + ' ' + obj1.app_time_end).format('HH:mm')
                 } else {
                   obj.timeEnd = obj.timeEnd.format("HH:mm")
                 }
@@ -211,7 +211,13 @@
               arr.push(this.deepClone(obj1))
               // return arr
             } else {
-              return
+				let obj = this.deepClone(obj1)
+				obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
+				obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
+				obj.app_amount = obj.app_count
+				obj1.list = [obj]
+				arr.push(obj1)
+              // return
             }
           }
           return arr
@@ -877,7 +883,10 @@
 
             .date-item {
               text-align: center;
-              min-width: calc(50% - 10rpx);
+              width: calc(50% - 15rpx);
+			  overflow: hidden;
+			  text-overflow: ellipsis;
+			  white-space: nowrap;
               margin-right: 20rpx;
               border-radius: 20rpx;
               padding: 10rpx;
