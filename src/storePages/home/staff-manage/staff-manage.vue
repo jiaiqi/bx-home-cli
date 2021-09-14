@@ -104,8 +104,9 @@ export default {
   // 简介
   background-color: #fff;
   padding: 20rpx;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  margin: 0 20rpx;
   margin-bottom: 20rpx;
+  border-radius: 12px;
 
   &.news .title {
     border-bottom: 1rpx solid #ccc;
@@ -141,6 +142,8 @@ export default {
   }
 
   .content {
+    border-radius: 12px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     .rich-text {
       height: 300rpx;
       overflow: scroll;

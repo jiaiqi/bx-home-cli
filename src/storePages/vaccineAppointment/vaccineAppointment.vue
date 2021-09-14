@@ -1,0 +1,938 @@
+<template>
+  <view class="appointment-wrap">
+    <view class="appointment-content">
+      <view class="title">
+        {{vaccineInfo.vaccine_drug_name||''}}
+      </view>
+      <view class="content">
+        <view class="sub-title">
+          <view class="text-cyan">
+            <text>用法</text>
+            <text class="cu-btn sm round" v-if="vaccineInfo.usage">
+              <text>{{vaccineInfo.usage||''}}</text>
+            </text>
+          </view>
+          <view class="right">
+            <text class="cuIcon-pic"></text>
+            <text class="text" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
+              @tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
+              图片说明
+            </text>
+          </view>
+        </view>
+        <view class="description">
+          {{vaccineInfo.remark||''}}
+        </view>
+        <view class="sub-title">
+          <text class="text-cyan">{{vaccineTip||''}}</text>
+        </view>
+        <view class="date-select">
+
+        </view>
+        <view class="time-range-box">
+          <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
+            <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
+              <view class="title">
+                <text class="">{{item.app_date}} {{getDayOfWeek(item.app_date)}} </text>
+                <text v-if="item.app_count_limit&&item.app_count>=item.app_count_limit"></text>
+                <text class="" v-else>( 已约{{item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人 )</text>
+              </view>
+              <view class="date-area ">
+                <view class="date-item"
+                  :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
+                  v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
+                  <view v-if="radio.app_date">
+                    {{radio.timeStart||''}} - {{radio.timeEnd||''}}
+                  </view>
+                  <text
+                    class="vaccine_app_count ">已约:{{radio.app_amount||'0'}}人,可约{{radio.time_range_appointment_limit||'0'}}人</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
+            <view class="date-item"
+              :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no,disabled:disabledTime(radio)}"
+              v-for="radio in timeArr" :key="radio.sa_no" @click="selectItem(radio)">
+              <view class="date">
+                <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
+                  {{radio.appoint_name}}
+                </text> -->
+                {{dayjs(radio.app_date).format('MM-DD')}}-{{
+            				getDayOfWeek(radio.app_date)
+            			}}
+              </view>
+              <view class="order-info">
+                <view v-if="radio.app_date">
+                  {{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
+                  -
+                  {{radio.app_time_end?radio.app_time_end.slice(0,5):''}}
+                </view>
+                <view v-if="radio.app_count" class="vaccine_app_count">
+                  <text class="text-yellow" v-if="radio.app_count_limit<=radio.app_count"> 已约满</text>
+                  <text v-else> 已约:{{radio.app_count||'0'}}人,可约{{radio.app_count_limit||'0'}}人</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="date-area" v-if="timeArr.length===0">
+            <view class="date-time-box">
+              预约人数已满或无可预约疫苗
+            </view>
+          </view>
+        </view>
+        <view class="sub-title">
+          <text class="text-cyan">填写接种人相关信息</text>
+        </view>
+        <view class="person-info-form">
+          <view class="bx-form-group">
+            <text class="text-red">*</text>
+            <view class="title">姓名</view>
+            <input placeholder="姓名" class="input" name="input" placeholder-class="place-holder"
+              v-model="formModel.customer_name"></input>
+          </view>
+          <view class="bx-form-group">
+            <view class="title">出生日期</view>
+            <picker mode="date" v-model="formModel.customer_birth_day" start="1900-09-01" end="2022-09-01"
+              @change="DateChange">
+              <view class="picker input">
+                <text class="place-holder" v-if="!formModel.customer_birth_day">请选择</text>
+                <text v-else> {{formModel.customer_birth_day||''}}</text>
+                <text class="cuIcon-calendar  margin-left-xs" v-if="!formModel.customer_birth_day"></text>
+                <text class="cuIcon-calendar text-cyan margin-left-xs" v-else></text>
+              </view>
+            </picker>
+          </view>
+          <view class="bx-form-group">
+            <view class="title">手机号码</view>
+            <input placeholder="手机号码" name="input" placeholder-class="place-holder" class="input"
+              v-model="formModel.customer_phone"></input>
+            <!--       <view class="cu-capsule radius">
+              <view class='cu-tag bg-blue '>
+                +86
+              </view>
+              <view class="cu-tag line-blue">
+                中国大陆
+              </view>
+            </view> -->
+          </view>
+
+        </view>
+        <view class="person-info-form">
+          <view class="form-item">
+            <textarea v-model="formModel.appoint_remark" placeholder="预约说明" placeholder-class="place-holder text-area"
+              class="value textarea" :adjust-position="false" :fixed="true" :show-confirm-bar="false" />
+          </view>
+        </view>
+      </view>
+      <view class="footer">
+        <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
+        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
+          v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>
+        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import {
+    mapState
+  } from 'vuex'
+  import dayjs from '@/static/js/dayjs.min.js'
+  export default {
+    data() {
+      return {
+        storeInfo: {},
+        onSubmit: false,
+        vaccineInfo: {},
+        selectedVaccine: {},
+        formModel: {
+          id_no: '',
+          phone_xcx: '',
+          customer_name: "",
+          customer_birth_day: "",
+          customer_phone: '',
+          appoint_remark: ''
+        },
+        timeArr: [],
+        imagesUrl: []
+      }
+    },
+    computed: {
+      ...mapState({
+        subscsribeStatus: state => state.app.subscsribeStatus,
+        userInfo: state => state.user.userInfo
+      }),
+      vaccineTip() {
+        if (this.vaccineInfo) {
+          if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
+            return '预约疫苗到货通知'
+          } else {
+            return '预约疫苗注射时间'
+          }
+        }
+      },
+      getRange() {
+        if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
+          let timeArr = this.deepClone(this.timeArr)
+          let arr = []
+          for (let item of timeArr) {
+            let obj1 = this.deepClone(item)
+            if (item.time_range && item.time_range_appointment_limit) {
+              let date1 = item?.app_time_start
+              let date2 = item?.app_time_end
+              date1 = dayjs(`${item.app_date} ${date1}`)
+              date2 = dayjs(`${item.app_date} ${date2}`)
+              let diff = date2.diff(date1, 'minute') / item.time_range
+              let arr2 = []
+              let start = item?.app_time_start.slice(0, 5)
+              for (let i = 0; i < diff; i++) {
+                let obj = this.deepClone(item)
+                obj.timeStart = start;
+                if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
+                  let data = obj.recordList.find(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
+                    .app_time_start.indexOf(start) !== -1)
+                  if (data && data.amount) {
+                    obj.app_amount = data.amount
+                  }
+                }
+                obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute')
+                let diff = obj.timeEnd.diff(dayjs(item.app_date + ' ' + item.app_time_end), 'minute')
+                if (diff > 0) {
+                  obj.timeEnd = dayjs(item.app_date + ' ' + item.app_time_end).format('HH:mm')
+                } else {
+                  obj.timeEnd = obj.timeEnd.format("HH:mm")
+                }
+                arr2.push(this.deepClone(obj))
+                start = obj.timeEnd
+              }
+              obj1.list = arr2
+              arr.push(this.deepClone(obj1))
+              // return arr
+            } else {
+              return
+            }
+          }
+          return arr
+        }
+      },
+    },
+    methods: {
+      async getVaccineInfo(id) {
+        let req = {
+          "serviceName": "srvhealth_store_vaccine_stocks_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName: "id",
+            ruleType: 'eq',
+            value: id
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccine_stocks_select', req, 'health')
+        if (res.success && res.data.length > 0) {
+          this.vaccineInfo = res.data[0]
+          let e = res.data[0]
+          if (e.persons_count === 1) {
+            if (!e.stock_count || e.stock_count < 1) {
+              return
+            }
+            this.selectVaccineDayList(e)
+          }
+          if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
+            // this.showRealNameModal()
+          } else {
+            this.selectTimeArr(e)
+          }
+        }
+      },
+      async getStoreInfo(store_no) {
+        let req = {
+          "serviceName": "srvhealth_store_mgmt_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName: "store_no",
+            ruleType: 'eq',
+            value: store_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+        if (res.success && res.data.length > 0) {
+          this.storeInfo = res.data[0]
+          if (this.storeInfo.name) {
+            uni.setNavigationBarTitle({
+              title: this.storeInfo.name
+            })
+          }
+          return this.storeInfo
+        }
+      },
+      DateChange(e) {
+        this.formModel.customer_birth_day = e.detail.value
+      },
+      disabledTime(e) {
+        // 判断是否过期 已过期则禁用
+        if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
+          if (e.time_range_appointment_limit && e.time_range) {
+            if (e.app_amount >= e.time_range_appointment_limit) {
+              return true
+            } else {
+              // return false
+            }
+          } else {
+            return true
+          }
+        }
+        let time = new Date(e.app_date + ' ' + e.app_time_start)
+        let now = new Date()
+        if (time.getTime() < now.getTime()) {
+          if (e.time_range_appointment_limit && e.time_range) {
+            let time = new Date(e.app_date + ' ' + e.timeStart)
+            let now = new Date()
+            if (time.getTime() < now.getTime()) {
+              return true
+            } else {
+              return false
+            }
+          }
+          return true
+        } else {
+          return false
+        }
+      },
+      async getImage(e) {
+        if (e && e.remark_pic) {
+          this.imagesUrl = [];
+          let images = await this.getFilePath(e.remark_pic)
+          if (Array.isArray(images)) {
+            for (let i = 0; i < images.length; i++) {
+              const obj = {
+                originUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
+                smallUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+              }
+              this.imagesUrl.push(obj);
+            }
+          }
+        }
+      },
+      async selectVaccineDayList(e) {
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appointment_day_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "app_date",
+              "ruleType": "ge",
+              "value": dayjs().format("YYYY-MM-DD")
+            },
+            {
+              "colName": "app_time_end",
+              "ruleType": "ge",
+              "value": dayjs().format("HH:mm:ss")
+            },
+            {
+              "colName": "app_date",
+              "ruleType": "lt",
+              value: dayjs().add(5, 'day').format('YYYY-MM-DD')
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              value: this.storeInfo.store_no
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 10
+          },
+          "order": [{
+            "colName": "app_date",
+            "orderType": "asc"
+          }],
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_day_select', req, 'health')
+        if (res.success) {
+          for (let index = 0; index < res.data.length; index++) {
+            let item = res.data[index]
+            item.remark = e.remark
+            item.remark_internal = e.remark_internal
+            item.remark_pic = e.remark_pic
+            item.stock_count = e.stock_count
+            item.store_no = e.store_no
+            item.to_appointment_count = e.to_appointment_count
+            item.usage = e.usage
+            item.vaccine_drug_name = e.vaccine_drug_name
+            item.vaccine_type = e.vaccine_type
+            item.vs_no = e.vs_no
+            // item.recordList = new Array( item.app_count)
+            let result = await this.getWithin5minAppCount(item)
+            if (Array.isArray(result) && result.length > 0) {
+              item.recordList = result
+              this.$set(res.data, index, item)
+            }
+          }
+          this.timeArr = res.data
+          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
+          this.formModel.customer_phone = this.userInfo.phone || ''
+          this.formModel.customer_birth_day = this.userInfo.birthday || ''
+          this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+          this.modalName = 'vaccine'
+          this.getImage(e)
+        }
+      },
+      async selectTimeArr(e) {
+        let req = {
+          "condition": [{
+              "colName": "svs_no",
+              "ruleType": "eq",
+              "value": e.vs_no
+            },
+            {
+              "colName": "app_date",
+              "ruleType": "ge",
+              "value": this.formateDate()
+            },
+            {
+              "colName": "app_time_end",
+              "ruleType": "ge",
+              "value": dayjs().format("HH:mm:ss")
+            },
+            {
+              "colName": "app_date",
+              "ruleType": "lt",
+              value: dayjs().add(5, 'day').format('YYYY-MM-DD')
+            }
+          ],
+          order: [{
+            colName: "app_date",
+            orderType: "asc"
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 20
+          },
+        }
+        if (!e.stock_count || e.stock_count < 1) {
+          req.condition = [{
+              "colName": "svs_no",
+              "ruleType": "eq",
+              "value": e.vs_no
+            },
+            {
+              "colName": "appoint_type",
+              "ruleType": "eq",
+              "value": '登记'
+            }
+          ]
+          delete req.order
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+        if (res.success) {
+          for (let index = 0; index < res.data.length; index++) {
+            let item = res.data[index]
+            let result = await this.getWithin5minAppCount(item)
+            if (Array.isArray(result) && result.length > 0) {
+              item.recordList = result
+              this.$set(res.data, index, item)
+            }
+          }
+          this.timeArr = res.data
+          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
+          this.formModel.customer_phone = this.userInfo.phone || ''
+          this.formModel.customer_birth_day = this.userInfo.birthday || ''
+          this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+          this.modalName = 'vaccine'
+          this.getImage(e)
+        }
+      },
+      selectItem(e) {
+        if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
+          uni.showToast({
+            title: '预约人数已满',
+            icon: 'none'
+          })
+          return
+        }
+        if (this.disabledTime(e)) {
+          uni.showToast({
+            title: '已过期,不可预约',
+            icon: 'none'
+          })
+          return
+        }
+
+        if (this.selectedVaccine === e) {
+          this.selectedVaccine = {}
+        } else {
+          this.selectedVaccine = e
+        }
+      },
+      async getWithin5minAppCount(item) {
+        // 查找当前疫苗最近x分钟内预约次数
+        if (!item.time_range || !item.time_range_appointment_limit) {
+          // return true
+          return
+        }
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appoint_record_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "app_date",
+              "ruleType": "eq",
+              "value": item.app_date
+            },
+            {
+              "colName": "store_no",
+              ruleType: 'eq',
+              value: this.storeInfo.store_no
+            }
+          ],
+          "group": [{
+              "colName": "app_time_start",
+              "type": "by_hour"
+            },
+            {
+              "colName": "sa_no",
+              "type": "by"
+            },
+            {
+              "colName": "sda_no",
+              "type": "by"
+            },
+            {
+              "colName": "app_date",
+              "type": "by",
+            }, {
+              "colName": "id",
+              "type": "count",
+              aliasName: "amount"
+            },
+            {
+              colName: 'appoint_name',
+              "type": "by"
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 10
+          },
+          "order": [{
+            "colName": "create_time",
+            "orderType": "desc"
+          }]
+        }
+        if (item.sa_no) {
+          req.condition.push({
+            "colName": "sa_no",
+            "ruleType": "eq",
+            "value": item.sa_no
+          })
+        }
+        if (item.sda_no) {
+          req.condition.push({
+            "colName": "sda_no",
+            "ruleType": "eq",
+            "value": item.sda_no
+          })
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
+        if (res.success) {
+          if (res.data.length > 0) {
+            return res.data
+          }
+        }
+      },
+      toOrderList() {
+        uni.navigateTo({
+          url: '/storePages/VaccineOrder/VaccineOrder'
+        })
+      },
+      async submitForm() {
+        debugger
+        if (!this.formModel.customer_name) {
+          // uni.showToast({
+          //   title: '请填写就诊人姓名',
+          //   icon: 'none'
+          // })
+          return {
+            msg: '请填写就诊人姓名'
+          }
+        }
+        if (!this.selectedVaccine || (!this.selectedVaccine.sa_no && !this.selectedVaccine.sda_no)) {
+          // uni.showToast({
+          //   title: '请选择预约时间',
+          //   icon: 'none'
+          // })
+          return {
+            msg: '请选择预约时间'
+          }
+        }
+        let selectedVaccine = this.deepClone(this.selectedVaccine)
+        if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
+          if (selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >= selectedVaccine
+            .time_range_appointment_limit) {
+            uni.showToast({
+              title: '已超过当前时间段预约人数限制!',
+              icon: 'none'
+            })
+            return {
+              msg: '已超过当前时间段预约人数限制'
+            }
+          }
+        }
+        let req = [{
+          "serviceName": "srvhealth_store_vaccination_appoint_record_add",
+          "condition": [],
+          "data": [{
+            "store_no": this.storeInfo.store_no,
+            "sa_no": this.selectedVaccine.sa_no,
+            "sda_no": this.selectedVaccine.sda_no,
+            "svs_no": this.selectedVaccine.svs_no || null,
+            "appoint_name": this.selectedVaccine.appoint_name,
+            "app_date": this.selectedVaccine.app_date,
+            "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
+            "app_time_end": this.selectedVaccine.timeEnd || this.selectedVaccine.app_time_end,
+            "customer_name": this.formModel.customer_name,
+            "customer_birth_day": this.formModel.customer_birth_day,
+            "customer_phone": this.formModel.customer_phone,
+            "appoint_remark": this.formModel.appoint_remark,
+            "person_no": this.userInfo.no,
+            "person_user_no": this.userInfo.userno,
+            "person_name": this.userInfo.name || this.userInfo.nick_name,
+            "person_image": this.userInfo.person_image || this.userInfo.profile_url
+          }]
+        }]
+        if (!this.onSubmit) {
+          this.onSubmit = true
+          let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
+            'health');
+          this.onSubmit = false
+          if (res.success) {
+            // this.$emit('submit', res.data)
+            return true
+          } else {
+            return res
+          }
+        } else {
+          uni.showToast({
+            title: '正在提交,请勿重复操作'
+          })
+        }
+
+      },
+      async submitNotify() {
+        if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
+          uni.showToast({
+            title: '请选择需要通知您的业务',
+            icon: 'none'
+          })
+          return
+        }
+        let tips = `${this.selectedVaccine.appoint_name} 设置成功`
+        this.submitForm().then(res => {
+          // #ifdef MP-WEIXIN
+          this.subscription('已成功设置疫苗到货通知')
+          // #endif
+        })
+      },
+      async submitOrder() {
+        // 提交预约信息
+        // let appCountLimit = await this.getWithin5minAppCount()
+        // if (!appCountLimit) {
+        //   return
+        // }
+        this.submitForm().then(res => {
+          if (res !== true) {
+            if (res && res.msg) {
+              if (res.code === '4444') {
+                uni.showToast({
+                  title: '重复预约！',
+                  icon: 'none',
+                  mask: true,
+                  duration: 2000
+                })
+              } else {
+                uni.showToast({
+                  title: res.msg,
+                  icon: 'none',
+                  mask: true,
+                  duration: 2000
+                })
+              }
+            }
+            return
+          }
+          if (this.subscsribeStatus) {
+            uni.showModal({
+              title: '提示',
+              content: "预约成功",
+              showCancel: false,
+              success(res) {
+                if (res.confirm) {
+                  uni.navigateBack({
+
+                  })
+                }
+              }
+            })
+          } else {
+            uni.showModal({
+              title: '提示',
+              content: '预约成功,请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
+              success(res) {
+                if (res.confirm) {
+                  uni.redirectTo({
+                    url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+                  })
+                }
+              }
+            })
+          }
+
+        })
+      },
+    },
+
+    async onLoad(option) {
+      if (option.store_no) {
+        await this.getStoreInfo(option.store_no)
+      }
+      if (option.id) {
+        this.getVaccineInfo(option.id)
+      }
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .appointment-wrap {
+    background-color: #3ACBC6;
+    min-height: calc(100vh - var(--window-top));
+
+    .appointment-content {
+      border-radius: 50rpx 50rpx 0 0;
+      background-color: #ffffff;
+      padding: 0 50rpx;
+      height: calc(100vh - var(--window-top));
+      padding-top: 30rpx;
+      display: flex;
+      flex-direction: column;
+
+      .title {
+        margin-bottom: 10rpx;
+        font-size: 36rpx;
+        font-family: 苹方-简;
+        font-weight: normal;
+        color: #333333;
+      }
+
+      .content {
+        flex: 1;
+        overflow-y: scroll;
+
+        .sub-title {
+          padding: 20rpx 0;
+          font-size: 16px;
+          font-family: 苹方-简;
+          font-weight: normal;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .text-cyan {
+            color: #3ACBC6;
+          }
+
+          .cu-btn {
+            height: 24px;
+            background: linear-gradient(165deg, rgba($color: #3ACBC6, $alpha: 0.1) 0%, rgba($color: #47A9F2, $alpha: 0.1) 60%, rgba($color: #624BFF, $alpha: 0.1) 100%);
+            box-shadow: 0px 3px 7px rgba(58, 203, 198, 0.2);
+            border-radius: 15px;
+            margin: 0 20rpx;
+            padding: 10rpx 20rpx;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 22px;
+            color: #63A2FF;
+          }
+
+          .right {
+            // background-color: rgba($color: #000000, $alpha: 1.0);
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 22px;
+            color: #9092A5;
+
+            .text {
+              margin-left: 10rpx;
+            }
+          }
+
+        }
+
+        .description {
+          background: #FAFBFC;
+          border-radius: 20rpx;
+          padding: 20rpx 30rpx;
+          font-size: 12px;
+          font-family: 苹方-简;
+          font-weight: normal;
+          line-height: 20px;
+          color: #9092A5;
+        }
+
+        .person-info-form {
+          background: #FAFBFC;
+          border-radius: 20rpx;
+          padding: 20rpx 30rpx;
+          font-family: 苹方-简;
+          font-weight: normal;
+          line-height: 20px;
+          color: #9092A5;
+          margin-bottom: 20rpx;
+
+          ::v-deep .place-holder {
+            font-size: 28rpx;
+            color: #D8D9DF;
+
+            &.text-area {
+              color: #9092A5;
+            }
+          }
+
+          .bx-form-group {
+            display: flex;
+            align-items: center;
+            text-align: right;
+            font-size: 28rpx;
+            padding: 10rpx 0;
+
+            .input {
+              font-size: 28rpx;
+            }
+
+            .title {
+              flex: 1;
+              text-align: left;
+              font-size: 28rpx;
+              height: 20px;
+              font-family: 苹方-简;
+              font-weight: normal;
+              color: #9092A5;
+              margin-bottom: 0;
+            }
+          }
+
+          .textarea {
+            height: 88px;
+            background: #FAFBFC;
+            opacity: 1;
+            border-radius: 12px;
+          }
+        }
+
+        .time-range-box {
+
+          .date-area {
+            display: flex;
+            flex-wrap: wrap;
+
+            .date-time-box {
+              background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
+              border-radius: 20rpx;
+              padding: 20rpx 20rpx 10rpx;
+              width: 100%;
+              min-height: 200rpx;
+              color: #9092A5;
+
+              .title {
+                font-size: 28rpx;
+                color: #9092A5;
+                text-align: center;
+              }
+
+              .date-area .date-item {
+                background-color: #fff;
+                background-image: none;
+              }
+            }
+
+            .date-item {
+              text-align: center;
+              min-width: calc(50% - 10rpx);
+              margin-right: 20rpx;
+              border-radius: 20rpx;
+              padding: 10rpx;
+              color: #9092A5;
+              background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
+              margin-bottom: 10rpx;
+              border: 1px solid #fff;
+
+              &:nth-child(2n) {
+                margin-right: 0;
+              }
+
+              &.line-cyan {
+                border-color: #3acbc6;
+              }
+
+              &.disabled {
+                opacity: 0.8;
+              }
+
+              .date {
+                padding: 0 10rpx;
+                line-height: 50rpx;
+              }
+
+              .vaccine_app_count {
+                color: #3ACBC6;
+                font-size: 20rpx;
+              }
+
+              .order-info {
+                background-color: #fff;
+                border-radius: 10rpx;
+                padding: 10rpx;
+
+
+              }
+            }
+          }
+        }
+      }
+
+      .footer {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 50rpx;
+
+        .cu-btn {
+          border-radius: 40rpx;
+
+          &.line-cyan {
+            color: #3ACBC6;
+            width: 40%;
+            margin-right: 20rpx;
+
+            &::after {
+              border-radius: 80rpx;
+            }
+          }
+
+          &.bg-yan {
+            width: 25%;
+            background-color: #3ACBC6;
+          }
+        }
+      }
+    }
+  }
+</style>

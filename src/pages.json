@@ -208,6 +208,13 @@
             "navigationBarBackgroundColor": "#fff",
             "navigationBarTextStyle": "black"
           }
+        }, {
+          "path": "vaccineAppointment/vaccineAppointment",
+          "style": {
+            "navigationBarTitleText": "",
+            "navigationBarBackgroundColor": "#3ACBC6",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     },

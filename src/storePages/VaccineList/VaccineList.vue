@@ -1,100 +1,116 @@
 <template>
   <view class="vaccine-list" :style="{'--page-height':pageHeight}">
-    <view class="" style="width:50%;margin:20rpx auto;">
+    <!--    <view class="" style="width:50%;margin:20rpx auto;">
       <u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
-    </view>
-    <view class="vaccine-item" v-for="(item,itemIndex) in vaccineList" :key="itemIndex" @click="showInfo(item)">
-      <view class="title">
-        {{item.vaccine_drug_name}}
+    </view> -->
+    <view class="vaccine-list-box">
+      <view class="tab-list">
+        <view class="tab-item" :class="[curSub===index?'active':'','tab-item-'+index]" v-for="(item,index) in subList"
+          :key="index" @click="changeSub(index)">
+          {{item.name||''}}
+        </view>
       </view>
-      <view class="button-area">
-        <view class="margin-left  margin-right text-blue"
-          v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-          {{item.btnTextConfig.less.tip||''}}
-        </view>
-        <view class="margin-left  margin-right text-blue"
-          v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-          库存较少
-        </view>
-        <view class="margin-left margin-right text-orange"
-          v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&(!item.stock_count||item.stock_count<1)">
-          {{item.btnTextConfig.sellOut.tip||''}}
-        </view>
-        <view class="margin-left margin-right text-orange" v-else-if="!item.stock_count||item.stock_count<1">
-          待到货
-        </view>
-
-        <view class="margin-left  margin-right text-olive"
-          v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.persons_count!==1">
-          {{item.btnTextConfig.needOrder.tip||''}}
-        </view>
-        <view class="margin-left  margin-right text-olive" v-else-if="item.persons_count!==1">
-          需要预约
-        </view>
-        <view class="margin-left  margin-right text-green"
-          v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>0))">
-          {{item.btnTextConfig.full.tip||''}}
-        </view>
-        <view class="button-box">
-          <view class="cu-tag bg-cyan round"
-            v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-            {{item.btnTextConfig.full.button}}
+      <view class="vaccine-item" v-for="(item,itemIndex) in vaccineList" :key="itemIndex" @click="showInfo(item)">
+        <view class="title">
+          <text class="text">
+            {{item.vaccine_drug_name}}
+          </text>
+          <view class="margin-left-xs cu-btn round sm   margin-right bg-yellow light"
+            v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+            {{item.btnTextConfig.less.tip||''}}
           </view>
-          <view class="cu-tag bg-cyan round"
+          <view class="margin-left-xs cu-btn round sm   margin-right bg-yellow light"
             v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-            立即预约
+            库存较少
           </view>
-          <view class="cu-tag bg-cyan round"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&item.btnTextConfig.full.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0">
-            {{item.btnTextConfig.full.button}}
+          <view class="margin-left-xs cu-btn round sm  margin-right bg-orange light"
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&(!item.stock_count||item.stock_count<1)">
+            {{item.btnTextConfig.sellOut.tip||''}}
           </view>
-          <view class="cu-tag bg-cyan round" v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0">
-            随时到店
-          </view>
-          <view class="cu-tag bg-olive round " @click.stop="showModal(item)"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.btnTextConfig.needOrder.button&&item.persons_count!==1">
-            {{item.btnTextConfig.needOrder.button}}
-          </view>
-          <view class="cu-tag bg-olive round " @click.stop="showModal(item)" v-else-if="item.persons_count!==1">
-            预约
-          </view>
-          <view class="cu-tag bg-orange round " @click.stop="showModal(item)"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&item.btnTextConfig.sellOut.button&&(!item.stock_count||item.stock_count<1)">
-            {{item.btnTextConfig.sellOut.button}}
-          </view>
-          <view class="cu-tag bg-orange round " @click.stop="showModal(item)"
+          <view class="margin-left-xs cu-btn round sm  margin-right bg-orange light"
             v-else-if="!item.stock_count||item.stock_count<1">
-            到货通知
+            待到货
+          </view>
+          <view class="margin-left-xs cu-btn round sm   margin-right bg-cyan  light "
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.persons_count!==1">
+            {{item.btnTextConfig.needOrder.tip||''}}
+          </view>
+          <view class="margin-left-xs cu-btn round sm   margin-right bg-cyan light" v-else-if="item.persons_count!==1">
+            需要预约
+          </view>
+          <view class="margin-left-xs cu-btn round sm   margin-right bg-blue light"
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>=5))">
+            {{item.btnTextConfig.full.tip||''}}
           </view>
         </view>
-      </view>
+        <view class="button-area">
+          <!-- <view class="margin-left  margin-right text-blue"
+            v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+            {{item.btnTextConfig.less.tip||''}}
+          </view>
+          <view class="margin-left  margin-right text-blue"
+            v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+            库存较少
+          </view>
+          <view class="margin-left margin-right text-orange"
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&(!item.stock_count||item.stock_count<1)">
+            {{item.btnTextConfig.sellOut.tip||''}}
+          </view>
+          <view class="margin-left margin-right text-orange" v-else-if="!item.stock_count||item.stock_count<1">
+            待到货
+          </view>
+      
+          <view class="margin-left  margin-right text-olive"
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.persons_count!==1">
+            {{item.btnTextConfig.needOrder.tip||''}}
+          </view>
+          <view class="margin-left  margin-right text-olive" v-else-if="item.persons_count!==1">
+            需要预约
+          </view>
+          <view class="margin-left  margin-right text-green"
+            v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>0))">
+            {{item.btnTextConfig.full.tip||''}}
+          </view> -->
+          <view class="button-box">
+            <view class="cu-btn sm line-orange border round"
+              v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+              {{item.btnTextConfig.less.button}}
+            </view>
+            <view class="cu-btn sm line-orange border round"
+              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+              立即预约
+            </view>
+            <view class="cu-btn sm line-blue border round" @click.stop="showModal(item)"
+              v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&item.btnTextConfig.full.button&&item.persons_count===1&&item.stock_count&&item.stock_count>=5">
+              {{item.btnTextConfig.full.button}}
+            </view>
+            <view class="cu-btn sm line-blue border round" @click.stop="showModal(item)"
+              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>=5">
+              <!-- 随时到店 -->
+              预约
+            </view>
+            <view class="cu-btn sm line-cyan border round " @click.stop="showModal(item)"
+              v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.btnTextConfig.needOrder.button&&item.persons_count!==1">
+              {{item.btnTextConfig.needOrder.button}}
+            </view>
+            <view class="cu-btn sm line-cyan border round " @click.stop="showModal(item)"
+              v-else-if="item.persons_count!==1">
+              预约
+            </view>
+            <view class="cu-btn sm line-orange border round " @click.stop="showModal(item)"
+              v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&item.btnTextConfig.sellOut.button&&(!item.stock_count||item.stock_count<1)">
+              {{item.btnTextConfig.sellOut.button}}
+            </view>
+            <view class="cu-btn sm line-orange border round " @click.stop="showModal(item)"
+              v-else-if="!item.stock_count||item.stock_count<1">
+              到货通知
+            </view>
+          </view>
 
-      <!-- 	<view class="margin-left margin-right text-orange" v-if="!item.stock_count||item.stock_count<1">
-				待到货
-			</view>
-		
-			<view class="margin-left  margin-right text-blue"
-				v-if="item.persons_count===1&&item.stock_count&&item.stock_count<5">
-				库存较少
-			</view>
-			<view class="margin-left  margin-right text-olive" v-if="item.persons_count!==1">
-				需要预约
-			</view>
-			<view class="button-box">
-				<view class="cu-tag bg-cyan round" v-if="item.persons_count===1&&item.stock_count&&item.stock_count>0">
-					随时到店
-				</view>
-			
-				<view class="cu-tag bg-olive round " @click.stop="showModal(item)" v-if="item.persons_count!==1">
-					预约
-				</view>
-				
-				<view class="cu-tag bg-orange round " @click.stop="showModal(item)"
-					v-if="!item.stock_count||item.stock_count<1">
-					到货通知
-				</view>
-			</view> -->
+        </view>
+      </view>
     </view>
+
     <view class="cu-modal" :class="{'show':modalName==='vaccine-info'}" @click="hideModal" @touchmove.prevent>
       <view class="cu-dialog" @click.stop>
         <view class="vaccine-info">
@@ -401,15 +417,24 @@
                     obj.app_amount = data.amount
                   }
                 }
-                obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute').format(
-                  "HH:mm")
+                obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute')
+                let diff = obj.timeEnd.diff(dayjs(item.app_date + ' ' + item.app_time_end), 'minute')
+                if (diff > 0) {
+                  obj.timeEnd = dayjs(item.app_date + ' ' + item.app_time_end).format('HH:mm')
+                } else {
+                  obj.timeEnd = obj.timeEnd.format("HH:mm")
+                }
+                // obj.timeEnd = dayjs(item.app_date + ' ' + start).add(item.time_range, 'minute').format(
+                //   "HH:mm")
                 arr2.push(this.deepClone(obj))
                 start = obj.timeEnd
               }
               obj1.list = arr2
               // return arr
+              arr.push(this.deepClone(obj1))
+            } else {
+              return
             }
-            arr.push(this.deepClone(obj1))
           }
           return arr
         }
@@ -631,9 +656,16 @@
           })
           return
         }
-        let appCountLimit = await this.getWithin5minAppCount()
-        if (!appCountLimit) {
-          return
+        let selectedVaccine = this.deepClone(this.selectedVaccine)
+        if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
+          if (selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >= selectedVaccine
+            .time_range_appointment_limit) {
+            uni.showToast({
+              title: '已超过当前时间段预约人数限制!',
+              icon: 'none'
+            })
+            return
+          }
         }
         let req = [{
           "serviceName": "srvhealth_store_vaccination_appoint_record_add",
@@ -879,11 +911,15 @@
         this.modalName = 'realname'
       },
       showModal(e) {
-        this.vaccineInfo = e
+        // this.vaccineInfo = e
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
         } else {
-          this.selectTimeArr(e)
+          uni.navigateTo({
+            url:`/storePages/vaccineAppointment/vaccineAppointment?id=${e.id}&store_no=${this.storeNo}`
+          })
+          return
+          // this.selectTimeArr(e)
         }
       },
     },
@@ -892,16 +928,18 @@
         this.storeNo = option.storeNo
         this.getVaccineList()
       }
-
+      // #ifdef MP-WEIXIN
       // 在页面onLoad回调事件中创建插屏广告实例
       if (wx.createInterstitialAd) {
         interstitialAd = wx.createInterstitialAd({
           adUnitId: 'adunit-34fd06b767494b27'
         })
-        interstitialAd.onLoad(() => {})
-        interstitialAd.onError((err) => {})
-        interstitialAd.onClose(() => {})
+        // interstitialAd.onLoad(() => {})
+        // interstitialAd.onError((err) => {})
+        // interstitialAd.onClose(() => {})
       }
+      // #endif
+
 
     },
     // created () {
@@ -925,9 +963,16 @@
     display: flex;
     flex-direction: column;
     margin-bottom: 20rpx;
-    background-color: #fff;
+    background-color: #FAFBFC;
     // min-height: var(--page-height);
     min-height: 100vh;
+    padding: 20rpx;
+
+    .vaccine-list-box {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+    }
 
     .vaccine-item {
       padding: 5rpx 20rpx;
@@ -935,15 +980,20 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      border-bottom: 1rpx solid #f1f1f1;
-
-      &:first-child {
-        border-top: 1rpx solid #f1f1f1;
-      }
 
       .button-area {
         display: flex;
         align-items: center;
+
+        .button-box {
+          justify-content: flex-end;
+
+          .cu-btn {
+            min-width: 60px;
+            font-size: 14px;
+
+          }
+        }
       }
 
       .title {
@@ -951,6 +1001,10 @@
         font-size: 16px;
         text-align: left;
         flex: 1;
+
+        .light {
+          background-color: #edf2fe;
+        }
       }
 
       .desc {
@@ -1184,6 +1238,75 @@
         // pointer-events: none;
         // cursor: default;
         opacity: 0.6;
+      }
+    }
+  }
+
+  .tab-list {
+    display: flex;
+    margin: 0;
+    border-radius: 20rpx 20rpx 0 0;
+    overflow: hidden;
+    flex-wrap: wrap;
+    position: relative;
+
+    &::before {
+      content: '';
+      width: 100%;
+      height: 50rpx;
+      top: 0;
+      background-color: #eff0fb;
+      z-index: 1;
+      position: absolute;
+    }
+
+    &::after {
+      content: '';
+      width: 100%;
+      height: 50rpx;
+      bottom: 0;
+      background-color: #fff;
+      z-index: 1;
+      position: absolute;
+    }
+
+    .tab-item {
+      // flex: 1;
+      width: 50%;
+      text-align: center;
+      padding: 15rpx 0;
+      color: #9092A5;
+      font-size: 28rpx;
+      font-family: 苹方-简;
+      background-color: #eff0fb;
+      overflow: hidden;
+      z-index: 2;
+      // &.tab-item-0 {
+      //   border-bottom-right-radius: 30rpx;
+      // }
+
+      // &.tab-item-1 {
+      //    border-bottom-left-radius: 30rpx;
+      // }
+      &:not(.active).tab-item-0 {
+        border-bottom-right-radius: 30rpx;
+      }
+
+      &:not(.active).tab-item-1 {
+        border-bottom-left-radius: 30rpx;
+      }
+
+      &.active {
+        background-color: #fff;
+        color: #000;
+
+        &.tab-item-0 {
+          border-top-right-radius: 40rpx 20rpx;
+        }
+
+        &.tab-item-1 {
+          border-top-left-radius: 40rpx 20rpx;
+        }
       }
     }
   }

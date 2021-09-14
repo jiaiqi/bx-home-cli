@@ -363,9 +363,6 @@ export default {
       })
     })
   },
-  onLoad() {
-    
-  },
   mounted () {
     setTimeout(() => {
       if (!this.subscsribeStatus) {
