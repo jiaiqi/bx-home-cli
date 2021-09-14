@@ -237,17 +237,18 @@
         if (res.success && res.data.length > 0) {
           this.vaccineInfo = res.data[0]
           let e = res.data[0]
+		  debugger
           if (e.persons_count === 1) {
             if (!e.stock_count || e.stock_count < 1) {
               return
             }
             this.selectVaccineDayList(e)
           }
-          if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
+          // if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
             // this.showRealNameModal()
-          } else {
+          // } else {
             this.selectTimeArr(e)
-          }
+          // }
         }
       },
       async getStoreInfo(store_no) {
@@ -332,11 +333,11 @@
               "ruleType": "ge",
               "value": dayjs().format("YYYY-MM-DD")
             },
-            {
-              "colName": "app_time_end",
-              "ruleType": "ge",
-              "value": dayjs().format("HH:mm:ss")
-            },
+            // {
+            //   "colName": "app_time_end",
+            //   "ruleType": "ge",
+            //   "value": dayjs().format("HH:mm:ss")
+            // },
             {
               "colName": "app_date",
               "ruleType": "lt",
@@ -399,11 +400,11 @@
               "ruleType": "ge",
               "value": this.formateDate()
             },
-            {
-              "colName": "app_time_end",
-              "ruleType": "ge",
-              "value": dayjs().format("HH:mm:ss")
-            },
+            // {
+            //   "colName": "app_time_end",
+            //   "ruleType": "ge",
+            //   "value": dayjs().format("HH:mm:ss")
+            // },
             {
               "colName": "app_date",
               "ruleType": "lt",
@@ -419,6 +420,7 @@
             "rownumber": 20
           },
         }
+		
         if (!e.stock_count || e.stock_count < 1) {
           req.condition = [{
               "colName": "svs_no",
