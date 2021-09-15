@@ -12,10 +12,9 @@
               <text>{{vaccineInfo.usage||''}}</text>
             </text>
           </view>
-          <view class="right">
+          <view class="right" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)">
             <text class="cuIcon-pic"></text>
-            <text class="text" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)"
-              @tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
+            <text class="text" @tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
               图片说明
             </text>
           </view>
@@ -39,7 +38,7 @@
               </view>
               <view class="date-area ">
                 <view class="date-item"
-                  :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
+                  :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
                   v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
                   <view v-if="radio.app_date">
                     {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
@@ -52,8 +51,8 @@
           </view>
           <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
             <view class="date-item"
-              :class="{'line-cyan':selectedVaccine.sa_no===radio.sa_no,disabled:disabledTime(radio)}"
-              v-for="radio in timeArr" :key="radio.sa_no" @click="selectItem(radio)">
+              :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
+              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio)">
               <view class="date">
                 <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
                   {{radio.appoint_name}}
@@ -156,7 +155,8 @@
           appoint_remark: ''
         },
         timeArr: [],
-        imagesUrl: []
+        imagesUrl: [],
+        dayOrderInfo: {}
       }
     },
     computed: {
@@ -191,10 +191,11 @@
                 let obj = this.deepClone(obj1)
                 obj.timeStart = start;
                 if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
-                  let data = obj.recordList.find(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
+                  let data = obj.recordList.filter(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
                     .app_time_start.indexOf(start) !== -1)
-                  if (data && data.amount) {
-                    obj.app_amount = data.amount
+                 
+                  if(Array.isArray(data)&&data.length>0){
+                    obj.app_amount = data.reduce((res,cur)=>{res+=cur.amount;return res},0)
                   }
                 }
                 obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
@@ -211,12 +212,12 @@
               arr.push(this.deepClone(obj1))
               // return arr
             } else {
-				let obj = this.deepClone(obj1)
-				obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
-				obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
-				obj.app_amount = obj.app_count
-				obj1.list = [obj]
-				arr.push(obj1)
+              let obj = this.deepClone(obj1)
+              obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
+              obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
+              obj.app_amount = obj.app_count
+              obj1.list = [obj]
+              arr.push(obj1)
               // return
             }
           }
@@ -243,7 +244,6 @@
         if (res.success && res.data.length > 0) {
           this.vaccineInfo = res.data[0]
           let e = res.data[0]
-		  debugger
           if (e.persons_count === 1) {
             if (!e.stock_count || e.stock_count < 1) {
               return
@@ -251,15 +251,15 @@
             this.selectVaccineDayList(e)
           }
           // if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
-            // this.showRealNameModal()
+          // this.showRealNameModal()
           // } else {
-            this.selectTimeArr(e)
+          this.selectTimeArr(e)
           // }
         }
       },
       async getStoreInfo(store_no) {
         let req = {
-          "serviceName": "srvhealth_store_mgmt_select",
+          "serviceName": "srvhealth_store_list_select",
           "colNames": ["*"],
           "condition": [{
             colName: "store_no",
@@ -271,7 +271,7 @@
             "rownumber": 1
           },
         }
-        let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+        let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
         if (res.success && res.data.length > 0) {
           this.storeInfo = res.data[0]
           if (this.storeInfo.name) {
@@ -330,6 +330,7 @@
           }
         }
       },
+
       async selectVaccineDayList(e) {
         let req = {
           "serviceName": "srvhealth_store_vaccination_appointment_day_select",
@@ -366,6 +367,7 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_day_select', req, 'health')
         if (res.success) {
+
           for (let index = 0; index < res.data.length; index++) {
             let item = res.data[index]
             item.remark = e.remark
@@ -385,16 +387,16 @@
               this.$set(res.data, index, item)
             }
           }
-          this.timeArr = res.data.filter(item=>{
-			  if(item.app_date===dayjs().format("YYYY-MM-DD")){
-				  if(dayjs(item.app_date + ' '+item.app_time_end).format("HH")<dayjs().format("HH")){
-					  return false
-				  }else{
-					  return true
-				  }
-			  }
-			  return true
-		  })
+          this.timeArr = res.data.filter(item => {
+            if (item.app_date === dayjs().format("YYYY-MM-DD")) {
+              if (dayjs(item.app_date + ' ' + item.app_time_end).format("HH") < dayjs().format("HH")) {
+                return false
+              } else {
+                return true
+              }
+            }
+            return true
+          })
           this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
           this.formModel.customer_phone = this.userInfo.phone || ''
           this.formModel.customer_birth_day = this.userInfo.birthday || ''
@@ -435,7 +437,7 @@
             "rownumber": 20
           },
         }
-		
+
         if (!e.stock_count || e.stock_count < 1) {
           req.condition = [{
               "colName": "svs_no",
@@ -574,19 +576,11 @@
       async submitForm() {
         debugger
         if (!this.formModel.customer_name) {
-          // uni.showToast({
-          //   title: '请填写就诊人姓名',
-          //   icon: 'none'
-          // })
           return {
             msg: '请填写就诊人姓名'
           }
         }
         if (!this.selectedVaccine || (!this.selectedVaccine.sa_no && !this.selectedVaccine.sda_no)) {
-          // uni.showToast({
-          //   title: '请选择预约时间',
-          //   icon: 'none'
-          // })
           return {
             msg: '请选择预约时间'
           }
@@ -736,7 +730,7 @@
     .appointment-content {
       border-radius: 50rpx 50rpx 0 0;
       background-color: #ffffff;
-      padding: 0 50rpx;
+      padding: 0 40rpx;
       height: calc(100vh - var(--window-top));
       padding-top: 30rpx;
       display: flex;
@@ -862,45 +856,53 @@
             flex-wrap: wrap;
 
             .date-time-box {
-              background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
+              // background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
               border-radius: 20rpx;
-              padding: 20rpx 20rpx 10rpx;
+              // padding: 20rpx 20rpx 10rpx;
               width: 100%;
               min-height: 200rpx;
               color: #9092A5;
+              margin-bottom: 20rpx;
+              font-size: 28rpx;
 
               .title {
                 font-size: 28rpx;
                 color: #9092A5;
-                text-align: center;
+                text-align: left;
+                text-indent: 20rpx;
               }
 
               .date-area .date-item {
-                background-color: #fff;
+                // background-color: #fff;
+                background: rgba($color: #8EB0FF, $alpha: 0.1);
                 background-image: none;
               }
             }
 
             .date-item {
               text-align: center;
-              width: calc(50% - 15rpx);
-			  overflow: hidden;
-			  text-overflow: ellipsis;
-			  white-space: nowrap;
+              width: calc(50% - 20rpx);
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
               margin-right: 20rpx;
               border-radius: 20rpx;
               padding: 10rpx;
               color: #9092A5;
-              background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
+              // background: linear-gradient(135deg, rgba($color:#3ACBC6, $alpha:0.1) 0%, rgba($color:#47A9F2, $alpha:0.1) 60%, rgba($color:#624BFF, $alpha:0.1) 100%);
               margin-bottom: 10rpx;
               border: 1px solid #fff;
+              font-size: 32rpx;
 
               &:nth-child(2n) {
                 margin-right: 0;
               }
 
               &.line-cyan {
-                border-color: #3acbc6;
+                // border-color: #3acbc6;
+                border: 1px solid #FFBD37;
+                background: rgba(255, 189, 55, 0.31) !important;
+                color: #666;
               }
 
               &.disabled {
@@ -913,7 +915,7 @@
               }
 
               .vaccine_app_count {
-                color: #3ACBC6;
+                // color: #3ACBC6;
                 font-size: 20rpx;
               }
 

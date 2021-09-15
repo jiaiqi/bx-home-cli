@@ -215,6 +215,15 @@
             "navigationBarBackgroundColor": "#3ACBC6",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "appointmentCheckIn/appointmentCheckIn",
+          "style": {
+            "navigationBarTitleText": "预约管理",
+            "navigationBarBackgroundColor":"#fff",
+            "navigationBarTextStyle":"black",
+            "enablePullDownRefresh": false
+          }
+
         }
       ]
     },
