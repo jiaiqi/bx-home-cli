@@ -6,8 +6,11 @@
           预约日期:
           <!-- <text class="text-bold margin-left-sm">{{titleDate}}</text> -->
         </view>
-        <date-range-picker style="width: 100%;" :mode="'date'" :isRange="true" @change="bindTimeChange" v-model="date">
+        <date-range-picker :mode="'date'" v-model="date" :isRange="false" @change="bindTimeChange">
         </date-range-picker>
+        <text class="">({{getDayOfWeek(date)||''}})</text>
+        <button class="time-slot margin-left-xs  light sm round cu-btn border line-blue"
+          @click="changeTimeSlot">{{curTimeSlot||'全部'}}</button>
       </view>
     </view>
     <view class="order-item-box" v-for="item in multiUserVaccine">
@@ -16,9 +19,12 @@
       </view>
       <view class="order-record-list">
         <view class="order-record-item light"
-          :class="{'bg-gray':order.app_state==='待到场','bg-cyan':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
+          :class="{'bg-gray':order.app_state==='待到场','bg-cyan line-cyan':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
           @click="changeState(order)" v-for="order in item.recordList">
           <text>{{order.customer_name||order.person_name||''}}</text>
+          <text class="hasCheckIn" v-if="order.app_state==='完成'">
+            <text class="cuIcon-check"></text>
+          </text>
           <!-- <text>{{order.appTimeStart}}-{{order.appTimeEnd}}</text> -->
           <!-- <text class="state">{{order.app_state}}</text> -->
         </view>
@@ -30,9 +36,12 @@
       </view>
       <view class="order-record-list">
         <view class="order-record-item light"
-          :class="{'bg-gray':order.app_state==='待到场','bg-cyan':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
+          :class="{'bg-gray':order.app_state==='待到场','bg-cyan  line-cyan ':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
           @click="changeState(order)" v-for="order in item.recordList">
           <text>{{order.customer_name||order.person_name||''}}</text>
+          <text class="hasCheckIn" v-if="order.app_state==='完成'">
+            <text class="cuIcon-check"></text>
+          </text>
           <!-- <text>{{order.appTimeStart}}-{{order.appTimeEnd}}</text> -->
           <!-- <text class="state">{{order.app_state}}</text> -->
         </view>
@@ -52,6 +61,7 @@
         dayOrderData: [],
         orderedMember: [],
         multiUserVaccine: [], //多人份疫苗列表
+        curTimeSlot: ""
       }
     },
     watch: {
@@ -94,9 +104,29 @@
       },
     },
     methods: {
+      changeTimeSlot() {
+        let arr = ['中午', '下午', '其它', '全部']
+        uni.showActionSheet({
+          itemList: arr,
+          success: (res) => {
+            console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+            let timeSlot = arr[res.tapIndex]
+            if (res.tapIndex === 3) {
+              this.curTimeSlot = null
+            } else {
+              this.curTimeSlot = timeSlot
+            }
+            this.getDayOrderData()
+          },
+          fail: function(res) {
+            console.log(res.errMsg);
+          }
+        });
+      },
       bindTimeChange(e) {
         let cond = []
         if (Array.isArray(e) && e.length > 0) {
+          this.date = e
           if (e.length == 2) {
             if (e[0] == e[1]) {
               cond = [{
@@ -112,6 +142,10 @@
               }]
             }
           }
+        } else if (e?.detail?.value) {
+          this.date = e.detail.value
+        } else if (typeof e === 'string') {
+          this.date = e
         }
         // if (Array.isArray(cond) && cond.length > 0) {
         this.getDayOrderData()
@@ -149,15 +183,16 @@
           success: function(res) {
             console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
             let state = arr[res.tapIndex]
-            uni.showModal({
-              title: '提示',
-              content: `是否将${e.customer_name||e.person_name}的预约状态改为${state}?`,
-              success(res) {
-                if (res.confirm) {
-                  changeState(e, state)
-                }
-              }
-            })
+            changeState(e, state)
+            // uni.showModal({
+            //   title: '提示',
+            //   content: `是否将${e.customer_name||e.person_name}的预约状态改为${state}?`,
+            //   success(res) {
+            //     if (res.confirm) {
+            //       changeState(e, state)
+            //     }
+            //   }
+            // })
           },
           fail: function(res) {
             console.log(res.errMsg);
@@ -201,6 +236,13 @@
             "ruleType": "in",
             "value": sda_no.toString()
           }]
+        }
+        if (this.curTimeSlot) {
+          req.condition.push({
+            colName: 'app_time_slot',
+            ruleType: 'eq',
+            value: this.curTimeSlot
+          })
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
         if (res.success) {
@@ -311,6 +353,7 @@
       .filter-item {
         display: flex;
         align-items: center;
+        justify-content: center;
 
         .date-range-picker {
           flex: 1;
@@ -352,6 +395,26 @@
           padding: 20rpx;
           margin-bottom: 10rpx;
           position: relative;
+          border: 1px solid transparent;
+
+          &.line-cyan {
+            color: #1cbbb4;
+          }
+
+          .hasCheckIn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40rpx;
+            height: 40rpx;
+            border-radius: 50%;
+            background-color: #d2f1f0;
+            // border: 1px solid #1cbbb4;
+            text-align: center;
+            line-height: 40rpx;
+            color: #0bc99d;
+
+          }
 
           .state {
             font-size: 24rpx;

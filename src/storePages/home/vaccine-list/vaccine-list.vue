@@ -10,7 +10,7 @@
           <text class="cu-btn bg-blue light sm round margin-right-xs" v-for="(item,index) in setDateOrderList"
             :key="index">
             <text class="margin-right-xs">{{item.label}}</text>
-            <text class="text-orange">{{item.app_count||''}}/{{item.app_count_limit||''}}</text></text>
+            <text class="text-orange">{{item.app_count||'0'}}/{{item.app_count_limit||'0'}}</text></text>
         </view>
       </view>
       <view class="to-more text-grey" @click="toMore()" v-if="list.length>1">
@@ -335,9 +335,7 @@
         let list = this.dateOrderList
         return list.map(item => {
           let date = item.app_date
-
           if (dayjs(date).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD")) {
-
             item.label = '今日'
             if (item.app_time_end.slice(0, 2) > 12) {
               item.label = '下午'
@@ -345,7 +343,7 @@
               item.label = '上午'
             }
           } else {
-            dayjs(date).format("MM-DD")
+            item.label = dayjs(date).format("MM-DD")
           }
           return item
         })

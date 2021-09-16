@@ -193,9 +193,12 @@
                 if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
                   let data = obj.recordList.filter(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
                     .app_time_start.indexOf(start) !== -1)
-                 
-                  if(Array.isArray(data)&&data.length>0){
-                    obj.app_amount = data.reduce((res,cur)=>{res+=cur.amount;return res},0)
+
+                  if (Array.isArray(data) && data.length > 0) {
+                    obj.app_amount = data.reduce((res, cur) => {
+                      res += cur.amount;
+                      return res
+                    }, 0)
                   }
                 }
                 obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
@@ -598,6 +601,7 @@
             }
           }
         }
+
         let req = [{
           "serviceName": "srvhealth_store_vaccination_appoint_record_add",
           "condition": [],
@@ -605,7 +609,7 @@
             "store_no": this.storeInfo.store_no,
             "sa_no": this.selectedVaccine.sa_no,
             "sda_no": this.selectedVaccine.sda_no,
-            "svs_no": this.selectedVaccine.svs_no || null,
+            "svs_no": this.selectedVaccine.svs_no || this.selectedVaccine.vs_no || null,
             "appoint_name": this.selectedVaccine.appoint_name,
             "app_date": this.selectedVaccine.app_date,
             "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
@@ -620,6 +624,19 @@
             "person_image": this.userInfo.person_image || this.userInfo.profile_url
           }]
         }]
+        let timeStart = req[0].app_time_start
+        let timeEnd = req[0].app_time_end
+        let app_time_slot = null
+        if (timeEnd && timeStart) {
+          if (timeStart.slice(0, 2) <= 12 && timeEnd.slice(0, 2) <= 12) {
+            app_time_slot = '上午'
+          } else if (timeStart.slice(0, 2) > 12 && timeEnd.slice(0, 2) > 12) {
+            app_time_slot = '下午'
+          } else {
+            app_time_slot = '其它'
+          }
+          req[0].app_time_slot = app_time_slot
+        }
         if (!this.onSubmit) {
           this.onSubmit = true
           let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
