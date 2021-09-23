@@ -32,13 +32,14 @@
           <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
             <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
               <view class="title">
-                <text class="">{{item.app_date}} {{getDayOfWeek(item.app_date)}} </text>
+                <text class="" v-if="item._date">{{item._date}} {{getDayOfWeek(item._date)}} </text>
+                <text class="" v-else>{{item.app_date}} {{getDayOfWeek(item.app_date)}} </text>
                 <text v-if="item.app_count_limit&&item.app_count>=item.app_count_limit"></text>
                 <text class="" v-else>( 已约{{item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人 )</text>
               </view>
               <view class="date-area ">
                 <view class="date-item"
-                  :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
+                  :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.app_date===radio.app_date&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
                   v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
                   <view v-if="radio.app_date">
                     {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
@@ -52,7 +53,8 @@
           <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
             <view class="date-item"
               :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
-              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio)">
+              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio)"
+              v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
               <view class="date">
                 <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
                   {{radio.appoint_name}}
@@ -74,7 +76,7 @@
               </view>
             </view>
           </view>
-          <view class="date-area" v-if="timeArr.length===0">
+          <view class="date-area" v-if="!notEmpty">
             <view class="date-time-box">
               预约人数已满或无可预约疫苗
             </view>
@@ -142,6 +144,7 @@
   export default {
     data() {
       return {
+        store_no: "",
         storeInfo: {},
         onSubmit: false,
         vaccineInfo: {},
@@ -160,6 +163,16 @@
       }
     },
     computed: {
+      notEmpty() {
+        if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
+          if (Array.isArray(this.getRange) && this.getRange.length > 0) {
+            return true
+          } else {
+            let greaterToday = this.timeArr.find(item => dayjs(item.app_date) - dayjs() > 0)
+            return greaterToday
+          }
+        }
+      },
       ...mapState({
         subscsribeStatus: state => state.app.subscsribeStatus,
         userInfo: state => state.user.userInfo
@@ -174,6 +187,81 @@
         }
       },
       getRange() {
+        if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
+          let timeArr = this.deepClone(this.timeArr)
+          let arr = []
+          for (let item of timeArr) {
+            let days = (dayjs(item.app_date_end) - dayjs(item.app_date)) / 3600000 / 24
+            if (new Date() - new Date(item.app_date) > 0) {
+              days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
+            }
+            for (let i = days; i > 0; i--) {
+              if (item.predays) {
+                if (days - i > item.predays) {
+                  continue;
+                }
+              }
+              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
+              if (item.weekday_set) {
+                let week = this.getDayOfWeek(date)
+                if (week) {
+                  week = week.replace('周', '')
+                }
+                if (item.weekday_set.indexOf(week) === -1) {
+                  continue;
+                }
+              }
+              let obj1 = this.deepClone(item)
+              obj1.app_date = date
+              obj1._date = date
+              if (obj1.time_range && obj1.time_range_appointment_limit) {
+                let date1 = obj1.app_time_start
+                let date2 = obj1.app_time_end
+                date1 = dayjs(`${obj1._date} ${date1}`)
+                date2 = dayjs(`${obj1._date} ${date2}`)
+                let diff = date2.diff(date1, 'minute') / obj1.time_range
+                let arr2 = []
+                let start = obj1?.app_time_start.slice(0, 5)
+                for (let i = 0; i < diff; i++) {
+                  let obj = this.deepClone(obj1)
+                  obj.timeStart = start;
+                  if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
+                    let data = obj.recordList.filter(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
+                      .app_time_start.indexOf(start) !== -1)
+
+                    if (Array.isArray(data) && data.length > 0) {
+                      obj.app_amount = data.reduce((res, cur) => {
+                        res += cur.amount;
+                        return res
+                      }, 0)
+                    }
+                  }
+                  obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
+                  let diff = obj.timeEnd.diff(dayjs(obj1.app_date + ' ' + obj1.app_time_end), 'minute')
+                  if (diff > 0) {
+                    obj.timeEnd = dayjs(obj1.app_date + ' ' + obj1.app_time_end).format('HH:mm')
+                  } else {
+                    obj.timeEnd = obj.timeEnd.format("HH:mm")
+                  }
+                  arr2.push(this.deepClone(obj))
+                  start = obj.timeEnd
+                }
+                obj1.list = arr2
+                arr.push(this.deepClone(obj1))
+              } else {
+                let obj = this.deepClone(obj1)
+                obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
+                obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
+                obj.app_amount = obj.app_count
+                obj1.list = [obj]
+                arr.push(obj1)
+              }
+            }
+          }
+          return arr
+        }
+      },
+      getRange2() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
           let timeArr = this.deepClone(this.timeArr)
           let arr = []
@@ -213,7 +301,6 @@
               }
               obj1.list = arr2
               arr.push(this.deepClone(obj1))
-              // return arr
             } else {
               let obj = this.deepClone(obj1)
               obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
@@ -230,6 +317,7 @@
     },
     methods: {
       async getVaccineInfo(id) {
+        // 疫苗库存
         let req = {
           "serviceName": "srvhealth_store_vaccine_stocks_select",
           "colNames": ["*"],
@@ -247,17 +335,21 @@
         if (res.success && res.data.length > 0) {
           this.vaccineInfo = res.data[0]
           let e = res.data[0]
-          if (e.persons_count === 1) {
-            if (!e.stock_count || e.stock_count < 1) {
-              return
-            }
-            this.selectVaccineDayList(e)
+          debugger
+          if (e.is_general !== '否') {
+            // 查找公共预约
+            await this.selectTimeArr(e, true)
+          } else {
+            // 查找疫苗独立预约
+            await this.selectTimeArr(e)
           }
-          // if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
-          // this.showRealNameModal()
-          // } else {
-          this.selectTimeArr(e)
+          // if (e.persons_count === 1) {
+          //   if (!e.stock_count || e.stock_count < 1) {
+          //     return
+          //   }
+          //   await this.selectVaccineDayList(e)
           // }
+          // await this.selectTimeArr(e)
         }
       },
       async getStoreInfo(store_no) {
@@ -370,7 +462,6 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_day_select', req, 'health')
         if (res.success) {
-
           for (let index = 0; index < res.data.length; index++) {
             let item = res.data[index]
             item.remark = e.remark
@@ -383,7 +474,6 @@
             item.vaccine_drug_name = e.vaccine_drug_name
             item.vaccine_type = e.vaccine_type
             item.vs_no = e.vs_no
-            // item.recordList = new Array( item.app_count)
             let result = await this.getWithin5minAppCount(item)
             if (Array.isArray(result) && result.length > 0) {
               item.recordList = result
@@ -400,36 +490,48 @@
             }
             return true
           })
-          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
-          this.formModel.customer_phone = this.userInfo.phone || ''
-          this.formModel.customer_birth_day = this.userInfo.birthday || ''
-          this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
+          this.formModel.customer_phone = this.userInfo.phone || null
+          this.formModel.customer_birth_day = this.userInfo.birthday || null
+          this.formModel.phone_xcx = this.userInfo.phone_xcx || null
           this.modalName = 'vaccine'
           this.getImage(e)
         }
       },
-      async selectTimeArr(e) {
+      async selectTimeArr(e, is_general) {
         let req = {
-          "condition": [{
-              "colName": "svs_no",
-              "ruleType": "eq",
-              "value": e.vs_no
-            },
-            {
-              "colName": "app_date",
-              "ruleType": "ge",
-              "value": this.formateDate()
-            },
+          "condition": [
+            // {
+            //   "colName": "app_date",
+            //   "ruleType": "ge",
+            //   "value": this.formateDate()
+            // },
+
             // {
             //   "colName": "app_time_end",
             //   "ruleType": "ge",
             //   "value": dayjs().format("HH:mm:ss")
             // },
+            // {
+            //   "colName": "app_date",
+            //   "ruleType": "lt",
+            //   value: dayjs().add(5, 'day').format('YYYY-MM-DD')
+            // }
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.store_no
+            },
             {
               "colName": "app_date",
-              "ruleType": "lt",
-              value: dayjs().add(5, 'day').format('YYYY-MM-DD')
-            }
+              "ruleType": "le",
+              "value": this.formateDate()
+            },
+            {
+              "colName": "app_date_end",
+              "ruleType": "ge",
+              "value": this.formateDate()
+            },
           ],
           order: [{
             colName: "app_date",
@@ -440,7 +542,18 @@
             "rownumber": 20
           },
         }
-
+        if (!is_general) {
+          req.condition.push({
+            "colName": "svs_no",
+            "ruleType": "eq",
+            "value": e.vs_no
+          })
+        } else {
+          req.condition.push({
+            "colName": "svs_no",
+            "ruleType": "isnull"
+          })
+        }
         if (!e.stock_count || e.stock_count < 1) {
           req.condition = [{
               "colName": "svs_no",
@@ -455,21 +568,23 @@
           ]
           delete req.order
         }
+
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+        debugger
         if (res.success) {
-          for (let index = 0; index < res.data.length; index++) {
-            let item = res.data[index]
-            let result = await this.getWithin5minAppCount(item)
-            if (Array.isArray(result) && result.length > 0) {
-              item.recordList = result
-              this.$set(res.data, index, item)
-            }
-          }
+          // for (let index = 0; index < res.data.length; index++) {
+          //   let item = res.data[index]
+          //   let result = await this.getWithin5minAppCount(item)
+          //   if (Array.isArray(result) && result.length > 0) {
+          //     item.recordList = result
+          //     this.$set(res.data, index, item)
+          //   }
+          // }
           this.timeArr = res.data
-          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || ''
-          this.formModel.customer_phone = this.userInfo.phone || ''
-          this.formModel.customer_birth_day = this.userInfo.birthday || ''
-          this.formModel.phone_xcx = this.userInfo.phone_xcx || ''
+          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
+          this.formModel.customer_phone = this.userInfo.phone || null
+          this.formModel.customer_birth_day = this.userInfo.birthday || null
+          this.formModel.phone_xcx = this.userInfo.phone_xcx || null
           this.modalName = 'vaccine'
           this.getImage(e)
         }
@@ -609,7 +724,8 @@
             "store_no": this.storeInfo.store_no,
             "sa_no": this.selectedVaccine.sa_no,
             "sda_no": this.selectedVaccine.sda_no,
-            "svs_no": this.selectedVaccine.svs_no || this.selectedVaccine.vs_no || null,
+            "svs_no": this.selectedVaccine.svs_no || this.selectedVaccine.vs_no || this.vaccineInfo.vs_no ||
+              null,
             "appoint_name": this.selectedVaccine.appoint_name,
             "app_date": this.selectedVaccine.app_date,
             "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
@@ -672,10 +788,6 @@
       },
       async submitOrder() {
         // 提交预约信息
-        // let appCountLimit = await this.getWithin5minAppCount()
-        // if (!appCountLimit) {
-        //   return
-        // }
         this.submitForm().then(res => {
           if (res !== true) {
             if (res && res.msg) {
@@ -730,6 +842,7 @@
 
     async onLoad(option) {
       if (option.store_no) {
+        this.store_no = option.store_no
         await this.getStoreInfo(option.store_no)
       }
       if (option.id) {
