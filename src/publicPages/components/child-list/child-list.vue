@@ -141,7 +141,6 @@
 			},
 			mainFkField: {
 				type: Array
-
 			}
 		},
 		computed: {
@@ -764,7 +763,6 @@
 				if (!colVs) {
 					return
 				}
-				debugger
 				colVs._fieldInfo = colVs._fieldInfo.map(item => {
 					if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2
 						.mconditions.length > 0) {
@@ -787,24 +785,6 @@
 						.length > 0) {
 						item.option_list_v2.conditions = this.evalConditions(item.option_list_v2.conditions,
 							this.mainData)
-
-						// item.option_list_v2.conditions = item.option_list_v2.conditions.map(op => {
-						// 	if (op.value && op.value.indexOf('data.') !== -1) {
-						// 		let colName = op.value.slice(op.value.indexOf('data.') + 5);
-						// 		if (this.mainData && this.mainData[colName]) {
-						// 			op.value = this.mainData[colName];
-						// 		}
-						// 	} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
-						// 		op.value = uni.getStorageSync('login_user_info').user_no;
-						// 	} else if (op.value && op.value.indexOf("'") === 0 && op.value.lastIndexOf("'") === op.value
-						// 		.length - 1) {
-						// 		op.value = op.value.replace(/\'/gi, '');
-						// 	}
-						// 	if (op.value_exp) {
-						// 		delete op.value_exp;
-						// 	}
-						// 	return op
-						// })
 					}
 					if (item.defaultValue) {
 						item.value = item.defaultValue

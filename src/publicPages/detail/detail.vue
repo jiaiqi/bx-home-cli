@@ -29,7 +29,6 @@
 						<view class="value">
 							{{detail[appTempColMap.subTitle]||''}}
 						</view>
-
 					</view>
 					<view class="top-item" v-if="appTempColMap.left && detail[appTempColMap.left]">
 						<view class="label" v-if="labelMap[appTempColMap.left]">

@@ -69,11 +69,11 @@
               </view>
               <view class="button-area">
                 <view class="button-box">
-                  <view class="cu-btn sm line-orange border round"
+                  <view class="cu-btn sm line-orange border round" @click.stop="showModal(item)"
                     v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
                     {{item.btnTextConfig.less.button}}
                   </view>
-                  <view class="cu-btn sm line-orange border round"
+                  <view class="cu-btn sm line-orange border round" @click.stop="showModal(item)"
                     v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
                     立即预约
                   </view>
@@ -1151,7 +1151,7 @@
         }
       },
       showModal(e) {
-
+        debugger
         // if (e.persons_count === 1) {
         //   if (!e.stock_count || e.stock_count < 1) {
         //     return

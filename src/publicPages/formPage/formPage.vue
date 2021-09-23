@@ -184,7 +184,6 @@
 				// 	return;
 				// }
 				let req = this.$refs.bxForm.getFieldModel();
-				debugger
 				for (let key in req) {
 					if (Array.isArray(req[key])) {
 						req[key] = req[key].toString();
@@ -195,9 +194,7 @@
 					case 'edit':
 					case 'submit':
 						if (req) {
-
 							let data = this.deepClone(req);
-
 							data.child_data_list = []
 							this.childService.forEach((item, index) => {
 								data.child_data_list = this.$refs.childList[index].getChildDataList()
