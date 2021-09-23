@@ -153,7 +153,7 @@
             </view>
             <view class="info-item">
               <!-- <view class="title">wifi密码:</view> -->
-              <input class="password" placeholder="请输入wifi密码" name="input" type="password"
+              <input class="password" placeholder="请输入wifi密码" name="input" type="text"
                 v-model="undefinedPassword"></input>
             </view>
           </view>
@@ -535,7 +535,6 @@
         this.qrcodePath = e;
       },
       makeQrCode() {
-        debugger
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make()
         }
@@ -639,13 +638,15 @@
               uni.showToast({
                 title: '提交成功'
               })
+              uni.$emit("dataChange")
+              this.getSavedWifi()
             }
           })
         }
       },
       connectWifi(e, isSubmit) {
         // 连接wifi
-        if (!e || (e && !e.SSID)) {
+        if (!e?.SSID) {
           if (this.undefinedWifi && this.undefinedWifi.secure && this.undefinedWifi.SSID && this.undefinedPassword) {
             if (this.undefinedPassword.length >= 8) {
               e = {
@@ -662,16 +663,25 @@
             return
           }
         }
+        if (!e?.SSID) {
+          console.log('没有wifi名称')
+          return
+        }
         let {
           SSID,
           password
         } = e
         var self = this
         console.log(e)
-        uni.showToast({
+        // uni.showToast({
+        //   title: '连接中...',
+        //   icon: 'none'
+        // })
+        uni.showLoading({
           title: '连接中...',
-          icon: 'none'
+          mask:true
         })
+        this.hideModal()
         wx.connectWifi({
           SSID,
           // BSSID: '',
@@ -710,7 +720,6 @@
                 showCancel: false
               })
             }
-            self.hideModal()
           },
           fail(err) {
             // 连接失败
@@ -718,12 +727,15 @@
             if (err.errCode) {
               checkWifiErr(err.errCode)
             }
+            // uni.showModal({
+            //   title: SSID,
+            //   content: '连接失败',
+            //   showCancel: false
+            // })
+          },
+          complete() {
             self.hideModal()
-            uni.showModal({
-              title: SSID,
-              content: '连接失败',
-              showCancel: false
-            })
+            uni.hideLoading()
           }
         })
       },

@@ -26,75 +26,77 @@
           "style": {
             "navigationBarTitleText": "登录"
           }
-        },
-        {
-          "path": "list/list"
-        },
-        {
-          "path": "form/form"
-        },
-        {
-          "path": "gropDetail/gropDetail"
-        },
-        {
-          "path": "chat/chat",
-          "navigationBarBackgroundColor": "#fff",
-          "navigationBarTextStyle": "black"
-        },
-        {
-          "path": "article/article"
-        },
-        {
-          "path": "articleList/articleList",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "articleSelect/articleSelect"
-        },
-        {
-          "path": "webviewPage/webviewPage"
-        },
-        {
-          "path": "MessageCenter/MessageCenter",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "groupAC/groupAC",
-          "style": {
-            "navigationStyle": "custom",
-            "navigationBarTitleText": "群公告"
-          }
-        },
+        }
+        // ,
+        // {
+        //   "path": "list/list"
+        // },
+        // {
+        //   "path": "form/form"
+        // },
+        // {
+        //   "path": "gropDetail/gropDetail"
+        // },
+        // {
+        //   "path": "chat/chat",
+        //   "navigationBarBackgroundColor": "#fff",
+        //   "navigationBarTextStyle": "black"
+        // },
+        // {
+        //   "path": "article/article"
+        // },
+        // {
+        //   "path": "articleList/articleList",
+        //   "style": {
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "articleSelect/articleSelect"
+        // },
+        // {
+        //   "path": "webviewPage/webviewPage"
+        // },
+        // {
+        //   "path": "MessageCenter/MessageCenter",
+        //   "style": {
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "groupAC/groupAC",
+        //   "style": {
+        //     "navigationStyle": "custom",
+        //     "navigationBarTitleText": "群公告"
+        //   }
+        // }
+        // // ,
         // {
         // 	"path": "listPage/listPage",
         // 	"style": {
         // 		"navigationBarTitleText": "listPage"
         // 	}
         // },
-        {
-          "path": "detail/detail",
-          "style": {
-            "navigationBarTitleText": "详情",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "formPage/formPage",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "table/table",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": true
-          }
-        }
+        // {
+        //   "path": "detail/detail",
+        //   "style": {
+        //     "navigationBarTitleText": "详情",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "formPage/formPage",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // },
+        // {
+        //   "path": "table/table",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": true
+        //   }
+        // }
       ]
     },
     {
@@ -118,89 +120,90 @@
             "enablePullDownRefresh": true
           }
         },
-        {
-          "path": "VaccineOrder/VaccineOrder",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
+        // {
+        //   "path": "VaccineOrder/VaccineOrder",
+        //   "style": {
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
         {
           "path": "StoreManager/StoreManager"
         },
+        // {
+        //   "path": "GoodsDetail/GoodsDetail"
+        // },
+        // {
+        //   "path": "payOrder/payOrder"
+        // },
+        // {
+        //   "path": "successPay/successPay"
+        // },
+        // {
+        //   "path": "StoreIntroduce/StoreIntroduce"
+        // },
+        // {
+        //   "path": "VaccineList/VaccineList",
+        //   "style": {
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "DoctorIntro/DoctorIntro"
+        // },
+        // {
+        //   "path": "articleManager/articleManager",
+        //   "style": {
+        //     "navigationBarTitleText": "文章管理",
+        //     "enablePullDownRefresh": false
+        //   }
+        // },
+        // {
+        //   "path": "DeviceManager/DeviceManager",
+        //   "style": {
+        //     "navigationBarTitleText": "设备管理",
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "DeviceManager/family/family",
+        //   "style": {
+        //     "navigationBarTitleText": "我的亲友"
+        //   }
+        // },
+        // {
+        //   "path": "DeviceManager/manage/manage",
+        //   "style": {
+        //     "navigationBarTitleText": "授权管理"
+        //   }
+        // },
+        // {
+        //   "path": "DeviceData/DeviceData",
+        //   "style": {
+        //     "navigationBarTitleText": ""
+        //   }
+        // },
+        // {
+        //   "path": "queue/queue",
+        //   "style": {
+        //     "navigationBarTitleText": "排队",
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "queue/list",
+        //   "style": {
+        //     "navigationBarTitleText": "排队列表",
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
+        // {
+        //   "path": "queueManage/queueManage",
+        //   "style": {
+        //     "navigationBarTitleText": "排队管理",
+        //     "enablePullDownRefresh": true
+        //   }
+        // }, 
         {
-          "path": "GoodsDetail/GoodsDetail"
-        },
-        {
-          "path": "payOrder/payOrder"
-        },
-        {
-          "path": "successPay/successPay"
-        },
-        {
-          "path": "StoreIntroduce/StoreIntroduce"
-        },
-        {
-          "path": "VaccineList/VaccineList",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "DoctorIntro/DoctorIntro"
-        },
-        {
-          "path": "articleManager/articleManager",
-          "style": {
-            "navigationBarTitleText": "文章管理",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "DeviceManager/DeviceManager",
-          "style": {
-            "navigationBarTitleText": "设备管理",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "DeviceManager/family/family",
-          "style": {
-            "navigationBarTitleText": "我的亲友"
-          }
-        },
-        {
-          "path": "DeviceManager/manage/manage",
-          "style": {
-            "navigationBarTitleText": "授权管理"
-          }
-        },
-        {
-          "path": "DeviceData/DeviceData",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
-        {
-          "path": "queue/queue",
-          "style": {
-            "navigationBarTitleText": "排队",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "queue/list",
-          "style": {
-            "navigationBarTitleText": "排队列表",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "queueManage/queueManage",
-          "style": {
-            "navigationBarTitleText": "排队管理",
-            "enablePullDownRefresh": true
-          }
-        }, {
           "path": "wifiManage/wifiManage",
           "style": {
             "navigationBarTitleText": "WiFi管理",
@@ -209,82 +212,99 @@
             "navigationBarTextStyle": "black"
           }
         }
+        // , {
+        //   "path": "vaccineAppointment/vaccineAppointment",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "navigationBarBackgroundColor": "#3ACBC6",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "appointmentCheckIn/appointmentCheckIn",
+        //   "style": {
+        //     "navigationBarTitleText": "预约管理",
+        //     "navigationBarBackgroundColor": "#fff",
+        //     "navigationBarTextStyle": "black",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }
       ]
     },
-    {
-      "root": "questionnaire",
-      "pages": [{
-          "path": "index/index",
-          "style": {
-            "navigationBarTitleText": "问卷",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "history/history",
-          "style": {
-            "navigationBarBackgroundColor": "#5494ff",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "assessmentResult/assessmentResult",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "couple/couple",
-          "style": {}
-        },
-        {
-          "path": "list/list",
-          "style": {
-            "navigationBarTitleText": "问卷列表",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "storeQuest/storeQuest",
-          "style": {
-            "navigationBarTitleText": "信息采集",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "storeQuest/list",
-          "style": {
-            "navigationBarTitleText": "填写记录",
-            "enablePullDownRefresh": true
-          }
-        }
-      ]
-    },
-    {
-      "root": "personalPages",
-      "pages": [{
-          "path": "ArchiveHistory/ArchiveHistory",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
-        {
-          "path": "HealthHistory/HealthHistory",
-          "style": {
-            "navigationBarTitleText": "我的状态",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "switchAccount/switchAccount",
-          "style": {
-            "navigationBarTitleText": "切换账号",
-            "enablePullDownRefresh": false
-          }
+    // {
+    //   "root": "questionnaire",
+    //   "pages": [{
+    //       "path": "index/index",
+    //       "style": {
+    //         "navigationBarTitleText": "问卷",
+    //         "enablePullDownRefresh": false
+    //       }
+    //     },
+    //     {
+    //       "path": "history/history",
+    //       "style": {
+    //         "navigationBarBackgroundColor": "#5494ff",
+    //         "enablePullDownRefresh": true
+    //       }
+    //     },
+    //     {
+    //       "path": "assessmentResult/assessmentResult",
+    //       "style": {
+    //         "navigationBarTitleText": "",
+    //         "enablePullDownRefresh": false
+    //       }
+    //     },
+    //     {
+    //       "path": "couple/couple",
+    //       "style": {}
+    //     },
+    //     {
+    //       "path": "list/list",
+    //       "style": {
+    //         "navigationBarTitleText": "问卷列表",
+    //         "enablePullDownRefresh": true
+    //       }
+    //     },
+    //     {
+    //       "path": "storeQuest/storeQuest",
+    //       "style": {
+    //         "navigationBarTitleText": "信息采集",
+    //         "enablePullDownRefresh": true
+    //       }
+    //     },
+    //     {
+    //       "path": "storeQuest/list",
+    //       "style": {
+    //         "navigationBarTitleText": "填写记录",
+    //         "enablePullDownRefresh": true
+    //       }
+    //     }
+    //   ]
+    // },
+    // {
+    //   "root": "personalPages",
+    //   "pages": [
+    //     {
+    //       "path": "ArchiveHistory/ArchiveHistory",
+    //       "style": {
+    //         "navigationBarTitleText": ""
+    //       }
+    //     },
+    //     {
+    //       "path": "HealthHistory/HealthHistory",
+    //       "style": {
+    //         "navigationBarTitleText": "我的状态",
+    //         "enablePullDownRefresh": false
+    //       }
+    //     }, {
+    //       "path": "switchAccount/switchAccount",
+    //       "style": {
+    //         "navigationBarTitleText": "切换账号",
+    //         "enablePullDownRefresh": false
+    //       }
 
-        }
-      ]
-    },
+    //     }
+    //   ]
+    // },
     {
       "root": "otherPages",
       "pages": [
@@ -297,61 +317,60 @@
         // 		// "navigationBarTitleText": "建党100周年祝福接力"
         // 	}
         // },
+        // {
+        //   "path": "publish/publish",
+        //   "style": {
+        //     "navigationBarTitleText": "发表文字"
+        //   }
+        // },
+        // {
+        //   "path": "timeline/timeline",
+        //   "style": {
+        //     "navigationBarTitleText": "朋友圈"
+        //   }
+        // }, {
+        //   "path": "dashboard/dashboard",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "schedule/schedule",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "scheduleB/scheduleB",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "wall/wall",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, {
+        //   "path": "groupRanking/groupRanking",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // },
         {
-          "path": "publish/publish",
-          "style": {
-            "navigationBarTitleText": "发表文字"
-          }
-        },
-        {
-          "path": "timeline/timeline",
-          "style": {
-            "navigationBarTitleText": "朋友圈"
-          }
-        }, {
-          "path": "dashboard/dashboard",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "schedule/schedule",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "scheduleB/scheduleB",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "wall/wall",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "groupRanking/groupRanking",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
           "path": "scanWifi/scanWifi",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
         }, {
           "path": "wifiConfig/wifiConfig",
           "style": {
             "navigationBarTitleText": "wifi配置",
             "enablePullDownRefresh": false
           }
-
         }
       ]
     }
