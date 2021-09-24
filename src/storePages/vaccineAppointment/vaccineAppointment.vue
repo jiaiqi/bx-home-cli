@@ -34,13 +34,17 @@
               <view class="title">
                 <text class="" v-if="item._date">{{item._date}} {{getDayOfWeek(item._date)}} </text>
                 <text class="" v-else>{{item.app_date}} {{getDayOfWeek(item.app_date)}} </text>
-                <text v-if="item.app_count_limit&&item.app_count>=item.app_count_limit"></text>
-                <text class="" v-else>( 已约{{item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人 )</text>
+                <text
+                  v-if="item.app_count_limit&&item.app_count>=item.app_count_limit">（已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）
+                </text>
+                <text class="" v-else>( 已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人
+                  )</text>
               </view>
               <view class="date-area ">
-                <view class="date-item"
-                  :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.app_date===radio.app_date&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,disabled:disabledTime(radio)}"
-                  v-for="(radio,rIndex) in item.list" :key="rIndex" @click="selectItem(radio)">
+                <view class="date-item" :class="{
+                    'line-cyan':(selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.app_date===radio.app_date&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,
+                    disabled:disabledTime(radio,item)}" v-for="(radio,rIndex) in item.list" :key="rIndex"
+                  @click="selectItem(radio,item)">
                   <view v-if="radio.app_date">
                     {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
                   </view>
@@ -52,8 +56,8 @@
           </view>
           <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
             <view class="date-item"
-              :class="{'line-cyan':(selectedVaccine.sda_no===radio.sda_no&&selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
-              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio)"
+              :class="{'line-cyan':(selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
+              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
               v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
               <view class="date">
                 <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
@@ -108,14 +112,6 @@
             <view class="title">手机号码</view>
             <input placeholder="手机号码" name="input" placeholder-class="place-holder" class="input"
               v-model="formModel.customer_phone"></input>
-            <!--       <view class="cu-capsule radius">
-              <view class='cu-tag bg-blue '>
-                +86
-              </view>
-              <view class="cu-tag line-blue">
-                中国大陆
-              </view>
-            </view> -->
           </view>
 
         </view>
@@ -188,130 +184,7 @@
       },
       getRange() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
-          let timeArr = this.deepClone(this.timeArr)
-          let arr = []
-          for (let item of timeArr) {
-            let days = (dayjs(item.app_date_end) - dayjs(item.app_date)) / 3600000 / 24
-            if (new Date() - new Date(item.app_date) > 0) {
-              days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
-            }
-            for (let i = days; i > 0; i--) {
-              if (item.predays) {
-                if (days - i > item.predays) {
-                  continue;
-                }
-              }
-              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
-              if (item.weekday_set) {
-                let week = this.getDayOfWeek(date)
-                if (week) {
-                  week = week.replace('周', '')
-                }
-                if (item.weekday_set.indexOf(week) === -1) {
-                  continue;
-                }
-              }
-              let obj1 = this.deepClone(item)
-              obj1.app_date = date
-              obj1._date = date
-              if (obj1.time_range && obj1.time_range_appointment_limit) {
-                let date1 = obj1.app_time_start
-                let date2 = obj1.app_time_end
-                date1 = dayjs(`${obj1._date} ${date1}`)
-                date2 = dayjs(`${obj1._date} ${date2}`)
-                let diff = date2.diff(date1, 'minute') / obj1.time_range
-                let arr2 = []
-                let start = obj1?.app_time_start.slice(0, 5)
-                for (let i = 0; i < diff; i++) {
-                  let obj = this.deepClone(obj1)
-                  obj.timeStart = start;
-                  if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
-                    let data = obj.recordList.filter(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
-                      .app_time_start.indexOf(start) !== -1)
-
-                    if (Array.isArray(data) && data.length > 0) {
-                      obj.app_amount = data.reduce((res, cur) => {
-                        res += cur.amount;
-                        return res
-                      }, 0)
-                    }
-                  }
-                  obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
-                  let diff = obj.timeEnd.diff(dayjs(obj1.app_date + ' ' + obj1.app_time_end), 'minute')
-                  if (diff > 0) {
-                    obj.timeEnd = dayjs(obj1.app_date + ' ' + obj1.app_time_end).format('HH:mm')
-                  } else {
-                    obj.timeEnd = obj.timeEnd.format("HH:mm")
-                  }
-                  arr2.push(this.deepClone(obj))
-                  start = obj.timeEnd
-                }
-                obj1.list = arr2
-                arr.push(this.deepClone(obj1))
-              } else {
-                let obj = this.deepClone(obj1)
-                obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
-                obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
-                obj.app_amount = obj.app_count
-                obj1.list = [obj]
-                arr.push(obj1)
-              }
-            }
-          }
-          return arr
-        }
-      },
-      getRange2() {
-        if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
-          let timeArr = this.deepClone(this.timeArr)
-          let arr = []
-          for (let item of timeArr) {
-            let obj1 = this.deepClone(item)
-            if (obj1.time_range && obj1.time_range_appointment_limit) {
-              let date1 = obj1.app_time_start
-              let date2 = obj1.app_time_end
-              date1 = dayjs(`${obj1.app_date} ${date1}`)
-              date2 = dayjs(`${obj1.app_date} ${date2}`)
-              let diff = date2.diff(date1, 'minute') / obj1.time_range
-              let arr2 = []
-              let start = obj1?.app_time_start.slice(0, 5)
-              for (let i = 0; i < diff; i++) {
-                let obj = this.deepClone(obj1)
-                obj.timeStart = start;
-                if (Array.isArray(obj.recordList) && obj.recordList.length > 0) {
-                  let data = obj.recordList.filter(e => (e.sa_no === obj.sa_no || e.sda_no === obj.sda_no) && e
-                    .app_time_start.indexOf(start) !== -1)
-
-                  if (Array.isArray(data) && data.length > 0) {
-                    obj.app_amount = data.reduce((res, cur) => {
-                      res += cur.amount;
-                      return res
-                    }, 0)
-                  }
-                }
-                obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
-                let diff = obj.timeEnd.diff(dayjs(obj1.app_date + ' ' + obj1.app_time_end), 'minute')
-                if (diff > 0) {
-                  obj.timeEnd = dayjs(obj1.app_date + ' ' + obj1.app_time_end).format('HH:mm')
-                } else {
-                  obj.timeEnd = obj.timeEnd.format("HH:mm")
-                }
-                arr2.push(this.deepClone(obj))
-                start = obj.timeEnd
-              }
-              obj1.list = arr2
-              arr.push(this.deepClone(obj1))
-            } else {
-              let obj = this.deepClone(obj1)
-              obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
-              obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
-              obj.app_amount = obj.app_count
-              obj1.list = [obj]
-              arr.push(obj1)
-              // return
-            }
-          }
-          return arr
+          return this.timeArr
         }
       },
     },
@@ -335,7 +208,6 @@
         if (res.success && res.data.length > 0) {
           this.vaccineInfo = res.data[0]
           let e = res.data[0]
-          debugger
           if (e.is_general !== '否') {
             // 查找公共预约
             await this.selectTimeArr(e, true)
@@ -343,13 +215,6 @@
             // 查找疫苗独立预约
             await this.selectTimeArr(e)
           }
-          // if (e.persons_count === 1) {
-          //   if (!e.stock_count || e.stock_count < 1) {
-          //     return
-          //   }
-          //   await this.selectVaccineDayList(e)
-          // }
-          // await this.selectTimeArr(e)
         }
       },
       async getStoreInfo(store_no) {
@@ -380,13 +245,17 @@
       DateChange(e) {
         this.formModel.customer_birth_day = e.detail.value
       },
-      disabledTime(e) {
+      disabledTime(e, data) {
         // 判断是否过期 已过期则禁用
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (e.time_range_appointment_limit && e.time_range) {
             if (e.app_amount >= e.time_range_appointment_limit) {
               return true
             } else {
+              if (data && data.app_amount >= data.app_count) {
+                return true
+              }
+
               // return false
             }
           } else {
@@ -426,106 +295,13 @@
         }
       },
 
-      async selectVaccineDayList(e) {
-        let req = {
-          "serviceName": "srvhealth_store_vaccination_appointment_day_select",
-          "colNames": ["*"],
-          "condition": [{
-              "colName": "app_date",
-              "ruleType": "ge",
-              "value": dayjs().format("YYYY-MM-DD")
-            },
-            // {
-            //   "colName": "app_time_end",
-            //   "ruleType": "ge",
-            //   "value": dayjs().format("HH:mm:ss")
-            // },
-            {
-              "colName": "app_date",
-              "ruleType": "lt",
-              value: dayjs().add(5, 'day').format('YYYY-MM-DD')
-            },
-            {
-              "colName": "store_no",
-              "ruleType": "eq",
-              value: this.storeInfo.store_no
-            }
-          ],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 10
-          },
-          "order": [{
-            "colName": "app_date",
-            "orderType": "asc"
-          }],
-        }
-        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_day_select', req, 'health')
-        if (res.success) {
-          for (let index = 0; index < res.data.length; index++) {
-            let item = res.data[index]
-            item.remark = e.remark
-            item.remark_internal = e.remark_internal
-            item.remark_pic = e.remark_pic
-            item.stock_count = e.stock_count
-            item.store_no = e.store_no
-            item.to_appointment_count = e.to_appointment_count
-            item.usage = e.usage
-            item.vaccine_drug_name = e.vaccine_drug_name
-            item.vaccine_type = e.vaccine_type
-            item.vs_no = e.vs_no
-            let result = await this.getWithin5minAppCount(item)
-            if (Array.isArray(result) && result.length > 0) {
-              item.recordList = result
-              this.$set(res.data, index, item)
-            }
-          }
-          this.timeArr = res.data.filter(item => {
-            if (item.app_date === dayjs().format("YYYY-MM-DD")) {
-              if (dayjs(item.app_date + ' ' + item.app_time_end).format("HH") < dayjs().format("HH")) {
-                return false
-              } else {
-                return true
-              }
-            }
-            return true
-          })
-          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
-          this.formModel.customer_phone = this.userInfo.phone || null
-          this.formModel.customer_birth_day = this.userInfo.birthday || null
-          this.formModel.phone_xcx = this.userInfo.phone_xcx || null
-          this.modalName = 'vaccine'
-          this.getImage(e)
-        }
-      },
       async selectTimeArr(e, is_general) {
         let req = {
           "condition": [
-            // {
-            //   "colName": "app_date",
-            //   "ruleType": "ge",
-            //   "value": this.formateDate()
-            // },
-
-            // {
-            //   "colName": "app_time_end",
-            //   "ruleType": "ge",
-            //   "value": dayjs().format("HH:mm:ss")
-            // },
-            // {
-            //   "colName": "app_date",
-            //   "ruleType": "lt",
-            //   value: dayjs().add(5, 'day').format('YYYY-MM-DD')
-            // }
             {
               "colName": "store_no",
               "ruleType": "eq",
               "value": this.store_no
-            },
-            {
-              "colName": "app_date",
-              "ruleType": "le",
-              "value": this.formateDate()
             },
             {
               "colName": "app_date_end",
@@ -570,17 +346,103 @@
         }
 
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
-        debugger
         if (res.success) {
-          // for (let index = 0; index < res.data.length; index++) {
-          //   let item = res.data[index]
-          //   let result = await this.getWithin5minAppCount(item)
-          //   if (Array.isArray(result) && result.length > 0) {
-          //     item.recordList = result
-          //     this.$set(res.data, index, item)
-          //   }
-          // }
-          this.timeArr = res.data
+          let arr = []
+          for (let index = 0; index < res.data.length; index++) {
+            let item = res.data[index]
+            let days = (dayjs(item.app_date_end) - dayjs(item.app_date)) / 3600000 / 24
+            if (new Date() - new Date(item.app_date) > 0) {
+              days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
+            }
+            for (let i = days; i > 0; i--) {
+              if (item.predays) {
+                if (days - i > item.predays) {
+                  continue;
+                }
+              }
+              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
+              if (item.weekday_set) {
+                let week = this.getDayOfWeek(date)
+                if (week) {
+                  week = week.replace('周', '')
+                }
+                if (item.weekday_set.indexOf(week) === -1) {
+                  continue;
+                }
+              }
+              let obj1 = this.deepClone(item)
+              obj1.app_date = date
+              obj1._date = date
+              if (obj1.time_range && obj1.time_range_appointment_limit) {
+                let date1 = obj1.app_time_start
+                let date2 = obj1.app_time_end
+                date1 = dayjs(`${obj1._date} ${date1}`)
+                date2 = dayjs(`${obj1._date} ${date2}`)
+                let diff = date2.diff(date1, 'minute') / obj1.time_range
+                let arr2 = []
+                let start = obj1?.app_time_start.slice(0, 5)
+
+                let recordList = await this.getWithin5minAppCount(obj1)
+
+                for (let i = 0; i < diff; i++) {
+                  let obj = this.deepClone(obj1)
+                  obj.timeStart = start;
+                  obj.timeEnd = dayjs(obj1.app_date + ' ' + start).add(obj1.time_range, 'minute')
+                  let diff = obj.timeEnd.diff(dayjs(obj1.app_date + ' ' + obj1.app_time_end), 'minute')
+                  if (diff > 0) {
+                    obj.timeEnd = dayjs(obj1.app_date + ' ' + obj1.app_time_end).format('HH:mm')
+                  } else {
+                    obj.timeEnd = obj.timeEnd.format("HH:mm")
+                  }
+                  obj._time_start = `${obj._date} ${start}`
+                  obj._time_end = `${obj._date} ${obj.timeEnd}`
+                  if (Array.isArray(recordList) && recordList.length > 0) {
+                    let data = recordList.filter(e => {
+                      if (e.sa_no === obj.sa_no) {
+                        let theDate = dayjs(e.app_time_start).format(`${obj1._date} HH:mm:ss`)
+                        let diffStart = dayjs(obj._time_start) - dayjs(theDate)
+                        let diffEnd = dayjs(obj._time_end) - dayjs(theDate)
+                        let result = diffStart <= 0 && diffEnd > 0
+                        return result
+                      }
+                    })
+
+                    if (Array.isArray(data) && data.length > 0) {
+                      obj.app_amount = data.reduce((res, cur) => {
+                        if (typeof cur.amount === 'number' && !isNaN(cur.amount)) {
+                          res += cur.amount;
+                        } else {}
+                        return res
+                      }, 0)
+                    }
+                  }
+
+                  arr2.push(this.deepClone(obj))
+                  start = obj.timeEnd
+                }
+                obj1.list = arr2
+                if (Array.isArray(recordList) && recordList.length > 0) {
+                  obj1.app_amount = recordList.reduce((res, cur) => {
+                    if (typeof cur.amount === 'number' && !isNaN(cur.amount)) {
+                      res += cur.amount
+                    }
+                    return res
+                  }, 0)
+                }
+                arr.push(this.deepClone(obj1))
+              } else {
+                let obj = this.deepClone(obj1)
+                obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
+                obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
+                obj.app_amount = obj.app_count
+                obj1.list = [obj]
+                arr.push(obj1)
+              }
+            }
+          }
+          this.timeArr = arr
+          let timeArr = res.data
+
           this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
           this.formModel.customer_phone = this.userInfo.phone || null
           this.formModel.customer_birth_day = this.userInfo.birthday || null
@@ -589,17 +451,27 @@
           this.getImage(e)
         }
       },
-      selectItem(e) {
+      selectItem(e, data) {
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
-          uni.showToast({
-            title: '预约人数已满',
-            icon: 'none'
-          })
-          return
+          if (data) {
+            if (data.app_count <= data.app_amount) {
+              uni.showToast({
+                title: '预约人数已满',
+                icon: 'none'
+              })
+              return
+            }
+          } else {
+            uni.showToast({
+              title: '预约人数已满',
+              icon: 'none'
+            })
+            return
+          }
         }
         if (this.disabledTime(e)) {
           uni.showToast({
-            title: '已过期,不可预约',
+            title: '已过期或已约满',
             icon: 'none'
           })
           return
@@ -632,15 +504,7 @@
             }
           ],
           "group": [{
-              "colName": "app_time_start",
-              "type": "by_hour"
-            },
-            {
               "colName": "sa_no",
-              "type": "by"
-            },
-            {
-              "colName": "sda_no",
               "type": "by"
             },
             {
@@ -665,18 +529,18 @@
             "orderType": "desc"
           }]
         }
+        if (item.time_range) {
+          req.group.push({
+            "colName": "app_time_start",
+            "type": "by_cus_minute_of_date",
+            value: item.time_range
+          })
+        }
         if (item.sa_no) {
           req.condition.push({
             "colName": "sa_no",
             "ruleType": "eq",
             "value": item.sa_no
-          })
-        }
-        if (item.sda_no) {
-          req.condition.push({
-            "colName": "sda_no",
-            "ruleType": "eq",
-            "value": item.sda_no
           })
         }
         let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
@@ -698,14 +562,15 @@
             msg: '请填写就诊人姓名'
           }
         }
-        if (!this.selectedVaccine || (!this.selectedVaccine.sa_no && !this.selectedVaccine.sda_no)) {
+        if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
           return {
             msg: '请选择预约时间'
           }
         }
         let selectedVaccine = this.deepClone(this.selectedVaccine)
         if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
-          if (selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >= selectedVaccine
+          if (selectedVaccine.app_amount && selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >=
+            selectedVaccine
             .time_range_appointment_limit) {
             uni.showToast({
               title: '已超过当前时间段预约人数限制!',
@@ -723,9 +588,9 @@
           "data": [{
             "store_no": this.storeInfo.store_no,
             "sa_no": this.selectedVaccine.sa_no,
-            "sda_no": this.selectedVaccine.sda_no,
             "svs_no": this.selectedVaccine.svs_no || this.selectedVaccine.vs_no || this.vaccineInfo.vs_no ||
               null,
+            "svs_name": this.vaccineInfo?.vaccine_drug_name || this.selectedVaccine.svs_name || null,
             "appoint_name": this.selectedVaccine.appoint_name,
             "app_date": this.selectedVaccine.app_date,
             "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
@@ -740,8 +605,8 @@
             "person_image": this.userInfo.person_image || this.userInfo.profile_url
           }]
         }]
-        let timeStart = req[0].app_time_start
-        let timeEnd = req[0].app_time_end
+        let timeStart = req[0].data[0].app_time_start
+        let timeEnd = req[0].data[0].app_time_end
         let app_time_slot = null
         if (timeEnd && timeStart) {
           if (timeStart.slice(0, 2) <= 12 && timeEnd.slice(0, 2) <= 12) {
@@ -751,7 +616,7 @@
           } else {
             app_time_slot = '其它'
           }
-          req[0].app_time_slot = app_time_slot
+          req[0].data[0].app_time_slot = app_time_slot
         }
         if (!this.onSubmit) {
           this.onSubmit = true

@@ -2,18 +2,17 @@
   <view class="page-wrap">
     <view class="filter-box">
       <view class="filter-item">
-        <view class="label">
+        <view class="label" @click="showDateSelector">
           预约日期:
-          <!-- <text class="text-bold margin-left-sm">{{titleDate}}</text> -->
         </view>
-        <date-range-picker :mode="'date'" v-model="date" :isRange="false" @change="bindTimeChange">
+        <date-range-picker ref="datePicker" :mode="'date'" v-model="date" :isRange="false" @change="bindTimeChange">
         </date-range-picker>
-        <text class="">({{getDayOfWeek(date)||''}})</text>
+        <text class="" @click="showDateSelector">({{getDayOfWeek(date)||''}})</text>
         <button class="time-slot margin-left-xs  light sm round cu-btn border line-blue"
           @click="changeTimeSlot">{{curTimeSlot||'全部'}}</button>
       </view>
     </view>
-    <view class="order-item-box" v-for="item in multiUserVaccine">
+    <!--    <view class="order-item-box" v-for="item in multiUserVaccine">
       <view class="title">
         {{item.vaccine_drug_name||''}}
       </view>
@@ -25,14 +24,30 @@
           <text class="hasCheckIn" v-if="order.app_state==='完成'">
             <text class="cuIcon-check"></text>
           </text>
-          <!-- <text>{{order.appTimeStart}}-{{order.appTimeEnd}}</text> -->
-          <!-- <text class="state">{{order.app_state}}</text> -->
+        </view>
+      </view>
+    </view> -->
+    <view class="order-item-box" v-for="item in multiUserVaccine">
+      <view class="title">
+        {{item.vaccine_drug_name||item.svs_name||''}}
+      </view>
+      <view class="order-record-list">
+        <view class="order-record-item light"
+          :class="{'bg-gray':order.app_state==='待到场','bg-cyan line-cyan':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
+          @click="changeState(order)" v-for="order in item.recordList">
+          <text>{{order.customer_name||order.person_name||''}}</text>
+          <text class="hasCheckIn" v-if="order.app_state==='完成'">
+            <text class="cuIcon-check"></text>
+          </text>
+        </view>
+        <view class="order-record-item" v-if="item.recordList.length===0">
+          暂无记录
         </view>
       </view>
     </view>
-    <view class="order-item-box" v-for="item in otherVaccineList">
+    <view class="order-item-box" v-for="item in nomralVaccineRecord">
       <view class="title">
-        其他-{{item.appoint_name||''}}
+        {{item.appoint_name||''}}
       </view>
       <view class="order-record-list">
         <view class="order-record-item light"
@@ -47,6 +62,21 @@
         </view>
       </view>
     </view>
+    <!--    <view class="order-item-box" v-for="item in otherVaccineList">
+      <view class="title">
+        其他-{{item.appoint_name||''}}
+      </view>
+      <view class="order-record-list">
+        <view class="order-record-item light"
+          :class="{'bg-gray':order.app_state==='待到场','bg-cyan  line-cyan ':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
+          @click="changeState(order)" v-for="order in item.recordList">
+          <text>{{order.customer_name||order.person_name||''}}</text>
+          <text class="hasCheckIn" v-if="order.app_state==='完成'">
+            <text class="cuIcon-check"></text>
+          </text>
+        </view>
+      </view>
+    </view> -->
   </view>
 </template>
 
@@ -61,6 +91,7 @@
         dayOrderData: [],
         orderedMember: [],
         multiUserVaccine: [], //多人份疫苗列表
+        nomralVaccineRecord: [],
         curTimeSlot: ""
       }
     },
@@ -87,6 +118,7 @@
       },
       otherVaccineList() {
         // 单人份疫苗按天预约记录
+        return this.orderedMember.filter(item => !item.svs_no)
         let multiUserVaccine = this.multiUserVaccine.map(item => item.vs_no)
         let list = this.orderedMember.filter(item => !multiUserVaccine.includes(item.svs_no))
         let dayOrderData = this.deepClone(this.dayOrderData)
@@ -104,6 +136,9 @@
       },
     },
     methods: {
+      showDateSelector() {
+        this.$refs.datePicker.showModal()
+      },
       changeTimeSlot() {
         let arr = ['中午', '下午', '其它', '全部']
         uni.showActionSheet({
@@ -116,7 +151,8 @@
             } else {
               this.curTimeSlot = timeSlot
             }
-            this.getDayOrderData()
+            this.getTodayOrderRecord()
+            // this.getDayOrderData()
           },
           fail: function(res) {
             console.log(res.errMsg);
@@ -148,7 +184,8 @@
           this.date = e
         }
         // if (Array.isArray(cond) && cond.length > 0) {
-        this.getDayOrderData()
+        // this.getDayOrderData()
+        this.getTodayOrderRecord()
         // }
       },
       changeState(e) {
@@ -199,6 +236,55 @@
           }
         });
       },
+      async getTodayOrderRecord() {
+        // 查找当天疫苗预约记录
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appoint_record_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName:"store_no",
+            ruleType:'eq',
+            value:this.store_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 500
+          },
+          "order": [{
+            colName: "create_time",
+            orderType: "asc"
+          }]
+        }
+        if (this.date) {
+          if (typeof this.date === 'string') {
+            req.condition.push({
+              colName: 'app_date',
+              ruleType: 'eq',
+              value: this.date
+            })
+          } else if (Array.isArray(this.date) && this.date.length == 2) {
+            req.condition.push({
+              colName: 'app_date',
+              ruleType: 'between',
+              value: this.date
+            })
+          }
+        }
+        if (this.curTimeSlot) {
+          req.condition.push({
+            colName: 'app_time_slot',
+            ruleType: 'eq',
+            value: this.curTimeSlot
+          })
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
+        if (res.success) {
+          this.orderedMember = res.data
+          this.getSpecialVaccine()
+          this.getNormalVaccine()
+        }
+
+      },
       async getOrderedMember() {
         // 查找已预约用户
         let req = {
@@ -248,10 +334,92 @@
         if (res.success) {
           this.orderedMember = res.data
         }
+
         this.getMultiUserVaccine()
       },
+      async getSpecialVaccine() {
+        // 查找单独预约的疫苗的预约记录
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appointment_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.store_no
+            },
+            {
+              colName: 'app_date_end',
+              ruleType: 'ge',
+              value: this.date
+            },
+            {
+              "colName": "svs_no",
+              "ruleType": "notnull"
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 100
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+        if (res.success) {
+          this.multiUserVaccine = res.data.map(item => {
+            let list = []
+            list = this.orderedMember.filter(e => e.sa_no==item.sa_no && e.app_date === this.date)
+            item.recordList = list.map(e => {
+              e.appTimeStart = dayjs(e.app_date + ' ' + e.app_time_start).format("HH:mm")
+              e.appTimeEnd = dayjs(e.app_date + ' ' + e.app_time_end).format("HH:mm")
+              return e
+            });
+            return item
+          })
+        }
+      },
+
+      async getNormalVaccine() {
+        // 查找通用预约的疫苗预约记录
+        let req = {
+          "serviceName": "srvhealth_store_vaccination_appointment_select",
+          "colNames": ["*"],
+          "condition": [{
+              colName: 'app_date_end',
+              ruleType: 'ge',
+              value: this.date
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.store_no
+            }, {
+              "colName": "svs_no",
+              "ruleType": "isnull"
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 100
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+        if (res.success) {
+          this.nomralVaccineRecord = res.data.map(item => {
+            let list = []
+            list = this.orderedMember.filter(e => e.sa_no === item.sa_no && e.app_date === this.date)
+            item.recordList = list.map(e => {
+              e.appTimeStart = dayjs(e.app_date + ' ' + e.app_time_start).format("HH:mm")
+              e.appTimeEnd = dayjs(e.app_date + ' ' + e.app_time_end).format("HH:mm")
+              return e
+            });
+            return item
+          })
+        }
+
+      },
+
+
       async getMultiUserVaccine() {
-        // 查找多人份疫苗
+        // 查找多人份的疫苗
         let req = {
           "serviceName": "srvhealth_store_vaccine_stocks_select",
           "colNames": ["*"],
@@ -332,7 +500,8 @@
     onLoad(option) {
       if (option.store_no) {
         this.store_no = option.store_no
-        this.getDayOrderData()
+        // this.getDayOrderData()
+        this.getTodayOrderRecord()
       }
     }
   }
@@ -354,6 +523,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 32rpx;
 
         .date-range-picker {
           flex: 1;

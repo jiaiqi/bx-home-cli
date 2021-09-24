@@ -60,7 +60,6 @@ export default {
     }
   },
   props: {
-
     bgColor: {
       type: String,
       default: ''
@@ -82,7 +81,6 @@ export default {
       this.$emit('onBack')
       if (this.isFirstPage) {
         uni.reLaunch({ url: '/pages/index/index' })
-        // uni.navigateTo({ url: '/pages/index/index' })
       } else {
         uni.navigateBack({
           delta: 1,
