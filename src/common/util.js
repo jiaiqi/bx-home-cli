@@ -2221,7 +2221,11 @@ export default {
       conditions = conditions.map(op => {
         let regVar = /\$\{(.*?)\}/
         if (op.value && regVar.test(op.value)) {
-          op.value = Vue.prototype.renderStr(op.value, mainData)
+          if (op.value === '${today}') {
+            op.value = dayjs().format("YYYY-MM-DD")
+          } else {
+            op.value = Vue.prototype.renderStr(op.value, mainData)
+          }
         } else if (op.value && op.value.indexOf('data.') !== -1) {
           let colName = op.value.slice(op.value.indexOf('data.') + 5);
           if (mainData && typeof mainData === 'object' && mainData[colName]) {
@@ -2249,6 +2253,9 @@ export default {
         return str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
+          if(key==='today'){
+            result = dayjs().format("YYYY-MM-DD")
+          }
           let arr = key.split('.')
           if (arr.length > 1) {
             result = obj

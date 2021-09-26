@@ -129,7 +129,8 @@
     },
     data() {
       return {
-        version:"V1.2.80-20210924",
+        version:"V1.2.82-20210926",
+        // version:"V1.2.80-20210924",
         searchKey: "",
         showAd: false,
         list: [],

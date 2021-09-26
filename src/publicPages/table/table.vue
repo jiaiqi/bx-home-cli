@@ -14,15 +14,16 @@
       <checkbox-group @change="checkboxChange">
         <view class="list-box">
           <view class="list-item table-head">
-            <checkbox style="opacity: 0;transform:scale(0.7);" v-if="showCheckBox" />
+            <checkbox style="opacity: 1;transform:scale(0.7);" :checked="!hasNotSelect" v-if="showCheckBox"
+              @click="selectAll" />
             <view class="col-item"
               :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
               v-for="col in tableColumn">
               {{col.label||''}}
             </view>
           </view>
-          <view class="list-item" v-for="(item,index) in list" :key="index" @longtap="longTap">
-            <checkbox color="#0BC99D" :value="item.id" :checked="item.checked" v-if="showCheckBox"
+          <view class="list-item" v-for="(item,index) in list" :key="index">
+            <checkbox color="#0BC99D" :value="item.id+''" :checked="item.checked" v-if="showCheckBox"
               style="transform:scale(0.7)" />
             <view class="col-item" @click="toDetail(item)"
               :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
@@ -31,6 +32,7 @@
               <text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
               <text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
               <text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
+              <text v-else-if="col.col_type=='Time'">{{item[col.columns]?item[col.columns].slice(0,5):''}}</text>
               <text v-else> {{item[col.columns]||''}}</text>
             </view>
           </view>
@@ -49,6 +51,25 @@
       </checkbox-group>
       <!-- </bx-checkbox-group> -->
     </scroll-view>
+
+    <view class="float-button-box" v-if="custom_btn&&custom_btn.handler_buttons">
+      <button class="cu-btn" :class="[item.bgColor]" v-for="item in custom_btn.handler_buttons"
+        @click="onBatchOperate(item)">{{item.button_name||''}}</button>
+    </view>
+
+    <view class="cu-modal bottom-modal" :class="{show:'showBatchUpdate' === modalName}" @click="hideModal()">
+      <view class="cu-dialog" @click.stop="">
+        <view class="batch-update-modal" v-if="batchUpdateV2">
+          <a-form v-if="batchUpdateV2 && isArray(batchUpdateV2._fieldInfo)" :fields="batchUpdateV2._fieldInfo"
+            :pageType="'update'" :formType="'update'" ref="updateForm"></a-form>
+          <view class="button-box" v-if="batchUpdateV2._formButtons">
+            <button class="cu-btn" @click="hideModal">取消</button>
+            <button class="cu-btn bg-blue" v-for="item in batchUpdateV2._formButtons"
+              @click="onBatchFormButton(item)">{{item.button_name}}</button>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -81,7 +102,9 @@
         ascCol: null,
         // colMinWidth: null,
         initCond: null,
-        custom_btn: null
+        custom_btn: null,
+        batchUpdateV2: null,
+        modalName: null
       }
     },
     filters: {
@@ -94,6 +117,9 @@
       }
     },
     computed: {
+      hasNotSelect() {
+        return this.list.find(item => item.checked === false)
+      },
       colMinWidth() {
         return this.tableConfig?.col_min_width
       },
@@ -108,14 +134,27 @@
               "icon": "cuIcon-fork",
               url: ''
             }
+            if (item.handler_buttons) {
+              obj.handler_buttons = item.handler_buttons
+            }
+            if (item.type) {
+              obj.button_type = item.type
+            }
+            if (item.icon) {
+              obj.icon = item.icon
+            }
+
             let url = item.target
             if (item.service) {
+              obj.serviceName = item.service
               url += `?serviceName=${item.service}`
             }
             if (item.destApp) {
+              obj.appName = item.destApp
               url += `&destApp=${item.destApp}`
             }
             if (item.columns) {
+              obj.columns = item.column
               url += `&columns=${item.columns}`
             }
 
@@ -182,7 +221,6 @@
       filterCols() {
         let cols = this.colV2?._fieldInfo.filter(item => (item.in_cond && !['text', 'textarea'].includes(item.type)))
         if (Array.isArray(cols)) {
-          debugger
           let filterColExtension = this.filterColExtension
           if (Array.isArray(filterColExtension) && filterColExtension.length > 0) {
             let extensionCols = filterColExtension.map(item => item.columns)
@@ -219,6 +257,145 @@
       }
     },
     methods: {
+      async onBatchFormButton(e) {
+        if(e.button_type==='edit'){
+          let data = this.$refs.updateForm.getFieldModel()
+          if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+            let req = [{
+              serviceName: e.service_name,
+              data: [data],
+              condition: []
+            }];
+            let selectData = this.list.filter(item => item.checked)
+            if (Array.isArray(selectData) && selectData.length > 0) {
+              req[0].condition = [{
+                colName: 'id',
+                ruleType: 'in',
+                value: selectData.map(item => item.id).toString()
+              }]
+          
+              let app = this.appName || uni.getStorageSync('activeApp');
+              let url = this.getServiceUrl(app, e.service_name, 'add');
+              let res = await this.onRequest('update', e.service_name, req, app);
+              this.hideModal()
+              this.showCheckBox= false
+              this.custom_btn = null
+              if (res.data.state === 'SUCCESS') {
+                this.getList({
+                  initCond: this.initCond
+                }).then(_ => {
+                  uni.showToast({
+                    title: `${res.data.resultMessage}`,
+                    duration: 2000,
+                    mask: true
+                  })
+                })
+              } else {
+                uni.showToast({
+                  title: res.data.resultMessage,
+                  mask: false,
+                  icon: 'none'
+                });
+              }
+            } else {
+              uni.showToast({
+                title: '请先点击左侧单选框进行选择',
+                icon: 'none'
+              })
+              return
+            }
+          }
+        }
+      },
+      onBatchOperate(e) {
+        let arr = this.list.filter(item => item.checked).map(item => item.id)
+        if (arr.length === 0) {
+          uni.showToast({
+            title: '请先点击左侧单选框进行选择',
+            icon: 'none'
+          })
+          return
+        }
+        const batchDelete = (e) => {
+          // 批量删除
+          if (arr.length > 0) {
+            let req = [{
+              "serviceName": e.service,
+              "condition": [{
+                "colName": "id",
+                "ruleType": "in",
+                "value": arr.toString()
+              }]
+            }]
+            if (e.service) {
+              let url = this.getServiceUrl(this.appName, e.service, 'operate');
+              uni.showModal({
+                title: '提示',
+                content: `即将删除${arr.length}条数据，确认进行删除操作?`,
+                success: (res) => {
+                  if (res.confirm) {
+                    this.$http.post(url, req).then(res => {
+                      this.showCheckBox = false
+                      if (res.data.state === 'SUCCESS') {
+                        // uni.startPullDownRefresh()
+                        this.pageNo = 1;
+                        this.getList({
+                          initCond: this.initCond
+                        }).then(_ => {
+                          uni.showToast({
+                            title: '操作成功',
+                            duration: 1000,
+                            mask: true
+                          })
+                        })
+                      }
+                    })
+                  }
+                }
+              })
+            } else {
+              uni.showModal({
+                title: '提示',
+                content: '按钮配置有误',
+                confirmText: '知道了',
+                showCancel: false
+              })
+            }
+          } else {
+            if (this.showCheckBox) {} else {
+              uni.showModal({
+                title: '提示',
+                content: '请选择要删除的数据',
+                confirmText: '知道了',
+                showCancel: false
+              })
+            }
+          }
+        }
+
+        const batchUpdate = async (e) => {
+          let app = this.appName || uni.getStorageSync('activeApp');
+          let colVs = await this.getServiceV2(e.service, 'update', 'update', app);
+          if (e.columns) {
+            colVs._fieldInfo = colVs._fieldInfo.filter(item => e.columns.includes(item.column))
+          }
+          this.batchUpdateV2 = colVs
+          this.modalName = 'showBatchUpdate';
+        }
+
+
+        if (e.button_type && e.service) {
+          switch (e.button_type) {
+            case 'delete':
+              batchDelete(e)
+              break;
+            case 'update':
+              this.batchUpdateV2 = null
+              batchUpdate(e)
+              break;
+          }
+        }
+      },
       async getOptionsByGroup(field) {
         let serviceName = field.service_name;
         let colName = field.column;
@@ -227,9 +404,9 @@
         let req = {
           serviceName: serviceName,
           colNames: ['*'],
-          condition:[{
-            colName:colName,
-            ruleType:'notnull'
+          condition: [{
+            colName: colName,
+            ruleType: 'notnull'
           }],
           page: {
             rownumber: 200,
@@ -245,10 +422,10 @@
         }
         let res = await this.$http.post(url, req)
         if (res.data.state == 'SUCCESS' && res.data.data) {
-          return res.data.data.map(item=>{
+          return res.data.data.map(item => {
             return {
-              label:item[colName],
-              value:item[colName]
+              label: item[colName],
+              value: item[colName]
             }
           })
         } else {
@@ -321,7 +498,7 @@
       },
       clickGridButton(e) {
         if (e.button_type && ['delete', 'batch_delete'].includes(e.button_type)) {
-          // let arr = this.selectedDeleteItem.split(',').filter(item => item && item)
+          // 批量删除
           let arr = this.list.filter(item => item.checked).map(item => item.id)
           if (arr.length > 0) {
             let req = [{
@@ -367,14 +544,26 @@
               })
             }
           } else {
-            uni.showModal({
-              title: '提示',
-              content: '请选择要删除的数据',
-              confirmText: '知道了',
-              showCancel: false
-            })
-            this.showCheckBox = true
+            if (this.showCheckBox) {
+              this.showCheckBox = false
+            } else {
+              uni.showModal({
+                title: '提示',
+                content: '请选择要删除的数据',
+                confirmText: '知道了',
+                showCancel: false
+              })
+              this.showCheckBox = true
+            }
           }
+        } else if (e.button_type && ['batch_operate'].includes(e.button_type)) {
+          // 批量操作
+          this.custom_btn = e
+          this.showCheckBox = true
+          this.list = this.list.map(item => {
+            item.checked = false
+            return item
+          })
         }
       },
       clickAddButton(item) {
@@ -418,34 +607,23 @@
       changeSerchVal(val) {
         this.searchWords = val
       },
-      longTap() {
-        this.showCheckBox = true
-      },
       selectAll() {
-
-        if (this.selectedDeleteItem) {
-          let arr = this.selectedDeleteItem.split(',').filter(item => item && item)
-          if (arr.length === this.list.length) {
-            this.list = this.list.map(item => {
-              item.checked = false
-              return item
-            })
-          } else {
-            this.list = this.list.map(item => {
-              item.checked = true
-              return item
-            })
-            this.selectedDeleteItem = this.list.map(item => item.id).toString()
-          }
-        } else {
+        if (this.list.find(item => item.checked === false)) {
           this.list = this.list.map(item => {
             item.checked = true
             return item
           })
-          this.selectedDeleteItem = this.list.map(item => item.id).toString()
+        } else {
+          this.list = this.list.map(item => {
+            item.checked = false
+            return item
+          })
         }
       },
       toDetail(row) {
+        if (this.showCheckBox) {
+          return
+        }
         if (row && row.id) {
           let fieldsCond = [{
             column: 'id',
@@ -605,7 +783,7 @@
               }
               return res
             }, [])
-            
+
             cols = cols.filter(item => !cond.find(col => col.colName === item))
             cols = this.srvCols.filter(item => cols.includes(item.columns))
             cols = cols.map(item => {
@@ -669,6 +847,10 @@
         this.loadStatus = 'noMore'
         return
       },
+      hideModal() {
+        this.modalName = null
+      }
+
     },
     onReachBottom() {
       if (this.loadStatus === 'more') {
@@ -688,19 +870,8 @@
       }, 1000)
     },
     onLoad(option) {
-      // if (option.custom_btn) {
-      // 	try {
-      // 		let custom_btn = JSON.parse(option.custom_btn)
-      // 		this.custom_btn = custom_btn
-      // 	} catch (e) {
-      // 		console.log(e)
-      // 		//TODO handle the exception
-      // 	}
-      // }
       uni.$on('dataChange', srv => {
         if (this.serviceName && this.appName && srv && this.serviceName.indexOf(srv) !== -1) {
-          // uni.startPullDownRefresh()
-          // this.getList()
           this.pageNo = 1;
           this.getList({
             initCond: this.initCond
@@ -723,6 +894,7 @@
                   return true
                 }
               })
+              
             } else if (typeof initCond === 'object' && Object.keys(initCond).length > 0) {
               let arr = []
               Object.keys(initCond).forEach(key => {
@@ -878,5 +1050,46 @@
       }
     }
 
+  }
+
+  .float-button-box {
+    z-index: 10;
+    position: fixed;
+    bottom: 80rpx;
+    width: 80%;
+    left: 10%;
+    text-align: center;
+    padding: 20rpx;
+    background-color: #fff;
+    border-radius: 20rpx;
+    border: 1rpx solid #f1f1f1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+
+    .cu-btn {
+      margin-right: 20rpx;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .batch-update-modal {
+    padding: 40rpx;
+    margin-bottom: 50rpx;
+
+    .button-box {
+      padding: 20rpx;
+      margin-top: 20rpx;
+
+      .cu-btn {
+        width: 40%;
+        margin-right: 20rpx;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
   }
 </style>

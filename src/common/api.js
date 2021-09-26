@@ -42,14 +42,16 @@ let ENV = {
   appNo: {
     // wxmp: 'APPNO20210420103005', // 百想首页
     // wxmp: 'APPNO20201124160702', // 百想健康
-    wxmp: 'APPNO20210926101030', // 测试
+    // wxmp: 'APPNO20210926101030', // 测试
+    wxmp:conf[env]['appNo'],
     // wxmp: 'APPNO20200214122021', // 百想软件ai平台
     // wxmp: 'APPNO20200731153421' //生活能力评估
     wxh5: 'APPNO20200107181133', //微信公众号
   },
   appID: {
     // wxmp: 'wx8e6f993081f6e979', // 百想软件ai平台
-    wxmp: 'wx08876efb5760ca75', // 测试
+    // wxmp: 'wx08876efb5760ca75', // 测试
+    wxmp:conf[env]['appId'],
     // wxmp: 'wxa3c50c8177ef6739', // 百想健康
     // wxmp: 'wxa8574a1e93d8e8d0', // 百想首页
     wxh5: 'wx78d1d4139f97ffca', //百想助理公众号

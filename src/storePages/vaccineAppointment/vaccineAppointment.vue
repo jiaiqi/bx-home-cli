@@ -184,7 +184,7 @@
       },
       getRange() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
-          return this.timeArr
+          return this.timeArr.sort((a,b)=>dayjs(a._date) - dayjs(b._date))
         }
       },
     },
@@ -354,12 +354,13 @@
               days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
             }
             for (let i = days; i > 0; i--) {
+              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
               if (item.predays) {
-                if (days - i > item.predays) {
+                let daysDiff =  (dayjs(date) - dayjs()) / 3600000 / 24
+                if (daysDiff > item.predays) {
                   continue;
                 }
               }
-              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
               if (item.weekday_set) {
                 let week = this.getDayOfWeek(date)
                 if (week) {
