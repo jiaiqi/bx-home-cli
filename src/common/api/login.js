@@ -106,6 +106,9 @@ const wxOpenLogin = async (openCode) => {
 	let wxAuthUserInfo = store?.state?.user?.wxAuthUserInfo
 	
 	if (!wxAuthUserInfo) {
+    uni.redirectTo({
+      url:'/publicPages/accountExec/accountExec'
+    })
 		store.commit('SET_AUTH_USERINFO', false)
 		return
 	}

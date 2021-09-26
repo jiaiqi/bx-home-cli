@@ -32,13 +32,13 @@
           <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
             <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
               <view class="title">
-                <text class="" v-if="item._date">{{item._date}} {{getDayOfWeek(item._date)}} </text>
-                <text class="" v-else>{{item.app_date}} {{getDayOfWeek(item.app_date)}} </text>
-                <text
-                  v-if="item.app_count_limit&&item.app_count>=item.app_count_limit">（已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）
+                <text class="" v-if="item._date">{{dayjs(item._date).format("MM-DD")}} {{getDayOfWeek(item._date)}}
                 </text>
-                <text class="" v-else>( 已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人
-                  )</text>
+                <text class="" v-else>{{dayjs(item.app_date).format("MM-DD")}} {{getDayOfWeek(item.app_date)}} </text>
+                <!--   <text
+                  v-if="item.app_count_limit&&item.app_count>=item.app_count_limit">（已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）
+                </text> -->
+                <text class="">（ 已约{{item.app_amount||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）</text>
               </view>
               <view class="date-area ">
                 <view class="date-item" :class="{
@@ -297,8 +297,7 @@
 
       async selectTimeArr(e, is_general) {
         let req = {
-          "condition": [
-            {
+          "condition": [{
               "colName": "store_no",
               "ruleType": "eq",
               "value": this.store_no
@@ -383,7 +382,6 @@
                 let start = obj1?.app_time_start.slice(0, 5)
 
                 let recordList = await this.getWithin5minAppCount(obj1)
-
                 for (let i = 0; i < diff; i++) {
                   let obj = this.deepClone(obj1)
                   obj.timeStart = start;
@@ -398,11 +396,12 @@
                   obj._time_end = `${obj._date} ${obj.timeEnd}`
                   if (Array.isArray(recordList) && recordList.length > 0) {
                     let data = recordList.filter(e => {
-                      if (e.sa_no === obj.sa_no) {
-                        let theDate = dayjs(e.app_time_start).format(`${obj1._date} HH:mm:ss`)
-                        let diffStart = dayjs(obj._time_start) - dayjs(theDate)
-                        let diffEnd = dayjs(obj._time_end) - dayjs(theDate)
-                        let result = diffStart <= 0 && diffEnd > 0
+                      if (e.sa_no === obj.sa_no && e.app_time_start && obj.timeStart) {
+                        // let theDate = dayjs(e.app_time_start).format(`${obj1._date} HH:mm:ss`)
+                        // let diffStart = dayjs(obj._time_start) - dayjs(theDate)
+                        // let diffEnd = dayjs(obj._time_end) - dayjs(theDate)
+                        // let result = diffStart <= 0 && diffEnd > 0
+                        let result = obj.timeStart === e.app_time_start.slice(0, 5)
                         return result
                       }
                     })
@@ -429,7 +428,9 @@
                     return res
                   }, 0)
                 }
-                arr.push(this.deepClone(obj1))
+                let res = this.deepClone(obj1)
+                arr.push(res)
+                // }
               } else {
                 let obj = this.deepClone(obj1)
                 obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
@@ -498,6 +499,11 @@
               "value": item.app_date
             },
             {
+              colName: 'app_state',
+              ruleType: "ne",
+              value: '取消'
+            },
+            {
               "colName": "store_no",
               ruleType: 'eq',
               value: this.storeInfo.store_no
@@ -532,9 +538,13 @@
         if (item.time_range) {
           req.group.push({
             "colName": "app_time_start",
-            "type": "by_cus_minute_of_date",
-            value: item.time_range
+            "type": "by"
           })
+          // req.group.push({
+          //   "colName": "app_time_start",
+          //   "type": "by_cus_minute_of_date",
+          //   value: item.time_range
+          // })
         }
         if (item.sa_no) {
           req.condition.push({
@@ -565,6 +575,16 @@
         if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
           return {
             msg: '请选择预约时间'
+          }
+        }
+        let vaccineInfo = this.getRange.find(item => item.sa_no === this.selectedVaccine.sa_no)
+        if (vaccineInfo?.app_count_limit) {
+          if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
+            uni.showToast({
+              title: '已超过当前时间段预约人数限制!',
+              icon: 'none',
+            })
+            return
           }
         }
         let selectedVaccine = this.deepClone(this.selectedVaccine)

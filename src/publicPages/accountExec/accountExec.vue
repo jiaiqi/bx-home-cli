@@ -363,7 +363,6 @@
 					const url = this.getServiceUrl('wx', 'srvwx_app_login_verify', 'operate');
 					// #ifdef MP-WEIXIN
 					let userInfo = {}
-					wx.canIUse('getUserProfile')
 					if (wx.canIUse('getUserProfile')) {
 						userInfo = await self.getUserProfile()
 					} else if (e && e.mp && e.mp.detail) {
@@ -388,7 +387,7 @@
 								uni.reLaunch({
 									url: self.previousPageUrl,
 									fail() {
-										uni.switchTab({
+										uni.redirectTo({
 											url: self.previousPageUrl,
 											fail(e) {
 												uni.showModal({
@@ -401,7 +400,7 @@
 								});
 							} else {
 								if (self.$api.homePath.indexOf('/pages/') !== -1) {
-									uni.switchTab({
+									uni.redirectTo({
 										url: self.$api.homePath
 									});
 								} else {
@@ -417,6 +416,7 @@
 									url: self.previousPageUrl
 								});
 							} else {
+                debugger
 								uni.navigateBack({
 									animationDuration: 500,
 									fail: function(err) {
@@ -424,7 +424,7 @@
 												'cannot navigate back at first page') !== -1) {
 											// 当前页面在页面栈中为第一页
 											if (self.$api.homePath.indexOf('/pages/') !== -1) {
-												uni.switchTab({
+												uni.redirectTo({
 													url: self.$api.homePath,
 													fail() {
 														uni.redirectTo({

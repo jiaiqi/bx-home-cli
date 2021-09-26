@@ -25,7 +25,9 @@
       "pages": [{
           "path": "accountExec/accountExec",
           "style": {
-            "navigationBarTitleText": "登录"
+            "navigationBarTitleText": "登录",
+            "navigationBarBackgroundColor":"#FFF",
+            "navigationBarTextStyle":"black"
           }
         },
         {
@@ -103,12 +105,12 @@
       // "usingComponents": {
       // 	"subscribe": "plugin-private://wx2b03c6e691cd7370/components/subscribe/subscribe"
       // },
-      "plugins": {
-        "live-player-plugin": {
-          "version": "1.3.2",
-          "provider": "wx2b03c6e691cd7370"
-        }
-      },
+      // "plugins": {
+      //   "live-player-plugin": {
+      //     "version": "1.3.2",
+      //     "provider": "wx2b03c6e691cd7370"
+      //   }
+      // },
       "pages": [{
           "path": "home/home",
           "style": {

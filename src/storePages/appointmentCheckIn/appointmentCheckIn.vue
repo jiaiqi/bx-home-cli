@@ -290,7 +290,11 @@
         let req = {
           "serviceName": "srvhealth_store_vaccination_appoint_record_select",
           "colNames": ["*"],
-          "condition": [],
+          "condition": [ {
+              colName:'app_state',
+              ruleType:"ne",
+              value:'取消'
+            }],
           "page": {
             "pageNo": 1,
             "rownumber": 500
@@ -500,7 +504,6 @@
     onLoad(option) {
       if (option.store_no) {
         this.store_no = option.store_no
-        // this.getDayOrderData()
         this.getTodayOrderRecord()
       }
     }
