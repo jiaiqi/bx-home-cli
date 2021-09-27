@@ -140,6 +140,7 @@
   export default {
     data() {
       return {
+        id: "",
         store_no: "",
         storeInfo: {},
         onSubmit: false,
@@ -184,7 +185,7 @@
       },
       getRange() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
-          return this.timeArr.sort((a,b)=>dayjs(a._date) - dayjs(b._date))
+          return this.timeArr.sort((a, b) => dayjs(a._date) - dayjs(b._date))
         }
       },
     },
@@ -259,6 +260,15 @@
               // return false
             }
           } else {
+            return true
+          }
+        }
+        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
+          if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
+            // uni.showToast({
+            //   title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
+            //   icon: 'none'
+            // })
             return true
           }
         }
@@ -356,7 +366,7 @@
             for (let i = days; i > 0; i--) {
               let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
               if (item.predays) {
-                let daysDiff =  (dayjs(date) - dayjs()) / 3600000 / 24
+                let daysDiff = (dayjs(date) - dayjs()) / 3600000 / 24
                 if (daysDiff > item.predays) {
                   continue;
                 }
@@ -416,7 +426,6 @@
                       }, 0)
                     }
                   }
-
                   arr2.push(this.deepClone(obj))
                   start = obj.timeEnd
                 }
@@ -430,7 +439,17 @@
                   }, 0)
                 }
                 let res = this.deepClone(obj1)
-                arr.push(res)
+                if (res.predays && res.app_open_time && res._date === dayjs().add(res.predays, 'day').format(
+                    'YYYY-MM-DD') && dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time) < 0) {
+                  // uni.showToast({
+                  //   title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
+                  //   icon: 'none'
+                  // })
+                  // return true
+                  // arr.push(res)
+                } else {
+                  arr.push(res)
+                }
                 // }
               } else {
                 let obj = this.deepClone(obj1)
@@ -454,6 +473,16 @@
         }
       },
       selectItem(e, data) {
+        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
+          if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
+            debugger
+            uni.showToast({
+              title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
+              icon: 'none'
+            })
+            return
+          }
+        }
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (data) {
             if (data.app_count <= data.app_amount) {
@@ -725,13 +754,21 @@
         })
       },
     },
-
+    onPullDownRefresh() {
+      if (this.id) {
+        this.getVaccineInfo(this.id)
+      }
+      setTimeout(() => {
+        uni.stopPullDownRefresh()
+      }, 1000)
+    },
     async onLoad(option) {
       if (option.store_no) {
         this.store_no = option.store_no
         await this.getStoreInfo(option.store_no)
       }
       if (option.id) {
+        this.id = option.id
         this.getVaccineInfo(option.id)
       }
     }

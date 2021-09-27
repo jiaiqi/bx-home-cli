@@ -216,7 +216,7 @@
           "style": {
             "navigationBarTitleText": "",
             "navigationBarBackgroundColor": "#3ACBC6",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
         }, {
           "path": "appointmentCheckIn/appointmentCheckIn",

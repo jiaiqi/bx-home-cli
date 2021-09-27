@@ -11,6 +11,7 @@ export default {
       // 朋友圈单页模式进入
       return
     }
+    console.log(process.env,'---process.env')
     this.checkUpdate()
     this.checkOptionParams(options)
     this.judgeClientEnviroment();

@@ -784,7 +784,7 @@
 							// 		'&cond=' +
 							// 		decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
 							// });
-
+              debugger
 							// 自定义按钮
 							let moreConfig = buttonInfo.more_config;
 							if (moreConfig && typeof moreConfig === 'string') {
@@ -834,7 +834,8 @@
 									});
 									return
 								}
-							} else if (buttonInfo.servcie_type === 'update') {
+							} else if (buttonInfo.servcie_type === 'update'  ||  buttonInfo.servcie_type === 'operate') {
+                 // buttonInfo.servcie_type = 'update'
 								let params = {
 									type: 'update',
 									serviceName: buttonInfo.service_name,

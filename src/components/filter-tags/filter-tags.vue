@@ -1,16 +1,16 @@
 <template>
   <view class="filter-tags-view">
-    <view class="filter-form" v-if="tabs&&tabs.length>0">
-      <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in tabs" :key="tabIndex">
+    <view class="filter-form" v-if="setTabs&&setTabs.length>0">
+      <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex">
         <view class="label">
           {{tab.label||''}}:
         </view>
-        <view class="form-item-content">
-          <div v-if="tab._type === 'input'">
+        <view class="form-item-content" v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]">
+          <view v-if="tab._type === 'input'">
             <input col="2" :placeholder="tab.placeholder" clearable :name="tab.list_tab_no"
               v-model="formModel[tab.list_tab_no].value"></input>
-          </div>
-          <div v-if="tab._type === 'between'">
+          </view>
+          <view v-if="tab._type === 'between'">
             <view class="">
               选择日期
             </view>
@@ -20,41 +20,30 @@
             <view class="">
               选择时间
             </view>
-          </div>
-          <div v-if="tab._type === 'select'">
+          </view>
+          <view v-if="tab._type === 'select'">
             <!--  <el-select v-model="formModel[tab.list_tab_no]" placeholder="请选择活动区域">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
             </el-select> -->
-          </div>
-          <div v-if="tab._type === 'checkbox'">
+          </view>
+          <view v-if="tab._type === 'checkbox'">
             <bx-checkbox-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData">
               <bx-checkbox v-model="item.checked" v-for="item in tab.options" :name="item.value">
                 {{ item.label }}
               </bx-checkbox>
             </bx-checkbox-group>
-          </div>
-          <div v-if="tab._type === 'radio'">
-            <bx-radio-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData"
-              v-show="tab.options && tab.options.length > 0">
-              <bx-radio :name="item.value" :key="index" v-for="(item,index) in tab.options">
-                {{item.label}}
+          </view>
+          <view v-if="tab._type === 'radio'&&tab._colSrvData" v-show="tab&&tab.options && tab.options.length > 0">
+            <bx-radio-group mode="button" v-model="formModel[tab.list_tab_no].value">
+              <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
+                {{item.label||''}}
               </bx-radio>
             </bx-radio-group>
-          </div>
+          </view>
         </view>
 
       </view>
-
-
-      <!--     <view class="filter-form-item" v-for="item in tabs">
-        <view class="label">
-          {{item.label||''}}:
-        </view>
-        <view class="form-item-content">
-
-        </view>
-      </view> -->
     </view>
   </view>
 </template>
@@ -82,6 +71,7 @@
             'value': '[like'
           }]
         },
+        setTabs:[],
         formModel: {},
         onInputValue: false, // 是否有输入值
       };
@@ -109,7 +99,7 @@
     methods: {
       onBuildFormValues() {
         let self = this
-        let tabs = this.tabs
+        let tabs = this.deepClone(this.tabs)
         let model = {}
         tabs.forEach((item, index) => {
           let col = {
@@ -144,6 +134,8 @@
             model[item.list_tab_no] = col
           }
         })
+        this.setTabs = tabs
+        console.log('tabs,', tabs)
         self.formModel = model
       },
       getTabSrvCol(tab) {
@@ -344,7 +336,7 @@
           }
           if ((condsModel[tabs[i]].formType === 'checkbox' ||
               condsModel[tabs[i]].formType === 'radio') && condsModel[tabs[i]].value &&
-            condsModel[tabs[i]].value.length !== 0 && condsModel[tabs[i]].value[0] !== '_unlimited_') {
+            condsModel[tabs[i]].value.length !== 0 &&condsModel[tabs[i]].value !== '_unlimited_' &&condsModel[tabs[i]].value[0] !== '_unlimited_') {
             if (condsModel[tabs[i]].inputType === 'BetweenNumber' || condsModel[tabs[i]].inputType === 'Date' ||
               condsModel[tabs[i]].inputType === 'DateTime') {
               relation.relation = 'AND'
@@ -438,7 +430,7 @@
             relation_Conditions.data.push(self.deepClone(relation))
           }
         }
-
+        debugger
         return relation_Conditions
 
       },
@@ -509,7 +501,7 @@
         }
       },
     },
-    created() {
+    mounted() {
       this.onBuildFormValues()
     }
   }

@@ -832,6 +832,7 @@
           req.condition = cond;
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
+            
           debugger
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
           condition = condition.map(item => {

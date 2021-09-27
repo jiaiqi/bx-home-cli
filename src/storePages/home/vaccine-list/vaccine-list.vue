@@ -1234,7 +1234,7 @@
     background: #FAFBFC;
     border-radius: 12px;
     margin-top: 20rpx;
-    padding: 20rpx;
+    padding: 20rpx  0;
 
     .vaccine-list-box {
       border-radius: 12px;

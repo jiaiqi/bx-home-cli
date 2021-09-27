@@ -1,8 +1,10 @@
 // 把所有api的url统一在一起并挂在到vue对象上
 // 所有接口都在一个文件里会比较大
 
-let env = 'test'
-env = 'prod'
+let env = 'prod'
+// if (process?.env?.APP_ENV) {
+//   env = process.env.APP_ENV
+// }
 let conf = {
   'test': {
     //测试环境
@@ -43,7 +45,7 @@ let ENV = {
     // wxmp: 'APPNO20210420103005', // 百想首页
     // wxmp: 'APPNO20201124160702', // 百想健康
     // wxmp: 'APPNO20210926101030', // 测试
-    wxmp:conf[env]['appNo'],
+    wxmp: conf[env]['appNo'],
     // wxmp: 'APPNO20200214122021', // 百想软件ai平台
     // wxmp: 'APPNO20200731153421' //生活能力评估
     wxh5: 'APPNO20200107181133', //微信公众号
@@ -51,7 +53,7 @@ let ENV = {
   appID: {
     // wxmp: 'wx8e6f993081f6e979', // 百想软件ai平台
     // wxmp: 'wx08876efb5760ca75', // 测试
-    wxmp:conf[env]['appId'],
+    wxmp: conf[env]['appId'],
     // wxmp: 'wxa3c50c8177ef6739', // 百想健康
     // wxmp: 'wxa8574a1e93d8e8d0', // 百想首页
     wxh5: 'wx78d1d4139f97ffca', //百想助理公众号

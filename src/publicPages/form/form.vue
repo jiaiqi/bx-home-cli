@@ -322,7 +322,6 @@
             req[key] = req[key].toString();
           }
         }
-        debugger
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情' && this.use_type === 'detail') {
@@ -354,6 +353,7 @@
                   });
                   return;
                 }
+                debugger
                 let res = await this.onRequest('update', e.service_name, req, app);
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {

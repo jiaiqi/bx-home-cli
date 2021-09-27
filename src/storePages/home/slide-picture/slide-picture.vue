@@ -77,7 +77,6 @@
 
 <style lang="scss" scoped>
 	.swiper-list {
-		margin: 10rpx 30rpx;
 		border-radius: 20rpx;
 		overflow: hidden;
 		position: relative;

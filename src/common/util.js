@@ -441,11 +441,10 @@ export default {
       let self = this
       let reqType = optionType
       if (optionType === "add" || optionType === "update") {
-        reqType = optionType
-      } else if (optionType === "select") {
-
+        reqType = 'operate'
+        // reqType = optionType
       }
-      let url = Vue.prototype.getServiceUrl(app || uni.getStorageSync("activeApp"), srv, optionType)
+      let url = Vue.prototype.getServiceUrl(app || uni.getStorageSync("activeApp"), srv, reqType)
       return _http.post(url, req)
     }
     /**
@@ -2253,7 +2252,7 @@ export default {
         return str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
-          if(key==='today'){
+          if (key === 'today') {
             result = dayjs().format("YYYY-MM-DD")
           }
           let arr = key.split('.')
