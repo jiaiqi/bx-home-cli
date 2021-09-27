@@ -10,6 +10,9 @@
     <view class="" style="height: 100rpx;">
 
     </view>
+    <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+      @on-input-value="onFilterChange" @on-change="getTableDatas" v-if="colV2&&colV2.srv_cols&&tags">
+    </filter-tags>
     <scroll-view scroll-x="true">
       <checkbox-group @change="checkboxChange">
         <view class="list-box">
@@ -55,6 +58,7 @@
     <view class="float-button-box" v-if="custom_btn&&custom_btn.handler_buttons">
       <button class="cu-btn" :class="[item.bgColor]" v-for="item in custom_btn.handler_buttons"
         @click="onBatchOperate(item)">{{item.button_name||''}}</button>
+      <button class="cu-btn" @click="hideBatchBtn">取消</button>
     </view>
 
     <view class="cu-modal bottom-modal" :class="{show:'showBatchUpdate' === modalName}" @click="hideModal()">
@@ -104,7 +108,9 @@
         initCond: null,
         custom_btn: null,
         batchUpdateV2: null,
-        modalName: null
+        modalName: null,
+        relationCondition: {},
+        onInputValue: false // 是否有查询条件
       }
     },
     filters: {
@@ -200,6 +206,62 @@
         let tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
         return tomorrow
       },
+      tags() {
+        if (Array.isArray(this.colV2?.tabs)) {
+          let tabs = this.colV2?.tabs
+          let self = this
+          let tab = {}
+          let tabsData = []
+          tabs.forEach((t) => {
+            tab = {
+              service: null,
+              table_name: null,
+              orders: null,
+              conditions: null,
+              seq: null,
+              parent: null,
+              label: null,
+              list_tab_no: null,
+              more_config: null,
+              inputType: null
+            }
+            let mc = JSON.parse(t.more_config)
+            tab.more_config = mc
+            tab.service = t.service
+            tab.table_name = t.table_name
+            tab.conditions = t.conditions
+            tab.orders = t.orders
+            tab.default = mc.default
+            tab.seq = t.seq
+            tab.label = t.label
+            tab.list_tab_no = t.list_tab_no
+            tab._data = t
+            tab._type = mc.type || null
+            tab._colName = mc.colName || null
+            tab.inputType = mc.inputType || null
+            tab.showAllTag = mc.showAllTag || false
+            tab.default = mc.default || ''
+            tab.placeholder = mc.placeholder || '请输入...'
+
+            if (tab._colName) {
+              tab._colName = tab._colName.split(',')
+              let cols = tab._colName
+              let srvCols = self.colV2.srv_cols
+              tab['_colSrvData'] = []
+              for (let c = 0; c < cols.length; c++) {
+                for (let cs = 0; cs < srvCols.length; cs++) {
+                  if (cols[c] === srvCols[cs].columns) {
+                    tab._colSrvData.push(srvCols[cs])
+                  }
+                }
+              }
+            }
+            tabsData.push(tab)
+          })
+          return tabsData
+        }
+        // return this.colV2?.tabs
+      },
       moreConfig() {
         return this.colV2?.moreConfig
       },
@@ -257,8 +319,38 @@
       }
     },
     methods: {
+      onFilterChange(e) {
+        this.onInputValue = e
+        if (e) {
+          let tabsConds = this.$refs.filterTabs.buildConditions()
+          this.relationCondition = tabsConds
+        }
+      },
+      onReset() {
+        this.$refs.filterTabs.onReset()
+      },
+      getTableDatas() {
+        let self = this
+        let tabsConds = this.$refs.filterTabs.buildConditions()
+        this.relationCondition = tabsConds
+        setTimeout(() => {
+          this.pageNo = 1;
+          this.getList({
+            initCond: this.initCond
+          })
+        }, 100)
+      },
+      hideBatchBtn() {
+        this.hideModal()
+        this.showCheckBox = false
+        this.custom_btn = null
+        this.list = this.list.map(item => {
+          item.checked = false;
+          return item
+        })
+      },
       async onBatchFormButton(e) {
-        if(e.button_type==='edit'){
+        if (e.button_type === 'edit') {
           let data = this.$refs.updateForm.getFieldModel()
           if (data && typeof data === 'object' && Object.keys(data).length > 0) {
             let req = [{
@@ -273,13 +365,11 @@
                 ruleType: 'in',
                 value: selectData.map(item => item.id).toString()
               }]
-          
+              this.hideBatchBtn()
               let app = this.appName || uni.getStorageSync('activeApp');
               let url = this.getServiceUrl(app, e.service_name, 'add');
               let res = await this.onRequest('update', e.service_name, req, app);
-              this.hideModal()
-              this.showCheckBox= false
-              this.custom_btn = null
+
               if (res.data.state === 'SUCCESS') {
                 this.getList({
                   initCond: this.initCond
@@ -799,6 +889,7 @@
             }
           }
           if (cond.length > 0) {
+
             req.relation_condition = {
               "relation": "AND",
               data: [{
@@ -806,13 +897,58 @@
                 data: cond
               }]
             }
+
             if (Array.isArray(req.condition) && req.condition.length > 0) {
-              req.relation_condition.data.push({
+              req.relation_condition = {
                 "relation": "AND",
-                data: req.condition
-              })
+                data: [
+                  // ... req.condition,
+                  {
+                  "relation": "OR",
+                  data: cond
+                }]
+              }
             }
-            delete req.condition
+
+            if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
+              // req.relation_condition.data.push(this.relationCondition.data)
+              req.relation_condition = {
+                "relation": "AND",
+                data: [
+                  ... this.relationCondition.data,
+                  {
+                  "relation": "OR",
+                  data: cond
+                }]
+              }
+            }
+            // delete req.condition
+          } else if (req.condition.length > 0) {
+            if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
+              req.relation_condition = this.relationCondition
+              // req.relation_condition = {
+              //   "relation": "AND",
+              //   data: [
+              //     ...req.condition,
+              //     ...this.relationCondition.data
+              //   ]
+              // }
+              // delete req.condition
+            }
+          }
+        } else {
+          req.relation_condition = this.relationCondition
+          if (req.condition.length > 0) {
+            // if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
+            //   req.relation_condition = {
+            //     "relation": "AND",
+            //     data: [
+            //       ...req.condition,
+            //       ...this.relationCondition.data
+            //     ]
+            //   }
+            //   delete req.condition
+            // }
           }
         }
         if (Array.isArray(this.orderList) && this.orderList.length > 0) {
@@ -894,7 +1030,7 @@
                   return true
                 }
               })
-              
+
             } else if (typeof initCond === 'object' && Object.keys(initCond).length > 0) {
               let arr = []
               Object.keys(initCond).forEach(key => {

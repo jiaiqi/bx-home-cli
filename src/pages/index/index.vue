@@ -115,6 +115,8 @@
   import {
     mapState
   } from 'vuex'
+  
+  import {version } from '@/common/config.js' 
   export default {
     computed: {
       ...mapState({
@@ -129,7 +131,7 @@
     },
     data() {
       return {
-        version:"V1.2.82-20210926",
+        version:version,
         // version:"V1.2.80-20210924",
         searchKey: "",
         showAd: false,

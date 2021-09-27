@@ -1,3 +1,5 @@
+import moment from "../static/js/dayjs.min.js";
+
 /**
  * 获取本周、本季度、本月、上月的开始日期、结束日期
  */
@@ -111,6 +113,167 @@ function getQuarterEndDate() {
     getMonthDays(quarterEndMonth));
   return formatDate(quarterStartDate);
 }
+// 获取相对于今天的某一天的日期
+function getDateOfNow(type) {
+  let result = ''
+  switch (type) {
+    case 'today':
+      result = moment().format("YYYY-MM-DD")
+      break;
+    case 'yesterday':
+      result = moment().add(-1, 'day').format("YYYY-MM-DD")
+      break;
+    case 'tomorrow':
+      result = moment().add(1, 'day').format("YYYY-MM-DD")
+      break;
+    default:
+      if (typeof type === 'number') {
+        result = moment().add(type, 'day').format("YYYY-MM-DD")
+      }
+      break;
+  }
+  return [result]
+}
+
+
+function getWeekStartAndEnd(e) {
+  console.log('增量', e)
+  let days = 1000 * 60 * 60 * 24
+  let times = (new Date()).getTime()
+  let year = (new Date()).getFullYear()
+  let month = (new Date()).getMonth() + 1
+  let sDays = (new Date()).getDate() - (new Date()).getDay()
+  let sNum = times - ((new Date()).getDay() * days)
+  let eNum = times + ((7 - (new Date()).getDay()) * days)
+
+  let sDate = ((new Date(sNum + (e * days * 7))).getYear() + 1900) +
+    '-' +
+    ((new Date(sNum + (e * days * 7))).getMonth() + 1) +
+    '-' + ((new Date(sNum + (e * days * 7))).getDate()) + ' 00:00:00';;
+  let eDate = ((new Date(eNum + (e * days * 7))).getYear() + 1900) +
+    '-' +
+    ((new Date(eNum + (e * days * 7))).getMonth() + 1) +
+    '-' +
+    ((new Date(eNum + (e * days * 7))).getDate()) + ' 00:00:00';;
+  return [sDate + ',' + eDate]
+}
+
+function getDayStartAndEnd(e, needTime = true) {
+  let days = 1000 * 60 * 60 * 24
+  let times = (new Date()).getTime()
+  let nowDay = ((new Date()).getYear() + 1900) +
+    '-' +
+    ((new Date()).getMonth() + 1) +
+    '-' +
+    ((new Date()).getDate()) + ' 00:00:00';
+
+  let sDate = ((new Date(times + ((e - 1) * days))).getYear() + 1900) +
+    '-' +
+    ((new Date(times + ((e - 1) * days))).getMonth() + 1) +
+    '-' + ((new Date(times + ((e - 1) * days))).getDate()) + ' 00:00:00';
+  if (!needTime) {
+    nowDay = nowDay.replace(' 00:00:00', '')
+    sDate = nowDay.replace(' 00:00:00', '')
+  }
+  if (e < 0) {
+    return [sDate + ',' + nowDay]
+  } else if (e === 1) {
+    return [nowDay]
+  } else {
+    return [nowDay + ',' + sDate]
+  }
+};
+
+function getMonthStartAndEnd(e) { // -1 0 2
+  let days = 1000 * 60 * 60 * 24
+  let times = (new Date()).getTime()
+  let nowY = new Date().getFullYear()
+  let nowM = new Date().getMonth() + 1
+  let sMonth = nowM
+  let eMonth = nowM + 1
+  let sYear = nowY
+  let eYear = nowY
+  if (e < 0) {
+    // -1 0 2
+    if ((nowM + e) >= 0) {
+      // 不跨月  日期起止月
+      sMonth = nowM + e == 0 ? 1 : nowM + e
+      eMonth = nowM + 1 > 12 ? 1 : nowM + 1
+    } else {
+      sMonth = 12 + (nowM + e)
+      eMonth = nowM + 1 > 12 ? 1 : nowM + 1
+      sYear = nowY--
+    }
+
+    if ((nowM + 1) > 12) {
+      eMonth = 1
+      eYear = nowY++
+    } else {
+      eMonth = nowM + 1
+      eYear = nowY
+    }
+  } else if (e > 0) {
+    sMonth = nowM
+    eMonth = (12 - nowM) >= e ? nowM + e : e - (12 - nowM)
+    if (!(12 - nowM) >= e) {
+      eYear = nowY++
+    }
+  }
+
+  let sMonthTime = sYear + '-' + sMonth + '-' + 1 + ' 00:00:00';
+  let eMonthTime = eYear + '-' + eMonth + '-' + 1 + ' 00:00:00';
+  return [sMonthTime + ',' + eMonthTime]
+};
+
+function getYearStartAndEnd(e) { // -1 0 2
+  let nowY = new Date().getFullYear()
+  let sYear = nowY
+  let eYear = nowY + 1
+  if (e > 0) {
+    sYear = nowY
+    eYear = nowY + e
+  } else {
+    eYear = nowY + 1
+    sYear = nowY + e
+  }
+  let sYearTime = nowY + '-' + 1 + '-' + 1 + ' 00:00:00';
+  let eYearTime = nowY + '-' + 1 + '-' + 1 + ' 00:00:00';
+  return [sYearTime + ',' + eYearTime]
+};
+
+function weekEnd() {
+  return new Date(
+    (new Date()).getYear() + 1900,
+    (new Date()).getMonth(),
+    (new Date()).getDate() + (6 - (new Date()).getDay()))
+};
+
+
+function weekStart() {
+  return new Date(
+    (new Date()).getYear() + 1900,
+    (new Date()).getMonth(),
+    (new Date()).getDate() - (new Date()).getDay()
+  )
+};
+
+function monthStart() {
+  let now = new Date();
+  return new Date(
+    (now).getYear() + 1900,
+    (now).getMonth(), 1
+  )
+};
+
+function monthEnd() {
+  let now = new Date();
+  return new Date(
+    (now).getYear() + 1900,
+    (now).getMonth(),
+    moment().daysInMonth())
+};
+
+
 
 export {
   formatDate,
@@ -127,5 +290,10 @@ export {
   getLastMonthStartDate,
   getLastMonthEndDate,
   getQuarterStartDate,
-  getQuarterEndDate
+  getQuarterEndDate,
+  getDateOfNow,
+  getWeekStartAndEnd,
+  getDayStartAndEnd,
+  getMonthStartAndEnd,
+  getYearStartAndEnd
 }
