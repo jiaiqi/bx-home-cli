@@ -98,7 +98,7 @@ export default {
 
 <style scoped>
 .notice-wrap {
-  margin-bottom: 20rpx;
+  /* margin-bottom: 20rpx; */
 }
 
 .notice-item {
@@ -107,8 +107,11 @@ export default {
   padding: 20rpx 40rpx;
   display: flex;
   align-items: center;
+  
 }
-
+.notice-item:last-child{
+     border-bottom: none;
+}
 .notice-item .icon {
   width: 50rpx;
   height: 50rpx;

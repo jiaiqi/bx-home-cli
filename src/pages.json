@@ -228,7 +228,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "linkwifi/linkwifi",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "连接WiFi",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "questionnaire",

@@ -1,6 +1,6 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no"
-    :class="{ 'bg-white': pageItem && pageItem.type === '朋友圈','noMargin':pageItem&&(pageItem.type === '店铺信息2') }">
+  <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem"
+    :class="{ 'bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin':pageItem&&(pageItem.type === '店铺信息2') }">
     <view class="title" v-if="pageItem&&pageItem.show_label === '是'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">
@@ -37,6 +37,11 @@
         userInfo &&
         userInfo.userno
       "></timeline-list>
+    <link-wifi v-else-if="
+        storeNo &&
+        pageItem &&
+        pageItem.type === '连接WiFi'
+      "></link-wifi>
   </view>
 </template>
 
@@ -51,6 +56,8 @@
   import noticeList from '../notice-list/notice-list.vue'
   import relationStore from '../relation-store/relation-store.vue'
   import timelineList from './timeline-list/timeline-list.vue'
+  import linkWifi from '../link-wifi/link-wifi.vue'
+
   export default {
     components: {
       slideList,
@@ -62,7 +69,8 @@
       newsList,
       noticeList,
       relationStore,
-      timelineList
+      timelineList,
+      linkWifi
     },
     props: {
       pageItem: {
@@ -115,13 +123,13 @@
         this.$emit('toSetting')
       },
       toMore() {
-        let url = '/otherPages/timeline/timeline'
-        if (this.storeNo) {
-          url = `${url}?storeNo=${this.storeNo}`
-        }
-        uni.navigateTo({
-          url
-        })
+        // let url = '/otherPages/timeline/timeline'
+        // if (this.storeNo) {
+        //   url = `${url}?storeNo=${this.storeNo}`
+        // }
+        // uni.navigateTo({
+        //   url
+        // })
       },
       setHomePage() {
         this.$emit('setHomePage')
@@ -191,8 +199,14 @@
     border-radius: 20rpx;
     margin: 20rpx;
     overflow: hidden;
+
+    &.bg-transparent {
+      background-color: transparent;
+    }
+
     &.noMargin {
       margin: 0;
+      border-radius: 0;
     }
   }
 

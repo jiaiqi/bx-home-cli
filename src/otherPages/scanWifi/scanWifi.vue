@@ -75,14 +75,14 @@
 								{{curWifi.SSID}}
 							</view>
 						</view>
-						<view class="info-item" v-if="curWifi.password">
+					<!-- 	<view class="info-item" v-if="curWifi.password">
 							<view class="label">
 								密码:
 							</view>
 							<view class="value">
 								********
 							</view>
-						</view>
+						</view> -->
 						<!-- 			<view class="info-item">
 							<view class="label">
 								安全性:
@@ -101,14 +101,14 @@
 								{{decodeQrcode.SSID}}
 							</view>
 						</view>
-						<view class="info-item" v-if="decodeQrcode.password">
+		<!-- 				<view class="info-item" v-if="decodeQrcode.password">
 							<view class="label">
 								密码:
 							</view>
 							<view class="value">
 								********
 							</view>
-						</view>
+						</view> -->
 						<!-- 			<view class="info-item">
 							<view class="label">
 								安全性:
@@ -119,14 +119,14 @@
 						</view> -->
 					</view>
 					<view class="wifi-info" v-else-if="undefinedWifi&&undefinedWifi.SSID">
-						<view class="info-item">
+<!-- 						<view class="info-item">
 							<view class="label">
-								:
+								WiFi名称:
 							</view>
 							<view class="value">
 								{{undefinedWifi.SSID}}
 							</view>
-						</view>
+						</view> -->
 						<view class="info-item">
 							<view class="cu-form-group ">
 								<view class="title">wifi名称:</view>

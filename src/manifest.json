@@ -60,23 +60,26 @@
   "quickapp": {},
   /* 快应用特有相关 */
   "mp-weixin": {
-    /* 小程序特有相关 */
-    "appid": "wxa3c50c8177ef6739", //正式环境
-    // "appid": "wx08876efb5760ca75", //测试环境
+    /* 小程序特有相关 */ // "appid": "wxa3c50c8177ef6739", //正式环境
+    "appid": "wx08876efb5760ca75", //测试环境
     "setting": {
       "urlCheck": true,
       "postcss": true,
       "es6": true,
       "minified": true
     },
-    "plugins": {},
     // #ifdef MP-WEIXIN 
     // "tencentvideo": {
     // 	"version": "1.2.4",
     // 	"provider": "wxa75efa648b60994b"
     // }
     // #endif
-    "permission": {}
+    "permission": {
+      "scope.userLocation": {
+        "desc": "连接WiFi需要获取位置信息"
+      }
+    },
+    "plugins": {}
   },
   "h5": {
     "title": "百想健康",

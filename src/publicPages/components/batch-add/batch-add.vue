@@ -180,6 +180,7 @@
 			},
 			submit() {
 				let list = this.deepClone(this.list)
+        let option = this.deepClone(this.option)
 				let arr = list.filter(item => item.selected).map(item => {
 					let obj = {
 						[this.option.refed_col]: item[this.option.refed_col],

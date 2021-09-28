@@ -408,10 +408,6 @@
                   if (Array.isArray(recordList) && recordList.length > 0) {
                     let data = recordList.filter(e => {
                       if (e.sa_no === obj.sa_no && e.app_time_start && obj.timeStart) {
-                        // let theDate = dayjs(e.app_time_start).format(`${obj1._date} HH:mm:ss`)
-                        // let diffStart = dayjs(obj._time_start) - dayjs(theDate)
-                        // let diffEnd = dayjs(obj._time_end) - dayjs(theDate)
-                        // let result = diffStart <= 0 && diffEnd > 0
                         let result = obj.timeStart === e.app_time_start.slice(0, 5)
                         return result
                       }
@@ -440,13 +436,9 @@
                 }
                 let res = this.deepClone(obj1)
                 if (res.predays && res.app_open_time && res._date === dayjs().add(res.predays, 'day').format(
-                    'YYYY-MM-DD') && dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time) < 0) {
-                  // uni.showToast({
-                  //   title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
-                  //   icon: 'none'
-                  // })
-                  // return true
-                  // arr.push(res)
+                    'YYYY-MM-DD') && dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time) <
+                  0) {
+
                 } else {
                   arr.push(res)
                 }
@@ -475,7 +467,6 @@
       selectItem(e, data) {
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
-            debugger
             uni.showToast({
               title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
               icon: 'none'
@@ -539,22 +530,24 @@
               value: this.storeInfo.store_no
             }
           ],
-          "group": [{
+          "group": [
+            {
               "colName": "sa_no",
               "type": "by"
             },
+            // {
+            //   "colName": "app_date",
+            //   "type": "by",
+            // }, 
             {
-              "colName": "app_date",
-              "type": "by",
-            }, {
               "colName": "id",
               "type": "count",
               aliasName: "amount"
             },
-            {
-              colName: 'appoint_name',
-              "type": "by"
-            }
+            // {
+            //   colName: 'appoint_name',
+            //   "type": "by"
+            // }
           ],
           "page": {
             "pageNo": 1,
@@ -570,11 +563,6 @@
             "colName": "app_time_start",
             "type": "by"
           })
-          // req.group.push({
-          //   "colName": "app_time_start",
-          //   "type": "by_cus_minute_of_date",
-          //   value: item.time_range
-          // })
         }
         if (item.sa_no) {
           req.condition.push({

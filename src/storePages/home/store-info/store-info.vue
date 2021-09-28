@@ -14,12 +14,12 @@
             {{storeInfo.address||''}}
           </view>
         </view>
-        <view class="store-button" @click.stop="toManage" v-if="isManager">
-          <button class="image-btn">
-            <image class="image" src="./setting.png" mode=""></image>
+        <view class="store-button">
+          <button class="image-btn" @click.stop="toManage" v-if="isManager">
+            <image class="image" :src="require('./setting.png')" mode=""></image>
           </button>
           <button class="image-btn" open-type="share">
-            <image class="image" src="./share.png" mode=""></image>
+            <image class="image" :src="require('./share.png')" mode=""></image>
           </button>
         </view>
       </view>
@@ -312,6 +312,7 @@
         min-height: 220rpx;
         position: relative;
         margin-bottom: -2rpx;
+
         .store-icon {
           width: 160rpx;
           height: 160rpx;
@@ -424,6 +425,7 @@
     flex-wrap: wrap;
     border-radius: 20rpx;
     overflow: hidden;
+
     .top {
       display: flex;
       justify-content: space-between;

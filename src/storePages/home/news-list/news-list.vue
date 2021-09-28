@@ -431,12 +431,12 @@
 		}
 
 		.news-list {
-			padding: 20rpx 40rpx 0;
+			padding: 20rpx 20rpx 0;
 			background: #FAFBFC;
 			border-radius: 20rpx;
 			.news-item {
 				display: flex;
-				padding: 20rpx 0;
+				padding: 20rpx ;
 				border-bottom: 1rpx solid #f1f1f1;
 				align-items: center;
 				&:last-child{

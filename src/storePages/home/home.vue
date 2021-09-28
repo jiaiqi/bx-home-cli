@@ -9,12 +9,14 @@
         <text class="cuIcon-unfold margin-left-xs" :class="{ 'show-home': showHomePageSelector }"></text>
       </view>
     </cu-custom-navbar>
-
+    
+    
     <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
       :pageItem="getConfig(pageItem)" :storeInfo="storeInfo" :userInfo="userInfo" :is-bind="isBind"
       :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
       @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting">
     </store-item>
+    
 
     <view class="cu-modal bottom-modal" @click="hideModal" :class="{ show: showHomePageSelector }">
       <view class="cu-dialog" @tap.stop>
@@ -117,7 +119,8 @@
         storeList: [],
         modalName: "",
         push_msg_set: '',
-        member_status: ""
+        member_status: "",
+        globalData: {}
       };
     },
     computed: {
@@ -267,7 +270,8 @@
             case '店铺信息':
             case '店铺信息2':
               keys = ['show_consult', 'show_set_home', 'margin', 'type', 'swiper_image', 'show_set_home',
-                'image_origin']
+                'image_origin'
+              ]
               break;
             case '按钮组':
               keys = ['show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
@@ -292,6 +296,7 @@
               break;
             case '关联店铺':
             case '朋友圈':
+            case '连接WiFi':
               keys = Object.keys(pageItem)
               break;
           }
@@ -315,6 +320,9 @@
             colName: "order_no",
             orderType: "asc"
           }],
+          page: {
+            rownumber: 100
+          }
         }
         let res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
         if (res.success) {
@@ -863,6 +871,8 @@
       }, 1000)
     },
     async onShow() {
+      let globalData = getApp().globalData
+      this.globalData = globalData
       if (!this.subscsribeStatus) {
         // 检测是否已关注公众号
         this.checkSubscribeStatus()
@@ -906,6 +916,11 @@
 
     async onLoad(option) {
       // showHomeBtn
+      if (option.room_no) {
+        getApp().globalData.room_no = option.room_no
+      }
+      let globalData = getApp().globalData
+      this.globalData = globalData
       let pageInfo = getCurrentPages()
       if (Array.isArray(pageInfo) && pageInfo.length === 1) {
         this.showHomeBtn = true
@@ -982,6 +997,21 @@
             option.from = 'share'
           }
         }
+
+        // 酒店入住
+        if (text && text.indexOf('https://wx2.100xsys.cn/checkIn/') !== -1) {
+          let result = text.split('https://wx2.100xsys.cn/checkIn/')[1];
+          if (result.split('/').length >= 2) {
+            option.store_no = result.split('/')[0];
+            option.invite_user_no = result.split('/')[1];
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          } else if (result.split('/').length === 1) {
+            option.store_no = result.split('/')[0];
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          }
+        }
       }
 
       this.checkOptionParams(option);
@@ -1004,7 +1034,11 @@
         return //未授权
         // await this.toAddPage()
       }
-      if (option.share_type === 'bindOrganization' && option.store_no && option
+      if (option.room_no) {
+        option.share_type = 'bindOrganization'
+        option.invite_user_no = option.invite_user_no || option.inviter || 'jiaqi'
+      }
+      if ((option.share_type === 'bindOrganization' || option.share_type === 'bind') && option.store_no && option
         .invite_user_no && !this.authBoxDisplay) {
         // 绑定诊所
         // 查找店铺用户列表
