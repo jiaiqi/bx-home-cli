@@ -315,7 +315,6 @@
         }
       },
       deRowButDisplay: function(item, button, index) {
-        debugger
         if (Array.isArray(this.itemData._buttons)) {
           if (typeof index === 'number' && (index || index === 0)) {
             return this.itemData._buttons[index]

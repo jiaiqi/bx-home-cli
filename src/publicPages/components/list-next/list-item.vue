@@ -1,15 +1,34 @@
 <template>
-  <view class="list-item-wrap" v-if="rowData">
+  <view class="list-item-wrap" v-if="rowData&&setViewTemp" :class="{
+    'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
+    'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
+    'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
+    'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
+  }" :style="{
+    'margin':setViewTemp.margin,
+    'padding':setViewTemp.padding,
+  }">
     <view class="list-item" @click="clickItem">
-      <view class="main-image" v-if="viewTemp&&viewTemp.img&&viewTemp.img.cfg&&viewTemp.img.cfg.align!=='right'">
-        <image class="image" :src="getImagePath(rowData[viewTemp.img.col])" :mode="viewTemp.img.cfg.mode||'aspectFill'"
-          :style="{
-            'border-radius':viewTemp.img.cfg.radius
+      <view class="main-image" :style="{
+        'border-radius':setViewTemp.img.cfg.radius,
+        'width':setViewTemp.img.cfg.width,
+        'margin':setViewTemp.img.cfg.margin,
+        'padding':setViewTemp.img.cfg.padding,
+      }" :class="{
+        'm-r-0':setViewTemp.img.cfg.position==='top'
+      }"
+        v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position!=='right'&&rowData[setViewTemp.img.col]">
+        <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])"
+          :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
+            'border-radius':setViewTemp.img.cfg.radius,
+            'width':setViewTemp.img.cfg.width
           }"></image>
       </view>
-      <view class="list-item-content" v-if="viewTemp&&viewTemp.cols">
-        <view class="col-item bg" v-for="item in viewTemp.cols" :style="{
+      <view class="list-item-content" v-if="setViewTemp&&setViewTemp.cols">
+        <view class="col-item bg" v-for="item in setViewTemp.cols" :style="{
           'width':item.cfg.width,
+          'min-width':item.cfg.min_width,
+          'padding':item.cfg.padding,
           'font-size':item.cfg.font_size,
           'font-weight':item.cfg.font_weight,
           'text-align':item.cfg.align,
@@ -50,21 +69,28 @@
             {{rowData[item.col]||''}}
           </view>
         </view>
+
+        <text class="cuIcon-moreandroid" @click.stop="showAction"
+          v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text>
         <!--   <view class="foot-button-box">
           <button class="cu-btn" v-for="btn in setRowButton">{{btn.button_name}}</button>
         </view> -->
       </view>
       <view class="main-image"
-        v-if="viewTemp&&viewTemp.columns&&viewTemp.columns.img&&viewTemp.columns.img.align=='right'">
-        <image class="image" :src="getImagePath(rowData[viewTemp.columns.img.col])"
-          :mode="viewTemp.columns.img.mode||'aspectFill'"></image>
+        v-if="setViewTemp&&setViewTemp.columns&&setViewTemp.columns.img&&setViewTemp.columns.img.position=='right'">
+        <image class="image" :src="getImagePath(rowData[setViewTemp.columns.img.col])"
+          :mode="setViewTemp.columns.img.mode||'aspectFill'"></image>
       </view>
 
     </view>
-    <view class="foot-button-box">
+    <view class="foot-button-box" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3">
+      <!-- <button class="cu-btn sm round" @click="showAction"><text class="cuIcon-moreandroid"></text></button> -->
+    </view>
+    <view class="foot-button-box" v-else>
       <button class="cu-btn" :class="{
-        'sm':viewTemp.btn_cfg&&viewTemp.btn_cfg.size==='sm'
-      }" v-for="btn in setRowButton" v-show="btn.button_type!=='detail'">{{btn.button_name}}</button>
+        'sm':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.size==='sm'
+      }" v-for="btn in setRowButton" v-show="btn.button_type!=='detail'"
+        @click.stop="clickButton(btn)">{{btn.button_name}}</button>
     </view>
   </view>
 </template>
@@ -90,6 +116,53 @@
       }
     },
     computed: {
+      setViewTemp() {
+        let obj = {
+          "lp_style": this.viewTemp?.lp_style || "单行",
+          "grid_span": this.viewTemp?.grid_span || "3",
+          'margin': this.viewTemp?.margin,
+          'padding': this.viewTemp?.padding,
+          "btn_cfg": this.viewTemp?.btn_cfg,
+          "img": {
+            "col": this.viewTemp?.img?.col,
+            "cfg": this.viewTemp?.img?.cfg || {
+              "radius": "50%",
+              "position": "left",
+              "mode": "aspectFill"
+            }
+          },
+          cols: []
+        }
+        if (Array.isArray(this.viewTemp?.cols) && this.viewTemp?.cols.length > 0) {
+          obj.cols = this.viewTemp?.cols
+        } else {
+          if (typeof this.rowData === 'object' && Object.keys(this.rowData).length > 0) {
+            let arr = []
+            Object.keys(this.rowData).forEach((key) => {
+              if (!['id', 'create_time', 'create_user', 'modify_time', 'modify_user', 'create_user_disp',
+                  'modify_user_disp'
+                ].includes(key)) {
+                let col = {
+                  "col": key,
+                  "cfg": {
+                    "disp_label": true,
+                    "align": "left",
+                    "color": "#333",
+                    "min_width": "50%",
+                    "font_size": "14px",
+                    "padding": "0 10rpx 0 0"
+                  }
+                }
+                if (arr.length < 10) {
+                  arr.push(col)
+                }
+              }
+            })
+            obj.cols = arr
+          }
+        }
+        return obj
+      },
       detailBtn() {
         return this.setRowButton.find(item => item.button_type === 'detail')
       },
@@ -103,11 +176,31 @@
       }
     },
     methods: {
+      showAction() {
+        let itemList = this.setRowButton.map(item => item.button_name)
+        uni.showActionSheet({
+          itemList: itemList,
+          success: (res) => {
+            console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+            let btn = this.setRowButton[res.tapIndex]
+            this.clickButton(btn)
+          },
+          fail: function(res) {
+            console.log(res.errMsg);
+          }
+        });
+      },
+      clickButton(btn) {
+        this.$emit('click-foot-btn', {
+          row: this.rowData,
+          button: btn
+        })
+      },
       clickItem() {
         if (this.detailBtn?.button_type) {
-          this.$emit('clickItem', {
+          this.$emit('click-foot-btn', {
             row: this.rowData,
-            btn: this.detailBtn
+            button: this.detailBtn
           })
         }
       }
@@ -124,6 +217,43 @@
     display: flex;
     flex-wrap: wrap;
     border-radius: 20rpx;
+    overflow: hidden;
+    &.grid_span2 {
+      width: calc(100%/2 - 10rpx);
+      margin-right: 20rpx;
+
+      &:nth-child(2n) {
+        margin-right: 0;
+      }
+    }
+
+    &.grid_span3 {
+      width: calc(100%/3 - 40rpx/3);
+      margin-right: 20rpx;
+
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
+    }
+
+    &.grid_span4 {
+      width: calc(100%/4 - 60rpx/4);
+      margin-right: 20rpx;
+
+      &:nth-child(4n) {
+        margin-right: 0;
+      }
+    }
+
+    &.grid_span5 {
+      width: calc(100%/5 - 80rpx/5);
+      margin-right: 20rpx;
+
+      &:nth-child(5n) {
+        margin-right: 0;
+      }
+    }
+
 
     .list-item {
       width: 100%;
@@ -132,8 +262,18 @@
 
       .main-image {
         width: 100rpx;
-        height: 100rpx;
+        min-height: 100rpx;
         margin-right: 20rpx;
+
+        &.m-r-0 {
+          margin-right: 0;
+          margin-bottom: 20rpx;
+          border-radius: 0;
+
+          .image {
+            border-radius: 0;
+          }
+        }
 
         .image {
           width: 100%;
@@ -148,8 +288,8 @@
         flex-wrap: wrap;
 
         .col-item {
-          width: 50%;
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           margin-bottom: 10rpx;
           font-size: 28rpx;
@@ -158,6 +298,12 @@
 
           .label {
             margin-right: 10rpx;
+          }
+          .value{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
           }
         }
       }

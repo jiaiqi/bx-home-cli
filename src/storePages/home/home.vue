@@ -292,8 +292,6 @@
               keys = ['category_no', 'row_number', 'article_style', 'margin']
               break;
             case '通知横幅':
-              keys = ['component_no', 'margin', 'listdata']
-              break;
             case '关联店铺':
             case '朋友圈':
             case '连接WiFi':

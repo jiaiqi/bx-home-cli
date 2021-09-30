@@ -61,7 +61,6 @@
             button_type: 'order',
             icon: 'cuIcon-order',
             label: '排序',
-            clickEvent: this.showOrder
           })
         }
         return res
@@ -199,7 +198,7 @@
       let query = {};
       // #ifdef H5
       // this.listTop = 0;
-      if (option.query) { 
+      if (option.query) {
         query = JSON.parse(decodeURIComponent(option.query));
       } else {
         query = option;
@@ -425,25 +424,6 @@
       hideModal() {
         this.modalName = ''
       },
-      changeOrderColumn(e, index) {
-        e.selected = !e.selected
-        this.$set(this.orderCols, index, e)
-      },
-      changeOrderType(e, index) {
-        if (e.selected) {
-          if (e.orderType === 'asc') {
-            e.orderType = 'desc'
-          } else if (e.orderType = 'desc') {
-            e.orderType = 'asc'
-            e.selected = false
-          }
-          this.$set(this.orderCols, index, e)
-        } else {
-          e.selected = !e.selected
-          e.orderType = 'asc'
-          this.$set(this.orderCols, index, e)
-        }
-      },
       toOrder(e) {
         this.order = e
         // this.orderCols = e
@@ -457,17 +437,6 @@
         this.searchVal = ''
         this.showFilter = false;
         if (Array.isArray(e)) {
-          // let cond = e.filter(item => item.value !== '全部').map(item => {
-          // 	let obj = {
-          // 		colName: item.column,
-          // 		ruleType: 'like',
-          // 		value: item.value
-          // 	}
-          // 	if (item.col_type === 'Set') {
-          // 		obj.ruleType = 'inset'
-          // 	}
-          // 	return obj
-          // })
           let cond = e
           this.$refs.bxList.getListData(cond)
         }

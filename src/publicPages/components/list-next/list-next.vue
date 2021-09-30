@@ -1,8 +1,10 @@
 <template>
   <view>
-    <view class="list-wrap">
-      <list-item v-for="(item,index) in list" :key="index" :viewTemp="viewTemp" :rowData="item" :rowButton="rowButton"
-        :labelMap="labelMap">
+    <view class="list-wrap" :class="{
+      'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
+    }">
+      <list-item v-for="(item,index) in list" :key="index" class="list-item-wrap" :viewTemp="setViewTemp"
+        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" :labelMap="labelMap">
       </list-item>
     </view>
   </view>
@@ -48,6 +50,31 @@
       viewTemp() {
         return this.moreConfig?.list_config
       },
+      setViewTemp() {
+        let viewTemp = this.viewTemp
+        let obj = {
+          "lp_style": this.viewTemp?.lp_style || "复合",
+          "grid_span": this.viewTemp?.grid_span || "2",
+          'margin': this.viewTemp?.margin,
+          'padding': this.viewTemp?.padding,
+          "btn_cfg": {
+            "show": this.viewTemp?.btn_cfg?.show || true,
+            "bg_style": this.viewTemp?.btn_cfg?.bg_style || "line",
+            "radius": this.viewTemp?.btn_cfg?.radius || "10px",
+            "size": this.viewTemp?.btn_cfg?.size || "sm"
+          },
+          "img": {
+            "col": this.viewTemp?.img?.col,
+            "cfg": this.viewTemp?.img?.cfg || {
+              "radius": "50%",
+              "position": "left",
+              "mode": "aspectFill"
+            }
+          },
+          cols: viewTemp?.cols
+        }
+        return obj
+      },
       labelMap() {
         if (Array.isArray(this.colV2?._fieldInfo)) {
           return this.colV2._fieldInfo.reduce((res, cur) => {
@@ -63,13 +90,16 @@
       }
     },
     methods: {
-      clickItem(e) {
-        this.$emit('clickItem', e)
-      },
+      clickFootBtn(e) {
+        this.$emit('click-foot-btn', e)
+      }
     }
   }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+  .grid-layout {
+    display: flex;
+    flex-wrap: wrap;
+  }
 </style>
