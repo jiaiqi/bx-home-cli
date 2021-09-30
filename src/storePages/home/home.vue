@@ -276,7 +276,7 @@
             case '按钮组':
               keys = ['show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
                 'component_no', 'show_public_button', 'row_number', 'margin', 'listdata', 'show_label',
-                'component_label'
+                'component_label','prompt'
               ]
               break;
             case '商品列表':
@@ -683,7 +683,6 @@
         }]
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
         if (res.success) {
-          debugger
           this.isBind = true
           if (res.data.length > 0) {
             this.bindUserInfo = res.data[0]

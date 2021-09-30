@@ -60,7 +60,8 @@
   "quickapp": {},
   /* 快应用特有相关 */
   "mp-weixin": {
-    /* 小程序特有相关 */ // "appid": "wxa3c50c8177ef6739", //正式环境
+    /* 小程序特有相关 */
+    // "appid": "wxa3c50c8177ef6739", //正式环境
     "appid": "wx08876efb5760ca75", //测试环境
     "setting": {
       "urlCheck": true,

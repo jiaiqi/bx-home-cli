@@ -209,6 +209,7 @@
               }
             }
             list.push({
+              prompt:btn.prompt,
               navType: btn.navigate_type,
               icon: this.getImagePath(btn.icon, true),
               iconType: "image",
@@ -389,7 +390,7 @@
           });
           return;
         }
-
+        debugger
         if (e.url) {
           try {
             const data = this;
@@ -398,6 +399,13 @@
           } catch (e) {
             //TODO handle the exception
           }
+        }else if(!e.url&&e.prompt){
+          uni.showModal({
+            title:'提示',
+            content:e.prompt,
+            showCancel:false
+          })
+          return
         }
         switch (e.type) {
           case "manager":

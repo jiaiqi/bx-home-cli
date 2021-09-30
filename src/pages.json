@@ -26,8 +26,8 @@
           "path": "accountExec/accountExec",
           "style": {
             "navigationBarTitleText": "登录",
-            "navigationBarBackgroundColor":"#FFF",
-            "navigationBarTextStyle":"black"
+            "navigationBarBackgroundColor": "#FFF",
+            "navigationBarTextStyle": "black"
           }
         },
         {
@@ -95,6 +95,12 @@
           "path": "table/table",
           "style": {
             "navigationBarTitleText": "",
+            "enablePullDownRefresh": true
+          }
+        }, {
+          "path": "list2/list2",
+          "style": {
+            "navigationBarTitleText": "列表",
             "enablePullDownRefresh": true
           }
         }
@@ -222,22 +228,20 @@
           "path": "appointmentCheckIn/appointmentCheckIn",
           "style": {
             "navigationBarTitleText": "预约管理",
-            "navigationBarBackgroundColor":"#fff",
-            "navigationBarTextStyle":"black",
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "linkwifi/linkwifi",
+          "style": {
+            "navigationBarTitleText": "连接WiFi",
             "enablePullDownRefresh": false
           }
 
         }
-          ,{
-                    "path" : "linkwifi/linkwifi",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "连接WiFi",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",
@@ -412,4 +416,3 @@
     ]
   }
 }
- 

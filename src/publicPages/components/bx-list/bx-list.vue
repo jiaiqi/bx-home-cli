@@ -621,11 +621,6 @@
 					}
 				}
 			}
-
-			// display: grid;
-			// grid-template-columns: repeat(6, calc((100% / 6) - 10rpx));
-			// grid-row-gap: 10rpx;
-			// grid-column-gap: 10rpx;
 		}
 	}
 

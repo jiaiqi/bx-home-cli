@@ -799,7 +799,7 @@
               this.$store.commit('SET_USERINFO', res.data[0])
             }
           }
-          this.selectTimeArr(this.vaccineInfo)
+          // this.selectTimeArr(this.vaccineInfo)
         }
       },
       async decryptPhoneNumber(e) {
@@ -1151,7 +1151,6 @@
         }
       },
       showModal(e) {
-        debugger
         // if (e.persons_count === 1) {
         //   if (!e.stock_count || e.stock_count < 1) {
         //     return

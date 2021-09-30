@@ -296,8 +296,8 @@
           if (Array.isArray(images)) {
             for (let i = 0; i < images.length; i++) {
               const obj = {
-                originUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
-                smallUrl: `${this.$api.getFilePath}${images[ i ].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+                originUrl: `${this.$api.getFilePath}${images[i].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`,
+                smallUrl: `${this.$api.getFilePath}${images[i].fileurl}&thumbnailType=fwsu_100&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
               }
               this.imagesUrl.push(obj);
             }
@@ -360,14 +360,17 @@
           for (let index = 0; index < res.data.length; index++) {
             let item = res.data[index]
             let days = (dayjs(item.app_date_end) - dayjs(item.app_date)) / 3600000 / 24
-            if (new Date() - new Date(item.app_date) > 0) {
+            debugger
+            if (new Date(dayjs().format("YYYY-MM-DD")) - new Date(item.app_date) > 0) {
               days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
             }
-            for (let i = days; i > 0; i--) {
+            debugger
+            for (let i = days; i >= 0; i--) {
               let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
               if (item.predays) {
-                let daysDiff = (dayjs(date) - dayjs()) / 3600000 / 24
+                let daysDiff = (dayjs(date) - dayjs(dayjs().format('YYYY-MM-DD'))) / 3600000 / 24
                 if (daysDiff > item.predays) {
+                  debugger
                   continue;
                 }
               }
@@ -434,13 +437,15 @@
                     return res
                   }, 0)
                 }
-                let res = this.deepClone(obj1)
-                if (res.predays && res.app_open_time && res._date === dayjs().add(res.predays, 'day').format(
-                    'YYYY-MM-DD') && dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time) <
-                  0) {
+                let result = this.deepClone(obj1)
+                let deadline = dayjs().add(res.predays, 'day').format('YYYY-MM-DD')
+                let app_open_time = dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time)
 
+                if (result.predays && result.app_open_time && result._date === deadline && dayjs() - app_open_time <
+                  0) {
+                  debugger
                 } else {
-                  arr.push(res)
+                  arr.push(result)
                 }
                 // }
               } else {
@@ -530,8 +535,7 @@
               value: this.storeInfo.store_no
             }
           ],
-          "group": [
-            {
+          "group": [{
               "colName": "sa_no",
               "type": "by"
             },
