@@ -4,7 +4,8 @@
       'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
     }">
       <list-item v-for="(item,index) in list" :key="index" class="list-item-wrap" :viewTemp="setViewTemp"
-        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" :labelMap="labelMap">
+        :labelMap="labelMap" :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
+        @add2Cart="add2Cart">
       </list-item>
     </view>
   </view>
@@ -19,6 +20,9 @@
     props: {
       list: {
         type: Array
+      },
+      listType: {
+        type: String
       },
       colV2: {
         type: Object
@@ -58,10 +62,17 @@
           'margin': this.viewTemp?.margin,
           'padding': this.viewTemp?.padding,
           "btn_cfg": {
+            "show_custom_btn": this.viewTemp?.btn_cfg?.show_custom_btn || true,
+            "show_public_btn": this.viewTemp?.btn_cfg?.show_public_btn ||
+              true,
             "show": this.viewTemp?.btn_cfg?.show || true,
             "bg_style": this.viewTemp?.btn_cfg?.bg_style || "line",
+            "bg": this.viewTemp?.btn_cfg?.bg,
+            'color': this.viewTemp?.btn_cfg?.color,
+            "font_size": this.viewTemp?.btn_cfg?.font_size,
             "radius": this.viewTemp?.btn_cfg?.radius || "10px",
-            "size": this.viewTemp?.btn_cfg?.size || "sm"
+            "size": this.viewTemp?.btn_cfg?.size || "sm",
+            "padding": this.viewTemp?.btn_cfg?.padding || null
           },
           "img": {
             "col": this.viewTemp?.img?.col,
@@ -90,6 +101,9 @@
       }
     },
     methods: {
+      add2Cart(e) {
+        this.$emit('add2Cart', e)
+      },
       clickFootBtn(e) {
         this.$emit('click-foot-btn', e)
       }

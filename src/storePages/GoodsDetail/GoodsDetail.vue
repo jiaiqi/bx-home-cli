@@ -115,7 +115,6 @@
 				if (this.wxMchId) {
 					url += `&wxMchId=${this.wxMchId}`
 				}
-
 				uni.navigateTo({
 					url
 				});

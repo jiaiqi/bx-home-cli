@@ -42,7 +42,8 @@
   import {
     setClipboardData
   } from '@/uni_modules/u-clipboard/js_sdk'
-
+  import linkjs from '@/static/js/linkwifi.js'
+  
   const checkWifiErr = (code) => {
     let text = ''
     switch (code) {
@@ -101,10 +102,10 @@
     },
     computed: {
       activeWifiMac() {
-        if (this.connectedWifi && this.connectedWifi.BSSID) {
-          let activeWifiMac = this.wifiList.find(item => item.wifi_mac === this.connectedWifi.BSSID)
-          if (activeWifiMac && activeWifiMac.wifi_mac) {
-            return activeWifiMac.wifi_mac
+        if (this.connectedWifi && this.connectedWifi.SSID) {
+          let activeWifiMac = this.wifiList.find(item => item.wifi_ssid === this.connectedWifi.SSID)
+          if (activeWifiMac && activeWifiMac.wifi_ssid) {
+            return activeWifiMac.wifi_ssid
           }
         }
       },
@@ -112,7 +113,8 @@
         // #ifdef H5
         return this.wifiList
         // #endif
-        return this.wifiList.filter((item) => this.nearWifiList.find(wifi => wifi.wifi_mac === item.BSSID))
+        return this.wifiList
+        // return this.wifiList.filter((item) => this.nearWifiList.find(wifi => wifi.wifi_ssid === item.SSID))
       }
     },
     methods: {
@@ -177,7 +179,6 @@
         if (!e?.id) {
           return
         }
-
         let req = [{
           "serviceName": "srvstore_wifi_config_delete",
           "condition": [{
@@ -318,7 +319,7 @@
           }
         })
       },
-      startSearch() {
+      async startSearch() {
         // 搜索wifi列表
         var self = this
         const getWifiList = () => {
@@ -365,25 +366,32 @@
             }
           })
         }
+        let platform = await linkjs.checkPlatform()
+        if (platform === 'ios') {
+          this.nearWifiList = this.wifiList
+          self.getConnectedWifi()
+        } else {
+          startWifi()
+        }
 
-        wx.getSystemInfo({
-          success(res) {
-            const isIOS = res.platform === 'ios'
-            self.isIOS = isIOS
-            if (isIOS) {
-              wx.showModal({
-                title: '提示',
-                content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
-                showCancel: false,
-                success() {
-                  startWifi()
-                }
-              })
-              return
-            }
-            startWifi()
-          }
-        })
+        // wx.getSystemInfo({
+        //   success(res) {
+        //     const isIOS = res.platform === 'ios'
+        //     self.isIOS = isIOS
+        //     if (isIOS) {
+        //       wx.showModal({
+        //         title: '提示',
+        //         content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
+        //         showCancel: false,
+        //         success() {
+        //           startWifi()
+        //         }
+        //       })
+        //       return
+        //     }
+        //     startWifi()
+        //   }
+        // })
       },
       checkLocationAuth() {
         // 检测用户是否授权访问地理位置信息

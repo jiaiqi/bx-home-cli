@@ -19,6 +19,7 @@
 </template>
 
 <script>
+  import linkjs from '@/static/js/linkwifi.js'
   export default {
     data() {
       return {
@@ -26,11 +27,16 @@
         room_no: ''
       }
     },
+    props: {
+      store_no: {
+        type: String,
+        default: ''
+      },
+    },
     methods: {
       toWifi() {
         uni.navigateTo({
-          // url: '/storePages/wifiManage/wifiManage'
-          url: '/storePages/linkwifi/linkwifi'
+          url: '/storePages/linkwifi/linkwifi?store_no=' + this.store_no
         })
       },
       getConnectedWifi() {
@@ -42,9 +48,10 @@
           }
         })
       },
-      startSearch() {
+      async startSearch() {
         // 搜索wifi列表
         var self = this
+        let app = getApp()
         const getWifiList = () => {
           uni.showLoading({
             title: 'wifi列表加载中...'
@@ -52,7 +59,8 @@
           wx.getWifiList({
             success: (res) => {
               wx.onGetWifiList((res) => {
-                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength - a
+                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength -
+                  a
                   .signalStrength).map(wifi => {
                   const strength = Math.ceil(wifi.signalStrength / 100 * 4)
                   return Object.assign(wifi, {
@@ -89,25 +97,31 @@
             }
           })
         }
-
-        wx.getSystemInfo({
-          success(res) {
-            const isIOS = res.platform === 'ios'
-            self.isIOS = isIOS
-            if (isIOS) {
-              wx.showModal({
-                title: '提示',
-                content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
-                showCancel: false,
-                success() {
-                  startWifi()
-                }
-              })
-              return
-            }
-            startWifi()
-          }
-        })
+        let platform = await linkjs.checkPlatform()
+        if (platform === 'ios') {
+          self.getConnectedWifi()
+        } else {
+          startWifi()
+        }
+        // startWifi()
+        // wx.getSystemInfo({
+        //   success(res) {
+        //     const isIOS = res.platform === 'ios'
+        //     self.isIOS = isIOS
+        //     if (isIOS) {
+        //       wx.showModal({
+        //         title: '提示',
+        //         content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
+        //         showCancel: false,
+        //         success() {
+        //           startWifi()
+        //         }
+        //       })
+        //       return
+        //     }
+        //     startWifi()
+        //   }
+        // })
       },
       checkLocationAuth() {
         // 检测用户是否授权访问地理位置信息

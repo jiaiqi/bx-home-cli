@@ -58,7 +58,7 @@
         <view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
           <a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)"
             :fields="addV2._fieldInfo" :pageType="use_type" :formType="'add'" ref="childForm" :key="modalName"
-            @value-blur="valueChange"></a-form>
+            @value-blur="valueChange" :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
           <button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
@@ -598,11 +598,16 @@
           }
 
         }
-
         this.addV2._fieldInfo = this.addV2._fieldInfo.map(item => {
           item.value = null
           if (item.defaultValue && !item.value) {
             item.value = item.defaultValue
+          }
+          if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
+            .conditions
+            .length > 0) {
+            item.option_list_v2.conditions = this.evalConditions(item.option_list_v2
+              .conditions, this.defaultVal)
           }
           if (item.in_add === 1) {
             item.display = true
@@ -704,6 +709,7 @@
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
+
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
             .conditions
             .length > 0) {
@@ -778,6 +784,8 @@
               item.option_list_v2.conditions = mconditions
             }
           }
+          console.log(this.mainData)
+          debugger
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
             .length > 0) {
             item.option_list_v2.conditions = this.evalConditions(item.option_list_v2.conditions,

@@ -12,10 +12,8 @@
     </view>
   </view>
   <view class="notice-wrap" v-else-if="pageItem&&setList">
-    <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" 
-      :volume-size="volumeSize" :type="theme" :color="color" :duration="duration"
-      @click="clickNotice"
-      ></u-notice-bar>
+    <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
+      :type="theme" :color="color" :duration="duration" @click="clickNotice"></u-notice-bar>
   </view>
 </template>
 
@@ -71,7 +69,6 @@
     },
     methods: {
       clickNotice(index) {
-        debugger
         let e = this.noticeList[index]
         this.handelClick(e)
       },
@@ -80,12 +77,18 @@
           uni.navigateTo({
             url: e.target_link
           })
+        } else if (e.content_no) {
+          uni.navigateTo({
+            url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
+          })
         }
       },
       async getList() {
         if (!this.pageItem || !this.pageItem.component_no) {
           return
         }
+        let serviceName = 'srvhealth_store_home_notice_select'
+        let app = 'health'
         let req = {
           "condition": [{
             "colName": "component_no",
@@ -97,9 +100,31 @@
             "rownumber": 10
           },
         }
-        let res = await this.$fetch('select', 'srvhealth_store_home_notice_select', req, 'health')
+        if (this.pageItem?.category_no) {
+          serviceName = 'srvdaq_cms_content_select'
+          app = 'daq'
+          req = {
+            "condition": [{
+                "colName": "no",
+                "ruleType": "eq",
+                "value": this.pageItem?.category_no
+              },
+              {
+                colName: 'top_status',
+                ruleType: 'eq',
+                value: '是'
+              }
+            ],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 5
+            },
+          }
+        }
+        let res = await this.$fetch('select', serviceName, req, app)
         if (res.success) {
           this.noticeList = res.data.map(item => {
+            item.label = item.title
             if (!item.style_config) {
               item.style_config = {}
             } else if (typeof item.style_config === 'string') {

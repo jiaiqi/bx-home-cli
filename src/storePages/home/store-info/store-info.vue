@@ -9,7 +9,7 @@
           <view class="store-name">
             {{storeInfo.name||''}}
           </view>
-          <view class="store-address">
+          <view class="store-address" @click.stop="getCurrentLocation">
             <text class="cuIcon-locationfill margin-right-xs"></text>
             {{storeInfo.address||''}}
           </view>
@@ -304,6 +304,7 @@
         background-position-y: bottom;
         background-size: 100%;
         background-repeat: no-repeat;
+        // width: calc(100% - 60rpx);
         width: 100%;
         flex: 1;
         padding-left: 60rpx;
@@ -312,7 +313,7 @@
         min-height: 220rpx;
         position: relative;
         margin-bottom: -2rpx;
-
+        box-sizing: border-box;
         .store-icon {
           width: 160rpx;
           height: 160rpx;
@@ -320,11 +321,13 @@
         }
 
         .store-intro {
-          margin-left: 60rpx;
-          padding-top: 50rpx;
-
+          padding-left: 60rpx;
+          padding-top: 60rpx;
+          padding-right: 40rpx;
+          flex: 1;
           .store-name {
             height: 50rpx;
+            width: 90%;
             font-size: 18px;
             font-family: 苹方-简;
             font-weight: normal;
@@ -332,6 +335,10 @@
           }
 
           .store-address {
+            width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             font-size: 12px;
             font-family: 苹方-简;
             font-weight: normal;

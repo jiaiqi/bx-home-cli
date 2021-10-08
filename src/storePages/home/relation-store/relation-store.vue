@@ -177,7 +177,7 @@
         margin-right: 20rpx;
         box-shadow: 0px 3px 6px rgba(192, 194, 206, 0.2);
         background-color: #fff;
-        
+
         .image {
           width: 100%;
           height: 250rpx;
@@ -189,19 +189,22 @@
     &.layout2 {
       background-color: transparent;
       padding: 0;
-      
+
       .store-item {
         display: inline-flex;
         width: calc(50% - 10rpx);
         height: 300rpx;
-        margin-right: 20rpx;
+        margin-right: auto;
         box-shadow: 0px 3px 6px rgba(192, 194, 206, 0.2);
         background-color: #fff;
-        &:nth-child(2n){
+
+        &:nth-child(2n) {
           margin-right: 0;
         }
+
         margin-top: 0;
         margin-bottom: 20rpx;
+
         .image {
           width: 100%;
           height: 250rpx;

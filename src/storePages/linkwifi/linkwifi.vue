@@ -1,6 +1,6 @@
 <template>
   <view class="wifi-manage">
-  <!--  <view class="handler-bar">
+    <!--  <view class="handler-bar">
       <button class="cu-btn round" @tap="toAdd"><text class="cuIcon-add margin-right-xs"></text> 添加</button>
     </view> -->
     <view class="wifi-list">
@@ -42,7 +42,14 @@
   import {
     setClipboardData
   } from '@/uni_modules/u-clipboard/js_sdk'
-
+  // import {
+  //   checkPlatform, // 检测平台是否支持
+  //   startConnectWifi, // 开始连接已知网络
+  //   startSearchWifi, // 开始搜索周边网络
+  //   connectWifi, // 连接网络
+  //   getConnectedWifi // 获取当前网络的名称
+  // } from './link.js'
+  import linkjs from '@/static/js/linkwifi.js'
   const checkWifiErr = (code) => {
     let text = ''
     switch (code) {
@@ -112,19 +119,26 @@
         // #ifdef H5
         return this.wifiList
         // #endif
-        return this.wifiList.filter((item) => this.nearWifiList.find(wifi => wifi.wifi_mac === item.BSSID))
+        return this.wifiList
+        // return this.wifiList.filter((item) => this.nearWifiList.find(wifi => wifi.wifi_mac === item.BSSID))
       }
     },
     methods: {
-      toConnect(e) {
+      async toConnect(e) {
         let SSID = e.wifi_ssid
         let password = e.wifi_psd
-        console.log(e)
+        console.log(e, 'toConnect: 131')
         let self = this
-        uni.showToast({
-          title: '连接中...',
-          icon: 'none'
+      
+        linkjs.startConnectWifi(SSID, password).then(res => {
+          uni.hideLoading()
+          console.log(res, 'toConnect: 135')
+          linkjs.getConnectedWifi().then(wifi => {
+            self.connectedWifi = wifi
+          })
         })
+        debugger
+        return
         wx.connectWifi({
           SSID,
           // BSSID: '',
@@ -265,11 +279,11 @@
           }
         }
         if (this.store_no) {
-          req.condition = [{
-            colName: "store_no",
-            ruleType: "eq",
-            value: this.store_no
-          }]
+          // req.condition = [{
+          //   colName: "store_no",
+          //   ruleType: "eq",
+          //   value: this.store_no
+          // }]
         }
         let url = this.getServiceUrl('bxportal', 'srvstore_wifi_config_select', 'select');
         this.loadStatus = 'loading'
@@ -318,8 +332,17 @@
           }
         })
       },
-      startSearch() {
+      async startSearch() {
         // 搜索wifi列表
+        linkjs.getConnectedWifi().then(wifi => {
+          self.connectedWifi = wifi
+        })
+        // self.getConnectedWifi()
+        linkjs.startSearchWifi((res) => {
+          console.log(res, 'startSearchWifi')
+          this.nearWifiList = res
+        })
+        return
         var self = this
         const getWifiList = () => {
           uni.showLoading({
@@ -328,7 +351,8 @@
           wx.getWifiList({
             success: (res) => {
               wx.onGetWifiList((res) => {
-                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength - a
+                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength -
+                  a
                   .signalStrength).map(wifi => {
                   const strength = Math.ceil(wifi.signalStrength / 100 * 4)
                   return Object.assign(wifi, {

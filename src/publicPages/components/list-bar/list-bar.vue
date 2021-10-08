@@ -127,7 +127,6 @@
             return true
           }
         })
-        debugger
         this.orderCols = cols
       }
     },

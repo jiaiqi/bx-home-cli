@@ -1,22 +1,27 @@
 <template>
   <view class="page-wrap">
-    <list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols"
-      :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
+    <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
+      :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
       @search="toSearch" v-if="srvCols&&srvCols.length>0">
     </list-bar>
-    <list-next class="list-next" :list="list" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" />
+    <list-next class="list-next" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
+      @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
+    <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
+      @changeAmount="changeAmount" @clear="clearCart"></cart-list>
   </view>
 </template>
 
 <script>
   import listNext from '../components/list-next/list-next.vue';
   import listBar from '../components/list-bar/list-bar.vue'
+  import cartList from '../components/goods-cart/goods-cart.vue'
 
   export default {
     components: {
       listNext,
       listBar,
+      cartList
     },
     computed: {
       publicButton() {
@@ -51,9 +56,11 @@
       moreConfig() {
         return this.colV2?.moreConfig || {}
       },
+      list_config() {
+        return this.colV2?.moreConfig?.list_config || {}
+      },
       listButton() {
         let buttons = this.publicButton
-
         let res = buttons.filter(item => {
           if (['select', 'add', 'apply', 'customize'].includes(item.button_type)) {
             if (item.button_type === 'select') {
@@ -162,12 +169,38 @@
         // viewTmep:{}
         proc_data_type: "", //流程状态
         searchVal: "",
-        listType: "list", //list,proc
+        listType: "list", //list,proc,cart
+        pageType: "", //list,proc,cart
         tabList: [],
         order: [],
+        cartData: [],
+        wxMchId: ''
       }
     },
     methods: {
+      clearCart() {
+        this.cartData = []
+      },
+      changeAmount(data) {
+        if (data && data.row && typeof data.index === 'number') {
+          this.$set(this.cartData, data.index, data.row)
+          if (data.row.goods_count === 0) {
+            this.cartData.splice(data.index, 1)
+          }
+        }
+      },
+      add2Cart(e) {
+        let data = this.deepClone(e)
+        let index = this.cartData.findIndex(item => item.id === data.id)
+        if (index !== -1) {
+          data.goods_count = this.cartData[index].goods_count + 1
+          this.$set(this.cartData, index, data)
+        } else {
+
+          data.goods_count = 1
+          this.cartData.push(data)
+        }
+      },
       toOrder(e) {
         this.order = e
         // this.orderCols = e
@@ -346,7 +379,7 @@
       async getListV2() {
         let app = this.appName || uni.getStorageSync('activeApp');
         let self = this;
-        let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ?
+        let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ?
           'proclist' :
           'list', app);
         colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
@@ -476,7 +509,7 @@
               proc_data_type: req.proc_data_type
             };
             return callBackData;
-          } else if (this.listType === 'list') {
+          } else {
             if (page.rownumber * page.pageNo >= page.total) {
               this.loadStatus = 'norMore'
             } else {
@@ -561,7 +594,7 @@
               this.getList()
             }
             return
-          } else if (buttonInfo.operate_type === '更新弹出') {
+          } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
             // let params = {
             // 	type: buttonInfo.servcie_type,
             // 	serviceName: buttonInfo.operate_service,
@@ -655,21 +688,21 @@
                   })
                 })
               }
-              let otherParams = this.handleSpecialClickEvent(data)
-              if (otherParams && otherParams.otherFieldsCond) {
-                if (Array.isArray(otherFieldsCond)) {
-                  fieldsCond = [...fieldsCond, ...otherFieldsCond]
-                }
-              }
+              // let otherParams = this.handleSpecialClickEvent(data)
+              // if (otherParams && otherParams.otherFieldsCond) {
+              //   if (Array.isArray(otherFieldsCond)) {
+              //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
+              //   }
+              // }
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
-              if (otherParams && otherParams.hideColumn) {
-                url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-              }
+              // if (otherParams && otherParams.hideColumn) {
+              //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
+              // }
               uni.navigateTo({
                 url: url
               });
@@ -715,7 +748,7 @@
 
 
 
-        } else if (this.pageType === 'proc') {
+        } else if (this.listType === 'proc') {
           if (buttonInfo && buttonInfo.button_type === 'edit' && rowData.proc_instance_no) {
             uni.navigateTo({
               url: '/publicPages/procDetail/procDetail?proc_instance_no=' + rowData
@@ -915,6 +948,15 @@
       }
     },
     onLoad(option) {
+      if (option.listType) {
+        this.listType = option.listType
+      }
+      if (option.wxMchId) {
+        this.wxMchId = option.wxMchId
+      }
+      if (option.pageType) {
+        this.pageType = option.pageType
+      }
       if (option.serviceName) {
         this.serviceName = option.serviceName
       }

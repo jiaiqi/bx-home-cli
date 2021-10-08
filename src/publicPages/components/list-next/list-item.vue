@@ -17,7 +17,7 @@
       }" :class="{
         'm-r-0':setViewTemp.img.cfg.position==='top'
       }"
-        v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position!=='right'&&rowData[setViewTemp.img.col]">
+        v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position!=='right'">
         <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])"
           :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
             'border-radius':setViewTemp.img.cfg.radius,
@@ -66,20 +66,40 @@
             {{labelMap[item.col]||''}}:
           </view>
           <view class="value">
+            <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
             {{rowData[item.col]||''}}
           </view>
         </view>
-
+        <view class="col-item text-right flex-1" v-if="listType==='cart'" @click.stop="add2Cart">
+          <text class="cuIcon-add cu-btn sm radius" :style="{
+              color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
+              'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
+              'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
+              'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
+              }"></text>
+        </view>
+        <!-- 
         <text class="cuIcon-moreandroid" @click.stop="showAction"
-          v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text>
+          v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text> -->
         <!--   <view class="foot-button-box">
           <button class="cu-btn" v-for="btn in setRowButton">{{btn.button_name}}</button>
         </view> -->
       </view>
-      <view class="main-image"
-        v-if="setViewTemp&&setViewTemp.columns&&setViewTemp.columns.img&&setViewTemp.columns.img.position=='right'">
-        <image class="image" :src="getImagePath(rowData[setViewTemp.columns.img.col])"
-          :mode="setViewTemp.columns.img.mode||'aspectFill'"></image>
+
+      <view class="main-image" :style="{
+        'border-radius':setViewTemp.img.cfg.radius,
+        'width':setViewTemp.img.cfg.width,
+        'margin':setViewTemp.img.cfg.margin,
+        'padding':setViewTemp.img.cfg.padding,
+      }" :class="{
+        'm-r-0':setViewTemp.img.cfg.position==='top'
+      }"
+        v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position=='right'">
+        <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])"
+          :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
+            'border-radius':setViewTemp.img.cfg.radius,
+            'width':setViewTemp.img.cfg.width
+          }"></image>
       </view>
 
     </view>
@@ -88,8 +108,29 @@
     </view>
     <view class="foot-button-box" v-else>
       <button class="cu-btn" :class="{
-        'sm':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.size==='sm'
-      }" v-for="btn in setRowButton" v-show="btn.button_type!=='detail'"
+        'border':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.style==='line_button',
+        'sm':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.size==='sm',
+        'bg-blue':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='blue',
+        'bg-red':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='red',
+        'bg-orange':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='orange',
+        'bg-cyan':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='cyan',
+        'bg-yellow':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='yellow',
+        'bg-white':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='white',
+        'bg-black':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='black',
+        'bg-green':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='green',
+        'bg-grey':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='grey',
+        'bg-gray':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='gray',
+        'line-blue':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='blue',
+        'line-red':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='red',
+        'line-orange':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='orange',
+        'line-cyan':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='cyan',
+        'line-yellow':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='yellow',
+        'line-white':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='white',
+        'line-black':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='black',
+        'line-green':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='green',
+        'line-grey':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='grey',
+        'line-gray':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='gray'
+      }" v-for="btn in setRowButton" v-show="isShowBtn(btn)"
         @click.stop="clickButton(btn)">{{btn.button_name}}</button>
     </view>
   </view>
@@ -113,7 +154,11 @@
       // 字段-显示标签
       labelMap: {
         type: Object
-      }
+      },
+      // 列表类型 list-普通列表,proc-流程,cart-购物车
+      listType: {
+        type: String
+      },
     },
     computed: {
       setViewTemp() {
@@ -166,6 +211,9 @@
       detailBtn() {
         return this.setRowButton.find(item => item.button_type === 'detail')
       },
+      btn_cfg() {
+        return this.setViewTemp?.btn_cfg
+      },
       setRowButton() {
         return this.rowButton.filter((item, index) => {
           if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this.rowButton.length) {
@@ -176,6 +224,20 @@
       }
     },
     methods: {
+      add2Cart(){
+        this.$emit('add2Cart',this.rowData)
+      },
+      isShowBtn(btn) {
+        let notDetail = btn.button_type !== 'detail'
+        if (notDetail) {
+          if (btn.button_type === 'customize') {
+            return this.btn_cfg?.show_custom_btn !== false;
+          } else {
+            return this.btn_cfg?.show_public_btn !== false;
+          }
+        }
+        return notDetail
+      },
       showAction() {
         let itemList = this.setRowButton.map(item => item.button_name)
         uni.showActionSheet({
@@ -218,6 +280,7 @@
     flex-wrap: wrap;
     border-radius: 20rpx;
     overflow: hidden;
+
     &.grid_span2 {
       width: calc(100%/2 - 10rpx);
       margin-right: 20rpx;
@@ -260,14 +323,20 @@
       display: flex;
       flex-wrap: wrap;
 
+      .cuIcon-moreandroid {
+        margin-bottom: 10rpx;
+      }
+
       .main-image {
         width: 100rpx;
         min-height: 100rpx;
         margin-right: 20rpx;
+        display: flex;
+        align-items: center;
 
         &.m-r-0 {
           margin-right: 0;
-          margin-bottom: 20rpx;
+          margin-bottom: 10rpx;
           border-radius: 0;
 
           .image {
@@ -296,10 +365,21 @@
           font-family: 苹方-简;
           color: #333333;
 
+          &.flex-1 {
+            flex: 1;
+            font-size: 40rpx;
+          }
+
+          &.text-right {
+            justify-content: flex-end;
+            padding-right: 20rpx;
+          }
+
           .label {
             margin-right: 10rpx;
           }
-          .value{
+
+          .value {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

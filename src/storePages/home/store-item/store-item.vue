@@ -37,7 +37,7 @@
         userInfo &&
         userInfo.userno
       "></timeline-list>
-    <link-wifi v-else-if="
+    <link-wifi :store_no="storeNo" v-else-if="
         storeNo &&
         pageItem &&
         pageItem.type === '连接WiFi'
