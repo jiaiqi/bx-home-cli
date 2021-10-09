@@ -19,7 +19,7 @@
             </text>
           </view>
         </view>
-        <view class="description">
+        <view class="description" v-if="vaccineInfo.remark">
           {{vaccineInfo.remark||''}}
         </view>
         <view class="sub-title">
@@ -82,7 +82,7 @@
           </view>
           <view class="date-area" v-if="!notEmpty">
             <view class="date-time-box">
-              预约人数已满或无可预约疫苗
+              预约人数已满或无可预约 <text v-if="app_type&&app_type==='其它'">项目</text><text v-else>疫苗</text>
             </view>
           </view>
         </view>
@@ -157,7 +157,7 @@
         timeArr: [],
         imagesUrl: [],
         dayOrderInfo: {},
-        app_type:"", // 默认疫苗预约
+        app_type: "", // 默认疫苗预约
       }
     },
     computed: {
@@ -176,7 +176,7 @@
         userInfo: state => state.user.userInfo
       }),
       vaccineTip() {
-        if(this.app_type=='其它'){
+        if (this.app_type == '其它') {
           return '预约时间'
         }
         if (this.vaccineInfo) {
@@ -759,7 +759,7 @@
       }, 1000)
     },
     async onLoad(option) {
-      if(option.app_type){
+      if (option.app_type) {
         this.app_type = option.app_type
       }
       if (option.store_no) {
