@@ -195,10 +195,11 @@
             if (req) {
               let data = this.deepClone(req);
               data.child_data_list = []
-              if (Array.isArray(this.childService) && this.this.childService.length > 0) {
+              console.log(this.childService)
+              if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
-                  // data.child_data_list = this.$refs.childList[index].getChildDataList()
-                  data.child_data_list.push(this.$refs.childList[index].getChildDataList())
+                  data.child_data_list = this.$refs.childList[index].getChildDataList()
+                  // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
               let reqData = [{
