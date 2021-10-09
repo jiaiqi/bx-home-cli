@@ -72,12 +72,11 @@
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             },
             complete: () => {
-              self.getConnectedWifi()
               uni.hideLoading()
             }
           })
@@ -87,11 +86,12 @@
           wx.startWifi({
             success: (e) => {
               console.log('startWifi:', e)
-              getWifiList()
+              // getWifiList()
+              self.getConnectedWifi()
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             }

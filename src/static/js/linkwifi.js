@@ -1,7 +1,8 @@
 const app = getApp();
-var platform;
-var wifiList = [];
-var callBackFunc;
+let isOpenWifi = true
+let platform;
+let wifiList = [];
+let callBackFunc;
 
 // 仅 Android 6 与 iOS 11 以上版本支持
 function checkPlatform() {
@@ -9,7 +10,7 @@ function checkPlatform() {
     // 检测手机型号
     wx.getSystemInfo({
       success: function(res) {
-        var system = '';
+        let system = '';
         if (res.platform == 'android') system = parseInt(res.system.substr(8));
         if (res.platform == 'ios') system = parseInt(res.system.substr(4));
         if (res.platform == 'android' && system < 6) {
@@ -36,9 +37,6 @@ function checkPlatform() {
 // 1. 可直接使用该方法去连接 Wi-Fi
 function startConnectWifi(account, password) {
   return new Promise((resolve, reject) => {
-    uni.showLoading({
-      title: '连接中...'
-    })
     wx.startWifi({
       success(res) {
         connectWifi(account, password).then((res) => {
@@ -49,20 +47,24 @@ function startConnectWifi(account, password) {
           })
           resolve(res)
         }).catch((res) => {
+          console.log('连接失败：', res)
           reject(res)
         })
       },
       fail(res) {
-        wx.showToast({
-          title: '初始化WiFi失败',
-          icon: "none",
-          duration: 3000
-        })
+        if (res.errCode) {
+          checkWifiErr(res.errCode, res.errMsg)
+        } else {
+          wx.showToast({
+            title: '初始化WiFi失败',
+            icon: "none",
+            duration: 3000
+          })
+        }
+        uni.hideLoading()
         reject()
       },
-      complete:()=>{
-        uni.hideLoading()
-      }
+      complete: () => {}
     })
   })
 }
@@ -82,11 +84,16 @@ function startWifi() {
       },
       fail(res) {
         console.error(res)
-        wx.showToast({
-          title: '初始化WiFi失败',
-          icon: "none",
-          duration: 3000
-        })
+        if (res.errCode) {
+          checkWifiErr(res.errCode, res.errMsg)
+        } else {
+          wx.showToast({
+            title: '初始化WiFi失败',
+            icon: "none",
+            duration: 3000
+          })
+        }
+
       }
     })
   }
@@ -172,11 +179,15 @@ function getWifiList() {
       })
     },
     fail: function(res) {
-      wx.showToast({
-        title: '获取 Wi-Fi 列表数据失败',
-        icon: "none",
-        duration: 3000
-      })
+      if (res.errCode) {
+        checkWifiErr(res.errCode, res.errMsg)
+      } else {
+        wx.showToast({
+          title: '获取 Wi-Fi 列表数据失败',
+          icon: "none",
+          duration: 3000
+        })
+      }
     }
   })
 }
@@ -199,11 +210,17 @@ function connectWifi(account, password) {
         clearInterval(wifiTimer)
         resolve()
       } else {
-        // 值得注意的是：ios 无论连网成功还是失败，都会走 success 方法，所以 ios 需要特别判断一下
+
+        uni.showLoading({
+          title: '连接中...'
+        })
+
+        // ios 无论连网成功还是失败，都会走 success 方法，所以 ios 需要特别判断一下
         wx.connectWifi({
           SSID: account,
           password: password,
           success(res) {
+            uni.hideLoading()
             // ios 判断当前手机已连网账号与要连网的账号是否一致，来确定是否连网成功
             if (platform == 'ios') {
               // 6.监听连接上 WiFi 的事件
@@ -222,13 +239,18 @@ function connectWifi(account, password) {
             }
           },
           fail(res) {
+            if (res.errCode) {
+              checkWifiErr(res.errCode, res.errMsg)
+            }
             clearInterval(wifiTimer)
+            uni.hideLoading()
             reject(res)
           }
         })
       }
     }).catch((res) => {
       clearInterval(wifiTimer)
+
       reject(res)
     })
   })
@@ -242,16 +264,77 @@ function getConnectedWifi() {
         resolve(res.wifi)
       },
       fail: res => {
-        reject(res)
+        if (res.errCode) {
+          checkWifiErr(res.errCode, res.errMsg)
+        }
+        resolve(res)
       }
     })
   })
 }
 
+const checkWifiErr = (code, msg) => {
+  let text = ''
+  switch (code) {
+    case 12001:
+      text = '当前系统不支持相关能力'
+      break;
+    case 12002:
+      text = '密码错误'
+      break;
+    case 12003:
+      text = '连接超时'
+      break;
+    case 12004:
+      text = '重复连接WiFi'
+      break;
+    case 12005:
+      text = '未打开 Wi-Fi 开关'
+      isOpenWifi = false
+      break;
+    case 12006:
+      text = '未打开 GPS 定位开关'
+      break;
+    case 12007:
+      text = '用户拒绝授权链接 Wi-Fi'
+      break;
+    case 12008:
+      text = '无效 SSID'
+      break;
+    case 12009:
+      text = '系统运营商配置拒绝连接 Wi-Fi'
+      break;
+    case 12010:
+      console.log(msg);
+      if (msg) {
+        if (msg.indexOf('gain current wifi')) {
+          // text = '当前WiFi已连接'
+        }
+      }
+      break;
+    case 12013:
+      text = '系统保存的 Wi-Fi 配置过期，建议忘记 Wi-Fi 后重试'
+      break;
+  }
+  if (text) {
+    // uni.showToast({
+    //   title: text,
+    //   icon: 'none',
+    //   duration: 3000
+    // })
+    uni.showModal({
+      title: '提示',
+      content: text,
+      showCancel: false
+    })
+  }
+}
+
 export default {
-  checkPlatform: checkPlatform, // 检测平台是否支持
-  startConnectWifi: startConnectWifi, // 开始连接已知网络
-  startSearchWifi: startSearchWifi, // 开始搜索周边网络
-  connectWifi: connectWifi, // 连接网络
-  getConnectedWifi: getConnectedWifi // 获取当前网络的名称
+  checkPlatform, // 检测平台是否支持
+  startConnectWifi, // 开始连接已知网络
+  startSearchWifi, // 开始搜索周边网络
+  connectWifi, // 连接网络
+  getConnectedWifi, // 获取当前网络的名称
+  checkWifiErr
 }

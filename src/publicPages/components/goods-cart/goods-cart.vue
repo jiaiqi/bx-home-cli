@@ -135,35 +135,42 @@
       }
     },
     methods: {
-      clear(){
+      clear() {
         this.showList = false
         this.$emit('clear')
       },
       placeOrder() {
         let goodsList = this.deepClone(this.cartData)
-        goodsList = goodsList.map(goodsInfo => {
-          if (!goodsInfo.goods_image && goodsInfo.goods_img) {
-            goodsInfo.goods_image = goodsInfo.goods_img;
-          }
-          goodsInfo.name = goodsInfo.goods_name
-          goodsInfo.image = goodsInfo.store_image
-          goodsInfo.car_num = goodsInfo.goods_count || 1
-          goodsInfo.unit_price = goodsInfo.price
-          return goodsInfo
-        })
-        this.$store.commit('SET_STORE_CART', {
-          storeInfo: this.storeInfo,
-          store_no: this.storeInfo?.store_no,
-          list: goodsList
-        });
-        let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
+        if (goodsList.length > 0) {
+          goodsList = goodsList.map(goodsInfo => {
+            if (!goodsInfo.goods_image && goodsInfo.goods_img) {
+              goodsInfo.goods_image = goodsInfo.goods_img;
+            }
+            goodsInfo.name = goodsInfo.goods_name
+            goodsInfo.image = goodsInfo.store_image
+            goodsInfo.car_num = goodsInfo.goods_count || 1
+            goodsInfo.unit_price = goodsInfo.price
+            return goodsInfo
+          })
+          this.$store.commit('SET_STORE_CART', {
+            storeInfo: this.storeInfo,
+            store_no: this.storeInfo?.store_no,
+            list: goodsList
+          });
+          let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
 
-        if (this.wxMchId) {
-          url += `&wxMchId=${this.wxMchId}`
+          if (this.wxMchId) {
+            url += `&wxMchId=${this.wxMchId}`
+          }
+          uni.navigateTo({
+            url
+          });
+        }else{
+          uni.showToast({
+            title:'请先选择商品！',
+            icon:'none'
+          })
         }
-        uni.navigateTo({
-          url
-        });
       },
       changeAmount(row, index, num) {
         row = this.deepClone(row)
@@ -192,7 +199,8 @@
       margin-bottom: 10rpx;
       display: flex;
       justify-content: space-between;
-      .right{
+
+      .right {
         font-size: 12px;
         font-family: 苹方-简;
         font-weight: normal;
@@ -327,10 +335,7 @@
       font-size: 28rpx;
       font-family: SF Pro Text;
       font-weight: bold;
-      line-height: 0px;
       color: #474849;
-      opacity: 1;
-
       .decimal {
         font-size: 20rpx;
       }

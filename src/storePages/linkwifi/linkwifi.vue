@@ -1,8 +1,5 @@
 <template>
   <view class="wifi-manage">
-    <!--  <view class="handler-bar">
-      <button class="cu-btn round" @tap="toAdd"><text class="cuIcon-add margin-right-xs"></text> 添加</button>
-    </view> -->
     <view class="wifi-list">
       <scroll-view scroll-y="true">
         <view class="wifi-item" v-for="item in resultWifiList">
@@ -14,22 +11,15 @@
                 <text class="wifi-3" :class="item.strength < 3 ? 'off' : ''"></text>
                 <text class="wifi-4" :class="item.strength < 4 ? 'off' : ''"></text>
               </text>
-              <!-- <text class="cuIcon-wifi"></text> -->
               <text class="wifi-ssid">{{item.wifi_ssid||''}} </text>
-              <text class="text-blue" v-if="activeWifiMac===item.wifi_mac">已连接</text>
+              <text class="text-blue" v-if="activeWifiMac===item.wifi_mac||activeWifiMac===item.wifi_ssid">已连接</text>
             </view>
-            <!-- <view class="bottom">
-              <text class="wifi-pwd margin-right">{{item.wifi_psd||''}}</text>
-              <text @click="setClipboard(item.wifi_psd)"><text class="cuIcon-copy"></text>复制密码</text>
-            </view> -->
           </view>
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
             <button class="cu-btn border line-blue sm round" @tap="toConnect(item)"
-              v-if="activeWifiMac!==item.wifi_mac">连接</button>
+              v-if="activeWifiMac!==item.wifi_mac&&activeWifiMac!==item.wifi_ssid">连接</button>
             <!-- #endif -->
-            <!-- <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toEdit(item)">编辑</button> -->
-            <!-- <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toDel(item)">删除</button> -->
           </view>
         </view>
       </scroll-view>
@@ -39,60 +29,7 @@
 </template>
 
 <script>
-  import {
-    setClipboardData
-  } from '@/uni_modules/u-clipboard/js_sdk'
-  // import {
-  //   checkPlatform, // 检测平台是否支持
-  //   startConnectWifi, // 开始连接已知网络
-  //   startSearchWifi, // 开始搜索周边网络
-  //   connectWifi, // 连接网络
-  //   getConnectedWifi // 获取当前网络的名称
-  // } from './link.js'
   import linkjs from '@/static/js/linkwifi.js'
-  const checkWifiErr = (code) => {
-    let text = ''
-    switch (code) {
-      case 12001:
-        text = '当前系统不支持相关能力'
-        break;
-      case 12002:
-        text = '密码错误'
-        break;
-      case 12003:
-        text = '连接超时'
-        break;
-      case 12004:
-        text = '重复连接WiFi'
-        break;
-      case 12005:
-        text = '未打开 Wi-Fi 开关'
-        isOpenWifi = false
-        break;
-      case 12006:
-        text = '未打开 GPS 定位开关'
-        break;
-      case 12007:
-        text = '用户拒绝授权链接 Wi-Fi'
-        break;
-      case 12008:
-        text = '无效 SSID'
-        break;
-      case 12009:
-        text = '系统运营商配置拒绝连接 Wi-Fi'
-        break;
-      case 12013:
-        text = '系统保存的 Wi-Fi 配置过期，建议忘记 Wi-Fi 后重试'
-        break;
-    }
-    if (text) {
-      uni.showModal({
-        title: '提示',
-        content: text,
-        showCancel: false
-      })
-    }
-  }
 
   export default {
     data() {
@@ -112,6 +49,11 @@
           let activeWifiMac = this.wifiList.find(item => item.wifi_mac === this.connectedWifi.BSSID)
           if (activeWifiMac && activeWifiMac.wifi_mac) {
             return activeWifiMac.wifi_mac
+          } else if (!activeWifiMac) {
+            activeWifiMac = this.wifiList.find(item => item.wifi_ssid === this.connectedWifi.SSID)
+            if (activeWifiMac && activeWifiMac.wifi_ssid) {
+              return activeWifiMac.wifi_ssid
+            }
           }
         }
       },
@@ -119,8 +61,19 @@
         // #ifdef H5
         return this.wifiList
         // #endif
-        return this.wifiList
-        // return this.wifiList.filter((item) => this.nearWifiList.find(wifi => wifi.wifi_mac === item.BSSID))
+        let result = this.wifiList.filter((item) => this.nearWifiList.find(wifi => item.wifi_ssid === wifi.SSID))
+        if (result.length === 0) {
+          result = this.wifiList
+        }
+        return result
+      }
+    },
+    onShow() {
+      if (linkjs && linkjs.getConnectedWifi) {
+        let self = this
+        linkjs.getConnectedWifi().then(wifi => {
+          self.connectedWifi = wifi
+        })
       }
     },
     methods: {
@@ -129,15 +82,20 @@
         let password = e.wifi_psd
         console.log(e, 'toConnect: 131')
         let self = this
-      
+        linkjs.getConnectedWifi().then(wifi => {
+          self.connectedWifi = wifi
+        })
         linkjs.startConnectWifi(SSID, password).then(res => {
-          uni.hideLoading()
           console.log(res, 'toConnect: 135')
           linkjs.getConnectedWifi().then(wifi => {
             self.connectedWifi = wifi
           })
+        }).catch(err=>{
+          console.log('err:94',err)
+          linkjs.getConnectedWifi().then(wifi => {
+            self.connectedWifi = wifi
+          })
         })
-        debugger
         return
         wx.connectWifi({
           SSID,
@@ -145,7 +103,7 @@
           password,
           success(e) {
             wx.vibrateLong()
-            console.log(e)
+            console.log(e, '108')
             if (self.isIOS) { // 是否是IOS可通过提前调用getSystemInfo知道
               wx.onWifiConnected(result => {
                 if (result.wifi.SSID === SSID) {
@@ -177,7 +135,7 @@
             // 连接失败
             console.log(err)
             if (err.errCode) {
-              checkWifiErr(err.errCode)
+              linkjs.checkWifiErr(err.errCode)
             }
             // uni.showModal({
             //   title: SSID,
@@ -256,18 +214,7 @@
           url
         })
       },
-      setClipboard(e) {
-        setClipboardData(e).then(res => {
-          // #ifdef H5
-          if (res) {
-            uni.showToast({
-              title: '内容已复制',
-              icon: 'none'
-            })
-          }
-          // #endif
-        })
-      },
+
       async getWifi() {
         let req = {
           "serviceName": "srvstore_wifi_config_select",
@@ -279,11 +226,11 @@
           }
         }
         if (this.store_no) {
-          // req.condition = [{
-          //   colName: "store_no",
-          //   ruleType: "eq",
-          //   value: this.store_no
-          // }]
+          req.condition = [{
+            colName: "store_no",
+            ruleType: "eq",
+            value: this.store_no
+          }]
         }
         let url = this.getServiceUrl('bxportal', 'srvstore_wifi_config_select', 'select');
         this.loadStatus = 'loading'
@@ -334,14 +281,16 @@
       },
       async startSearch() {
         // 搜索wifi列表
+
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi
         })
-        // self.getConnectedWifi()
+
         linkjs.startSearchWifi((res) => {
           console.log(res, 'startSearchWifi')
           this.nearWifiList = res
         })
+
         return
         var self = this
         const getWifiList = () => {
@@ -364,7 +313,7 @@
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             },
@@ -383,7 +332,7 @@
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             }

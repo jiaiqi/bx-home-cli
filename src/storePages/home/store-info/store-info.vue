@@ -9,7 +9,7 @@
           <view class="store-name">
             {{storeInfo.name||''}}
           </view>
-          <view class="store-address" @click.stop="getCurrentLocation">
+          <view class="store-address" @click.stop="getCurrentLocation" v-if="storeInfo.address">
             <text class="cuIcon-locationfill margin-right-xs"></text>
             {{storeInfo.address||''}}
           </view>

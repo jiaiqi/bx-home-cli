@@ -5,7 +5,7 @@
         {{vaccineInfo.vaccine_drug_name||''}}
       </view>
       <view class="content">
-        <view class="sub-title">
+        <view class="sub-title" v-if="vaccineInfo.usage||(vaccineInfo.remark_pic&&isArray(imagesUrl))">
           <view class="text-cyan">
             <text>用法</text>
             <text class="cu-btn sm round" v-if="vaccineInfo.usage">
@@ -156,7 +156,8 @@
         },
         timeArr: [],
         imagesUrl: [],
-        dayOrderInfo: {}
+        dayOrderInfo: {},
+        app_type:"", // 默认疫苗预约
       }
     },
     computed: {
@@ -175,6 +176,9 @@
         userInfo: state => state.user.userInfo
       }),
       vaccineTip() {
+        if(this.app_type=='其它'){
+          return '预约时间'
+        }
         if (this.vaccineInfo) {
           if (!this.vaccineInfo.stock_count || this.vaccineInfo.stock_count < 1) {
             return '预约疫苗到货通知'
@@ -755,6 +759,9 @@
       }, 1000)
     },
     async onLoad(option) {
+      if(option.app_type){
+        this.app_type = option.app_type
+      }
       if (option.store_no) {
         this.store_no = option.store_no
         await this.getStoreInfo(option.store_no)

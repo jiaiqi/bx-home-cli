@@ -922,7 +922,8 @@
             }
             self.selectorData = self.selectorData.map(item => {
               const config = this.deepClone(this.fieldData.option_list_v2);
-              item.label = config.key_disp_col ? item[config.key_disp_col] : '';
+              item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
+              // item.label = config.key_disp_col ? item[config.key_disp_col] : '';
               item.value = config.refed_col ? item[config.refed_col] : '';
               return item;
             });

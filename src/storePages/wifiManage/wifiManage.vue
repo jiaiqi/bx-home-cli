@@ -44,50 +44,6 @@
   } from '@/uni_modules/u-clipboard/js_sdk'
   import linkjs from '@/static/js/linkwifi.js'
   
-  const checkWifiErr = (code) => {
-    let text = ''
-    switch (code) {
-      case 12001:
-        text = '当前系统不支持相关能力'
-        break;
-      case 12002:
-        text = '密码错误'
-        break;
-      case 12003:
-        text = '连接超时'
-        break;
-      case 12004:
-        text = '重复连接WiFi'
-        break;
-      case 12005:
-        text = '未打开 Wi-Fi 开关'
-        isOpenWifi = false
-        break;
-      case 12006:
-        text = '未打开 GPS 定位开关'
-        break;
-      case 12007:
-        text = '用户拒绝授权链接 Wi-Fi'
-        break;
-      case 12008:
-        text = '无效 SSID'
-        break;
-      case 12009:
-        text = '系统运营商配置拒绝连接 Wi-Fi'
-        break;
-      case 12013:
-        text = '系统保存的 Wi-Fi 配置过期，建议忘记 Wi-Fi 后重试'
-        break;
-    }
-    if (text) {
-      uni.showModal({
-        title: '提示',
-        content: text,
-        showCancel: false
-      })
-    }
-  }
-
   export default {
     data() {
       return {
@@ -165,7 +121,7 @@
             // 连接失败
             console.log(err)
             if (err.errCode) {
-              checkWifiErr(err.errCode)
+              linkjs.checkWifiErr(err.errCode)
             }
             // uni.showModal({
             //   title: SSID,
@@ -341,7 +297,7 @@
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             },
@@ -360,7 +316,7 @@
             },
             fail(err) {
               if (err && err.errCode) {
-                checkWifiErr(err.errCode)
+                linkjs.checkWifiErr(err.errCode)
               }
               console.log(err);
             }

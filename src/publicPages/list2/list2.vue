@@ -8,7 +8,7 @@
     <list-next class="list-next" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
       @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
-      @changeAmount="changeAmount" @clear="clearCart"></cart-list>
+      @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
   </view>
 </template>
 
@@ -608,7 +608,6 @@
             // 		'&cond=' +
             // 		decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
             // });
-            debugger
             // 自定义按钮
             let moreConfig = buttonInfo.more_config;
             if (moreConfig && typeof moreConfig === 'string') {
@@ -948,6 +947,9 @@
       }
     },
     onLoad(option) {
+      uni.$on('dataChange', srv => {
+        this.getList()
+      })
       if (option.listType) {
         this.listType = option.listType
       }

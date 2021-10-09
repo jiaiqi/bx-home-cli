@@ -195,9 +195,12 @@
             if (req) {
               let data = this.deepClone(req);
               data.child_data_list = []
-              this.childService.forEach((item, index) => {
-                data.child_data_list = this.$refs.childList[index].getChildDataList()
-              })
+              if (Array.isArray(this.childService) && this.this.childService.length > 0) {
+                this.childService.forEach((item, index) => {
+                  // data.child_data_list = this.$refs.childList[index].getChildDataList()
+                  data.child_data_list.push(this.$refs.childList[index].getChildDataList())
+                })
+              }
               let reqData = [{
                 serviceName: e.service_name,
                 condition: [],
@@ -356,7 +359,7 @@
           }
         }
         let defaultVal = null
-         let fields = null
+        let fields = null
         switch (colVs.use_type) {
           case 'update':
           case 'detail':

@@ -9,14 +9,14 @@
         <text class="cuIcon-unfold margin-left-xs" :class="{ 'show-home': showHomePageSelector }"></text>
       </view>
     </cu-custom-navbar>
-    
-    
+
+
     <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
       :pageItem="getConfig(pageItem)" :storeInfo="storeInfo" :userInfo="userInfo" :is-bind="isBind"
       :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
       @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting">
     </store-item>
-    
+
 
     <view class="cu-modal bottom-modal" @click="hideModal" :class="{ show: showHomePageSelector }">
       <view class="cu-dialog" @tap.stop>
@@ -276,14 +276,11 @@
             case '按钮组':
               keys = ['show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
                 'component_no', 'show_public_button', 'row_number', 'margin', 'listdata', 'show_label',
-                'component_label','prompt'
+                'component_label', 'prompt'
               ]
               break;
             case '商品列表':
               keys = ['row_number', 'margin', 'listdata']
-              break;
-            case '疫苗列表':
-              keys = ['row_number', 'margin']
               break;
             case '人员列表':
               keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata']
@@ -291,6 +288,7 @@
             case '文章列表':
               keys = ['category_no', 'row_number', 'article_style', 'margin']
               break;
+            case '疫苗列表':
             case '通知横幅':
             case '关联店铺':
             case '朋友圈':
@@ -629,6 +627,17 @@
           if (this.storeInfo.type === '健康服务') {
             this.getGoodsListData();
           }
+          if (this.storeInfo.is_show === '是') {
+            debugger
+            this.getStoreUserInfo(this.storeInfo.store_no).then(res => {
+              if (Array.isArray(res) && res.length >= 1) {
+                // 店铺用户列表中已存在此用户
+              } else {
+                // 当前用户不在此诊所中 则添加当前用户到此诊所中
+                this.bindStore()
+              }
+            });
+          }
         } else {
           if (res && res.code === '0011') {
             await this.toAddPage()
@@ -804,7 +813,7 @@
             user_image: this.userInfo.user_image,
             person_name: this.userInfo.name || this.userInfo.nick_name,
             add_url: this.inviterInfo.add_url,
-            invite_user_no: invite_user_no,
+            invite_user_no: invite_user_no || 'jiaqi',
             store_no: this.storeNo,
             person_no: this.userInfo.no,
             user_role: '用户',

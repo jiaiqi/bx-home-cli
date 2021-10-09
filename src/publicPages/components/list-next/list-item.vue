@@ -281,41 +281,41 @@
     border-radius: 20rpx;
     overflow: hidden;
 
-    &.grid_span2 {
-      width: calc(100%/2 - 10rpx);
-      margin-right: 20rpx;
+    // &.grid_span2 {
+    //   width: calc(100%/2 - 10rpx);
+    //   margin-right: 20rpx;
 
-      &:nth-child(2n) {
-        margin-right: 0;
-      }
-    }
+    //   &:nth-child(2n) {
+    //     margin-right: 0;
+    //   }
+    // }
 
-    &.grid_span3 {
-      width: calc(100%/3 - 40rpx/3);
-      margin-right: 20rpx;
+    // &.grid_span3 {
+    //   width: calc(100%/3 - 40rpx/3);
+    //   margin-right: 20rpx;
 
-      &:nth-child(3n) {
-        margin-right: 0;
-      }
-    }
+    //   &:nth-child(3n) {
+    //     margin-right: 0;
+    //   }
+    // }
 
-    &.grid_span4 {
-      width: calc(100%/4 - 60rpx/4);
-      margin-right: 20rpx;
+    // &.grid_span4 {
+    //   width: calc(100%/4 - 60rpx/4);
+    //   margin-right: 20rpx;
 
-      &:nth-child(4n) {
-        margin-right: 0;
-      }
-    }
+    //   &:nth-child(4n) {
+    //     margin-right: 0;
+    //   }
+    // }
 
-    &.grid_span5 {
-      width: calc(100%/5 - 80rpx/5);
-      margin-right: 20rpx;
+    // &.grid_span5 {
+    //   width: calc(100%/5 - 80rpx/5);
+    //   margin-right: 20rpx;
 
-      &:nth-child(5n) {
-        margin-right: 0;
-      }
-    }
+    //   &:nth-child(5n) {
+    //     margin-right: 0;
+    //   }
+    // }
 
 
     .list-item {

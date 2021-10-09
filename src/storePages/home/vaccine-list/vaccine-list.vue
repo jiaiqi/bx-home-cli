@@ -4,7 +4,9 @@
       <view class="title-text">
         <view class="">
           <text class="cuIcon-titles text-blue"></text>
-          <text>疫苗预约</text>
+          <text
+            v-if="pageItem&&pageItem.component_label&&pageItem.show_label === '是'">{{pageItem.component_label}}</text>
+          <text v-else>疫苗预约</text>
         </view>
         <view class="margin-left-xs">
           <text class="cu-btn bg-blue light sm round margin-right-xs" v-for="(item,index) in setDateOrderList"
@@ -20,11 +22,10 @@
     </view>
     <!--    <view class="" style="width:50%;margin:20rpx auto;">
       <u-subsection :list="subList" :current="curSub" mode="button" @change="changeSub"></u-subsection>
-   
     </view> -->
     <view class="vaccine-wrap">
       <view class="vaccine-list-box">
-        <view class="tab-list">
+        <view class="tab-list" v-if="subList&&subList.length>1">
           <view class="tab-item" :class="[curSub===index?'active':'','tab-item-'+index]" v-for="(item,index) in subList"
             :key="index" @click="changeSub(index)">
             {{item.name||''}}
@@ -469,14 +470,40 @@
           return arr
         }
       },
-    },
-    data() {
-      return {
-        subList: [{
+      moreConfig() {
+        let result = null
+        try {
+          if (this.pageItem?.more_config) {
+            result = JSON.parse(this.pageItem.more_config)
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+        return result
+      },
+      subList() {
+        let res = [{
           name: "一类"
         }, {
           name: "二类"
-        }],
+        }]
+        if (this.moreConfig?.vaccine_type) {
+          res = this.moreConfig.vaccine_type.split(',').map(item => {
+            return {
+              name: item
+            }
+          })
+        }
+        return res
+      },
+    },
+    data() {
+      return {
+        // subList: [{
+        //   name: "一类"
+        // }, {
+        //   name: "二类"
+        // }],
         curSub: 0,
         onSubmit: false, //正在提交
         modalName: '',
@@ -502,9 +529,11 @@
       }
     },
     props: {
+      pageItem: {
+        type: Object
+      },
       storeInfo: {
-        type: Object,
-        default: () => {}
+        type: Object
       },
     },
     beforeDestroy() {
@@ -845,7 +874,7 @@
           condition: [{
             colName: 'vaccine_type',
             ruleType: 'eq',
-            value: this.curSub === 0 ? "一类" : "二类"
+            value: this.subList[this.curSub].name
           }]
         }
         if (this.storeInfo && this.storeInfo.store_no) {
@@ -1161,8 +1190,12 @@
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
         } else {
+          let url = `/storePages/vaccineAppointment/vaccineAppointment?id=${e.id}&store_no=${this.storeInfo.store_no}`
+          if (this.moreConfig?.app_type) {
+            url += `&app_type=${this.moreConfig.app_type}`
+          }
           uni.navigateTo({
-            url: `/storePages/vaccineAppointment/vaccineAppointment?id=${e.id}&store_no=${this.storeInfo.store_no}`
+            url
           })
           return
           // this.selectTimeArr(e)
@@ -1233,7 +1266,7 @@
     background: #FAFBFC;
     border-radius: 12px;
     margin-top: 20rpx;
-    padding: 20rpx  0;
+    padding: 20rpx 0;
 
     .vaccine-list-box {
       border-radius: 12px;

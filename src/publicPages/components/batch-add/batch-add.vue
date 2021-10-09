@@ -10,7 +10,7 @@
 					<view class="add-item-box">
 						<view class="add-item" v-for="(item,index) in list">
 							<view class="content" :class="{active:item.selected}" @click="clickItem(item,index)">
-								<image :src="getImagePath(item[params.imgCol])" mode="aspectFill"
+								<image :src="getImagePath(item[params.imgCol])" mode="aspectFit"
 									v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
 								<view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">
 									<text class="cuIcon-pic"></text>

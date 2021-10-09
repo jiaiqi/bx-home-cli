@@ -237,7 +237,7 @@
           "path": "linkwifi/linkwifi",
           "style": {
             "navigationBarTitleText": "连接WiFi",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
 
         }
@@ -394,7 +394,8 @@
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#0bc99d",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "pageOrientation":"auto"
   },
   "condition": {
     // "current": 0,

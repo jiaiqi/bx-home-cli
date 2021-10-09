@@ -78,7 +78,8 @@
         // // 	"style": {
         // // 		"navigationBarTitleText": "listPage"
         // // 	}
-        // // },
+        // // }
+        // ,
         // {
         //   "path": "detail/detail",
         //   "style": {
@@ -91,14 +92,17 @@
         //     "navigationBarTitleText": "",
         //     "enablePullDownRefresh": false
         //   }
-        // },
+        // }
+        // ,
         // {
         //   "path": "table/table",
         //   "style": {
         //     "navigationBarTitleText": "",
         //     "enablePullDownRefresh": true
         //   }
-        // }, {
+        // }
+        // , 
+        // {
         //   "path": "list2/list2",
         //   "style": {
         //     "navigationBarTitleText": "列表",
@@ -134,16 +138,20 @@
         //   "style": {
         //     "enablePullDownRefresh": true
         //   }
-        // },
-        // {
-        //   "path": "StoreManager/StoreManager"
-        // },
+        // }
+        ,
+        {
+          "path": "StoreManager/StoreManager"
+        }
+        // ,
         // {
         //   "path": "GoodsDetail/GoodsDetail"
-        // },
+        // }
+        // ,
         // {
         //   "path": "payOrder/payOrder"
-        // },
+        // }
+        // ,
         // {
         //   "path": "successPay/successPay"
         // },
@@ -399,7 +407,8 @@
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#0bc99d",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "pageOrientation": "auto"
   },
   "condition": {
     // "current": 0,

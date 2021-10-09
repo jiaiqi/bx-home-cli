@@ -176,6 +176,11 @@
       }
     },
     onLoad(option) {
+      uni.$on('dataChange', srv => {
+        if (this.$refs.bxList) {
+          this.$refs.bxList.onRefresh();
+        }
+      })
       if (option.foreign_key) {
         this.foreign_key = JSON.parse(option.foreign_key)
       }
@@ -576,6 +581,7 @@
                     fieldsCond = [...fieldsCond, ...otherFieldsCond]
                   }
                 }
+                debugger
                 let url =
                   `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
                 if (this.moreConfig?.detailPage === 'childTableList') {

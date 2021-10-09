@@ -3,9 +3,13 @@
     <view class="list-wrap" :class="{
       'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
     }">
-      <list-item v-for="(item,index) in list" :key="index" class="list-item-wrap" :viewTemp="setViewTemp"
-        :labelMap="labelMap" :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
-        @add2Cart="add2Cart">
+      <list-item v-for="(item,index) in list" :key="index" :class="{
+        'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
+        'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
+        'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
+        'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
+      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :listType="listType" :rowData="item"
+        :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart">
       </list-item>
     </view>
   </view>
@@ -115,5 +119,41 @@
   .grid-layout {
     display: flex;
     flex-wrap: wrap;
+    padding: 0 20rpx;
+    .grid_span2 {
+      width: calc(100%/2 - 10rpx);
+      margin-right: 20rpx;
+    
+      &:nth-child(2n) {
+        margin-right: 0;
+      }
+    }
+    
+    .grid_span3 {
+      width: calc(100%/3 - 40rpx/3);
+      margin-right: 20rpx;
+    
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
+    }
+    
+    .grid_span4 {
+      width: calc(100%/4 - 60rpx/4);
+      margin-right: 20rpx;
+    
+      &:nth-child(4n) {
+        margin-right: 0;
+      }
+    }
+    
+    .grid_span5 {
+      width: calc(100%/5 - 80rpx/5);
+      margin-right: 20rpx;
+    
+      &:nth-child(5n) {
+        margin-right: 0;
+      }
+    }
   }
 </style>

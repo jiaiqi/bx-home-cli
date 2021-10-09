@@ -231,7 +231,7 @@
           });
         }
       },
-      toPages(type) {
+      toPages(type,e) {
         this.srvType = type;
         if (this.params.to && this.params.idCol && this.params.submitData && this.params.submitData[this.params
             .idCol]) {
@@ -239,8 +239,9 @@
             url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
           });
         } else {
+          let serviceName = e?.service_name||this.getServiceName(this.serviceName)
           let url =
-            `/publicPages/form/form?type=${type}&serviceName=${this.getServiceName(this.serviceName)}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+            `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
             if (this.params?.submitData?.id) {
               let fieldsCond = [{
@@ -249,7 +250,7 @@
                 display: false
               }]
               url =
-                `/publicPages/form/form?type=${type}&serviceName=${this.getServiceName(this.serviceName)}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+                `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
 
             }
           }
@@ -325,7 +326,7 @@
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情' && this.use_type === 'detail') {
-              this.toPages('update');
+              this.toPages('update',e);
               this.isOnButton = false;
             } else {
               if (req) {

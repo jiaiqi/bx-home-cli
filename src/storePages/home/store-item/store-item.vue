@@ -1,7 +1,7 @@
 <template>
   <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem"
     :class="{ 'bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin':pageItem&&(pageItem.type === '店铺信息2') }">
-    <view class="title" v-if="pageItem&&pageItem.show_label === '是'" @click="toMore">
+    <view class="title" v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '疫苗列表'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">
         查看更多
@@ -17,7 +17,8 @@
       @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
     <goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo"
       :storeInfo="storeInfo" image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
-    <vaccine-list :storeInfo="storeInfo" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList"></vaccine-list>
+    <vaccine-list :storeInfo="storeInfo" :pageItem="pageItem" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList">
+    </vaccine-list>
     <staff-manage :storeNo="storeNo" :pageItem="pageItem" v-else-if="pageItem.type === '人员列表'"
       @toDoctorDetail="toDoctorDetail" ref="staffList">
     </staff-manage>
