@@ -11,7 +11,7 @@
           <text class="cuIcon-search"></text>
         </button>
         <button class="cu-btn bg-cyan shadow-blur round margin-left-xs" @click="clickGridButton(btn)"
-          v-for="(btn, btnIndex) in listButton" :key="btnIndex">
+          v-for="(btn, btnIndex) in listButton" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">
           <text :class="[btn.icon]" class="text-sm"></text>
         </button>
       </view>
@@ -88,6 +88,9 @@
       },
       orderColExtension: {
         type: Array
+      },
+      readonly:{
+        type:[String,Boolean]
       }
       // orderCols:{
       // 	type:Array
@@ -131,6 +134,13 @@
       }
     },
     methods: {
+      isShowBtn(btn){
+        let handlerBtn = ['add','delete']
+        if(this.readonly&&handlerBtn.includes(btn.button_type)){
+          return false
+        }
+        return true
+      },
       toFilter(e) {
         this.searchVal = ''
         this.hideModal()

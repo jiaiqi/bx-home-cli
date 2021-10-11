@@ -126,16 +126,16 @@
     padding: 0 20rpx;
 
     .grid_span2 {
-      width: calc(100%/2 - 10rpx);
+      width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
-
+      
       &:nth-child(2n) {
         margin-right: 0;
       }
     }
 
     .grid_span3 {
-      width: calc(100%/3 - 40rpx/3);
+      width: calc(100%/3 - 50rpx/3);
       margin-right: 20rpx;
 
       &:nth-child(3n) {
@@ -144,7 +144,7 @@
     }
 
     .grid_span4 {
-      width: calc(100%/4 - 60rpx/4);
+      width: calc(100%/4 - 70rpx/4);
       margin-right: 20rpx;
 
       &:nth-child(4n) {
@@ -153,7 +153,7 @@
     }
 
     .grid_span5 {
-      width: calc(100%/5 - 80rpx/5);
+      width: calc(100%/5 - 90rpx/5);
       margin-right: 20rpx;
 
       &:nth-child(5n) {

@@ -1,5 +1,9 @@
 <template>
-  <view class="notice-wrap" :style="[calcStyle]" v-if="pageItem&&pageItem.notice_style==='列表'">
+  <view class="notice-wrap" v-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
+    <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
+      :type="theme" :color="color" :duration="duration" @click="clickNotice"></u-notice-bar>
+  </view>
+  <view class="notice-wrap" :style="[calcStyle]" v-else-if="pageItem&&noticeList&&noticeList.length>0">
     <view class="notice-item" v-for="item in noticeList" :key="item.id" @click="handelClick(item)" :style="{
         'font-size': item.style_config.fontSize,
         'justify-content': item.style_config.align,
@@ -11,10 +15,7 @@
       <text> {{ item.label }}</text>
     </view>
   </view>
-  <view class="notice-wrap" v-else-if="pageItem&&setList">
-    <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
-      :type="theme" :color="color" :duration="duration" @click="clickNotice"></u-notice-bar>
-  </view>
+
 </template>
 
 <script>
@@ -29,6 +30,9 @@
       }
     },
     computed: {
+      showNoticeBar() {
+        return this.pageItem.notice_style == '垂直滚动' || this.pageItem.notice_style == '水平滚动'
+      },
       color() {
         return ''
       },
@@ -51,7 +55,7 @@
       },
       setList() {
         if (Array.isArray(this.noticeList)) {
-          return this.noticeList.map(item => item.label)
+          return this.noticeList.map(item => item.label).filter(item => item && item)
         }
       },
       mode() {
@@ -124,7 +128,7 @@
         let res = await this.$fetch('select', serviceName, req, app)
         if (res.success) {
           this.noticeList = res.data.map(item => {
-            item.label = item.title
+            item.label = item.label || item.title
             if (!item.style_config) {
               item.style_config = {}
             } else if (typeof item.style_config === 'string') {

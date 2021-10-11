@@ -3,7 +3,7 @@
     <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
       :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-      @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false">
+      @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
     </list-bar>
     <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
       :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
@@ -24,6 +24,9 @@
       cartList
     },
     computed: {
+      listBarReadonly() {
+        return this.listConfig?.listBarReadonly
+      },
       publicButton() {
         if (Array.isArray(this.colV2?.gridButton) && this.colV2?.gridButton.length > 0) {
           return this.colV2.gridButton
@@ -191,7 +194,9 @@
         cartData: [],
         wxMchId: '',
         customDetailUrl: "",
-        listConfig: {}
+        listConfig: {
+
+        }
       }
     },
     methods: {
@@ -617,24 +622,10 @@
               buttonInfo.servcie_type);
             let res = await this.$http.post(url, req);
             if (res.data.state === 'SUCCESS') {
-              // this.$refs.bxList.onRefresh();
               this.getList()
             }
             return
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
-            // let params = {
-            // 	type: buttonInfo.servcie_type,
-            // 	serviceName: buttonInfo.operate_service,
-            // 	defaultVal: {}
-            // };
-            // uni.navigateTo({
-            // 	url: '/pages/public/formPage/formPage?serviceName=' +
-            // 		buttonInfo.operate_service +
-            // 		'&type=' +
-            // 		buttonInfo.servcie_type +
-            // 		'&cond=' +
-            // 		decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
-            // });
             // 自定义按钮
             let moreConfig = buttonInfo.more_config;
             if (moreConfig && typeof moreConfig === 'string') {
@@ -798,7 +789,7 @@
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
-                this.$refs.bxList.onRefresh();
+                this.getList()
               }
             }
             if (buttonInfo && buttonInfo.button_type === 'detail') {

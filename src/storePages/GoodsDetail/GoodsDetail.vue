@@ -58,7 +58,9 @@
         goodsDetailImage: [],
         phone: "",
         wxMchId: "",
-        storeNo: ''
+        storeNo: '',
+        serviceName: "",
+        destApp: ""
       };
     },
     computed: {
@@ -94,7 +96,9 @@
             rownumber: 1
           },
         };
-        let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
+        let service = this.serviceName || 'srvhealth_store_list_select'
+        let app = this.destApp || 'health'
+        let res = await this.$fetch('select', service, req, app)
         if (Array.isArray(res.data) && res.data.length > 0) {
           this.storeInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
@@ -233,6 +237,12 @@
       if (option.storeNo) {
         this.storeNo = option.storeNo
         this.getStoreInfo()
+      }
+      if (option.destApp) {
+        this.destApp = option.destApp
+      }
+      if (option.serviceName) {
+        this.serviceName = option.serviceName
       }
       if (option.phone) {
         this.phone = option.phone

@@ -1,7 +1,7 @@
 <template>
   <div class="relation-store layout1" :style="[calcStyle]" v-if="pageItem&&pageItem.related_store_style==='大图滑动'">
     <view class="store-item" v-for="item in listData" :key="item.id" @click="toStore(item)">
-      <image class="image" :src="getImagePath(item.b_logo,true)" mode="aspectFill" />
+      <image class="image" :src="getImagePath(item.b_logo,true)" mode="aspectFit" />
       <view class="label">{{
           item.b_name_short || (item.b_name ? item.b_name.slice(-10) : "-")
         }}</view>
@@ -13,7 +13,7 @@
   </div>
   <view class="relation-store layout2" v-else-if="pageItem&&pageItem.related_store_style==='大图双列'">
     <view class="store-item" v-for="item in listData" :key="item.id" @click="toStore(item)">
-      <image class="image" :src="getImagePath(item.b_logo,true)" mode="aspectFill" />
+      <image class="image" :src="getImagePath(item.b_logo,true)" mode="aspectFit" />
       <view class="label">{{
           item.b_name_short || (item.b_name ? item.b_name.slice(-10) : "-")
         }}</view>
@@ -25,7 +25,7 @@
   </view>
   <view class="relation-store layout3" v-else>
     <view class="store-item" v-for="item in listData" :key="item.id" @click="toStore(item)">
-      <image class="image" :src="getImagePath(item.b_logo)" mode="aspectFill" />
+      <image class="image" :src="getImagePath(item.b_logo)" mode="aspectFit" />
       <view class="label">{{
         item.b_name_short || (item.b_name ? item.b_name.slice(-10) : "-")
       }}</view>

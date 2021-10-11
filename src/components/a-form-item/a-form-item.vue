@@ -704,7 +704,10 @@
       getCascaderValue(e) {
         if (e) {
           let srvInfo = this.fieldData.srvInfo;
-          this.fkFieldLabel = `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}`;
+
+          // this.fkFieldLabel = `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}`;
+          this.fkFieldLabel = srvInfo.show_as_pair !== false ?  `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
+
           this.fieldData.value = e[srvInfo.refed_col];
           this.fieldData['colData'] = e;
         }
@@ -921,7 +924,8 @@
             }
             self.selectorData = self.selectorData.map(item => {
               const config = this.deepClone(this.fieldData.option_list_v2);
-              item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
+              // item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
+              item.label = config.show_as_pair !== false ? `${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config.key_disp_col]
               // item.label = config.key_disp_col ? item[config.key_disp_col] : '';
               item.value = config.refed_col ? item[config.refed_col] : '';
               return item;
