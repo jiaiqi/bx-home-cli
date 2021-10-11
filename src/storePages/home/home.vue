@@ -265,7 +265,7 @@
           let config = {}
           switch (type) {
             case '轮播图':
-              keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home']
+              keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home', 'more_config']
               break;
             case '店铺信息':
             case '店铺信息2':
@@ -298,6 +298,13 @@
           }
           if (Array.isArray(keys) && keys.length > 0) {
             keys.forEach(key => {
+              if (key === 'more_config' && pageItem[key] && typeof pageItem[key] === 'string') {
+                try{
+                  pageItem[key] = JSON.parse(pageItem[key])
+                }catch(e){
+                  //TODO handle the exception
+                }
+              }
               config[key] = pageItem[key]
             })
             config.type = pageItem['type']

@@ -581,7 +581,6 @@
                     fieldsCond = [...fieldsCond, ...otherFieldsCond]
                   }
                 }
-                debugger
                 let url =
                   `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
                 if (this.moreConfig?.detailPage === 'childTableList') {

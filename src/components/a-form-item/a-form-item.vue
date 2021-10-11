@@ -82,7 +82,6 @@
             (setOptionList.length < 15 && fieldData.type === 'Set') ||
             (selectorData.length <= 6 && fieldData.type === 'Selector')
           ">
-          <!-- <view v-if="setOptionList.length < 15 && fieldData.type === 'Set'"> -->
           <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
             v-model="fieldData.value" mode="button" @change="onBlur">
             <bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
@@ -1168,6 +1167,7 @@
         if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
           this.uploadFormData['file_no'] = this.fieldData.value;
         }
+        this.getDefVal();
       }
       if (this.pageType === 'detail' || this.pageType === 'update') {
         this.getDefVal();

@@ -58,7 +58,11 @@
     mounted() {
       let oldFieldModel = this.oldField.reduce((res, cur) => {
         if (cur.value) {
-          res[cur.columns] = cur.value
+          if(cur.column){
+            res[cur.column] = cur.value
+          }else if(cur.columns){
+            res[cur.columns] = cur.value
+          }
         }
         return res
       }, {})
@@ -207,6 +211,9 @@
                 }
               }
               this.fieldModel[item.column] = item.value;
+              if(item.type=='images'){
+                this.$refs.fitem[index].getDefVal()
+              }
               this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
             }
           }

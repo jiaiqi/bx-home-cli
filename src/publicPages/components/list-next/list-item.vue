@@ -12,6 +12,7 @@
       <view class="main-image" :style="{
         'border-radius':setViewTemp.img.cfg.radius,
         'width':setViewTemp.img.cfg.width,
+        'height':setViewTemp.img.cfg.height,
         'margin':setViewTemp.img.cfg.margin,
         'padding':setViewTemp.img.cfg.padding,
       }" :class="{
@@ -65,7 +66,7 @@
           <view class="label" v-if="item.cfg.disp_label&&labelMap[item.col]">
             {{labelMap[item.col]||''}}:
           </view>
-          <view class="value">
+          <view class="value" :style="{'white-space':item.cfg.white_space}">
             <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
             {{rowData[item.col]||''}}
           </view>
@@ -224,8 +225,8 @@
       }
     },
     methods: {
-      add2Cart(){
-        this.$emit('add2Cart',this.rowData)
+      add2Cart() {
+        this.$emit('add2Cart', this.rowData)
       },
       isShowBtn(btn) {
         let notDetail = btn.button_type !== 'detail'
@@ -333,6 +334,8 @@
         margin-right: 20rpx;
         display: flex;
         align-items: center;
+        background-color: #fff;
+        border: 1rpx solid #F8F8FA;
 
         &.m-r-0 {
           margin-right: 0;
@@ -355,6 +358,7 @@
         flex: 1;
         display: flex;
         flex-wrap: wrap;
+        max-width: 100%;
 
         .col-item {
           display: flex;

@@ -11,7 +11,7 @@
       </view>
       <view class="goods-item" v-for="(rowData,index) in setCartData" :key="index">
         <view class="main-image" v-if="setViewTemp.img.col">
-          <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="aspectFill"></image>
+          <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill"></image>
         </view>
         <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
           <view class="col-item bg" v-for="item in setViewTemp.cols" :style="{
@@ -299,7 +299,7 @@
       align-items: center;
       overflow: hidden;
       border-radius: 10rpx;
-
+      background-color: #F8F8FA;
       .image {
         width: 100%;
         height: 100%;

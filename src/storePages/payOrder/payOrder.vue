@@ -147,8 +147,8 @@
             } else if (cur.price && cur.car_num) {
               pre += cur.car_num * cur.price;
             }
-            return pre * 100;
-          }, 0);
+            return pre;
+          }, 0) * 100
         }
       }
     },

@@ -8,14 +8,14 @@
       </swiper-item>
     </swiper>
     <!-- <image :src="getImagePath(goodsInfo.goods_img,true)" mode="aspectFill"></image> -->
-    <view class="goods-info">{{ goodsInfo.goods_name }}</view>
+    <view class="goods-info">{{ goodsInfo.goods_name||'' }}</view>
     <view class="desc">
       <view class="title">简介</view>
-      <view class="">{{ goodsInfo.goods_desc }}</view>
+      <view class="">{{ goodsInfo.goods_desc||'' }}</view>
     </view>
     <view class="store-info" v-if="storeInfo&&storeInfo.store_no">
       <image :src="getImagePath(storeInfo.logo)" class="store-icon"></image>
-      <view class="store-name">{{ storeInfo.name}}</view>
+      <view class="store-name">{{ storeInfo.name||''}}</view>
       <view class="phoneCall" v-if="phone" @click="phoneCall"><text class="cuIcon-phone text-cyan"></text></view>
     </view>
     <view class="detail">
@@ -134,6 +134,7 @@
         goodsInfo.image = goodsInfo.store_image
         goodsInfo.car_num = 1
         goodsInfo.unit_price = goodsInfo.price
+        goodsInfo.type = this.storeInfo?.type
         this.$store.commit('SET_STORE_CART', {
           storeInfo: goodsInfo,
           store_no: goodsInfo.store_no,

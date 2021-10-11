@@ -3,10 +3,10 @@
     <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
       :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-      @search="toSearch" v-if="srvCols&&srvCols.length>0">
+      @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false">
     </list-bar>
-    <list-next class="list-next" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
-      @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
+    <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
+      :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
   </view>
@@ -27,26 +27,6 @@
       publicButton() {
         if (Array.isArray(this.colV2?.gridButton) && this.colV2?.gridButton.length > 0) {
           return this.colV2.gridButton
-          // .filter(item => {
-          //   if (item.permission === true) {
-          //     switch (item.button_type) {
-          //       case 'add':
-          //       case 'apply':
-          //         this.showAdd = true;
-          //         return item;
-          //         break;
-          //       case 'select':
-          //         this.showSearchBar = true;
-          //         // #ifdef MP-WEIXIN
-          //         this.listTop = 100;
-          //         // #endif
-          //         return item;
-          //         break;
-          //       case 'customize':
-
-          //     }
-          //   }
-          // })
         }
         return []
       },
@@ -57,7 +37,41 @@
         return this.colV2?.moreConfig || {}
       },
       list_config() {
-        return this.colV2?.moreConfig?.list_config || {}
+        let config = this.colV2?.moreConfig?.list_config
+        let obj = {
+          "lp_style": this.listConfig?.lp_style || config?.lp_style || "复合",
+          "grid_span": this.listConfig?.grid_span || config?.grid_span || "2",
+          "detailPage": this.listConfig?.detailPage || config?.detailPage,
+          'margin': config?.margin,
+          'padding': config?.padding,
+          "list_bar": this.listConfig?.list_bar ?? config?.list_bar,
+          "btn_cfg": {
+            "show_custom_btn": this.listConfig?.show_custom_btn ?? config?.btn_cfg?.show_custom_btn ?? null,
+            "show_public_btn": this.listConfig?.show_public_btn ?? config?.btn_cfg?.show_public_btn ??
+              null,
+            "show": config?.btn_cfg?.show || true,
+            "bg_style": config?.btn_cfg?.bg_style || "line",
+            "bg": config?.btn_cfg?.bg,
+            'color': config?.btn_cfg?.color,
+            "font_size": config?.btn_cfg?.font_size,
+            "radius": config?.btn_cfg?.radius || "10px",
+            "size": config?.btn_cfg?.size || "sm",
+            "padding": config?.btn_cfg?.padding || null
+          },
+          "img": {
+            "col": config?.img?.col,
+            "cfg": {
+              "width": this.listConfig?.img?.width || config?.img?.cfg?.width || "100%",
+              "height": this.listConfig?.img?.height || config?.img?.cfg?.height || "150rpx",
+              "radius": config?.img?.cfg?.radius || "10px 10px 0 0",
+              "position": config?.img?.cfg?.position || "top",
+              "mode": this.listConfig?.img?.mode || config?.img?.cfg?.mode || ""
+            }
+          },
+          cols: config?.cols
+        }
+        return obj
+        // return this.colV2?.moreConfig?.list_config || {}
       },
       listButton() {
         let buttons = this.publicButton
@@ -171,10 +185,13 @@
         searchVal: "",
         listType: "list", //list,proc,cart
         pageType: "", //list,proc,cart
+        detailType: "normal", //  normal,custom
         tabList: [],
         order: [],
         cartData: [],
-        wxMchId: ''
+        wxMchId: '',
+        customDetailUrl: "",
+        listConfig: {}
       }
     },
     methods: {
@@ -305,21 +322,21 @@
               })
             })
           }
-          let otherParams = this.handleSpecialClickEvent(res)
-          if (otherParams && otherParams.otherFieldsCond) {
-            if (Array.isArray(otherFieldsCond)) {
-              fieldsCond = [...fieldsCond, ...otherFieldsCond]
-            }
-          }
+          // let otherParams = this.handleSpecialClickEvent(res)
+          // if (otherParams && otherParams.otherFieldsCond) {
+          //   if (Array.isArray(otherFieldsCond)) {
+          //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
+          //   }
+          // }
           let url =
             `/publicPages/form/form?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
             encodeURIComponent(JSON.stringify(fieldsCond));
           if (this.appName) {
             url += `&appName=${this.appName}`
           }
-          if (otherParams && otherParams.hideColumn) {
-            url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-          }
+          // if (otherParams && otherParams.hideColumn) {
+          //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
+          // }
           uni.navigateTo({
             url: url
           });
@@ -392,6 +409,16 @@
         if (colVs.more_config) {
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
+            if (colVs.moreConfig?.detailType) {
+              if (!this.detailType) {
+                this.detailType === colVs.moreConfig?.detailType
+              }
+            }
+            if (colVs.moreConfig?.customDetailUrl) {
+              if (!this.customDetailUrl) {
+                this.customDetailUrl === colVs.moreConfig?.customDetailUrl
+              }
+            }
           } catch (e) {
             //TODO handle the exception
             console.info(e)
@@ -745,8 +772,6 @@
             return
           }
 
-
-
         } else if (this.listType === 'proc') {
           if (buttonInfo && buttonInfo.button_type === 'edit' && rowData.proc_instance_no) {
             uni.navigateTo({
@@ -755,8 +780,21 @@
             });
           }
         } else {
+          if (this.detailType === 'custom' && this.customDetailUrl) {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let targetUrl = this.customDetailUrl
+            let obj = {
+              data: rowData,
+              storeInfo
+            };
+            obj = this.deepClone(obj)
+            targetUrl = this.renderStr(this.customDetailUrl, obj)
+            uni.navigateTo({
+              url: targetUrl
+            })
+            return
+          }
 
-          debugger
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
@@ -764,25 +802,39 @@
               }
             }
             if (buttonInfo && buttonInfo.button_type === 'detail') {
-              let row = res.row;
-              let btn = res.button;
-              let params = {
-                type: 'detail',
-                condition: [{
-                  colName: 'id',
-                  ruleType: 'in',
-                  value: row.id
-                }],
-                serviceName: btn.service_name,
-                defaultVal: row
-              };
-              let url = `/pages/public/formPage/formPage?params=${JSON.stringify(params)}`
-              if (this.appName) {
-                url += `&appName=${this.appName}`
+              let {
+                row,
+                button
+              } = res
+              if (row && row.id) {
+                let fieldsCond = [{
+                  column: 'id',
+                  value: row.id,
+                  display: false
+                }]
+
+                let url =
+                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
+                  'childTableList') {
+                  url =
+                    `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                }
+                if (this.appName) {
+                  url += `&appName=${this.appName}`
+                }
+                if (button.service_name === 'srvdaq_cms_content_select') {
+                  if (e.content_no) {
+                    uni.navigateTo({
+                      url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
+                    });
+                  }
+                  return
+                }
+                uni.navigateTo({
+                  url: url
+                })
               }
-              uni.navigateTo({
-                url: url
-              });
             } else if (buttonInfo && buttonInfo.button_type === 'customize') {
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
@@ -869,21 +921,21 @@
                     })
                   })
                 }
-                let otherParams = this.handleSpecialClickEvent(res)
-                if (otherParams && otherParams.otherFieldsCond) {
-                  if (Array.isArray(otherFieldsCond)) {
-                    fieldsCond = [...fieldsCond, ...otherFieldsCond]
-                  }
-                }
+                // let otherParams = this.handleSpecialClickEvent(res)
+                // if (otherParams && otherParams.otherFieldsCond) {
+                //   if (Array.isArray(otherFieldsCond)) {
+                //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
+                //   }
+                // }
                 let url =
                   `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
                 if (this.appName) {
                   url += `&appName=${this.appName}`
                 }
-                if (otherParams && otherParams.hideColumn) {
-                  url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-                }
+                // if (otherParams && otherParams.hideColumn) {
+                //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
+                // }
                 uni.navigateTo({
                   url: url
                 });
@@ -950,6 +1002,29 @@
       uni.$on('dataChange', srv => {
         this.getList()
       })
+      if (option.grid_span) {
+        this.listConfig.grid_span = option.grid_span
+      }
+      if (option.show_public_btn) {
+        this.listConfig.show_public_btn = option.show_public_btn
+      }
+      if (option.listConfig) {
+        try {
+          this.listConfig = JSON.parse(option.listConfig)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.detailType && option.customDetailUrl) {
+        this.detailType = option.detailType
+        let decodeUrl = option.customDetailUrl
+        try {
+          decodeUrl = decodeURIComponent(decodeUrl)
+        } catch (e) {
+          //TODO handle the exception
+        }
+        this.customDetailUrl = decodeUrl
+      }
       if (option.listType) {
         this.listType = option.listType
       }

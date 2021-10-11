@@ -47,7 +47,7 @@
 				</view>
 				<view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
 					<view class="box-item" v-for="item in list" @click="clickGrid(item)">
-						<view class="cu-tag amount text-blue" v-if="storeInfo[item.type]">
+						<view class="cu-tag amount bg-blue round light" v-if="storeInfo[item.type]">
 							{{ storeInfo[item.type] | overDisplay }}
 						</view>
 						<view class="box-item-content">
@@ -65,7 +65,7 @@
 				</view>
 				<view class="manager-box" v-else>
 					<view class="box-item" v-for="item in buttonGroup" @click="clickButton(item)">
-						<view class="cu-tag amount text-blue" v-if="item.num && item.label === '用户列表'">
+						<view class="cu-tag amount bg-blue round light" v-if="item.num && item.label === '用户列表'">
 							{{ item.num || 0 }}
 						</view>
 						<view class="box-item-content">
@@ -95,7 +95,7 @@
 						</view>
 					</view>
 					<view class="box-item" v-for="item in childTable" @click="toChildService(item)">
-						<view class="cu-tag amount text-blue" v-if="item.total">
+						<view class="cu-tag amount bg-blue round light" v-if="item.total">
 							{{ item.total || 0 }}
 						</view>
 						<view class="box-item-content">

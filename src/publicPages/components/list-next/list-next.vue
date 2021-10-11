@@ -34,7 +34,9 @@
       appName: {
         type: String
       },
-
+      listConfig: {
+        type: Object
+      }
     },
     computed: {
       rowButton() {
@@ -61,29 +63,31 @@
       setViewTemp() {
         let viewTemp = this.viewTemp
         let obj = {
-          "lp_style": this.viewTemp?.lp_style || "复合",
-          "grid_span": this.viewTemp?.grid_span || "2",
-          'margin': this.viewTemp?.margin,
-          'padding': this.viewTemp?.padding,
+          "lp_style": this.listConfig?.lp_style || viewTemp?.lp_style || "复合",
+          "grid_span": this.listConfig?.grid_span || viewTemp?.grid_span || "2",
+          'margin': viewTemp?.margin,
+          'padding': viewTemp?.padding,
           "btn_cfg": {
-            "show_custom_btn": this.viewTemp?.btn_cfg?.show_custom_btn || true,
-            "show_public_btn": this.viewTemp?.btn_cfg?.show_public_btn ||
-              true,
-            "show": this.viewTemp?.btn_cfg?.show || true,
-            "bg_style": this.viewTemp?.btn_cfg?.bg_style || "line",
-            "bg": this.viewTemp?.btn_cfg?.bg,
-            'color': this.viewTemp?.btn_cfg?.color,
-            "font_size": this.viewTemp?.btn_cfg?.font_size,
-            "radius": this.viewTemp?.btn_cfg?.radius || "10px",
-            "size": this.viewTemp?.btn_cfg?.size || "sm",
-            "padding": this.viewTemp?.btn_cfg?.padding || null
+            "show_custom_btn": this.listConfig?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
+            "show_public_btn": this.listConfig?.show_public_btn ?? viewTemp?.btn_cfg?.show_public_btn ??
+              null,
+            "show": viewTemp?.btn_cfg?.show || true,
+            "bg_style": viewTemp?.btn_cfg?.bg_style || "line",
+            "bg": viewTemp?.btn_cfg?.bg,
+            'color': viewTemp?.btn_cfg?.color,
+            "font_size": viewTemp?.btn_cfg?.font_size,
+            "radius": viewTemp?.btn_cfg?.radius || "10px",
+            "size": viewTemp?.btn_cfg?.size || "sm",
+            "padding": viewTemp?.btn_cfg?.padding || null
           },
           "img": {
-            "col": this.viewTemp?.img?.col,
-            "cfg": this.viewTemp?.img?.cfg || {
-              "radius": "50%",
-              "position": "left",
-              "mode": "aspectFill"
+            "col": viewTemp?.img?.col,
+            "cfg": {
+              "width": this.listConfig?.img?.width || viewTemp?.img?.cfg?.width || "100%",
+              "height": this.listConfig?.img?.height || viewTemp?.img?.cfg?.height || "150rpx",
+              "radius": viewTemp?.img?.cfg?.radius || "10px 10px 0 0",
+              "position": viewTemp?.img?.cfg?.position || "top",
+              "mode": this.listConfig?.img?.mode || viewTemp?.img?.cfg?.mode || ""
             }
           },
           cols: viewTemp?.cols
@@ -120,37 +124,38 @@
     display: flex;
     flex-wrap: wrap;
     padding: 0 20rpx;
+
     .grid_span2 {
       width: calc(100%/2 - 10rpx);
       margin-right: 20rpx;
-    
+
       &:nth-child(2n) {
         margin-right: 0;
       }
     }
-    
+
     .grid_span3 {
       width: calc(100%/3 - 40rpx/3);
       margin-right: 20rpx;
-    
+
       &:nth-child(3n) {
         margin-right: 0;
       }
     }
-    
+
     .grid_span4 {
       width: calc(100%/4 - 60rpx/4);
       margin-right: 20rpx;
-    
+
       &:nth-child(4n) {
         margin-right: 0;
       }
     }
-    
+
     .grid_span5 {
       width: calc(100%/5 - 80rpx/5);
       margin-right: 20rpx;
-    
+
       &:nth-child(5n) {
         margin-right: 0;
       }

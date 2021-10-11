@@ -1491,9 +1491,9 @@ export default {
                 if (appName) {
                   url += `&appName=${appName}`
                 }
-                uni.navigateTo({
-                  url: url
-                })
+                // uni.navigateTo({
+                //   url: url
+                // })
                 resolve(e)
               })
               break;
@@ -2248,7 +2248,7 @@ export default {
 
     Vue.prototype.renderStr = (str, obj) => {
       if (typeof obj === 'object' && str) {
-        return str.replace(/\$\{(.*?)\}/g, (match, key) => {
+        str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
           if (key === 'today') {
@@ -2267,9 +2267,8 @@ export default {
           }
           return result
         })
-      } else {
-        return str
       }
+      return str
     }
 
     Vue.prototype.toArticle = (no) => {
