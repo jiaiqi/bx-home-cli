@@ -84,7 +84,6 @@
     },
     methods: {
       async getStoreInfo() {
-
         let req = {
           condition: [{
             colName: 'store_no',
@@ -96,8 +95,8 @@
             rownumber: 1
           },
         };
-        let service = this.serviceName || 'srvhealth_store_list_select'
-        let app = this.destApp || 'health'
+        let service = 'srvhealth_store_list_select'
+        let app = 'health'
         let res = await this.$fetch('select', service, req, app)
         if (Array.isArray(res.data) && res.data.length > 0) {
           this.storeInfo = res.data[0];
@@ -218,7 +217,9 @@
             value: no
           }]
         };
-        this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
+        let service = this.serviceName || 'srvhealth_store_goods_guest_select'
+        let app = this.destApp || 'health'
+        this.$fetch('select', service, req, app).then(res => {
           if (Array.isArray(res.data) && res.data.length > 0) {
             this.goodsInfo = res.data[0];
             this.getSwiperList(this.goodsInfo);
@@ -228,9 +229,7 @@
       }
     },
     onLoad(option) {
-      if (option.goods_no) {
-        this.getGoodsInfo(option.goods_no);
-      }
+
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId
       }
@@ -246,6 +245,10 @@
       }
       if (option.phone) {
         this.phone = option.phone
+      }
+      
+      if (option.goods_no) {
+        this.getGoodsInfo(option.goods_no);
       }
     }
   };
