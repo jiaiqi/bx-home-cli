@@ -661,20 +661,20 @@
           // BSSID: '',
           password,
           success(e) {
-            wx.vibrateLong()
             self.getConnectedWifi()
-
             if (self.isIOS) { // 是否是IOS可通过提前调用getSystemInfo知道
               wx.onWifiConnected(result => {
+                console.log('连接测试',result,SSID)
                 if (result.wifi.SSID === SSID) {
                   // 连接成功
+                  wx.vibrateLong()
                   uni.showModal({
                     title: SSID,
                     content: '连接成功',
                     showCancel: false
                   })
                   if (isSubmit) {
-                    self.submitWifiInfo(e, password)
+                    self.submitWifiInfo(result, password)
                   }
                 } else {
                   // 连接失败
@@ -686,6 +686,7 @@
               })
             } else {
               // 连接成功
+              wx.vibrateLong()
               if (isSubmit) {
                 self.submitWifiInfo(e, password)
               }

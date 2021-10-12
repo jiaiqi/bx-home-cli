@@ -2,9 +2,9 @@
 // 所有接口都在一个文件里会比较大
 
 let env = 'prod'
-if (process?.env?.APP_ENV) {
-  env = process.env.APP_ENV
-}
+// if (process?.env?.APP_ENV) {
+//   env = process.env.APP_ENV
+// }
 let conf = {
   'test': {
     //测试环境
