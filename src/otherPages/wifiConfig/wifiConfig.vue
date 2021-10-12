@@ -11,7 +11,7 @@
       </view>
       <view class="wifi-info">
         <view>
-          WiFi{{connectedWifi?"已":"未"}}连接
+          WiFi{{connectedWifi&&connectedWifi.SSID?"已":"未"}}连接
           <!-- {{connectedWifi.SSID}} -->
         </view>
         <view class="wifi-ssid" v-if="connectedWifi&&connectedWifi.SSID">
@@ -440,9 +440,12 @@
         return this.wifiList.map(item => {
           if (ssidList.includes(item.SSID)) {
             let info = this.pwdList.find(p => p.SSID === item.SSID)
-            // if (info?.password) {
-            //   item.password = info.password
-            // }
+            if (info?.password) {
+              item.password = info.password
+            }
+            if (info?.wifi_psd) {
+              item.password = info.wifi_psd
+            }
             if (info && typeof info === 'object') {
               item = {
                 ...item,
@@ -451,10 +454,17 @@
             }
           }
           return item
-        })
+        }).filter(item => item.SSID)
       },
     },
     onLoad(option) {
+
+      wx.getSystemInfo({
+        success: (res) => {
+          const isIOS = res.platform === 'ios'
+          this.isIOS = isIOS
+        }
+      })
       if (option.store_no) {
         this.store_no = option.store_no
         this.getSavedWifi()
@@ -522,10 +532,11 @@
         })
       },
       getConnectedWifi() {
+        let self = this
         wx.getConnectedWifi({
           success: (e) => {
             if (e && e.wifi) {
-              this.connectedWifi = e.wifi
+              self.connectedWifi = e.wifi
             }
           }
         })
@@ -544,6 +555,7 @@
         }
       },
       selectUndefinedWifi(e) {
+
         this.undefinedWifi = e
         this.showModal('submit-pwd')
       },
@@ -577,6 +589,8 @@
         })
       },
       submitWifiInfo(e, pwd) {
+        console.log(e, pwd, 'submitWifiInfo');
+
         if (e?.wifi?.SSID) {
           let wifi = e.wifi
           let url = this.getServiceUrl('bxportal', 'srvstore_wifi_config_add', 'operate');
@@ -595,7 +609,8 @@
             console.log('submitWifiInfo', res.data)
             if (res.data.state === 'SUCCESS') {
               uni.showToast({
-                title: '提交成功'
+                title: 'WiFi配置提交成功',
+                duration: 3000
               })
               uni.$emit("dataChange")
               this.getSavedWifi()
@@ -638,7 +653,7 @@
         // })
         uni.showLoading({
           title: '连接中...',
-          mask:true
+          mask: true
         })
         this.hideModal()
         wx.connectWifi({
@@ -648,6 +663,7 @@
           success(e) {
             wx.vibrateLong()
             self.getConnectedWifi()
+
             if (self.isIOS) { // 是否是IOS可通过提前调用getSystemInfo知道
               wx.onWifiConnected(result => {
                 if (result.wifi.SSID === SSID) {
@@ -701,18 +717,23 @@
       async startSearch() {
         // 搜索wifi列表
         var self = this
-        
-        
-        
+
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi
         })
         // self.getConnectedWifi()
         linkjs.startSearchWifi((res) => {
           console.log(res, 'startSearchWifi')
-          self.wifiList = res
+          self.wifiList = res.filter(item => item.SSID).sort((a, b) => b.signalStrength -
+            a
+            .signalStrength).map(wifi => {
+            const strength = Math.ceil(wifi.signalStrength / 100 * 4)
+            return Object.assign(wifi, {
+              strength
+            })
+          })
         })
-        
+
         return
         const getWifiList = () => {
           uni.showLoading({
@@ -723,7 +744,8 @@
               isOpenWifi = true
               self.getConnectedWifi()
               wx.onGetWifiList((res) => {
-                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength - a
+                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength -
+                  a
                   .signalStrength).map(wifi => {
                   const strength = Math.ceil(wifi.signalStrength / 100 * 4)
                   return Object.assign(wifi, {
@@ -762,11 +784,13 @@
         }
         let platform = await linkjs.checkPlatform()
         if (platform === 'ios') {
-          self.getConnectedWifi()
+          linkjs.getConnectedWifi().then(wifi => {
+            self.connectedWifi = wifi
+          })
         } else {
           startWifi()
         }
-        
+
         // wx.getSystemInfo({
         //   success(res) {
         //     const isIOS = res.platform === 'ios'

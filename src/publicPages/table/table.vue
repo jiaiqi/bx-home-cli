@@ -771,7 +771,6 @@
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
           } catch (e) {
-            debugger
             //TODO handle the exception
             console.info(e)
           }

@@ -1,25 +1,14 @@
 {
   "pages": [{
-      "path": "pages/index/index",
-      "style": {
-        "navigationBarTitleText": "",
-        "navigationBarBackgroundColor": "#fff",
-        "navigationBarTextStyle": "black",
-        "navigationStyle": "custom",
-        "enablePullDownRefresh": true
-      }
-    },
-    {
-      "path": "pages/home/home",
-      "style": {
-        "navigationBarTitleText": "",
-        // "navigationBarBackgroundColor": "#fff",
-        "navigationBarTextStyle": "black",
-        "navigationStyle": "custom",
-        "enablePullDownRefresh": true
-      }
+    "path": "pages/index/index",
+    "style": {
+      "navigationBarTitleText": "",
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "enablePullDownRefresh": true
     }
-  ],
+  }],
   "subPackages": [{
       "root": "publicPages",
       "pages": [{
@@ -33,7 +22,8 @@
         // ,
         // {
         //   "path": "list/list"
-        // },
+        // }
+        // ,
         // {
         //   "path": "form/form"
         // },
@@ -73,13 +63,12 @@
         //     "navigationBarTitleText": "群公告"
         //   }
         // },
-        // // {
-        // // 	"path": "listPage/listPage",
-        // // 	"style": {
-        // // 		"navigationBarTitleText": "listPage"
-        // // 	}
-        // // }
-        // ,
+        // {
+        // 	"path": "listPage/listPage",
+        // 	"style": {
+        // 		"navigationBarTitleText": "listPage"
+        // 	}
+        // },
         // {
         //   "path": "detail/detail",
         //   "style": {
@@ -92,17 +81,14 @@
         //     "navigationBarTitleText": "",
         //     "enablePullDownRefresh": false
         //   }
-        // }
-        // ,
+        // },
         // {
         //   "path": "table/table",
         //   "style": {
         //     "navigationBarTitleText": "",
         //     "enablePullDownRefresh": true
         //   }
-        // }
-        // , 
-        // {
+        // }, {
         //   "path": "list2/list2",
         //   "style": {
         //     "navigationBarTitleText": "列表",
@@ -131,27 +117,27 @@
             "navigationStyle": "custom",
             "enablePullDownRefresh": true
           }
-        }
-        // ,
+        },
         // {
         //   "path": "VaccineOrder/VaccineOrder",
         //   "style": {
         //     "enablePullDownRefresh": true
         //   }
-        // }
-        ,
+        // },
         {
           "path": "StoreManager/StoreManager"
-        }
-        // ,
+        },
         // {
-        //   "path": "GoodsDetail/GoodsDetail"
-        // }
-        // ,
+        //   "path": "GoodsDetail/GoodsDetail",
+        //   "style":{
+        //     "navigationBarBackgroundColor":"#fff",
+        //     "navigationBarTextStyle":"black"
+        //     // "navigationStyle":"custom"
+        //   }
+        // },
         // {
         //   "path": "payOrder/payOrder"
-        // }
-        // ,
+        // },
         // {
         //   "path": "successPay/successPay"
         // },
@@ -219,15 +205,17 @@
         //     "navigationBarTitleText": "排队管理",
         //     "enablePullDownRefresh": true
         //   }
-        // }, {
-        //   "path": "wifiManage/wifiManage",
-        //   "style": {
-        //     "navigationBarTitleText": "WiFi管理",
-        //     "enablePullDownRefresh": true,
-        //     "navigationBarBackgroundColor": "#fff",
-        //     "navigationBarTextStyle": "black"
-        //   }
-        // }, {
+        // }, 
+        {
+          "path": "wifiManage/wifiManage",
+          "style": {
+            "navigationBarTitleText": "WiFi管理",
+            "enablePullDownRefresh": true,
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black"
+          }
+        },
+        // {
         //   "path": "vaccineAppointment/vaccineAppointment",
         //   "style": {
         //     "navigationBarTitleText": "",
@@ -243,13 +231,12 @@
         //     "enablePullDownRefresh": false
         //   }
 
-        // }
-        ,
+        // },
         {
           "path": "linkwifi/linkwifi",
           "style": {
             "navigationBarTitleText": "连接WiFi",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
 
         }
@@ -394,7 +381,7 @@
           "path": "wifiConfig/wifiConfig",
           "style": {
             "navigationBarTitleText": "wifi配置",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
         }
       ]

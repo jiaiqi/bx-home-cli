@@ -5,8 +5,8 @@
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
       @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
     </list-bar>
-    <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
-      :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" />
+    <list-next class="list-next" :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType"
+      :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
   </view>
@@ -112,9 +112,10 @@
       },
       filterCols() {
         let cols = this.moreConfig?.appTempColMap
+        let arr = []
         if (typeof cols === 'object') {
           cols = Object.keys(cols).map(key => cols[key]).filter(item => item && item)
-          return this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String'].includes(item
+          arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String'].includes(item
             .col_type))
         } else {
           let defVal = {}
@@ -124,7 +125,7 @@
               return res
             }, {})
           }
-          return this.srvCols.filter(item => !['Image', 'String', 'MultilineText'].includes(item.col_type)).map(
+          arr = this.srvCols.filter(item => !['Image', 'String', 'MultilineText'].includes(item.col_type)).map(
             item => {
               if (defVal[item.column]) {
                 item.defaultValue = defVal[item.column]
@@ -134,6 +135,19 @@
               return item
             })
         }
+        if (Array.isArray(this.initCond) && this.initCond.length > 0) {
+          arr = arr.map(field => {
+            this.initCond.forEach(cond => {
+              if (field.column === cond.colName) {
+                field.value = cond.value
+                field.defaultValue = cond.value
+              }
+            })
+            return field
+          })
+        }
+        debugger
+        return arr
       },
       orderList() {
         let cols = this.orderCols.filter(item => item.selected)
@@ -196,7 +210,8 @@
         customDetailUrl: "",
         listConfig: {
 
-        }
+        },
+        initCond: []
       }
     },
     methods: {
@@ -211,6 +226,21 @@
           }
         }
       },
+      del2Cart(e) {
+        let data = this.deepClone(e)
+        let index = this.cartData.findIndex(item => item.id === data.id)
+        if (index !== -1) {
+          data.goods_count = this.cartData[index].goods_count - 1
+          if (data.goods_count === 0) {
+            this.cartData.splice(index, 1)
+          } else {
+            this.$set(this.cartData, index, data)
+          }
+        } else {
+          // data.goods_count = 1
+          // this.cartData.push(data)
+        }
+      },
       add2Cart(e) {
         let data = this.deepClone(e)
         let index = this.cartData.findIndex(item => item.id === data.id)
@@ -218,7 +248,6 @@
           data.goods_count = this.cartData[index].goods_count + 1
           this.$set(this.cartData, index, data)
         } else {
-
           data.goods_count = 1
           this.cartData.push(data)
         }
@@ -396,7 +425,7 @@
       refresh() {
         this.loadStatus = 'more'
         this.pageNo = 1;
-        this.getList()
+        this.getList(null, this.initCond)
       },
       async getListV2() {
         let app = this.appName || uni.getStorageSync('activeApp');
@@ -441,7 +470,7 @@
         }
         return colVs;
       },
-      async getList(cond) {
+      async getList(cond, initCond) {
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -464,6 +493,9 @@
         }
         if (Array.isArray(cond) && cond.length > 0) {
           req.condition = req.condition.concat(cond);
+        }
+        if (Array.isArray(initCond) && initCond.length > 0) {
+          req.condition = [...req.condition, ...initCond]
         }
         let keywords = this.searchVal;
         if (keywords && this.finalSearchColumn) {
@@ -771,7 +803,7 @@
             });
           }
         } else {
-          if (this.detailType === 'custom' && this.customDetailUrl) {
+          if (buttonInfo.button_type === 'detail' && this.detailType === 'custom' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
             let targetUrl = this.customDetailUrl
             let obj = {
@@ -991,7 +1023,7 @@
     },
     onLoad(option) {
       uni.$on('dataChange', srv => {
-        this.getList()
+        this.getList(null, this.initCond)
       })
       if (option.grid_span) {
         this.listConfig.grid_span = option.grid_span
@@ -1031,6 +1063,40 @@
       if (option.destApp) {
         this.appName = option.destApp
       }
+      if (option.initCond) {
+        try {
+          let initCond = JSON.parse(option.initCond)
+          if (Array.isArray(initCond)) {
+            this.initCond = initCond.filter(item => {
+              if (item.ruleType === 'eq') {
+                return item.value
+              } else {
+                return true
+              }
+            })
+          } else if (typeof initCond === 'object' && Object.keys(initCond).length > 0) {
+            let arr = []
+            Object.keys(initCond).forEach(key => {
+              let obj = {
+                colName: key,
+                ruleType: 'eq',
+                value: initCond[key]
+              }
+              arr.push(obj)
+            })
+            this.initCond = arr.filter(item => {
+              if (item.ruleType === 'eq') {
+                return item.value
+              } else {
+                return true
+              }
+            })
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+
       if (option.cond) {
         let cond = option.cond
         try {
@@ -1055,14 +1121,14 @@
 
       if (this.serviceName) {
         this.getListV2().then(_ => {
-          this.getList()
+          this.refresh()
         })
       }
     },
     onReachBottom() {
       if (this.loadStatus === 'more') {
         this.pageNo++;
-        this.getList()
+        this.getList(null, this.initCond)
       }
     },
     onPullDownRefresh() {

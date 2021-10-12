@@ -60,9 +60,9 @@
       },
       mode() {
         if (this.pageItem.notice_style === '垂直滚动') {
-          return 'horizontal'
-        } else if (this.pageItem.notice_style === '水平滚动') {
           return 'vertical'
+        } else if (this.pageItem.notice_style === '水平滚动') {
+          return 'horizontal'
         }
       },
     },

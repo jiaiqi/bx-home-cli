@@ -96,8 +96,8 @@
         </view>
         <view @click="openModal(fieldData.type)" class="open-popup" v-else>
           <view class="place-holder" v-if="!fieldData.value">
-            <text>请选择</text>
-            <text class="cuIcon-right"></text>
+            <text>{{!fieldData.disabled?'请选择':''}}</text>
+            <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
           </view>
           <view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
             {{ fieldData.value.toString() }}
@@ -108,7 +108,7 @@
           <view class="value hidden" v-else-if="fieldData.value">{{
             fieldData.value
           }}</view>
-          <text class="cuIcon-right" v-if="fieldData.value"></text>
+          <text class="cuIcon-right" v-if="fieldData.value&&!fieldData.disabled"></text>
         </view>
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
@@ -726,7 +726,6 @@
           if (!option.key_disp_col && !option.refed_col) {
             return;
           }
-          debugger
 
           if (option.key_disp_col) {
             // relation_condition.data.push({
@@ -822,6 +821,7 @@
             rownumber: this.treePageInfo.rownumber
           }
         };
+        let globalData = getApp().globalData
         let appName = self.fieldData?.option_list_v2?.srv_app || self.srvApp || uni.getStorageSync(
           'activeApp');
         let fieldModelsData = self.deepClone(self.fieldsModel);
@@ -846,7 +846,12 @@
               }
             } else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
               item.value = uni.getStorageSync('login_user_info').user_no;
-            } else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+            }  else if (item.value && item.value.indexOf('globalData.') !== -1) {
+              let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
+              if (globalData&&globalData[colName]) {
+                item.value = globalData[colName];
+              }
+            }else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
                 "'") === item.value
               .length - 1) {
               item.value = item.value.replace(/\'/gi, '');

@@ -15,7 +15,7 @@
 		<swiper :disable-touch="disableTouch" @change="change" :autoplay="autoplay && playState == 'play'" :vertical="vertical" circular :interval="duration" class="u-swiper">
 			<swiper-item v-for="(item, index) in list" :key="index" class="u-swiper-item">
 				<view
-					class="u-news-item u-line-1"
+					class="u-news-item u-line-1 u-flex-1"
 					:style="[textStyle]"
 					@tap="click(index)"
 					:class="['u-type-' + type]"

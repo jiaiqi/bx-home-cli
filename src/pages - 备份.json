@@ -137,7 +137,12 @@
           "path": "StoreManager/StoreManager"
         },
         {
-          "path": "GoodsDetail/GoodsDetail"
+          "path": "GoodsDetail/GoodsDetail",
+          "style":{
+            "navigationBarBackgroundColor":"#fff",
+            "navigationBarTextStyle":"black"
+            // "navigationStyle":"custom"
+          }
         },
         {
           "path": "payOrder/payOrder"

@@ -9,7 +9,7 @@
         </view>
       </view>
 
-      <view class="to-more" v-if="config.unfold !==false">
+      <view class="to-more" v-if="config.unfold !==false&&!disabled">
         <button class="cu-btn sm line-cyan border" v-for="btn in publicButton"
           @click="onButton(btn)">{{btn.button_name||''}}</button>
         <button class="cu-btn sm line-cyan border" @click="onButton({button_type:'list'})"
@@ -29,7 +29,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <text class="cuIcon-delete text-black" v-if="showDelete"
+        <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
       <view class="list-item" v-for="(item,index) in memoryListData" @click="onButton({button_type:'editMem'},index)">
@@ -137,6 +137,9 @@
       },
       mainFkField: {
         type: Array
+      },
+      disabled: {
+        type: [String, Boolean]
       }
     },
     computed: {
@@ -654,6 +657,9 @@
         }
       },
       async onButton(e, index) {
+        if (this.disabled) {
+          return
+        }
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':

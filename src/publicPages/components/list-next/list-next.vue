@@ -8,8 +8,8 @@
         'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
         'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
         'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :listType="listType" :rowData="item"
-        :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart">
+      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType" :rowData="item"
+        :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart">
       </list-item>
     </view>
   </view>
@@ -36,6 +36,9 @@
       },
       listConfig: {
         type: Object
+      },
+      cartData:{
+        type: Array
       }
     },
     computed: {
@@ -103,14 +106,18 @@
         }
       },
     },
-    data() {
-      return {
-
-      }
-    },
+    // data() {
+    //   return {
+    //     inCart:false, // 是否在购物车中
+    //     amount:0, //添加到购物车中的商品数量
+    //   }
+    // },
     methods: {
       add2Cart(e) {
         this.$emit('add2Cart', e)
+      },
+      del2Cart(e) {
+        this.$emit('del2Cart', e)
       },
       clickFootBtn(e) {
         this.$emit('click-foot-btn', e)

@@ -612,14 +612,14 @@
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
-          result = await this.evalX_IF(table_name, cols, fieldModel)
+          result = await this.evalX_IF(table_name, cols, fieldModel,this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], fieldModel)
+                result = await this.evalX_IF(item.table_name, [item.column], fieldModel,this.appName)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -709,33 +709,7 @@
         let defaultVal = self.defaultVal;
         self.colsV2Data = colVs;
         colVs = self.deepClone(colVs);
-        const modal = colVs._fieldInfo.reduce((res, cur) => {
-          if (cur.defaultValue) {
-            res[cur.column] = cur.defaultValue
-            cur.value = cur.defaultValue
-          }
-          return res
-        }, {})
-
-        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
-        const table_name = colVs.main_table
-        const result = await this.evalX_IF(table_name, cols, modal)
-
-        for (let i = 0; i < colVs._fieldInfo.length; i++) {
-          const item = colVs._fieldInfo[i]
-          if (item.x_if) {
-            if (Array.isArray(item.xif_trigger_col)) {
-              if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], modal)
-              }
-              if (result?.response && result.response[item.column]) {
-                item.display = true
-              } else {
-                item.display = false
-              }
-            }
-          }
-        }
+     
 
         if (colVs && colVs.service_view_name) {
           uni.setNavigationBarTitle({
@@ -796,7 +770,6 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
           case 'add':
-            debugger
             self.fields = colVs._fieldInfo.map(field => {
               if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
                 field.option_list_v2 = field.option_list_v2.map(item => {
@@ -847,6 +820,35 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
         }
+        
+        const modal = colVs._fieldInfo.reduce((res, cur) => {
+          if (cur.defaultValue) {
+            res[cur.column] = cur.defaultValue
+            cur.value = cur.defaultValue
+          }
+          return res
+        }, {})
+        
+        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const table_name = colVs.main_table
+        const result = await this.evalX_IF(table_name, cols, modal,this.appName)
+        
+        for (let i = 0; i < colVs._fieldInfo.length; i++) {
+          const item = colVs._fieldInfo[i]
+          if (item.x_if) {
+            if (Array.isArray(item.xif_trigger_col)) {
+              if (item.table_name !== table_name) {
+                result = await this.evalX_IF(item.table_name, [item.column], modal,this.appName)
+              }
+              if (result?.response && result.response[item.column]) {
+                item.display = true
+              } else {
+                item.display = false
+              }
+            }
+          }
+        }
+        
       },
 
       async getStoreUserInfo(no) {

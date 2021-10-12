@@ -16,7 +16,7 @@
               </text>
               <!-- <text class="cuIcon-wifi"></text> -->
               <text class="wifi-ssid">{{item.wifi_ssid||''}} </text>
-              <text class="text-blue" v-if="activeWifiMac===item.wifi_mac">已连接</text>
+              <text class="text-blue" v-if="activeWifiMac===item.wifi_ssid">已连接</text>
             </view>
             <view class="bottom">
               <text class="wifi-pwd margin-right">{{item.wifi_psd||''}}</text>
@@ -26,7 +26,7 @@
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
             <button class="cu-btn border line-blue sm round" @tap="toConnect(item)"
-              v-if="activeWifiMac!==item.wifi_mac">连接</button>
+              v-if="activeWifiMac!==item.wifi_ssid">连接</button>
             <!-- #endif -->
             <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toEdit(item)">编辑</button>
             <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toDel(item)">删除</button>
@@ -43,7 +43,7 @@
     setClipboardData
   } from '@/uni_modules/u-clipboard/js_sdk'
   import linkjs from '@/static/js/linkwifi.js'
-  
+
   export default {
     data() {
       return {
@@ -258,6 +258,7 @@
       async onRefresh() {
         this.loadStatus = 'more'
         this.pageNo = 1
+        this.getConnectedWifi()
         return await this.getWifi()
       },
       async loadMore() {
@@ -285,7 +286,8 @@
           wx.getWifiList({
             success: (res) => {
               wx.onGetWifiList((res) => {
-                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength - a
+                const wifiList = res.wifiList.filter(item => item.SSID).sort((a, b) => b.signalStrength -
+                  a
                   .signalStrength).map(wifi => {
                   const strength = Math.ceil(wifi.signalStrength / 100 * 4)
                   return Object.assign(wifi, {
@@ -385,9 +387,7 @@
       }
       this.onRefresh()
       uni.$on('dataChange', (e) => {
-        if (e && ['srvstore_wifi_config_add', 'srvstore_wifi_config_update'].includes(e)) {
-          this.onRefresh()
-        }
+        this.onRefresh()
       })
       // #ifdef MP-WEIXIN
       this.checkLocationAuth()

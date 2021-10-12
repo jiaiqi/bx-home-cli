@@ -257,7 +257,6 @@
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
-          debugger
           result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
@@ -265,7 +264,6 @@
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
-                debugger
                 result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
               }
               if (result?.response && result.response[item.column]) {
@@ -381,7 +379,6 @@
                 });
               }
               if (Array.isArray(field.option_list_v2?.conditions)) {
-                debugger
                 field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,
                   defaultVal)
               }

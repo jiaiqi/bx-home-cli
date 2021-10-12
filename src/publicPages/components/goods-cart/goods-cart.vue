@@ -71,7 +71,7 @@
     </view>
     <view class="cart-bottom" @click="changeStatus">
       <view class="cart-icon" :class="{active:cartData&&cartData.length>0}">
-        <text class="badge" v-if="cartData&&cartData.length"> {{cartData.length}}</text>
+        <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
       <view class="price">
@@ -100,6 +100,18 @@
       },
       setCartData() {
         return this.cartData
+      },
+      sumAmount() {
+        let sum = 0
+        if (Array.isArray(this.cartData) && this.cartData.length > 0) {
+          sum = this.cartData.reduce((res, cur) => {
+            if (cur.goods_count) {
+              res += cur.goods_count
+            }
+            return res
+          }, 0)
+        }
+        return sum
       },
       sumPrice() {
         let sum = 0
@@ -165,10 +177,10 @@
           uni.navigateTo({
             url
           });
-        }else{
+        } else {
           uni.showToast({
-            title:'请先选择商品！',
-            icon:'none'
+            title: '请先选择商品！',
+            icon: 'none'
           })
         }
       },
@@ -235,7 +247,6 @@
         font-size: 28rpx;
         font-family: 苹方-简;
         color: #333333;
-
         &.handler-btn {
           display: flex;
           align-items: center;
@@ -300,6 +311,7 @@
       overflow: hidden;
       border-radius: 10rpx;
       background-color: #F8F8FA;
+
       .image {
         width: 100%;
         height: 100%;
@@ -336,6 +348,7 @@
       font-family: SF Pro Text;
       font-weight: bold;
       color: #474849;
+
       .decimal {
         font-size: 20rpx;
       }

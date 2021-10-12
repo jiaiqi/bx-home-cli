@@ -103,7 +103,7 @@
 	position: relative;
 	&.disabled-field{
 
-		.form-item-label,.form-item-content{
+		.form-item-content{
 			opacity: 0.5;
 			cursor: not-allowed;
 		}

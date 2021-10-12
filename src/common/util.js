@@ -214,6 +214,15 @@ export default {
             let login_user_info = uni.getStorageSync('login_user_info')
             item.init_expr = login_user_info?.user_no || '';
           }
+          if (item.init_expr && item.init_expr.indexOf('globalData.') !== -1) {
+            let globalData = getApp().globalData
+            let colName = item.init_expr.slice(item.init_expr.indexOf('globalData.') + 11);
+            if (globalData && globalData[colName]) {
+              item.init_expr = globalData[colName] || '';
+            } else {
+              item.init_expr = ''
+            }
+          }
           fieldInfo.defaultValue = item.init_expr
           fieldInfo.value = item.init_expr
         }
@@ -252,7 +261,8 @@ export default {
           fieldInfo.showSearch = false
           fieldInfo.option_list_v2 = item.option_list_v2
           fieldInfo.options = item.option_list_v2
-        } else if (item.col_type === "MultilineText" || item.col_type === 'longtext') {
+        } else if (item.col_type === "MultilineText" || item.col_type === 'longtext' || item.col_type ===
+          'Json') {
           fieldInfo.type = "textarea"
         } else if (item.col_type === 'snote' || item.col_type === 'Note') {
           fieldInfo.type = "RichText"
@@ -1525,6 +1535,15 @@ export default {
               //代码块
               break;
             case "delete":
+              return new Promise((resolve, reject) => {
+                Vue.prototype.onButtonRequest(e, appName).then((res) => {
+                  if (res) {
+                    resolve(res)
+                  } else {
+                    reject(res)
+                  }
+                })
+              })
               //代码块
               break;
             case "customize":
@@ -1535,6 +1554,9 @@ export default {
               break;
             case "add":
               //代码块
+              return new Promise((resolve, reject) => {
+                resolve(btn)
+              })
               break;
             default:
               //默认代码块

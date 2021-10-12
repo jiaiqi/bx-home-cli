@@ -71,13 +71,23 @@
             {{rowData[item.col]||''}}
           </view>
         </view>
-        <view class="col-item text-right flex-1" v-if="listType==='cart'" @click.stop="add2Cart">
-          <text class="cuIcon-add cu-btn sm radius" :style="{
+
+        <view class="col-item text-right flex-1 handler" v-if="listType==='cart'">
+          <view class="del-btn-box" :class="{active:inCartData&&inCartData.goods_count}" v-if="inCartData">
+            <text class=" cu-btn sm radius" :style="{
+                color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
+                'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
+                'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
+                'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
+                }" @click.stop="del">-</text>
+            <text class="goods-amount">{{inCartData.goods_count||'0'}}</text>
+          </view>
+          <text class=" cu-btn sm radius" :style="{
               color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
               'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
               'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
               'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
-              }"></text>
+              }" @click.stop="add">+</text>
         </view>
         <!-- 
         <text class="cuIcon-moreandroid" @click.stop="showAction"
@@ -104,9 +114,7 @@
       </view>
 
     </view>
-    <view class="foot-button-box" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3">
-      <!-- <button class="cu-btn sm round" @click="showAction"><text class="cuIcon-moreandroid"></text></button> -->
-    </view>
+    <view class="foot-button-box" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></view>
     <view class="foot-button-box" v-else>
       <button class="cu-btn" :class="{
         'border':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.style==='line_button',
@@ -160,8 +168,15 @@
       listType: {
         type: String
       },
+      cartData: {
+        type: Array
+      }
     },
     computed: {
+      inCartData() {
+        let data = this.cartData.find(item => item.id === this.rowData.id)
+        return data
+      },
       setViewTemp() {
         let obj = {
           "lp_style": this.viewTemp?.lp_style || "单行",
@@ -225,7 +240,11 @@
       }
     },
     methods: {
-      add2Cart() {
+      // TODO cols支持配置多个字段"col":"col1||col2||col3"
+      del() {
+        this.$emit('del2Cart', this.rowData)
+      },
+      add() {
         this.$emit('add2Cart', this.rowData)
       },
       isShowBtn(btn) {
@@ -368,6 +387,42 @@
           font-size: 28rpx;
           font-family: 苹方-简;
           color: #333333;
+
+          &.handler {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10rpx;
+
+            &.text-right {
+              padding-right: 10rpx;
+            }
+
+            .cu-btn {
+              width: 50rpx;
+              height: 50rpx;
+              line-height: 50rpx;
+              text-align: center;
+            }
+            .del-btn-box{
+              display: flex;
+              flex: 0;
+              align-items: center;
+              transition: all 1s;
+              &.active{
+                flex: 1;
+              }
+            }
+            .goods-amount {
+              flex: 1;
+              text-align: center;
+              font-weight: normal;
+              font-size: 28rpx;
+              background-color: #f8f8fa;
+              height: 50rpx;
+              line-height: 50rpx;
+            }
+          }
 
           &.flex-1 {
             flex: 1;
