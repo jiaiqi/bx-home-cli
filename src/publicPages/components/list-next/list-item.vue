@@ -19,7 +19,8 @@
         'm-r-0':setViewTemp.img.cfg.position==='top'
       }"
         v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position!=='right'">
-        <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])"
+        <!-- <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" -->
+        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
           :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
             'border-radius':setViewTemp.img.cfg.radius,
             'width':setViewTemp.img.cfg.width
@@ -63,12 +64,14 @@
           'line-grey':item.cfg.border_color==='grey',
           'line-gray':item.cfg.border_color==='gray',
         }">
-          <view class="label" v-if="item.cfg.disp_label&&labelMap[item.col]">
-            {{labelMap[item.col]||''}}:
+          <view class="label" v-if="setValue(item.col).label&&item.cfg.disp_label!==false">
+            <!-- {{labelMap[item.col]||''}}: -->
+            {{setValue(item.col).label}}:
           </view>
           <view class="value" :style="{'white-space':item.cfg.white_space}">
             <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
-            {{rowData[item.col]||''}}
+            <!-- {{rowData[item.col]||''}} -->
+            {{setValue(item.col).value}}
           </view>
         </view>
 
@@ -106,7 +109,8 @@
         'm-r-0':setViewTemp.img.cfg.position==='top'
       }"
         v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position=='right'">
-        <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])"
+        <!-- <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" -->
+        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
           :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
             'border-radius':setViewTemp.img.cfg.radius,
             'width':setViewTemp.img.cfg.width
@@ -241,6 +245,33 @@
     },
     methods: {
       // TODO cols支持配置多个字段"col":"col1||col2||col3"
+      setValue(col) {
+        let labelMap = this.labelMap || {};
+        let detail = this.rowData || {}
+        let arr = []
+        if (col) {
+          if (typeof col === 'string') {
+            arr = col.split('||')
+          } else if (Array.isArray(col) && col.length > 0) {
+            arr = col
+          }
+        }
+        let resCol = '';
+        for (let i = 0; i < arr.length; i++) {
+          let column = arr[i].trim()
+          if (detail[column]) {
+            resCol = column;
+            break;
+          }
+        }
+        if(!resCol&&Array.isArray(arr)&&arr.length>0){
+          resCol = arr[0]
+        }
+        return {
+          label: labelMap[resCol] || '',
+          value: detail[resCol] || ''
+        }
+      },
       del() {
         this.$emit('del2Cart', this.rowData)
       },
@@ -404,15 +435,18 @@
               line-height: 50rpx;
               text-align: center;
             }
-            .del-btn-box{
+
+            .del-btn-box {
               display: flex;
               flex: 0;
               align-items: center;
               transition: all 1s;
-              &.active{
+
+              &.active {
                 flex: 1;
               }
             }
+
             .goods-amount {
               flex: 1;
               text-align: center;

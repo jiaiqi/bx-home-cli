@@ -2,58 +2,67 @@
   <view class="detail-wrap">
     <view class="top-card" v-if="appTempColMap&&detail">
       <view class="left-image" v-if="appTempColMap.img">
-        <u-image class="u-image" width="200" height="200" v-if="detail[appTempColMap.img]"
-          :src="getImagePath(detail[appTempColMap.img],true)" mode="aspectFit"></u-image>
+        <u-image class="u-image" width="200" height="200" v-if="setValue(appTempColMap.img).value"
+          :src="getImagePath(setValue(appTempColMap.img).value,true)" mode="aspectFit"></u-image>
         <u-image class="u-image" v-else width="200" height="200"></u-image>
       </view>
       <view class="top-content" @click="toDetail">
         <view class="top-title-bar">
           <view class="top-item title" v-if="appTempColMap.title">
-            <view class="label" v-if="labelMap[appTempColMap.title]">
-              {{labelMap[appTempColMap.title]||''}}:
+            <view class="label" v-if="setValue(appTempColMap.title).label">
+              {{setValue(appTempColMap.title).label}}:
             </view>
             <view class="value">
-              {{detail[appTempColMap.title]||'-'}}
+              {{setValue(appTempColMap.title).value}}
             </view>
           </view>
           <view class="top-item sub-title cu-btn line-blue light sm round"
             v-if="appTempColMap.tip&&detail[appTempColMap.tip]">
-            {{detail[appTempColMap.tip]||''}}
+            {{setValue(appTempColMap.tip).value}}
+            <!-- {{detail[appTempColMap.tip]||''}} -->
           </view>
         </view>
         <view class="top-center">
           <view class="top-item " v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
             <view class="label" v-if="labelMap[appTempColMap.left]">
-              {{labelMap[appTempColMap.subTitle]||''}}:
+              <!-- {{labelMap[appTempColMap.subTitle]||''}}: -->
+              {{setValue(appTempColMap.subTitle).label}}:
             </view>
             <view class="value">
-              {{detail[appTempColMap.subTitle]||''}}
+              <!-- {{detail[appTempColMap.subTitle]||''}} -->
+              {{setValue(appTempColMap.subTitle).value}}
             </view>
           </view>
           <view class="top-item" v-if="appTempColMap.left && detail[appTempColMap.left]">
             <view class="label" v-if="labelMap[appTempColMap.left]">
-              {{labelMap[appTempColMap.left]||''}}:
+              <!-- {{labelMap[appTempColMap.left]||''}}: -->
+              {{setValue(appTempColMap.left).label}}:
             </view>
             <view class="value">
-              {{detail[appTempColMap.left]||''}}
+              <!-- {{detail[appTempColMap.left]||''}} -->
+              {{setValue(appTempColMap.left).value}}
             </view>
           </view>
           <view class="top-item" v-if="appTempColMap.right&&detail[appTempColMap.right]">
             <view class="label" v-if="labelMap[appTempColMap.right]">
-              {{labelMap[appTempColMap.right]||''}}:
+              <!-- {{labelMap[appTempColMap.right]||''}}: -->
+              {{setValue(appTempColMap.right).label}}:
             </view>
             <view class="value">
-              {{detail[appTempColMap.right]||''}}
+              <!-- {{detail[appTempColMap.right]||''}} -->
+              {{setValue(appTempColMap.right).value}}
             </view>
           </view>
         </view>
         <view class="top-footer" v-if="appTempColMap.footer&&detail[appTempColMap.footer]">
           <view class="top-item">
             <view class="label" v-if="labelMap[appTempColMap.footer]">
-              {{labelMap[appTempColMap.footer]||''}}:
+              <!-- {{labelMap[appTempColMap.footer]||''}}: -->
+              {{setValue(appTempColMap.footer).label}}:
             </view>
             <view class="value">
-              {{detail[appTempColMap.footer]||''}}
+              <!-- {{detail[appTempColMap.footer]||''}} -->
+              {{setValue(appTempColMap.footer).value}}
             </view>
           </view>
         </view>
@@ -216,6 +225,34 @@
       }
     },
     methods: {
+      setValue(col) {
+        debugger
+        let labelMap = this.labelMap || {};
+        let detail = this.detail || {}
+        let arr = []
+        if (col) {
+          if (typeof col === 'string') {
+            arr = col.split('||')
+          } else if (Array.isArray(col) && col.length > 0) {
+            arr = col
+          }
+        }
+        let resCol = '';
+        for (let i = 0; i < arr.length; i++) {
+          let column = arr[i].trim()
+          if (detail[column]) {
+            resCol = column;
+            break;
+          }
+        }
+        if(!resCol&&Array.isArray(arr)&&arr.length>0){
+          resCol = arr[0]
+        }
+        return {
+          label: labelMap[resCol] || '',
+          value: detail[resCol] || ''
+        }
+      },
       changeChild(e) {
         let cur = null
         if (e && typeof e === 'object') {
@@ -403,6 +440,7 @@
             req[key] = req[key].toString();
           }
         }
+        debugger
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情') {
@@ -477,7 +515,7 @@
               // 	this.$refs.bxList.onRefresh();
               // }
               return
-            } else if (buttonInfo.operate_type === '更新弹出') {
+            } else if (buttonInfo.operate_type === '更新弹出'||buttonInfo.operate_type === '更新跳转') {
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
               if (moreConfig && typeof moreConfig === 'string') {

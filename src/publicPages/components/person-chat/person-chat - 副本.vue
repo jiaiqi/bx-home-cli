@@ -2713,10 +2713,11 @@
 
 <style lang="scss" scoped>
   .person-chat-wrap {
+    --msg-height: calc(var(--chart-height) - 55px);
     background-color: #f5f5f5;
     overflow: hidden;
     width: 100%;
-    height: var(--chart-height);
+    height: 100vh;
     display: flex;
     flex-direction: column;
 
@@ -2739,7 +2740,7 @@
       }
 
       .msg-list {
-        height: calc(100vh - var(--window-top) - 55px);
+        height: var(--msg-height);
 
         .loading {
           //loading动画
@@ -2794,29 +2795,29 @@
         }
 
         &.top-height {
-          height: calc(100vh - var(--window-top) - 55px - 42px);
+          height: calc(var(--chart-height) - var(--window-top));
 
           &.showLayer {
-            height: calc(100vh - var(--window-top) - 55px - 42px - 230px);
+            height: calc(var(--chart-height) - var(--window-top) - 230px);
           }
         }
 
         &.showLayer {
-          height: calc(100vh - var(--window-top) - 42px - 230px);
+          height: calc(var(--chart-height) - var(--window-top) - 230px);
         }
 
         &.showKeyboard {
-          height: calc(100vh - var(--keyboard-height) - var(--window-top) - 55px);
+          height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top));
 
           &.showLayer {
-            height: calc(100vh - var(--keyboard-height) - var(--window-top) - 55px - 230px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 230px);
           }
 
           &.top-height {
-            height: calc(100vh - var(--keyboard-height) - var(--window-top) - 42px - 55px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 42px);
 
             &.showLayer {
-              height: calc(100vh - var(--keyboard-height) - var(--window-top) - 42px - 55px - 230px);
+              height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 42px - 230px);
             }
           }
         }

@@ -635,7 +635,6 @@
             this.getGoodsListData();
           }
           if (this.storeInfo.is_show === '是') {
-            debugger
             this.getStoreUserInfo(this.storeInfo.store_no).then(res => {
               if (Array.isArray(res) && res.length >= 1) {
                 // 店铺用户列表中已存在此用户
@@ -794,6 +793,7 @@
         };
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+          
           return res.data.data;
         }
       },

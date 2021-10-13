@@ -104,7 +104,7 @@
         listButton: [],
         descCol: null,
         ascCol: null,
-        // colMinWidth: null,
+        col_min_width: null,
         initCond: null,
         custom_btn: null,
         batchUpdateV2: null,
@@ -127,7 +127,7 @@
         return this.list.find(item => item.checked === false)
       },
       colMinWidth() {
-        return this.tableConfig?.col_min_width
+        return this.col_min_width || this.tableConfig?.col_min_width
       },
       customButton() {
         let arr = []
@@ -293,29 +293,34 @@
         return cols
       },
       tableColumn() {
+        let columns = []
         if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
-          let columns = this.tableConfig?.columns || this.columns
-          if (columns && typeof columns === 'string') {
-            columns = columns.split(',')
-          }
-          if (Array.isArray(columns) && columns.length > 0) {
-            let arr = []
-            columns.forEach(column => {
-              this.srvCols.forEach(col => {
-                if (col.columns === column) {
-                  arr.push(col)
-                }
-              })
-            })
-            return arr
-          } else {
-            const cols = this.srvCols.filter(item => item.columns && item.columns !== 'id' && item.columns
-              .indexOf('_no') == -1).slice(0, 4)
-            return cols
-          }
-        } else {
-          return []
+          columns = this.tableConfig?.columns
         }
+
+        if (Array.isArray(this.columns) && this.columns.length > 0) {
+          columns = this.columns
+        }
+
+        if (columns && typeof columns === 'string') {
+          columns = columns.split(',')
+        }
+        if (Array.isArray(columns) && columns.length > 0) {
+          let arr = []
+          columns.forEach(column => {
+            this.srvCols.forEach(col => {
+              if (col.columns === column) {
+                arr.push(col)
+              }
+            })
+          })
+          return arr
+        } else {
+          const cols = this.srvCols.filter(item => item.columns && item.columns !== 'id' && item.columns
+            .indexOf('_no') == -1).slice(0, 4)
+          return cols
+        }
+        return columns
       }
     },
     methods: {
@@ -903,9 +908,10 @@
                 data: [
                   // ... req.condition,
                   {
-                  "relation": "OR",
-                  data: cond
-                }]
+                    "relation": "OR",
+                    data: cond
+                  }
+                ]
               }
             }
 
@@ -914,11 +920,12 @@
               req.relation_condition = {
                 "relation": "AND",
                 data: [
-                  ... this.relationCondition.data,
+                  ...this.relationCondition.data,
                   {
-                  "relation": "OR",
-                  data: cond
-                }]
+                    "relation": "OR",
+                    data: cond
+                  }
+                ]
               }
             }
             // delete req.condition
@@ -1052,16 +1059,16 @@
             //TODO handle the exception
           }
         }
-        // if (option.columns) {
-        // 	this.columns = option.columns.split(',')
-        // }
-        // if (option.col_min_width) {
-        // 	try {
-        // 		this.colMinWidth = JSON.parse(option.col_min_width)
-        // 	} catch (e) {
-        // 		//TODO handle the exception
-        // 	}
-        // }
+        if (option.columns) {
+          this.columns = option.columns.split(',')
+        }
+        if (option.col_min_width) {
+          try {
+            this.col_min_width = JSON.parse(option.col_min_width)
+          } catch (e) {
+            //TODO handle the exception
+          }
+        }
         if (option.descCol) {
           try {
             this.descCol = option.descCol.split(',').map(item => {

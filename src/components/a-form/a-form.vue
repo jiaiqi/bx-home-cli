@@ -58,9 +58,9 @@
     mounted() {
       let oldFieldModel = this.oldField.reduce((res, cur) => {
         if (cur.value) {
-          if(cur.column){
+          if (cur.column) {
             res[cur.column] = cur.value
-          }else if(cur.columns){
+          } else if (cur.columns) {
             res[cur.columns] = cur.value
           }
         }
@@ -186,6 +186,36 @@
           return false;
         }
       },
+      handlerReduant(obj){
+        // 处理冗余操作
+        const e = this.deepClone(obj)
+        for (let index = 0; index < this.allField.length; index++) {
+          const item = this.deepClone(this.allField[index])
+          console.log(item)
+          if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
+              .colData) !==
+            true && Object.keys(e.colData).length > 0) {
+            if (item.redundant && typeof item.redundant === 'object' && item.redundant
+              .dependField ===
+              e.column) {
+              if (item.redundant.trigger === 'always') {
+                item.value = e.colData[item.redundant.refedCol];
+                this.handlerReduant(item)
+              } else if (item.redundant.trigger === 'isnull') {
+                if (!item.value) {
+                  item.value = e.colData[item.redundant.refedCol];
+                  this.handlerReduant(item)
+                }
+              }
+              this.fieldModel[item.column] = item.value;
+              if (item.type == 'images') {
+                this.$refs.fitem[index].getDefVal()
+              }
+              this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
+            }
+          }
+        }
+      },
       async onValChange(e) {
         // 保存已经发生变化的字段值
         if (e.type === 'number' || e.type === 'digit') {
@@ -195,34 +225,14 @@
         const fieldModel = this.deepClone(this.fieldModel);
         const column = e.column
         // const triggerColumns = this.allField.filter((item)=>item.)
+        this.handlerReduant(e)
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
-          if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
-              .colData) !==
-            true && Object.keys(e.colData).length > 0) {
-            if (item.redundant && typeof item.redundant === 'object' && item.redundant
-              .dependField ===
-              e.column) {
-              if (item.redundant.trigger === 'always') {
-                item.value = e.colData[item.redundant.refedCol];
-              } else if (item.redundant.trigger === 'isnull') {
-                if (!item.value) {
-                  item.value = e.colData[item.redundant.refedCol];
-                }
-              }
-              this.fieldModel[item.column] = item.value;
-              if(item.type=='images'){
-                this.$refs.fitem[index].getDefVal()
-              }
-              this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
-            }
-          }
           if (Array.isArray(item.isShowExp) && item.isShowExp.length > 0) {
             item.display = this.colItemShowExps(item, this.fieldModel)
           } else if (item.formulaShow) {
             item.display = evaluatorTo(fieldModel, item.formulaShow);
           }
-
           if (item.display !== false) {
             item.display = true
           }
@@ -239,48 +249,7 @@
 
           this.$set(this.allField, index, item)
         }
-        // this.allField = this.allField.map((item, index) => {
-        // 	item.display = item.isShowExp && item.isShowExp.length > 0 ? this.colItemShowExps(item, this
-        // 		.fieldModel) : item.display === false ? false : true;
-        // 	if (item.column === e.column) {
-        // 		item.value = e.value;
-        // 		if (item.type === 'Set') {
-        // 			item.option_list_v2 = e.option_list_v2;
-        // 		}
-        // 	}
-        // 	if (item.formulaShow) {
-        // 		let isIfShow = evaluatorTo(fieldModel, item.formulaShow);
-        // 		item.display = isIfShow;
-        // 	}
-        // 	if(!item.value && this.pageType==='filter'){
-        // 		item.value = '全部'
-        // 	}
-        // 	return item;
-        // });
-
-        // if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
-        // 		.colData) !==
-        // 	true && Object.keys(e.colData).length > 0) {
-        // 	//冗余
-        // 	this.allField = this.allField.map(item => {
-        // 		if (item.redundant && typeof item.redundant === 'object' && item.redundant
-        // 			.dependField ===
-        // 			e.column) {
-        // 			if (item.redundant.trigger === 'always') {
-        // 				item.value = e.colData[item.redundant.refedCol];
-        // 			} else if (item.redundant.trigger === 'isnull') {
-        // 				if (!item.value) {
-        // 					item.value = e.colData[item.redundant.refedCol];
-        // 				}
-        // 			}
-        // 			this.fieldModel[item.column] = item.value;
-        // 			this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
-        // 		}
-        // 		return item;
-        // 	});
-        // }
         this.$emit('value-blur', this.fieldModel, e);
-        // this.$emit('value-change', this.fieldModel,e);
       },
       onValBlur(e) {
         if (e.hasOwnProperty('value')) {

@@ -805,10 +805,12 @@
         } else {
           if (buttonInfo.button_type === 'detail' && this.detailType === 'custom' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
             let targetUrl = this.customDetailUrl
             let obj = {
               data: rowData,
-              storeInfo
+              storeInfo,
+              bindUserInfo
             };
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
@@ -837,7 +839,7 @@
                 }]
 
                 let url =
-                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
                 if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
                   'childTableList') {
                   url =
@@ -974,7 +976,6 @@
                   })
                 })
               }
-              debugger
               Object.keys(rowData).forEach(key => {
                 if (!['id', 'modify_user_disp', 'modify_user', 'modify_time',
                     'create_user_disp', 'create_user', 'create_time', 'del_flag',

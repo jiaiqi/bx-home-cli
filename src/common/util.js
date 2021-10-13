@@ -1952,6 +1952,7 @@ export default {
         // 未查到用户信息
         store.commit('SET_AUTH_USERINFO', false)
         // 获取授权，登记用户信息
+        // #ifdef MP-WEIXIN
         const wxUser = await wx.getUserProfile({
           desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
         })
@@ -1969,6 +1970,7 @@ export default {
           store.commit('SET_WX_USERINFO', rawData);
           store.commit('SET_AUTH_USERINFO', true);
         }
+        // #endif
       }
 
 
@@ -2307,7 +2309,42 @@ export default {
       }
       return str
     }
-
+    Vue.prototype.colNameToLabel = function(cols, col) {
+    	// pos 位置 pu || po    type  true || false
+    	let res = ''
+    	for (let key in cols) {
+    		if (cols[key].col_type == 'Dict' || cols[key].col_type == 'User' || cols[key].col_type == 'fk') {
+    			if (col == `_${cols[key].columns}_disp` || cols[key].columns == col) {
+    				// console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
+    				res = cols[key].label
+    			}
+    		} else {
+    			if (cols[key].columns == col) {
+    				// console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
+    				res = cols[key].label
+    			}
+    		}
+    
+    	}
+    
+    	return res
+    }
+    
+    Vue.prototype.sliceString = function(str, len, pos, type) {
+    	// pos 位置 pu || po    type  true || false
+    	let res = str === null || str === undefined ? '' : str
+    	res = res.toString()
+    
+    	if (pos === 'po') {
+    		res = res.slice(res.length - len)
+    	} else {
+    		res = res.slice(0, len)
+    	}
+    	if (type && res.length > len) {
+    		res += '...'
+    	}
+    	return res
+    }
     // 后端计算xif并返回结果
     Vue.prototype.evalX_IF = async (tableName, cols, data = {}, appName) => {
       if (!tableName || !cols) {

@@ -729,7 +729,7 @@
               defaultVal = defaultVal[0]
             }
             let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
-              .defaultVal);
+              .defaultVal||{});
             if (!fields) {
               return;
             }

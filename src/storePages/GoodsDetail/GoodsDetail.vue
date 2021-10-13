@@ -35,7 +35,7 @@
           <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
         </text>
       </view>
-      <view class="right-btn">
+      <view class="right-btn" v-if="!hideButton">
         <button class="cu-btn bg-cyan round shadow-blur" @click="payOrder">
           <text v-if="moreConfig&&moreConfig.button_name">{{moreConfig.button_name}}</text>
           <text v-else>立即购买</text>
@@ -60,7 +60,8 @@
         wxMchId: "",
         storeNo: '',
         serviceName: "",
-        destApp: ""
+        destApp: "",
+        hideButton:false
       };
     },
     computed: {
@@ -118,9 +119,13 @@
       },
       payOrder() {
         if (this.moreConfig?.target_url) {
+          let storeInfo = this.$store?.state?.app?.storeInfo
+          let bindUserInfo = this.$store?.state?.user?.storeUserInfo
           let data = {
             ...this.$data,
-            cartInfo: this.cartInfo
+            cartInfo: this.cartInfo,
+            storeInfo,
+            bindUserInfo
           }
           data = this.deepClone(data)
           let url = this.renderStr(this.moreConfig.target_url, data)
@@ -229,7 +234,9 @@
       }
     },
     onLoad(option) {
-
+      if(option.hideButton){
+        this.hideButton =true
+      }
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId
       }

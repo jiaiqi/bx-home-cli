@@ -13,7 +13,7 @@
         <button class="cu-btn sm line-cyan border" v-for="btn in publicButton"
           @click="onButton(btn)">{{btn.button_name||''}}</button>
         <button class="cu-btn sm line-cyan border" @click="onButton({button_type:'list'})"
-          v-if="listData.length>=rownumber">查看全部</button>
+          v-if="listData.length>0">查看全部</button>
       </view>
     </view>
     <view class="list-box" v-if="config.unfold !==false">
@@ -715,7 +715,10 @@
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
-
+          debugger
+          if(item?.option_list_v2?.refed_col&&this.mainData[item.option_list_v2.refed_col]){
+            item.value = this.mainData[item.option_list_v2.refed_col]
+          }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
             .conditions
             .length > 0) {
@@ -763,7 +766,7 @@
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = null
-
+        debugger
         if (this.addV2) {
           colVs = this.addV2
         } else {
@@ -792,6 +795,9 @@
           }
           console.log(this.mainData)
           debugger
+          if(item?.option_list_v2?.refed_col&&this.mainData[item.option_list_v2.refed_col]){
+            item.value = this.mainData[item.option_list_v2.refed_col]
+          }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
             .length > 0) {
             item.option_list_v2.conditions = this.evalConditions(item.option_list_v2.conditions,

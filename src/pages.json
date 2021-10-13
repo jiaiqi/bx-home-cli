@@ -104,7 +104,16 @@
             "enablePullDownRefresh": true
           }
         }
-      ]
+          ,{
+                    "path" : "treeList/treeList",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "storePages",

@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="page-wrap">
     <view class="util-bar" v-if="
         (groupInfo && groupInfo.gc_no) ||
         sessionType === '店铺机构全员' ||
@@ -24,11 +24,31 @@
         <view class="icon"><text class="cuIcon-settings"></text></view>
       </view>
     </view>
-    <person-chat ref="chatInstance" :session-no="session_no" :identity="identity" page-type="session"
-      @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete" :groupInfo="groupInfo" :rowInfo="rowInfo"
-      :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight" :group-no="groupNo"
-      :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost" v-if="session_no&&storeUserInfo"
-      :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
+    <view style="height: 170px;" v-if="showGoodsCard&&goodsInfo">
+      
+    </view>
+    <view class="goods-card" v-if="showGoodsCard&&goodsInfo">
+      <view class="goods-card-content">
+        <image class="goods-img" :src="getImagePath(goodsInfo.goods_img,true)" mode="aspectFit"
+          v-if="goodsInfo.goods_img"></image>
+        <view class="goods-info">
+          <view class="title">
+            {{goodsInfo.goods_name||''}}
+          </view>
+          <view class="price">
+            {{goodsInfo.price||''}}
+          </view>
+        </view>
+      </view>
+      <view class="goods-card-footer">
+        <button class="cu-btn bg-cyan round" @click="sendGoods">发送链接</button>
+      </view>
+    </view>
+    <person-chat ref="chatInstance" :show-goods-card="showGoodsCard&&goodsInfo?true:false" :session-no="session_no"
+      :identity="identity" page-type="session" @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete"
+      :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo"
+      :topHeight="topHeight" :group-no="groupNo" :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost"
+      v-if="session_no&&storeUserInfo" :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
   </view>
 </template>
 
@@ -75,8 +95,14 @@
       topHeight() {
         if ((this.groupInfo && this.groupNo) || this.sessionType === '店铺机构全员' || (this.storeNo && this
             .receiver_person_no)) {
+          if (this.showGoodsCard && this.goodsInfo) {
+            return 212
+          }
           return 42
         } else {
+          if (this.showGoodsCard && this.goodsInfo) {
+            return 170
+          }
           return 0
         }
       }
@@ -104,7 +130,10 @@
         groupInfo: {},
         pg_no: '',
         groupUser: [], //群组用户列表
-        lastMessage: {}
+        lastMessage: {},
+        goods_no: "",
+        goodsInfo: null,
+        showGoodsCard: false
       }
     },
     methods: {
@@ -687,6 +716,45 @@
           uni.$emit("updateUnread")
         }
       },
+      sendGoods() {
+        let serviceName = this.queryOption?.goods_service || 'srvhealth_store_goods_select'
+        let app = this.queryOption?.goods_app || "health"
+        if (this.$refs.chatInstance?.sendArticle) {
+          let data = [{
+            ...this.goodsInfo,
+            serviceName,
+            app
+          }]
+          this.$refs.chatInstance.sendArticle(data, '商品')
+          this.showGoodsCard = false
+        }
+      },
+      getGoodsInfo() {
+        let option = this.queryOption;
+        let serviceName = option.goods_service || 'srvhealth_store_goods_select'
+        let app = option?.goods_app || "health"
+        let url = this.getServiceUrl(app, serviceName, 'select');
+        let req = {
+          serviceName: serviceName,
+          condition: [],
+          colNames: ["*"]
+        }
+        if (option?.goods_no) {
+          req.condition = [{
+            colName: option?.goods_no_col || 'goods_no',
+            ruleType: 'eq',
+            value: option.goods_no
+          }]
+          this.$http.post(url, req).then(res => {
+            if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+              let goodsInfo = res.data.data[0]
+              this.goodsInfo = goodsInfo
+              this.showGoodsCard = true
+            }
+          })
+        }
+        // this.$http.post(url, req);
+      },
     },
     beforeDestroy() {
       if (this.sessionType === '机构用户客服') {
@@ -701,9 +769,8 @@
     },
     async onLoad(option) {
       const self = this
+
       if (option.articleList) {
-
-
         try {
           this.articleList = JSON.parse(option.articleList)
           delete option.articleList
@@ -713,7 +780,10 @@
         }
       }
       this.queryOption = option
-
+      if (option.goods_no) {
+        this.goods_no = option.goods_no
+        this.getGoodsInfo()
+      }
       if (Array.isArray(this.articleList) && this.articleList.length > 0) {
         uni.showModal({
           title: '发送文章',
@@ -781,12 +851,18 @@
         }
       }
 
-
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  .page-wrap {
+    background-color: #f5f5f5;
+    clear: both;
+    overflow: auto;
+    position: relative;
+  }
+
   .util-bar {
     // position: fixed;
     // top: 0;
@@ -832,6 +908,48 @@
         font-size: 24rpx;
         margin-left: 5px;
       }
+    }
+  }
+
+  .goods-card {
+    width: calc(100% - 40rpx);
+    height: 150px;
+    margin: 20rpx auto;
+    background-color: #fff;
+    border-radius: 20rpx;
+    overflow: hidden;
+    position: absolute;
+    left: 20rpx;
+    z-index: 10;
+    top: 0;
+
+    .goods-card-content {
+      display: flex;
+
+      .goods-img {
+        width: 200rpx;
+        height: 200rpx;
+        border-radius: 10rpx;
+      }
+
+      .goods-info {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+
+        .title {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+        }
+      }
+    }
+
+    .goods-card-footer {
+      text-align: center;
+      border-top: 1rpx solid #f1f1f1;
+      padding: 20rpx;
     }
   }
 </style>

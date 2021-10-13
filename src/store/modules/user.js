@@ -6,13 +6,13 @@ import {
 const state = {
 	loginUserInfo: getItem('loginUserInfo') ? getItem('loginUserInfo') : {}, //账号信息
 	wxUserInfo: getItem('wxUserInfo') ? getItem('wxUserInfo') : {}, //微信用户信息
-	userInfo: {}, // 当前用户基础信息
+	userInfo: getItem('userInfo') ? getItem('userInfo') : {}, // 当前用户基础信息
 	// userInfo: getItem('userInfo') ? getItem('userInfo') : {}, // 当前用户基础信息
 	userList: {}, // 当前登录账号下的用户列表
 	// userList: getItem('userList') ? getItem('userList') : {}, // 当前登录账号下的用户列表
 	patientInfo: getItem('patientInfo') ? getItem('patientInfo') : {},
 	hasSaveUserInfo: false,
-	storeUserInfo: {},
+	storeUserInfo:  getItem('storeUserInfo') ? getItem('storeUserInfo') :{},
 	wxAuthUserInfo: getItem('wxAuthUserInfo') ? getItem('wxAuthUserInfo') : null, //授权用户信息后获取到的数据
 	deviceList:[]
 }
@@ -28,7 +28,7 @@ const mutations = {
 	},
 	SET_USERINFO: (state, userInfo) => {
 		state.userInfo = userInfo
-		// setItem('userInfo', userInfo)
+		setItem('userInfo', userInfo)
 	},
 	SET_WX_USERINFO: (state, wxUserInfo) => {
 		state.wxUserInfo = wxUserInfo
@@ -47,6 +47,7 @@ const mutations = {
 	},
 	SET_STORE_USER: (state, storeUserInfo) => {
 		state.storeUserInfo = storeUserInfo
+    setItem('storeUserInfo', storeUserInfo)
 	},
 	SET_DEVICE_LIST:(state,list)=>{
 		state.deviceList = list
