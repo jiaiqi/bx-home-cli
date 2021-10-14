@@ -221,6 +221,9 @@
 			}
 		},
 		computed: {
+      userInfo(){
+        return this.$store?.state?.user?.userInfo
+      },
 			statisConfig() {
 				// 统计字段配置
 				let config = this.storeInfo?.moreConfig?.statis

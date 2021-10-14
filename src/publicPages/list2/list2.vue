@@ -758,7 +758,21 @@
             }
             return
           } else if (buttonInfo.operate_type === '列表跳转') {
-            debugger
+            // debugger
+            // let serviceName = buttonInfo.service_name;
+            // let 
+            let app = buttonInfo.application
+            let url = '/publicPages/list2/list2?pageType=list&serviceName=' +
+              buttonInfo.service_name +
+              '&cond=' +
+              JSON.stringify(buttonInfo.operate_params.condition)
+
+            if (app) {
+              url += `&destApp=${app}`
+            }
+            uni.navigateTo({
+              url
+            });
             return
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
             let fieldsCond = [];
