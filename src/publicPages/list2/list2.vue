@@ -146,7 +146,6 @@
             return field
           })
         }
-        debugger
         return arr
       },
       orderList() {

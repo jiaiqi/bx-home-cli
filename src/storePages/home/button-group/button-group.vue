@@ -50,6 +50,16 @@
         </image>
       </view>
     </view>
+    <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
+      <view class="cu-dialog " @click.stop="">
+        <view class="qrcode-box">
+          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath"></image>
+        </view>
+        <view class="button-box">
+          <button @click.stop="hideQrcode" class="cu-btn">关闭</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -76,7 +86,9 @@
     data() {
       return {
         groupList: [],
-        globalData: {}
+        globalData: {},
+        showQrcode:false,
+        qrcodePath:""
         // buttons: this.pageItem.listdata || []
       };
     },
@@ -241,6 +253,9 @@
       },
     },
     methods: {
+      hideQrcode(){
+        this.showQrcode = false
+      },
       isLastRow(list, index) {
         let row_number = Math.ceil(list.length / 4);
         if (row_number === 1) {
@@ -404,6 +419,21 @@
             content: e.prompt,
             showCancel: false
           })
+          return
+        }
+        if(e.url==='showStoreQrcode'){
+          if(this.storeInfo?.store_qr_code){
+            this.qrcodePath = this.storeInfo.store_qr_code
+            this.showQrcode=true
+            // this.toPreviewImage(this.storeInfo.store_qr_code)
+          }else{
+            
+            uni.showModal({
+              title:'二维码加载失败,请刷新页面后重试',
+              content:'',
+              showCancel:false
+            })
+          }
           return
         }
         switch (e.type) {
@@ -637,8 +667,9 @@
     .swiper-item {
       width: 100%;
       display: flex;
-      // padding: 20rpx 20rpx 0;
+      /* #ifdef H5 */
       padding: 20rpx;
+      /* #endif */
       flex-wrap: wrap;
 
       &.single-layout {
@@ -713,5 +744,10 @@
         color: #9092A5;
       }
     }
+  }
+  .qrcode-box{
+    padding: 80rpx 40rpx;
+    text-align: center;
+    
   }
 </style>

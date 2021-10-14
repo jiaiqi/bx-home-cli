@@ -14,7 +14,7 @@
     <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
       :pageItem="getConfig(pageItem)" :storeInfo="storeInfo" :userInfo="userInfo" :is-bind="isBind"
       :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
-      @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting">
+      @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode">
     </store-item>
 
 
@@ -166,6 +166,10 @@
       },
     },
     methods: {
+      getQrcode(e) {
+        this.storeInfo.store_qr_code = e;
+        this.$store.commit('SET_STORE_INFO', this.storeInfo)
+      },
       savePushSet() {
         // 保存通知设置
         let data = {
@@ -299,9 +303,9 @@
           if (Array.isArray(keys) && keys.length > 0) {
             keys.forEach(key => {
               if (key === 'more_config' && pageItem[key] && typeof pageItem[key] === 'string') {
-                try{
+                try {
                   pageItem[key] = JSON.parse(pageItem[key])
-                }catch(e){
+                } catch (e) {
                   //TODO handle the exception
                 }
               }
@@ -793,7 +797,7 @@
         };
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-          
+
           return res.data.data;
         }
       },
@@ -929,9 +933,7 @@
 
     async onLoad(option) {
       // showHomeBtn
-      if (option.room_no) {
-        getApp().globalData.room_no = option.room_no
-      }
+
       let globalData = getApp().globalData
       this.globalData = globalData
       let pageInfo = getCurrentPages()
@@ -999,13 +1001,28 @@
         }
         if (text && text.indexOf('https://wx2.100xsys.cn/shareClinic/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/shareClinic/')[1];
-          if (result.split('/').length >= 2) {
-            option.store_no = result.split('/')[0];
-            option.invite_user_no = result.split('/')[1];
+          debugger
+          let arr = result.split('/')
+          if (arr.length == 3) {
+            option.store_no = arr[0];
+            option.room_no = arr[1];
+            if (arr[1].indexOf('room_no=') !== -1) {
+              option.room_no = arr[1].split('room_no=')[1];
+            }
+            option.invite_user_no = arr[2];
             option.share_type = 'bindOrganization'
             option.from = 'share'
-          } else if (result.split('/').length === 1) {
-            option.store_no = result.split('/')[0];
+          } else if (arr.length == 2) {
+            option.store_no = arr[0];
+            if (arr[1].indexOf('room_no=') !== -1) {
+              option.room_no = arr[1].split('room_no=')[1];
+            } else {
+              option.invite_user_no = arr[1];
+            }
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          } else if (arr.length === 1) {
+            option.store_no = arr[0];
             option.share_type = 'bindOrganization'
             option.from = 'share'
           }
@@ -1048,6 +1065,7 @@
         // await this.toAddPage()
       }
       if (option.room_no) {
+        getApp().globalData.room_no = option.room_no
         option.share_type = 'bindOrganization'
         option.invite_user_no = option.invite_user_no || option.inviter || 'jiaqi'
       }

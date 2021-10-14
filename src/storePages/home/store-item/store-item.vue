@@ -12,7 +12,7 @@
       @setHomePage="setHomePage" :pageItem="pageItem"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
       v-else-if="pageItem.type === '店铺信息'||pageItem.type === '店铺信息2'" :isBind="isBind" :pageItem="pageItem"
-      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"></store-info>
+      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting" @getQrcode="getQrcode"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
     <goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo"
@@ -120,6 +120,9 @@
       })
     },
     methods: {
+      getQrcode(e){
+        this.$emit('getQrcode',e)
+      },
       toSetting() {
         this.$emit('toSetting')
       },

@@ -200,11 +200,11 @@
               e.column) {
               if (item.redundant.trigger === 'always') {
                 item.value = e.colData[item.redundant.refedCol];
-                this.handlerReduant(item)
+                // this.handlerReduant(item)
               } else if (item.redundant.trigger === 'isnull') {
                 if (!item.value) {
                   item.value = e.colData[item.redundant.refedCol];
-                  this.handlerReduant(item)
+                  // this.handlerReduant(item)
                 }
               }
               this.fieldModel[item.column] = item.value;

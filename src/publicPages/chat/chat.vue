@@ -24,9 +24,9 @@
         <view class="icon"><text class="cuIcon-settings"></text></view>
       </view>
     </view>
-    <view style="height: 170px;" v-if="showGoodsCard&&goodsInfo">
+    <!--    <view style="height: 170px;" v-if="showGoodsCard&&goodsInfo">
       
-    </view>
+    </view> -->
     <view class="goods-card" v-if="showGoodsCard&&goodsInfo">
       <view class="goods-card-content">
         <image class="goods-img" :src="getImagePath(goodsInfo.goods_img,true)" mode="aspectFit"
@@ -41,14 +41,18 @@
         </view>
       </view>
       <view class="goods-card-footer">
+        <button class="cu-btn  round margin-left" style="opacity: 0;">取消</button>
         <button class="cu-btn bg-cyan round" @click="sendGoods">发送链接</button>
+        <button class="cu-btn  round margin-left" @click="cancelSendGoods">关闭</button>
       </view>
     </view>
-    <person-chat ref="chatInstance" :show-goods-card="showGoodsCard&&goodsInfo?true:false" :session-no="session_no"
-      :identity="identity" page-type="session" @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete"
-      :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo"
-      :topHeight="topHeight" :group-no="groupNo" :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost"
-      v-if="session_no&&storeUserInfo" :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
+    <view class="chart-page">
+      <person-chat ref="chatInstance" :show-goods-card="showGoodsCard&&goodsInfo?true:false" :session-no="session_no"
+        :identity="identity" :sessionInfo="sessionInfo" page-type="session" @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete"
+        :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo"
+        :topHeight="topHeight" :group-no="groupNo" :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost"
+        v-if="session_no&&storeUserInfo" :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
+    </view>
   </view>
 </template>
 
@@ -95,14 +99,14 @@
       topHeight() {
         if ((this.groupInfo && this.groupNo) || this.sessionType === '店铺机构全员' || (this.storeNo && this
             .receiver_person_no)) {
-          if (this.showGoodsCard && this.goodsInfo) {
-            return 212
-          }
+          // if (this.showGoodsCard && this.goodsInfo) {
+          //   return 212
+          // }
           return 42
         } else {
-          if (this.showGoodsCard && this.goodsInfo) {
-            return 170
-          }
+          // if (this.showGoodsCard && this.goodsInfo) {
+          //   return 170
+          // }
           return 0
         }
       }
@@ -716,6 +720,9 @@
           uni.$emit("updateUnread")
         }
       },
+      cancelSendGoods() {
+        this.showGoodsCard = false
+      },
       sendGoods() {
         let serviceName = this.queryOption?.goods_service || 'srvhealth_store_goods_select'
         let app = this.queryOption?.goods_app || "health"
@@ -861,6 +868,12 @@
     clear: both;
     overflow: auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
+
+    .chart-page {
+      flex: 1;
+    }
   }
 
   .util-bar {
@@ -913,8 +926,8 @@
 
   .goods-card {
     width: calc(100% - 40rpx);
-    height: 150px;
-    margin: 20rpx auto;
+    // height: 150px;
+    margin: 10rpx auto;
     background-color: #fff;
     border-radius: 20rpx;
     overflow: hidden;
@@ -950,6 +963,9 @@
       text-align: center;
       border-top: 1rpx solid #f1f1f1;
       padding: 20rpx;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
   }
 </style>

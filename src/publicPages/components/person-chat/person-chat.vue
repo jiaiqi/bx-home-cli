@@ -498,50 +498,50 @@
           </view>
         </view>
       </view>
-      <view class="person-chat-bot-bot" :class="{ showLayer: isSendLink && !showKeyboard }">
-        <view @click="openMenuPoup('question')" class="person-chat-bot-bot-item">
+      <view class="person-chat-bot-bot" :class="{ showLayer: isSendLink && !showKeyboard }" v-if="bottomBtnList">
+        <view @click="openMenuPoup('question')" class="person-chat-bot-bot-item" v-if="bottomBtnList['问卷记录']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/question.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>问卷记录</text></view>
         </view>
-        <view @click="openMenuPoup('bite')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('bite')" class="person-chat-bot-bot-item" v-if="bottomBtnList['饮食记录']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/diet.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>饮食记录</text></view>
         </view>
-        <view @click="openMenuPoup('photo')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('photo')" class="person-chat-bot-bot-item" v-if="bottomBtnList['图片']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/photo.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>图片</text></view>
         </view>
-        <view @click="openMenuPoup('article')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('article')" class="person-chat-bot-bot-item" v-if="bottomBtnList['文章']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/article.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>文章</text></view>
         </view>
-        <view @click="openMenuPoup('word')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('word')" class="person-chat-bot-bot-item" v-if="bottomBtnList['文档']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/file.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>文档</text></view>
         </view>
-        <view @click="openMenuPoup('wx_word')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('wx_word')" class="person-chat-bot-bot-item" v-if="bottomBtnList['微信文件']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/paper.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>微信文件</text></view>
         </view>
-        <view @click="openMenuPoup('video')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('video')" class="person-chat-bot-bot-item" v-if="bottomBtnList['视频']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/video.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>视频</text></view>
         </view>
-        <view @click="openMenuPoup('location')" class="person-chat-bot-bot-item">
+        <view @click="openMenuPoup('location')" class="person-chat-bot-bot-item" v-if="bottomBtnList['位置']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/address.png" mode=""></image>
           </view>
@@ -599,6 +599,9 @@
       },
       sessionType: {
         type: String
+      },
+      sessionInfo: {
+        type: Object
       },
       doctor_info: {
         type: Object
@@ -671,7 +674,23 @@
           feed = false;
         }
         return feed;
-      }
+      },
+      bottomBtnList() {
+        if (this.sessionInfo) {
+          let bottom_btn_set = ''
+          if (this.sessionInfo?.bottom_btn_set) {
+            bottom_btn_set = this.sessionInfo.bottom_btn_set
+          } else {
+            bottom_btn_set = ['问卷记录', '饮食记录', '图片', '文章', '文档', '微信文件', '视频', '位置', '商品'].toString()
+          }
+          if (bottom_btn_set) {
+            return bottom_btn_set.split(',').reduce((res, cur) => {
+              res[cur] = true;
+              return res
+            }, {})
+          }
+        }
+      },
     },
     onReady() {
       this.videoContext = uni.createVideoContext('myVideo');
@@ -2597,11 +2616,11 @@
       toGoods(e) {
         if (e && e.attribute && e.attribute.goods_no) {
           let url = `/storePages/GoodsDetail/GoodsDetail?hideButton=true&goods_no=${ e.attribute.goods_no}`
-          if(e.attribute.serviceName){
-            url+=`&serviceName=${e.attribute.serviceName}`
+          if (e.attribute.serviceName) {
+            url += `&serviceName=${e.attribute.serviceName}`
           }
-          if(e.attribute.app){
-            url+=`&destApp=${e.attribute.app}`
+          if (e.attribute.app) {
+            url += `&destApp=${e.attribute.app}`
           }
           uni.navigateTo({
             url: url
@@ -2642,21 +2661,21 @@
       uni.$on('backFromWebview', () => {
         this.checkSubscribeStatus()
       })
-      setTimeout(() => {
-        if (!this.subscsribeStatus) {
-          uni.showModal({
-            title: '提示',
-            content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
-            success(res) {
-              if (res.confirm) {
-                uni.navigateTo({
-                  url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
-                })
-              }
-            }
-          })
-        }
-      }, 3000)
+      // setTimeout(() => {
+      //   if (!this.subscsribeStatus) {
+      //     uni.showModal({
+      //       title: '提示',
+      //       content: '请关注百想助理公众号，否则无法接收到消息通知，是否跳转到公众号关注引导页面？',
+      //       success(res) {
+      //         if (res.confirm) {
+      //           uni.navigateTo({
+      //             url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`
+      //           })
+      //         }
+      //       }
+      //     })
+      //   }
+      // }, 3000)
       uni.onKeyboardHeightChange((res = {}) => {
         console.log(res.height);
         this.keyboardHeight = res.height
@@ -2716,7 +2735,8 @@
     background-color: #f5f5f5;
     overflow: hidden;
     width: 100%;
-    height: var(--chart-height);
+    // height: var(--chart-height);
+    height: 100%;
     display: flex;
     flex-direction: column;
 
@@ -2728,6 +2748,7 @@
 
     .person-chat-top {
       position: relative;
+      flex: 1;
 
       .remind-someone {
         // @某人
@@ -2796,6 +2817,8 @@
         &.top-height {
           height: calc(100vh - var(--window-top) - 55px - 42px);
 
+          // height: calc(var(--chart-height) - 55px - 42px);
+
           &.showLayer {
             height: calc(100vh - var(--window-top) - 55px - 42px - 230px);
           }
@@ -2820,6 +2843,39 @@
             }
           }
         }
+
+        /* #ifdef H5 */
+        &.top-height {
+          height: calc(var(--chart-height) - 55px);
+
+          height: calc(var(--chart-height) - 55px);
+
+          &.showLayer {
+            height: calc(var(--chart-height) - 55px - 230px);
+          }
+        }
+
+        &.showLayer {
+          height: calc(var(--chart-height) - 230px);
+        }
+
+        &.showKeyboard {
+          height: calc(var(--chart-height) - var(--keyboard-height) - 55px);
+
+          &.showLayer {
+            height: calc(var(--chart-height) - var(--keyboard-height) - 55px - 230px);
+          }
+
+          &.top-height {
+            height: calc(var(--chart-height) - var(--keyboard-height) - 55px);
+
+            &.showLayer {
+              height: calc(var(--chart-height) - var(--keyboard-height) - 55px - 230px);
+            }
+          }
+        }
+
+        /* #endif */
       }
 
       .person-chat-item {
@@ -3574,8 +3630,10 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin: 20rpx;
-          width: calc(25% - 20px);
+          // width: calc(25% - 20px);
+          width: 25%;
+          padding: 20rpx;
+          justify-content: center;
 
           .person-chat-bot-bot-item-top {
             padding: 5px;

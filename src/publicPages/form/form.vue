@@ -720,6 +720,16 @@
             return
           }
         }
+        const modal = colVs._fieldInfo.reduce((res, cur) => {
+          if (cur.defaultValue) {
+            res[cur.column] = cur.defaultValue
+            cur.value = cur.defaultValue
+            if(self.defaultVal&&self.defaultVal[cur.column]){
+              self.defaultVal[cur.column] = cur.value
+            }
+          }
+          return res
+        }, {})
         switch (colVs.use_type) {
           case 'update':
           case 'detail':
@@ -728,6 +738,7 @@
             if (Array.isArray(defaultVal) && defaultVal.length > 0) {
               defaultVal = defaultVal[0]
             }
+            
             let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
               .defaultVal||{});
             if (!fields) {
@@ -803,6 +814,7 @@
 
                     if (item.hasOwnProperty('value') && !['Image'].includes(field.col_type)) {
                       // 不复制照片字段
+                      debugger
                       field.value = item.value;
                     }
                     if (field.option_list_v2 && Array.isArray(field.option_list_v2
@@ -821,13 +833,7 @@
             break;
         }
         
-        const modal = colVs._fieldInfo.reduce((res, cur) => {
-          if (cur.defaultValue) {
-            res[cur.column] = cur.defaultValue
-            cur.value = cur.defaultValue
-          }
-          return res
-        }, {})
+
         
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
@@ -993,13 +999,19 @@
         this.srvType = option.type;
         this.use_type = option.type;
       }
-      debugger
       if (option.fieldsCond) {
         let fieldsCond = null
+        try{
+          let reg = /\\/g;
+          option.fieldsCond = option.fieldsCond.replace(reg,'')
+        }catch(e){
+          //TODO handle the exception
+        }
         try {
           fieldsCond = JSON.parse(option.fieldsCond);
         } catch (e) {
           console.warn(e);
+         
           try {
             fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
           } catch (err) {

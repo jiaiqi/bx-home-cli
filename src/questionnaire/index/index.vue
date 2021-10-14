@@ -133,6 +133,7 @@
     },
     computed: {
       ...mapState({
+        storeInfo: state => state.app.storeInfo,
         userInfo: state => state.user.userInfo,
         globalTextFontSize: state => state.app['globalTextFontSize']
       })
@@ -162,24 +163,44 @@
             value: this.planNo
           })
         } else {
-          fieldsCond.push({
-            column: 'ps_no',
-            display: false
-          })
+          // fieldsCond.push({
+          //   column: 'ps_no',
+          //   display: false
+          // })
         }
+
         if (fieldsCond.findIndex(item => item.column === 'report_daq_survey_ack_no') !== -1) {
-          fieldsCond[fieldsCond.findIndex(item => item.column === 'report_daq_survey_ack_no')].value = params.fill_batch_no
+          fieldsCond[fieldsCond.findIndex(item => item.column === 'report_daq_survey_ack_no')].value = params
+            .fill_batch_no
         }
-        let url = `${params.to}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
+        if (params.to) {
+          let obj = {
+            storeInfo: this.storeInfo,
+            userInfo: this.userInfo,
+            bindUserInfo:this.$store?.state?.user?.storeUserInfo
+          }
+          try {
+            params.to = decodeURIComponent(params.to)
+          } catch (e) {
+            //TODO handle the exception
+          }
+          params.to = this.renderStr(params.to, obj)
+        }
+
+        let url = `${params.to}`;
+        if (fieldsCond && fieldsCond.length > 0) {
+          url += `&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+        }
         if (this.planNo) {
           url += `&planNo=${this.planNo}`;
         }
-        let navTypes = ['navigateTo','redirectTo','reLaunch']
-        if(this.params.nav_type&&navTypes.includes(this.params.nav_type)){
+
+        let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
+        if (this.params.nav_type && navTypes.includes(this.params.nav_type)) {
           uni[this.params.nav_type]({
             url: url
           })
-        }else{
+        } else {
           uni.redirectTo({
             url: url
           });
@@ -770,7 +791,8 @@
         this.planNo = option.planNo;
       }
       if (option.params) {
-        this.params = JSON.parse(decodeURIComponent(option.params));
+        this.params = JSON.parse(option.params);
+        // this.params = JSON.parse(decodeURIComponent(option.params));
       }
       this.emptyText = '正在请求问卷配置数据';
       setTimeout(() => {

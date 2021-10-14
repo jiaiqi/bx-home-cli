@@ -2283,7 +2283,7 @@ export default {
             result = obj
             arr.forEach(item => {
               try {
-                result = result[item]
+                result = result[item]||''
               } catch (e) {
                 //TODO handle the exception
               }

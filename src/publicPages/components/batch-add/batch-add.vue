@@ -4,7 +4,7 @@
 			<view class="batch-add">
 				<list-bar @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton" @toOrder="toOrder"
 					@toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-					@search="toSearch" v-if="showSearchBar">
+					@search="toSearch" :readonly="true" v-if="showSearchBar">
 				</list-bar>
 				<view class="add-box">
 					<view class="add-item-box">

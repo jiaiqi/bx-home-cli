@@ -229,6 +229,7 @@
       },
       qrcodeCanvasComplete(e) {
         this.qrcodePath = this.storeInfo?.barcode_pic || e;
+        this.$emit('getQrcode',e)
       },
       makePhoneCall() {
         uni.makePhoneCall({
@@ -295,7 +296,7 @@
       height: 100%;
       background-repeat: no-repeat;
       background-size: 100%;
-      padding: 360rpx 0 0;
+      padding: 340rpx 0 0;
       display: flex;
       flex-direction: column;
 

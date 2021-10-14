@@ -497,8 +497,8 @@
             }).filter(item => !this.hideColumn.includes(item.column))
             defaultVal = colVs._fieldInfo.reduce((res, cur) => {
               if (cur.defaultValue) {
-                res[cur.column] = cur.defaultValue
-                cur.value = cur.defaultValue
+                res[cur.column] = cur.value || cur.defaultValue
+                cur.value = cur.value || cur.defaultValue
               }
               return res
             }, {})

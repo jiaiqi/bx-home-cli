@@ -35,8 +35,13 @@
           <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
         </text>
       </view>
-      <view class="right-btn" v-if="!hideButton">
-        <button class="cu-btn bg-cyan round shadow-blur" @click="payOrder">
+      <view class="right-btn" v-if="moreConfig&&moreConfig.button_list">
+        <button class="cu-btn bg-cyan  shadow-blur" @click="payOrder(item)" v-for="item in moreConfig.button_list">
+          <text>{{item.button_name}}</text>
+        </button>
+      </view>
+      <view class="right-btn" v-else-if="!hideButton">
+        <button class="cu-btn bg-cyan  shadow-blur" @click="payOrder">
           <text v-if="moreConfig&&moreConfig.button_name">{{moreConfig.button_name}}</text>
           <text v-else>立即购买</text>
         </button>
@@ -61,7 +66,7 @@
         storeNo: '',
         serviceName: "",
         destApp: "",
-        hideButton:false
+        hideButton: false
       };
     },
     computed: {
@@ -117,7 +122,7 @@
           phoneNumber: this.phone || '10086' //仅为示例
         });
       },
-      payOrder() {
+      payOrder(e) {
         if (this.moreConfig?.target_url) {
           let storeInfo = this.$store?.state?.app?.storeInfo
           let bindUserInfo = this.$store?.state?.user?.storeUserInfo
@@ -129,6 +134,21 @@
           }
           data = this.deepClone(data)
           let url = this.renderStr(this.moreConfig.target_url, data)
+          uni.navigateTo({
+            url: url
+          })
+          return
+        }else if(e?.target_url){
+          let storeInfo = this.$store?.state?.app?.storeInfo
+          let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+          let data = {
+            ...this.$data,
+            cartInfo: this.cartInfo,
+            storeInfo,
+            bindUserInfo
+          }
+          data = this.deepClone(data)
+          let url = this.renderStr(e.target_url, data)
           uni.navigateTo({
             url: url
           })
@@ -234,8 +254,8 @@
       }
     },
     onLoad(option) {
-      if(option.hideButton){
-        this.hideButton =true
+      if (option.hideButton) {
+        this.hideButton = true
       }
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId
@@ -253,7 +273,7 @@
       if (option.phone) {
         this.phone = option.phone
       }
-      
+
       if (option.goods_no) {
         this.getGoodsInfo(option.goods_no);
       }
@@ -347,6 +367,16 @@
     align-items: center;
     background-color: #1cbbb4;
     height: 100%;
+
+    .cu-btn {
+      border-radius: 0;
+      text-align: center;
+      flex: 1;
+      border-left: 1rpx solid #f5f5f5;
+      &:first-child {
+        border-left: none;
+      }
+    }
   }
 
   .price {
