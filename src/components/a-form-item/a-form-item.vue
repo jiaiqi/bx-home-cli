@@ -413,6 +413,7 @@
         return result;
       },
       pickerMode() {
+        debugger
         let type = this.fieldData.type;
         if (this.pickerFieldList.includes(type)) {
           switch (type) {

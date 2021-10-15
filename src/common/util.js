@@ -237,6 +237,8 @@ export default {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "date"
+        } else if (item.col_type === "Time") {
+          fieldInfo.type = "time"
         } else if (item.col_type === "FileList") {
           fieldInfo.type = "file"
           // #ifdef MP-WEIXIN
