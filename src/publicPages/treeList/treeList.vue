@@ -71,7 +71,14 @@
     components: {
       bxList
     },
-
+    computed:{
+      userInfo(){
+        return this.$store?.state?.user?.userInfo
+      },
+      storeInfo(){
+        return this.$store?.state?.app?.storeInfo
+      }
+    },
     data() {
       return {
         appName: "",
@@ -134,7 +141,8 @@
           "disp_exps": null
         }],
         establish: [],
-        parent_no: null
+        parent_no: null,
+        shareUrl:''
       };
     },
 
@@ -159,7 +167,19 @@
         this.$refs.bxList.onRefresh();
       }
     },
-
+    
+    onShareAppMessage(e) {
+      let title = ''
+      let path = e?.target?.dataset?.shareurl
+      debugger
+      let imageUrl = this.getImagePath(this.storeInfo?.image);
+      this.saveSharerInfo(this.userInfo, path);
+      return {
+        imageUrl: imageUrl,
+        title: title,
+        path: path
+      };
+    },
     onLoad(option) {
       if (option.destApp) {
         this.appName = option.destApp
@@ -177,11 +197,6 @@
       console.log(option)
       if (option.parent_no) {
         this.parent_no = option.parent_no
-        // this.condition = [{
-        // 	colName: "parent_no",
-        // 	ruleType: "eq",
-        // 	value: option.parent_no
-        // }]
       } else {
         // this.condition = [{
         // 	colName: "parent_no",
@@ -217,7 +232,6 @@
         this.queryOption = option;
       }
       if (query.viewTemp) {
-        // let viewTemp = this.getDecodeUrl(option.viewTemp);
         this.viewTemp = JSON.parse(query.viewTemp);
         if (this.viewTemp.title) {
           this.keyColumn = this.viewTemp.title;
@@ -354,7 +368,8 @@
                   defaultVal: a,
                 };
                 uni.navigateTo({
-                  url: '/publicPages/formPage/formPage?params=' + JSON.stringify(params)
+                  url: `/publicPages/formPage/formPage?serviceName=${curParam.serviceName}&type=add&destApp=${this.appName}`
+                  // url: '/publicPages/formPage/formPage?params=' + JSON.stringify(params)
                 });
               } else {
                 const params = {
@@ -398,9 +413,10 @@
             },
             row: e
           };
+       
           uni.navigateTo({
-            url: `/publicPages/detail/detail?id=${e.id}&serviceName=${this.serviceName}&destApp=${this.appName}`
-          })
+            url: `/publicPages/formPage/formPage?type=detail&cond=[{"colName":"id","ruleType":"eq","value":"${e.id}"}]&serviceName=${this.serviceName}&destApp=${this.appName}`
+          });
           try {
             // this.onButtonToUrl(req)
           } catch (e) {
@@ -413,6 +429,17 @@
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
         console.log(buttonInfo)
+        // if(buttonInfo.type==='share'){
+        //   let url = buttonInfo.url
+        //   let _data = {
+        //     rowData:rowData,
+        //     userInfo:this.$store?.state?.user?.userInfo,
+        //     storeInfo:this.$store?.state?.app?.storeInfo
+        //   }
+        //   url = this.renderStr(url,_data)
+        //   this.shareUrl = url
+        //   return
+        // }
         if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
           try {
             buttonInfo.operate_params = JSON.parse(buttonInfo.operate_params);
@@ -469,14 +496,10 @@
                 .length > 0) {
                 params.defaultVal = buttonInfo.operate_params.data[0]
               }
+              let url =
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.operate_service}&type=${buttonInfo.servcie_type}&cond=${ decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))}`
               uni.navigateTo({
-                url: '/publicPages/formPage/formPage?serviceName=' +
-                  buttonInfo.operate_service +
-                  '&type=' +
-                  buttonInfo.servcie_type +
-                  '&params=' + JSON.stringify(params) +
-                  '&cond=' +
-                  decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
+                url
               });
             }
           } catch (e) {
@@ -493,7 +516,7 @@
           //   });
           // }
         } else {
-          this.onButtonToUrl(data).then(res => {
+          this.onButtonToUrl(data,this.appName).then(res => {
             if (data.button && data.button.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
                 this.$refs.bxList.onRefresh();
@@ -518,7 +541,7 @@
                 defaultVal: row
               };
               uni.navigateTo({
-                url: '/publicPages/formPage/formPage?params=' + JSON.stringify(params)
+                url: `/publicPages/formPage/formPage?type=detail&cond=[{"colName":"id","ruleType":"eq","value":"${row.id}"}]&serviceName=${btn.service_name}&destApp=${btn.application}`
               });
             } else if (data.button && (data.button.button_type === 'duplicate' || data.button
                 .button_type === 'duplicatedeep')) {
@@ -546,7 +569,7 @@
                   }
                 }
               })
-              
+
               let url =
                 `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
               if (this.appName) {
@@ -765,10 +788,11 @@
 </script>
 
 <style lang="scss">
-  .tree-list-wrap{
+  .tree-list-wrap {
     background-color: #f8f8fa;
     min-height: calc(100vh - var(--window-top));
   }
+
   .add-button {
     position: fixed;
     bottom: 100upx;

@@ -1,6 +1,6 @@
 <template>
   <view class="pay-order">
-    <view class="address-box" @click="chooseAddress" v-if="!room_no">
+    <view class="address-box" @click="chooseAddress" v-if="!room_no&&(storeInfo&&storeInfo.type!=='酒店')">
       <view class="left" v-if="addressInfo && addressInfo.userName && addressInfo.telNumber"><text
           class="cuIcon-locationfill"></text></view>
       <view class="left" v-else><text class="cuIcon-warnfill"></text></view>
@@ -16,6 +16,7 @@
       </view>
       <view class="right"><text class="cuIcon-right"></text></view>
     </view>
+
     <view class="order-detail">
       <view class="order-info">
         <view class="title-bar">
@@ -64,7 +65,19 @@
           </view>
         </view>
       </view>
+      <view class="room-selector" v-if="storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
+        <view class="place-holder" v-if="!room_no">
+          点击选择房间号
+        </view>
+        <view class="" v-else>
+          {{room_no||''}}
+        </view>
+        <text class="cuIcon-right place-holder"></text>
+        <!--        <button class="cu-btn round bg-orange" v-if="!room_no"> <text>点击选择房间号</text></button>
+        <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
+      </view>
     </view>
+
     <view class="handler-bar">
       <text class="amount">共{{ totalAmount }}件</text>
       <text class="text">合计:</text>
@@ -83,6 +96,36 @@
         付款
       </button>
     </view>
+    <view class="cu-modal bottom-modal" :class="{
+     show: modalName === 'Selector'
+   }" @click="hideModal">
+      <view class="cu-dialog" @tap.stop="">
+        <view class="tree-selector">
+          <view class="content">
+            <view class="cu-bar search bg-white" v-if="modalName === 'Selector'">
+              <view class="search-form round">
+                <input @input="searchFKDataWithKey" type="text" placeholder="搜索" confirm-type="search" />
+              </view>
+              <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs"
+                @click="getSelectorData(null, null, null)"></text>
+              <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
+              </text>
+            </view>
+            <bx-radio-group class="form-item-content_value radio-group" v-model="room_no" mode="button"
+              @change="pickerChange">
+              <bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
+              </bx-radio>
+            </bx-radio-group>
+          </view>
+          <view class="dialog-button">
+            <!--       <view class="cu-btn bg-blue shadow" @tap="hideModal" v-if="modalName === 'MultiSelector'">确定
+            </view> -->
+            <view class="cu-btn bg-grey shadow margin round" @tap="hideModal" v-if="modalName === 'Selector'">取消</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
   </view>
 </template>
 
@@ -103,13 +146,32 @@
         },
         wxMchId: "", //商户号
         idNum: '', //身份证号
+        modalName: "",
+        selectorData: [],
+        roomOptionList: {},
+        roomService: "",
+        roomApp: "",
+        roomPageNo: 1,
+        roomV2: {
+          "refed_col": "room_no",
+          "show_as_pair": false,
+          "srv_app": "store",
+          "serviceName": "srvstore_hotel_room_select",
+          "conditions": [{
+            "colName": "hotel_no",
+            "ruleType": "eq",
+            "value": "${storeInfo.store_no}"
+          }],
+          "key_disp_col": "room_no"
+        }
       };
     },
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo,
         loginUserInfo: state => state.user.loginUserInfo,
-        cartInfo: state => state.order.cartInfo
+        cartInfo: state => state.order.cartInfo,
+        storeInfo: state => state.app.storeInfo
       }),
       needIdNum() {
         let goods = this.orderInfo.goodsList;
@@ -153,6 +215,156 @@
       }
     },
     methods: {
+      hideModal() {
+        this.modalName = ''
+      },
+      showSelector() {
+        this.modalName = 'Selector'
+      },
+      pickerChange(e) {
+        this.room_no = e
+        this.modalName = ''
+      },
+      searchFKDataWithKey(e) {
+        if (e && e.detail && e.detail.value) {
+          let option = this.roomV2;
+          if (Array.isArray(option?.conditions) && option.conditions.length > 0) {
+            option.conditions = option.conditions.map(item => {
+              if (item.value) {
+                item.value = this.renderStr(item.value, this)
+              }
+              return item
+            })
+          }
+          let relation_condition = {
+            relation: 'OR',
+            data: []
+          };
+          if (!option?.key_disp_col && !option?.refed_col) {
+            return;
+          }
+
+          if (option.key_disp_col) {
+            relation_condition.data.push({
+              colName: option.key_disp_col,
+              value: e.detail.value,
+              ruleType: '[like]'
+            })
+          }
+          if (option.refed_col) {
+            relation_condition.data.push({
+              colName: option.refed_col,
+              value: e.detail.value,
+              ruleType: '[like]'
+            })
+          }
+          if (Array.isArray(option.conditions) && option.conditions.length > 0) {
+            let data = this.deepClone(relation_condition.data)
+            relation_condition = {
+              relation: 'AND',
+              data: [...option.conditions, {
+                relation: 'OR',
+                data: data
+              }]
+            }
+          }
+          this.getSelectorData(null, null, relation_condition);
+        } else {
+          this.getSelectorData();
+        }
+      },
+      async getSelectorData(cond, serv, relation_condition) {
+        let self = this;
+        let roomV2 = {
+          "refed_col": this.roomV2?.refed_col || "room_no",
+          "show_as_pair": this.roomV2?.show_as_pair || false,
+          "srv_app": this.roomV2?.srv_app || "store",
+          "serviceName": this.roomV2?.serviceName || "srvstore_hotel_room_select",
+          "conditions": [{
+            "colName": "hotel_no",
+            "ruleType": "eq",
+            "value": this.store_no
+          }],
+          "key_disp_col": this.roomV2?.key_disp_col || "room_no"
+        }
+        let req = {
+          serviceName: roomV2.serviceName,
+          colNames: ['*'],
+          page: {
+            pageNo: this.roomPageNo,
+            rownumber: 30
+          }
+        };
+
+        let globalData = getApp().globalData
+        let appName = roomV2.srv_app || uni.getStorageSync('activeApp');
+
+        if (cond) {
+          req.condition = cond;
+        } else if (roomV2 && Array.isArray(roomV2.conditions) &&
+          roomV2.conditions.length > 0) {
+          let condition = self.deepClone(roomV2.conditions);
+          condition = condition.map(item => {
+            if (item.value && item.value.indexOf('data.') !== -1) {
+              let colName = item.value.slice(item.value.indexOf('data.') + 5);
+              if (fieldModelsData[colName]) {
+                item.value = fieldModelsData[colName];
+              }
+            } else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
+              item.value = uni.getStorageSync('login_user_info').user_no;
+            } else if (item.value && item.value.indexOf('globalData.') !== -1) {
+              let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
+              if (globalData && globalData[colName]) {
+                item.value = globalData[colName];
+              }
+            } else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+                "'") === item.value
+              .length - 1) {
+              item.value = item.value.replace(/\'/gi, '');
+            }
+            if (item.value_exp) {
+              delete item.value_exp;
+            }
+            return item;
+          });
+          if (Array.isArray(condition) && condition.length > 0) {
+            req.condition = condition;
+          } else {
+            return;
+          }
+        }
+
+        if (relation_condition && typeof relation_condition === 'object') {
+          req.relation_condition = relation_condition;
+          delete req.condition;
+        }
+        if (!req.serviceName) {
+          return;
+        }
+        if (!appName) {
+          return
+        }
+        let res = await self.onRequest('select', req.serviceName, req, appName);
+
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+
+          if (res.data.page && res.data.page.pageNo > 1) {
+            let data = res.data.data;
+            self.selectorData = [...self.selectorData, ...data];
+          } else {
+            self.selectorData = res.data.data;
+          }
+          self.selectorData = self.selectorData.map(item => {
+            item.label = roomV2.show_as_pair !== false ?
+              `${item[ roomV2.key_disp_col||'' ]}/${item[ roomV2.refed_col ]}` : item[roomV2.key_disp_col]
+            // item.label = roomV2.key_disp_col ? item[roomV2.key_disp_col] : '';
+            item.value = roomV2.refed_col ? item[roomV2.refed_col] : '';
+            return item;
+          });
+        } else if (res.data.state === 'SUCCESS' && res.data.data.length == 0) {
+          self.selectorData = []
+        }
+      },
       updateOrderState(order_state, pay_state, prepay_id) {
         let req = [{
           serviceName: 'srvhealth_store_order_update',
@@ -233,6 +445,15 @@
           })
           return
         }
+        if (this.storeInfo?.type === '酒店' && !this.room_no) {
+          uni.showToast({
+            title: '请选择房间号',
+            icon: 'none',
+            duration: 3000,
+            mask: true
+          })
+          return
+        }
         if (!this.addressInfo.fullAddress && !this.room_no) {
           uni.showToast({
             title: '请先选择您的地址信息',
@@ -241,6 +462,7 @@
           })
           return
         }
+
         if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no) {
           uni.showToast({
             title: '请确认您的姓名、地址、手机号是否填写完善',
@@ -405,21 +627,41 @@
         this.orderNo = option.order_no;
         this.getOrderInfo();
       }
-      if (this.store_no && this.cartInfo[this.store_no] && this.cartInfo[this.store_no]?.storeInfo?.type === '酒店') {
+      if (this?.storeInfo?.type === '酒店') {
         let room_no = getApp().globalData?.room_no
         if (room_no) {
           this.room_no = room_no
         }
+        this.getSelectorData()
       }
     }
   };
 </script>
 
 <style lang="scss" scoped>
+  .tree-selector {
+    padding: 20rpx 20rpx 40rpx;
+  }
+
   .pay-order {
     height: calc(100vh - var(--window-top));
     display: flex;
     flex-direction: column;
+
+    .room-selector {
+      padding: 20rpx 40rpx;
+      line-height: 40rpx;
+      font-size: 16px;
+      margin-bottom: 100rpx;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+
+      .place-holder {
+        color: #666;
+        margin-left: 20rpx;
+      }
+    }
 
     .address-box {
       margin: 20rpx;

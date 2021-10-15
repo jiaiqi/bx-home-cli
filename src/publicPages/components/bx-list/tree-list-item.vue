@@ -50,6 +50,8 @@
 
         <view class="footer" v-if="rowButton.length > 0">
           <view class="footer-btn" v-if="showFootBtn&&!detailList">
+            <button class="cu-btn bx-btn radius  bg-blue" :data-shareurl="item.shareUrl" :open-type="item.type" v-for="item in setCustomBtn"
+              @click="footBtnClick(item)">{{item.name}}</button>
             <button v-for="(item,index) in groupRowButton.otherBtn" :key="item.id" class="cu-btn bx-btn radius  bg-blue"
               :class="'cuIcon-' + item.button_type" @click="footBtnClick(item)">
               {{ item.button_name }}
@@ -400,10 +402,23 @@
         this.$emit('click-list-item', this.itemData);
       },
       footBtnClick(btn) {
-        this.$emit('click-foot-btn', {
-          button: btn,
-          row: this.itemData
-        });
+        if(btn&&btn.type==='share'){
+          // let url = btn.url
+          // let _data = {
+          //   rowData:this.itemData,
+          //   userInfo:this.$store?.state?.user?.userInfo,
+          //   storeInfo:this.$store?.state?.app?.storeInfo
+          // }
+          // url = this.renderStr(url,_data)
+          // this.shareUrl = url
+          return
+        }else{
+          this.$emit('click-foot-btn', {
+            button: btn,
+            row: this.itemData
+          });
+        }
+        
       },
       async getPicture(file_no) {
         const serviceName = 'srvfile_attachment_select';
@@ -476,6 +491,21 @@
       }
     },
     computed: {
+      setCustomBtn(){
+        if(Array.isArray(this.customBtn)&&this.customBtn.length>0){
+          return this.customBtn.map(btn=>{
+            let url = btn.url
+            let _data = {
+              rowData:this.itemData,
+              userInfo:this.$store?.state?.user?.userInfo,
+              storeInfo:this.$store?.state?.app?.storeInfo
+            }
+            url = this.renderStr(url,_data)
+            btn.shareUrl = url
+            return btn
+          })
+        }
+      },
       groupRowButton() {
         const itemData = this.itemData
         const login_user_info = uni.getStorageSync('login_user_info')
@@ -684,6 +714,9 @@
       showBtn: {
         type: Array,
       },
+      customBtn: {
+        type: Array,
+      }
     },
     watch: {
       srv_cols: {
@@ -862,7 +895,7 @@
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-
+            padding: 0;
             .row-view {
               width: 100%;
               display: flex;

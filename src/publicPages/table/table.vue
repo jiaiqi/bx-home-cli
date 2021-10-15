@@ -839,12 +839,10 @@
             rownumber: 20,
             pageNo: this.pageNo
           },
-          order: this.orderList,
+          order: this.orderList||[],
           query_source: "list_page"
         };
-        if (Array.isArray(req.order) && req.order.length === 0) {
-          delete req.order
-        }
+     
 
         if (this.colV2?.vpage_no) {
           req['vpage_no'] = this.colV2.vpage_no
@@ -961,10 +959,13 @@
           req.order = this.orderList
         }
         if (Array.isArray(this.descCol)) {
-          req.order = [...req.order, ...this.descCol]
+          req.order = [...req.order||[], ...this.descCol]
         }
         if (Array.isArray(this.ascCol)) {
           req.order = [...req.order, ...this.ascCol]
+        }
+        if (Array.isArray(req.order) && req.order.length === 0) {
+          delete req.order
         }
         this.loadStatus = 'loading'
         let res = await this.$http.post(url, req);
@@ -977,7 +978,6 @@
             this.list = [];
           }
           this.list = [...this.list, ...res.data.data];
-          // this.pageInfo.total = res.data.page.total;
           let page = res.data.page;
           if (page.rownumber * page.pageNo >= page.total) {
             this.loadStatus = 'noMore'
@@ -1081,6 +1081,7 @@
             //TODO handle the exception
           }
         }
+        debugger
         if (option.ascCol) {
           try {
             this.ascCol = option.ascCol.split(',').map(item => {

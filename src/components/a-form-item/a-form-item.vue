@@ -204,7 +204,7 @@
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-if="modalName === 'TreeSelector'">
-          <cascader-selector @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
+          <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
           </cascader-selector>
         </view>
       </view>
@@ -486,6 +486,9 @@
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
             this.textareaValue = newValue.value;
           }
+          if(newValue.type === 'images'){
+            this.getDefVal()
+          }
         }
       }
     },
@@ -640,11 +643,12 @@
         this.modalName = '';
       },
       async getDefVal() {
+        debugger
         let self = this;
-        if (this.fieldData.type === 'images' && this.fieldData.value) {
-          if (this.fieldData.value.indexOf('http') === -1) {
+        if (self.fieldData.type === 'images' && self.fieldData.value) {
+          if (self.fieldData.value.indexOf('http') === -1) {
             // 上传到系统的图片 只有图片编号 查到图片地址后再push
-            let fileDatas = await self.getFilePath(this.fieldData.value);
+            let fileDatas = await self.getFilePath(self.fieldData.value);
             self.imagesUrl = [];
             if (fileDatas) {
               for (let i = 0; i < fileDatas.length; i++) {
@@ -655,20 +659,20 @@
             }
           } else {
             // 网络地址 直接push
-            self.imagesUrl.push(this.fieldData.value);
+            self.imagesUrl.push(self.fieldData.value);
           }
-        } else if (this.fieldData.type === 'list' && this.fieldData.value !== '') {
+        } else if (self.fieldData.type === 'list' && self.fieldData.value !== '') {
           // 选项列表
-          let listItemModel = this.fieldData.optionsConfig.model;
-          let colKey = this.fieldData.optionsConfig.conditions;
+          let listItemModel = self.fieldData.optionsConfig.model;
+          let colKey = self.fieldData.optionsConfig.conditions;
           for (let i = 0; i < colKey.length; i++) {
-            this.$set(this.listModel, colKey[i].colName, this.fieldModelsData[colKey[i].value]);
-            this.listModel[colKey[i].colName] = this.fieldModelsData[colKey[i].value];
+            self.$set(self.listModel, colKey[i].colName, self.fieldModelsData[colKey[i].value]);
+            self.listModel[colKey[i].colName] = self.fieldModelsData[colKey[i].value];
           }
-        } else if (this.fieldData.type === 'Set' && this.fieldData.value && typeof this.fieldData.value ===
+        } else if (self.fieldData.type === 'Set' && self.fieldData.value && typeof self.fieldData.value ===
           'string') {
           // 多选
-          this.fieldData.value = this.fieldData.value.split(',');
+          self.fieldData.value = self.fieldData.value.split(',');
         } else {
           Object.keys(this.fieldsModel).forEach(key => {
             if (this.fieldData.column === key && !this.fieldData.value && this.fieldsModel[key]) {
@@ -706,7 +710,8 @@
           let srvInfo = this.fieldData.srvInfo;
 
           // this.fkFieldLabel = `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}`;
-          this.fkFieldLabel = srvInfo.show_as_pair !== false ?  `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
+          this.fkFieldLabel = srvInfo.show_as_pair !== false ?
+            `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
 
           this.fieldData.value = e[srvInfo.refed_col];
           this.fieldData['colData'] = e;
@@ -846,12 +851,12 @@
               }
             } else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
               item.value = uni.getStorageSync('login_user_info').user_no;
-            }  else if (item.value && item.value.indexOf('globalData.') !== -1) {
+            } else if (item.value && item.value.indexOf('globalData.') !== -1) {
               let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
-              if (globalData&&globalData[colName]) {
+              if (globalData && globalData[colName]) {
                 item.value = globalData[colName];
               }
-            }else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+            } else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
                 "'") === item.value
               .length - 1) {
               item.value = item.value.replace(/\'/gi, '');
@@ -930,7 +935,8 @@
             self.selectorData = self.selectorData.map(item => {
               const config = this.deepClone(this.fieldData.option_list_v2);
               // item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
-              item.label = config.show_as_pair !== false ? `${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config.key_disp_col]
+              item.label = config.show_as_pair !== false ?
+                `${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config.key_disp_col]
               // item.label = config.key_disp_col ? item[config.key_disp_col] : '';
               item.value = config.refed_col ? item[config.refed_col] : '';
               return item;

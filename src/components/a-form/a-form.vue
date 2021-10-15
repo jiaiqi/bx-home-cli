@@ -121,6 +121,16 @@
                 return res
               }, {})
             }
+          }else if (this.formType === 'detail') {
+            model = this.deepClone(this.fieldModel)
+            if (Object.keys(model).length === 0) {
+              model = this.allField.reduce((res, cur) => {
+                if (cur.value) {
+                  res[cur.columns] = cur.value
+                }
+                return res
+              }, {})
+            }
           } else {
             switch (this.pageType) {
               case 'update':
@@ -209,7 +219,9 @@
               }
               this.fieldModel[item.column] = item.value;
               if (item.type == 'images') {
-                this.$refs.fitem[index].getDefVal()
+                setTimeout(()=>{
+                  // this.$refs.fitem[index].getDefVal()
+                },200)
               }
               this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
             }

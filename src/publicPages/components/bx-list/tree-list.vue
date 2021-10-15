@@ -27,7 +27,7 @@
 				:proc_data_type="proc_data_type" @click-foot-btn="clickFootBtn"></list-item>
 		</view>
 		<view :class="{ 'grid-layout': onlyShowTitle }" v-else>
-			<list-item :detailList="detailList" v-for="item in listDataRun" :key="item[rowKey]" :showBtn='showBtn'
+			<list-item :detailList="detailList" v-for="item in listDataRun" :customBtn="customBtn" :key="item[rowKey]" :showBtn='showBtn'
 				:itemData="item" :viewTemp="finalViewTemp" :viewType="viewType" :imageNum="imageNum"
 				:gridRowNum="gridRowNum" :rowButton="rowButtonsRun ||rowButton" :srv_cols="colRun" :listType="listType"
 				:pageType="pageType" :showFootBtn="showFootBtn" :layout="onlyShowTitle ? 'grid' : 'normal'"
@@ -197,6 +197,11 @@
 					return false;
 				}
 			},
+      customBtn(){
+        if(Array.isArray(this.moreConfig?.custom_btn)){
+          return this.moreConfig.custom_btn
+        }
+      },
       moreConfig() {
       	if (this.listConfig && this.listConfig.moreConfig) {
       		return this.listConfig.moreConfig

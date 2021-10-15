@@ -1973,7 +1973,7 @@ export default {
         // #endif
       }
 
-
+      debugger
       let wxUserInfo = ''
       if (store && store.state && store.state.user) {
         wxUserInfo = store.state.user.wxUserInfo

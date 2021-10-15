@@ -53,12 +53,21 @@
     <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
       <view class="cu-dialog " @click.stop="">
         <view class="qrcode-box">
-          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath"></image>
+          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
+          <view class="qr-code-image" v-else @click="makeQrCode">
+            <text class="cuIcon-refresh"></text>
+          </view>
         </view>
         <view class="button-box">
           <button @click.stop="hideQrcode" class="cu-btn">关闭</button>
         </view>
       </view>
+    </view>
+
+    <view class="qr-code" v-if="qrCodeText&&showQrcode">
+      <uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" :size="codeSize" class="qrcode-canvas" foregroundColor="#333"
+        makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
+      </uni-qrcode>
     </view>
   </view>
 </template>
@@ -87,8 +96,9 @@
       return {
         groupList: [],
         globalData: {},
-        showQrcode:false,
-        qrcodePath:""
+        showQrcode: false,
+        qrcodePath: "",
+        codeSize: uni.upx2px(700),
         // buttons: this.pageItem.listdata || []
       };
     },
@@ -112,6 +122,15 @@
       },
     },
     computed: {
+      qrCodeText() {
+        let result = ''
+        if (this.userInfo?.userno && this.storeInfo?.store_no) {
+          result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`
+        } else if (this.storeInfo?.store_no) {
+          result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`
+        }
+        return result
+      },
       buttons() {
         if (Array.isArray(this.pageItem.listdata)) {
           return this.pageItem.listdata;
@@ -253,7 +272,16 @@
       },
     },
     methods: {
-      hideQrcode(){
+      makeQrCode() {
+        if (this.$refs.qrcodeCanvas) {
+          this.$refs.qrcodeCanvas.make()
+        }
+      },
+      qrcodeCanvasComplete(e) {
+        debugger
+        this.qrcodePath = this.storeInfo?.barcode_pic || e;
+      },
+      hideQrcode() {
         this.showQrcode = false
       },
       isLastRow(list, index) {
@@ -382,6 +410,7 @@
           this.groupList = [];
         }
       },
+
       toPages(e) {
         if (e.$orig) {
           e = e.$orig;
@@ -421,19 +450,8 @@
           })
           return
         }
-        if(e.url==='showStoreQrcode'){
-          if(this.storeInfo?.store_qr_code){
-            this.qrcodePath = this.storeInfo.store_qr_code
-            this.showQrcode=true
-            // this.toPreviewImage(this.storeInfo.store_qr_code)
-          }else{
-            
-            uni.showModal({
-              title:'二维码加载失败,请刷新页面后重试',
-              content:'',
-              showCancel:false
-            })
-          }
+        if (e.url === 'showStoreQrcode') {
+          this.showQrcode = true
           return
         }
         switch (e.type) {
@@ -745,9 +763,16 @@
       }
     }
   }
-  .qrcode-box{
+
+  .qrcode-box {
     padding: 80rpx 40rpx;
     text-align: center;
-    
+
+  }
+
+  .qrcode-canvas {
+    position: fixed;
+    top: -999px;
+    right: -999px;
   }
 </style>

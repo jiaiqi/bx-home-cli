@@ -411,7 +411,8 @@
           url: '/storePages/home/home?store_no=' + option.store_no
         })
       } else {
-        this.initLogin()
+        this.getList()
+        // this.initLogin()
       }
     },
     onShareAppMessage() {
