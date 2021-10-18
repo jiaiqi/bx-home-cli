@@ -53,7 +53,8 @@
     <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
       <view class="cu-dialog " @click.stop="">
         <view class="qrcode-box">
-          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
+          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath" @click="toPreviewImage(qrcodePath)">
+          </image>
           <view class="qr-code-image" v-else @click="makeQrCode">
             <text class="cuIcon-refresh"></text>
           </view>
@@ -98,7 +99,7 @@
         globalData: {},
         showQrcode: false,
         qrcodePath: "",
-        qrCodeText:"",
+        qrCodeText: "",
         codeSize: uni.upx2px(700),
         // buttons: this.pageItem.listdata || []
       };
@@ -451,14 +452,14 @@
           })
           return
         }
-        if (e.url&&e.url.indexOf('showStoreQrcode')!==-1) {
-          if(e.url.split('q=').length>1){
+        if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
+          if (e.url.split('q=').length > 1) {
             let data = {
-              storeInfo:this.storeInfo,
-              userInfo:this.userInfo
+              storeInfo: this.storeInfo,
+              userInfo: this.userInfo,
+              bindUserInfo: this.bindUserInfo
             }
-            debugger
-            this.qrCodeText = this.renderStr(e.url.split('q=')[1],data)
+            this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
             this.showQrcode = true
           }
           return
@@ -776,7 +777,8 @@
   .qrcode-box {
     padding: 80rpx 40rpx;
     text-align: center;
-    .qr-code-image{
+
+    .qr-code-image {
       width: 500rpx;
       height: 500rpx;
       line-height: 500rpx;
