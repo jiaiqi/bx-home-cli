@@ -211,49 +211,14 @@ const selectPersonInfo = async () => {
 			if (Array.isArray(pageStack) && pageStack.length >= 1) {
 				currentPage = pageStack[pageStack.length - 1]?.$page?.fullPath
 			}
-			// // 暂时去掉
-			// if (['诊所', '医院', '健康服务'].includes(store.state
-			// 		.user.userInfo.home_store_type) && (!currentPage || (currentPage && currentPage
-			// 		.indexOf(
-			// 			'pages/home/home') == -1 && currentPage
-			// 		.indexOf(
-			// 			'/publicPages/chat/chat') == -1 && currentPage.indexOf(
-			// 			'publicPages/gropDetail/gropDetail') == -1)) && pageStack.length ===
-			// 	1) {
-			// 	// 通过分享医院主页加入的用户
-			// 	// uni.redirectTo({
-			// 	// 	url: 'pages/home/home?store_no=' + res
-			// 	// 		.data
-			// 	// 		.data[0].home_store_no,
-			// 	// 	success() {
-			// 	// 		// 标记 已进入过医院主页
-			// 	// 		store.commit('SET_INTO_HOSPITAL_STATUS', true)
-			// 	// 	}
-			// 	// })
-			// } else if ((['饭馆'].includes(store.state
-			// 			.user.userInfo.home_store_type) && store.state.user
-			// 		.userInfo.home_store_no)) {
-			// 	// 通过分享饭馆主页加入的用户
-			// 	// uni.redirectTo({
-			// 	// 	url: '/otherPages/shop/shopHome?type=find&store_no=' + store.state
-			// 	// 		.user
-			// 	// 		.userInfo.home_store_no,
-			// 	// 	success() {
-			// 	// 		// 标记 已进入过餐馆主页
-			// 	// 		store.commit('SET_INTO_HOSPITAL_STATUS', true)
-			// 	// 	}
-			// 	// })
-			// }
 		}
 		// #endif
 		store.commit('SET_AUTH_USERINFO', true);
 		return res.data.data[0]
 	} else {
-		debugger
 		if(res.data.resultCode==='0011'){
 			// 未登录
 			let isLogin = await wxVerifyLogin()
-			debugger
 			if(isLogin){
 				return await selectPersonInfo()
 			}

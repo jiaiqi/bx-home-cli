@@ -863,45 +863,6 @@ export default {
         if (resData.login_user_info.data) {
           uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
         }
-        // // 获取用户信息
-        // let infoRes = await uni.getUserInfo({
-        // 	provider: 'weixin'
-        // })
-        // if (Array.isArray(infoRes) && infoRes.length >= 2 && infoRes[1].errMsg && infoRes[1].errMsg ===
-        // 	'getUserInfo:ok' &&
-        // 	infoRes[1].userInfo) {
-        // 	let rawData = {
-        // 		nickname: infoRes[1].userInfo.nickName,
-        // 		sex: infoRes[1].userInfo.gender,
-        // 		country: infoRes[1].userInfo.country,
-        // 		province: infoRes[1].userInfo.province,
-        // 		city: infoRes[1].userInfo.city,
-        // 		headimgurl: infoRes[1].userInfo.avatarUrl
-        // 	};
-        // 	store.commit('SET_WX_USERINFO', rawData);
-        // 	store.commit('SET_AUTH_USERINFO', true)
-        // 	await Vue.prototype.setWxUserInfo(rawData)
-        // 	Vue.prototype.updateUserInfo()
-        // 	return {
-        // 		status: 'success',
-        // 		response: resData
-        // 	};
-        // } else {
-        // 	if (store.state.app.currentPage.indexOf('publicPages/accountExec/accountExec') === -1) {
-        // 		// 跳转到授权页面
-        // 		store.commit('SET_CURRENT_PAGE', 'publicPages/accountExec/accountExec')
-        // 		let pageStack = getCurrentPages()
-        // 		if (Array.isArray(pageStack) && pageStack.length >= 1) {
-        // 			let currentPage = pageStack[pageStack.length - 1]
-        // 			store.commit('SET_PRE_PAGE_URL', currentPage.$page.fullPath)
-        // 		}
-        // 		// 
-        // 		// uni.reLaunch({
-        // 		// 	url: '/publicPages/accountExec/accountExec'
-        // 		// })
-        // 	}
-        // 	return false;
-        // }
       } else {
         // 登录失败，显示提示信息
         uni.showToast({
@@ -1204,6 +1165,8 @@ export default {
           return response.data
         }
       }
+
+      return
     }
     Vue.prototype.isInvalid = function(e) {
       if (e === '' || e === null || e === undefined) {
@@ -1837,13 +1800,6 @@ export default {
         Vue.prototype.setWxUserInfo(rawData);
         store.commit('SET_WX_USERINFO', rawData);
         store.commit('SET_AUTH_USERINFO', true);
-        // const result = await wx.login();
-        // if (result.code) {
-        // 	this.wxLogin({
-        // 		code: result.code
-        // 	});
-        // 	// this.initPage();
-        // }
       }
       // #endif
     }
@@ -1968,14 +1924,12 @@ export default {
             headimgurl: wxUser.userInfo.avatarUrl
           };
           // 保存用户信息
-          Vue.prototype.setWxUserInfo(rawData);
+          await Vue.prototype.setWxUserInfo(rawData);
           store.commit('SET_WX_USERINFO', rawData);
           store.commit('SET_AUTH_USERINFO', true);
         }
         // #endif
       }
-
-      debugger
       let wxUserInfo = ''
       if (store && store.state && store.state.user) {
         wxUserInfo = store.state.user.wxUserInfo
@@ -1985,11 +1939,12 @@ export default {
         console.log(store.state.app.authBoxDisplay)
         store.commit('SET_AUTH_USERINFO', false)
         store.commit('SET_REGIST_STATUS', false)
+        debugger
         return
         // 未授权不进行注册
       } else {
         if (data && data.no) {
-          Vue.prototype.updateUserInfo(wxUserInfo)
+          await Vue.prototype.updateUserInfo(wxUserInfo)
         }
       }
 
@@ -2031,6 +1986,7 @@ export default {
             break;
         }
       }
+      debugger
       let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
       let req = [{
         "serviceName": "srvhealth_person_info_add",
@@ -2048,6 +2004,7 @@ export default {
           "font_size": "中"
         }]
       }]
+      debugger
       try {
         let inviterInfo = store.state.app.inviterInfo
         if (inviterInfo.invite_user_no) {
@@ -2069,12 +2026,14 @@ export default {
       if (store.state.user.userInfo && store.state.user.userInfo.no) {
         return store.state.user.userInfo
       }
-      if (store.state.app.areRegistering) {
-        // 有一个注册请求正在进行中
-        return false
-      }
+      // if (store.state.app.areRegistering) {
+      //   debugger
+      //   // 有一个注册请求正在进行中
+      //   return false
+      // }
       store.commit('SET_REGIST_STATUS', true)
       let res = await _http.post(url, req)
+      debugger
       store.commit('SET_REGIST_STATUS', false)
       if (res.data && res.data.resultCode === "SUCCESS") {
         console.log("信息登记成功")
@@ -2085,6 +2044,8 @@ export default {
           Array.isArray(res.data.response[0].response.effect_data) &&
           res.data.response[0].response.effect_data.length > 0
         ) {
+          store.commit('SET_AUTH_USERINFO', true)
+          store.commit('SET_REGIST_STATUS', true)
           store.commit('SET_USERINFO', res.data.response[0].response.effect_data[0])
         }
         if (store.state.app.doctorInfo && store.state.app.doctorInfo.no) {
@@ -2096,20 +2057,13 @@ export default {
         }
         return true
       } else {
-        uni.showModal({
-          title: '提示',
-          content: JSON.stringify(res.data)
-        })
+        // uni.showModal({
+        //   title: '提示',
+        //   content: JSON.stringify(res.data)
+        // })
         if (res.data.resultCode === '0011') {
           // 未登录
-          // #ifdef MP-WEIXIN
-          // const result = await wx.login();
-          // if (result && result.code) {
-          // 	let res = await Vue.prototype.wxLogin({
-          // 		code: result.code
-          // 	});
-          // }
-          // #endif
+          debugger
           return false
         }
         return false
@@ -2285,7 +2239,7 @@ export default {
             result = obj
             arr.forEach(item => {
               try {
-                result = result[item]||''
+                result = result[item] || ''
               } catch (e) {
                 //TODO handle the exception
               }
@@ -2312,40 +2266,40 @@ export default {
       return str
     }
     Vue.prototype.colNameToLabel = function(cols, col) {
-    	// pos 位置 pu || po    type  true || false
-    	let res = ''
-    	for (let key in cols) {
-    		if (cols[key].col_type == 'Dict' || cols[key].col_type == 'User' || cols[key].col_type == 'fk') {
-    			if (col == `_${cols[key].columns}_disp` || cols[key].columns == col) {
-    				// console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
-    				res = cols[key].label
-    			}
-    		} else {
-    			if (cols[key].columns == col) {
-    				// console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
-    				res = cols[key].label
-    			}
-    		}
-    
-    	}
-    
-    	return res
+      // pos 位置 pu || po    type  true || false
+      let res = ''
+      for (let key in cols) {
+        if (cols[key].col_type == 'Dict' || cols[key].col_type == 'User' || cols[key].col_type == 'fk') {
+          if (col == `_${cols[key].columns}_disp` || cols[key].columns == col) {
+            // console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
+            res = cols[key].label
+          }
+        } else {
+          if (cols[key].columns == col) {
+            // console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
+            res = cols[key].label
+          }
+        }
+
+      }
+
+      return res
     }
-    
+
     Vue.prototype.sliceString = function(str, len, pos, type) {
-    	// pos 位置 pu || po    type  true || false
-    	let res = str === null || str === undefined ? '' : str
-    	res = res.toString()
-    
-    	if (pos === 'po') {
-    		res = res.slice(res.length - len)
-    	} else {
-    		res = res.slice(0, len)
-    	}
-    	if (type && res.length > len) {
-    		res += '...'
-    	}
-    	return res
+      // pos 位置 pu || po    type  true || false
+      let res = str === null || str === undefined ? '' : str
+      res = res.toString()
+
+      if (pos === 'po') {
+        res = res.slice(res.length - len)
+      } else {
+        res = res.slice(0, len)
+      }
+      if (type && res.length > len) {
+        res += '...'
+      }
+      return res
     }
     // 后端计算xif并返回结果
     Vue.prototype.evalX_IF = async (tableName, cols, data = {}, appName) => {

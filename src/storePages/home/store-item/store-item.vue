@@ -1,5 +1,5 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem"
+  <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem&&isShow"
     :class="{ 'bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin':pageItem&&(pageItem.type === '店铺信息2') }">
     <view class="title" v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '疫苗列表'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
@@ -12,7 +12,8 @@
       @setHomePage="setHomePage" :pageItem="pageItem"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
       v-else-if="pageItem.type === '店铺信息'||pageItem.type === '店铺信息2'" :isBind="isBind" :pageItem="pageItem"
-      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting" @getQrcode="getQrcode"></store-info>
+      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
+      @getQrcode="getQrcode"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
     <goods-list v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0" :storeNo="storeNo"
@@ -41,7 +42,7 @@
     <link-wifi :store_no="storeNo" v-else-if="
         storeNo &&
         pageItem &&
-        pageItem.type === '连接WiFi'
+        pageItem.type === '连接WiFi'&&room_no
       "></link-wifi>
   </view>
 </template>
@@ -97,6 +98,17 @@
       }
     },
     computed: {
+      isShow(){
+        if(this.pageItem?.type==='连接WiFi'){
+          return this.room_no
+        }else{
+          return true
+        }
+      },
+      room_no() {
+        let globalData = getApp().globalData;
+        return globalData?.room_no
+      },
       storeNo() {
         return this.storeInfo && this.storeInfo.store_no ? this.storeInfo.store_no : ''
       },
@@ -120,8 +132,8 @@
       })
     },
     methods: {
-      getQrcode(e){
-        this.$emit('getQrcode',e)
+      getQrcode(e) {
+        this.$emit('getQrcode', e)
       },
       toSetting() {
         this.$emit('toSetting')

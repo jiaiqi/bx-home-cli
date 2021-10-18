@@ -1,8 +1,8 @@
 <template>
 	<view class="auth-box">
 		<view class="logo-box">
-			<image :src="getImagePath('20210222171446264100')" mode="aspectFit" class="logo"></image>
-			<view class="label text-bold">百想健康</view>
+			<!-- <image :src="getImagePath('20210222171446264100')" mode="aspectFit" class="logo"></image> -->
+			<!-- <view class="label text-bold">百想健康</view> -->
 		</view>
 		<button type="primary" class="cu-btn bg-green button" lang="zh_CN" v-if="canIUseGetUserProfile"
 			@tap="getUserProfile">
@@ -13,7 +13,6 @@
 		<view class="tips">{{ tips }}</view>
 		<view class="bottom">
 			登录代表您已同意<text class="text-cyan" @click="toArticle('CT2021012816330102')">百想用户协议</text>
-			、
 			<text class="text-cyan" @click="toArticle('CT2021012816470103')">隐私协议</text>
 		</view>
 	</view>
@@ -23,7 +22,8 @@
 	export default {
 		data() {
 			return {
-				canIUseGetUserProfile: false
+				canIUseGetUserProfile: false,
+        
 			}
 		},
 		props: {
@@ -74,6 +74,7 @@
 					self.$store.commit('SET_AUTH_USERINFO', true);
 					await self.setWxUserInfo(rawData);
 					this.$emit('auth-complete')
+          this.toAddPage()
 					return rawData
 				}
 			},
@@ -110,6 +111,7 @@
 		.logo-box {
 			margin-bottom: 50px;
 			letter-spacing: 2px;
+      min-height: 100rpx;
 		}
 
 		.logo {

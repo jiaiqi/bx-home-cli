@@ -229,10 +229,15 @@
 				let v2config = this.listConfig?.more_config || this.v2Datas?.more_config || null
 				let res = null
 				if (v2config) {
-					let config = JSON.parse(v2config)
-					if (config.hasOwnProperty("appTempColMap")) {
-						res = config.appTempColMap
-					}
+          try{
+            let config = JSON.parse(v2config)
+            if (config.hasOwnProperty("appTempColMap")) {
+            	res = config.appTempColMap
+            }
+          }catch(e){
+            //TODO handle the exception
+          }
+					
 				}
 				if (res) {
 					return res

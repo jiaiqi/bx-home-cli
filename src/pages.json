@@ -103,17 +103,14 @@
             "navigationBarTitleText": "列表",
             "enablePullDownRefresh": true
           }
+        }, {
+          "path": "treeList/treeList",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": true
+          }
         }
-          ,{
-                    "path" : "treeList/treeList",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "storePages",
@@ -147,9 +144,9 @@
         },
         {
           "path": "GoodsDetail/GoodsDetail",
-          "style":{
-            "navigationBarBackgroundColor":"#fff",
-            "navigationBarTextStyle":"black"
+          "style": {
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black"
             // "navigationStyle":"custom"
           }
         },
@@ -252,6 +249,13 @@
           "style": {
             "navigationBarTitleText": "连接WiFi",
             "enablePullDownRefresh": true
+          }
+
+        }, {
+          "path": "wlps/wlps",
+          "style": {
+            "navigationBarTitleText": "物料配送",
+            "enablePullDownRefresh": false
           }
 
         }
@@ -409,7 +413,7 @@
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#0bc99d",
     "backgroundColor": "#F8F8F8",
-    "pageOrientation":"auto"
+    "pageOrientation": "auto"
   },
   "condition": {
     // "current": 0,

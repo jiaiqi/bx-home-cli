@@ -608,6 +608,9 @@
       },
     },
     onLoad(option) {
+      uni.$on('dataChange',()=>{
+        this.getDetail()
+      })
       if (option.serviceName) {
         this.serviceName = option.serviceName;
         if (option.appName) {

@@ -24,7 +24,6 @@ let conf = {
 let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
   ssoAddress: 'http://sso.100xsys.cn',
-  // serviceAddress: 'https://srvms.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
   serviceAddress: conf[env]['serviceAddress'],
   frontEndAddress: 'https://login.100xsys.cn:1443',
   // frontEndAddress: 'https://wx2.100xsys.cn',
@@ -35,25 +34,25 @@ let remoteAddress = {
   // homePath:"/pages/public/homePage/homePage?website_no=WS2020031216030001",
   isThirdParty: true, // 是否必须第三方认证登录
   thirdPartyType: ['WeChat'], // 第三方类型
-  homePath: "/pages/home/home", // 首页路径， 配置完整路径
+  homePath: "/storePages/home/home", // 首页路径， 配置完整路径
 }
 let ENV = {
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址
   frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
   appNo: {
+    wxmp: conf[env]['appNo'],
     // wxmp: 'APPNO20210420103005', // 百想首页
     // wxmp: 'APPNO20201124160702', // 百想健康
     // wxmp: 'APPNO20210926101030', // 测试
-    wxmp: conf[env]['appNo'],
     // wxmp: 'APPNO20200214122021', // 百想软件ai平台
     // wxmp: 'APPNO20200731153421' //生活能力评估
     wxh5: 'APPNO20200107181133', //微信公众号
   },
   appID: {
+    wxmp: conf[env]['appId'],
     // wxmp: 'wx8e6f993081f6e979', // 百想软件ai平台
     // wxmp: 'wx08876efb5760ca75', // 测试
-    wxmp: conf[env]['appId'],
     // wxmp: 'wxa3c50c8177ef6739', // 百想健康
     // wxmp: 'wxa8574a1e93d8e8d0', // 百想首页
     wxh5: 'wx78d1d4139f97ffca', //百想助理公众号
@@ -93,7 +92,6 @@ let ENV = {
   authorizedLoginSuccess: 'authorized_login_success', // 授权成功,可以直接请求业务数据
   ssoAuthor: remoteAddress.serviceAddress + '/wx/operate/', // sso授权地址
   savewxuser: remoteAddress.ssoAddress + '/wx/savewxuser', // sso保存微信用户
-
   getOpendId: remoteAddress.ssoAddress + '/wx/getOpendId', // sso保存微信用户 /wx/getOpendId
   // 测试地址
   testssoAuthor: remoteAddress.testUrl + '/wx/authorize', // sso授权地址

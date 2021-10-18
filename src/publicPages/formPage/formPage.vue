@@ -182,6 +182,7 @@
         // 	});
         // 	return;
         // }
+        let self = this
         let req = this.$refs.bxForm.getFieldModel();
         for (let key in req) {
           if (Array.isArray(req[key])) {
@@ -201,11 +202,17 @@
                 data: [req],
                 condition: this.condition
               }];
-              if (self.params.defaultVal && self.params.defaultVal.id) {
+              if (self?.params?.defaultVal?.id) {
                 req[0].condition = [{
                   colName: 'id',
                   ruleType: 'eq',
                   value: self.params.defaultVal.id
+                }];
+              }else if(self?.mainData?.id){
+                req[0].condition = [{
+                  colName: 'id',
+                  ruleType: 'eq',
+                  value: self.mainData.id
                 }];
               }
               let app = self.appName || uni.getStorageSync('activeApp');
@@ -217,11 +224,12 @@
                 });
                 return;
               }
-              debugger
               let res = await this.onRequest('update', e.service_name, req, app);
               let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
               if (res.data.state === 'SUCCESS') {
                 uni.$emit('dataChange', e.service_name)
+                
+                
                 if (
                   Array.isArray(res.data.response) &&
                   res.data.response.length > 0 &&
@@ -229,17 +237,25 @@
                   Array.isArray(res.data.response[0].response.effect_data) &&
                   res.data.response[0].response.effect_data.length > 0
                 ) {
-                  this.params.submitData = res.data.response[0].response.effect_data[0];
-                  if (e.service_name === 'srvhealth_person_info_update') {
-                    this.$store.commit('SET_USERINFO', this.params.submitData);
-                    uni.setStorageSync('cur_user_no', this.params.submitData.no)
-                  }
+                  // this.params.submitData = res.data.response[0].response.effect_data[0];
+                  // if (e.service_name === 'srvhealth_person_info_update') {
+                  //   this.$store.commit('SET_USERINFO', this.params.submitData);
+                  //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
+                  // }
                 }
                 uni.showModal({
                   title: '提示',
                   content: `${res.data.resultMessage}`,
                   showCancel: false,
                   success(res) {
+                    let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                    if(beforeRedirectUrl){
+                      uni.redirectTo({
+                        url:beforeRedirectUrl
+                      })
+                      getApp().globalData.beforeRedirectUrl =null
+                      return
+                    }
                     if (self.shareType && self.shareType === 'seeDoctor') {
                       // 通过邀请就诊登记链接进入 跳转到就诊信息登记页面
                       let fieldsCond = [{
@@ -280,7 +296,6 @@
                       uni.navigateBack()
                     } else {
                       uni.navigateBack()
-                      // self.toPages('detail');
                     }
                   }
                 });

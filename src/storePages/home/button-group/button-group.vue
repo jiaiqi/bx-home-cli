@@ -98,6 +98,7 @@
         globalData: {},
         showQrcode: false,
         qrcodePath: "",
+        qrCodeText:"",
         codeSize: uni.upx2px(700),
         // buttons: this.pageItem.listdata || []
       };
@@ -122,15 +123,16 @@
       },
     },
     computed: {
-      qrCodeText() {
-        let result = ''
-        if (this.userInfo?.userno && this.storeInfo?.store_no) {
-          result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`
-        } else if (this.storeInfo?.store_no) {
-          result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`
-        }
-        return result
-      },
+      // qrCodeText() {
+      //   let result = ''
+      //   result = `https://wx2.100xsys.cn/qrcode/${this.storeInfo.store_no}/PT2110180002`
+      //   if (this.userInfo?.userno && this.storeInfo?.store_no) {
+      //     result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`
+      //   } else if (this.storeInfo?.store_no) {
+      //     result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`
+      //   }
+      //   return result
+      // },
       buttons() {
         if (Array.isArray(this.pageItem.listdata)) {
           return this.pageItem.listdata;
@@ -278,7 +280,6 @@
         }
       },
       qrcodeCanvasComplete(e) {
-        debugger
         this.qrcodePath = this.storeInfo?.barcode_pic || e;
       },
       hideQrcode() {
@@ -450,8 +451,16 @@
           })
           return
         }
-        if (e.url === 'showStoreQrcode') {
-          this.showQrcode = true
+        if (e.url&&e.url.indexOf('showStoreQrcode')!==-1) {
+          if(e.url.split('q=').length>1){
+            let data = {
+              storeInfo:this.storeInfo,
+              userInfo:this.userInfo
+            }
+            debugger
+            this.qrCodeText = this.renderStr(e.url.split('q=')[1],data)
+            this.showQrcode = true
+          }
           return
         }
         switch (e.type) {
@@ -767,7 +776,15 @@
   .qrcode-box {
     padding: 80rpx 40rpx;
     text-align: center;
-
+    .qr-code-image{
+      width: 500rpx;
+      height: 500rpx;
+      line-height: 500rpx;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      border: 1rpx solid #ccc;
+    }
   }
 
   .qrcode-canvas {

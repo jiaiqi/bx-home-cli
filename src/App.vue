@@ -5,6 +5,8 @@
       globalTextFontSize: 18,
       statusBarHeight: uni.getSystemInfoSync()['statusBarHeight'], // 获取导航栏的高度
       room_no: "", //酒店房间编号
+      pt_no: "", //二维码参数编号
+      beforeRedirectUrl:"",
     },
     onLaunch(options) {
       this.$store.commit('SET_SCENE', options.scene)

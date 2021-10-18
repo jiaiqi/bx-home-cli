@@ -51,7 +51,7 @@
         params: {},
         defaultVal: null,
         showChildService: false,
-        successTip: '添加成功',
+        successTip: '操作成功',
         afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面
         submitAction: '', //提交后要进行的emit操作
         keyboardHeight: 0,
@@ -231,7 +231,7 @@
           });
         }
       },
-      toPages(type,e) {
+      toPages(type, e) {
         this.srvType = type;
         if (this.params.to && this.params.idCol && this.params.submitData && this.params.submitData[this.params
             .idCol]) {
@@ -239,7 +239,7 @@
             url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
           });
         } else {
-          let serviceName = e?.service_name||this.getServiceName(this.serviceName)
+          let serviceName = e?.service_name || this.getServiceName(this.serviceName)
           let url =
             `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
@@ -326,7 +326,7 @@
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情' && this.use_type === 'detail') {
-              this.toPages('update',e);
+              this.toPages('update', e);
               this.isOnButton = false;
             } else {
               if (req) {
@@ -338,7 +338,7 @@
                   data: [req],
                   condition: this.condition
                 }];
-                if (self.params.defaultVal && self.params.defaultVal.id) {
+                if (self?.params?.defaultVal?.id) {
                   req[0].condition = [{
                     colName: 'id',
                     ruleType: 'eq',
@@ -478,6 +478,14 @@
                   showCancel: false,
                   success(res) {
                     if (res.confirm) {
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                      if (beforeRedirectUrl) {
+                        uni.redirectTo({
+                          url: beforeRedirectUrl
+                        })
+                        getApp().globalData.beforeRedirectUrl = null
+                        return
+                      }
                       if (self.shareType && self.shareType === 'seeDoctor') {
                         // 通过邀请就诊登记链接进入
                         if (self.serviceName === 'srvhealth_see_doctor_record_add') {
@@ -612,14 +620,14 @@
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
-          result = await this.evalX_IF(table_name, cols, fieldModel,this.appName)
+          result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], fieldModel,this.appName)
+                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -709,7 +717,7 @@
         let defaultVal = self.defaultVal;
         self.colsV2Data = colVs;
         colVs = self.deepClone(colVs);
-     
+
 
         if (colVs && colVs.service_view_name) {
           uni.setNavigationBarTitle({
@@ -724,7 +732,7 @@
           if (cur.defaultValue) {
             res[cur.column] = cur.defaultValue
             cur.value = cur.defaultValue
-            if(self.defaultVal&&self.defaultVal[cur.column]){
+            if (self.defaultVal && self.defaultVal[cur.column]) {
               self.defaultVal[cur.column] = cur.value
             }
           }
@@ -738,9 +746,9 @@
             if (Array.isArray(defaultVal) && defaultVal.length > 0) {
               defaultVal = defaultVal[0]
             }
-            
+
             let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
-              .defaultVal||{});
+              .defaultVal || {});
             if (!fields) {
               return;
             }
@@ -811,7 +819,9 @@
                     if (item.hasOwnProperty('display')) {
                       field.display = item.display;
                     }
-
+                    if (item.hasOwnProperty('disabled')) {
+                      field.disabled = item.disabled;
+                    }
                     if (item.hasOwnProperty('value') && !['Image'].includes(field.col_type)) {
                       // 不复制照片字段
                       debugger
@@ -832,19 +842,19 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
         }
-        
 
-        
+
+
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
-        const result = await this.evalX_IF(table_name, cols, modal,this.appName)
-        
+        const result = await this.evalX_IF(table_name, cols, modal, this.appName)
+
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], modal,this.appName)
+                result = await this.evalX_IF(item.table_name, [item.column], modal, this.appName)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -854,7 +864,7 @@
             }
           }
         }
-        
+
       },
 
       async getStoreUserInfo(no) {
@@ -1001,17 +1011,17 @@
       }
       if (option.fieldsCond) {
         let fieldsCond = null
-        try{
+        try {
           let reg = /\\/g;
-          option.fieldsCond = option.fieldsCond.replace(reg,'')
-        }catch(e){
+          option.fieldsCond = option.fieldsCond.replace(reg, '')
+        } catch (e) {
           //TODO handle the exception
         }
         try {
           fieldsCond = JSON.parse(option.fieldsCond);
         } catch (e) {
           console.warn(e);
-         
+
           try {
             fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
           } catch (err) {

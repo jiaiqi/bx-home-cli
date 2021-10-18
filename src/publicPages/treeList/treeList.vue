@@ -36,10 +36,6 @@
       :searchColumn="keyColumn" :tempWord="tempWord" :rownumber="10" :showFootBtn="showFootBtn"
       @click-list-item="clickItem" @list-change="listChange" @clickFootBtn="clickFootBtn" @loadEnd="loadEnd"
       :showBtn="showBtn" v-if="listConfig"></bx-list>
-    <!-- 		<view class="public-button-box">
-			<view class="add-button" @click="clickAddButton" v-if="showAdd"></view>
-		</view> -->
-
     <u-popup mode="bottom" v-model="show" border-radius="14" :closeable=true>
       <view class="content">
         <scroll-view scroll-y="true" style="height: auto;">
@@ -56,9 +52,6 @@
             </view>
           </view>
         </scroll-view>
-        <!-- 	<view class="confrim-btn">
-					<u-button @click="show = false;">确定</u-button>
-				</view> -->
       </view>
     </u-popup>
 
@@ -71,11 +64,11 @@
     components: {
       bxList
     },
-    computed:{
-      userInfo(){
+    computed: {
+      userInfo() {
         return this.$store?.state?.user?.userInfo
       },
-      storeInfo(){
+      storeInfo() {
         return this.$store?.state?.app?.storeInfo
       }
     },
@@ -142,7 +135,7 @@
         }],
         establish: [],
         parent_no: null,
-        shareUrl:''
+        shareUrl: ''
       };
     },
 
@@ -167,13 +160,22 @@
         this.$refs.bxList.onRefresh();
       }
     },
-    
+
     onShareAppMessage(e) {
-      let title = ''
+      let title = e?.target?.dataset?.sharetitle
       let path = e?.target?.dataset?.shareurl
-      debugger
-      let imageUrl = this.getImagePath(this.storeInfo?.image);
+      let _data = {
+        rowData:{no:e?.target?.dataset?.row?.no,org_name:e?.target?.dataset?.row?.org_name} ,
+        userInfo: this.$store?.state?.user?.userInfo,
+        storeInfo: this.$store?.state?.app?.storeInfo
+      }
+      if(typeof _data.rowData==='object'){
+        delete _data.rowData._buttons
+        path += `&rowData=${JSON.stringify(_data.rowData)}`
+      }
+      let imageUrl = this.getImagePath(this.storeInfo?.image, true);
       this.saveSharerInfo(this.userInfo, path);
+     
       return {
         imageUrl: imageUrl,
         title: title,
@@ -413,7 +415,7 @@
             },
             row: e
           };
-       
+
           uni.navigateTo({
             url: `/publicPages/formPage/formPage?type=detail&cond=[{"colName":"id","ruleType":"eq","value":"${e.id}"}]&serviceName=${this.serviceName}&destApp=${this.appName}`
           });
@@ -516,7 +518,7 @@
           //   });
           // }
         } else {
-          this.onButtonToUrl(data,this.appName).then(res => {
+          this.onButtonToUrl(data, this.appName).then(res => {
             if (data.button && data.button.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
                 this.$refs.bxList.onRefresh();
@@ -620,12 +622,10 @@
               //   url: '/publicPages/formPage/formPage?params=' + JSON.stringify(params)
               // });
             } else if (data.button && data.button.button_type === 'seechild') {
-              debugger
               let params = {
                 label: rowData[this.listConfig.key_disp_col],
                 value: rowData[this.listConfig.no_col]
               };
-
               const establish = this.deepClone(this.establish)
               establish.push(params)
               uni.navigateTo({
@@ -743,6 +743,7 @@
             colVs.moreConfig = JSON.parse(colVs.more_config)
           } catch (e) {
             //TODO handle the exception
+            console.log(e)
           }
         }
         this.listConfig = colVs;

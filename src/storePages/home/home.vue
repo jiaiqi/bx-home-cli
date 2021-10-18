@@ -120,7 +120,10 @@
         modalName: "",
         push_msg_set: '',
         member_status: "",
-        globalData: {}
+        globalData: {},
+        pt_no: "", // 二维码参数编号
+        ptInfo: null,
+        rowData: {}
       };
     },
     computed: {
@@ -860,7 +863,79 @@
           }
         });
       },
+      async getQuery() {
+        let isHandQuery = getApp().globalData.isHandQuery
+        if (isHandQuery) {
+          return
+        }
+        let url = this.getServiceUrl('health', 'srvsys_page_def_select', 'select');
+        let req = {
+          "serviceName": "srvsys_page_def_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName: "pt_no",
+            ruleType: 'eq',
+            value: this.pt_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        if (!this.pt_no) {
+          return
+        }
+        let res = await this.$http.post(url, req)
+        if (res.data.state === 'SUCCESS') {
+          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            let data = res.data.data[0]
+            try {
+              let obj = {
+                rowData: this.rowData,
+                inviterInfo: this.$store?.state?.app?.inviterInfo,
+                storeInfo: this.storeInfo,
+                userInfo: this.userInfo,
+                bindUserInfo: this.bindUserInfo
+              }
+              data.serviceJson = JSON.parse(this.renderStr(data.service_json, obj))
+            } catch (e) {
+              //TODO handle the exception
+            }
+            this.ptInfo = data
+            if (data.pg_code && data.service) {
+              let url = ''
+              switch (data.pg_code) {
+                case 'form':
+                case 'formPage':
+                  url = `/publicPages/${data.pg_code}/${data.pg_code}?serviceName=${data.service}`
+                  if (data.serviceJson?.initFields) {
+                    url += `&fieldsCond=${JSON.stringify(data.serviceJson.initFields)}`
+                  }
+                  if (data.app) {
+                    url += `&destApp=${data.app}`
+                  }
+                  break;
+                case 'list':
+                  break;
+                case 'list2':
+                  break;
+              }
+              if (url) {
+                let pages = getCurrentPages();
+                let curPage = pages[pages.length - 1]
+                getApp().globalData.beforeRedirectUrl = curPage?.$page?.fullPath
+                getApp().globalData.isHandQuery = true
+                uni.redirectTo({
+                  url
+                })
+              }
+            }
+            return data
+          }
+        }
+      },
       async initPage() {
+        await this.toAddPage()
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
           this.checkSubscribeStatus()
@@ -870,8 +945,12 @@
           this.getPageItem()
           await this.selectStoreInfo();
           await this.selectBindUser()
-          // uni.$emit('updateStoreItemData')
-          // this.selectUnreadAmount()
+          if (this.bindUserInfo?.id) {
+          } else {
+            await this.bindStore()
+          }
+          this.getQuery()
+
         } else {
           // uni.showToast({
           // 	title: '未发现store_no',
@@ -933,7 +1012,13 @@
 
     async onLoad(option) {
       // showHomeBtn
-
+      if (option.rowData) {
+        try {
+          this.rowData = JSON.parse(option.rowData)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
       let globalData = getApp().globalData
       this.globalData = globalData
       let pageInfo = getCurrentPages()
@@ -986,6 +1071,30 @@
             option.from = 'share'
           }
         }
+
+        // 通用二维码参数
+        if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
+          let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
+          if (result.split('/').length == 3) {
+            option.store_no = result.split('/')[0];
+            option.invite_user_no = result.split('/')[1];
+            option.pt_no = result.split('/')[2];
+            getApp().globalData.pt_no = option.pt_no
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          } else if (result.split('/').length == 2) {
+            option.store_no = result.split('/')[0];
+            option.pt_no = result.split('/')[1];
+            getApp().globalData.pt_no = option.pt_no
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          } else if (result.split('/').length === 1) {
+            option.store_no = result.split('/')[0];
+            option.share_type = 'bindOrganization'
+            option.from = 'share'
+          }
+        }
+
         if (text && text.indexOf('https://wx2.100xsys.cn/mpwx/shareClinic/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/mpwx/shareClinic/')[1];
           if (result.split('/').length >= 2) {
@@ -1001,7 +1110,6 @@
         }
         if (text && text.indexOf('https://wx2.100xsys.cn/shareClinic/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/shareClinic/')[1];
-          debugger
           let arr = result.split('/')
           if (arr.length == 3) {
             option.store_no = arr[0];
@@ -1047,7 +1155,9 @@
       this.checkOptionParams(option);
 
       await this.toAddPage()
-
+      if (option.pt_no) {
+        this.pt_no = option.pt_no
+      }
       if (!option.store_no) {
         if (this.userInfo && this.userInfo.home_store_no) {
           option.store_no = this.userInfo.home_store_no
@@ -1074,17 +1184,38 @@
         // 绑定诊所
         // 查找店铺用户列表
         this.storeNo = option.store_no;
-        this.selectStoreInfo().then(res => {
-          this.getStoreUserInfo(option.store_no).then(res => {
-            if (Array.isArray(res) && res.length >= 1) {
-              // 店铺用户列表中已存在此用户
-            } else {
-              // 当前用户不在此诊所中 则添加当前用户到此诊所中
-              this.addToStore(option.store_no, option
-                .invite_user_no);
-            }
-          });
-        });
+        let storeInfo = await this.selectStoreInfo();
+        let storeUser = await this.getStoreUserInfo(option.store_no)
+        if (Array.isArray(storeUser) && storeUser.length > 0) {
+          // 店铺用户列表中已存在此用户
+
+        } else {
+          await this.bindStore(option.store_no, option.invite_user_no)
+        }
+        // if (this.pt_no) {
+        //   // 查找二维码携带的页面信息
+        //   this.getQuery()
+        // }
+        // this.selectStoreInfo().then(res => {
+        //   this.getStoreUserInfo(option.store_no).then(res => {
+        //     if (Array.isArray(res) && res.length >= 1) {
+        //       // 店铺用户列表中已存在此用户
+        //       if (this.pt_no) {
+        //         // 查找二维码携带的页面信息
+        //         this.getQuery()
+        //       }
+        //     } else {
+        //       // 当前用户不在此诊所中 则添加当前用户到此诊所中
+        //       this.addToStore(option.store_no, option
+        //         .invite_user_no).then(_=>{
+        //           if (this.pt_no) {
+        //             // 查找二维码携带的页面信息
+        //             this.getQuery()
+        //           }
+        //         })
+        //     }
+        //   });
+        // });
       }
       this.initPage()
     }

@@ -12,13 +12,7 @@
         </view>
       </view>
     </cu-custom-navbar>
-    <!--    <view class="cu-bar search bg-white">
-      <view class="search-form">
-        <text class="cuIcon-search"></text>
-        <input @input="searchWithKey" v-model="searchKey" type="text" placeholder="搜索" confirm-type="search" />
-        <text class="cuIcon-close margin-right-xs" v-if="searchKey" @click="clear"></text>
-      </view>
-    </view> -->
+
     <view class="store-list">
       <view class="store-item animation-fade" v-for="item in list" :key="item.store_no">
         <image class="image" v-if="item.logo" :src="getImagePath(item.logo)" mode="aspectFit" @tap="toStoreHome(item)">
@@ -104,6 +98,7 @@
       </view>
     </view>
   </view>
+  
 </template>
 
 <script>
@@ -115,10 +110,14 @@
   import {
     mapState
   } from 'vuex'
-  
+  import dayjs from '@/static/js/dayjs.min.js'
   import {version } from '@/common/config.js' 
   export default {
     computed: {
+      version(){
+        return `V${dayjs().format('YYYYMMDDHHmm')}`
+        // V1.2.90-2021101520
+      },
       ...mapState({
         inviterInfo: state => state.app.inviterInfo,
         wxUserInfo: state => state.user.wxUserInfo,
@@ -131,7 +130,6 @@
     },
     data() {
       return {
-        version:version,
         // version:"V1.2.80-20210924",
         searchKey: "",
         showAd: false,
@@ -377,7 +375,7 @@
             user_account: this.userInfo.userno,
             user_image: this.userInfo.user_image,
             person_name: this.userInfo.name || this.userInfo.nick_name,
-            add_url: this.inviterInfo.add_url,
+            add_url: this.inviterInfo.add_url?this.inviterInfo.add_url.slice(0,150):'',
             invite_user_no: this.inviterInfo.invite_user_no,
             store_no: 'S20210204016',
             person_no: this.userInfo.no,
@@ -412,7 +410,7 @@
         })
       } else {
         this.getList()
-        // this.initLogin()
+        this.initLogin()
       }
     },
     onShareAppMessage() {
