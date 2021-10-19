@@ -632,9 +632,15 @@
         }
 
         if (buttonInfo.button_type === "customize") {
+          if (buttonInfo.operate_type === '删除') {
+            debugger
+            this.onButtonToUrl(data, this.appName).then(res => {
+              if (res.state === 'SUCCESS') {
+                this.getList()
+              }
+            })
 
-          debugger
-          if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+          } else if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
             let req = [{
               serviceName: buttonInfo.operate_service,
               condition: buttonInfo.operate_params.condition,
@@ -707,7 +713,6 @@
                 return
               }
             } else if (buttonInfo.servcie_type === 'update' || buttonInfo.servcie_type === 'operate') {
-              // buttonInfo.servcie_type = 'update'
               let params = {
                 type: 'update',
                 serviceName: buttonInfo.service_name,
@@ -736,21 +741,12 @@
                   })
                 })
               }
-              // let otherParams = this.handleSpecialClickEvent(data)
-              // if (otherParams && otherParams.otherFieldsCond) {
-              //   if (Array.isArray(otherFieldsCond)) {
-              //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
-              //   }
-              // }
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
-              // if (otherParams && otherParams.hideColumn) {
-              //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-              // }
               uni.navigateTo({
                 url: url
               });
@@ -959,21 +955,12 @@
                     })
                   })
                 }
-                // let otherParams = this.handleSpecialClickEvent(res)
-                // if (otherParams && otherParams.otherFieldsCond) {
-                //   if (Array.isArray(otherFieldsCond)) {
-                //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
-                //   }
-                // }
                 let url =
                   `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
                 if (this.appName) {
                   url += `&appName=${this.appName}`
                 }
-                // if (otherParams && otherParams.hideColumn) {
-                //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-                // }
                 uni.navigateTo({
                   url: url
                 });
@@ -1037,6 +1024,7 @@
     },
     onLoad(option) {
       uni.$on('dataChange', srv => {
+        debugger
         this.getList(null, this.initCond)
       })
       if (option.grid_span) {

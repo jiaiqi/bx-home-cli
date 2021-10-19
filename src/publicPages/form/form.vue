@@ -522,7 +522,29 @@
             this.isOnButton = false;
             break;
           case 'customize':
-            if (e.application && e.operate_service) {
+            if (e.operate_type === '删除') {
+              let data = {
+                button: e,
+                row: this.defaultVal
+              }
+              this.onButtonToUrl(data, this.appName).then(res => {
+                if (res.state === 'SUCCESS') {
+                  uni.$emit('dataChange')
+                  uni.showModal({
+                    title: '提示',
+                    content: "操作成功",
+                    showCancel: false,
+                    success: (res) => {
+                      if (res.confirm) {
+                        uni.navigateBack()
+                      }
+                    }
+                  })
+                }
+              })
+              return
+            }
+            if (e.application && e.operate_service && e.requestData) {
               const url = this.getServiceUrl(e.application, e.operate_service, 'operate');
               const req = [{
                 data: [e.requestData],

@@ -1315,9 +1315,10 @@ export default {
             "ruleType": "in",
             "value": e.hasOwnProperty("row") ? e.row.id : null
           }],
-          "serviceName": btn.service_name,
+          "serviceName": btn.service_name || btn.operate_service,
           "defaultVal": null
         }
+        debugger
         switch (btn.button_type) {
           case "edit":
             if (e.hasOwnProperty("row")) {
@@ -1329,7 +1330,7 @@ export default {
                   "ruleType": "in",
                   "value": row.id
                 }],
-                "serviceName": btn.service_name,
+                "serviceName": btn.service_name || btn.operate_service,
                 "defaultVal": row
               }
               console.log("点击了【有效】的公共编辑按钮", row)
@@ -1404,7 +1405,7 @@ export default {
                     "ruleType": "in",
                     "value": row.id
                   }],
-                  "serviceName": btn.service_name,
+                  "serviceName": btn.service_name || btn.operate_service,
                   "defaultVal": row
                 }
                 console.log("点击了【有效】的公共编辑按钮", row)
@@ -1414,7 +1415,7 @@ export default {
                   display: false
                 }]
                 let url =
-                  `/publicPages/form/form?type=update&serviceName=${btn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                  `/publicPages/form/form?type=update&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${JSON.stringify(fieldsCond)}`;
                 if (appName) {
                   url += `&appName=${appName}`
                 }
@@ -1460,7 +1461,7 @@ export default {
                   display: false
                 }]
                 let url =
-                  `/publicPages/form/form?type=detail&serviceName=${btn.service_name}&fieldsCond=${encodeURIComponent(
+                  `/publicPages/form/form?type=detail&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${encodeURIComponent(
 									JSON.stringify(fieldsCond)
 								)}`;
                 if (appName) {
@@ -1490,7 +1491,7 @@ export default {
                     "ruleType": "in",
                     "value": row.id
                   }],
-                  "serviceName": btn.service_name,
+                  "serviceName": btn.service_name || btn.operate_service,
                   "defaultVal": row
                 }
               }
@@ -1513,6 +1514,18 @@ export default {
               break;
             case "customize":
               //自定义按钮
+              if (btn.servcie_type === 'delete') {
+                return new Promise((resolve, reject) => {
+                  e.button.button_type = 'delete'
+                  Vue.prototype.onButtonRequest(e, appName).then((res) => {
+                    if (res) {
+                      resolve(res)
+                    } else {
+                      reject(res)
+                    }
+                  })
+                })
+              }
               return new Promise((resolve, reject) => {
                 resolve(btn)
               })

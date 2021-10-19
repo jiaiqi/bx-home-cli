@@ -16,7 +16,7 @@
               </text>
               <!-- <text class="cuIcon-wifi"></text> -->
               <text class="wifi-ssid">{{item.wifi_ssid||''}} </text>
-              <text class="text-blue" v-if="activeWifiMac===item.wifi_ssid">已连接</text>
+              <text class="text-blue" v-if="activeWifiMac===item.wifi_mac">已连接</text>
             </view>
             <view class="bottom">
               <text class="wifi-pwd margin-right">{{item.wifi_psd||''}}</text>
@@ -26,7 +26,7 @@
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
             <button class="cu-btn border line-blue sm round" @tap="toConnect(item)"
-              v-if="activeWifiMac!==item.wifi_ssid">连接</button>
+              v-if="activeWifiMac!==item.wifi_mac">连接</button>
             <!-- #endif -->
             <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toEdit(item)">编辑</button>
             <button class="cu-btn border line-blue sm round margin-left-xs" @tap="toDel(item)">删除</button>
@@ -58,10 +58,10 @@
     },
     computed: {
       activeWifiMac() {
-        if (this.connectedWifi && this.connectedWifi.SSID) {
-          let activeWifiMac = this.wifiList.find(item => item.wifi_ssid === this.connectedWifi.SSID)
-          if (activeWifiMac && activeWifiMac.wifi_ssid) {
-            return activeWifiMac.wifi_ssid
+        if (this.connectedWifi && this.connectedWifi.BSSID) {
+          let activeWifiMac = this.wifiList.find(item => item.wifi_mac === this.connectedWifi.BSSID)
+          if (activeWifiMac && activeWifiMac.wifi_mac) {
+            return activeWifiMac.wifi_mac
           }
         }
       },
@@ -380,6 +380,9 @@
       this.onRefresh().then(_ => {
         uni.stopPullDownRefresh()
       })
+    },
+    onShow() {
+      this.onRefresh()
     },
     onLoad(option) {
       if (option.store_no) {

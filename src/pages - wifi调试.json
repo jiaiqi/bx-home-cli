@@ -292,30 +292,30 @@
     //     }
     //   ]
     // },
-    {
-      "root": "personalPages",
-      "pages": [{
-          "path": "ArchiveHistory/ArchiveHistory",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
-        {
-          "path": "HealthHistory/HealthHistory",
-          "style": {
-            "navigationBarTitleText": "我的状态",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "switchAccount/switchAccount",
-          "style": {
-            "navigationBarTitleText": "切换账号",
-            "enablePullDownRefresh": false
-          }
+    // {
+    //   "root": "personalPages",
+    //   "pages": [{
+    //       "path": "ArchiveHistory/ArchiveHistory",
+    //       "style": {
+    //         "navigationBarTitleText": ""
+    //       }
+    //     },
+    //     {
+    //       "path": "HealthHistory/HealthHistory",
+    //       "style": {
+    //         "navigationBarTitleText": "我的状态",
+    //         "enablePullDownRefresh": false
+    //       }
+    //     }, {
+    //       "path": "switchAccount/switchAccount",
+    //       "style": {
+    //         "navigationBarTitleText": "切换账号",
+    //         "enablePullDownRefresh": false
+    //       }
 
-        }
-      ]
-    },
+    //     }
+    //   ]
+    // },
     {
       "root": "otherPages",
       "pages": [

@@ -458,7 +458,6 @@
       },
     },
     onLoad(option) {
-
       wx.getSystemInfo({
         success: (res) => {
           const isIOS = res.platform === 'ios'
@@ -664,7 +663,7 @@
             self.getConnectedWifi()
             if (self.isIOS) { // 是否是IOS可通过提前调用getSystemInfo知道
               wx.onWifiConnected(result => {
-                console.log('连接测试',result,SSID)
+                console.log('连接测试', result, SSID)
                 if (result.wifi.SSID === SSID) {
                   // 连接成功
                   wx.vibrateLong()
@@ -726,9 +725,11 @@
         linkjs.startSearchWifi((res) => {
           console.log(res, 'startSearchWifi')
           self.wifiList = res.filter(item => item.SSID).sort((a, b) => b.signalStrength -
-            a
-            .signalStrength).map(wifi => {
-            const strength = Math.ceil(wifi.signalStrength / 100 * 4)
+            a.signalStrength).map(wifi => {
+            let strength = Math.ceil(wifi.signalStrength / 100 * 4)
+            if (self.isIOS) {
+              strength = Math.ceil(wifi.signalStrength * 4)
+            }
             return Object.assign(wifi, {
               strength
             })
@@ -791,25 +792,6 @@
         } else {
           startWifi()
         }
-
-        // wx.getSystemInfo({
-        //   success(res) {
-        //     const isIOS = res.platform === 'ios'
-        //     self.isIOS = isIOS
-        //     if (isIOS) {
-        //       wx.showModal({
-        //         title: '提示',
-        //         content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
-        //         showCancel: false,
-        //         success() {
-        //           startWifi()
-        //         }
-        //       })
-        //       return
-        //     }
-        //     startWifi()
-        //   }
-        // })
       },
       stopSearch() {
         wx.stopWifi({

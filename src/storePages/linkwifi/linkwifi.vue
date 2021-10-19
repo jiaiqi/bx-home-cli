@@ -17,7 +17,7 @@
           </view>
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
-            <button class="cu-btn border line-blue sm round" @tap="toConnect(item)"
+            <button class="cu-btn border line-blue round" @tap="toConnect(item)"
               v-if="activeWifiMac!==item.wifi_mac&&activeWifiMac!==item.wifi_ssid">连接</button>
             <!-- #endif -->
           </view>
@@ -69,10 +69,10 @@
       }
     },
     onShow() {
-      if (linkjs && linkjs.getConnectedWifi) {
-        let self = this
+      let self = this
+      if (linkjs?.getConnectedWifi) {
         linkjs.getConnectedWifi().then(wifi => {
-          self.connectedWifi = wifi
+          self.connectedWifi = wifi || {}
         })
       }
     },
@@ -80,18 +80,20 @@
       async toConnect(e) {
         let SSID = e.wifi_ssid
         let password = e.wifi_psd
-        console.log(e, 'toConnect: 131')
+        console.log(e, 'toConnect: 83')
         let self = this
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi
         })
+        console.log(e, 'toConnect: 88')
         linkjs.startConnectWifi(SSID, password).then(res => {
-          console.log(res, 'toConnect: 135')
+          console.log(res, 'toConnect: 90')
+          wx.vibrateLong()
           linkjs.getConnectedWifi().then(wifi => {
             self.connectedWifi = wifi
           })
-        }).catch(err=>{
-          console.log('err:94',err)
+        }).catch(err => {
+          console.log('err:94', err)
           linkjs.getConnectedWifi().then(wifi => {
             self.connectedWifi = wifi
           })
@@ -286,10 +288,22 @@
           self.connectedWifi = wifi
         })
 
-        linkjs.startSearchWifi((res) => {
-          console.log(res, 'startSearchWifi')
-          this.nearWifiList = res
+        wx.getSystemInfo({
+          success: (res) => {
+            const isIOS = res.platform === 'ios'
+            self.isIOS = isIOS
+            if (isIOS) {
+
+              return
+            } else {
+              linkjs.startSearchWifi((res) => {
+                console.log(res, 'startSearchWifi')
+                this.nearWifiList = res
+              })
+            }
+          }
         })
+
 
         return
         var self = this

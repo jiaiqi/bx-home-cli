@@ -33,6 +33,7 @@
         default: ''
       },
     },
+
     methods: {
       toWifi() {
         uni.navigateTo({
@@ -40,10 +41,11 @@
         })
       },
       getConnectedWifi() {
+        let self = this
         wx.getConnectedWifi({
           success: (e) => {
             if (e && e.wifi) {
-              this.connectedWifi = e.wifi
+              self.connectedWifi = e.wifi
             }
           }
         })
@@ -142,14 +144,18 @@
         })
       },
     },
+    onShow() {
+      this.getConnectedWifi()
+    },
     mounted() {
       // #ifdef MP-WEIXIN
-      this.checkLocationAuth()
+      // this.checkLocationAuth()
       // #endif
       let globalData = getApp().globalData
       if (globalData.room_no) {
         this.room_no = globalData.room_no
       }
+      this.getConnectedWifi()
     }
   }
 </script>

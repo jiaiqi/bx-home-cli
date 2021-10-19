@@ -8,8 +8,8 @@
 
     <view class="child-service-box">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
-        <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton">
-        </child-list>
+        <unfold-batch-add :config="item" :appName="appName" :main-data="mainData" ref="childList"
+          @onButton="onChildButton"></unfold-batch-add>
       </view>
     </view>
 
@@ -23,10 +23,10 @@
 </template>
 
 <script>
-  import ChildList from '@/publicPages/components/child-list/child-list.vue'
+  import unfoldBatchAdd from '@/publicPages/components/child-list/unfold-batch-add.vue'
   export default {
     components: {
-      ChildList
+      unfoldBatchAdd
     },
     data() {
       return {
@@ -121,7 +121,11 @@
               return true
             })
           }
-          return result
+          if (Array.isArray(result) && result.length > 0) {
+            return result[0]
+          } else {
+            return []
+          }
         }
       },
       operateChildService() {
@@ -173,7 +177,15 @@
         if (!e) {
           return;
         }
-
+        // if (!this.isOnButton) {
+        // 	this.isOnButton = true;
+        // } else {
+        // 	uni.showToast({
+        // 		title: '正在处理中，请勿重复操作',
+        // 		icon: 'none'
+        // 	});
+        // 	return;
+        // }
         let self = this
         let req = this.$refs.bxForm.getFieldModel();
         for (let key in req) {
@@ -306,9 +318,13 @@
           case 'submit':
             if (req) {
               let data = this.deepClone(req);
+              let self = this
               data.child_data_list = []
               console.log(this.childService)
-              if (Array.isArray(this.childService) && this.childService.length > 0) {
+              if (Array.isArray(this.childService) && this.childService.length == 1) {
+                data.child_data_list = self.$refs.childList[0].onSubmit()
+                debugger
+              } else if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
                   data.child_data_list = this.$refs.childList[index].getChildDataList()
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
@@ -356,31 +372,6 @@
                   icon: 'none'
                 });
               }
-            }
-            break;
-          case 'customize':
-            if (e.operate_type === '删除') {
-              let data = {
-                button: e,
-                row: this.mainData
-              }
-              
-              this.onButtonToUrl(data, this.appName).then(res => {
-                if (res.state === 'SUCCESS') {
-                  uni.$emit('dataChange')
-                  uni.showModal({
-                    title: '提示',
-                    content: "操作成功",
-                    showCancel: false,
-                    success:(res) => {
-                      if (res.confirm) {
-                        uni.navigateBack()
-                      }
-                    }
-                  })
-                }
-              })
-
             }
             break;
         }

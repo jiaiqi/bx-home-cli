@@ -121,7 +121,10 @@
               return true
             })
           }
-          return result
+          if(result.length>0){
+            return [result[0]]
+          }
+          // return result
         }
       },
       operateChildService() {
@@ -173,7 +176,15 @@
         if (!e) {
           return;
         }
-
+        // if (!this.isOnButton) {
+        // 	this.isOnButton = true;
+        // } else {
+        // 	uni.showToast({
+        // 		title: '正在处理中，请勿重复操作',
+        // 		icon: 'none'
+        // 	});
+        // 	return;
+        // }
         let self = this
         let req = this.$refs.bxForm.getFieldModel();
         for (let key in req) {
@@ -184,125 +195,125 @@
 
         switch (e.button_type) {
           case 'edit':
-            if (e.page_type === '详情' && this.use_type === 'detail') {
-              this.toPages('update', e);
-              this.isOnButton = false;
-            } else {
-              if (req) {
-                req = [{
-                  serviceName: e.service_name,
-                  data: [req],
-                  condition: this.condition
+          if (e.page_type === '详情' && this.use_type === 'detail') {
+            this.toPages('update',e);
+            this.isOnButton = false;
+          } else {
+            if (req) {
+              req = [{
+                serviceName: e.service_name,
+                data: [req],
+                condition: this.condition
+              }];
+              if (self?.params?.defaultVal?.id) {
+                req[0].condition = [{
+                  colName: 'id',
+                  ruleType: 'eq',
+                  value: self.params.defaultVal.id
                 }];
-                if (self?.params?.defaultVal?.id) {
-                  req[0].condition = [{
-                    colName: 'id',
-                    ruleType: 'eq',
-                    value: self.params.defaultVal.id
-                  }];
-                } else if (self?.mainData?.id) {
-                  req[0].condition = [{
-                    colName: 'id',
-                    ruleType: 'eq',
-                    value: self.mainData.id
-                  }];
-                }
-                let app = self.appName || uni.getStorageSync('activeApp');
-                let url = self.getServiceUrl(app, e.service_name, 'add');
-                if (!Array.isArray(req[0].condition) || req[0].condition.length === 0) {
-                  uni.showToast({
-                    title: '参数错误，请刷新重试',
-                    icon: 'none'
-                  });
-                  return;
-                }
-                let res = await this.onRequest('update', e.service_name, req, app);
-                let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
-                if (res.data.state === 'SUCCESS') {
-                  uni.$emit('dataChange', e.service_name)
-
-
-                  if (
-                    Array.isArray(res.data.response) &&
-                    res.data.response.length > 0 &&
-                    res.data.response[0].response &&
-                    Array.isArray(res.data.response[0].response.effect_data) &&
-                    res.data.response[0].response.effect_data.length > 0
-                  ) {
-                    // this.params.submitData = res.data.response[0].response.effect_data[0];
-                    // if (e.service_name === 'srvhealth_person_info_update') {
-                    //   this.$store.commit('SET_USERINFO', this.params.submitData);
-                    //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
-                    // }
-                  }
-                  uni.showModal({
-                    title: '提示',
-                    content: `${res.data.resultMessage}`,
-                    showCancel: false,
-                    success(res) {
-                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-                      if (beforeRedirectUrl) {
-                        uni.redirectTo({
-                          url: beforeRedirectUrl
-                        })
-                        getApp().globalData.beforeRedirectUrl = null
-                        return
-                      }
-                      if (self.shareType && self.shareType === 'seeDoctor') {
-                        // 通过邀请就诊登记链接进入 跳转到就诊信息登记页面
-                        let fieldsCond = [{
-                          column: 'user_info_no',
-                          display: false
-                        }, {
-                          column: 'user_no',
-                          display: false
-                        }];
-                        if (self.doctorInfo && self.doctorInfo.no) {
-                          fieldsCond.push({
-                            column: 'doctor_no',
-                            display: false,
-                            value: self.doctorInfo.no
-                          }, {
-                            column: 'doctor_name',
-                            display: false,
-                            value: self.doctorInfo.name
-                          });
-                          if (self.doctorInfo.store_no) {
-                            fieldsCond.push({
-                              column: 'store_no',
-                              display: false,
-                              value: self.doctorInfo.store_no
-                            });
-                          }
-                        }
-                        let path =
-                          '/publicPages/form/form?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
-                          encodeURIComponent(JSON.stringify(fieldsCond));
-                        uni.redirectTo({
-                          url: path
-                        });
-                      } else if (self.afterSubmit === 'back') {
-                        if (self.submitAction) {
-                          uni.$emit(self.submitAction)
-                        }
-                        uni.navigateBack()
-                      } else {
-                        uni.navigateBack()
-                      }
-                    }
-                  });
-                } else {
-                  uni.showToast({
-                    title: res.data.resultMessage,
-                    mask: false,
-                    icon: 'none'
-                  });
-                }
-                this.isOnButton = false;
+              }else if(self?.mainData?.id){
+                req[0].condition = [{
+                  colName: 'id',
+                  ruleType: 'eq',
+                  value: self.mainData.id
+                }];
               }
+              let app = self.appName || uni.getStorageSync('activeApp');
+              let url = self.getServiceUrl(app, e.service_name, 'add');
+              if (!Array.isArray(req[0].condition) || req[0].condition.length === 0) {
+                uni.showToast({
+                  title: '参数错误，请刷新重试',
+                  icon: 'none'
+                });
+                return;
+              }
+              let res = await this.onRequest('update', e.service_name, req, app);
+              let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
+              if (res.data.state === 'SUCCESS') {
+                uni.$emit('dataChange', e.service_name)
+                
+                
+                if (
+                  Array.isArray(res.data.response) &&
+                  res.data.response.length > 0 &&
+                  res.data.response[0].response &&
+                  Array.isArray(res.data.response[0].response.effect_data) &&
+                  res.data.response[0].response.effect_data.length > 0
+                ) {
+                  // this.params.submitData = res.data.response[0].response.effect_data[0];
+                  // if (e.service_name === 'srvhealth_person_info_update') {
+                  //   this.$store.commit('SET_USERINFO', this.params.submitData);
+                  //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
+                  // }
+                }
+                uni.showModal({
+                  title: '提示',
+                  content: `${res.data.resultMessage}`,
+                  showCancel: false,
+                  success(res) {
+                    let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                    if(beforeRedirectUrl){
+                      uni.redirectTo({
+                        url:beforeRedirectUrl
+                      })
+                      getApp().globalData.beforeRedirectUrl =null
+                      return
+                    }
+                    if (self.shareType && self.shareType === 'seeDoctor') {
+                      // 通过邀请就诊登记链接进入 跳转到就诊信息登记页面
+                      let fieldsCond = [{
+                        column: 'user_info_no',
+                        display: false
+                      }, {
+                        column: 'user_no',
+                        display: false
+                      }];
+                      if (self.doctorInfo && self.doctorInfo.no) {
+                        fieldsCond.push({
+                          column: 'doctor_no',
+                          display: false,
+                          value: self.doctorInfo.no
+                        }, {
+                          column: 'doctor_name',
+                          display: false,
+                          value: self.doctorInfo.name
+                        });
+                        if (self.doctorInfo.store_no) {
+                          fieldsCond.push({
+                            column: 'store_no',
+                            display: false,
+                            value: self.doctorInfo.store_no
+                          });
+                        }
+                      }
+                      let path =
+                        '/publicPages/form/form?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
+                        encodeURIComponent(JSON.stringify(fieldsCond));
+                      uni.redirectTo({
+                        url: path
+                      });
+                    } else if (self.afterSubmit === 'back') {
+                      if (self.submitAction) {
+                        uni.$emit(self.submitAction)
+                      }
+                      uni.navigateBack()
+                    } else {
+                      uni.navigateBack()
+                    }
+                  }
+                });
+              } else {
+                uni.showToast({
+                  title: res.data.resultMessage,
+                  mask: false,
+                  icon: 'none'
+                });
+              }
+              this.isOnButton = false;
             }
-            break;
-
+          }
+          break;
+          
           case 'submit':
             if (req) {
               let data = this.deepClone(req);
@@ -358,31 +369,6 @@
               }
             }
             break;
-          case 'customize':
-            if (e.operate_type === '删除') {
-              let data = {
-                button: e,
-                row: this.mainData
-              }
-              
-              this.onButtonToUrl(data, this.appName).then(res => {
-                if (res.state === 'SUCCESS') {
-                  uni.$emit('dataChange')
-                  uni.showModal({
-                    title: '提示',
-                    content: "操作成功",
-                    showCancel: false,
-                    success:(res) => {
-                      if (res.confirm) {
-                        uni.navigateBack()
-                      }
-                    }
-                  })
-                }
-              })
-
-            }
-            break;
         }
 
       },
@@ -418,7 +404,7 @@
           this.$set(this.fields, i, item)
         }
       },
-      toPages(type, e) {
+      toPages(type,e) {
         this.srvType = type;
         if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this.params
             ?.idCol]) {
@@ -426,7 +412,7 @@
             url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
           });
         } else {
-          let serviceName = e?.service_name || this.getServiceName(this.serviceName)
+          let serviceName = e?.service_name||this.getServiceName(this.serviceName)
           let url =
             `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
@@ -438,14 +424,14 @@
               }]
               url =
                 `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
-
+      
             }
           }
-
+      
           if (Array.isArray(this.hideColumn) && this.hideColumn.length > 0) {
             url += `&hideColumn=${JSON.stringify(this.hideColumn)}`
           }
-
+      
           if (this.appName) {
             url += `&appName=${this.appName}`
           }

@@ -109,6 +109,12 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
+        }, {
+          "path": "formPage/singleChild",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     },
@@ -250,14 +256,6 @@
             "navigationBarTitleText": "连接WiFi",
             "enablePullDownRefresh": true
           }
-
-        }, {
-          "path": "wlps/wlps",
-          "style": {
-            "navigationBarTitleText": "物料配送",
-            "enablePullDownRefresh": false
-          }
-
         }
       ]
     },
