@@ -14,7 +14,7 @@
     </cu-custom-navbar>
 
     <view class="store-list">
-      <view class="store-item animation-fade" v-for="item in list" :key="item.store_no">
+      <view class="store-item animation-fade" v-for="(item,index) in setList" :key="index">
         <image class="image" v-if="item.logo" :src="getImagePath(item.logo)" mode="aspectFit" @tap="toStoreHome(item)">
         </image>
         <view class="store-desc" @tap="toStoreHome(item)">
@@ -98,7 +98,7 @@
       </view>
     </view>
   </view>
-  
+
 </template>
 
 <script>
@@ -111,10 +111,26 @@
     mapState
   } from 'vuex'
   import dayjs from '@/static/js/dayjs.min.js'
-  import {version } from '@/common/config.js' 
+  import {
+    version
+  } from '@/common/config.js'
   export default {
     computed: {
-      version(){
+      setList() {
+        if (Array.isArray(this.list) && this.list.length > 0) {
+          let list = this.deepClone(this.list);
+          let arr = []
+          let result = []
+          list.forEach(item => {
+            if (!arr.includes(item.store_no)) {
+              result.push(item)
+              arr.push(item.store_no)
+            }
+          })
+          return result
+        }
+      },
+      version() {
         return `V${dayjs().format('YYYYMMDDHHmm')}`
         // V1.2.90-2021101520
       },
@@ -375,7 +391,7 @@
             user_account: this.userInfo.userno,
             user_image: this.userInfo.user_image,
             person_name: this.userInfo.name || this.userInfo.nick_name,
-            add_url: this.inviterInfo.add_url?this.inviterInfo.add_url.slice(0,150):'',
+            add_url: this.inviterInfo.add_url ? this.inviterInfo.add_url.slice(0, 150) : '',
             invite_user_no: this.inviterInfo.invite_user_no,
             store_no: 'S20210204016',
             person_no: this.userInfo.no,

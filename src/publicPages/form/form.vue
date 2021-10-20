@@ -434,7 +434,7 @@
             break;
           case 'submit':
             if (req) {
-
+            debugger
               req = this.fields.reduce((res, cur) => {
                 res[cur.columns] = cur.value
                 return res
@@ -828,7 +828,7 @@
                 ._fieldInfo && Array.isArray(colVs._fieldInfo)) {
                 self.defaultCondition.forEach(cond => {
                   colVs._fieldInfo.forEach(field => {
-                    if (cond.colName === field.column && !['Image'].includes(field.col_type)) {
+                    if (cond.colName === field.column && (!['Image'].includes(field.col_type)||(cond['value']&&cond['value'].indexOf('http')!==-1))) {
                       field['value'] = cond['value'];
                       // field['disabled'] = true;
                     }
@@ -844,9 +844,8 @@
                     if (item.hasOwnProperty('disabled')) {
                       field.disabled = item.disabled;
                     }
-                    if (item.hasOwnProperty('value') && !['Image'].includes(field.col_type)) {
+                    if (item.hasOwnProperty('value') && (!['Image'].includes(field.col_type)||(item.value&&item.value.indexOf('http')!==-1))) {
                       // 不复制照片字段
-                      debugger
                       field.value = item.value;
                     }
                     if (field.option_list_v2 && Array.isArray(field.option_list_v2

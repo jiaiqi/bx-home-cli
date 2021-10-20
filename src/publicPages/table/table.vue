@@ -839,10 +839,10 @@
             rownumber: 20,
             pageNo: this.pageNo
           },
-          order: this.orderList||[],
+          order: this.orderList || [],
           query_source: "list_page"
         };
-     
+
 
         if (this.colV2?.vpage_no) {
           req['vpage_no'] = this.colV2.vpage_no
@@ -891,7 +891,6 @@
             }
           }
           if (cond.length > 0) {
-
             req.relation_condition = {
               "relation": "AND",
               data: [{
@@ -930,36 +929,16 @@
           } else if (req.condition.length > 0) {
             if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
               req.relation_condition = this.relationCondition
-              // req.relation_condition = {
-              //   "relation": "AND",
-              //   data: [
-              //     ...req.condition,
-              //     ...this.relationCondition.data
-              //   ]
-              // }
-              // delete req.condition
             }
           }
         } else {
           req.relation_condition = this.relationCondition
-          if (req.condition.length > 0) {
-            // if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
-            //   req.relation_condition = {
-            //     "relation": "AND",
-            //     data: [
-            //       ...req.condition,
-            //       ...this.relationCondition.data
-            //     ]
-            //   }
-            //   delete req.condition
-            // }
-          }
         }
         if (Array.isArray(this.orderList) && this.orderList.length > 0) {
           req.order = this.orderList
         }
         if (Array.isArray(this.descCol)) {
-          req.order = [...req.order||[], ...this.descCol]
+          req.order = [...req.order || [], ...this.descCol]
         }
         if (Array.isArray(this.ascCol)) {
           req.order = [...req.order, ...this.ascCol]

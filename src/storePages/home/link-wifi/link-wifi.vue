@@ -105,52 +105,12 @@
         } else {
           startWifi()
         }
-        // startWifi()
-        // wx.getSystemInfo({
-        //   success(res) {
-        //     const isIOS = res.platform === 'ios'
-        //     self.isIOS = isIOS
-        //     if (isIOS) {
-        //       wx.showModal({
-        //         title: '提示',
-        //         content: '由于系统限制，iOS用户请手动进入系统WiFi页面，然后返回小程序。',
-        //         showCancel: false,
-        //         success() {
-        //           startWifi()
-        //         }
-        //       })
-        //       return
-        //     }
-        //     startWifi()
-        //   }
-        // })
-      },
-      checkLocationAuth() {
-        // 检测用户是否授权访问地理位置信息
-        let self = this
-        wx.getSetting({
-          success(res) {
-            if (!res.authSetting['scope.userLocation']) {
-              wx.authorize({
-                scope: 'scope.userLocation',
-                success() {
-                  self.startSearch()
-                }
-              })
-            } else {
-              self.startSearch()
-            }
-          }
-        })
       },
     },
     onShow() {
       this.getConnectedWifi()
     },
     mounted() {
-      // #ifdef MP-WEIXIN
-      // this.checkLocationAuth()
-      // #endif
       let globalData = getApp().globalData
       if (globalData.room_no) {
         this.room_no = globalData.room_no

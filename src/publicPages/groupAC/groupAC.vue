@@ -3,7 +3,7 @@
     <cu-custom bgColor="bg-blue" :isBack="true" @onBack="onBack">
       <block slot="backText">返回</block>
       <block slot="content">群公告</block>
-      <block slot="right">
+      <block slot="right" v-if="isAdmin">
         <text class="cuIcon-post" style="font-size: 40rpx" @click="showEditor">
         </text>
       </block>
@@ -51,8 +51,12 @@ import { mapState } from 'vuex'
 export default {
   computed: {
     ...mapState({
-      userInfo: state => state.user.userInfo
+      userInfo: state => state.user.userInfo,
+      storeUserInfo:state=>state.user.storeUserInfo
     }),
+    isAdmin(){
+      return this.storeUserInfo?.user_role&&this.storeUserInfo?.user_role.indexOf('管理员')!==-1
+    },
     lastNotice () {
       if (this.noticeList.length > 0) {
         return this.noticeList[ 0 ]

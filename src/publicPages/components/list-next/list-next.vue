@@ -8,8 +8,8 @@
         'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
         'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
         'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType" :rowData="item"
-        :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart">
+      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType"
+        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart">
       </list-item>
     </view>
   </view>
@@ -37,7 +37,7 @@
       listConfig: {
         type: Object
       },
-      cartData:{
+      cartData: {
         type: Array
       }
     },
@@ -77,6 +77,8 @@
             "show": viewTemp?.btn_cfg?.show || true,
             "bg_style": viewTemp?.btn_cfg?.bg_style || "line",
             "bg": viewTemp?.btn_cfg?.bg,
+            "width": viewTemp?.btn_cfg?.width,
+            "height": viewTemp?.btn_cfg?.height,
             'color': viewTemp?.btn_cfg?.color,
             "font_size": viewTemp?.btn_cfg?.font_size,
             "radius": viewTemp?.btn_cfg?.radius || "10px",
@@ -130,12 +132,11 @@
   .grid-layout {
     display: flex;
     flex-wrap: wrap;
-    padding: 0 20rpx;
-
+    padding:20rpx;
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
-      
+
       &:nth-child(2n) {
         margin-right: 0;
       }

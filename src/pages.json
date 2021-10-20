@@ -13,7 +13,6 @@
       "path": "pages/home/home",
       "style": {
         "navigationBarTitleText": "",
-        // "navigationBarBackgroundColor": "#fff",
         "navigationBarTextStyle": "black",
         "navigationStyle": "custom",
         "enablePullDownRefresh": true
@@ -101,7 +100,9 @@
           "path": "list2/list2",
           "style": {
             "navigationBarTitleText": "列表",
-            "enablePullDownRefresh": true
+            "enablePullDownRefresh": true,
+            "navigationBarTextStyle":"black",
+            "navigationBarBackgroundColor":"#fff"
           }
         }, {
           "path": "treeList/treeList",

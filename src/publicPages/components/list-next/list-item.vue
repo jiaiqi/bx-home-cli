@@ -1,83 +1,27 @@
 <template>
-  <view class="list-item-wrap" v-if="rowData&&setViewTemp" :class="{
-    'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
-    'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
-    'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
-    'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-  }" :style="{
-    'margin':setViewTemp.margin,
-    'padding':setViewTemp.padding,
-  }">
+  <view class="list-item-wrap" v-if="rowData&&setViewTemp&&setListView" :class="[setListView.rootClass]"
+    :style="[setListView.rootStyle]">
     <view class="list-item" @click="clickItem">
-      <view class="main-image" :style="{
-        'border-radius':setViewTemp.img.cfg.radius,
-        'width':setViewTemp.img.cfg.width,
-        'height':setViewTemp.img.cfg.height,
-        'margin':setViewTemp.img.cfg.margin,
-        'padding':setViewTemp.img.cfg.padding,
-      }" :class="{
-        'm-r-0':setViewTemp.img.cfg.position==='top'
-      }"
-        v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position!=='right'">
-        <!-- <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" -->
-        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
-          :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
-            'border-radius':setViewTemp.img.cfg.radius,
-            'width':setViewTemp.img.cfg.width
-          }"></image>
+      <view class="main-image" :style="[setListView.imgStyle]" :class="[setListView.imgClass]"
+        v-if="setListView.showImg&& setListView.imgAlign!=='right'">
+        <image class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
+        </image>
       </view>
-      <view class="list-item-content" v-if="setViewTemp&&setViewTemp.cols">
-        <view class="col-item bg" v-for="item in setViewTemp.cols" :style="{
-          'width':item.cfg.width,
-          'min-width':item.cfg.min_width,
-          'padding':item.cfg.padding,
-          'font-size':item.cfg.font_size,
-          'font-weight':item.cfg.font_weight,
-          'text-align':item.cfg.align,
-          'color':item.cfg.color,
-          'justify-content':item.cfg.align==='left'?'flex-start':item.cfg.align==='right'?'flex-end':item.cfg.align
-        }" :class="{
-          'cu-btn':item.cfg.style==='button'||item.cfg.style==='line_button',
-          'border':item.cfg.style==='line_button',
-          'round':item.cfg.round===true,
-          'light':item.cfg.light===true,
-          'sm':item.cfg.size==='sm',
-          'lg':item.cfg.size==='lg',
-          'bg-blue':item.cfg.bg==='blue',
-          'bg-red':item.cfg.bg==='red',
-          'bg-orange':item.cfg.bg==='orange',
-          'bg-cyan':item.cfg.bg==='cyan',
-          'bg-yellow':item.cfg.bg==='yellow',
-          'bg-white':item.cfg.bg==='white',
-          'bg-black':item.cfg.bg==='black',
-          'bg-green':item.cfg.bg==='green',
-          'bg-grey':item.cfg.bg==='grey',
-          'bg-gray':item.cfg.bg==='gray',
-          'line-blue':item.cfg.border_color==='blue',
-          'line-red':item.cfg.border_color==='red',
-          'line-orange':item.cfg.border_color==='orange',
-          'line-cyan':item.cfg.border_color==='cyan',
-          'line-yellow':item.cfg.border_color==='yellow',
-          'line-white':item.cfg.border_color==='white',
-          'line-black':item.cfg.border_color==='black',
-          'line-green':item.cfg.border_color==='green',
-          'line-grey':item.cfg.border_color==='grey',
-          'line-gray':item.cfg.border_color==='gray',
-        }">
-          <view class="label" v-if="setValue(item.col).label&&item.cfg.disp_label!==false">
-            <!-- {{labelMap[item.col]||''}}: -->
-            {{setValue(item.col).label}}:
+      <view class="list-item-content" v-if="setListView&&setListView.cols">
+        <view class="col-item bg" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
+          <view class="label" v-if="item.label">
+            {{item.label}}:
           </view>
-          <view class="value" :style="{'white-space':item.cfg.white_space}">
-            <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
-            <!-- {{rowData[item.col]||''}} -->
-            {{setValue(item.col).value}}
+          <view class="value" :style="{'white-space':item.valueWhiteSpace}">
+            <text v-if="item.prefix">{{item.prefix}}</text>
+            <text> {{item.value}}</text>
+            <text v-if="item.suffix">{{item.suffix}}</text>
           </view>
         </view>
 
         <view class="col-item text-right flex-1 handler" v-if="listType==='cart'">
           <view class="del-btn-box" :class="{active:inCartData&&inCartData.goods_count}" v-if="inCartData">
-            <text class=" cu-btn sm radius" :style="{
+            <text class="cu-btn sm radius" :style="{
                 color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
                 'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
                 'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
@@ -95,11 +39,11 @@
         <!-- 
         <text class="cuIcon-moreandroid" @click.stop="showAction"
           v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text> -->
-        <!--   <view class="foot-button-box">
-          <button class="cu-btn" v-for="btn in setRowButton">{{btn.button_name}}</button>
-        </view> -->
+        <view class="foot-button-box grid">
+          <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
+            v-for="btn in setRowButton" v-show="isShowBtn(btn)">{{btn.button_name}}</button>
+        </view>
       </view>
-
       <view class="main-image" :style="{
         'border-radius':setViewTemp.img.cfg.radius,
         'width':setViewTemp.img.cfg.width,
@@ -120,31 +64,8 @@
     </view>
     <view class="foot-button-box" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></view>
     <view class="foot-button-box" v-else>
-      <button class="cu-btn" :class="{
-        'border':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.style==='line_button',
-        'sm':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.size==='sm',
-        'bg-blue':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='blue',
-        'bg-red':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='red',
-        'bg-orange':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='orange',
-        'bg-cyan':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='cyan',
-        'bg-yellow':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='yellow',
-        'bg-white':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='white',
-        'bg-black':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='black',
-        'bg-green':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='green',
-        'bg-grey':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='grey',
-        'bg-gray':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.bg==='gray',
-        'line-blue':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='blue',
-        'line-red':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='red',
-        'line-orange':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='orange',
-        'line-cyan':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='cyan',
-        'line-yellow':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='yellow',
-        'line-white':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='white',
-        'line-black':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='black',
-        'line-green':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='green',
-        'line-grey':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='grey',
-        'line-gray':setViewTemp&&setViewTemp.btn_cfg&&setViewTemp.btn_cfg.border_color==='gray'
-      }" v-for="btn in setRowButton" v-show="isShowBtn(btn)"
-        @click.stop="clickButton(btn)">{{btn.button_name}}</button>
+      <button class="cu-btn" :class="[setListView.btnClass]" :style="[setListView.btnStyle]" v-for="btn in setRowButton"
+        v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">{{btn.button_name}}</button>
     </view>
   </view>
 </template>
@@ -176,6 +97,7 @@
         type: Array
       }
     },
+
     computed: {
       inCartData() {
         let data = this.cartData.find(item => item.id === this.rowData.id)
@@ -235,17 +157,207 @@
         return this.setViewTemp?.btn_cfg
       },
       setRowButton() {
-        return this.rowButton.filter((item, index) => {
+        let buttons = this.rowButton.filter((item, index) => {
           if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this.rowButton.length) {
             return this.rowData._buttons[index] === 1
           }
           return true
         })
-      }
+        if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
+          buttons = buttons.filter(item => item.is_public !== true || item.button_type === 'detail')
+        }
+        if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
+          buttons = buttons.filter(item => item.is_public === true)
+        }
+        return buttons
+      },
+
+      setListView() {
+        let result = {
+          rootClass: "",
+          rootStyle: {
+            'margin': this.setViewTemp?.margin,
+            'padding': this.setViewTemp?.padding,
+          }
+        }
+        if (this.setViewTemp?.lp_style === '宫格') {
+          let gridSpan = Number(this.setViewTemp?.grid_span)
+          result.rootClass += `grid_span${gridSpan}`
+        }
+        // 按钮配置
+        let btnCfg = this.setViewTemp?.btn_cfg
+        result.btnClass = {
+          'border': btnCfg?.style === 'line_button' || btnCfg?.style === 'line',
+          'sm': btnCfg?.size === 'sm',
+          'bg-blue': btnCfg?.bg === 'blue',
+          'bg-red': btnCfg?.bg === 'red',
+          'bg-orange': btnCfg?.bg === 'orange',
+          'bg-cyan': btnCfg?.bg === 'cyan',
+          'bg-yellow': btnCfg?.bg === 'yellow',
+          'bg-white': btnCfg?.bg === 'white',
+          'bg-black': btnCfg?.bg === 'black',
+          'bg-green': btnCfg?.bg === 'green',
+          'bg-grey': btnCfg?.bg === 'grey',
+          'bg-gray': btnCfg?.bg === 'gray',
+          'line-blue': btnCfg?.border_color === 'blue',
+          'line-red': btnCfg?.border_color === 'red',
+          'line-orange': btnCfg?.border_color === 'orange',
+          'line-cyan': btnCfg?.border_color === 'cyan',
+          'line-yellow': btnCfg?.border_color === 'yellow',
+          'line-white': btnCfg?.border_color === 'white',
+          'line-black': btnCfg?.border_color === 'black',
+          'line-green': btnCfg?.border_color === 'green',
+          'line-grey': btnCfg?.border_color === 'grey',
+          'line-gray': btnCfg?.border_color === 'gray'
+        }
+        result.btnStyle = {
+          'width':btnCfg?.width,
+          'height':btnCfg?.height,
+          'font-size':btnCfg?.font_size,
+          'border-radius': btnCfg?.radius,
+          'padding': btnCfg?.padding,
+          'color': btnCfg?.color,
+          'background-color': btnCfg?.bg
+        }
+        if (this.setViewTemp?.img?.col) {
+          // 图片配置
+          result.showImg = true
+          let imgCfg = this.setViewTemp?.img?.cfg;
+          result.imgAlign = imgCfg.position || 'left'
+          result.imgClass = {
+            'm-r-0': imgCfg.position === 'top'
+          }
+          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value)
+          result.imgStyle = {
+            'border-radius': imgCfg?.radius,
+            'width': imgCfg?.width,
+            'height': imgCfg?.height,
+            'margin': imgCfg?.margin,
+            'padding': imgCfg?.padding,
+          }
+          result.imgTagStyle = {
+            'border-radius': imgCfg.radius,
+            'width': imgCfg.width
+          }
+          result.imgMode = imgCfg?.mode || 'aspectFill'
+        }
+
+        // 字段配置
+        let cols = this.setViewTemp?.cols || []
+        result.cols = []
+        if (Array.isArray(cols) && cols.length > 0) {
+          cols.forEach(col => {
+            let cfg = col?.cfg
+            let obj = {
+              style: {
+                'flex':cfg?.flex,
+                "border-radius":cfg?.radius,
+                'width': cfg?.width,
+                'height':cfg?.height,
+                'min-width': cfg?.min_width,
+                'padding': cfg?.padding,
+                'font-size': cfg?.font_size,
+                'font-weight': cfg?.font_weight,
+                'text-align': cfg?.align,
+                'color': cfg?.color,
+                'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align === 'right' ? 'flex-end' :
+                  cfg?.align
+              },
+              class: {
+                'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
+                  'border': cfg?.style === 'line_button',
+                  'round': cfg?.round === true,
+                  'light': cfg?.light === true,
+                  'sm': cfg?.size === 'sm',
+                  'lg': cfg?.size === 'lg',
+                  'bg-blue': cfg?.bg === 'blue',
+                  'bg-red': cfg?.bg === 'red',
+                  'bg-orange': cfg?.bg === 'orange',
+                  'bg-cyan': cfg?.bg === 'cyan',
+                  'bg-yellow': cfg?.bg === 'yellow',
+                  'bg-white': cfg?.bg === 'white',
+                  'bg-black': cfg?.bg === 'black',
+                  'bg-green': cfg?.bg === 'green',
+                  'bg-grey': cfg?.bg === 'grey',
+                  'bg-gray': cfg?.bg === 'gray',
+                  'line-blue': cfg?.border_color === 'blue',
+                  'line-red': cfg?.border_color === 'red',
+                  'line-orange': cfg?.border_color === 'orange',
+                  'line-cyan': cfg?.border_color === 'cyan',
+                  'line-yellow': cfg?.border_color === 'yellow',
+                  'line-white': cfg?.border_color === 'white',
+                  'line-black': cfg?.border_color === 'black',
+                  'line-green': cfg?.border_color === 'green',
+                  'line-grey': cfg?.border_color === 'grey',
+                  'line-gray': cfg?.border_color === 'gray',
+              }
+            }
+            obj.prefix = cfg?.prefix || ''
+            obj.suffix = cfg?.suffix || ''
+            obj.valueWhiteSpace = cfg?.white_space
+            if (col?.col) {
+              let getVal = this.setValue(col.col)
+              if (cfg?.disp_label !== false) {
+                obj.label = getVal?.label || ''
+              }
+              obj.value = getVal?.value
+            }
+
+            if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
+              cfg.value_map.forEach(item => {
+                if (obj.value === item.value) {
+                  obj.value = item.label;
+                  obj.style['background-color'] = item.bg
+                  obj.style['color'] = item.color
+                  result.rootStyle['background-color'] = item?.item_bg || result.rootStyle[
+                    'background-color']
+                  result.rootStyle['color'] = item?.item_color || result.rootStyle['color']
+                  result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle.bg
+                  result.btnStyle.color = item?.btn_color || result.btnStyle.color
+                  if (Array.isArray(item.other_col) && item.other_col.length > 0) {
+
+                  }
+                }
+              })
+            }
+            if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
+              cfg.cfg_map.forEach(cfgItem => {
+                if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
+                  cfgItem.condition.forEach(cond => {
+                    if (cond.colName && cond.value) {
+                      let setValue = this.setValue(cond.colName)
+                      if (cond.ruleType === 'eq') {
+                        if (setValue.value === cond.value) {
+                          obj.style.color = cfgItem.color || obj.style.color
+                        }
+                      } else if (cond.ruleType === 'in') {
+                        if (cond.value.indexOf(setValue.value) !== -1) {
+                          obj.style.color = cfgItem.color || obj.style.color
+                        }
+                      }
+                    }
+                  })
+                }
+              })
+            }
+            if (cfg?.max && obj.value) {
+              if (!isNaN(Number(cfg?.max))) {
+                obj.value = obj.value.slice(0, cfg.max)
+              }
+            }
+            if (!obj.value && cfg?.default_val) {
+              obj.value = cfg?.default_val
+            }
+            result.cols.push(obj)
+          })
+        }
+        return result
+      },
     },
     methods: {
       // TODO cols支持配置多个字段"col":"col1||col2||col3"
-      setValue(col) {
+      setValue(col, cfg) {
+        let res = {}
         let labelMap = this.labelMap || {};
         let detail = this.rowData || {}
         let arr = []
@@ -264,13 +376,13 @@
             break;
           }
         }
-        if(!resCol&&Array.isArray(arr)&&arr.length>0){
+        if (!resCol && Array.isArray(arr) && arr.length > 0) {
           resCol = arr[0]
         }
-        return {
-          label: labelMap[resCol] || '',
-          value: detail[resCol] || ''
-        }
+        res.label = labelMap[resCol] || cfg?.default_label || ''
+        res.value = detail[resCol] || cfg?.default_val || ''
+
+        return res
       },
       del() {
         this.$emit('del2Cart', this.rowData)
@@ -488,9 +600,19 @@
       justify-content: flex-end;
       width: 100%;
 
+      &.grid {
+        width: auto;
+      }
+
       .cu-btn {
-        margin-right: 10rpx;
+        margin-left: 10rpx;
         margin-bottom: 10rpx;
+        &.hidden{
+          margin-left: 0;
+        }
+        &:first-child {
+          margin-left: 0;
+        }
       }
     }
   }

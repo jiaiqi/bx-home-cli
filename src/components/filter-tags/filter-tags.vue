@@ -2,7 +2,7 @@
   <view class="filter-tags-view">
     <view class="filter-form" v-if="setTabs&&setTabs.length>0">
       <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex">
-        <view class="label">
+        <view class="label" v-if="!tab.more_config.showLabel&&tab.more_config.showLabel!==false">
           {{tab.label||''}}:
         </view>
         <view class="form-item-content" v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]">
@@ -109,6 +109,7 @@
             formType: "",
             default: item.default
           }
+      
           item.options = self.getTabOptions(item)
           col.colName = item._colName
           col.inputType = item.inputType
@@ -124,7 +125,7 @@
               col.value = item.default == '' ? [] : item.default.split(',')
             }
 
-            if (item.showAllTag && col.value.length == 0) {
+            if (item.showAllTag && Array.isArray(col.value) && col.value.length == 0) {
               col.value.unshift('_unlimited_')
             }
 
@@ -516,7 +517,7 @@
       display: flex;
       align-items: center;
       padding-bottom: 10rpx;
-
+      justify-content: center;
       .label {
         margin-right: 20rpx;
         min-width: 20%;

@@ -1,12 +1,25 @@
 <template>
   <view class="page-wrap">
+    <count-bar :list="countData" v-if="showMockCount"></count-bar>
+
     <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
       :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
       @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
     </list-bar>
-    <list-next class="list-next" :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType"
-      :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
+
+    <view class="list-content" :style="{
+        backgroundColor:list_config.bg
+      }">
+      <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
+      </filter-tags>
+      <view class="list-view">
+        <list-next class="list-next" :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType"
+          :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
+      </view>
+
+    </view>
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
   </view>
@@ -16,14 +29,88 @@
   import listNext from '../components/list-next/list-next.vue';
   import listBar from '../components/list-bar/list-bar.vue'
   import cartList from '../components/goods-cart/goods-cart.vue'
-
+  import countBar from '../components/count-bar/count-bar.vue'
   export default {
     components: {
       listNext,
       listBar,
-      cartList
+      cartList,
+      countBar
     },
     computed: {
+      countData() {
+        let arr = [{
+            label: "当前空房数",
+            value: 249
+          },
+          {
+            label: "今日预约数",
+            value: 12
+          },
+          {
+            label: "今日营业额",
+            value: 14709,
+            prefix: '￥'
+          }
+        ]
+        return arr
+      },
+      tags() {
+        if (Array.isArray(this.colV2?.tabs)) {
+          let tabs = this.colV2?.tabs
+          let self = this
+          let tab = {}
+          let tabsData = []
+          tabs.forEach((t) => {
+            tab = {
+              service: null,
+              table_name: null,
+              orders: null,
+              conditions: null,
+              seq: null,
+              parent: null,
+              label: null,
+              list_tab_no: null,
+              more_config: null,
+              inputType: null
+            }
+            let mc = JSON.parse(t.more_config)
+            tab.more_config = mc
+            tab.service = t.service
+            tab.table_name = t.table_name
+            tab.conditions = t.conditions
+            tab.orders = t.orders
+            tab.default = mc.default
+            tab.seq = t.seq
+            tab.label = t.label
+            tab.list_tab_no = t.list_tab_no
+            tab._data = t
+            tab._type = mc.type || null
+            tab._colName = mc.colName || null
+            tab.inputType = mc.inputType || null
+            tab.showAllTag = mc.showAllTag || false
+            tab.default = mc.default || ''
+            tab.placeholder = mc.placeholder || '请输入...'
+
+            if (tab._colName) {
+              tab._colName = tab._colName.split(',')
+              let cols = tab._colName
+              let srvCols = self.colV2.srv_cols
+              tab['_colSrvData'] = []
+              for (let c = 0; c < cols.length; c++) {
+                for (let cs = 0; cs < srvCols.length; cs++) {
+                  if (cols[c] === srvCols[cs].columns) {
+                    tab._colSrvData.push(srvCols[cs])
+                  }
+                }
+              }
+            }
+            tabsData.push(tab)
+          })
+          return tabsData
+        }
+        // return this.colV2?.tabs
+      },
       listBarReadonly() {
         return this.listConfig?.listBarReadonly
       },
@@ -42,6 +129,7 @@
       list_config() {
         let config = this.colV2?.moreConfig?.list_config
         let obj = {
+          'bg': this.listConfig?.bg || config?.bg || '',
           "lp_style": this.listConfig?.lp_style || config?.lp_style || "复合",
           "grid_span": this.listConfig?.grid_span || config?.grid_span || "2",
           "detailPage": this.listConfig?.detailPage || config?.detailPage,
@@ -90,6 +178,7 @@
         }).map(item => {
           if (item.button_type === 'select') {
             item.icon = 'cuIcon-filter'
+            item.button_name =  '筛选'
             item.clickEvent = this.showFilterModal
           } else if (['add', 'apply'].includes(item.button_type)) {
             item.icon = 'cuIcon-add'
@@ -102,6 +191,7 @@
             button_type: 'order',
             icon: 'cuIcon-order',
             label: '排序',
+            button_name: '排序',
             clickEvent: this.showOrder
           })
         }
@@ -186,6 +276,7 @@
     },
     data() {
       return {
+        showMockCount: false,
         serviceName: "srvhealth_store_vaccination_appoint_record_select",
         list: [],
         pageNo: 1,
@@ -210,10 +301,30 @@
         listConfig: {
 
         },
-        initCond: []
+        initCond: [],
+        relationCondition: [],
+        onInputValue: false // 是否有查询条件
       }
     },
     methods: {
+      getListWithFilter(e) {
+        debugger
+        let self = this
+        let tabsConds = this.$refs.filterTabs.buildConditions()
+        this.relationCondition = tabsConds
+        setTimeout(() => {
+          this.pageNo = 1;
+          this.getList(null, this.initCond)
+        }, 100)
+
+      },
+      onFilterChange(e) {
+        debugger
+        if (e) {
+          let tabsConds = this.$refs.filterTabs.buildConditions()
+          this.relationCondition = tabsConds
+        }
+      },
       clearCart() {
         this.cartData = []
       },
@@ -259,14 +370,6 @@
         }, 100)
         // this.$refs.bxList.getListData()
         // this.hideModal()
-      },
-      toFilter(e) {
-        this.searchVal = ''
-        this.showFilter = false;
-        if (Array.isArray(e)) {
-          let cond = e
-          this.$refs.bxList.getListData(cond)
-        }
       },
       toSearch(e) {
         let keywords = e || this.searchVal;
@@ -496,6 +599,7 @@
         if (Array.isArray(initCond) && initCond.length > 0) {
           req.condition = [...req.condition, ...initCond]
         }
+
         let keywords = this.searchVal;
         if (keywords && this.finalSearchColumn) {
           if (typeof this.finalSearchColumn === 'string') {
@@ -540,6 +644,26 @@
             delete req.condition
           }
         }
+
+        if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
+          if (req.relation_condition?.data.length > 0) {
+            req.relation_condition = {
+              "relation": "AND",
+              data: [
+                ...this.relationCondition.data,
+                {
+                  "relation": "OR",
+                  data: req.relation_condition
+                }
+              ]
+            }
+          } else {
+            req.relation_condition = this.relationCondition
+          }
+        }
+
+
+
 
         if (this.colV2?.vpage_no) {
           req['vpage_no'] = this.colV2.vpage_no
@@ -1023,6 +1147,9 @@
       }
     },
     onLoad(option) {
+      if (option.showMockCount) {
+        this.showMockCount = option.showMockCount
+      }
       uni.$on('dataChange', srv => {
         debugger
         this.getList(null, this.initCond)
@@ -1145,11 +1272,21 @@
 
 <style lang="scss" scoped>
   .page-wrap {
-    background: #F8F8FA;
-    min-height: calc(100vh - var(--window-top));
-
-    .list-next {
-      padding: 20rpx;
+    background: #fff;
+    height: calc(100vh - var(--window-top) + 30px);
+    // min-height: calc(100vh - var(--window-top));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    .list-content{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      .list-view{
+        flex: 1;
+        overflow-y: scroll;
+      }
     }
   }
 </style>
