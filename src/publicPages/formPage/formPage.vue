@@ -52,6 +52,9 @@
       }
     },
     computed: {
+      storeInfo() {
+        return this.$store?.state?.app?.storeInfo
+      },
       formButtons() {
         let buttons = []
         if (Array.isArray(this.colsV2Data?._formButtons)) {
@@ -364,7 +367,7 @@
                 button: e,
                 row: this.mainData
               }
-              
+
               this.onButtonToUrl(data, this.appName).then(res => {
                 if (res.state === 'SUCCESS') {
                   uni.$emit('dataChange')
@@ -372,7 +375,7 @@
                     title: '提示',
                     content: "操作成功",
                     showCancel: false,
-                    success:(res) => {
+                    success: (res) => {
                       if (res.confirm) {
                         uni.navigateBack()
                       }
@@ -552,8 +555,10 @@
                 });
               }
               if (Array.isArray(field.option_list_v2?.conditions)) {
+                debugger
                 field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,
                   defaultVal)
+                debugger
               }
 
               if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
@@ -586,6 +591,13 @@
             }).filter(item => !this.hideColumn.includes(item.column))
             break;
           case 'add':
+            if (!this.mainData) {
+              this.mainData = {
+                ...this.storeInfo
+              }
+              debugger
+            }
+
             fields = colVs._fieldInfo.map(field => {
               if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
                 field.option_list_v2 = field.option_list_v2.map(item => {
@@ -613,8 +625,10 @@
               if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
                 .conditions
                 .length > 0) {
+                debugger
                 field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
                   .conditions, this.mainData)
+                debugger
               }
 
               if (this.defaultCondition && Array.isArray(this
@@ -632,9 +646,6 @@
                 this.fieldsCond.forEach(item => {
                   if (item.colName && !item.column) {
                     item.column = item.colName
-                  }
-                  if (!this.mainData) {
-                    this.mainData = {}
                   }
 
                   this.mainData[item.column] = item.value

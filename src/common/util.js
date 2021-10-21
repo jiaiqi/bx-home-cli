@@ -2211,6 +2211,9 @@ export default {
     Vue.prototype.evalConditions = (conditions, mainData) => {
       conditions = conditions.map(op => {
         let regVar = /\$\{(.*?)\}/
+        if (op.value === 'data.hotel_no') {
+          op.value = 'data.store_no'
+        }
         if (op.value && regVar.test(op.value)) {
           if (op.value === '${today}') {
             op.value = dayjs().format("YYYY-MM-DD")

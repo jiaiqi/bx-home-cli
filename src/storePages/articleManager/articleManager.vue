@@ -45,7 +45,7 @@ export default {
         value: item.no
       } ]
       let url =
-        `/publicPages/list/list?pageType=list&appName=daq&serviceName=srvdaq_cms_content_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
+        `/publicPages/list2/list2?pageType=list&appName=daq&serviceName=srvdaq_cms_content_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
       uni.navigateTo({
         url: url
       })

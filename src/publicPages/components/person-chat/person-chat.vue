@@ -1524,12 +1524,20 @@
               ruleType: 'eq',
               value: '自测'
             }
+
           ],
           order: [{
             colName: 'create_time',
             orderType: 'asc'
           }]
         };
+        if (this.storeNo) {
+          req.condition.push({
+            colName: 'store_no',
+            ruleType: 'eq',
+            value: this.storeNo
+          })
+        }
         let app = 'daq';
         let url = this.getServiceUrl(app, serviceName, 'select');
         let res = await this.$http.post(url, req);
@@ -1560,6 +1568,13 @@
               orderType: 'asc'
             }]
           });
+          if (this.storeNo) {
+            req.condition.push({
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: this.storeNo
+            })
+          }
           app = 'daq';
         } else if (this.currentSendType === 'bite') {
           app = 'health';

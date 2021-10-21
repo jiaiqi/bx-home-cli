@@ -400,7 +400,11 @@
         return res
       },
       listItemClick() {
-        this.$emit('click-list-item', this.itemData);
+        // this.$emit('click-list-item', this.itemData);
+        this.$emit('click-foot-btn', {
+          button: this.detailBtn,
+          row: this.itemData
+        });
       },
       footBtnClick(btn) {
         if (btn && btn.type === 'share') {
@@ -510,6 +514,9 @@
           })
         }
       },
+      detailBtn() {
+        return this.rowButton.find(item => item.button_type === 'detail')
+      },
       groupRowButton() {
         const itemData = this.itemData
         const login_user_info = uni.getStorageSync('login_user_info')
@@ -541,9 +548,6 @@
         if (Array.isArray(this.showBtn) && this.showBtn.length > 0 && req !== '是') {
           otherBtn = otherBtn.concat(this.showBtn)
         }
-
-
-
 
         let groupTitle = '操作'
         if (Array.isArray(groupBtn) && groupBtn.length > 0) {
@@ -767,7 +771,7 @@
 
   .list-item-wrap {
     width: auto;
-    margin: 24rpx 32rpx;
+    margin: 20rpx;
     box-sizing: border-box;
     border-radius: 16rpx;
     overflow: hidden;
@@ -777,7 +781,7 @@
       justify-content: space-between;
       align-items: center;
       box-sizing: border-box;
-      padding: 30rpx 32rpx;
+      padding: 20rpx;
 
       .main-image {
         width: 112rpx;

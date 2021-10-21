@@ -413,7 +413,6 @@
         return result;
       },
       pickerMode() {
-        debugger
         let type = this.fieldData.type;
         if (this.pickerFieldList.includes(type)) {
           switch (type) {
@@ -484,6 +483,9 @@
         immediate: true,
         handler(newValue, oldValue) {
           this.fieldData = newValue;
+          if(newValue.type==='Selector'){
+            this.pickerChange(newValue.value)
+          }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
             this.textareaValue = newValue.value;
           }
@@ -644,13 +646,12 @@
         this.modalName = '';
       },
       async getDefVal() {
-        debugger
         let self = this;
         if (self.fieldData.type === 'images' && self.fieldData.value) {
+          self.imagesUrl = [];
           if (self.fieldData.value.indexOf('http') === -1) {
             // 上传到系统的图片 只有图片编号 查到图片地址后再push
             let fileDatas = await self.getFilePath(self.fieldData.value);
-            self.imagesUrl = [];
             if (fileDatas) {
               for (let i = 0; i < fileDatas.length; i++) {
                 const url =
@@ -765,7 +766,6 @@
           }
           if (Array.isArray(option.conditions) && option.conditions.length > 0) {
             let data = this.deepClone(relation_condition.data)
-            debugger
             relation_condition = {
               relation: 'AND',
               data: [...option.conditions, {
@@ -790,6 +790,7 @@
           if (optionData?.label) {
             this.fkFieldLabel = optionData.label;
           }
+          debugger
           this.fieldData['colData'] = optionData;
           this.hideModal();
           this.onBlur()
@@ -963,7 +964,6 @@
         }
       },
       bindTimeChange(e, type) {
-        debugger
         if (type) {
           this.$set(this.fieldData, type, e.detail.value)
           // this.fieldData[type] = e.detail.value;

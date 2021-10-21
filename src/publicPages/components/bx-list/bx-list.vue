@@ -211,7 +211,7 @@
 								//流程列表点击跳转到流程详情
 								// ['duplicate','customize', 'edit', 'delete', 'procdetail', 'deleteproc']
 								rowButton = rowButton.filter(
-									item => ['duplicate', 'customize', 'edit', 'delete', 'procdetail'].includes(item
+									item => ['duplicate', 'customize', 'edit', 'delete', 'procdetail','detail'].includes(item
 										.button_type)
 								);
 							}

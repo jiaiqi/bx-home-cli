@@ -178,7 +178,7 @@
         }).map(item => {
           if (item.button_type === 'select') {
             item.icon = 'cuIcon-filter'
-            item.button_name =  '筛选'
+            item.button_name = '筛选'
             item.clickEvent = this.showFilterModal
           } else if (['add', 'apply'].includes(item.button_type)) {
             item.icon = 'cuIcon-add'
@@ -710,6 +710,10 @@
         let self = this
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
+        debugger
+        if (buttonInfo?._buttons) {
+          delete buttonInfo._buttons
+        }
         if (!buttonInfo?.button_type) {
           uni.showModal({
             title: '提示',
@@ -757,7 +761,6 @@
 
         if (buttonInfo.button_type === "customize") {
           if (buttonInfo.operate_type === '删除') {
-            debugger
             this.onButtonToUrl(data, this.appName).then(res => {
               if (res.state === 'SUCCESS') {
                 this.getList()
@@ -942,6 +945,7 @@
             let targetUrl = this.customDetailUrl
             let obj = {
               data: rowData,
+              rowData,
               storeInfo,
               bindUserInfo
             };
@@ -964,35 +968,48 @@
                 row,
                 button
               } = res
+              debugger
+              let fieldsCond = []
               if (row && row.id) {
-                let fieldsCond = [{
+                fieldsCond = [{
                   column: 'id',
                   value: row.id,
                   display: false
                 }]
-
-                let url =
-                  `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-                if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
-                  'childTableList') {
-                  url =
-                    `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              } else {
+                if (typeof row == 'object' && Object.keys(row).length > 0) {
+                  Object.keys(row).forEach(key => {
+                    if (key !== '_buttons') {
+                      let obj = {
+                        column: key,
+                        value: row[key] || ''
+                      }
+                      fieldsCond.push(obj)
+                    }
+                  })
                 }
-                if (this.appName) {
-                  url += `&appName=${this.appName}`
-                }
-                if (button.service_name === 'srvdaq_cms_content_select') {
-                  if (e.content_no) {
-                    uni.navigateTo({
-                      url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
-                    });
-                  }
-                  return
-                }
-                uni.navigateTo({
-                  url: url
-                })
               }
+              let url =
+                `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
+              //   'childTableList') {
+              url =
+                `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // }
+              if (this.appName) {
+                url += `&appName=${this.appName}`
+              }
+              // if (button.service_name === 'srvdaq_cms_content_select') {
+              //   if (rowData.content_no) {
+              //     uni.navigateTo({
+              //       url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${rowData.content_no}`
+              //     });
+              //   }
+              //   return
+              // }
+              uni.navigateTo({
+                url: url
+              })
             } else if (buttonInfo && buttonInfo.button_type === 'customize') {
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
@@ -1192,6 +1209,9 @@
       if (option.destApp) {
         this.appName = option.destApp
       }
+      if (option.appName) {
+        this.appName = option.appName
+      }
       if (option.initCond) {
         try {
           let initCond = JSON.parse(option.initCond)
@@ -1272,18 +1292,20 @@
 
 <style lang="scss" scoped>
   .page-wrap {
-    background: #fff;
     height: calc(100vh - var(--window-top) + 30px);
     // min-height: calc(100vh - var(--window-top));
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    .list-content{
+    background-color: #F8F8FA;
+
+    .list-content {
       flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      .list-view{
+
+      .list-view {
         flex: 1;
         overflow-y: scroll;
       }

@@ -660,6 +660,7 @@
         if (this.disabled) {
           return
         }
+        debugger
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':
@@ -667,7 +668,7 @@
               break;
             case 'list':
               uni.navigateTo({
-                url: `/publicPages/list/list?pageType=list&main_data=${JSON.stringify(this.mainData)}&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
+                url: `/publicPages/list2/list2?pageType=list&main_data=${JSON.stringify(this.mainData)}&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
               })
               break;
             case 'add':
@@ -677,9 +678,45 @@
             case 'edit':
               if (index || index === 0) {
                 let row = this.listData[index]
-                this.getUpdateV2(row)
-                this.currentItemIndex = index
-                this.modalName = 'updateChildData'
+                let rowButton = this.v2Data?.rowButton
+                let detailBtn = null
+                if (Array.isArray(rowButton) && rowButton.length > 0) {
+                  detailBtn = rowButton.find(item => item.button_type === 'detail')
+                }
+                if (this.config?.foreign_key?.moreConfig?.clickTarget === 'detail' && detailBtn) {
+                  let fieldsCond = []
+                  if (row && row.id) {
+                    fieldsCond = [{
+                      column: 'id',
+                      value: row.id,
+                      display: false
+                    }]
+                  } else {
+                    if (typeof row == 'object' && Object.keys(row).length > 0) {
+                      Object.keys(row).forEach(key => {
+                        if (key !== '_buttons') {
+                          let obj = {
+                            column: key,
+                            value: row[key] || ''
+                          }
+                          fieldsCond.push(obj)
+                        }
+                      })
+                    }
+                  }
+                  let url =
+                    `/publicPages/detail/detail?serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  if (this.appName) {
+                    url += `&appName=${this.appName}`
+                  }
+                  uni.navigateTo({
+                    url: url
+                  })
+                } else {
+                  this.getUpdateV2(row)
+                  this.currentItemIndex = index
+                  this.modalName = 'updateChildData'
+                }
               }
               break;
             case 'editMem':
@@ -716,7 +753,7 @@
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           debugger
-          if(item?.option_list_v2?.refed_col&&this.mainData[item.option_list_v2.refed_col]){
+          if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
@@ -795,7 +832,7 @@
           }
           console.log(this.mainData)
           debugger
-          if(item?.option_list_v2?.refed_col&&this.mainData[item.option_list_v2.refed_col]){
+          if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions

@@ -7,7 +7,8 @@
         <image class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
         </image>
       </view>
-      <view class="list-item-content" v-if="setListView&&setListView.cols">
+      <view class="list-item-content" :style="{width:setListView.listContentWidth}"
+        v-if="setListView&&setListView.cols">
         <view class="col-item bg" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
           <view class="label" v-if="item.label">
             {{item.label}}:
@@ -39,9 +40,10 @@
         <!-- 
         <text class="cuIcon-moreandroid" @click.stop="showAction"
           v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text> -->
-        <view class="foot-button-box grid">
+        <view class="foot-button-box grid" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3">
           <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
-            v-for="btn in setRowButton" v-show="isShowBtn(btn)">{{btn.button_name}}</button>
+            v-for="btn in setRowButton" v-show="isShowBtn(btn)"
+            @click.stop="clickButton(btn)">{{btn.button_name}}</button>
         </view>
       </view>
       <view class="main-image" :style="{
@@ -211,9 +213,9 @@
           'line-gray': btnCfg?.border_color === 'gray'
         }
         result.btnStyle = {
-          'width':btnCfg?.width,
-          'height':btnCfg?.height,
-          'font-size':btnCfg?.font_size,
+          'width': btnCfg?.width,
+          'height': btnCfg?.height,
+          'font-size': btnCfg?.font_size,
           'border-radius': btnCfg?.radius,
           'padding': btnCfg?.padding,
           'color': btnCfg?.color,
@@ -240,6 +242,12 @@
             'width': imgCfg.width
           }
           result.imgMode = imgCfg?.mode || 'aspectFill'
+          if (result.imgStyle.width) {
+            result.listContentWidth = `calc(100% - ${result.imgStyle.width})`
+          }
+          if (result.imgAlign === 'top' || result.imgAlign === 'bottom') {
+            result.rootClass += ` image-vertical`
+          }
         }
 
         // 字段配置
@@ -250,10 +258,10 @@
             let cfg = col?.cfg
             let obj = {
               style: {
-                'flex':cfg?.flex,
-                "border-radius":cfg?.radius,
+                'flex': cfg?.flex,
+                "border-radius": cfg?.radius,
                 'width': cfg?.width,
-                'height':cfg?.height,
+                'height': cfg?.height,
                 'min-width': cfg?.min_width,
                 'padding': cfg?.padding,
                 'font-size': cfg?.font_size,
@@ -440,51 +448,22 @@
     margin-bottom: 20rpx;
     padding: 20rpx;
     display: flex;
-    flex-wrap: wrap;
     border-radius: 20rpx;
     overflow: hidden;
+      flex-wrap: wrap;
+    &.image-vertical {
+      // 图片在垂直方向（上方、下方）
+      flex-wrap: wrap;
+      .list-item{
+        flex-wrap: wrap;
+      }
+    }
 
-    // &.grid_span2 {
-    //   width: calc(100%/2 - 10rpx);
-    //   margin-right: 20rpx;
-
-    //   &:nth-child(2n) {
-    //     margin-right: 0;
-    //   }
-    // }
-
-    // &.grid_span3 {
-    //   width: calc(100%/3 - 40rpx/3);
-    //   margin-right: 20rpx;
-
-    //   &:nth-child(3n) {
-    //     margin-right: 0;
-    //   }
-    // }
-
-    // &.grid_span4 {
-    //   width: calc(100%/4 - 60rpx/4);
-    //   margin-right: 20rpx;
-
-    //   &:nth-child(4n) {
-    //     margin-right: 0;
-    //   }
-    // }
-
-    // &.grid_span5 {
-    //   width: calc(100%/5 - 80rpx/5);
-    //   margin-right: 20rpx;
-
-    //   &:nth-child(5n) {
-    //     margin-right: 0;
-    //   }
-    // }
-
+   
 
     .list-item {
       width: 100%;
       display: flex;
-      flex-wrap: wrap;
 
       .cuIcon-moreandroid {
         margin-bottom: 10rpx;
@@ -607,9 +586,11 @@
       .cu-btn {
         margin-left: 10rpx;
         margin-bottom: 10rpx;
-        &.hidden{
+
+        &.hidden {
           margin-left: 0;
         }
+
         &:first-child {
           margin-left: 0;
         }

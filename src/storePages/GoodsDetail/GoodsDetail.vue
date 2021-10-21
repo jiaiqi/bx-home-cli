@@ -85,7 +85,8 @@
         }
       },
       ...mapState({
-        cartInfo: state => state.order.cartInfo
+        cartInfo: state => state.order.cartInfo,
+        userInfo: state => state.user.userInfo
       })
     },
     methods: {
@@ -123,32 +124,20 @@
         });
       },
       payOrder(e) {
-        if (this.moreConfig?.target_url) {
+        let target_url = this.moreConfig?.target_url || e?.target_url
+        if (target_url) {
           let storeInfo = this.$store?.state?.app?.storeInfo
           let bindUserInfo = this.$store?.state?.user?.storeUserInfo
           let data = {
             ...this.$data,
             cartInfo: this.cartInfo,
+            userInfo: this.userInfo,
             storeInfo,
             bindUserInfo
           }
           data = this.deepClone(data)
-          let url = this.renderStr(this.moreConfig.target_url, data)
-          uni.navigateTo({
-            url: url
-          })
-          return
-        }else if(e?.target_url){
-          let storeInfo = this.$store?.state?.app?.storeInfo
-          let bindUserInfo = this.$store?.state?.user?.storeUserInfo
-          let data = {
-            ...this.$data,
-            cartInfo: this.cartInfo,
-            storeInfo,
-            bindUserInfo
-          }
-          data = this.deepClone(data)
-          let url = this.renderStr(e.target_url, data)
+          debugger
+          let url = this.renderStr(target_url, data)
           uni.navigateTo({
             url: url
           })
@@ -373,6 +362,7 @@
       text-align: center;
       flex: 1;
       border-left: 1rpx solid #f5f5f5;
+
       &:first-child {
         border-left: none;
       }

@@ -68,16 +68,16 @@
         </view>
       </view>
       <view class="detail-form">
-        <view class="form-wrap" :class="{show:showDetail}">
+        <view class="form-wrap" :class="{show:setShowDetail}">
           <a-form v-if="isArray(detailFields)" :fields="detailFields" :srvApp="appName" pageType="detail"
             formType="detail" ref="bxForm">
           </a-form>
         </view>
       </view>
       <view class="handler-bar">
-        <view class="show-or-hide" @click="changeDetailStatus">
-          <text class="margin-right">{{showDetail?"收起":"展开"}}详情 </text>
-          <text class="cuIcon-unfold" v-if="!showDetail"></text>
+        <view class="show-or-hide" @click="changeDetailStatus" >
+          <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
+          <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
           <text class="cuIcon-fold " v-else></text>
         </view>
         <view class="button-box" v-if="detail&&!disabled">
@@ -144,6 +144,16 @@
       }
     },
     computed: {
+      setShowDetail() {
+        // if (this.notTempColMap) {
+        //   return true
+        // } else {
+        return this.showDetail
+        // }
+      },
+      notTempColMap() {
+        return Object.keys(this.appTempColMap).length === 0
+      },
       fkFields() {
         if (Array.isArray(this.v2Data?._fieldInfo)) {
           return this.v2Data._fieldInfo.filter(item => item.col_type == 'fk' && item.option_list_v2?.refed_col)
@@ -207,6 +217,9 @@
       publicButton() {
         if (Array.isArray(this.v2Data?.formButton)) {
           return this.v2Data.formButton.filter((item, index) => {
+            if (item.permission === false) {
+              return false
+            }
             if (Array.isArray(this.detail?._buttons) && this.detail._buttons.length > 0) {
               return this.detail._buttons[index] === 1
             } else if (this.detail?._buttons && typeof this.detail._buttons === 'string') {
@@ -245,7 +258,7 @@
             break;
           }
         }
-        if(!resCol&&Array.isArray(arr)&&arr.length>0){
+        if (!resCol && Array.isArray(arr) && arr.length > 0) {
           resCol = arr[0]
         }
         return {
@@ -338,23 +351,23 @@
             if (item?.foreign_key?.more_config && typeof item.foreign_key.more_config ===
               'string') {
               try {
-                item.foreign_key.morConfig = JSON.parse(item.foreign_key.more_config)
+                item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
               } catch (e) {
                 //TODO handle the exception
               }
             }
             item.unfold = true
-            if (item?.foreign_key?.morConfig?.unfold === false) {
+            if (item?.foreign_key?.moreConfig?.unfold === false) {
               // 折叠
               item.unfold = false
               item.isFold = true
-            } else if (item?.foreign_key?.morConfig?.unfold === true) {
+            } else if (item?.foreign_key?.moreConfig?.unfold === true) {
               item.unfold = true
             }
-            if (item?.foreign_key?.morConfig?.fold === true) {
+            if (item?.foreign_key?.moreConfig?.fold === true) {
               // 折叠
               item.unfold = false
-            } else if (item?.foreign_key?.morConfig?.fold === false) {
+            } else if (item?.foreign_key?.moreConfig?.fold === false) {
               item.unfold = true
             }
             return item
@@ -515,7 +528,7 @@
               // 	this.$refs.bxList.onRefresh();
               // }
               return
-            } else if (buttonInfo.operate_type === '更新弹出'||buttonInfo.operate_type === '更新跳转') {
+            } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
               if (moreConfig && typeof moreConfig === 'string') {
@@ -544,18 +557,6 @@
                 };
                 let condition = buttonInfo.operate_params.condition
                 let fieldsCond = []
-                // let defaultVal = buttonInfo.operate_params.data
-                // if (Array.isArray(defaultVal) && defaultVal.length > 0) {
-                // 	let obj = defaultVal[0]
-                // 	if(typeof obj == 'object'){
-                // 		Object.keys(obj).forEach(key => {
-                // 			fieldsCond.push({
-                // 				column: key,
-                // 				value: obj[key]
-                // 			})
-                // 		})
-                // 	}
-                // }
 
                 let url =
                   `/publicPages/form/form?params=${JSON.stringify(params)}&condition=${JSON.stringify(condition)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
@@ -608,7 +609,7 @@
       },
     },
     onLoad(option) {
-      uni.$on('dataChange',()=>{
+      uni.$on('dataChange', () => {
         this.getDetail()
       })
       if (option.serviceName) {

@@ -199,6 +199,7 @@
       handlerReduant(obj){
         // 处理冗余操作
         const e = this.deepClone(obj)
+       
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.deepClone(this.allField[index])
           console.log(item)
@@ -210,7 +211,16 @@
               e.column) {
               if (item.redundant.trigger === 'always') {
                 item.value = e.colData[item.redundant.refedCol];
-                // this.handlerReduant(item)
+               let dependFields = this.allField.reduce((res,cur)=>{
+                 if(cur?.redundant?.dependField === item.column){
+                   res.push(cur.column)
+                 }
+                 return res
+               },[])
+                if(dependFields.length>0){
+                  debugger
+                  this.handlerReduant(item)
+                }
               } else if (item.redundant.trigger === 'isnull') {
                 if (!item.value) {
                   item.value = e.colData[item.redundant.refedCol];

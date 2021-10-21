@@ -165,17 +165,21 @@
       let title = e?.target?.dataset?.sharetitle
       let path = e?.target?.dataset?.shareurl
       let _data = {
-        rowData:{no:e?.target?.dataset?.row?.no,org_name:e?.target?.dataset?.row?.org_name} ,
+        rowData: {
+          no: e?.target?.dataset?.row?.no,
+          org_name: e?.target?.dataset?.row?.org_name,
+          store_no:e?.target?.dataset?.row?.store_no,
+        },
         userInfo: this.$store?.state?.user?.userInfo,
         storeInfo: this.$store?.state?.app?.storeInfo
       }
-      if(typeof _data.rowData==='object'){
+      if (typeof _data.rowData === 'object') {
         delete _data.rowData._buttons
         path += `&rowData=${JSON.stringify(_data.rowData)}`
       }
       let imageUrl = this.getImagePath(this.storeInfo?.image, true);
       this.saveSharerInfo(this.userInfo, path);
-     
+
       return {
         imageUrl: imageUrl,
         title: title,
@@ -542,8 +546,15 @@
                 serviceName: btn.service_name,
                 defaultVal: row
               };
+              let cond = [{
+                "colName": "id",
+                "ruleType": "eq",
+                "value": row.id
+              }]
+              let url =
+                `/publicPages/detail/detail?type=detail&cond=[{"colName":"id","ruleType":"eq","value":"${row.id}"}]&serviceName=${btn.service_name}&destApp=${btn.application}`
               uni.navigateTo({
-                url: `/publicPages/formPage/formPage?type=detail&cond=[{"colName":"id","ruleType":"eq","value":"${row.id}"}]&serviceName=${btn.service_name}&destApp=${btn.application}`
+                url
               });
             } else if (data.button && (data.button.button_type === 'duplicate' || data.button
                 .button_type === 'duplicatedeep')) {

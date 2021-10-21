@@ -43,7 +43,7 @@
     },
     computed: {
       rowButton() {
-        return this.colV2?.rowButton
+        return this.colV2?.rowButton.filter(item => item.permission !== false)
       },
       moreConfig() {
         let result = null
@@ -132,7 +132,7 @@
   .grid-layout {
     display: flex;
     flex-wrap: wrap;
-    padding:20rpx;
+    padding: 20rpx;
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
@@ -167,6 +167,128 @@
       &:nth-child(5n) {
         margin-right: 0;
       }
+    }
+
+    @media screen and (min-width: 768px) {
+      .grid_span2 {
+        width: calc(100%/4 - 20rpx);
+        margin-right: 20rpx;
+
+        &:nth-child(2n) {
+          margin-right: 20rpx;
+        }
+
+        &:nth-child(4n) {
+          margin-right: 0;
+        }
+      }
+
+      .grid_span3 {
+        width: calc(100%/6 - 20rpx);
+        margin-right: 20rpx;
+
+        &:nth-child(3n) {
+          margin-right: 20rpx;
+        }
+
+        &:nth-child(6n) {
+          margin-right: 0;
+        }
+      }
+
+      .grid_span4 {
+        width: calc(100%/8 - 20rpx);
+        margin-right: 20rpx;
+
+        &:nth-child(4n) {
+          margin-right: 20rpx;
+        }
+
+        &:nth-child(8n) {
+          margin-right: 0;
+        }
+      }
+
+      .grid_span5 {
+        width: calc(100%/10 - 20rpx);
+        margin-right: 20rpx;
+
+        &:nth-child(5n) {
+          margin-right: 20rpx;
+        }
+
+        &:nth-child(10n) {
+          margin-right: 0;
+        }
+      }
+
+    }
+    @media screen and (min-width: 1200px) {
+      .grid_span2 {
+        width: calc(100%/6 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(2n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(4n) {
+          margin-right: 20rpx;
+        }
+        &:nth-child(6n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span3 {
+        width: calc(100%/8 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(3n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(6n) {
+          margin-right: 20rpx;
+        }
+        &:nth-child(8n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span4 {
+        width: calc(100%/10 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(4n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(8n) {
+          margin-right: 20rpx;
+        }
+        &:nth-child(10n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span5 {
+        width: calc(100%/12 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(5n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(10n) {
+          margin-right: 20rpx;
+        }
+        
+        &:nth-child(12n) {
+          margin-right: 0;
+        }
+      }
+    
     }
   }
 </style>

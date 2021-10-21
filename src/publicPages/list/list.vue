@@ -583,10 +583,10 @@
                 }
                 let url =
                   `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-                if (this.moreConfig?.detailPage === 'childTableList') {
-                  url =
-                    `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-                }
+                // if (this.moreConfig?.detailPage === 'childTableList') {
+                url =
+                  `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                // }
                 if (otherParams.hideColumn) {
                   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
                 }

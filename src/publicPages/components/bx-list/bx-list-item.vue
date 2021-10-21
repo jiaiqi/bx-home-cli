@@ -224,6 +224,9 @@
         }
         return viewTemp
       },
+      detailBtn() {
+        return this.rowButton.find(item => item.button_type === 'detail')
+      },
       theRowbutton() {
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
           return this.rowButton.filter((button, index) => {
@@ -279,7 +282,11 @@
     },
     methods: {
       listItemClick() {
-        this.$emit('click-list-item', this.itemData);
+        // this.$emit('click-list-item', this.itemData);
+        this.$emit('click-foot-btn', {
+          button: this.detailBtn,
+          row: this.itemData
+        });
       },
       footBtnClick(btn) {
         this.$emit('click-foot-btn', {
