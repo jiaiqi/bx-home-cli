@@ -1117,6 +1117,9 @@
     width: 100%;
     background-color: #f2f3f4;
     height: var(--page-height);
+    /* #ifdef MP-WEIXIN */
+    height: 100vh;
+    /* #endif */
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
@@ -1124,17 +1127,16 @@
 
     .scroll-view {
       background-color: #fff;
-      // height: calc(100% - 140rpx);
     }
 
     .button-box {
       margin-top: 20rpx;
       margin-bottom: 0;
-      background-color: #fff;
+      // background-color: #fff;
       width: 100%;
       min-height: 120rpx;
       display: flex;
-      padding: 0 20rpx 40rpx;
+      padding:40rpx 20rpx ;
       justify-content: space-around;
       align-items: center;
 

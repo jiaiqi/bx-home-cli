@@ -297,6 +297,8 @@ export default {
           fieldInfo.type = 'location'
         } else if (item.bx_col_type === "string" && item.col_type === "fk") {
           fieldInfo.type = "Selector"
+        } else if (item.bx_col_type === "string") {
+          fieldInfo.type = "text"
         } else {
           fieldInfo.type = item.col_type
         }
@@ -2211,8 +2213,10 @@ export default {
     Vue.prototype.evalConditions = (conditions, mainData) => {
       conditions = conditions.map(op => {
         let regVar = /\$\{(.*?)\}/
-        if (op.value === 'data.hotel_no') {
-          op.value = 'data.store_no'
+        if (op.value.indexOf('data.hotel_no') !== -1) {
+          if (mainData.store_no && !mainData.hotel_no) {
+            op.value = 'data.store_no'
+          }
         }
         if (op.value && regVar.test(op.value)) {
           if (op.value === '${today}') {

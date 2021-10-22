@@ -21,14 +21,15 @@
         </view>
 
         <view class="col-item text-right flex-1 handler" v-if="listType==='cart'">
-          <view class="del-btn-box" :class="{active:inCartData&&inCartData.goods_count}" v-if="inCartData">
+          <view class="del-btn-box" :class="{active:inCartData&&amount}"
+            v-if="inCartData&&inCartData.id&&amount">
             <text class="cu-btn sm radius" :style="{
                 color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
                 'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
                 'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
                 'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
                 }" @click.stop="del">-</text>
-            <text class="goods-amount">{{inCartData.goods_count||'0'}}</text>
+            <text class="goods-amount">{{amount||'0'}}</text>
           </view>
           <text class=" cu-btn sm radius" :style="{
               color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
@@ -99,11 +100,26 @@
         type: Array
       }
     },
-
+    data() {
+      return {
+      }
+    },
     computed: {
+      amount(){
+        let data = this.cartData.find(item => item.id === this.rowData.id);
+        if(data?.goods_count){
+          return data.goods_count
+        }else {
+          return false
+        }
+      },
       inCartData() {
         let data = this.cartData.find(item => item.id === this.rowData.id)
-        return data
+        if(data){
+          return data
+        }else{
+          return false
+        }
       },
       setViewTemp() {
         let obj = {
@@ -188,29 +204,18 @@
         }
         // 按钮配置
         let btnCfg = this.setViewTemp?.btn_cfg
-        result.btnClass = {
-          'border': btnCfg?.style === 'line_button' || btnCfg?.style === 'line',
-          'sm': btnCfg?.size === 'sm',
-          'bg-blue': btnCfg?.bg === 'blue',
-          'bg-red': btnCfg?.bg === 'red',
-          'bg-orange': btnCfg?.bg === 'orange',
-          'bg-cyan': btnCfg?.bg === 'cyan',
-          'bg-yellow': btnCfg?.bg === 'yellow',
-          'bg-white': btnCfg?.bg === 'white',
-          'bg-black': btnCfg?.bg === 'black',
-          'bg-green': btnCfg?.bg === 'green',
-          'bg-grey': btnCfg?.bg === 'grey',
-          'bg-gray': btnCfg?.bg === 'gray',
-          'line-blue': btnCfg?.border_color === 'blue',
-          'line-red': btnCfg?.border_color === 'red',
-          'line-orange': btnCfg?.border_color === 'orange',
-          'line-cyan': btnCfg?.border_color === 'cyan',
-          'line-yellow': btnCfg?.border_color === 'yellow',
-          'line-white': btnCfg?.border_color === 'white',
-          'line-black': btnCfg?.border_color === 'black',
-          'line-green': btnCfg?.border_color === 'green',
-          'line-grey': btnCfg?.border_color === 'grey',
-          'line-gray': btnCfg?.border_color === 'gray'
+        result.btnClass = ''
+        if (btnCfg?.style === 'line_button' || btnCfg?.style === 'line') {
+          result.btnClass += ' border'
+        }
+        if (btnCfg?.size === 'sm') {
+          result.btnClass += ' sm'
+        }
+        if (btnCfg?.bg) {
+          result.btnClass += ` bg-${btnCfg?.bg}`
+        }
+        if (btnCfg?.border_color) {
+          result.btnClass += ` line-${btnCfg?.border_color}`
         }
         result.btnStyle = {
           'width': btnCfg?.width,
@@ -226,9 +231,7 @@
           result.showImg = true
           let imgCfg = this.setViewTemp?.img?.cfg;
           result.imgAlign = imgCfg.position || 'left'
-          result.imgClass = {
-            'm-r-0': imgCfg.position === 'top'
-          }
+          result.imgClass = `${imgCfg.position === 'top'?'m-r-0':''}`
           result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value)
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
@@ -243,7 +246,7 @@
           }
           result.imgMode = imgCfg?.mode || 'aspectFill'
           if (result.imgStyle.width) {
-            result.listContentWidth = `calc(100% - ${result.imgStyle.width})`
+            // result.listContentWidth = `calc(100% - ${result.imgStyle.width})`
           }
           if (result.imgAlign === 'top' || result.imgAlign === 'bottom') {
             result.rootClass += ` image-vertical`
@@ -299,6 +302,14 @@
                   'line-grey': cfg?.border_color === 'grey',
                   'line-gray': cfg?.border_color === 'gray',
               }
+            }
+            if (Object.keys(obj.class).length > 0) {
+              obj.class = Object.keys(obj.class).reduce((res, cur) => {
+                if (obj.class[cur]) {
+                  res += ` ${cur}`
+                }
+                return res
+              }, '')
             }
             obj.prefix = cfg?.prefix || ''
             obj.suffix = cfg?.suffix || ''
@@ -450,16 +461,18 @@
     display: flex;
     border-radius: 20rpx;
     overflow: hidden;
-      flex-wrap: wrap;
+    flex-wrap: wrap;
+
     &.image-vertical {
       // 图片在垂直方向（上方、下方）
       flex-wrap: wrap;
-      .list-item{
+
+      .list-item {
         flex-wrap: wrap;
       }
     }
 
-   
+
 
     .list-item {
       width: 100%;

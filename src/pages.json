@@ -101,8 +101,8 @@
           "style": {
             "navigationBarTitleText": "列表",
             "enablePullDownRefresh": true,
-            "navigationBarTextStyle":"black",
-            "navigationBarBackgroundColor":"#fff"
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#fff"
           }
         }, {
           "path": "treeList/treeList",
@@ -117,7 +117,16 @@
             "enablePullDownRefresh": false
           }
         }
-      ]
+          ,{
+                    "path" : "mixForm/mixForm",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "表单-列表混合页面",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "storePages",

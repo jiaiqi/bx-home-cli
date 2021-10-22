@@ -858,7 +858,7 @@
           if (item.col_type === 'fk') {
             if (this.mainData && this.mainData[item.columns]) {
               item.value = this.mainData[item.columns]
-              item.disabled = true
+              // item.disabled = true
             }
             // if (
             // 	item?.option_list_v2?.refed_col && this.mainData[item?.option_list_v2

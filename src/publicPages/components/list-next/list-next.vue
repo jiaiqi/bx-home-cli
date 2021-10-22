@@ -133,6 +133,9 @@
     display: flex;
     flex-wrap: wrap;
     padding: 20rpx;
+    .list-item-wrap{
+      width: 100%;
+    }
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;

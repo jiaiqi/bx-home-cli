@@ -1,18 +1,19 @@
 <template>
   <view class="form-wrap">
-    <view class="main-form-edit">
-      <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
-        :formType="use_type" ref="bxForm" @value-blur="valueChange">
-      </a-form>
-    </view>
-
-    <view class="child-service-box">
-      <view class="child-service" v-for="(item,index) in childService" :key="index">
-        <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton">
-        </child-list>
+    <view class="form-content">
+      <view class="main-form-edit">
+        <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
+          :formType="use_type" ref="bxForm" @value-blur="valueChange">
+        </a-form>
+      </view>
+      
+      <view class="child-service-box">
+        <view class="child-service" v-for="(item,index) in childService" :key="index">
+          <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton">
+          </child-list>
+        </view>
       </view>
     </view>
-
     <view class="button-box" v-if="colsV2Data">
       <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
@@ -313,7 +314,9 @@
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
-                  data.child_data_list = this.$refs.childList[index].getChildDataList()
+                  debugger
+                  let child_data = this.$refs.childList[index].getChildDataList()
+                  data.child_data_list.push(...child_data) 
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
@@ -769,6 +772,12 @@
     min-height: 100vh;
     background-color: #F1F1F1;
     padding: 20rpx;
+    display: flex;
+    flex-direction: column;
+    .form-content{
+      flex: 1;
+      margin-bottom: 20rpx;
+    }
   }
 
   .main-form-edit {
@@ -783,6 +792,7 @@
   }
 
   .button-box {
+    padding:40rpx 20rpx;
     .cu-btn {
       min-width: 40%;
     }

@@ -156,7 +156,9 @@
               "height": this.listConfig?.img?.height || config?.img?.cfg?.height || "150rpx",
               "radius": config?.img?.cfg?.radius || "10px 10px 0 0",
               "position": config?.img?.cfg?.position || "top",
-              "mode": this.listConfig?.img?.mode || config?.img?.cfg?.mode || ""
+              "mode": this.listConfig?.img?.mode || config?.img?.cfg?.mode || "",
+              "padding": this.listConfig?.img?.padding || config?.img?.cfg?.padding || "",
+              "margin": this.listConfig?.img?.margin || config?.img?.cfg?.margin || ""
             }
           },
           cols: config?.cols
@@ -287,7 +289,6 @@
         appName: "",
         colV2: null,
         orderCols: [],
-        // viewTmep:{}
         proc_data_type: "", //流程状态
         searchVal: "",
         listType: "list", //list,proc,cart
@@ -303,12 +304,10 @@
         },
         initCond: [],
         relationCondition: [],
-        onInputValue: false // 是否有查询条件
       }
     },
     methods: {
       getListWithFilter(e) {
-        debugger
         let self = this
         let tabsConds = this.$refs.filterTabs.buildConditions()
         this.relationCondition = tabsConds
@@ -319,7 +318,6 @@
 
       },
       onFilterChange(e) {
-        debugger
         if (e) {
           let tabsConds = this.$refs.filterTabs.buildConditions()
           this.relationCondition = tabsConds
@@ -458,21 +456,14 @@
               })
             })
           }
-          // let otherParams = this.handleSpecialClickEvent(res)
-          // if (otherParams && otherParams.otherFieldsCond) {
-          //   if (Array.isArray(otherFieldsCond)) {
-          //     fieldsCond = [...fieldsCond, ...otherFieldsCond]
-          //   }
-          // }
+        
           let url =
             `/publicPages/form/form?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
             encodeURIComponent(JSON.stringify(fieldsCond));
           if (this.appName) {
             url += `&appName=${this.appName}`
           }
-          // if (otherParams && otherParams.hideColumn) {
-          //   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
-          // }
+          
           uni.navigateTo({
             url: url
           });
