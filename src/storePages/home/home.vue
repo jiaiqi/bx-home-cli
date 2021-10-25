@@ -1,7 +1,7 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
   <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'">
-    <cu-custom-navbar bgColor="bg-white" :isBack="true">
+    <cu-custom-navbar bgColor="bg-white" :isBack="true" :back-home="true">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
           {{ storeInfo.name || "首页" }}

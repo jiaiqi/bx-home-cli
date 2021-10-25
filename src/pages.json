@@ -116,17 +116,16 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "mixForm/mixForm",
+          "style": {
+            "navigationBarTitleText": "表单-列表混合页面",
+            "enablePullDownRefresh": false,
+            "navigationBarBackgroundColor":"#F8F8FA",
+            "navigationBarTextStyle":"black"
+          }
         }
-          ,{
-                    "path" : "mixForm/mixForm",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "表单-列表混合页面",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "storePages",

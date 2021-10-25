@@ -456,14 +456,14 @@
               })
             })
           }
-        
+
           let url =
             `/publicPages/form/form?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
             encodeURIComponent(JSON.stringify(fieldsCond));
           if (this.appName) {
             url += `&appName=${this.appName}`
           }
-          
+
           uni.navigateTo({
             url: url
           });
@@ -838,8 +838,9 @@
                 eventOrigin: buttonInfo
               };
               let fieldsCond = [];
-              let condition = buttonInfo.operate_params.condition
-              let defaultVal = buttonInfo.operate_params.data
+              let condition = buttonInfo?.operate_params?.condition
+              let defaultVal = buttonInfo?.operate_params?.data
+              debugger
               if (Array.isArray(defaultVal) && defaultVal.length > 0) {
                 let obj = defaultVal[0]
                 if (this.iObject(obj)) {
@@ -858,6 +859,12 @@
                     value: cond.value
                   })
                 })
+              }
+              if(fieldsCond.length===0){
+                fieldsCond = [{
+                  column: 'id',
+                  value: rowData.id
+                }]
               }
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +

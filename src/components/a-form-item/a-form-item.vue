@@ -112,7 +112,7 @@
         </view>
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
-        <date-range-picker style="width: 100%;" :mode="pickerMode" :isRange="pageType==='filter'"
+        <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode" :isRange="pageType==='filter'"
           @change="bindTimeChange" v-model="fieldData.value">
         </date-range-picker>
       </view>
@@ -139,7 +139,7 @@
             ? fieldData.item_type_attr.max_len
             : 999
         " v-model="fieldData.value" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
-      <input class="form-item-content_value" @blur="onBlur" :placeholder="fieldData.disabled ?'':'请输入'+fieldData.label"
+      <input class="" style="width: 100%" @blur="onBlur" :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.label"
         :type="fieldData.type" @input="onInput" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len

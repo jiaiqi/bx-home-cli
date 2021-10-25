@@ -30,6 +30,9 @@
       </view>
       <u-calendar v-model="show" mode="date" @change="change" max-date="2050-01-01"></u-calendar>
     </view>
+    <view class="calendar-box" v-else-if="mode==='dateTime'">
+      <datetime-picker @change="change" :disabled="disabled"></datetime-picker>
+    </view>
     <picker class="uni-picker" :mode="mode" :value="selectVal" v-else @change="change">
       <view class="picker-content">
         <view class="place-holder" v-if="!selectVal">请选择</view>
@@ -48,6 +51,10 @@
       event: 'change'
     },
     props: {
+      disabled:{
+        type: Boolean,
+        default: false
+      },
       isRange: {
         type: Boolean,
         default: false
@@ -94,7 +101,13 @@
       },
       change(e) {
         debugger
-        if (e.startDate && e.endDate) {
+        if (this.mode === 'dateTime' && e?.f3) {
+          this.$emit('change', {
+            detail: {
+              value: e.f3
+            }
+          })
+        } else if (e.startDate && e.endDate) {
           this.$emit('change', [e.startDate, e.endDate])
         } else if (e.time) {
           this.hideModal()
@@ -119,7 +132,9 @@
         }
       },
       showModal() {
-        this.show = true
+        if(!this.disabled){
+          this.show = true
+        }
       },
       hideModal() {
         this.show = false
@@ -179,9 +194,10 @@
 
     .calendar-box {
       width: 100%;
-
+        text-align: right;
       .date-select-box {
         width: 100%;
+        justify-content: flex-end;
       }
     }
 

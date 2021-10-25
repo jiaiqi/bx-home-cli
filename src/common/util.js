@@ -236,6 +236,8 @@ export default {
         if (item.col_type === "String" || item.col_type === "TelNo") {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
+          fieldInfo.type = "dateTime"
+        } else if (item.col_type === "Date") {
           fieldInfo.type = "date"
         } else if (item.col_type === "Time") {
           fieldInfo.type = "time"
