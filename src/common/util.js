@@ -214,6 +214,9 @@ export default {
             let login_user_info = uni.getStorageSync('login_user_info')
             item.init_expr = login_user_info?.user_no || '';
           }
+          if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
+            item.init_expr = dayjs.format('YYYY-MM-DD HH:mm')
+          }
           if (item.init_expr && item.init_expr.indexOf('globalData.') !== -1) {
             let globalData = getApp().globalData
             let colName = item.init_expr.slice(item.init_expr.indexOf('globalData.') + 11);

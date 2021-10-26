@@ -11,22 +11,24 @@
 
       </view>
     </view>
-    <view class="tab-content bg-white" v-if="curTab===0">
-      <view class="form-box">
-        <a-form v-if="addV2 && isArray(fields)" :fields="fields" :pageType="'add'" :formType="'add'" ref="bxForm"
-          @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
+    <view class="page-content">
+      <view class="tab-content bg-white" v-if="curTab===0">
+        <view class="form-box">
+          <a-form v-if="addV2 && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="'add'" :formType="'add'"
+            ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
+        </view>
       </view>
-    </view>
-    <view class="tab-content" v-if="curTab===1">
-      <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="'list'" :colV2="colV2"
-        :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
-    </view>
-
-    <view class="button-box" v-if="addV2&&formButtons&&curTab===0">
-      <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
-        v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
-        {{ btn.button_name }}
-      </button>
+      <view class="tab-content" v-if="curTab===1">
+        <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="'list'" :colV2="colV2"
+          :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
+      </view>
+      
+      <view class="button-box" v-if="addV2&&formButtons&&curTab===0">
+        <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
+          v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
+          {{ btn.button_name }}
+        </button>
+      </view>
     </view>
   </view>
 </template>
@@ -55,7 +57,7 @@
         searchVal: "",
         listConfig: {
           // show_custom_btn:false,
-          show_public_btn:false
+          show_public_btn: false
         },
         initCond: [],
         relationCondition: [],
@@ -101,6 +103,14 @@
         }
       }
       this.getColV2('add')
+    },
+    onReachBottom() {
+      if(this.curTab===1){
+        if(this.loadStatus=='more'){
+          this.pageNo++
+          this.getList()
+        }
+      }
     },
     methods: {
       async clickFootBtn(data) {
@@ -549,12 +559,13 @@
       },
       changeTab(index) {
         this.curTab = index
-        if (index == 1 && this.loadStatus === 'more') {
-          this.getColV2('list').then(_=>{
+        if (index == 1) {
+          this.loadStatus = 'more'
+          this.pageNo = 1
+          this.getColV2('list').then(_ => {
             this.getList()
           })
-          
-        }else{
+        } else {
           this.getColV2('add')
         }
       },
@@ -570,6 +581,7 @@
             title: colVs.service_view_name
           });
         }
+        debugger
         console.log('colVs', colVs);
         if (colVs.more_config) {
           try {
@@ -590,7 +602,7 @@
           }
         }
         this[`${type}V2`] = colVs;
-        
+
         let defaultVal = this.defaultVal;
         let self = this
 
@@ -759,6 +771,17 @@
           },
           order: this.orderList || []
         };
+        if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+          this.fieldsCond.forEach(item => {
+            if (item.value) {
+              req.condition.push({
+                colName: item.column,
+                ruleType: 'eq',
+                value: item.value
+              })
+            }
+          })
+        }
         // if (this.listType === 'proc') {
         //   if (proc_data_type || this.proc_data_type) {
         //     req['proc_data_type'] = proc_data_type || this.proc_data_type;
@@ -885,7 +908,15 @@
   .mix-form-list {
     background-color: #F8F8FA;
     overflow: hidden;
-
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    .page-content{
+      flex: 1;
+      overflow-y: scroll;
+      position: relative;
+      top: -40rpx;
+    }
     .tab-list {
       display: flex;
       background-color: #fff;
@@ -923,8 +954,6 @@
 
     .tab-content {
       margin: 0 20rpx;
-      position: relative;
-      top: -40rpx;
       border-radius: 20rpx;
       min-height: 80vh;
     }

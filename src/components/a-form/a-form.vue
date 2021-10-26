@@ -1,6 +1,6 @@
 <template>
   <view>
-    <a-form-item :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :optionMode="optionMode"
+    <a-form-item :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel" :optionMode="optionMode"
       @on-value-change="onValChange" @on-value-blur="onValBlur" @chooseLocation="chooseLocation"
       v-for="field in allField" v-show="showField(field)" :key="field.id" :field="field" :pageType="pageType"
       ref="fitem"></a-form-item>

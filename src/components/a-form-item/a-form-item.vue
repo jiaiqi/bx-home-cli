@@ -75,12 +75,16 @@
       </bx-checkbox-group>
 
       <view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
+        <view class="selector-tip" v-if="selectorData.length===0&&!fkFieldLabel" @click="getSelectorData(null, null, null)">
+          请选择
+          <text class="cuIcon-right margin-left-xs"></text>
+        </view>
         <view class="" v-if="selectorData.length===0&&fkFieldLabel">
           {{fkFieldLabel}}
         </view>
         <view v-else-if="
             (setOptionList.length < 15 && fieldData.type === 'Set') ||
-            (selectorData.length <= 6 && fieldData.type === 'Selector')
+            (selectorData.length <= 4 && fieldData.type === 'Selector')
           ">
           <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
             v-model="fieldData.value" mode="button" @change="onBlur">
@@ -819,6 +823,7 @@
           }
           return;
         }
+        
         let req = {
           serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2
             .serviceName : '',
@@ -840,6 +845,7 @@
         // #ifdef H5
         top.user = uni.getStorageSync('login_user_info');
         // #endif
+        debugger
         if (cond) {
           req.condition = cond;
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&

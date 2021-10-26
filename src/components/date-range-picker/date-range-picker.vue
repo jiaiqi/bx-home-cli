@@ -218,6 +218,7 @@
 
       .place-holder {
         padding: 0;
+        color: #808080;
       }
     }
   }
