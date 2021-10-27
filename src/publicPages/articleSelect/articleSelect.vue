@@ -142,7 +142,6 @@
         if (condition) {
           req.condition = [...req.condition, ...condition]
         }
-        debugger
         if (this.queryOption?.storeNo) {
           req.condition.push({
             colName: 'store_no',

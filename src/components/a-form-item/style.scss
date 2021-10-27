@@ -87,7 +87,7 @@
 		width: 100%;
 		border-radius: 10rpx;
 		margin:0 auto;
-		min-height: 300px;
+		min-height: 300rpx;
 		text-align: left;
 		color: #000000;
 		background-color: #f1f1f1;
@@ -196,6 +196,10 @@
 		}
 		&.label-top {
 			padding: 0 20rpx 10rpx;
+      text-align: left;
+      .form-item-content_value{
+        justify-content: flex-start;
+      }
 			.form-item-content_value.checkbox-group {
 				margin-top: 10rpx;
 			}

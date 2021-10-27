@@ -948,6 +948,7 @@
               bindUserInfo
             };
             obj = this.deepClone(obj)
+            debugger
             targetUrl = this.renderStr(this.customDetailUrl, obj)
             uni.navigateTo({
               url: targetUrl
@@ -966,7 +967,6 @@
                 row,
                 button
               } = res
-              debugger
               let fieldsCond = []
               if (row && row.id) {
                 fieldsCond = [{
@@ -977,7 +977,7 @@
               } else {
                 if (typeof row == 'object' && Object.keys(row).length > 0) {
                   Object.keys(row).forEach(key => {
-                    if (key !== '_buttons') {
+                    if (key !== '_buttons'&&row[key]) {
                       let obj = {
                         column: key,
                         value: row[key] || ''

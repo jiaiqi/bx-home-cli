@@ -865,23 +865,46 @@
             if (data.button && data.button.button_type === 'detail') {
               let row = res.row;
               let btn = res.button;
-              let params = {
-                type: 'detail',
-                condition: [{
-                  colName: 'id',
-                  ruleType: 'in',
-                  value: row.id
-                }],
-                serviceName: btn.service_name,
-                defaultVal: row
-              };
-              let url = `/pages/public/formPage/formPage?params=${JSON.stringify(params)}`
+              let fieldsCond = []
+              if (row && row.id) {
+                fieldsCond = [{
+                  column: 'id',
+                  value: row.id,
+                  display: false
+                }]
+              } else {
+                if (typeof row == 'object' && Object.keys(row).length > 0) {
+                  Object.keys(row).forEach(key => {
+                    if (key !== '_buttons' && row[key]) {
+                      let obj = {
+                        column: key,
+                        value: row[key] || ''
+                      }
+                      fieldsCond.push(obj)
+                    }
+                  })
+                }
+              }
+              let url =
+                `/publicPages/formPage/formPage?type=detail&serviceName=${btn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
+              //   'childTableList') {
+              // url = `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // }
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
+              // if (button.service_name === 'srvdaq_cms_content_select') {
+              //   if (rowData.content_no) {
+              //     uni.navigateTo({
+              //       url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${rowData.content_no}`
+              //     });
+              //   }
+              //   return
+              // }
               uni.navigateTo({
                 url: url
-              });
+              })
             } else if (data.button && data.button.button_type === 'customize') {
               // 自定义按钮
               let moreConfig = data.button.more_config;

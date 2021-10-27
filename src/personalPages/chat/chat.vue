@@ -267,7 +267,6 @@
 								url: `/publicPages/gropDetail/gropDetail?gc_no=${this.groupNo}&pb_no=${this.userInfo.no}&type=group-detail&from=store-detail`
 							});
 						}
-						debugger
 						if (res.data.length > 0) {
 							if (this.groupInfo && this.groupInfo.name) {
 								this.pageTitle = this.groupInfo.name + `(${res.page.total})`

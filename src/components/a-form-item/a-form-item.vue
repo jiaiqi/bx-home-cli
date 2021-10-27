@@ -75,7 +75,9 @@
       </bx-checkbox-group>
 
       <view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
-        <view class="selector-tip" v-if="selectorData.length===0&&!fkFieldLabel" @click="getSelectorData(null, null, null)">
+        <view class="selector-tip"
+          v-if="selectorData.length===0&&setOptionList.length===0&&!fkFieldLabel&&!fieldData.value"
+          @click="getSelectorData(null, null, null)">
           请选择
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
@@ -116,8 +118,8 @@
         </view>
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
-        <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode" :isRange="pageType==='filter'"
-          @change="bindTimeChange" v-model="fieldData.value">
+        <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode"
+          :isRange="pageType==='filter'" @change="bindTimeChange" v-model="fieldData.value">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
@@ -143,8 +145,9 @@
             ? fieldData.item_type_attr.max_len
             : 999
         " v-model="fieldData.value" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
-      <input class="" style="width: 100%" @blur="onBlur" :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.label"
-        :type="fieldData.type" @input="onInput" :maxlength="
+      <input class="" style="width: 100%" @blur="onBlur"
+        :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.label" :type="fieldData.type" @input="onInput"
+        :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
@@ -487,13 +490,13 @@
         immediate: true,
         handler(newValue, oldValue) {
           this.fieldData = newValue;
-          if(newValue.type==='Selector'){
+          if (newValue.type === 'Selector') {
             this.pickerChange(newValue.value)
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
             this.textareaValue = newValue.value;
           }
-          if(newValue.type === 'images'){
+          if (newValue.type === 'images') {
             this.getDefVal()
           }
         }
@@ -652,11 +655,12 @@
       async getDefVal() {
         let self = this;
         if (self.fieldData.type === 'images' && self.fieldData.value) {
-          self.imagesUrl = [];
           if (self.fieldData.value.indexOf('http') === -1) {
             // 上传到系统的图片 只有图片编号 查到图片地址后再push
             let fileDatas = await self.getFilePath(self.fieldData.value);
             if (fileDatas) {
+              self.imagesUrl = [];
+              debugger
               for (let i = 0; i < fileDatas.length; i++) {
                 const url =
                   `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}&thumbnailType=fwsu_100`;
@@ -665,6 +669,7 @@
             }
           } else {
             // 网络地址 直接push
+            self.imagesUrl = [];
             self.imagesUrl.push(self.fieldData.value);
           }
         } else if (self.fieldData.type === 'list' && self.fieldData.value !== '') {
@@ -794,7 +799,6 @@
           if (optionData?.label) {
             this.fkFieldLabel = optionData.label;
           }
-          debugger
           this.fieldData['colData'] = optionData;
           this.hideModal();
           this.onBlur()
@@ -823,7 +827,7 @@
           }
           return;
         }
-        
+
         let req = {
           serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2
             .serviceName : '',
@@ -845,7 +849,6 @@
         // #ifdef H5
         top.user = uni.getStorageSync('login_user_info');
         // #endif
-        debugger
         if (cond) {
           req.condition = cond;
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&

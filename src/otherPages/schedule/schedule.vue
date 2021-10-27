@@ -346,7 +346,6 @@
 				}
 			},
 			changeSchedule(operate) {
-				debugger
 				if (this.scheduleConfig.col_head_disp_col === 'day_of_week_cn') {
 					let cond = {};
 					if (operate === 'prev') {
@@ -379,7 +378,6 @@
 			goPage(e) {
 				let cond = [];
 				let scheduleConfig = {};
-				debugger
 				if (e.data && e.data.length > 0) {
 					scheduleConfig = e.data[0].scheduleConfig;
 					cond = [{

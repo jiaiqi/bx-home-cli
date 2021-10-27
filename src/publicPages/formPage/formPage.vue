@@ -6,7 +6,7 @@
           :formType="use_type" ref="bxForm" @value-blur="valueChange">
         </a-form>
       </view>
-      
+
       <view class="child-service-box">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton">
@@ -314,9 +314,8 @@
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
-                  debugger
                   let child_data = this.$refs.childList[index].getChildDataList()
-                  data.child_data_list.push(...child_data) 
+                  data.child_data_list.push(...child_data)
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
@@ -402,11 +401,32 @@
         if (Array.isArray(cols) && cols.length > 0) {
           result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
+        let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func).map(item => item.column)
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          debugger
+          result = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           if (item.x_if) {
+            if (Array.isArray(item.calc_trigger_col) && item.calc_trigger_col.includes(column)) {
+              debugger
+              if (item.table_name !== table_name) {
+                debugger
+                result = await this.evalCalc(item.table_name, [item.column], fieldModel, this.appName)
+              }
+              d
+              // if (result?.response && result.response[item.column]) {
+              //   item.display = true
+              // } else if (result === true) {
+              //   item.display = true
+              // } else {
+              //   item.display = false
+              // }
+            }
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
+                debugger
                 result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
               }
               if (result?.response && result.response[item.column]) {
@@ -598,7 +618,6 @@
               this.mainData = {
                 ...this.storeInfo
               }
-              debugger
             }
 
             fields = colVs._fieldInfo.map(field => {
@@ -608,30 +627,28 @@
                   return item;
                 });
               }
-              if (Array.isArray(field?.option_list_v2?.mconditions) && field.option_list_v2
-                .mconditions.length > 0) {
-                let mconditions = field.option_list_v2.mconditions.map(
-                  field => {
-                    field.value = this.renderStr(field.value, this.mainData)
-                    return field
-                  })
-                if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
-                  .conditions
-                  .length > 0) {
-                  field.option_list_v2.conditions = [...field.option_list_v2
-                    .conditions, ...mconditions
-                  ]
-                } else {
-                  field.option_list_v2.conditions = mconditions
-                }
-              }
+              // if (Array.isArray(field?.option_list_v2?.mconditions) && field.option_list_v2
+              //   .mconditions.length > 0) {
+              //   let mconditions = field.option_list_v2.mconditions.map(
+              //     field => {
+              //       field.value = this.renderStr(field.value, this.mainData)
+              //       return field
+              //     })
+              //   if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+              //     .conditions
+              //     .length > 0) {
+              //     field.option_list_v2.conditions = [...field.option_list_v2
+              //       .conditions, ...mconditions
+              //     ]
+              //   } else {
+              //     field.option_list_v2.conditions = mconditions
+              //   }
+              // }
               if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
                 .conditions
                 .length > 0) {
-                debugger
                 field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
                   .conditions, this.mainData)
-                debugger
               }
 
               if (this.defaultCondition && Array.isArray(this
@@ -695,14 +712,16 @@
 
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
-        const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        let result = null
+        if (Array.isArray(cols) && cols.length > 0) {
+          result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        }
 
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
-                debugger
                 result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
               }
               if (result?.response && result.response[item.column]) {
@@ -774,7 +793,8 @@
     padding: 20rpx;
     display: flex;
     flex-direction: column;
-    .form-content{
+
+    .form-content {
       flex: 1;
       margin-bottom: 20rpx;
     }
@@ -792,7 +812,8 @@
   }
 
   .button-box {
-    padding:40rpx 20rpx;
+    padding: 40rpx 20rpx;
+
     .cu-btn {
       min-width: 40%;
     }

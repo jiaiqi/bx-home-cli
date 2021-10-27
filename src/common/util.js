@@ -215,7 +215,7 @@ export default {
             item.init_expr = login_user_info?.user_no || '';
           }
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
-            item.init_expr = dayjs.format('YYYY-MM-DD HH:mm')
+            item.init_expr = dayjs().format('YYYY-MM-DD HH:mm')
           }
           if (item.init_expr && item.init_expr.indexOf('globalData.') !== -1) {
             let globalData = getApp().globalData
@@ -1325,7 +1325,6 @@ export default {
           "serviceName": btn.service_name || btn.operate_service,
           "defaultVal": null
         }
-        debugger
         switch (btn.button_type) {
           case "edit":
             if (e.hasOwnProperty("row")) {
@@ -1959,7 +1958,6 @@ export default {
         console.log(store.state.app.authBoxDisplay)
         store.commit('SET_AUTH_USERINFO', false)
         store.commit('SET_REGIST_STATUS', false)
-        debugger
         return
         // 未授权不进行注册
       } else {
@@ -2006,7 +2004,6 @@ export default {
             break;
         }
       }
-      debugger
       let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
       let req = [{
         "serviceName": "srvhealth_person_info_add",
@@ -2053,7 +2050,6 @@ export default {
       // }
       store.commit('SET_REGIST_STATUS', true)
       let res = await _http.post(url, req)
-      debugger
       store.commit('SET_REGIST_STATUS', false)
       if (res.data && res.data.resultCode === "SUCCESS") {
         console.log("信息登记成功")
@@ -2083,7 +2079,6 @@ export default {
         // })
         if (res.data.resultCode === '0011') {
           // 未登录
-          debugger
           return false
         }
         return false
@@ -2325,6 +2320,44 @@ export default {
         res += '...'
       }
       return res
+    }
+    Vue.prototype.evalCalc = async (tableName, cols, data = {}, appName) => {
+      if (!tableName || !cols) {
+        return
+      }
+      if (Array.isArray(cols)) {
+        cols = cols.toString()
+      }
+      const app = appName || uni.getStorageSync('activeApp')
+      const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_table_col_calc_result`
+      const req = [{
+        serviceName: "srvsys_table_col_calc_result",
+        condition: [{
+            colName: 'table',
+            ruleType: 'eq',
+            value: tableName
+          },
+          {
+            colName: 'col',
+            ruleType: 'eq',
+            value: cols
+          }
+        ]
+      }]
+      if (data) {
+        req[0].data = [data]
+      }
+      const res = await _http.post(url, req)
+      debugger
+      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
+        0) {
+        return res.data.response[0]
+      } else if (res.data.resultCode === '6666') {
+        return true
+      } else {
+        return false
+      }
+
     }
     // 后端计算xif并返回结果
     Vue.prototype.evalX_IF = async (tableName, cols, data = {}, appName) => {

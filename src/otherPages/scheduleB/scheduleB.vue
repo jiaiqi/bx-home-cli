@@ -190,7 +190,6 @@
 						rowHeadList = row_head_custom_data.rowHeadList
 					} catch (e) {
 						console.log(e)
-						debugger
 						//TODO handle the exception
 					}
 				}

@@ -672,6 +672,7 @@
 
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
+        debugger
         const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
 
         for (let i = 0; i < colVs._fieldInfo.length; i++) {

@@ -416,7 +416,6 @@
 									url: self.previousPageUrl
 								});
 							} else {
-                debugger
 								uni.navigateBack({
 									animationDuration: 500,
 									fail: function(err) {

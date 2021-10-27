@@ -237,7 +237,6 @@
         this.$emit('submit', arr)
       },
       numberChange(e) {
-        // debugger
         console.log(e)
         let {
           value,

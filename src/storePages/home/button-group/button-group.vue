@@ -15,7 +15,6 @@
             <view class="cu-tag badge-left" v-if="item.unbacknum">{{
               item.unbacknum || ""
             }}</view>
-            <!-- <view class="cu-tag badge-left" v-if="item.unbacknum">未回复:{{item.unbacknum||''}}</view> -->
             <u-icon :name="item.icon" size="60" color="#00aaff" v-if="item.iconType === 'uicon' && !item.custonIcon">
             </u-icon>
             <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
@@ -70,6 +69,53 @@
         makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
       </uni-qrcode>
     </view>
+
+    <view class="cu-modal" :class="{'show':modalName==='realname'}" @click="hideModal" @touchmove.prevent>
+      <view class="cu-dialog" @click.stop>
+        <!-- 实名登记信息 -->
+        <view class="modal-title text-bold text-cyan bg-white">
+          请先完善实名信息
+        </view>
+        <form class="realname-form">
+          <view class="cu-form-group">
+            <view class="title">姓名</view>
+            <input class="text-right" placeholder="请输入您的真实姓名" name="input" v-model="formModel.customer_name"></input>
+          </view>
+          <view class="cu-form-group">
+            <view class="title">身份证号</view>
+            <input class="text-right" placeholder="请输入您的身份证号" name="input" type="idcard"
+              v-model="formModel.id_no"></input>
+          </view>
+          <view class="cu-form-group">
+            <view class="title">出生日期</view>
+            <picker mode="date" v-model="formModel.customer_birth_day" start="1930-09-01" end="2022-09-01"
+              @change="DateChange">
+              <view class="picker birthday text-right">
+                {{formModel.customer_birth_day||'请选择'}}
+              </view>
+            </picker>
+          </view>
+          <view class="cu-form-group">
+            <view class="title">手机号码</view>
+            <text v-if="!formModel.phone_xcx">点击右侧按钮获取手机号</text>
+            <input class="text-right" placeholder="请先授权获取手机号" name="input" type="number"
+              v-model="formModel.customer_phone" v-else></input>
+            <view class="cu-capsule radius" v-if="!formModel.phone_xcx">
+              <button class="cu-tag bg-blue" type="primary" open-type="getPhoneNumber"
+                @getphonenumber="decryptPhoneNumber">
+                获取手机号
+              </button>
+            </view>
+          </view>
+        </form>
+        <view class="bg-white tip text-red" v-if="tip">
+          {{tip}}
+        </view>
+        <view class="button-box margin-tb">
+          <button type="primary" class="cu-btn bg-blue" @click="updateUserInfo">确定</button>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -101,6 +147,16 @@
         qrcodePath: "",
         qrCodeText: "",
         codeSize: uni.upx2px(700),
+        modalName: null,
+        tip: '',
+        formModel: {
+          id_no: '',
+          phone_xcx: '',
+          customer_name: "",
+          customer_birth_day: "",
+          customer_phone: '',
+          appoint_remark: ''
+        }
         // buttons: this.pageItem.listdata || []
       };
     },
@@ -124,16 +180,6 @@
       },
     },
     computed: {
-      // qrCodeText() {
-      //   let result = ''
-      //   result = `https://wx2.100xsys.cn/qrcode/${this.storeInfo.store_no}/PT2110180002`
-      //   if (this.userInfo?.userno && this.storeInfo?.store_no) {
-      //     result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`
-      //   } else if (this.storeInfo?.store_no) {
-      //     result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`
-      //   }
-      //   return result
-      // },
       buttons() {
         if (Array.isArray(this.pageItem.listdata)) {
           return this.pageItem.listdata;
@@ -275,6 +321,102 @@
       },
     },
     methods: {
+      hideModal() {
+        this.modalName = null
+      },
+      showRealNameModal() {
+        this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+        this.formModel.customer_phone = this.userInfo.phone
+        this.formModel.customer_birth_day = this.userInfo.birthday
+        this.formModel.id_no = this.userInfo.id_no
+        this.formModel.phone_xcx = this.userInfo.phone_xcx
+        this.modalName = 'realname'
+      },
+      async updateUserInfo() {
+        let data = {}
+        if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
+          .customer_birth_day || !this.formModel.id_no) {
+          //  || !this.formModel.phone_xcx 暂不校验是否填写小程序手机号
+          this.tip = '请确认所有实名信息已填写完整'
+          return
+        }
+        this.tip = ''
+        if (!this.userInfo.id_no || this.formModel.id_no) {
+          data.id_no = this.formModel.id_no
+        }
+        if (!this.userInfo.phone || this.formModel.customer_phone) {
+          data.phone = this.formModel.customer_phone
+        }
+        if (!this.userInfo.phone_xcx || this.formModel.phone_xcx) {
+          data.phone_xcx = this.formModel.phone_xcx
+        }
+        if (!this.userInfo.birthday || this.formModel.customer_birth_day) {
+          data.birthday = this.formModel.customer_birth_day
+        }
+        if (this.formModel.customer_name || this.formModel.customer_name) {
+          data.name = this.formModel.customer_name
+        }
+        let req = [{
+          "serviceName": "srvhealth_person_info_real_identity_update",
+          "condition": [{
+            "colName": "id",
+            "ruleType": "eq",
+            "value": this.userInfo.id
+          }],
+          "data": [data]
+        }]
+        let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
+        if (res.success) {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
+            if (info && info.no) {
+              this.$store.commit('SET_USERINFO', info)
+            } else if (res.data[0].no) {
+              uni.setStorageSync('cur_user_no', res.data[0].no)
+              this.$store.commit('SET_USERINFO', res.data[0])
+            }
+          }
+          // this.selectTimeArr(this.vaccineInfo)
+        }
+      },
+      async decryptPhoneNumber(e) {
+        // 解密手机号信息
+        let self = this
+        debugger
+        try {
+          let sessionStatus = await wx.checkSession()
+        } catch (err) {
+          // session_key 已经失效， 需要重新执行登录流程
+          if (err) {
+            uni.showToast({
+              title: err,
+              icon: false
+            })
+          }
+          await this.toAddPage()
+        }
+        if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
+          let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
+          let req = [{
+            data: [{
+              encryptedData: e.detail.encryptedData,
+              signature: e.detail.iv
+            }],
+            serviceName: 'srvwx_app_data_decrypt'
+          }]
+          let res = await this.$http.post(url, req);
+          if (res.data.resultCode === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response
+            .length > 0 && res.data.response[0].response && res.data.response[0].response.phoneNumber) {
+            this.formModel.phone_xcx = res.data.response[0].response.phoneNumber
+            this.formModel.customer_phone = res.data.response[0].response.phoneNumber
+          } else {}
+        } else if (e?.detail?.errMsg && e.detail.errMsg.indexOf('no permission')) {
+          uni.showToast({
+            title: '当前小程序无权获取用户手机号',
+            icon: 'none'
+          })
+        }
+      },
       makeQrCode() {
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make()
@@ -373,7 +515,6 @@
         if (!this.storeNo) {
           return;
         }
-        // this.groupList = []
         let groupList = await this.getGroupList();
         if (Array.isArray(groupList) && groupList.length > 0) {
           let groupNoList = groupList.map((item) => item.gc_no);
@@ -436,9 +577,26 @@
           });
           return;
         }
+
+
+
         if (e.url) {
+
+          if (e.url.indexOf('needRealNameAuth') > -1) {
+            // 需要进行实名认证
+            if (!this.userInfo?.phone_xcx || !this.userInfo?.id_no) {
+              this.showRealNameModal()
+              return
+            }
+          }
+
           try {
-            const data = this;
+            let data = {
+              ...this.$data,
+              storeInfo: this.storeInfo,
+              userInfo: this.userInfo,
+              bindUserInfo: this.bindUserInfo
+            }
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
           } catch (e) {

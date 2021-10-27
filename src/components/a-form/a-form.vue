@@ -172,7 +172,6 @@
             // 		delete model[item.columns]
             // 	}
             // })
-            debugger
             return model;
           } else {
             // return this.allField.reduce((res, cur) => {
@@ -218,7 +217,6 @@
                  return res
                },[])
                 if(dependFields.length>0){
-                  debugger
                   this.handlerReduant(item)
                 }
               } else if (item.redundant.trigger === 'isnull') {

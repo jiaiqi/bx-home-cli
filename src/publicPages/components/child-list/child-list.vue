@@ -803,7 +803,6 @@
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = null
-        debugger
         if (this.addV2) {
           colVs = this.addV2
         } else {
@@ -831,7 +830,6 @@
             }
           }
           console.log(this.mainData)
-          debugger
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }

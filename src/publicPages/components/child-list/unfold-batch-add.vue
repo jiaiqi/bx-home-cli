@@ -304,7 +304,6 @@
     methods: {
       onSubmit() {
         if (this.$refs?.batchAdd?.submit) {
-          debugger
           let arr = this.$refs.batchAdd.getBatchList()
           this.batchSubmit(arr)
           let res = this.getChildDataList()
@@ -726,7 +725,6 @@
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
-          debugger
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }
@@ -777,7 +775,6 @@
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = null
-        debugger
         if (this.addV2) {
           colVs = this.addV2
         } else {
@@ -805,7 +802,6 @@
             }
           }
           console.log(this.mainData)
-          debugger
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }
@@ -850,7 +846,10 @@
         }, {})
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
-        const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        let result = null
+        if (Array.isArray(cols) && cols.length > 0) {
+           await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        }
 
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]

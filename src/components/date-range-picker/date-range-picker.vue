@@ -100,7 +100,6 @@
         debugger
       },
       change(e) {
-        debugger
         if (this.mode === 'dateTime' && e?.f3) {
           this.$emit('change', {
             detail: {

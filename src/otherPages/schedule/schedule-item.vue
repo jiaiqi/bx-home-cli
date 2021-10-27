@@ -47,7 +47,6 @@
 														.toString() !== 'NaN') {
 														let maxChar = Number(disp.max_char);
 														let val = item[disp.srv_col_val]
-														debugger
 														if (item && item[disp.srv_col_val] && item[
 																disp.srv_col_val].length >
 															maxChar) {

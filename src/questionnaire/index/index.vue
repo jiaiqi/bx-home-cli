@@ -177,7 +177,7 @@
           let obj = {
             storeInfo: this.storeInfo,
             userInfo: this.userInfo,
-            bindUserInfo:this.$store?.state?.user?.storeUserInfo
+            bindUserInfo: this.$store?.state?.user?.storeUserInfo
           }
           try {
             params.to = decodeURIComponent(params.to)
@@ -333,6 +333,8 @@
                     data: [{
                       fill_batch_no: self.fill_batch_no,
                       activity_no: self.activity_no,
+                      user_name: self.userInfo?.name || self.userInfo?.nick_name,
+                      user_phone: self.userInfo?.phone || self.userInfo?.phone_xcx,
                       item_data: resultData
                     }]
                   }];
