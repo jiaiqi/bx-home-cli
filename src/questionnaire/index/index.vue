@@ -76,7 +76,7 @@
         }}</view>
       </view>
     </view>
-    <view class="button-box" v-if="showNextBtn">
+    <view class="button-box" v-if="showNextBtn&&isShowOrder===activity_no">
       <button class="button cu-btn" @click="toNextPages"
         v-if="params&&params.button_name">{{params.button_name}}</button>
       <button class="button cu-btn" @click="toNextPages" v-else>下一步</button>
@@ -105,6 +105,7 @@
         status: '未开始',
         target: '',
         configCols: [],
+        resultData: {},
         formData: {
           title: '', // 标题
           remark: '', //欢迎语
@@ -132,6 +133,58 @@
       }
     },
     computed: {
+      isShowOrder() {
+        // 是否显示预定按钮
+        let questArr = ['20211008104446000006', '20210929120256000001', '20211027112223000007']
+        if (questArr.includes(this.activity_no)) {
+          if (this.activity_no === '20210929120256000001') {
+            // stop bang
+            let num = Object.keys(this.resultData).reduce((res, cur) => {
+              if (this.resultData[cur] && this.resultData[cur].indexOf('是') !== -1) {
+                res++
+              }
+              return res
+            }, 0)
+            if (num >= 3) {
+              return this.activity_no
+            }
+          } else if (this.activity_no === '20211008104446000006') {
+            // ESS 嗜睡問卷調查
+            let score = Object.keys(this.resultData).reduce((res, cur) => {
+              if (this.resultData[cur] && this.resultData[cur].indexOf('很少') !== -1) {
+                res += 1
+              } else if (this.resultData[cur] && this.resultData[cur].indexOf('一半以上') !== -1) {
+                res += 2
+              } else if (this.resultData[cur] && this.resultData[cur].indexOf('几乎都会') !== -1) {
+                res += 3
+              }
+              return res
+            }, 0)
+            if (score > 12) {
+              return this.activity_no
+            }
+          } else if (this.activity_no === '20211027112223000007') {
+            let score = Object.keys(this.resultData).reduce((res, cur) => {
+              let val = this.resultData[cur]
+              if (val) {
+                if (val.indexOf('有时感觉气短') !== -1 || val.indexOf('每月都咳几天') !== -1 || val.indexOf('大多数日子都咳') !== -1 ||
+                  val.indexOf('同意') !== -1) {
+                  res += 1
+                } else if (val.indexOf('经常感觉气短') !== -1 || val.indexOf('总是感觉气短') !== -1 || val.indexOf('每天都咳') !== -
+                  1 || val.indexOf('非常同意') !== -1 || val === '是' || val.indexOf('50') !== -1) {
+                  res += 2
+                }
+              }
+              return res
+            }, 0)
+            if (score >= 5) {
+              return this.activity_no
+            }
+          }
+        } else {
+          return this.activity_no
+        }
+      },
       ...mapState({
         storeInfo: state => state.app.storeInfo,
         userInfo: state => state.user.userInfo,
@@ -139,6 +192,16 @@
       })
     },
     watch: {
+      isShowOrder(newValue, oldValue) {
+        if (this.activity_no === '20211027112223000007' && newValue === this.activity_no) {
+          uni.showModal({
+            title: '提示',
+            content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
+            showCancel: false
+          })
+          debugger
+        }
+      },
       activityNo(newValue, oldValue) {
         if (this.activityNo) {
           this.emptyText = '正在请求问卷配置数据';
@@ -313,6 +376,7 @@
                 } else {
                   console.log('itemData', itemData);
                   let resultData = [];
+                  self.resultData = itemData
                   Object.keys(itemData).forEach(item => {
                     let obj = {
                       item_no: item,

@@ -14,7 +14,7 @@
         </view>
       </view>
     </view>
-    <view class="button-box" v-if="colsV2Data">
+    <view class="button-box" v-if="colsV2Data&&!disabled">
       <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
@@ -49,7 +49,8 @@
         currentFormV2: null, //子表v2
         currentFormFields: [], //子表字段
         currentFormFk: null,
-        isOnButton: false
+        isOnButton: false,
+        disabled: false
       }
     },
     computed: {
@@ -396,46 +397,49 @@
         const fieldModel = e
         const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
-
-        let result = null
+        let xIfResult = null
         if (Array.isArray(cols) && cols.length > 0) {
-          result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+          xIfResult = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
-        let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func).map(item => item.column)
+
+        let calcResult = {}
+        let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           debugger
-          result = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
-          if (item.x_if) {
-            if (Array.isArray(item.calc_trigger_col) && item.calc_trigger_col.includes(column)) {
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            this.valueChange(e, item)
+          }
+          // if (item.redundant?.func) {
+          //   if (Array.isArray(item.calc_trigger_col) && item.calc_trigger_col.includes(column)) {
+          //     debugger
+          //     if (item.table_name == table_name) {
+          //       result = await this.evalCalc(item.table_name, [item.column], fieldModel, this.appName)
+          //       debugger
+          //       if(result?.response&&result?.response[item.column]){
+          //         item.value = result?.response[item.column]
+          //       }
+          //     }
+          //   }
+          // }
+
+          if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+            if (item.table_name !== table_name) {
               debugger
-              if (item.table_name !== table_name) {
-                debugger
-                result = await this.evalCalc(item.table_name, [item.column], fieldModel, this.appName)
-              }
-              d
-              // if (result?.response && result.response[item.column]) {
-              //   item.display = true
-              // } else if (result === true) {
-              //   item.display = true
-              // } else {
-              //   item.display = false
-              // }
+              xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
             }
-            if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
-              if (item.table_name !== table_name) {
-                debugger
-                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-              }
-              if (result?.response && result.response[item.column]) {
-                item.display = true
-              } else if (result === true) {
-                item.display = true
-              } else {
-                item.display = false
-              }
+            if (xIfResult?.response && xIfResult.response[item.column]) {
+              item.display = true
+            } else if (xIfResult === true) {
+              item.display = true
+            } else {
+              item.display = false
             }
           }
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
@@ -741,6 +745,9 @@
       },
     },
     async onLoad(option) {
+      if (option.disabled) {
+        this.disabled = option.disabled
+      }
       await this.toAddPage()
       if (option.destApp) {
         this.appName = option.destApp
@@ -774,7 +781,14 @@
           //TODO handle the exception
         }
       }
-
+      if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond.length ===
+          0)) && option.id) {
+        this.fieldsCond = [{
+          column: 'id',
+          ruleType: 'eq',
+          value: option.id
+        }]
+      }
       if (option.serviceName) {
         this.serviceName = option.serviceName;
         this.getFieldsV2();

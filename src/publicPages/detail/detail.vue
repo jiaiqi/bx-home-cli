@@ -24,7 +24,7 @@
         </view>
         <view class="top-center">
           <view class="top-item " v-if="appTempColMap.subTitle&&detail[appTempColMap.subTitle]">
-            <view class="label" v-if="labelMap[appTempColMap.left]">
+            <view class="label" v-if="labelMap[appTempColMap.subTitle]">
               <!-- {{labelMap[appTempColMap.subTitle]||''}}: -->
               {{setValue(appTempColMap.subTitle).label}}:
             </view>
@@ -75,7 +75,7 @@
         </view>
       </view>
       <view class="handler-bar">
-        <view class="show-or-hide" @click="changeDetailStatus" >
+        <view class="show-or-hide" @click="changeDetailStatus">
           <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
           <text class="cuIcon-fold " v-else></text>
@@ -346,12 +346,26 @@
             return true
           }
         })
+        let defaultVal = await this.getDetail(colVs?.vpage_no)
+        colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
+        
         if (Array.isArray(colVs?.child_service) && colVs.child_service.length > 0) {
           colVs.child_service = colVs.child_service.map(item => {
             if (item?.foreign_key?.more_config && typeof item.foreign_key.more_config ===
               'string') {
               try {
                 item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
+                let data = {
+                  mainData: this.detail
+                }
+                if (item.foreign_key?.moreConfig?.condition && item.foreign_key.moreConfig.condition.length > 0) {
+                  item.foreign_key.moreConfig.condition = item.foreign_key.moreConfig.condition.map(item => {
+                    if (item.value && item.value.indexOf('${') !== -1) {
+                      item.value = this.renderStr(data, item.value)
+                    }
+                    return item
+                  })
+                }
               } catch (e) {
                 //TODO handle the exception
               }
@@ -397,16 +411,15 @@
           })
         }
         this.v2Data = colVs;
-        let defaultVal = await this.getDetail()
-        colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
+       
       },
-      async getDetail() {
+      async getDetail(vpage_no) {
         const url = this.getServiceUrl(this.srvApp, this.serviceName, 'select')
         const req = {
           "serviceName": this.serviceName,
           "colNames": ["*"],
           "condition": [],
-          "vpage_no": this.v2Data.vpage_no
+          "vpage_no": vpage_no||this.v2Data?.vpage_no
         }
         if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
           req.condition = this.fieldsCond.map(item => {
@@ -423,6 +436,7 @@
         const res = await this.$http.post(url, req)
         if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.detail = res.data.data[0]
+         
           return this.detail
         }
       },
@@ -665,6 +679,13 @@
           } catch (e) {
             //TODO handle the exception
           }
+        }
+        if ((!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond.length === 0)) && option.id) {
+          this.fieldsCond = [{
+            column: 'id',
+            ruleType: 'eq',
+            value: option.id
+          }]
         }
         this.getDetailV2()
       }

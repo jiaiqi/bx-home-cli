@@ -1,13 +1,45 @@
 <template>
   <view>
-    <a-form-item :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel" :optionMode="optionMode"
-      @on-value-change="onValChange" @on-value-blur="onValBlur" @chooseLocation="chooseLocation"
-      v-for="field in allField" v-show="showField(field)" :key="field.id" :field="field" :pageType="pageType"
-      ref="fitem"></a-form-item>
-    <!-- <slot></slot> -->
+    <view class="field-item" v-show="showField(field)" v-for="(field,fIndex) in allField">
+      <view class="section-name" v-if="field.section&&showSectionName">
+        {{field.section}}
+      </view>
+      <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
+        :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
+        :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
+        @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
+        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"></a-form-item>
+    </view>
   </view>
 </template>
+<style lang="scss">
+  .section-name {
+    padding: 10rpx;
+    color: #B8BAC0;
+  }
 
+  .field-item {
+    overflow: hidden;
+
+    .before-section {
+      // border-radius: 0 0 20rpx 20rpx;
+      border-bottom-left-radius: 20rpx;
+      border-bottom-right-radius: 20rpx;
+      margin-bottom: 20rpx;
+    }
+
+    .section-top {
+      // border-radius: 20rpx 20rpx 0 0;
+      border-top-left-radius: 20rpx;
+      border-top-right-radius: 20rpx;
+
+    }
+
+    .section-top:first-child {
+      margin-top: 0;
+    }
+  }
+</style>
 <script>
   import evaluatorTo from '@/common/evaluator.js';
   export default {
@@ -69,6 +101,11 @@
       this.oldFieldModel = this.deepClone(oldFieldModel)
       this.fieldModel = this.deepClone(oldFieldModel)
     },
+    computed: {
+      showSectionName() {
+        return this.moreConfig?.showSectionName
+      }
+    },
     data() {
       return {
         allField: [],
@@ -81,6 +118,18 @@
       };
     },
     methods: {
+      eleIsBeforeSection(allField, index) {
+        let item = allField[index]
+        if (index + 1 < allField.length) {
+          let nextItem = allField[index + 1]
+          if (nextItem?.section) {
+            return true
+          }
+        }
+        if (index === allField.length - 1) {
+          return true
+        }
+      },
       showField(field) {
         if (this.pageType === 'add') {
           return field.in_add === 1
@@ -121,7 +170,7 @@
                 return res
               }, {})
             }
-          }else if (this.formType === 'detail') {
+          } else if (this.formType === 'detail') {
             model = this.deepClone(this.fieldModel)
             if (Object.keys(model).length === 0) {
               model = this.allField.reduce((res, cur) => {
@@ -195,10 +244,9 @@
           return false;
         }
       },
-      handlerReduant(obj){
+      handlerReduant(obj) {
         // 处理冗余操作
         const e = this.deepClone(obj)
-       
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.deepClone(this.allField[index])
           console.log(item)
@@ -210,13 +258,13 @@
               e.column) {
               if (item.redundant.trigger === 'always') {
                 item.value = e.colData[item.redundant.refedCol];
-               let dependFields = this.allField.reduce((res,cur)=>{
-                 if(cur?.redundant?.dependField === item.column){
-                   res.push(cur.column)
-                 }
-                 return res
-               },[])
-                if(dependFields.length>0){
+                let dependFields = this.allField.reduce((res, cur) => {
+                  if (cur?.redundant?.dependField === item.column) {
+                    res.push(cur.column)
+                  }
+                  return res
+                }, [])
+                if (dependFields.length > 0) {
                   this.handlerReduant(item)
                 }
               } else if (item.redundant.trigger === 'isnull') {
@@ -227,11 +275,11 @@
               }
               this.fieldModel[item.column] = item.value;
               if (item.type == 'images') {
-                setTimeout(()=>{
+                setTimeout(() => {
                   // this.$refs.fitem[index].getDefVal()
-                },200)
+                }, 200)
               }
-              this.$emit('value-blur', this.fieldModel[item.column], this.fieldModel);
+              this.$emit('value-blur', this.fieldModel, item);
             }
           }
         }
@@ -274,7 +322,7 @@
       onValBlur(e) {
         if (e.hasOwnProperty('value')) {
           this.fieldModel[e.column] = e.value;
-          this.$emit('value-blur', e, this.fieldModel);
+          this.$emit('value-blur', this.fieldModel, e);
         }
       },
       chooseLocation(e) {

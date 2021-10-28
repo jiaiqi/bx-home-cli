@@ -991,6 +991,10 @@
             req.vpage_no = this.v2Data.vpage_no
           }
           this.loading = true
+          if (this.config?.foreign_key?.moreConfig?.condition && Array.isArray(this.config?.foreign_key?.moreConfig
+              ?.condition)) {
+            req.condition = [...req.condition, ...this.config.foreign_key.moreConfig.condition]
+          }
           const res = await this.$http.post(url, req)
           this.loading = false
           if (res.data?.state === 'SUCCESS') {

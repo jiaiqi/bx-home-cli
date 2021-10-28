@@ -3,9 +3,11 @@
 
 let env = 'prod'
 
-if (process?.env?.APP_ENV) {
-  env = process.env.APP_ENV
-}
+env = 'test'
+
+// if (process?.env?.APP_ENV) {
+//   env = process.env.APP_ENV
+// }
 
 
 let conf = {

@@ -31,7 +31,7 @@
       <u-calendar v-model="show" mode="date" @change="change" max-date="2050-01-01"></u-calendar>
     </view>
     <view class="calendar-box" v-else-if="mode==='dateTime'">
-      <datetime-picker @change="change" :disabled="disabled"></datetime-picker>
+      <datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
     </view>
     <picker class="uni-picker" :mode="mode" :value="selectVal" v-else @change="change">
       <view class="picker-content">

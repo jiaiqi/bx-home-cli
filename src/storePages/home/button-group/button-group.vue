@@ -321,6 +321,9 @@
       },
     },
     methods: {
+      DateChange(e) {
+        this.formModel.customer_birth_day = e.detail.value
+      },
       hideModal() {
         this.modalName = null
       },

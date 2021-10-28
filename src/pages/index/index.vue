@@ -36,7 +36,7 @@
       <view class="" style="margin-top: 30vh" v-if="loadStatus === 'noMore' && list.length === 0">
         暂无数据
       </view>
-      <uni-load-more :status="loadStatus" v-if="
+      <uni-load-more :status="loadStatus" :contentText="loadText" @clickLoadMore="loadMore" v-if="
           loadStatus !== 'noMore' ||
           (loadStatus === 'noMore' && list.length !== 0)
         ">
@@ -152,8 +152,13 @@
         list: [],
         page: {
           pageNo: 1,
-          rownumber: 10,
+          rownumber: 20,
           total: 0
+        },
+        loadText: {
+          contentdown: "上拉或点击加载更多",
+          contentrefresh: "正在加载...",
+          contentnomore: "没有更多数据了"
         },
         loadStatus: 'more', //more,loading,noMore
         modalName: ""
@@ -404,6 +409,12 @@
           return res.data[0]
         }
       },
+      loadMore() {
+        if (this.loadStatus !== 'noMore') {
+          this.page.pageNo++
+          this.getList('more')
+        }
+      },
     },
     onPullDownRefresh() {
       this.loadStatus = 'more'
@@ -494,9 +505,9 @@
   }
 
   .store-list {
-    padding: 20rpx;
-    // height: calc(100vh - var(--window-top) - var(--window-bottom));
-    // overflow-y: scroll;
+    padding: 0 20rpx;
+    height: 100vh;
+    overflow-y: scroll;
   }
 
   .store-item {

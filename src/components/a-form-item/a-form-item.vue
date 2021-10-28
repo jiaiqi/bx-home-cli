@@ -1,5 +1,7 @@
 <template>
   <view class="form-item" v-if="fieldData.display" :class="{
+    'section-top':sectionTop,
+    'before-section':beforeSection,
 		'disabled-field':fieldData.disabled,
       'form-detail': pageType === 'detail',
       valid_error: !valid.valid,
@@ -357,6 +359,14 @@
       },
       srvApp: {
         type: String,
+      },
+      sectionTop:{
+        type:Boolean,
+        default:false
+      },
+      beforeSection:{
+        type:Boolean,
+        default:false
       }
     },
     computed: {

@@ -12,7 +12,7 @@
       </view>
     </view>
     <view class="page-content">
-      <view class="tab-content bg-white" v-if="curTab===0">
+      <view class="tab-content" v-if="curTab===0">
         <view class="form-box">
           <a-form v-if="addV2 && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="'add'" :formType="'add'"
             ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
@@ -22,7 +22,7 @@
         <list-next class="list-next" :listConfig="listConfig" :list="list" :listType="'list'" :colV2="colV2"
           :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
       </view>
-      
+
       <view class="button-box" v-if="addV2&&formButtons&&curTab===0">
         <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
           v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
@@ -87,7 +87,8 @@
         }
       },
     },
-    onLoad(option) {
+    async onLoad(option) {
+
       if (option.serviceName) {
         this.serviceName = option.serviceName
       }
@@ -95,24 +96,121 @@
         this.appName = option.destApp || option.appName
       }
       if (option.fieldsCond) {
+        let fieldsCond = []
         try {
-          let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
-          this.fieldsCond = fieldsCond
+          fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+        } catch (e) {
+          try {
+            fieldsCond = JSON.parse(option.fieldsCond);
+          } catch (e) {
+            //TODO handle the exception
+          }
+          //TODO handle the exception
+        }
+        this.fieldsCond = fieldsCond
+      }
+      if (option.preAction) {
+        let action = option.preAction
+        try {
+          action = JSON.parse(option.preAction)
         } catch (e) {
           //TODO handle the exception
+          console.log(e)
+        }
+        let data = await this.handlePreAction(action)
+        console.log(data, this.fieldsCond)
+        debugger
+        if (Array.isArray(data?.fieldsCond) && data.fieldsCond.length > 0) {
+          this.fieldsCond = [...this.fieldsCond, ...data.fieldsCond]
         }
       }
       this.getColV2('add')
     },
     onReachBottom() {
-      if(this.curTab===1){
-        if(this.loadStatus=='more'){
+      if (this.curTab === 1) {
+        if (this.loadStatus == 'more') {
           this.pageNo++
           this.getList()
         }
       }
     },
     methods: {
+      async handlePreAction(action) {
+        if (action?.actionNo) {
+          let arr = action.actionNo.split(',')
+          if (arr.length > 0 && Array.isArray(action?.valMap) && action.valMap.length == arr.length) {
+            if (action?.type === 'syncAssign') {
+              // 同步赋值
+              let valueArr = []
+              let self = this
+              let fieldsCond = []
+              for (let i = 0; i < arr.length; i++) {
+                let req = {
+                  "serviceName": "srvsys_page_def_select",
+                  "colNames": ["*"],
+                  "condition": [{
+                    colName: "pt_no",
+                    ruleType: "eq",
+                    value: arr[i]
+                  }],
+                  "page": {
+                    "pageNo": 1,
+                    "rownumber": 1
+                  }
+                }
+                let app = self.appName || uni.getStorageSync('activeApp');
+                let url = self.getServiceUrl('health', 'srvsys_page_def_select', 'select');
+                let resp = await self.$http.post(url, req)
+                if (Array.isArray(resp?.data?.data) && resp.data.data.length > 0) {
+                  let obj = resp.data.data[0];
+                  if (obj.service && obj.service_json) {
+                    let req1 = null;
+                    try {
+                      req1 = JSON.parse(obj.service_json);
+                      console.log(req1)
+                    } catch (e) {
+                      //TODO handle the exception
+                    }
+                    console.log(typeof req1)
+                    if (typeof req1 === 'object') {
+                      let url1 = self.getServiceUrl(obj?.app || app, obj.service, 'select');
+                      let res1 = await self.$http.post(url1, req1)
+                      console.log(res1)
+                      if (Array.isArray(res1?.data?.data) && res1.data.data.length > 0) {
+                        valueArr.push(res1.data.data[0])
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (valueArr.length >= action.valMap.length) {
+                action.valMap.forEach((val, index) => {
+                  if (typeof val === 'object') {
+                    Object.keys(val).forEach(key => {
+                      let obj = {}
+                      obj.column = key;
+                      try {
+                        obj.value = valueArr[index][val[key]]
+                      } catch (e) {
+                        //TODO handle the exception
+                      }
+
+                      if (obj.value || obj.value === null) {
+                        obj.disabled = true;
+                        fieldsCond.push(obj)
+                      }
+                    })
+                  }
+                })
+              }
+              return {
+                fieldsCond
+              }
+            }
+          }
+        }
+      },
       async clickFootBtn(data) {
         let self = this
         let buttonInfo = this.deepClone(data.button);
@@ -372,7 +470,6 @@
                 row,
                 button
               } = res
-              debugger
               let fieldsCond = []
               if (row && row.id) {
                 fieldsCond = [{
@@ -569,8 +666,46 @@
           this.getColV2('add')
         }
       },
-      valueChange(e) {
+      async valueChange(e, triggerField) {
+        const column = triggerField?.column
+        const fieldModel = e
+        const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const table_name = this.addV2.main_table
+        let xIfResult = null
+        if (Array.isArray(cols) && cols.length > 0) {
+          xIfResult = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+        }
 
+        let calcResult = {}
+        let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+        for (let i = 0; i < this.fields.length; i++) {
+          const item = this.fields[i]
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            this.valueChange(e, item)
+          }
+          if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+            if (item.table_name !== table_name) {
+              xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+            }
+            if (xIfResult?.response && xIfResult.response[item.column]) {
+              item.display = true
+            } else if (xIfResult === true) {
+              item.display = true
+            } else {
+              item.display = false
+            }
+          }
+          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            item.value = e[item.column];
+          }
+          this.$set(this.fields, i, item)
+        }
       },
       async getColV2(type = 'list') {
         let app = this.appName || uni.getStorageSync('activeApp');
@@ -581,7 +716,6 @@
             title: colVs.service_view_name
           });
         }
-        debugger
         console.log('colVs', colVs);
         if (colVs.more_config) {
           try {
@@ -654,11 +788,76 @@
                       .conditions && Array.isArray(item.condition)) {
                       field.option_list_v2.conditions = item.condition;
                     }
+                    // if (field.value) {
+                    //   let model = {
+                    //     [item.column]: item.value
+                    //   }
+                    //   debugger
+                    //   let calcResult = {}
+                    //   if(field?.redundant?.func&&&& Array.isArray(field.calc_trigger_col)){
+                    //     debugger
+                    //   }
+                    //   const table_name = this.addV2.main_table
+                    //   let calcCols = this.addV2._fieldInfo.filter(obj => obj.redundant?.func && Array
+                    //     .isArray(obj
+                    //       .calc_trigger_col) && obj.calc_trigger_col.includes(item.column)).map(obj =>
+                    //     obj.column)
+
+                    //   if (Array.isArray(calcCols) && calcCols.length > 0) {
+                    //     let app = this.appName || uni.getStorageSync('activeApp');
+                    //     this.evalCalc(table_name, calcCols, model, app).then(calcResult => {
+                    //       console.log(calcResult)
+                    //       debugger
+                    //     })
+
+                    //   }
+                    // }
                   }
                 });
               }
               return field;
             })
+
+            let fieldsCondCol = this.fieldsCond.map(item => item.column)
+            if (Array.isArray(fieldsCondCol) && fieldsCondCol.length > 0) {
+              let fieldModel = this.fields.reduce((pre,cur)=>{
+                pre[cur.column] = cur.value
+                return pre
+              },{})
+              let calcResult = {}
+              let calcCols = this.addV2?._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+                .calc_trigger_col) && item.calc_trigger_col.find(col => fieldsCondCol.includes(col))).map(item=>item.column)
+              console.log(calcCols)
+              if (Array.isArray(calcCols) && calcCols.length > 0) {
+                calcResult = await this.evalCalc(this.addV2.main_table, calcCols, fieldModel, this.appName)
+                console.log(calcResult?.response )
+              }
+              
+              for (let i = 0; i < this.fields.length; i++) {
+                const item = this.fields[i]
+                if (calcResult?.response && calcResult.response[item.column]) {
+                  item.value = calcResult?.response[item.column]
+                  // this.valueChange(fieldModel, item)
+                }
+              
+              //   if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+              //     if (item.table_name !== table_name) {
+              //       debugger
+              //       xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+              //     }
+              //     if (xIfResult?.response && xIfResult.response[item.column]) {
+              //       item.display = true
+              //     } else if (xIfResult === true) {
+              //       item.display = true
+              //     } else {
+              //       item.display = false
+              //     }
+              //   }
+                this.$set(this.fields, i, item)
+              }
+
+            }
+            
             break;
         }
         return colVs;
@@ -682,7 +881,6 @@
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
-                  debugger
                   let child_data = this.$refs.childList[index].getChildDataList()
                   data.child_data_list.push(...child_data)
                 })
@@ -911,12 +1109,15 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    .page-content{
+
+    // height: calc(100vh + 20rpx);
+    .page-content {
       flex: 1;
       overflow-y: scroll;
       position: relative;
       top: -40rpx;
     }
+
     .tab-list {
       display: flex;
       background-color: #fff;

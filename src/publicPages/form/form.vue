@@ -9,7 +9,7 @@
           ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
       </view>
     </scroll-view>
-    <view class="button-box" v-if="isArray(fields) && fields.length > 0">
+    <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
       <button class="cu-btn bg-blue" type="primary" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
         @click="onButton(btn)">
         {{ btn.button_name }}
@@ -55,7 +55,8 @@
         afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面
         submitAction: '', //提交后要进行的emit操作
         keyboardHeight: 0,
-        pageHeight: `calc(100vh - var(--window-top) - var(--window-bottom))`
+        pageHeight: `calc(100vh - var(--window-top) - var(--window-bottom))`,
+        disabled:false
       };
     },
     computed: {
@@ -434,7 +435,7 @@
             break;
           case 'submit':
             if (req) {
-            debugger
+              debugger
               req = this.fields.reduce((res, cur) => {
                 res[cur.columns] = cur.value
                 return res
@@ -639,13 +640,25 @@
         const fieldModel = e
         const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
-
+        let calcResult = {}
+        let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          debugger
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+        
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
           result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            this.valueChange(e,item)
+          }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
@@ -828,7 +841,8 @@
                 ._fieldInfo && Array.isArray(colVs._fieldInfo)) {
                 self.defaultCondition.forEach(cond => {
                   colVs._fieldInfo.forEach(field => {
-                    if (cond.colName === field.column && (!['Image'].includes(field.col_type)||(cond['value']&&cond['value'].indexOf('http')!==-1))) {
+                    if (cond.colName === field.column && (!['Image'].includes(field.col_type) || (cond[
+                        'value'] && cond['value'].indexOf('http') !== -1))) {
                       field['value'] = cond['value'];
                       // field['disabled'] = true;
                     }
@@ -844,7 +858,8 @@
                     if (item.hasOwnProperty('disabled')) {
                       field.disabled = item.disabled;
                     }
-                    if (item.hasOwnProperty('value') && (!['Image'].includes(field.col_type)||(item.value&&item.value.indexOf('http')!==-1))) {
+                    if (item.hasOwnProperty('value') && (!['Image'].includes(field.col_type) || (item.value &&
+                        item.value.indexOf('http') !== -1))) {
                       // 不复制照片字段
                       field.value = item.value;
                     }
@@ -960,6 +975,9 @@
       uni.offKeyboardHeightChange(function() {})
     },
     async onLoad(option) {
+      if(option.disabled){
+        this.disabled = option.disabled
+      }
       uni.onKeyboardHeightChange(res => {
         console.log(res.height)
         if (res.height) {
@@ -1103,6 +1121,14 @@
           });
         }
       }
+      if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond.length ===
+          0)) && option.id) {
+        this.fieldsCond = [{
+          column: 'id',
+          ruleType: 'eq',
+          value: option.id
+        }]
+      }
       this.getDefaultVal();
       this.getFieldsV2();
     }
@@ -1136,7 +1162,7 @@
       width: 100%;
       min-height: 120rpx;
       display: flex;
-      padding:40rpx 20rpx ;
+      padding: 40rpx 20rpx;
       justify-content: space-around;
       align-items: center;
 

@@ -102,6 +102,24 @@
 	// padding:0 10rpx;
 	padding-right: 20rpx;
 	position: relative;
+  background-color: #fff;
+  &.before-section {
+        // border-radius: 0 0 20rpx 20rpx;
+        border-bottom-left-radius: 20rpx;
+        border-bottom-right-radius: 20rpx;
+        margin-bottom: 20rpx;
+      }
+  
+     &.section-top {
+        // border-radius: 20rpx 20rpx 0 0;
+        border-top-left-radius: 20rpx;
+        border-top-right-radius: 20rpx;
+  
+      }
+  
+  //     &.section-top:first-child {
+  //       margin-top: 0;
+  //     }
 	&.disabled-field{
 
 		.form-item-content{
