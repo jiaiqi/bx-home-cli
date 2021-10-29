@@ -164,6 +164,7 @@
               return this.activity_no
             }
           } else if (this.activity_no === '20211027112223000007') {
+            // 肺病筛查
             let score = Object.keys(this.resultData).reduce((res, cur) => {
               let val = this.resultData[cur]
               if (val) {
@@ -194,12 +195,26 @@
     watch: {
       isShowOrder(newValue, oldValue) {
         if (this.activity_no === '20211027112223000007' && newValue === this.activity_no) {
+          // 肺病筛查
           uni.showModal({
             title: '提示',
             content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
             showCancel: false
           })
-          debugger
+        } else if (this.activity_no === '20211008104446000006' && newValue === this.activity_no) {
+          // ESS 嗜睡問卷調查
+          uni.showModal({
+            title: '提示',
+            content: '评测分数大于12，有嗜睡症状',
+            showCancel: false
+          })
+        } else if (this.activity_no === '20210929120256000001' && newValue === this.activity_no) {
+          // stop bang
+          uni.showModal({
+            title: '提示',
+            content: '有三项及以上回答为是，符合OSAS高危人群的特征',
+            showCancel: false
+          })
         }
       },
       activityNo(newValue, oldValue) {

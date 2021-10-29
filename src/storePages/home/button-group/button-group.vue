@@ -379,13 +379,12 @@
               this.$store.commit('SET_USERINFO', res.data[0])
             }
           }
-          // this.selectTimeArr(this.vaccineInfo)
         }
+        this.hideModal()
       },
       async decryptPhoneNumber(e) {
         // 解密手机号信息
         let self = this
-        debugger
         try {
           let sessionStatus = await wx.checkSession()
         } catch (err) {

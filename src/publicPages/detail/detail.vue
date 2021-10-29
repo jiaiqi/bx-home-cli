@@ -1,6 +1,49 @@
 <template>
   <view class="detail-wrap">
-    <view class="top-card" v-if="appTempColMap&&detail">
+    <view class="detail-temp-box" v-if="detailConfig&&detail">
+      <view class="detail-top">
+        <view class="left-image" v-if="detailConfig.img&&setValue(detailConfig.img.col).value">
+          <image class="image" :src="getImagePath(setValue(detailConfig.img.col).value,true)" mode="aspectFit"></image>
+        </view>
+        <view class="cols-list" v-if="detailConfig.top_col">
+          <view class="col-item" :style="{
+            width:column.width,
+            color:column.color,
+            'font-size':column.font_size
+          }" v-for="column in detailConfig.top_col">
+            <view class="label" v-if="setValue(column.col,column).label">
+              {{setValue(column.col,column).label}}:
+            </view>
+            <view class="value">
+              {{setValue(column.col).value||'-'}}
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="other-col">
+        <view class="col-item" v-for="column in detailConfig.cols">
+          <view class="label" :class="{'label-top':column.label&&column.label.position==='top'}" :style="{
+            'font-size':column.label&&column.label.font_size?column.label.font_size:null,
+            'color':column.label&&column.label.color?column.label.color:null,
+          }">
+            {{setValue(column.col).label}}
+          </view>
+          <view class="value" :style="{
+            color:column.color
+          }" v-if="column.type==='richText'&&setValue(column.col).value">
+            <view class="" v-html="setValue(column.col).value">
+
+            </view>
+          </view>
+          <view class="value" v-else :style="{
+            color:column.color
+          }">
+            {{setValue(column.col).value||'-'}}
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="top-card" v-if="appTempColMap&&detail&&!detailConfig">
       <view class="left-image" v-if="appTempColMap.img">
         <u-image class="u-image" width="200" height="200" v-if="setValue(appTempColMap.img).value"
           :src="getImagePath(setValue(appTempColMap.img).value,true)" mode="aspectFit"></u-image>
@@ -67,14 +110,14 @@
           </view>
         </view>
       </view>
-      <view class="detail-form">
+      <view class="detail-form" v-if="!detailConfig">
         <view class="form-wrap" :class="{show:setShowDetail}">
           <a-form v-if="isArray(detailFields)" :fields="detailFields" :srvApp="appName" pageType="detail"
             formType="detail" ref="bxForm">
           </a-form>
         </view>
       </view>
-      <view class="handler-bar">
+      <view class="handler-bar" v-if="!detailConfig">
         <view class="show-or-hide" @click="changeDetailStatus">
           <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
@@ -178,6 +221,9 @@
           return {}
         }
       },
+      detailConfig() {
+        return this.moreConfig?.detail_config || false
+      },
       appTempColMap() {
         // 字段关系映射
         return this.moreConfig?.appTempColMap || {}
@@ -238,8 +284,7 @@
       }
     },
     methods: {
-      setValue(col) {
-        debugger
+      setValue(col, cfg) {
         let labelMap = this.labelMap || {};
         let detail = this.detail || {}
         let arr = []
@@ -260,6 +305,9 @@
         }
         if (!resCol && Array.isArray(arr) && arr.length > 0) {
           resCol = arr[0]
+        }
+        if (cfg?.label === false) {
+          labelMap[resCol] = ''
         }
         return {
           label: labelMap[resCol] || '',
@@ -348,23 +396,24 @@
         })
         let defaultVal = await this.getDetail(colVs?.vpage_no)
         colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
-        
+
         if (Array.isArray(colVs?.child_service) && colVs.child_service.length > 0) {
           colVs.child_service = colVs.child_service.map(item => {
             if (item?.foreign_key?.more_config && typeof item.foreign_key.more_config ===
               'string') {
               try {
                 item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
-                let data = {
-                  mainData: this.detail
-                }
+
                 if (item.foreign_key?.moreConfig?.condition && item.foreign_key.moreConfig.condition.length > 0) {
                   item.foreign_key.moreConfig.condition = item.foreign_key.moreConfig.condition.map(item => {
                     if (item.value && item.value.indexOf('${') !== -1) {
-                      item.value = this.renderStr(data, item.value)
+                      let obj = {
+                        mainData: this.detail
+                      }
+                      item.value = this.renderStr(item.value, obj)
                     }
                     return item
-                  })
+                  }).filter(item => item.value)
                 }
               } catch (e) {
                 //TODO handle the exception
@@ -411,7 +460,7 @@
           })
         }
         this.v2Data = colVs;
-       
+
       },
       async getDetail(vpage_no) {
         const url = this.getServiceUrl(this.srvApp, this.serviceName, 'select')
@@ -419,7 +468,7 @@
           "serviceName": this.serviceName,
           "colNames": ["*"],
           "condition": [],
-          "vpage_no": vpage_no||this.v2Data?.vpage_no
+          "vpage_no": vpage_no || this.v2Data?.vpage_no
         }
         if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
           req.condition = this.fieldsCond.map(item => {
@@ -436,7 +485,7 @@
         const res = await this.$http.post(url, req)
         if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.detail = res.data.data[0]
-         
+
           return this.detail
         }
       },
@@ -700,6 +749,64 @@
     padding: 20rpx;
     background-color: #F5F5F5;
     min-height: calc(100vh - var(--window-top));
+  }
+
+  .detail-temp-box {
+    .detail-top {
+      display: flex;
+      background-color: #fff;
+      border-radius: 20rpx;
+      margin-bottom: 20rpx;
+      padding: 30rpx;
+
+      .left-image {
+        width: 120rpx;
+        height: 120rpx;
+        border-radius: 50%;
+        margin-right: 30rpx;
+
+        .image {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+      }
+
+      .cols-list {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+
+        .col-item {
+          display: flex;
+          .label{
+            margin-bottom: 10rpx;
+            margin-right: 20rpx;
+          }
+        }
+      }
+    }
+
+    .other-col {
+      background-color: #fff;
+      border-radius: 20rpx;
+      margin-bottom: 20rpx;
+      padding: 20rpx;
+
+      .col-item {
+        display: flex;
+        flex-wrap: wrap;
+
+        .label {
+          margin-right: 20rpx;
+          margin-bottom: 10rpx;
+        }
+
+        .label-top {
+          width: 100%;
+        }
+      }
+    }
   }
 
   // .top-card {

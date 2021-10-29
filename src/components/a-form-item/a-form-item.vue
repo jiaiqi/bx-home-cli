@@ -83,7 +83,7 @@
           请选择
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
-        <view class="" v-if="selectorData.length===0&&fkFieldLabel">
+        <view class="" v-else-if="selectorData.length===0&&fkFieldLabel">
           {{fkFieldLabel}}
         </view>
         <view v-else-if="

@@ -166,9 +166,10 @@
       let path = e?.target?.dataset?.shareurl
       let _data = {
         rowData: {
+          share_user_no: this.userInfo?.userno,
           no: e?.target?.dataset?.row?.no,
           org_name: e?.target?.dataset?.row?.org_name,
-          store_no:e?.target?.dataset?.row?.store_no,
+          store_no: e?.target?.dataset?.row?.store_no,
         },
         userInfo: this.$store?.state?.user?.userInfo,
         storeInfo: this.$store?.state?.app?.storeInfo

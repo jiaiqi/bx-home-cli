@@ -95,6 +95,20 @@
       if (option.destApp || option.appName) {
         this.appName = option.destApp || option.appName
       }
+      if (option.condition) {
+        let condition = []
+        try {
+          condition = JSON.parse(decodeURIComponent(option.condition));
+        } catch (e) {
+          try {
+            condition = JSON.parse(option.condition);
+          } catch (e) {
+            //TODO handle the exception
+          }
+          //TODO handle the exception
+        }
+        this.condition = condition
+      }
       if (option.fieldsCond) {
         let fieldsCond = []
         try {
@@ -820,44 +834,45 @@
 
             let fieldsCondCol = this.fieldsCond.map(item => item.column)
             if (Array.isArray(fieldsCondCol) && fieldsCondCol.length > 0) {
-              let fieldModel = this.fields.reduce((pre,cur)=>{
+              let fieldModel = this.fields.reduce((pre, cur) => {
                 pre[cur.column] = cur.value
                 return pre
-              },{})
+              }, {})
               let calcResult = {}
               let calcCols = this.addV2?._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-                .calc_trigger_col) && item.calc_trigger_col.find(col => fieldsCondCol.includes(col))).map(item=>item.column)
+                .calc_trigger_col) && item.calc_trigger_col.find(col => fieldsCondCol.includes(col))).map(item =>
+                item.column)
               console.log(calcCols)
               if (Array.isArray(calcCols) && calcCols.length > 0) {
                 calcResult = await this.evalCalc(this.addV2.main_table, calcCols, fieldModel, this.appName)
-                console.log(calcResult?.response )
+                console.log(calcResult?.response)
               }
-              
+
               for (let i = 0; i < this.fields.length; i++) {
                 const item = this.fields[i]
                 if (calcResult?.response && calcResult.response[item.column]) {
                   item.value = calcResult?.response[item.column]
                   // this.valueChange(fieldModel, item)
                 }
-              
-              //   if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
-              //     if (item.table_name !== table_name) {
-              //       debugger
-              //       xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-              //     }
-              //     if (xIfResult?.response && xIfResult.response[item.column]) {
-              //       item.display = true
-              //     } else if (xIfResult === true) {
-              //       item.display = true
-              //     } else {
-              //       item.display = false
-              //     }
-              //   }
+
+                //   if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+                //     if (item.table_name !== table_name) {
+                //       debugger
+                //       xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+                //     }
+                //     if (xIfResult?.response && xIfResult.response[item.column]) {
+                //       item.display = true
+                //     } else if (xIfResult === true) {
+                //       item.display = true
+                //     } else {
+                //       item.display = false
+                //     }
+                //   }
                 this.$set(this.fields, i, item)
               }
 
             }
-            
+
             break;
         }
         return colVs;
@@ -969,17 +984,17 @@
           },
           order: this.orderList || []
         };
-        if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
-          this.fieldsCond.forEach(item => {
-            if (item.value) {
-              req.condition.push({
-                colName: item.column,
-                ruleType: 'eq',
-                value: item.value
-              })
-            }
-          })
-        }
+        // if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+        //   this.fieldsCond.forEach(item => {
+        //     if (item.value) {
+        //       req.condition.push({
+        //         colName: item.column,
+        //         ruleType: 'eq',
+        //         value: item.value
+        //       })
+        //     }
+        //   })
+        // }
         // if (this.listType === 'proc') {
         //   if (proc_data_type || this.proc_data_type) {
         //     req['proc_data_type'] = proc_data_type || this.proc_data_type;
