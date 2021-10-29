@@ -8,7 +8,7 @@
         :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
         :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
         @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
-        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"></a-form-item>
+        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)" @setColData="setColData"></a-form-item>
     </view>
   </view>
 </template>
@@ -243,6 +243,9 @@
           });
           return false;
         }
+      },
+      setColData(e){
+        this.$emit('setColData',e)
       },
       handlerReduant(obj) {
         // 处理冗余操作

@@ -1547,6 +1547,7 @@
         let serviceName = null;
         let req = null;
         let app = null;
+        debugger
         if (this.currentSendType === 'question') {
           (serviceName = 'srvdaq_activity_cfg_select'),
           (req = {

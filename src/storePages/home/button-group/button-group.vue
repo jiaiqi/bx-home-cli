@@ -594,11 +594,13 @@
 
           try {
             let data = {
+              storeNo:this.storeNo,
               ...this.$data,
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo
             }
+            debugger
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
           } catch (e) {

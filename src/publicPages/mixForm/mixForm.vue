@@ -358,6 +358,7 @@
                 return
               }
             } else if (buttonInfo.servcie_type === 'update' || buttonInfo.servcie_type === 'operate') {
+              debugger
               let params = {
                 type: 'update',
                 serviceName: buttonInfo.service_name,
@@ -378,17 +379,13 @@
                   })
                 }
               }
-              if (Array.isArray(condition) && condition.length > 0) {
-                condition.forEach(cond => {
-                  fieldsCond.push({
-                    column: cond.colName,
-                    value: cond.value
-                  })
-                })
-              }
+
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
+              if (Array.isArray(condition) && condition.length > 0) {
+                url += `&condition=${JSON.stringify(condition)}`
+              }
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
@@ -426,6 +423,7 @@
                 fieldsCond.push(obj)
               })
             }
+            debugger
             if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length > 0) {
               buttonInfo.operate_params.data.forEach(item => {
                 Object.keys(item).forEach(key => {
@@ -472,7 +470,7 @@
             })
             return
           }
-
+          debugger
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
@@ -682,7 +680,7 @@
       },
       async valueChange(e, triggerField) {
         const column = triggerField?.column
-        const fieldModel = e
+        let fieldModel = e
         const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.addV2.main_table
         let xIfResult = null
@@ -695,6 +693,10 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
+          fieldModel = this.fields.reduce((res,cur)=>{
+            res[cur.column] = cur.value
+            return res
+          },{})
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {

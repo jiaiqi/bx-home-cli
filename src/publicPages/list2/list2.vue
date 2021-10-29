@@ -754,7 +754,7 @@
           if (buttonInfo.operate_type === '删除') {
             this.onButtonToUrl(data, this.appName).then(res => {
               if (res.state === 'SUCCESS') {
-                this.getList()
+                this.refresh()
               }
             })
 
@@ -777,7 +777,8 @@
               buttonInfo.servcie_type);
             let res = await this.$http.post(url, req);
             if (res.data.state === 'SUCCESS') {
-              this.getList()
+              // this.getList()
+              this.refresh()
             }
             return
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
@@ -852,15 +853,15 @@
                   })
                 }
               }
-              if (Array.isArray(condition) && condition.length > 0) {
-                condition.forEach(cond => {
-                  fieldsCond.push({
-                    column: cond.colName,
-                    value: cond.value
-                  })
-                })
-              }
-              if(fieldsCond.length===0){
+              // if (Array.isArray(condition) && condition.length > 0) {
+              //   condition.forEach(cond => {
+              //     fieldsCond.push({
+              //       column: cond.colName,
+              //       value: cond.value
+              //     })
+              //   })
+              // }
+              if (fieldsCond.length === 0) {
                 fieldsCond = [{
                   column: 'id',
                   value: rowData.id
@@ -871,6 +872,9 @@
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.appName) {
                 url += `&appName=${this.appName}`
+              }
+              if (Array.isArray(condition) && condition.length > 0) {
+                url += `&condition=${JSON.stringify(condition)}`
               }
               uni.navigateTo({
                 url: url
@@ -959,7 +963,8 @@
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
-                this.getList()
+                // this.getList()
+                this.refresh()
               }
             }
             if (buttonInfo && buttonInfo.button_type === 'detail') {
@@ -977,7 +982,7 @@
               } else {
                 if (typeof row == 'object' && Object.keys(row).length > 0) {
                   Object.keys(row).forEach(key => {
-                    if (key !== '_buttons'&&row[key]) {
+                    if (key !== '_buttons' && row[key]) {
                       let obj = {
                         column: key,
                         value: row[key] || ''
@@ -1166,8 +1171,8 @@
         this.showMockCount = option.showMockCount
       }
       uni.$on('dataChange', srv => {
-        debugger
-        this.getList(null, this.initCond)
+        this.refresh()
+        // this.getList(null, this.initCond)
       })
       if (option.grid_span) {
         this.listConfig.grid_span = option.grid_span

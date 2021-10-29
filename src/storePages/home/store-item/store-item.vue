@@ -110,7 +110,7 @@
         return globalData?.room_no
       },
       storeNo() {
-        return this.storeInfo && this.storeInfo.store_no ? this.storeInfo.store_no : ''
+        return this.storeInfo?.store_no
       },
       timelinecondition() {
         return [{

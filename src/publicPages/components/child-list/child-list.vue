@@ -32,6 +32,14 @@
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
+      <view class="list-item" v-for="(item,index) in initData" @click="onButton({button_type:'editInit'},index)">
+        <view class="col-item" v-for="col in showColumn"
+          :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
+          {{item[col.columns]||''|hideYear(removeYearFromDate)}}
+        </view>
+        <text class="cuIcon-delete text-black" v-if="showDelete"
+          @click.stop="onChildFormBtn({button_type:'delete_init'},index,true)"></text>
+      </view>
       <view class="list-item" v-for="(item,index) in memoryListData" @click="onButton({button_type:'editMem'},index)">
         <view class="col-item" v-for="col in showColumn"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
@@ -87,6 +95,7 @@
 </template>
 
 <script>
+  import dayjs from '@/static/js/dayjs.min.js'
   import batchAdd from '@/publicPages/components/batch-add/batch-add.vue'
   export default {
     components: {
@@ -107,7 +116,8 @@
         memoryListData: [],
         currentItemIndex: null,
         currentItemType: null,
-        selectColInfo: null
+        selectColInfo: null,
+        initData: []
       }
     },
     filters: {
@@ -142,7 +152,26 @@
         type: [String, Boolean]
       }
     },
+    watch: {
+      finalListData: {
+        deep: true,
+        handler(newValue, oldValue) {
+          console.log(newValue)
+          this.$emit('child-list-change',{
+            calcRelations:this.config?.calcRelations,
+            key:this.config?.foreign_key?.constraint_name,
+            data:newValue
+          })
+        }
+      }
+    },
     computed: {
+      calcRelations(){
+        return this.config?.calcRelations
+      },
+      fkMoreConfig() {
+        return this.config?.foreign_key?.moreConfig
+      },
       showDelete() {
         return this?.v2Data?.use_type && ['update', 'add', 'addchildlist', 'updatechildlist'].includes(this.v2Data
           .use_type)
@@ -151,7 +180,8 @@
         return this.listData.filter(item => item._dirtyFlags !== "delete")
       },
       finalListData() {
-        return [...this.listData, ...this.memoryListData].filter(item => item._dirtyFlags !== 'delete')
+        return [...this.listData, ...this.memoryListData, ...this.initData].filter(item => item._dirtyFlags !==
+          'delete')
       },
       use_type() {
         return this.config?.use_type || this.v2Data?.use_type
@@ -301,6 +331,9 @@
       this.getListV2()
     },
     methods: {
+      setInitData(e) {
+        this.initData = e
+      },
       unfold() {
         this.$emit('unfold', this.config)
       },
@@ -382,11 +415,17 @@
           data: addList.map(item => {
             delete item._isMemoryData
             delete item._dirtyFlags
+            delete item._type
             return item
           }),
           serviceName: this.addService
         }
         return [params]
+      },
+      deleteInitListItem(index) {
+        if (index || index === 0) {
+          this.initData.splice(index, 1)
+        }
       },
       deleteMemoryListItem(index) {
         if (index || index === 0) {
@@ -411,7 +450,6 @@
               break;
             case 'delete':
               if (this.use_type === "detaillist" && this.modalName === "updateChildData") {
-
                 let id = this.listData[this.currentItemIndex]['id']
                 uni.showModal({
                   content: "是否确认删除操作？",
@@ -466,6 +504,9 @@
                 }
               }
               break;
+            case 'delete_init':
+              this.deleteInitListItem(index)
+              break;
             case 'reset':
               this.$refs.childForm.onReset()
               break;
@@ -505,6 +546,9 @@
         if (this.currentItemType === 'mem') {
           Object.assign(this.memoryListData[this.currentItemIndex], data)
           this.memoryListData[this.currentItemIndex]._dirtyFlags = 'add'
+        } else if (this.currentItemType === 'init') {
+          Object.assign(this.initData[this.currentItemIndex], data)
+          this.initData[this.currentItemIndex]._dirtyFlags = 'add'
         } else {
           Object.assign(this.listData[this.currentItemIndex], data)
           this.listData[this.currentItemIndex]._dirtyFlags = 'update'
@@ -634,8 +678,23 @@
         if (Array.isArray(cols) && cols.length > 0) {
           result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
+
+        let calcResult = {}
+        let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+
         for (let i = 0; i < this.addV2._fieldInfo.length; i++) {
           const item = this.addV2._fieldInfo[i]
+
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            this.valueChange(e, item)
+          }
+
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
@@ -719,6 +778,16 @@
                 }
               }
               break;
+            case 'editInit':
+              // 编辑初始值表数据
+              if (index || index === 0) {
+                let row = this.initData[index]
+                this.getUpdateV2(row)
+                this.currentItemIndex = index
+                this.currentItemType = 'init'
+                this.modalName = 'updateChildData'
+              }
+              break
             case 'editMem':
               // 编辑内存表数据
               if (index || index === 0) {

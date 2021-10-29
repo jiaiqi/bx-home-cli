@@ -3,13 +3,14 @@
     <view class="form-content">
       <view class="main-form-edit">
         <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
-          :formType="use_type" ref="bxForm" @value-blur="valueChange">
+          :formType="use_type" ref="bxForm" @value-blur="valueChange" @setColData="setColData">
         </a-form>
       </view>
 
-      <view class="child-service-box">
+      <view class="child-service-box" v-if="colsV2Data && isArray(fields)">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
-          <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton">
+          <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton"
+            @child-list-change="childListChange">
           </child-list>
         </view>
       </view>
@@ -24,7 +25,9 @@
 </template>
 
 <script>
+  import dayjs from '@/static/js/dayjs.min.js'
   import ChildList from '@/publicPages/components/child-list/child-list.vue'
+  let _childData = {}
   export default {
     components: {
       ChildList
@@ -50,7 +53,8 @@
         currentFormFields: [], //子表字段
         currentFormFk: null,
         isOnButton: false,
-        disabled: false
+        disabled: false,
+        _childListData: {}
       }
     },
     computed: {
@@ -148,8 +152,53 @@
           return item.foreign_key?.foreign_key_type !== '主子表'
         })
       },
+
     },
     methods: {
+      childListChange(e) {
+        let self = this
+        if (e?.key && e?.data) {
+          if (_childData) {
+            _childData[e.key] = e.data
+            if (Array.isArray(e?.calcRelations) && e.calcRelations.length > 0) {
+              debugger
+              e.calcRelations.forEach(relation => {
+                let table_col = relation.table_col; // 存储字段
+                let relation_table_col = relation.relation_table_col //源字段
+
+                if (_childData && _childData[relation.constraint_name]) {
+                  let result = _childData[relation.constraint_name].map(item => item[relation_table_col]).reduce((
+                    res, cur) => {
+                    debugger
+                    if (cur) {
+                      res = (res * 1000 + cur * 1000) /
+                        1000;
+                    }
+                    return res
+                  }, 0)
+                  debugger
+                  this.fields = this.fields.map(item => {
+                    if (item.column === table_col) {
+                      debugger
+                      item.value = result || 0
+                    }
+                    return item
+                  })
+                }
+              })
+            }
+            this._childListData = _childData
+          }
+        }
+      },
+      setColData(e) {
+        if (this.mainData) {
+          if (!this.mainData?.colData) {
+            this.mainData.colData = {}
+          }
+          this.mainData.colData[e.column] = e.colData
+        }
+      },
       onChildButton(e) {
         if (e?.btn?.button_type === 'add') {
           // 添加子表数据
@@ -393,6 +442,7 @@
 
       },
       async valueChange(e, triggerField) {
+
         const column = triggerField.column
         const fieldModel = e
         const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
@@ -407,12 +457,13 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          debugger
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
-          if (calcResult?.response && calcResult.response[item.column]) {
+          if (calcResult?.response && (calcResult.response[item.column]||calcResult.response[item.column]==0)) {
+            debugger
             item.value = calcResult?.response[item.column]
             this.valueChange(e, item)
           }
@@ -446,6 +497,34 @@
             item.value = e[item.column];
           }
           this.$set(this.fields, i, item)
+        }
+        if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
+            .childService)) {
+          let fkInitData = triggerField.moreConfig.fkInitData
+          if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
+            Object.keys(fkInitData).forEach(key => {
+              if (Array.isArray(fkInitData[key]) && fkInitData[key].length > 0) {
+                let childIndex = this.childService.findIndex(item => item.foreign_key?.constraint_name === key)
+                if (childIndex > -1) {
+                  let arr = []
+                  arr = fkInitData[key].map(item => {
+                    let strItem = JSON.stringify(item);
+                    let data = {
+                      mainData: this.mainData
+                    }
+                    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format("YYYY-MM-DD"))
+                    strItem = this.renderStr(strItem, data)
+                    item = JSON.parse(strItem)
+                    item._type = 'initData'
+                    return item
+                  })
+                  if (arr.length > 0) {
+                    this.$refs.childList[childIndex].setInitData(arr)
+                  }
+                }
+              }
+            })
+          }
         }
       },
       toPages(type, e) {

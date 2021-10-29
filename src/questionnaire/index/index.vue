@@ -215,6 +215,13 @@
             content: '有三项及以上回答为是，符合OSAS高危人群的特征',
             showCancel: false
           })
+        } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
+          .activity_no)) {
+          uni.showModal({
+            title: '提示',
+            content: '健康状况良好',
+            showCancel: false
+          })
         }
       },
       activityNo(newValue, oldValue) {

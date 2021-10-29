@@ -360,13 +360,13 @@
       srvApp: {
         type: String,
       },
-      sectionTop:{
-        type:Boolean,
-        default:false
+      sectionTop: {
+        type: Boolean,
+        default: false
       },
-      beforeSection:{
-        type:Boolean,
-        default:false
+      beforeSection: {
+        type: Boolean,
+        default: false
       }
     },
     computed: {
@@ -466,7 +466,7 @@
         textareaValue: '',
         treePageInfo: {
           total: 0,
-          rownumber: 20,
+          rownumber: 50,
           pageNo: 1
         },
         selectorData: [],
@@ -736,6 +736,8 @@
 
           this.fieldData.value = e[srvInfo.refed_col];
           this.fieldData['colData'] = e;
+          this.$emit('setColData', this.fieldData)
+
         }
         this.hideModal();
         // this.onInput();
@@ -810,6 +812,7 @@
             this.fkFieldLabel = optionData.label;
           }
           this.fieldData['colData'] = optionData;
+          this.$emit('setColData', this.fieldData)
           this.hideModal();
           this.onBlur()
           // this.onInput();
@@ -967,6 +970,7 @@
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
               self.fieldData.value) {
               self.fieldData['colData'] = item;
+              self.$emit('setColData', self.fieldData)
             }
           });
         } else if (res.data.state === 'SUCCESS' && res.data.data.length == 0) {
@@ -981,6 +985,7 @@
             return item;
           });
         }
+        this.$emit('on-value-change', this.fieldData);
       },
       bindTimeChange(e, type) {
         if (type) {
