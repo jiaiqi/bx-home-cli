@@ -95,4 +95,7 @@
 </script>
 
 <style>
+  .cu-custom{
+    width: 100vw;
+  }
 </style>

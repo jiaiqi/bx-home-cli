@@ -172,7 +172,7 @@
       }
     }
 
-    @media screen and (min-width: 768px) {
+    @media screen and (min-width: 1300px) {
       .grid_span2 {
         width: calc(100%/4 - 20rpx);
         margin-right: 20rpx;

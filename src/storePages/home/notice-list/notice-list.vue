@@ -150,9 +150,14 @@
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .notice-wrap {
     /* margin-bottom: 20rpx; */
+    min-width: 335px;
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
   }
 
   .notice-item {

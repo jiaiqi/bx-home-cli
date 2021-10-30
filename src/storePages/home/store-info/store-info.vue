@@ -229,7 +229,7 @@
       },
       qrcodeCanvasComplete(e) {
         this.qrcodePath = this.storeInfo?.barcode_pic || e;
-        this.$emit('getQrcode',e)
+        this.$emit('getQrcode', e)
       },
       makePhoneCall() {
         uni.makePhoneCall({
@@ -291,6 +291,13 @@
 
 <style scoped lang="scss">
   .layout-2 {
+    min-width: 335px;
+
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
+
     .image-bg {
       width: 100%;
       height: 100%;
@@ -315,6 +322,7 @@
         position: relative;
         margin-bottom: -2rpx;
         box-sizing: border-box;
+
         .store-icon {
           width: 160rpx;
           height: 160rpx;
@@ -326,6 +334,7 @@
           padding-top: 60rpx;
           padding-right: 40rpx;
           flex: 1;
+
           .store-name {
             height: 50rpx;
             width: 90%;
@@ -433,6 +442,13 @@
     flex-wrap: wrap;
     border-radius: 20rpx;
     overflow: hidden;
+
+    min-width: 335px;
+
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
 
     .top {
       display: flex;

@@ -594,7 +594,7 @@
 
           try {
             let data = {
-              storeNo:this.storeNo,
+              storeNo: this.storeNo,
               ...this.$data,
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
@@ -828,10 +828,16 @@
   .menu-list {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 20rpx;
-    margin-bottom: 20rpx;
+    // margin: 0 20rpx;
+    // margin-bottom: 20rpx;
     background: #FAFBFC;
     border-radius: 20rpx;
+    min-width: 335px;
+
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
 
     .swiper {
       width: 100%;
@@ -913,11 +919,11 @@
       }
 
       .icon {
-        width: 80rpx;
-        height: 80rpx;
+        width: 40px;
+        height: 40px;
         font-size: 30px;
         text-align: center;
-        line-height: 100rpx;
+        line-height: 50px;
       }
 
       .title,

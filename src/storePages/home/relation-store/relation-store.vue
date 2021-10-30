@@ -111,7 +111,12 @@
     flex-wrap: wrap;
     background-color: #fff;
     padding: 20rpx;
-
+    width: 100%;
+    min-width: 335px;
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
     .store-item {
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
       border-radius: 20rpx;

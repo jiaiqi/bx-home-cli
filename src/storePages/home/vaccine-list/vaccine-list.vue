@@ -1258,8 +1258,13 @@
   .vaccine-list {
     display: flex;
     flex-direction: column;
-    margin: 0 20rpx;
-    margin-bottom: 20rpx;
+    // margin: 0 20rpx;
+    // margin-bottom: 20rpx;
+    min-width: 335px;
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
   }
 
   .vaccine-wrap {
@@ -1285,7 +1290,6 @@
     justify-content: space-between;
     font-weight: bold;
     font-size: 16px;
-    padding: 20rpx 20rpx 0;
 
     .title-text {
       display: flex;

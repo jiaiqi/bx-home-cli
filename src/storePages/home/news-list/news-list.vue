@@ -372,6 +372,11 @@
 <style scoped lang="scss">
 	.list-wrap {
 		margin-bottom: 20rpx;
+    min-width: 335px;
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
 		.cu-item {
 			padding-bottom: 20rpx;
 
@@ -392,7 +397,7 @@
 		}
 
 		&.tab-list {
-			padding: 20rpx;
+			// padding: 20rpx;
 			margin-bottom: 10px;
 
 			.cur {

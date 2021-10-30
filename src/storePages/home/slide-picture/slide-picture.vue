@@ -6,7 +6,7 @@
     </view>
     <swiper class="screen-swiper item-box rectangle-dot" :style="[calcStyle]" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="true" interval="5000"
-      duration="500" :height="height||300">
+      duration="500" :height="height">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" @click.stop="toDetail(item)">
         <image :src="item.url" mode="scaleToFill"></image>
       </swiper-item>
@@ -18,7 +18,7 @@
   export default {
     computed: {
       height() {
-        return this.pageItem?.more_config?.swiperHeight
+        return this.pageItem?.more_config?.swiperHeight||uni.upx2px(300)
       },
       calcStyle() {
         let obj = {}
@@ -127,7 +127,11 @@
     border-radius: 20rpx;
     overflow: hidden;
     position: relative;
-
+    min-width: 335px;
+    @media screen and (min-width: 1300px) {
+      width: 400px;
+      margin: auto;
+    }
     .home-btn {
       position: absolute;
       right: 20rpx;

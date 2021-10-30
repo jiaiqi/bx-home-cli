@@ -1208,7 +1208,8 @@
     padding: 20rpx 30rpx;
     display: flex;
     flex-wrap: wrap;
-
+    max-width: 720px;
+    margin: 20rpx 0;
     .store-address {
       flex: 1;
       padding: 20rpx;
@@ -1322,9 +1323,32 @@
       width: 100%;
     }
 
+    @media screen and (min-width: 360px) {
+      .box-item {
+        width: 33% !important;
+      }
+    }
+
+    @media screen and (min-width: 480px) {
+      .box-item {
+        width: 25% !important;
+      }
+    }
+
+    @media screen and (min-width: 1300px) {
+      .box-item {
+        width: 15% !important;
+      }
+    }
+
+    @media screen and (min-width: 1260px) {
+      .box-item {
+        width: 10% !important;
+      }
+    }
+
     .box-item {
       padding: 40rpx 20rpx;
-      width: 33.33%;
       box-sizing: border-box;
       // border: 1px solid #f1f1f1;
       // background-color: #fff;

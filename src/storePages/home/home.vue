@@ -1225,6 +1225,10 @@
 <style lang="scss" scoped>
   .page-wrap {
     background-color: #F8F8FA;
+    max-width: 960px;
+    margin: 0 auto;
+    // display: flex;
+    // flex-wrap: wrap;
 
     ::v-deep swiper.rectangle-dot {
 
