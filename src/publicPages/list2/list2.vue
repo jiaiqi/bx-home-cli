@@ -278,6 +278,7 @@
     },
     data() {
       return {
+        hideChildList: false,
         showMockCount: false,
         serviceName: "srvhealth_store_vaccination_appoint_record_select",
         list: [],
@@ -999,6 +1000,10 @@
               url =
                 `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               // }
+              if (this.hideChildList) {
+                url =
+                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              }
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
@@ -1167,6 +1172,9 @@
       }
     },
     onLoad(option) {
+      if (option.hideChildList) {
+        this.hideChildList = true
+      }
       if (option.showMockCount) {
         this.showMockCount = option.showMockCount
       }

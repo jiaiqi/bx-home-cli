@@ -104,6 +104,7 @@
     },
     data() {
       return {
+        hideChildList:false,
         orderCols: [],
         modalName: "",
         showFilter: false, //是否显示筛选弹框
@@ -176,6 +177,9 @@
       }
     },
     onLoad(option) {
+      if(option.hideChildList){
+        this.hideChildList = true
+      }
       uni.$on('dataChange', srv => {
         if (this.$refs.bxList) {
           this.$refs.bxList.onRefresh();
@@ -891,6 +895,9 @@
               //   'childTableList') {
               // url = `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               // }
+              if(this.hideChildList){
+                url = `/publicPages/form/form?type=detail&serviceName=${btn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              }
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
