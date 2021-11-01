@@ -2,16 +2,17 @@
   <view class="wifi-manage">
     <view class="wifi-list">
       <scroll-view scroll-y="true">
-        <view class="wifi-item" v-for="item in resultWifiList">
+        <view class="wifi-item" v-for="item in pageData||resultWifiList">
           <view class="wifi-item-left">
             <view class="top">
-              <text class="wifi-icon">
+             <!-- <text class="wifi-icon">
                 <text class="wifi-1"></text>
                 <text class="wifi-2" :class="item.strength < 2 ? 'off' : ''"></text>
                 <text class="wifi-3" :class="item.strength < 3 ? 'off' : ''"></text>
                 <text class="wifi-4" :class="item.strength < 4 ? 'off' : ''"></text>
-              </text>
-              <text class="wifi-ssid">{{item.wifi_ssid||''}} </text>
+              </text> -->
+              <text class="cuIcon-wifi"></text>
+              <text class="wifi-ssid margin-left-xs">{{item.wifi_ssid||''}} </text>
               <text class="text-blue" v-if="activeWifiMac===item.wifi_mac||activeWifiMac===item.wifi_ssid">已连接</text>
             </view>
           </view>
@@ -23,7 +24,12 @@
           </view>
         </view>
       </scroll-view>
-      <uni-load-more class="load-more" :status="loadStatus"></uni-load-more>
+      <!-- <uni-load-more class="load-more" :status="loadStatus"></uni-load-more> -->
+
+    </view>
+    <view class="page-nav">
+      <uni-pagination title="标题文字" show-icon="false" :total="resultTotal" :pageSize="5" :current="currentNo"
+        @change="changePage"></uni-pagination>
     </view>
   </view>
 </template>
@@ -34,7 +40,9 @@
   export default {
     data() {
       return {
+        currentNo: 1,
         pageNo: 1,
+        total: 0,
         loadStatus: 'more', // noMore\loading
         wifiList: [],
         nearWifiList: [],
@@ -57,13 +65,43 @@
           }
         }
       },
+      pageData() {
+        if (Array.isArray(this.resultWifiList) && this.resultWifiList.length > 5) {
+          let arr = []
+          this.resultWifiList.forEach((item, index) => {
+            if (index % 5 === 0) {
+              arr[parseInt(index / 5)] = []
+            }
+            arr[parseInt(index / 5)].push(item)
+          })
+          return arr[this.currentNo-1]
+        }
+      },
+      resultTotal(){
+        if(Array.isArray(this.resultWifiList)){
+          return this.resultWifiList.length
+        }else{
+          return 0
+        }
+      },
       resultWifiList() {
         // #ifdef H5
-        return this.wifiList
+        // return this.wifiList
         // #endif
+
         let result = this.wifiList.filter((item) => this.nearWifiList.find(wifi => item.wifi_ssid === wifi.SSID))
+        debugger
+
         if (result.length === 0) {
           result = this.wifiList
+        }
+
+        let room_no = getApp().globalData?.room_no
+        if (room_no) {
+          let res = result.filter(item => item.wifi_ssid && item.wifi_ssid.indexOf(room_no) !== -1)
+          if (Array.isArray(res) && res.length > 0) {
+            result = res
+          }
         }
         return result
       }
@@ -77,6 +115,14 @@
       }
     },
     methods: {
+      changePage(e) {
+        let {
+          type,
+          current
+        } = e;
+        debugger
+        this.currentNo = current
+      },
       async toConnect(e) {
         let SSID = e.wifi_ssid
         let password = e.wifi_psd
@@ -224,7 +270,7 @@
           "condition": [],
           "page": {
             "pageNo": this.pageNo,
-            "rownumber": 20
+            "rownumber": 800
           }
         }
         if (this.store_no) {
@@ -283,7 +329,7 @@
       },
       async startSearch() {
         // 搜索wifi列表
-
+        let self = this
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi
         })
@@ -306,7 +352,6 @@
 
 
         return
-        var self = this
         const getWifiList = () => {
           uni.showLoading({
             title: 'wifi列表加载中...'
@@ -392,9 +437,9 @@
       },
     },
     onReachBottom() {
-      if (this.loadStatus === 'more') {
-        this.loadMore()
-      }
+      // if (this.loadStatus === 'more') {
+      //   this.loadMore()
+      // }
     },
     onPullDownRefresh() {
       this.startSearch()
@@ -424,6 +469,12 @@
     padding: 0rpx;
     background-color: #f2f3f5;
     min-height: calc(100vh - var(--window-top));
+    display: flex;
+    flex-direction: column;
+    .page-nav{
+      background-color: #fff;
+      padding: 20rpx 20rpx 100rpx;
+    }
   }
 
   .handler-bar {
@@ -441,7 +492,7 @@
     background-color: #fff;
     padding: 20rpx;
     border-radius: 0 0 20rpx 20rpx;
-
+    flex: 1;
     .wifi-item {
       padding: 20rpx;
       display: flex;

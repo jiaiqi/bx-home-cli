@@ -9,7 +9,7 @@
       </view>
       <view class="list-item-content" :style="{width:setListView.listContentWidth}"
         v-if="setListView&&setListView.cols">
-        <view class="col-item bg" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
+        <view class="col-item bg" v-show="item.value" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
           <view class="label" v-if="item.label">
             {{item.label}}:
           </view>

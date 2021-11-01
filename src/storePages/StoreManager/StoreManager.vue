@@ -50,7 +50,8 @@
               {{ storeInfo[item.type] | overDisplay }}
             </view>
             <view class="box-item-content">
-              <text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
+              <text class="cu-tag badge-null" v-if="item.num===true"></text>
+              <text class="cu-tag badge" v-else-if="item.num">{{ item.num }}</text>
               <text class="cu-tag badge-left" v-if="item.unback">{{
 		            item.unback
 		          }}</text>
@@ -103,7 +104,8 @@
                 {{ item.num || 0 }}
               </view>
               <view class="box-item-content">
-                <text class="cu-tag badge" v-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
+                <text class="cu-tag badge-null" v-if="item.num == true"></text>
+                <text class="cu-tag badge" v-else-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
                 <text class="cu-tag badge-left" v-if="item.unback">{{
                   item.unback
                 }}</text>
@@ -563,7 +565,7 @@
             if (item.notice_attr) {
               num = Number(this.renderStr(item.notice_attr, obj))
               if (isNaN(num)) {
-                num = 0
+                num = true
               }
             }
             if (item.unback_attr) {
@@ -1210,6 +1212,7 @@
     flex-wrap: wrap;
     max-width: 720px;
     margin: 20rpx 0;
+
     .store-address {
       flex: 1;
       padding: 20rpx;
@@ -1363,6 +1366,19 @@
         position: absolute;
         right: 0;
         top: 0;
+        z-index: 1;
+      }
+
+      .badge-null {
+        position: absolute;
+        background-color: #f33610;
+        border-radius: 100px;
+        top: 10rpx;
+        right: 10rpx;
+        padding: 0px 5px;
+        height: 10px;
+        width: 10px;
+        color: #ffffff;
         z-index: 1;
       }
 

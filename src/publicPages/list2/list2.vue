@@ -294,7 +294,7 @@
         searchVal: "",
         listType: "list", //list,proc,cart
         pageType: "", //list,proc,cart
-        detailType: "normal", //  normal,custom
+        detailType: "", //  normal,custom
         tabList: [],
         order: [],
         cartData: [],
@@ -537,14 +537,15 @@
         if (colVs.more_config) {
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
+            debugger
             if (colVs.moreConfig?.detailType) {
               if (!this.detailType) {
-                this.detailType === colVs.moreConfig?.detailType
+                this.detailType = colVs.moreConfig?.detailType
               }
             }
             if (colVs.moreConfig?.customDetailUrl) {
               if (!this.customDetailUrl) {
-                this.customDetailUrl === colVs.moreConfig?.customDetailUrl
+                this.customDetailUrl = colVs.moreConfig?.customDetailUrl
               }
             }
           } catch (e) {
@@ -953,8 +954,33 @@
               bindUserInfo
             };
             obj = this.deepClone(obj)
-            debugger
             targetUrl = this.renderStr(this.customDetailUrl, obj)
+            if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
+              let condition = buttonInfo?.operate_params?.condition
+              let fieldsCond = [{
+                column: 'id',
+                value: rowData.id
+              }]
+              let url = `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=detail&fieldsCond=` +
+                encodeURIComponent(JSON.stringify(fieldsCond));
+
+              // if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
+              //   'childTableList') {
+              url =
+                `/publicPages/detail/detail?serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // }
+              if (this.hideChildList) {
+                url =
+                  `/publicPages/form/form?type=detail&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              }
+              if (Array.isArray(condition) && condition.length > 0) {
+                url += `&condition=${JSON.stringify(condition)}`
+              }
+              if (this.appName) {
+                url += `&appName=${this.appName}`
+              }
+              targetUrl = url
+            }
             uni.navigateTo({
               url: targetUrl
             })

@@ -200,6 +200,7 @@ export default {
             if (typeof fieldInfo.moreConfig.min === 'number') {
               fieldInfo.min = fieldInfo.moreConfig.min
             }
+           
           } catch (e) {
             //TODO handle the exception
           }
@@ -245,8 +246,16 @@ export default {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "dateTime"
+          if(fieldInfo?.moreConfig?.min&&fieldInfo.moreConfig.min.indexOf('new Date()')!==-1){
+            // min-date
+            fieldInfo.min = dayjs().format('YYYY-MM-DD HH:mm')
+          }
         } else if (item.col_type === "Date") {
           fieldInfo.type = "date"
+          if(fieldInfo?.moreConfig?.min&&fieldInfo.moreConfig.min.indexOf('new Date()')!==-1){
+            // min-date
+            fieldInfo.min = dayjs().format("YYYY-MM-DD")
+          }
         } else if (item.col_type === "Time") {
           fieldInfo.type = "time"
         } else if (item.col_type === "FileList") {
@@ -2236,6 +2245,9 @@ export default {
           let colName = op.value.slice(op.value.indexOf('data.') + 5);
           if (mainData && typeof mainData === 'object' && mainData[colName]) {
             op.value = mainData[colName];
+          }else if(mainData && typeof mainData === 'object'){
+            op.value = ''
+            op.ruleType = 'like'
           }
         } else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
           let login_user_info = uni.getStorageSync('login_user_info')

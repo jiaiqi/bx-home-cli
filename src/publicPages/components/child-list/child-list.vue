@@ -29,6 +29,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
+        <text class="cuIcon-add text-black" v-if="!disabled" @click.stop="showAction(item)"></text>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -83,7 +84,7 @@
         </view>
         <view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
           <a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)" :fields="updateV2._fieldInfo"
-            :main-data="mainData" :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName"></a-form>
+            :main-data="mainData" :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
           <button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
@@ -117,7 +118,8 @@
         currentItemIndex: null,
         currentItemType: null,
         selectColInfo: null,
-        initData: []
+        initData: [],
+        curItem: null
       }
     },
     filters: {
@@ -157,16 +159,19 @@
         deep: true,
         handler(newValue, oldValue) {
           console.log(newValue)
-          this.$emit('child-list-change',{
-            calcRelations:this.config?.calcRelations,
-            key:this.config?.foreign_key?.constraint_name,
-            data:newValue
+          this.$emit('child-list-change', {
+            calcRelations: this.config?.calcRelations,
+            key: this.config?.foreign_key?.constraint_name,
+            data: newValue
           })
         }
       }
     },
     computed: {
-      calcRelations(){
+      rowButton() {
+        return this.v2Data?.rowButton
+      },
+      calcRelations() {
         return this.config?.calcRelations
       },
       fkMoreConfig() {
@@ -331,6 +336,500 @@
       this.getListV2()
     },
     methods: {
+      showAction(e) {
+        this.curItem = e;
+        let rowButton = this.rowButton || []
+        if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
+          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1&&!['duplicate'].includes(item.button_type))
+        }
+        uni.showActionSheet({
+          itemList: rowButton.map(item => item.button_name),
+          success: (res) => {
+            console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+            let obj = {
+              row: e,
+              button: rowButton[res.tapIndex]
+            }
+            this.onFootButton(obj)
+          },
+          fail: (res) => {
+            console.log(res.errMsg);
+          }
+        });
+      },
+      async onFootButton(data) {
+
+        let self = this
+        let buttonInfo = this.deepClone(data.button);
+        let rowData = this.deepClone(data.row);
+        debugger
+        if (buttonInfo?._buttons) {
+          delete buttonInfo._buttons
+        }
+        if (!buttonInfo?.button_type) {
+          uni.showModal({
+            title: '提示',
+            content: '按钮操作参数配置有误',
+            showCancel: false
+          })
+          return
+        }
+        if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
+          // 序列化操作参数
+          try {
+            buttonInfo.operate_params = JSON.parse(buttonInfo.operate_params);
+            if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition
+              .length > 0) {
+              buttonInfo.operate_params.condition.forEach(cond => {
+                if (typeof cond.value === 'object' && cond.value.value_type === 'rowData') {
+                  cond.value = rowData[cond.value.value_key];
+                } else if (typeof cond.value === 'object' && cond.value.value_type ===
+                  'constant') {
+                  cond.value = cond.value.value;
+                }
+              });
+            }
+
+            if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length >
+              0) {
+              buttonInfo.operate_params.data.forEach(data => {
+                if (typeof data === 'object') {
+                  Object.keys(data).forEach(item => {
+                    if (typeof data[item] === 'object' && data[item].value_type ===
+                      'rowData') {
+                      data[item] = rowData[data[item].value_key];
+                    } else if (typeof data[item] === 'object' && data[item]
+                      .value_type === 'constant') {
+                      data[item] = data[item].value;
+                    }
+                  });
+                }
+              });
+            }
+          } catch (e) {
+            //TODO handle the exception
+          }
+        }
+
+        if (buttonInfo.button_type === "customize") {
+          if (buttonInfo.operate_type === '删除') {
+            this.onButtonToUrl(data, this.appName).then(res => {
+              if (res.state === 'SUCCESS') {
+                this.refresh()
+              }
+            })
+
+          } else if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+            let req = [{
+              serviceName: buttonInfo.operate_service,
+              condition: buttonInfo.operate_params.condition,
+              data: buttonInfo.operate_params.data
+            }];
+            if (!buttonInfo.operate_params.data && buttonInfo.servcie_type === 'update') {
+              uni.showModal({
+                title: '提示',
+                content: '按钮操作参数配置有误',
+                showCancel: false
+              })
+              return
+            }
+            let app = this.appName || uni.getStorageSync('activeApp');
+            let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
+              buttonInfo.servcie_type);
+            let res = await this.$http.post(url, req);
+            if (res.data.state === 'SUCCESS') {
+              // this.getList()
+              this.refresh()
+            }
+            return
+          } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
+            // 自定义按钮
+            let moreConfig = buttonInfo.more_config;
+            if (moreConfig && typeof moreConfig === 'string') {
+              try {
+                moreConfig = JSON.parse(moreConfig);
+              } catch (e) {
+                //TODO handle the exception
+                console.log(e);
+              }
+            }
+            if (buttonInfo.servcie_type === 'add') {
+              let params = {
+                type: 'add',
+                serviceName: buttonInfo.service_name,
+                defaultVal: rowData,
+                eventOrigin: buttonInfo
+              };
+              uni.navigateTo({
+                url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                  params)
+              });
+              return
+            } else if (buttonInfo.servcie_type === 'select') {
+              let params = {
+                type: 'select',
+                serviceName: buttonInfo.service_name,
+                defaultVal: rowData,
+                eventOrigin: buttonInfo
+              };
+              if (buttonInfo.operate_params && Array.isArray(buttonInfo.operate_params
+                  .condition)) {
+                let viewTemp = {};
+                if (buttonInfo.service_name ===
+                  'srvhealth_store_vaccination_appoint_record_select') {
+                  viewTemp = {
+                    title: 'customer_name',
+                    img: 'person_image',
+                  }
+                }
+                uni.navigateTo({
+                  url: '/publicPages/list/list?pageType=list&serviceName=' +
+                    buttonInfo.service_name +
+                    '&cond=' +
+                    JSON.stringify(buttonInfo.operate_params.condition) +
+                    '&viewTemp=' +
+                    JSON.stringify(viewTemp)
+                });
+                return
+              }
+            } else if (buttonInfo.servcie_type === 'update' || buttonInfo.servcie_type === 'operate') {
+              let params = {
+                type: 'update',
+                serviceName: buttonInfo.service_name,
+                defaultVal: rowData,
+                eventOrigin: buttonInfo
+              };
+              let fieldsCond = [];
+              let condition = buttonInfo?.operate_params?.condition
+              let defaultVal = buttonInfo?.operate_params?.data
+              debugger
+              if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+                let obj = defaultVal[0]
+                if (this.iObject(obj)) {
+                  Object.keys(obj).forEach(key => {
+                    fieldsCond.push({
+                      column: key,
+                      value: obj[key]
+                    })
+                  })
+                }
+              }
+              // if (Array.isArray(condition) && condition.length > 0) {
+              //   condition.forEach(cond => {
+              //     fieldsCond.push({
+              //       column: cond.colName,
+              //       value: cond.value
+              //     })
+              //   })
+              // }
+              if (fieldsCond.length === 0) {
+                fieldsCond = [{
+                  column: 'id',
+                  value: rowData.id
+                }]
+              }
+              let url =
+                `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                encodeURIComponent(JSON.stringify(fieldsCond));
+              if (this.appName) {
+                url += `&appName=${this.appName}`
+              }
+              if (Array.isArray(condition) && condition.length > 0) {
+                url += `&condition=${JSON.stringify(condition)}`
+              }
+              uni.navigateTo({
+                url: url
+              });
+              return
+            }
+            return
+          } else if (buttonInfo.operate_type === '列表跳转') {
+            // debugger
+            // let serviceName = buttonInfo.service_name;
+            // let 
+            let app = buttonInfo.application
+            let url = '/publicPages/list2/list2?pageType=list&serviceName=' +
+              buttonInfo.service_name +
+              '&cond=' +
+              JSON.stringify(buttonInfo.operate_params.condition)
+
+            if (app) {
+              url += `&destApp=${app}`
+            }
+            uni.navigateTo({
+              url
+            });
+            return
+          } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
+            let fieldsCond = [];
+            if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
+              0) {
+              buttonInfo.operate_params.condition.forEach(item => {
+                let obj = {
+                  column: item.colName,
+                  value: item.value,
+                  disabled: true
+                }
+                fieldsCond.push(obj)
+              })
+            }
+            if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length > 0) {
+              buttonInfo.operate_params.data.forEach(item => {
+                Object.keys(item).forEach(key => {
+                  let obj = {
+                    column: key,
+                    value: item[key],
+                    disabled: true
+                  }
+                  fieldsCond.push(obj)
+                })
+
+              })
+            }
+            let url =
+              `/publicPages/formPage/formPage?type=add&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+            uni.navigateTo({
+              url
+            });
+            return
+          }
+
+        } else if (this.listType === 'proc') {
+          if (buttonInfo && buttonInfo.button_type === 'edit' && rowData.proc_instance_no) {
+            uni.navigateTo({
+              url: '/publicPages/procDetail/procDetail?proc_instance_no=' + rowData
+                .proc_instance_no
+            });
+          }
+        } else {
+          if (buttonInfo.button_type === 'detail' && this.detailType === 'custom' && this.customDetailUrl) {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+            let targetUrl = this.customDetailUrl
+            let obj = {
+              data: rowData,
+              rowData,
+              storeInfo,
+              bindUserInfo
+            };
+            obj = this.deepClone(obj)
+            targetUrl = this.renderStr(this.customDetailUrl, obj)
+            uni.navigateTo({
+              url: targetUrl
+            })
+            return
+          }
+
+          this.onButtonToUrl(data, this.appName).then(res => {
+            if (buttonInfo && buttonInfo.button_type === 'delete') {
+              if (res.state === 'SUCCESS') {
+                // this.getList()
+                this.refresh()
+              }
+            }
+            if (buttonInfo && buttonInfo.button_type === 'detail') {
+              let {
+                row,
+                button
+              } = res
+              let fieldsCond = []
+              if (row && row.id) {
+                fieldsCond = [{
+                  column: 'id',
+                  value: row.id,
+                  display: false
+                }]
+              } else {
+                if (typeof row == 'object' && Object.keys(row).length > 0) {
+                  Object.keys(row).forEach(key => {
+                    if (key !== '_buttons' && row[key]) {
+                      let obj = {
+                        column: key,
+                        value: row[key] || ''
+                      }
+                      fieldsCond.push(obj)
+                    }
+                  })
+                }
+              }
+              let url =
+                `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
+              //   'childTableList') {
+              url =
+                `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              // }
+              if (this.hideChildList) {
+                url =
+                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              }
+              if (this.appName) {
+                url += `&appName=${this.appName}`
+              }
+              // if (button.service_name === 'srvdaq_cms_content_select') {
+              //   if (rowData.content_no) {
+              //     uni.navigateTo({
+              //       url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${rowData.content_no}`
+              //     });
+              //   }
+              //   return
+              // }
+              uni.navigateTo({
+                url: url
+              })
+            } else if (buttonInfo && buttonInfo.button_type === 'customize') {
+              // 自定义按钮
+              let moreConfig = buttonInfo.more_config;
+              if (moreConfig && typeof moreConfig === 'string') {
+                try {
+                  moreConfig = JSON.parse(moreConfig);
+                } catch (e) {
+                  //TODO handle the exception
+                  console.log(e);
+                }
+              }
+              if (buttonInfo.servcie_type === 'add') {
+                let params = {
+                  type: 'add',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                uni.navigateTo({
+                  url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                    params)
+                });
+              } else if (buttonInfo.servcie_type === 'select') {
+                let params = {
+                  type: 'select',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                if (buttonInfo.operate_params && Array.isArray(buttonInfo.operate_params
+                    .condition)) {
+                  let viewTemp = {};
+                  if (buttonInfo.service_name ===
+                    'srvhealth_store_vaccination_appoint_record_select') {
+                    viewTemp = {
+                      title: 'customer_name',
+                      img: 'person_image',
+                    }
+                  }
+                  uni.navigateTo({
+                    url: '/publicPages/list/list?pageType=list&serviceName=' +
+                      buttonInfo.service_name +
+                      '&cond=' +
+                      JSON.stringify(buttonInfo.operate_params.condition) +
+                      '&viewTemp=' +
+                      JSON.stringify(viewTemp)
+                  });
+                }
+              } else if (buttonInfo.servcie_type === 'update') {
+                let params = {
+                  type: 'update',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                let fieldsCond = [];
+                if (Array.isArray(this.condition)) {
+                  fieldsCond = this.condition.map(item => {
+                    return {
+                      column: item.colName,
+                      value: item.value,
+                      display: false
+                    };
+                  });
+                }
+                let condition = buttonInfo?.operate_params?.condition
+                let defaultVal = buttonInfo?.operate_params?.data
+                if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+                  let obj = defaultVal[0]
+                  if (this.iObject(obj)) {
+                    Object.keys(obj).forEach(key => {
+                      fieldsCond.push({
+                        column: key,
+                        value: obj[key]
+                      })
+                    })
+                  }
+                }
+                if (Array.isArray(condition) && condition.length > 0) {
+                  condition.forEach(cond => {
+                    fieldsCond.push({
+                      column: cond.colName,
+                      value: cond.value
+                    })
+                  })
+                }
+                let url =
+                  `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                  encodeURIComponent(JSON.stringify(fieldsCond));
+                if (this.appName) {
+                  url += `&appName=${this.appName}`
+                }
+                uni.navigateTo({
+                  url: url
+                });
+              }
+            } else if (buttonInfo && buttonInfo.button_type === 'duplicate') {
+              let fieldsCond = []
+              if (Array.isArray(self.condition)) {
+                self.condition.forEach(item => {
+                  fieldsCond.push({
+                    column: item.colName,
+                    value: item.value,
+                    display: false
+                  })
+                })
+              }
+              Object.keys(rowData).forEach(key => {
+                if (!['id', 'modify_user_disp', 'modify_user', 'modify_time',
+                    'create_user_disp', 'create_user', 'create_time', 'del_flag',
+                    '_buttons'
+                  ].includes(key) && rowData[key]) {
+                  if (!fieldsCond.find(item => item.column === key)) {
+                    fieldsCond.push({
+                      column: key,
+                      display: true,
+                      value: rowData[key],
+                    })
+                  }
+                }
+              })
+
+              let url =
+                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+              if (self.appName) {
+                url += `&appName=${self.appName}`
+              }
+              uni.navigateTo({
+                url: url
+              });
+            } else if (buttonInfo.servcie_type === 'add') {
+              let params = {
+                type: 'add',
+                serviceName: res.button.service_name,
+                defaultVal: res.row,
+                eventOrigin: res.button
+              };
+              uni.navigateTo({
+                url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                  params)
+              });
+            } else if (buttonInfo && buttonInfo.operate_type === '流程申请') {
+              uni.navigateTo({
+                url: '/pages/public/proc/apply/apply?serviceName=' + buttonInfo
+                  .operate_service
+              });
+            }
+          });
+        }
+        console.log('clickFootBtn:', data);
+
+
+      },
       setInitData(e) {
         this.initData = e
       },
@@ -668,6 +1167,58 @@
         this.modalName = ''
 
       },
+      async updateValueChange(e, triggerField){
+        
+          const column = triggerField.column
+          const fieldModel = e
+          const cols = this.updateV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
+          const table_name = this.updateV2.main_table
+        
+          let result = null
+          if (Array.isArray(cols) && cols.length > 0) {
+            result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+          }
+        
+          let calcResult = {}
+          let calcCols = this.updateV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+            .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+          debugger
+          if (Array.isArray(calcCols) && calcCols.length > 0) {
+            calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          }
+        
+          for (let i = 0; i < this.updateV2._fieldInfo.length; i++) {
+            const item = this.updateV2._fieldInfo[i]
+            if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+              item.value = e[item.column];
+            }
+            
+
+        
+            if (item.x_if) {
+              if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+                if (item.table_name !== table_name) {
+                  result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+                }
+                if (result?.response && result.response[item.column]) {
+                  item.display = true
+                } else if (result === true) {
+                  item.display = true
+                } else {
+                  item.display = false
+                }
+              }
+            }
+            
+            if (calcResult?.response && calcResult.response[item.column]) {
+              item.value = calcResult?.response[item.column]
+              // this.updateValueChange(e, item)
+            }
+            
+            this.$set(this.updateV2._fieldInfo, i, item)
+          }
+        
+      },
       async valueChange(e, triggerField) {
         const column = triggerField.column
         const fieldModel = e
@@ -682,14 +1233,16 @@
         let calcResult = {}
         let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-
+        debugger
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
 
         for (let i = 0; i < this.addV2._fieldInfo.length; i++) {
           const item = this.addV2._fieldInfo[i]
-
+          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            item.value = e[item.column];
+          }
           if (calcResult?.response && calcResult.response[item.column]) {
             item.value = calcResult?.response[item.column]
             this.valueChange(e, item)
@@ -709,9 +1262,7 @@
               }
             }
           }
-          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
-            item.value = e[item.column];
-          }
+        
           this.$set(this.addV2._fieldInfo, i, item)
         }
       },

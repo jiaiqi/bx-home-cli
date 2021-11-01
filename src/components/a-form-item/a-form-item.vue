@@ -121,7 +121,7 @@
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode"
-          :isRange="pageType==='filter'" @change="bindTimeChange" v-model="fieldData.value">
+          :isRange="pageType==='filter'" :min="fieldData.min" @change="bindTimeChange" v-model="fieldData.value">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">

@@ -12,7 +12,8 @@
       </view>
       <text class="cuIcon-calendar margin-left-xs"></text>
     </view>
-    <u-calendar v-model="show" mode="range" @change="change" max-date="2050-01-01" v-if="mode==='date'">
+    <u-calendar v-model="show" mode="range" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01"
+      v-if="mode==='date'">
     </u-calendar>
     <view class="cu-modal bottom-modal" :class="{show:show&&mode==='time'}" @click="hideModal">
       <view class="cu-dialog" @click.stop="">
@@ -28,7 +29,8 @@
         <view class="value" v-else>{{ selectVal }}</view>
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
-      <u-calendar v-model="show" mode="date" @change="change" max-date="2050-01-01"></u-calendar>
+      <u-calendar v-model="show" mode="date" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01">
+      </u-calendar>
     </view>
     <view class="calendar-box" v-else-if="mode==='dateTime'">
       <datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
@@ -51,7 +53,7 @@
       event: 'change'
     },
     props: {
-      disabled:{
+      disabled: {
         type: Boolean,
         default: false
       },
@@ -69,6 +71,10 @@
       },
       value: {
         type: [Array, String]
+      },
+      min: {
+        type: String,
+        default: "1950-01-01"
       }
     },
     data() {
@@ -131,7 +137,7 @@
         }
       },
       showModal() {
-        if(!this.disabled){
+        if (!this.disabled) {
           this.show = true
         }
       },
@@ -193,7 +199,8 @@
 
     .calendar-box {
       width: 100%;
-        text-align: right;
+      text-align: right;
+
       .date-select-box {
         width: 100%;
         justify-content: flex-end;

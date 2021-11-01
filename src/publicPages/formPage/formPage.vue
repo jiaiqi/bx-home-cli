@@ -171,8 +171,7 @@
                     res, cur) => {
                     debugger
                     if (cur) {
-                      res = (res * 1000 + cur * 1000) /
-                        1000;
+                      res = (res * 1000 + cur * 1000) / 1000;
                     }
                     return res
                   }, 0)
