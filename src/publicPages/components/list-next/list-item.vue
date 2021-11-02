@@ -367,6 +367,9 @@
             if (!obj.value && cfg?.default_val) {
               obj.value = cfg?.default_val
             }
+            if(!obj.value){
+              obj.class += ' hidden'
+            }
             result.cols.push(obj)
           })
         }
@@ -522,7 +525,11 @@
           font-size: 28rpx;
           font-family: 苹方-简;
           color: #333333;
-
+          &.hidden{
+            display: none;
+            width: 0;
+            height: 0;
+          }
           &.handler {
             width: 100%;
             display: flex;

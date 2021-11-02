@@ -161,7 +161,6 @@
           if (_childData) {
             _childData[e.key] = e.data
             if (Array.isArray(e?.calcRelations) && e.calcRelations.length > 0) {
-              debugger
               e.calcRelations.forEach(relation => {
                 let table_col = relation.table_col; // 存储字段
                 let relation_table_col = relation.relation_table_col //源字段
@@ -169,16 +168,13 @@
                 if (_childData && _childData[relation.constraint_name]) {
                   let result = _childData[relation.constraint_name].map(item => item[relation_table_col]).reduce((
                     res, cur) => {
-                    debugger
                     if (cur) {
                       res = (res * 1000 + cur * 1000) / 1000;
                     }
                     return res
                   }, 0)
-                  debugger
                   this.fields = this.fields.map(item => {
                     if (item.column === table_col) {
-                      debugger
                       item.value = result || 0
                     }
                     return item
@@ -273,8 +269,6 @@
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
                   uni.$emit('dataChange', e.service_name)
-
-
                   if (
                     Array.isArray(res.data.response) &&
                     res.data.response.length > 0 &&
@@ -481,7 +475,6 @@
 
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
             if (item.table_name !== table_name) {
-              debugger
               xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
             }
             if (xIfResult?.response && xIfResult.response[item.column]) {
@@ -495,6 +488,7 @@
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.value = e[item.column];
           }
+          
           this.$set(this.fields, i, item)
         }
         if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
@@ -603,9 +597,9 @@
           }
         }
       },
-      async getDetailV2() {
+      async getDetailV2(srv) {
         const app = this.appName || uni.getStorageSync('activeApp');
-        let colVs = await this.getServiceV2(this.serviceName, 'detail', 'detail', app);
+        let colVs = await this.getServiceV2(srv||this.serviceName, 'detail', 'detail', app);
 
         this.detailV2 = colVs
       },
@@ -615,7 +609,7 @@
           app);
         this[`${this.srvType}V2`] = colVs
         if (['update', 'add'].includes(this.srvType)) {
-          this.getDetailV2()
+          this.getDetailV2(colVs.select_service_name)
         }
 
         if (Array.isArray(colVs.srv_cols)) {
@@ -871,7 +865,6 @@
         this.serviceName = option.serviceName;
         this.getFieldsV2();
       }
-
     }
   }
 </script>

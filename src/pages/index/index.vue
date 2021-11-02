@@ -140,6 +140,7 @@
         isLogin: state => state.app.isLogin,
         authBoxDisplay: state => state.app.authBoxDisplay,
         userInfo: state => state.user.userInfo,
+        storeInfo:state=>state.app.storeInfo,
         loginUserInfo: state => state.user.loginUserInfo,
         hasIntoHospital: state => state.app.hasIntoHospital
       })
@@ -280,6 +281,10 @@
         }
         if (Array.isArray(cond)) {
           req.condition = [...req.condition, ...cond]
+        }
+        if(this.storeInfo?.audit_status==='双向隔离'  && this.storeInfo?.store_no){
+          req.condition[0].value = this.storeInfo?.store_no
+          req.condition[0].colName = 'store_no'
         }
         this.loadStatus = 'loading'
         let res = await this.$fetch('select', serviceName, req, 'health')

@@ -287,6 +287,9 @@
           }
         }
       },
+      setFieldModel(e){
+        this.fieldModel[e.column] = e.value;
+      },
       async onValChange(e) {
         // 保存已经发生变化的字段值
         if (e.type === 'number' || e.type === 'digit') {

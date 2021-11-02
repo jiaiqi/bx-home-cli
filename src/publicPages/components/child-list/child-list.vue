@@ -60,16 +60,15 @@
       <text class="cuIcon-fold"></text>
     </view>
     <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
-      <view class="cu-dialog" @click.stop.prevent="">
+      <view class="cu-dialog" @click.stop.prevent="" v-if="addV2&&modalName==='addChildData'">
         <view class="close-btn text-right">
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
-        <view class="child-form-wrap" v-if="addV2&&modalName==='addChildData'">
-          <a-form :srvApp="appName" v-if="addV2 && addV2._fieldInfo && isArray(addV2._fieldInfo)"
-            :fields="addV2._fieldInfo" :pageType="use_type" :formType="'add'" ref="childForm" :key="modalName"
-            @value-blur="valueChange" :main-data="mainData"></a-form>
+        <view class="child-form-wrap">
+          <a-form :srvApp="appName" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
+            :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange" :main-data="mainData"></a-form>
         </view>
-        <view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
+        <view class="button-box" v-if="addV2&&addV2.formButton">
           <button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
@@ -78,13 +77,13 @@
     <batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit">
     </batch-add>
     <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
-      <view class="cu-dialog" @click.stop.prevent="">
+      <view class="cu-dialog" @click.stop.prevent="" v-if="updateV2&&modalName==='updateChildData'">
         <view class="close-btn text-right">
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
-        <view class="child-form-wrap" v-if="updateV2&&modalName==='updateChildData'">
-          <a-form v-if="updateV2 && updateV2._fieldInfo && isArray(updateV2._fieldInfo)" :fields="updateV2._fieldInfo"
-            :main-data="mainData" :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
+        <view class="child-form-wrap">
+          <a-form v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData" :pageType="use_type"
+            :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
           <button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
@@ -119,7 +118,8 @@
         currentItemType: null,
         selectColInfo: null,
         initData: [],
-        curItem: null
+        curItem: null,
+        allFields: []
       }
     },
     filters: {
@@ -155,6 +155,24 @@
       }
     },
     watch: {
+      modalName: {
+        immediate: true,
+        handler(newValue) {
+          if (newValue === 'addChildData') {
+            if (Array.isArray(this.addV2?._fieldInfo)) {
+              this.allFields = this.deepClone(this.addV2?._fieldInfo)
+              // this.allFields = this.addV2?._fieldInfo
+            }
+          } else if (newValue === 'updateChildData') {
+            if (Array.isArray(this.updateV2?._fieldInfo)) {
+              this.allFields = this.deepClone(this.updateV2?._fieldInfo)
+              // this.allFields = this.updateV2?._fieldInfo
+            }
+          } else {
+            this.allFields = []
+          }
+        },
+      },
       finalListData: {
         deep: true,
         handler(newValue, oldValue) {
@@ -168,6 +186,13 @@
       }
     },
     computed: {
+      curV2() {
+        if (this.modalName === 'addChildData') {
+          return this.addV2
+        } else if (this.modalName === 'updateChildData') {
+          return this.updateV2
+        }
+      },
       rowButton() {
         return this.v2Data?.rowButton
       },
@@ -335,12 +360,22 @@
     created() {
       this.getListV2()
     },
+    beforeDestroy() {
+      uni.$off('dataChange')
+    },
+    mounted() {
+      let self = this
+      uni.$on('dataChange', srv => {
+        self.getList()
+      })
+    },
     methods: {
       showAction(e) {
         this.curItem = e;
         let rowButton = this.rowButton || []
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
-          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1&&!['duplicate'].includes(item.button_type))
+          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
+            .button_type))
         }
         uni.showActionSheet({
           itemList: rowButton.map(item => item.button_name),
@@ -358,11 +393,9 @@
         });
       },
       async onFootButton(data) {
-
         let self = this
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
-        debugger
         if (buttonInfo?._buttons) {
           delete buttonInfo._buttons
         }
@@ -502,7 +535,6 @@
               let fieldsCond = [];
               let condition = buttonInfo?.operate_params?.condition
               let defaultVal = buttonInfo?.operate_params?.data
-              debugger
               if (Array.isArray(defaultVal) && defaultVal.length > 0) {
                 let obj = defaultVal[0]
                 if (this.iObject(obj)) {
@@ -514,14 +546,7 @@
                   })
                 }
               }
-              // if (Array.isArray(condition) && condition.length > 0) {
-              //   condition.forEach(cond => {
-              //     fieldsCond.push({
-              //       column: cond.colName,
-              //       value: cond.value
-              //     })
-              //   })
-              // }
+
               if (fieldsCond.length === 0) {
                 fieldsCond = [{
                   column: 'id',
@@ -544,9 +569,7 @@
             }
             return
           } else if (buttonInfo.operate_type === '列表跳转') {
-            // debugger
-            // let serviceName = buttonInfo.service_name;
-            // let 
+
             let app = buttonInfo.application
             let url = '/publicPages/list2/list2?pageType=list&serviceName=' +
               buttonInfo.service_name +
@@ -832,6 +855,7 @@
       },
       setInitData(e) {
         this.initData = e
+        // this.memoryListData = [...this.memoryListData,...e]
       },
       unfold() {
         this.$emit('unfold', this.config)
@@ -1092,7 +1116,6 @@
       },
       async add2List(e) {
         let data = this.$refs.childForm.getFieldModel();
-        debugger
         if (!data) {
           return
         }
@@ -1133,7 +1156,6 @@
                 icon: "none"
               });
             }
-            // this.$emit('addChild',{row:data,btn:e})
           } else {
             // 添加到内存中，随主表一起添加
             if (Object.keys(data).length > 0) {
@@ -1165,65 +1187,43 @@
         })
 
         this.modalName = ''
-
       },
-      async updateValueChange(e, triggerField){
-        
-          const column = triggerField.column
-          const fieldModel = e
-          const cols = this.updateV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
-          const table_name = this.updateV2.main_table
-        
-          let result = null
-          if (Array.isArray(cols) && cols.length > 0) {
-            result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
-          }
-        
-          let calcResult = {}
-          let calcCols = this.updateV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-            .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-          debugger
-          if (Array.isArray(calcCols) && calcCols.length > 0) {
-            calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
-          }
-        
-          for (let i = 0; i < this.updateV2._fieldInfo.length; i++) {
-            const item = this.updateV2._fieldInfo[i]
-            if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
-              item.value = e[item.column];
-            }
-            
 
-        
-            if (item.x_if) {
-              if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
-                if (item.table_name !== table_name) {
-                  result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-                }
-                if (result?.response && result.response[item.column]) {
-                  item.display = true
-                } else if (result === true) {
-                  item.display = true
-                } else {
-                  item.display = false
-                }
-              }
-            }
-            
-            if (calcResult?.response && calcResult.response[item.column]) {
-              item.value = calcResult?.response[item.column]
-              // this.updateValueChange(e, item)
-            }
-            
-            this.$set(this.updateV2._fieldInfo, i, item)
-          }
-        
-      },
-      async valueChange(e, triggerField) {
+      // async handleCalc(triggerField) {
+      //   const table_name = this.curV2?.main_table
+      //   if (!table_name) {
+      //     debugger
+      //     return
+      //   }
+      //   const column = triggerField?.column
+      //   let calcResult = {}
+      //   let fieldModel = this.allFields.reduce((res, cur) => {
+      //     res[cur.column] = cur.value
+      //     return res
+      //   }, {})
+      //   let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
+      //     .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+      //   if (Array.isArray(calcCols) && calcCols.length > 0) {
+      //     calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+      //   }
+      //   for (let i = 0; i < this.allFields.length; i++) {
+      //     const item = this.allFields[i]
+      //     if (calcResult?.response && calcResult.response[item.column]) {
+      //       item.value = calcResult?.response[item.column]
+      //       // this.valueChange(fieldModel, item)
+      //       this.$set(this.allFields, i, item)
+      //       await this.handleCalc()
+      //     }
+      //   }
+      //   return calcResult
+      // },
+
+      async updateValueChange(e, triggerField) {
+
         const column = triggerField.column
-        const fieldModel = e
-        const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
-        const table_name = this.addV2.main_table
+        let fieldModel = e
+        const cols = this.allFields.filter(item => item.x_if).map(item => item.column)
+        const table_name = this.updateV2.main_table
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
@@ -1231,21 +1231,19 @@
         }
 
         let calcResult = {}
-        let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-        debugger
+
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          debugger
         }
 
-        for (let i = 0; i < this.addV2._fieldInfo.length; i++) {
-          const item = this.addV2._fieldInfo[i]
+        for (let i = 0; i < this.allFields.length; i++) {
+          const item = this.allFields[i]
+          item.old_value = item.value
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.value = e[item.column];
-          }
-          if (calcResult?.response && calcResult.response[item.column]) {
-            item.value = calcResult?.response[item.column]
-            this.valueChange(e, item)
           }
 
           if (item.x_if) {
@@ -1262,15 +1260,80 @@
               }
             }
           }
-        
-          this.$set(this.addV2._fieldInfo, i, item)
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            fieldModel[item.column] = item.value
+            // await this.updateValueChange(fieldModel, item)
+          }
+          this.$set(this.allFields, i, item)
+          this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
+          if (item.old_value !== item.value) {
+            debugger
+            this.updateValueChange(fieldModel, item)
+          }
         }
+
+      },
+      async valueChange(e, triggerField) {
+        const column = triggerField.column
+        let fieldModel = e
+        const cols = this.allFields.filter(item => item.x_if).map(item => item.column)
+        const table_name = this.curV2.main_table
+
+        let result = null
+        if (Array.isArray(cols) && cols.length > 0) {
+          result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+        }
+
+        let calcResult = {}
+        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+
+        for (let i = 0; i < this.allFields.length; i++) {
+          const item = this.allFields[i]
+          item.old_value = item.value
+          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            item.old_value = item.value;
+            item.value = e[item.column];
+            // this.$set(this.allFields, i, item)
+          }
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            fieldModel[item.column] = item.value
+            // this.$set(this.allFields, i, item)
+            debugger
+            // await this.handleCalc(item)
+          }
+
+          if (item.x_if) {
+            if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+              if (item.table_name !== table_name) {
+                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+              }
+              if (result?.response && result.response[item.column]) {
+                item.display = true
+              } else if (result === true) {
+                item.display = true
+              } else {
+                item.display = false
+              }
+            }
+          }
+          this.$set(this.allFields, i, item)
+          this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
+          if (item.old_value !== item.value) {
+            this.valueChange(fieldModel, item)
+          }
+        }
+        return
       },
       async onButton(e, index) {
         if (this.disabled) {
           return
         }
-        debugger
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':
@@ -1282,8 +1345,9 @@
               })
               break;
             case 'add':
-              this.getAddV2(e)
-              this.modalName = 'addChildData'
+              this.getAddV2(e).then(_ => {
+                this.modalName = 'addChildData'
+              })
               break;
             case 'edit':
               if (index || index === 0) {
@@ -1323,9 +1387,10 @@
                     url: url
                   })
                 } else {
-                  this.getUpdateV2(row)
-                  this.currentItemIndex = index
-                  this.modalName = 'updateChildData'
+                  this.getUpdateV2(row).then(_ => {
+                    this.currentItemIndex = index
+                    this.modalName = 'updateChildData'
+                  })
                 }
               }
               break;
@@ -1333,25 +1398,29 @@
               // 编辑初始值表数据
               if (index || index === 0) {
                 let row = this.initData[index]
-                this.getUpdateV2(row)
-                this.currentItemIndex = index
-                this.currentItemType = 'init'
-                this.modalName = 'updateChildData'
+                this.getUpdateV2(row).then(_ => {
+                  this.currentItemIndex = index
+                  this.currentItemType = 'init'
+                  this.modalName = 'updateChildData'
+                })
+
               }
               break
             case 'editMem':
               // 编辑内存表数据
               if (index || index === 0) {
                 let row = this.memoryListData[index]
-                this.getUpdateV2(row)
-                this.currentItemIndex = index
-                this.currentItemType = 'mem'
-                this.modalName = 'updateChildData'
+                this.getUpdateV2(row).then(_ => {
+                  this.currentItemIndex = index
+                  this.currentItemType = 'mem'
+                  this.modalName = 'updateChildData'
+                })
               }
               break
             case 'batchAdd':
-              let addV2 = await this.getAddV2();
-              this.$refs.batchAdd.open(e)
+              let addV2 = await this.getAddV2().then(_ => {
+                this.$refs.batchAdd.open(e)
+              })
               break;
           }
         }
@@ -1372,7 +1441,6 @@
         let app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
-          debugger
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
           }
@@ -1418,7 +1486,7 @@
         // }
       },
       async getAddV2(btn) {
-
+        let self = this
         let serviceName = btn?.service_name || this.serviceName
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
         let app = this.appName || uni.getStorageSync('activeApp');
@@ -1449,9 +1517,11 @@
               item.option_list_v2.conditions = mconditions
             }
           }
-          console.log(this.mainData)
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
-            item.value = this.mainData[item.option_list_v2.refed_col]
+            if (Array.isArray(self.initData) && self.initData.length > 0 && self.initData.find(e => e[item
+                .option_list_v2.refed_col] === self.mainData[item.option_list_v2.refed_col])) {} else {
+              item.value = this.mainData[item.option_list_v2.refed_col]
+            }
           }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
             .length > 0) {
@@ -1467,22 +1537,29 @@
           if (item.columns === this.foreignKey?.referenced_column_name) {
             item.display = false
           }
-          if (item.col_type == this.mainTable) {
-            if (this.mainData && this.mainData[item.columns]) {
-              item.value = this.mainData[item.columns]
-              item.disabled = true
+          if (item.col_type == self.mainTable) {
+            if (Array.isArray(self.initData) && self.initData.length > 0 && self.initData.find(e => e[item
+                .columns] === self.mainData[item.columns])) {
+
+            } else {
+              if (self.mainData && self.mainData[item.columns]) {
+                item.value = self.mainData[item.columns]
+                item.disabled = true
+              }
             }
+
           }
+
           if (item.col_type === 'fk') {
             if (this.mainData && this.mainData[item.columns]) {
-              item.value = this.mainData[item.columns]
               // item.disabled = true
+              if (Array.isArray(this.initData) && this.initData.length > 0 && this.initData.find(e => e[item
+                  .columns] === this.mainData[item.columns])) {
+
+              } else {
+                item.value = this.mainData[item.columns]
+              }
             }
-            // if (
-            // 	item?.option_list_v2?.refed_col && this.mainData[item?.option_list_v2
-            // 		?.refed_col]) {
-            // 	item.value = this.mainData[item.columns]
-            // }
           }
           return item
         })

@@ -210,7 +210,6 @@ export default {
         fieldInfo.label = item.label
         fieldInfo.seq = item.seq
         if (item.init_expr) {
-          debugger
           item.init_expr = item.init_expr.replace(/\'/g, '')
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
             let login_user_info = uni.getStorageSync('login_user_info')
@@ -359,10 +358,10 @@ export default {
           fieldInfo._validators = Vue.prototype.getValidators(item.validators, item
             .validators_message)
         fieldInfo.isRequire = fieldInfo._validators.required
-        fieldInfo.value = fieldInfo.value??null //初始化value
-        if(fieldInfo.type === 'digit' || fieldInfo.type === 'number' ){
-          fieldInfo.value = fieldInfo.value || 0
-        }
+        fieldInfo.value = fieldInfo.value??null  // 初始化value
+        // if(fieldInfo.type === 'digit' || fieldInfo.type === 'number' ){
+        //   fieldInfo.value = fieldInfo.value || 0
+        // }
         fieldInfo.in_cond = item.in_cond
         fieldInfo.x_if = item.x_if
         fieldInfo.xif_trigger_col = item.xif_trigger_col
@@ -2368,7 +2367,6 @@ export default {
         req[0].data = [data]
       }
       const res = await _http.post(url, req)
-      debugger
       if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
         0) {
         return res.data.response[0]

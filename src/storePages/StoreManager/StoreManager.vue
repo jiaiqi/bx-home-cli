@@ -104,7 +104,7 @@
                 {{ item.num || 0 }}
               </view>
               <view class="box-item-content">
-                <text class="cu-tag badge-null" v-if="item.num == true"></text>
+                <text class="cu-tag breathe" v-if="item.num == true"></text>
                 <text class="cu-tag badge" v-else-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
                 <text class="cu-tag badge-left" v-if="item.unback">{{
                   item.unback
@@ -1152,6 +1152,42 @@
 </script>
 
 <style lang="scss" scoped>
+  .breathe {
+    margin: 0 auto;
+    height: 10px;
+    width: 10px;
+    background-color: #f33610!important;
+    border-radius: 50px;
+    box-shadow: 0px 0px 5px #f33610;
+    // animation: fadeIn 1s 1  linear;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      width: 10px;
+      height: 10px;
+      transform: scale(1);
+      /*初始状态 透明度为0*/
+    }
+
+    50% {
+      transform: scale(0);
+      /*中间状态 透明度为1*/
+    }
+
+    100% {
+      width: 10px;
+      height: 10px;
+      transform: scale(1);
+      /*结尾状态 透明度为0*/
+    }
+  }
+
   .page-bg {
     background-color: #35C6C4;
     min-height: calc(100vh - var(--window-top));

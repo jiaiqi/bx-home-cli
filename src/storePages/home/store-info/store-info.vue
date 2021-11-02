@@ -165,7 +165,9 @@
         if (arr.length > 0) {
           showManager = true
         }
-        return showManager
+        if(this.hasManageBtn){
+          return showManager
+        }
       },
       calcStyle() {
         if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
@@ -190,6 +192,7 @@
     },
     data() {
       return {
+        hasManageBtn:false,
         qrCodeText: '',
         codeSize: uni.upx2px(700),
         qrcodePath: '', //图片url
@@ -198,6 +201,31 @@
       }
     },
     methods: {
+      async getButtonGroup() {
+        const req = {
+          "serviceName": "srvhealth_store_home_component_user_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.storeInfo?.store_no
+            },
+            {
+              "colName": "button_usage",
+              "ruleType": "eq",
+              "value": '管理人员'
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 5
+          }
+        }
+        const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          this.hasManageBtn = true
+        }
+      },
       toManage() {
         let url = `/storePages/StoreManager/StoreManager?store_no=${this.storeInfo.store_no}`;
         if (this.storeInfo.store_no) {
@@ -285,7 +313,10 @@
         // 在线咨询
         this.$emit('toConsult')
       },
-    }
+    },
+    mounted(){
+      this.getButtonGroup()
+    },
   }
 </script>
 

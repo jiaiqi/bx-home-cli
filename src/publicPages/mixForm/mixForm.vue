@@ -133,7 +133,6 @@
         }
         let data = await this.handlePreAction(action)
         console.log(data, this.fieldsCond)
-        debugger
         if (Array.isArray(data?.fieldsCond) && data.fieldsCond.length > 0) {
           this.fieldsCond = [...this.fieldsCond, ...data.fieldsCond]
         }
@@ -210,7 +209,7 @@
                         //TODO handle the exception
                       }
 
-                      if (obj.value || obj.value === null) {
+                      if (obj.value || obj.value === null || obj.value === 0) {
                         obj.disabled = true;
                         fieldsCond.push(obj)
                       }
@@ -358,7 +357,6 @@
                 return
               }
             } else if (buttonInfo.servcie_type === 'update' || buttonInfo.servcie_type === 'operate') {
-              debugger
               let params = {
                 type: 'update',
                 serviceName: buttonInfo.service_name,
@@ -423,7 +421,6 @@
                 fieldsCond.push(obj)
               })
             }
-            debugger
             if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length > 0) {
               buttonInfo.operate_params.data.forEach(item => {
                 Object.keys(item).forEach(key => {
@@ -470,7 +467,6 @@
             })
             return
           }
-          debugger
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
@@ -678,7 +674,37 @@
           this.getColV2('add')
         }
       },
+      async handleCalc(triggerField) {
+        const table_name = this.addV2.main_table
+        const column = triggerField?.column
+        let calcResult = {}
+        let fieldModel = this.fields.reduce((res, cur) => {
+          res[cur.column] = cur.value
+          return res
+        }, {})
+        let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+        for (let i = 0; i < this.fields.length; i++) {
+          const item = this.fields[i]
+          if (calcResult?.response && calcResult.response[item.column]) {
+            item.value = calcResult?.response[item.column]
+            // this.valueChange(fieldModel, item)
+            this.$set(this.fields, i, item)
+            await this.handleCalc(item)
+          }
+        }
+        return
+      },
       async valueChange(e, triggerField) {
+        if (!e) {
+          e = this.fields.reduce((pre, cur) => {
+            pre[cur.column] = cur.value
+            return pre
+          }, {})
+        }
         const column = triggerField?.column
         let fieldModel = e
         const cols = this.addV2._fieldInfo.filter(item => item.x_if).map(item => item.column)
@@ -693,17 +719,20 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          fieldModel = this.fields.reduce((res,cur)=>{
+          fieldModel = this.fields.reduce((res, cur) => {
             res[cur.column] = cur.value
             return res
-          },{})
+          }, {})
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
-          if (calcResult?.response && calcResult.response[item.column]) {
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] === 0)) {
             item.value = calcResult?.response[item.column]
-            this.valueChange(e, item)
+            e[item.column] = item.value
+            this.$set(this.fields, i, item)
+            await this.valueChange(e, item)
+            // await this.handleCalc(item)
           }
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
             if (item.table_name !== table_name) {
@@ -718,9 +747,9 @@
             }
           }
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            this.$set(this.fields, i, item)
             item.value = e[item.column];
           }
-          this.$set(this.fields, i, item)
         }
       },
       async getColV2(type = 'list') {
@@ -791,8 +820,9 @@
                     if (item.hasOwnProperty('disabled')) {
                       field.disabled = item.disabled;
                     }
-                    if (item.hasOwnProperty('value') && (!['Image'].includes(field.col_type) || (item.value &&
-                        item.value.indexOf('http') !== -1))) {
+                    if ((item.hasOwnProperty('value') && (!['Image'].includes(field.col_type) || (item
+                        .value &&
+                        item.value.indexOf('http') !== -1))) || item.value === 0) {
                       // 不复制照片字段
                       field.value = item.value;
                     }
@@ -804,30 +834,6 @@
                       .conditions && Array.isArray(item.condition)) {
                       field.option_list_v2.conditions = item.condition;
                     }
-                    // if (field.value) {
-                    //   let model = {
-                    //     [item.column]: item.value
-                    //   }
-                    //   debugger
-                    //   let calcResult = {}
-                    //   if(field?.redundant?.func&&&& Array.isArray(field.calc_trigger_col)){
-                    //     debugger
-                    //   }
-                    //   const table_name = this.addV2.main_table
-                    //   let calcCols = this.addV2._fieldInfo.filter(obj => obj.redundant?.func && Array
-                    //     .isArray(obj
-                    //       .calc_trigger_col) && obj.calc_trigger_col.includes(item.column)).map(obj =>
-                    //     obj.column)
-
-                    //   if (Array.isArray(calcCols) && calcCols.length > 0) {
-                    //     let app = this.appName || uni.getStorageSync('activeApp');
-                    //     this.evalCalc(table_name, calcCols, model, app).then(calcResult => {
-                    //       console.log(calcResult)
-                    //       debugger
-                    //     })
-
-                    //   }
-                    // }
                   }
                 });
               }
@@ -849,30 +855,20 @@
                 calcResult = await this.evalCalc(this.addV2.main_table, calcCols, fieldModel, this.appName)
                 console.log(calcResult?.response)
               }
-
               for (let i = 0; i < this.fields.length; i++) {
                 const item = this.fields[i]
-                if (calcResult?.response && calcResult.response[item.column]) {
+                if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] ===
+                    0)) {
                   item.value = calcResult?.response[item.column]
-                  // this.valueChange(fieldModel, item)
+                  this.$set(this.fields, i, item)
                 }
-
-                //   if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
-                //     if (item.table_name !== table_name) {
-                //       debugger
-                //       xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-                //     }
-                //     if (xIfResult?.response && xIfResult.response[item.column]) {
-                //       item.display = true
-                //     } else if (xIfResult === true) {
-                //       item.display = true
-                //     } else {
-                //       item.display = false
-                //     }
-                //   }
-                this.$set(this.fields, i, item)
               }
-
+              for (let i = 0; i < calcCols.length; i++) {
+                let col = this.fields.find(item => item.column === calcCols[i])
+                if (col?.column) {
+                  await this.handleCalc(col)
+                }
+              }
             }
 
             break;
