@@ -8,7 +8,8 @@
         :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
         :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
         @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
-        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)" @setColData="setColData"></a-form-item>
+        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
+        @setColData="setColData" @setFieldModel="setFieldModel"></a-form-item>
     </view>
   </view>
 </template>
@@ -152,7 +153,7 @@
           }
         });
         let defaultValue = this.allField.reduce((res, cur) => {
-          if (cur.defaultValue) {
+          if (cur.defaultValue !== null && cur.defaultValue !== undefined) {
             res[cur.columns] = cur.defaultValue
           }
           return res
@@ -161,15 +162,15 @@
           console.log('表单校验通过', showsNum, valid, this.fieldModel);
           let model = {};
           if (this.formType === 'add') {
-            model = this.deepClone(this.fieldModel)
-            if (Object.keys(model).length === 0) {
-              model = this.allField.reduce((res, cur) => {
-                if (cur.value) {
-                  res[cur.columns] = cur.value
-                }
-                return res
-              }, {})
-            }
+            // model = this.deepClone(this.fieldModel)
+            // if (Object.keys(model).length === 0) {
+            model = this.allField.reduce((res, cur) => {
+              if (cur.value !== null && cur.value !== undefined) {
+                res[cur.columns] = cur.value
+              }
+              return res
+            }, {})
+            // }
           } else if (this.formType === 'detail') {
             model = this.deepClone(this.fieldModel)
             if (Object.keys(model).length === 0) {
@@ -244,14 +245,14 @@
           return false;
         }
       },
-      setColData(e){
-        this.$emit('setColData',e)
+      setColData(e) {
+        this.$emit('setColData', e)
       },
       handlerReduant(obj) {
         // 处理冗余操作
         const e = this.deepClone(obj)
         for (let index = 0; index < this.allField.length; index++) {
-          const item = this.deepClone(this.allField[index])
+          const item = this.allField[index]
           console.log(item)
           if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
               .colData) !==
@@ -262,18 +263,17 @@
               if (item.redundant.trigger === 'always') {
                 item.value = e.colData[item.redundant.refedCol];
                 let dependFields = this.allField.reduce((res, cur) => {
-                  if (cur?.redundant?.dependField === item.column) {
+                  if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
                     res.push(cur.column)
                   }
                   return res
                 }, [])
-                if (dependFields.length > 0) {
+                if (dependFields && dependFields.length > 0) {
                   this.handlerReduant(item)
                 }
               } else if (item.redundant.trigger === 'isnull') {
                 if (!item.value) {
                   item.value = e.colData[item.redundant.refedCol];
-                  // this.handlerReduant(item)
                 }
               }
               this.fieldModel[item.column] = item.value;
@@ -287,7 +287,7 @@
           }
         }
       },
-      setFieldModel(e){
+      setFieldModel(e) {
         this.fieldModel[e.column] = e.value;
       },
       async onValChange(e) {
@@ -296,7 +296,7 @@
           e.value = Number(e.value);
         }
         this.fieldModel[e.column] = e.value;
-        const fieldModel = this.deepClone(this.fieldModel);
+        const fieldModel = this.fieldModel;
         const column = e.column
         // const triggerColumns = this.allField.filter((item)=>item.)
         this.handlerReduant(e)

@@ -211,6 +211,13 @@ export default {
         fieldInfo.seq = item.seq
         if (item.init_expr) {
           item.init_expr = item.init_expr.replace(/\'/g, '')
+          let data = {
+            room_no:getApp().globalData?.room_no,
+            bindUserInfo:store?.state?.user?.storeUserInfo,
+            userInfo:store?.state?.user?.userInfo,
+            storeInfo:store?.state.app.storeInfo
+          }
+          item.init_expr = Vue.prototype.renderStr(item.init_expr,data)
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
             let login_user_info = uni.getStorageSync('login_user_info')
             item.init_expr = login_user_info?.user_no || '';
@@ -2230,7 +2237,7 @@ export default {
       conditions = conditions.map(op => {
         let regVar = /\$\{(.*?)\}/
         if (op.value.indexOf('data.hotel_no') !== -1) {
-          if (mainData.store_no && !mainData.hotel_no) {
+          if (mainData?.store_no && !mainData?.hotel_no) {
             op.value = 'data.store_no'
           }
         }

@@ -377,7 +377,7 @@
                   })
                 }
               }
-
+              debugger
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
@@ -717,7 +717,6 @@
         let calcResult = {}
         let calcCols = this.addV2._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           fieldModel = this.fields.reduce((res, cur) => {
             res[cur.column] = cur.value
@@ -727,12 +726,11 @@
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
+          item.old_value = item.value
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] === 0)) {
             item.value = calcResult?.response[item.column]
             e[item.column] = item.value
-            this.$set(this.fields, i, item)
-            await this.valueChange(e, item)
-            // await this.handleCalc(item)
+            fieldModel[item.column] = item.value
           }
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
             if (item.table_name !== table_name) {
@@ -747,8 +745,13 @@
             }
           }
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
-            this.$set(this.fields, i, item)
             item.value = e[item.column];
+            fieldModel[item.column] = item.value
+          }
+          this.$set(this.fields, i, item)
+          if (item.old_value !== item.value) {
+            debugger
+            this.valueChange(fieldModel, item)
           }
         }
       },

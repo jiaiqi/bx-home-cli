@@ -10,9 +10,9 @@
       </view>
 
       <view class="to-more" v-if="config.unfold !==false&&!disabled">
-        <button class="cu-btn sm line-cyan border" v-for="btn in publicButton"
+        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}" v-for="btn in publicButton"
           @click="onButton(btn)">{{btn.button_name||''}}</button>
-        <button class="cu-btn sm line-cyan border" @click="onButton({button_type:'list'})"
+        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}" @click="onButton({button_type:'list'})"
           v-if="listData.length>0">查看全部</button>
       </view>
     </view>
@@ -86,7 +86,7 @@
             :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
+          <button class="cu-btn bg-orange round" v-for="btn in updateV2.formButton"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -854,6 +854,7 @@
 
       },
       setInitData(e) {
+        debugger
         this.initData = e
         // this.memoryListData = [...this.memoryListData,...e]
       },
@@ -1770,7 +1771,7 @@
     .to-more {
       text-align: right;
       padding-top: 20rpx;
-
+      
       .line-cyan {
         color: #0BC99D;
       }

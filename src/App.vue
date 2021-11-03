@@ -100,6 +100,14 @@
     background: #fff !important;
   }
 
+  /* #ifdef H5 */
+  uni-page-head{
+    display: none!important;
+  }
+  .uni-page-head{
+    display: none!important;
+  }
+  /* #endif */
   html,
   body {
     height: auto;

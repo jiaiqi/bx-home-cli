@@ -16,7 +16,7 @@
       </view>
     </view>
     <view class="button-box" v-if="colsV2Data&&!disabled">
-      <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
+      <button class="cu-btn bg-orange round lg" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -437,7 +437,7 @@
       async valueChange(e, triggerField) {
 
         const column = triggerField.column
-        const fieldModel = e
+        let fieldModel = e
         const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
         let xIfResult = null
@@ -451,27 +451,14 @@
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
-          debugger
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
-          if (calcResult?.response && (calcResult.response[item.column]||calcResult.response[item.column]==0)) {
-            debugger
+          item.old_value = item.value
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
-            this.valueChange(e, item)
+            fieldModel[item.column] = item.value
           }
-          // if (item.redundant?.func) {
-          //   if (Array.isArray(item.calc_trigger_col) && item.calc_trigger_col.includes(column)) {
-          //     debugger
-          //     if (item.table_name == table_name) {
-          //       result = await this.evalCalc(item.table_name, [item.column], fieldModel, this.appName)
-          //       debugger
-          //       if(result?.response&&result?.response[item.column]){
-          //         item.value = result?.response[item.column]
-          //       }
-          //     }
-          //   }
-          // }
 
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
             if (item.table_name !== table_name) {
@@ -487,9 +474,12 @@
           }
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.value = e[item.column];
+            fieldModel[item.column] = item.value
           }
-          
           this.$set(this.fields, i, item)
+          if (item.old_value !== item.value) {
+            this.valueChange(fieldModel, item)
+          }
         }
         if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
             .childService)) {
@@ -599,9 +589,10 @@
       },
       async getDetailV2(srv) {
         const app = this.appName || uni.getStorageSync('activeApp');
-        let colVs = await this.getServiceV2(srv||this.serviceName, 'detail', 'detail', app);
+        let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
 
         this.detailV2 = colVs
+        return colVs
       },
       async getFieldsV2() {
         const app = this.appName || uni.getStorageSync('activeApp');
@@ -609,7 +600,7 @@
           app);
         this[`${this.srvType}V2`] = colVs
         if (['update', 'add'].includes(this.srvType)) {
-          this.getDetailV2(colVs.select_service_name)
+          await this.getDetailV2(colVs.select_service_name)
         }
 
         if (Array.isArray(colVs.srv_cols)) {
@@ -654,10 +645,8 @@
                 });
               }
               if (Array.isArray(field.option_list_v2?.conditions)) {
-                debugger
                 field.option_list_v2.conditions = this.evalConditions(field.option_list_v2.conditions,
                   defaultVal)
-                debugger
               }
 
               if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
@@ -720,12 +709,13 @@
               //     field.option_list_v2.conditions = mconditions
               //   }
               // }
-              if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
-                .conditions
-                .length > 0) {
-                field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
-                  .conditions, this.mainData)
-              }
+              // if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
+              //   .conditions
+              //   .length > 0) {
+              //   field.option_list_v2.origin_conditions = this.deepClone(field.option_list_v2.conditions)
+              //   field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+              //     .conditions, this.mainData)
+              // }
 
               if (this.defaultCondition && Array.isArray(this
                   .defaultCondition) && colVs
@@ -900,7 +890,7 @@
     padding: 40rpx 20rpx;
 
     .cu-btn {
-      min-width: 40%;
+      min-width: 45%;
     }
   }
 </style>

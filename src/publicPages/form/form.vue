@@ -6,11 +6,11 @@
     <scroll-view scroll-y="true" class="scroll-view">
       <view>
         <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-          ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
+          ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal" :srvApp="appName"></a-form>
       </view>
     </scroll-view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
-      <button class="cu-btn bg-blue" type="primary" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
+      <button class="cu-btn bg-orange round lg" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
         @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -70,6 +70,7 @@
       },
       ...mapState({
         inviterInfo: state => state.app.inviterInfo,
+        storeInfo:state=>state.app.storeInfo,
         shareType: state => state.app.shareType,
         userInfo: state => state.user.userInfo,
         doctorInfo: state => state.app.doctorInfo,
@@ -645,7 +646,6 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
         
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         
@@ -655,9 +655,10 @@
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
+          item.old_value = item.value
           if (calcResult?.response && calcResult.response[item.column]) {
             item.value = calcResult?.response[item.column]
-            this.valueChange(e,item)
+            fieldModel[item.column] = item.value
           }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
@@ -673,8 +674,12 @@
           }
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.value = e[item.column];
+            fieldModel[item.column] = item.value
           }
           this.$set(this.fields, i, item)
+          if (item.old_value !== item.value) {
+            this.valueChange(fieldModel, item)
+          }
         }
       },
       async getFieldsModel(srv) {

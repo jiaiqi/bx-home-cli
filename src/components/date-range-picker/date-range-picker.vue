@@ -29,7 +29,7 @@
         <view class="value" v-else>{{ selectVal }}</view>
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
-      <u-calendar v-model="show" mode="date" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01">
+      <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01">
       </u-calendar>
     </view>
     <view class="calendar-box" v-else-if="mode==='dateTime'">

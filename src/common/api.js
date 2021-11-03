@@ -16,7 +16,8 @@ let conf = {
     //测试环境
     serviceAddress: "https://wx.100xsys.cn",
     appNo: "APPNO20210926101030",
-    appid: "wx08876efb5760ca75"
+    appid: "wx08876efb5760ca75",
+    ws:"wss://wx.100xsys.cn:8081"
   },
   "prod": {
     // 生产环境
@@ -45,6 +46,7 @@ let ENV = {
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址
   frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
+  wsAddr:conf[env].ws,
   appNo: {
     wxmp: conf[env]['appNo'],
     // wxmp: 'APPNO20210420103005', // 百想首页

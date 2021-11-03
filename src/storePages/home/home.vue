@@ -99,6 +99,10 @@
   } from 'vuex';
   import StoreItem from './store-item/store-item.vue'
 
+  var socketOpen = false;
+  var socketMsgQueue = [];
+  var socketIsLogin = false
+  var socketTask = null
   export default {
     components: {
       StoreItem
@@ -127,10 +131,10 @@
       };
     },
     computed: {
-      showBackHome(){
+      showBackHome() {
         let status = this.storeInfo?.audit_status
-        if(status){
-          if(status==='仅本店'){
+        if (status) {
+          if (status === '仅本店') {
             return false
           }
           return true
@@ -304,6 +308,7 @@
             case '文章列表':
               keys = ['category_no', 'row_number', 'article_style', 'margin']
               break;
+            case '通用列表':
             case '疫苗列表':
             case '通知横幅':
             case '关联店铺':
@@ -954,11 +959,100 @@
           this.getPageItem()
           await this.selectStoreInfo();
           await this.selectBindUser()
-          if (this.bindUserInfo?.id) {
-          } else {
+          if (this.bindUserInfo?.id) {} else {
             await this.bindStore()
           }
           this.getQuery()
+
+          if (!socketOpen) {
+            uni.closeSocket();
+            socketTask = uni.connectSocket({
+              url: this.$api.wsAddr,
+              fail(err) {
+                uni.showModal({
+                  title: '提示',
+                  content: err.errMsg,
+                  showCancel: false
+                })
+              },
+            });
+          }
+
+          uni.onSocketOpen(function(res) {
+            socketOpen = true;
+            let msg = {
+              "srv": "ws_login",
+              "value": uni.getStorageSync('bx_auth_ticket')
+            }
+            uni.showToast({
+              title: "socket连接成功！",
+              icon: "none"
+            })
+            uni.sendSocketMessage({
+              data: JSON.stringify(msg),
+              complete(e) {
+                console.log(e)
+              }
+            });
+            for (var i = 0; i < socketMsgQueue.length; i++) {
+              sendSocketMessage(socketMsgQueue[i]);
+            }
+            socketMsgQueue = [];
+          });
+
+          uni.onSocketMessage(function(res) {
+            console.log('收到服务器内容：' + res.data);
+            let data = JSON.parse(res.data)
+            if (data.code === 'SUCCESS') {
+              if (data?.data?.content) {
+                uni.showToast({
+                  title: data.data.content,
+                  icon: "none"
+                })
+              }
+              if (data?.data?.more_config?.broadcast) {
+                // 语音播报MP3地址
+                // #ifdef MP-WEIXIN
+                const bgAudioManager = uni.getBackgroundAudioManager();
+                bgAudioManager.title = '百想首页-语音播报';
+                bgAudioManager.singer = '百想首页';
+                bgAudioManager.coverImgUrl =
+                  'https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/7fbf26a0-4f4a-11eb-b680-7980c8a877b8.png';
+                bgAudioManager.src = data.data.more_config.broadcast;
+                bgAudioManager.onPlay(() => {
+                  uni.showToast({
+                    title: data.data.content,
+                    icon: "none"
+                  })
+                  console.log('开始播放,mpweixin');
+                });
+                bgAudioManager.play()
+                // #endif
+                // #ifdef H5
+                const innerAudioContext = uni.createInnerAudioContext();
+                innerAudioContext.autoplay = true;
+                innerAudioContext.src = data.data.more_config.broadcast;
+                innerAudioContext.onPlay(() => {
+                  uni.showToast({
+                    title: "开始播放,h5",
+                    icon: "none"
+                  })
+                });
+                innerAudioContext.onError((res) => {
+                  console.log(res.errMsg);
+                  console.log(res.errCode);
+                });
+                innerAudioContext.play()
+                // #endif
+
+              }
+            }
+          });
+
+          uni.onSocketClose(function(res) {
+            socketOpen = false
+            console.log('WebSocket 已关闭！');
+          });
 
         } else {
           // uni.showToast({
@@ -967,7 +1061,7 @@
           // })
         }
 
-      }
+      },
     },
     onPullDownRefresh() {
       this.initPage()

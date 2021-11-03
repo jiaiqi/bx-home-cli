@@ -44,6 +44,11 @@
         pageItem &&
         pageItem.type === '连接WiFi'&&room_no
       "></link-wifi>
+    <bx-list v-else-if="
+        storeNo &&
+        pageItem &&
+        pageItem.type === '通用列表'
+      " :pageItem="pageItem" class="bx-list" />
   </view>
 </template>
 
@@ -59,7 +64,7 @@
   import relationStore from '../relation-store/relation-store.vue'
   import timelineList from './timeline-list/timeline-list.vue'
   import linkWifi from '../link-wifi/link-wifi.vue'
-
+  import bxList from '../bx-list/bx-list.vue'
   export default {
     components: {
       slideList,
@@ -72,7 +77,8 @@
       noticeList,
       relationStore,
       timelineList,
-      linkWifi
+      linkWifi,
+      bxList
     },
     props: {
       pageItem: {
@@ -98,10 +104,10 @@
       }
     },
     computed: {
-      isShow(){
-        if(this.pageItem?.type==='连接WiFi'){
+      isShow() {
+        if (this.pageItem?.type === '连接WiFi') {
           return this.room_no
-        }else{
+        } else {
           return true
         }
       },
@@ -217,14 +223,17 @@
     overflow: hidden;
     padding: 20rpx;
     box-sizing: border-box;
-    &.is-swiper{
+
+    &.is-swiper {
       padding: 0;
       margin-top: 20rpx;
       min-width: 355px;
     }
+
     &.bg-transparent {
       background-color: transparent;
     }
+
     &.noMargin {
       margin: 0;
       border-radius: 0;

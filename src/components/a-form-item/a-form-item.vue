@@ -500,6 +500,7 @@
         immediate: true,
         handler(newValue, oldValue) {
           this.fieldData = newValue;
+          this.$emit('setFieldModel', newValue)
           if (newValue.type === 'Selector') {
             this.pickerChange(newValue.value)
           }
@@ -823,6 +824,7 @@
         if (option_list_v2?.serviceName) {
           let serviceName = option_list_v2.serviceName.replace('_select', '_add')
           let url = `/publicPages/form/form?serviceName=${serviceName}&type=add`
+          debugger
           if (option_list_v2.srv_app) {
             url += `&destApp=${option_list_v2.srv_app}`
           }

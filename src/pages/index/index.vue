@@ -166,6 +166,7 @@
       }
     },
     methods: {
+
       checkUpdate() {
         const updateManager = uni.getUpdateManager();
         updateManager.onCheckForUpdate(function(res) {
