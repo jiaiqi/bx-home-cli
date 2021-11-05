@@ -23,7 +23,8 @@ let conf = {
     // 生产环境
     serviceAddress: "https://srvms.100xsys.cn",
     appNo: "APPNO20201124160702",
-    appId: "wxa3c50c8177ef6739"
+    appId: "wxa3c50c8177ef6739",
+    ws:"ws://139.196.209.46:55555"
   }
 }
 

@@ -200,7 +200,7 @@ export default {
             if (typeof fieldInfo.moreConfig.min === 'number') {
               fieldInfo.min = fieldInfo.moreConfig.min
             }
-           
+
           } catch (e) {
             //TODO handle the exception
           }
@@ -212,20 +212,20 @@ export default {
         if (item.init_expr) {
           item.init_expr = item.init_expr.replace(/\'/g, '')
           let data = {
-            room_no:getApp().globalData?.room_no,
-            bindUserInfo:store?.state?.user?.storeUserInfo,
-            userInfo:store?.state?.user?.userInfo,
-            storeInfo:store?.state.app.storeInfo
+            room_no: getApp().globalData?.room_no,
+            bindUserInfo: store?.state?.user?.storeUserInfo,
+            userInfo: store?.state?.user?.userInfo,
+            storeInfo: store?.state.app.storeInfo
           }
-          item.init_expr = Vue.prototype.renderStr(item.init_expr,data)
+          item.init_expr = Vue.prototype.renderStr(item.init_expr, data)
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
             let login_user_info = uni.getStorageSync('login_user_info')
             item.init_expr = login_user_info?.user_no || '';
           }
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
-            if(item.col_type==='Date'){
+            if (item.col_type === 'Date') {
               item.init_expr = dayjs().format('YYYY-MM-DD')
-            }else{
+            } else {
               item.init_expr = dayjs().format('YYYY-MM-DD HH:mm')
             }
           }
@@ -252,13 +252,13 @@ export default {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "dateTime"
-          if(fieldInfo?.moreConfig?.min&&fieldInfo.moreConfig.min.indexOf('new Date()')!==-1){
+          if (fieldInfo?.moreConfig?.min && fieldInfo.moreConfig.min.indexOf('new Date()') !== -1) {
             // min-date
             fieldInfo.min = dayjs().format('YYYY-MM-DD HH:mm')
           }
         } else if (item.col_type === "Date") {
           fieldInfo.type = "date"
-          if(fieldInfo?.moreConfig?.min&&fieldInfo.moreConfig.min.indexOf('new Date()')!==-1){
+          if (fieldInfo?.moreConfig?.min && fieldInfo.moreConfig.min.indexOf('new Date()') !== -1) {
             // min-date
             fieldInfo.min = dayjs().format("YYYY-MM-DD")
           }
@@ -365,7 +365,7 @@ export default {
           fieldInfo._validators = Vue.prototype.getValidators(item.validators, item
             .validators_message)
         fieldInfo.isRequire = fieldInfo._validators.required
-        fieldInfo.value = fieldInfo.value??null  // 初始化value
+        fieldInfo.value = fieldInfo.value ?? null // 初始化value
         // if(fieldInfo.type === 'digit' || fieldInfo.type === 'number' ){
         //   fieldInfo.value = fieldInfo.value || 0
         // }
@@ -2251,7 +2251,7 @@ export default {
           let colName = op.value.slice(op.value.indexOf('data.') + 5);
           if (mainData && typeof mainData === 'object' && mainData[colName]) {
             op.value = mainData[colName];
-          }else if(mainData && typeof mainData === 'object'){
+          } else if (mainData && typeof mainData === 'object') {
             op.value = ''
             op.ruleType = 'like'
           }
@@ -2347,6 +2347,46 @@ export default {
       }
       return res
     }
+    // 后端返回js_validate校验结果
+    Vue.prototype.evalValidate = async (srv, cols, data = {}, appName) => {
+      if (!srv || !cols) {
+        return
+      }
+      if (Array.isArray(cols)) {
+        cols = cols.toString()
+      }
+      const app = appName || uni.getStorageSync('activeApp')
+      const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_srv_col_validate`
+      const req = [{
+        serviceName: "srvsys_srv_col_validate",
+        condition: [{
+            colName: 'service_name',
+            ruleType: 'eq',
+            value: srv
+          },
+          {
+            colName: 'col',
+            value: cols
+          }
+        ]
+      }]
+      if (data) {
+        req[0].data = [data]
+      }
+      const res = await _http.post(url, req)
+      debugger
+      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
+        0) {
+        return res.data.response[0]
+      } else if (res.data.resultCode === '6666') {
+        return true
+      } else {
+        return false
+      }
+
+    }
+
+    // 后端返回表内计算结果
     Vue.prototype.evalCalc = async (tableName, cols, data = {}, appName) => {
       if (!tableName || !cols) {
         return

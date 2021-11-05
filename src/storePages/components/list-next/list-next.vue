@@ -71,31 +71,31 @@
           'margin': viewTemp?.margin,
           'padding': viewTemp?.padding,
           "btn_cfg": {
-            "show_custom_btn": this.listConfig?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
-            "show_public_btn": this.listConfig?.show_public_btn ?? viewTemp?.btn_cfg?.show_public_btn ??
+            "show_custom_btn":this.listConfig?.btn_cfg?.show_custom_btn?? this.listConfig?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
+            "show_public_btn":this.listConfig?.btn_cfg?.show_public_btn?? this.listConfig?.show_public_btn ?? viewTemp?.btn_cfg?.show_public_btn ??
               null,
-            "show": viewTemp?.btn_cfg?.show || true,
-            "bg_style": viewTemp?.btn_cfg?.bg_style || "line",
-            "bg": viewTemp?.btn_cfg?.bg,
-            "width": viewTemp?.btn_cfg?.width,
-            "height": viewTemp?.btn_cfg?.height,
-            'color': viewTemp?.btn_cfg?.color,
-            "font_size": viewTemp?.btn_cfg?.font_size,
-            "radius": viewTemp?.btn_cfg?.radius || "10px",
-            "size": viewTemp?.btn_cfg?.size || "sm",
-            "padding": viewTemp?.btn_cfg?.padding || null
+            "show":  viewTemp?.btn_cfg?.show || true,
+            "bg_style":this.listConfig?.btn_cfg?.bg_style|| viewTemp?.btn_cfg?.bg_style || "line",
+            "bg":this.listConfig?.btn_cfg?.bg|| viewTemp?.btn_cfg?.bg || 'orange',
+            "width":this.listConfig?.btn_cfg?.width|| viewTemp?.btn_cfg?.width,
+            "height": this.listConfig?.btn_cfg?.height||viewTemp?.btn_cfg?.height,
+            'color': this.listConfig?.btn_cfg?.color||viewTemp?.btn_cfg?.color,
+            "font_size": this.listConfig?.btn_cfg?.font_size||viewTemp?.btn_cfg?.font_size,
+            "radius":this.listConfig?.btn_cfg?.radius|| viewTemp?.btn_cfg?.radius || "10px",
+            "size":this.listConfig?.btn_cfg?.size|| viewTemp?.btn_cfg?.size || "",
+            "padding": this.listConfig?.btn_cfg?.padding||viewTemp?.btn_cfg?.padding || null
           },
           "img": {
-            "col": viewTemp?.img?.col,
+            "col": this.listConfig?.img?.col || viewTemp?.img?.col,
             "cfg": {
-              "width": this.listConfig?.img?.width || viewTemp?.img?.cfg?.width || "100%",
-              "height": this.listConfig?.img?.height || viewTemp?.img?.cfg?.height || "150rpx",
-              "radius": viewTemp?.img?.cfg?.radius || "10px 10px 0 0",
-              "position": viewTemp?.img?.cfg?.position || "top",
-              "mode": this.listConfig?.img?.mode || viewTemp?.img?.cfg?.mode || ""
+              "width": this.listConfig?.img?.cfg?.width || viewTemp?.img?.cfg?.width || "100%",
+              "height": this.listConfig?.img?.cfg?.height || viewTemp?.img?.cfg?.height || "150rpx",
+              "radius": this.listConfig?.img?.cfg?.radius || viewTemp?.img?.cfg?.radius || "10px 10px 0 0",
+              "position": this.listConfig?.img?.cfg?.position || viewTemp?.img?.cfg?.position || "top",
+              "mode": this.listConfig?.img?.cfg?.mode || viewTemp?.img?.cfg?.mode || ""
             }
           },
-          cols: viewTemp?.cols
+          cols: this.listConfig?.cols || viewTemp?.cols
         }
         return obj
       },
@@ -133,9 +133,11 @@
     display: flex;
     flex-wrap: wrap;
     padding: 20rpx;
-    .list-item-wrap{
+
+    .list-item-wrap {
       width: 100%;
     }
+
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
@@ -226,72 +228,76 @@
       }
 
     }
+
     @media screen and (min-width: 1200px) {
       .grid_span2 {
         width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(2n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(4n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(6n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span3 {
         width: calc(100%/8 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(3n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(6n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(8n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span4 {
         width: calc(100%/10 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(4n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(8n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(10n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span5 {
         width: calc(100%/12 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(5n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(10n) {
           margin-right: 20rpx;
         }
-        
+
         &:nth-child(12n) {
           margin-right: 0;
         }
       }
-    
+
     }
   }
 </style>

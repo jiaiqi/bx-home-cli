@@ -135,6 +135,9 @@
     computed: {
       isShowOrder() {
         // 是否显示预定按钮
+        if(this.formType!=='detail'){
+          return false
+        }
         let questArr = ['20211008104446000006', '20210929120256000001', '20211027112223000007']
         if (questArr.includes(this.activity_no)) {
           if (this.activity_no === '20210929120256000001') {
@@ -147,7 +150,7 @@
             }, 0)
             if (num >= 3) {
               return this.activity_no
-            }
+            }else return true
           } else if (this.activity_no === '20211008104446000006') {
             // ESS 嗜睡問卷調查
             let score = Object.keys(this.resultData).reduce((res, cur) => {
@@ -162,7 +165,7 @@
             }, 0)
             if (score > 12) {
               return this.activity_no
-            }
+            }else return true
           } else if (this.activity_no === '20211027112223000007') {
             // 肺病筛查
             let score = Object.keys(this.resultData).reduce((res, cur) => {
@@ -180,7 +183,7 @@
             }, 0)
             if (score >= 5) {
               return this.activity_no
-            }
+            }else return true
           }
         } else {
           return this.activity_no
@@ -205,7 +208,7 @@
           // ESS 嗜睡問卷調查
           uni.showModal({
             title: '提示',
-            content: '评测分数大于12，有嗜睡症状',
+            content: '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查',
             showCancel: false
           })
         } else if (this.activity_no === '20210929120256000001' && newValue === this.activity_no) {
@@ -216,12 +219,22 @@
             showCancel: false
           })
         } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
-          .activity_no)) {
-          uni.showModal({
-            title: '提示',
-            content: '健康状况良好',
-            showCancel: false
-          })
+            .activity_no)) {
+          if (newValue==true) {
+            if (this.activity_no === '20211027112223000007') {
+              uni.showModal({
+                title: '提示',
+                content: '您的呼吸系统良好，继续保持，祝您健康！',
+                showCancel: false
+              })
+            } else {
+              uni.showModal({
+                title: '提示',
+                content: '健康状况良好',
+                showCancel: false
+              })
+            }
+          }
         }
       },
       activityNo(newValue, oldValue) {
@@ -384,6 +397,7 @@
       submitForm() {
         let self = this;
         let itemData = self.$refs.bxform.getFieldModel();
+        debugger
         if (itemData !== false) {
           uni.showModal({
             title: '提示',
@@ -435,6 +449,8 @@
 
                         self.formType = 'detail';
                         self.getQuestionnaireData(self.formData);
+                        debugger
+
                         if (Array.isArray(res.data.response) && res.data
                           .response.length > 0 && res.data.response[0]
                           .response && res.data.response[0].response
@@ -728,6 +744,7 @@
         let config = {
           label: e.item_title,
           column: e.item_no,
+          columns: e.item_no,
           in_add: 1,
           srvInfo: {
             serviceName: 'srvdaq_activity_result_submit',

@@ -38,6 +38,7 @@
 			<text class="page-no">{{ page.pageNo }}</text>
 			<text class="total">{{ page.total }}</text>
 		</view>
+
 	</view>
 </template>
 

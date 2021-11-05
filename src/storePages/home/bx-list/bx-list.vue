@@ -26,7 +26,7 @@
       serviceName() {
         return this.config?.serviceName
       },
-      appName(){
+      appName() {
         return this.config?.appName || uni.getStorageSync('activeApp')
       },
       publicButton() {
@@ -66,17 +66,17 @@
           'padding': this.listConfig?.padding || config?.padding,
           "list_bar": this.listConfig?.list_bar ?? config?.list_bar,
           "btn_cfg": {
-            "show_custom_btn": this.listConfig?.show_custom_btn ?? config?.btn_cfg?.show_custom_btn ?? null,
-            "show_public_btn": this.listConfig?.show_public_btn ?? config?.btn_cfg?.show_public_btn ??
+            "show_custom_btn": this.listConfig?.btn_cfg?.show_custom_btn ?? config?.btn_cfg?.show_custom_btn ?? null,
+            "show_public_btn": this.listConfig?.btn_cfg?.show_public_btn ?? config?.btn_cfg?.show_public_btn ??
               null,
             "show": config?.btn_cfg?.show || true,
-            "bg_style": this.listConfig?.bg_style || config?.btn_cfg?.bg_style || "line",
-            "bg": this.listConfig?.bg || config?.btn_cfg?.bg,
-            'color': this.listConfig?.color || config?.btn_cfg?.color,
-            "font_size": this.listConfig?.font_size || config?.btn_cfg?.font_size,
-            "radius": this.listConfig?.radius || config?.btn_cfg?.radius || "10px",
-            "size": this.listConfig?.size || config?.btn_cfg?.size || "sm",
-            "padding": this.listConfig?.padding || config?.btn_cfg?.padding || null
+            "bg_style": this.listConfig?.btn_cfg?.bg_style || config?.btn_cfg?.bg_style || "line",
+            "bg": this.listConfig?.btn_cfg?.bg || config?.btn_cfg?.bg,
+            'color': this.listConfig?.btn_cfg?.color || config?.btn_cfg?.color,
+            "font_size": this.listConfig?.btn_cfg?.font_size || config?.btn_cfg?.font_size,
+            "radius": this.listConfig?.btn_cfg?.radius || config?.btn_cfg?.radius || "10px",
+            "size": this.listConfig?.btn_cfg?.size || config?.btn_cfg?.size || "sm",
+            "padding": this.listConfig?.btn_cfg?.padding || config?.btn_cfg?.padding || null
           },
           "img": {
             "col": this.listConfig?.img?.col || config?.img?.col,
@@ -182,28 +182,6 @@
         })
         return arr
       },
-      finalSearchColumn() {
-        if (this.moreConfig?.searchColumn) {
-          return this.moreConfig.searchColumn
-        } else {
-          if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
-            return this.srvCols.reduce((res, cur) => {
-              if (!['id', 'create_time', 'create_user', 'create_user_disp', 'del_flag', 'modify_time',
-                  'modify_user', 'modify_user_disp'
-                ].includes(cur.columns)) {
-                res.push(cur.columns)
-              }
-              return res
-            }, [])
-          }
-          return Object.keys(this.finalViewTemp).reduce((res, cur) => {
-            if (this.finalViewTemp[cur]) {
-              res.push(this.finalViewTemp[cur])
-            }
-            return res
-          }, [])
-        }
-      },
     },
     data() {
       return {
@@ -211,11 +189,10 @@
         showMockCount: false,
         list: [],
         pageNo: 1,
-        rownumber: 20,
+        rownumber: 1,
         total: 0,
         loadStatus: 'more',
         condition: null,
-        appName: "",
         colV2: null,
         orderCols: [],
         proc_data_type: "", //流程状态
@@ -452,49 +429,6 @@
         }
 
         let keywords = this.searchVal;
-        if (keywords && this.finalSearchColumn) {
-          if (typeof this.finalSearchColumn === 'string') {
-            req.condition = req.condition.concat([{
-              colName: this.finalSearchColumn,
-              ruleType: 'like',
-              value: keywords
-            }]);
-          } else if (Array.isArray(this.finalSearchColumn)) {
-            // 数组 使用relation_condition
-            if (Array.isArray(req.condition) && req.condition.length > 0) {
-              req.relation_condition = {
-                relation: "AND",
-                data: [{
-                    relation: "OR",
-                    data: this.finalSearchColumn.map(item => {
-                      return {
-                        "colName": item,
-                        "value": keywords,
-                        "ruleType": 'like'
-                      }
-                    })
-                  },
-                  {
-                    relation: "AND",
-                    data: this.deepClone(req.condition)
-                  }
-                ]
-              }
-            } else {
-              req.relation_condition = {
-                relation: "OR",
-                data: this.finalSearchColumn.map(itme => {
-                  return {
-                    "colName": itme,
-                    "value": keywords,
-                    "ruleType": 'like'
-                  }
-                })
-              }
-            }
-            delete req.condition
-          }
-        }
 
         if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
           if (req.relation_condition?.data.length > 0) {
@@ -562,6 +496,13 @@
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
         debugger
+        if (buttonInfo?.more_config) {
+          try {
+            buttonInfo.moreConfig = JSON.parse(buttonInfo.more_config)
+          } catch (err) {
+            console.log(err)
+          }
+        }
         if (buttonInfo?._buttons) {
           delete buttonInfo._buttons
         }
@@ -640,6 +581,53 @@
               // this.getList()
               this.refresh()
             }
+            return
+          } else if (buttonInfo.operate_type === "URL跳转") {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+
+            let obj = {
+              data: rowData,
+              rowData,
+              storeInfo,
+              bindUserInfo
+            };
+            if (buttonInfo?.moreConfig?.navUrl) {
+              let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
+              uni.navigateTo({
+                url
+              })
+            }
+
+          } else if (buttonInfo.operate_type === '详情弹出' || buttonInfo.operate_type === '详情跳转') {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+
+            // let targetUrl = this.customDetailUrl
+            // let obj = {
+            //   data: rowData,
+            //   rowData,
+            //   storeInfo,
+            //   bindUserInfo
+            // };
+            // obj = this.deepClone(obj)
+            // targetUrl = this.renderStr(this.customDetailUrl, obj)
+            let url =
+              `/publicPages/detail/detail?serviceName=${buttonInfo.service_name}`
+            // }
+
+            let condition = buttonInfo?.operate_params?.condition
+            if (Array.isArray(condition) && condition.length > 0) {
+              url += `&cond=${JSON.stringify(condition)}`
+            } else {
+              return
+            }
+            if (this.appName) {
+              url += `&appName=${this.appName}`
+            }
+            uni.navigateTo({
+              url: url
+            })
             return
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
             // 自定义按钮
@@ -1058,9 +1046,9 @@
     },
     mounted() {
       if (this.serviceName) {
-        // this.getListV2().then(_ => {
-        //   this.refresh()
-        // })
+        this.getListV2().then(_ => {
+          this.refresh()
+        })
       }
     },
     onReachBottom() {

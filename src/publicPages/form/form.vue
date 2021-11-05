@@ -3,24 +3,17 @@
       '--global-text-font-size': globalTextFontSize + 'px',
       '--page-height': pageHeight,
     }">
-    <scroll-view scroll-y="true" class="scroll-view">
-      <view>
-        <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-          ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal" :srvApp="appName"></a-form>
-      </view>
-    </scroll-view>
+    <view>
+      <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
+        ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal" :srvApp="appName">
+      </a-form>
+    </view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
       <button class="cu-btn bg-orange round lg" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
         @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
     </view>
-    <!--    <child-table
-      :formData="defaultVal"
-      :child-service="childService"
-      v-if="defaultVal && childService.length > 0"
-      @toChildServiceList="toChildServiceList"
-    ></child-table> -->
   </view>
 </template>
 
@@ -56,7 +49,7 @@
         submitAction: '', //提交后要进行的emit操作
         keyboardHeight: 0,
         pageHeight: `calc(100vh - var(--window-top) - var(--window-bottom))`,
-        disabled:false
+        disabled: false
       };
     },
     computed: {
@@ -70,7 +63,7 @@
       },
       ...mapState({
         inviterInfo: state => state.app.inviterInfo,
-        storeInfo:state=>state.app.storeInfo,
+        storeInfo: state => state.app.storeInfo,
         shareType: state => state.app.shareType,
         userInfo: state => state.user.userInfo,
         doctorInfo: state => state.app.doctorInfo,
@@ -644,11 +637,11 @@
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-        
+
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
-        
+
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
           result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
@@ -980,7 +973,7 @@
       uni.offKeyboardHeightChange(function() {})
     },
     async onLoad(option) {
-      if(option.disabled){
+      if (option.disabled) {
         this.disabled = option.disabled
       }
       uni.onKeyboardHeightChange(res => {
@@ -1146,8 +1139,10 @@
   // }
   .form {
     width: 100%;
-    background-color: #f2f3f4;
-    height: var(--page-height);
+    // background-color: #f2f3f4;
+    padding: 20rpx;
+    background-color: #F8F8FA;
+    min-height: var(--page-height);
     /* #ifdef MP-WEIXIN */
     height: 100vh;
     /* #endif */
@@ -1157,19 +1152,19 @@
     justify-content: space-between;
 
     .scroll-view {
-      background-color: #fff;
+      // background-color: #fff;
     }
 
     .button-box {
       margin-top: 20rpx;
       margin-bottom: 0;
-      // background-color: #fff;
       width: 100%;
       min-height: 120rpx;
       display: flex;
       padding: 40rpx 20rpx;
       justify-content: space-around;
       align-items: center;
+      z-index: 20;
 
       .cu-btn {
         min-width: 45%;

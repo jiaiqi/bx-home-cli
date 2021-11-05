@@ -96,6 +96,9 @@ export default {
   },
   methods: {
     showEditor (cur) {
+      if(!this.isAdmin){
+        return
+      }
       if (this.cur) {
         this.postType = 'update'
       }

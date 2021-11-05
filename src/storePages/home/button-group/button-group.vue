@@ -450,7 +450,7 @@
         }
       },
       qrcodeCanvasComplete(e) {
-        this.qrcodePath = this.storeInfo?.barcode_pic || e;
+        this.qrcodePath = e;
       },
       hideQrcode() {
         this.showQrcode = false

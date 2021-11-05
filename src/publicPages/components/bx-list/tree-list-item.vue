@@ -370,6 +370,47 @@
         </view>
       </view>
     </view>
+
+    <view class="cu-modal " @click="showModal()" :class="{show:modalName==='button-list-dialog'}">
+      <view class="cu-dialog" @click.stop="">
+        <view class="title  bg-white">
+          <view class="">
+
+          </view>
+          <view class="text">
+            请选择下一步操作
+          </view>
+          <view class="" @click="showModal()">
+            <text class="cuIcon-close"></text>
+          </view>
+        </view>
+        <view class="special-button-list" v-if="specialButton.length>0">
+          <button class="cu-btn radius bg-blue" :data-row="itemData" :data-shareTitle="item.shareTitle"
+            :data-shareurl="item.shareUrl" :open-type="item.type" v-for="item in specialButton"
+            @click="footBtnClick(item)">{{item.name}}</button>
+        </view>
+      </view>
+    </view>
+    <view class="qr-code" v-if="qrCodeText&&modalName==='show-qrcode'">
+      <uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" :size="codeSize" class="qrcode-canvas" foregroundColor="#333"
+        makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
+      </uni-qrcode>
+    </view>
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='show-qrcode'}" @click="showModal()">
+      <view class="cu-dialog " @click.stop="">
+        <view class="qrcode-box">
+          <image :src="qrcodePath" mode="aspectFit" v-if="qrcodePath" @click="toPreviewImage(qrcodePath)">
+          </image>
+          <view class="qr-code-image" v-else @click="makeQrCode">
+            <text class="cuIcon-refresh"></text>
+          </view>
+        </view>
+        <view class="button-box">
+          <button @click.stop="showModal()" class="cu-btn">关闭</button>
+        </view>
+      </view>
+    </view>
+
   </view>
 </template>
 
@@ -379,6 +420,11 @@
     name: 'ListItem',
     data() {
       return {
+        specialButton: [],
+        qrcodePath: "",
+        qrCodeText: "",
+        codeSize: uni.upx2px(700),
+        modalName: "",
         showGroupBtn: false,
         picUrl: '',
         user: uni.getStorageSync('login_user_info').user_no
@@ -388,6 +434,14 @@
       imgLazy
     },
     methods: {
+      makeQrCode() {
+        if (this.$refs.qrcodeCanvas) {
+          this.$refs.qrcodeCanvas.make()
+        }
+      },
+      qrcodeCanvasComplete(e) {
+        this.qrcodePath = e;
+      },
       clickGroupBtn(index) {
         let buttons = this.groupRowButton.groupBtn
         if (Array.isArray(buttons) && buttons.length > 0) {
@@ -406,8 +460,37 @@
           row: this.itemData
         });
       },
+      showModal(e = '') {
+        this.modalName = e
+      },
       footBtnClick(btn) {
-        if (btn && btn.type === 'share') {
+        if (btn && (btn.type === 'qrCode' || btn.type === 'share')) {
+          if (btn.qrCodeText) {
+            this.qrCodeText = btn.qrCodeText
+            this.showModal('show-qrcode')
+          }
+          return
+        } else if (btn && btn.type === 'button_list_dialog') {
+          if (Array.isArray(btn.buttons) && btn.buttons.length > 0) {
+            this.specialButton = btn.buttons.map(btn => {
+              let _data = {
+                rowData: this.itemData,
+                userInfo: this.$store?.state?.user?.userInfo,
+                storeInfo: this.$store?.state?.app?.storeInfo
+              }
+              if (btn.share_title) {
+                btn.shareTitle = this.renderStr(btn.share_title, _data)
+              }
+              if (btn.qrCodeText) {
+                btn.qrCodeText = this.renderStr(btn.qrCodeText, _data)
+              }
+              if (btn.url) {
+                btn.shareUrl = this.renderStr(btn.url, _data)
+              }
+              return btn
+            })
+            this.showModal('button-list-dialog')
+          }
           // let url = btn.url
           // let _data = {
           //   rowData:this.itemData,
@@ -751,6 +834,27 @@
 </script>
 
 <style lang="scss">
+  .qrcode-box {
+    padding: 80rpx 40rpx;
+    text-align: center;
+
+    .qr-code-image {
+      width: 500rpx;
+      height: 500rpx;
+      line-height: 500rpx;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      border: 1rpx solid #ccc;
+    }
+  }
+
+  .qrcode-canvas {
+    position: fixed;
+    top: -999px;
+    right: -999px;
+  }
+
   .bx-btn {
     // min-width: 150rpx;
     padding: 6rpx 32rpx;
@@ -1053,6 +1157,30 @@
           }
         }
       }
+    }
+  }
+
+  .cu-dialog {
+    .title {
+      display: flex;
+      justify-content: space-between;
+      padding: 20rpx;
+
+      .text {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .special-button-list {
+    padding: 20rpx;
+    min-height: 300rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .cu-btn {
+      margin-right: 20rpx;
     }
   }
 </style>

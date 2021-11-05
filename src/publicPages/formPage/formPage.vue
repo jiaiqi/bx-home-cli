@@ -9,8 +9,8 @@
 
       <view class="child-service-box" v-if="colsV2Data && isArray(fields)">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
-          <child-list :config="item" :appName="appName" :main-data="mainData" ref="childList" @onButton="onChildButton"
-            @child-list-change="childListChange">
+          <child-list :config="item" :disabled="disabled || disabledChildButton" :appName="appName"
+            :main-data="mainData" ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
           </child-list>
         </view>
       </view>
@@ -54,7 +54,9 @@
         currentFormFk: null,
         isOnButton: false,
         disabled: false,
-        _childListData: {}
+        _childListData: {},
+        disabledChildButton: false, // 禁用子表
+        disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
       }
     },
     computed: {
@@ -444,7 +446,6 @@
         if (Array.isArray(cols) && cols.length > 0) {
           xIfResult = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
         }
-
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
@@ -480,6 +481,9 @@
           if (item.old_value !== item.value) {
             this.valueChange(fieldModel, item)
           }
+        }
+        if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
+          let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
         }
         if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
             .childService)) {
@@ -772,6 +776,8 @@
               }
               return res
             }, {})
+
+
             break;
         }
 
@@ -783,8 +789,20 @@
           result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
         }
 
+        let calcResult = {}
+        let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col)).map(item => item.column)
+
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
+        }
+
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
+            item.value = calcResult?.response[item.column]
+            defaultVal[item.column] = item.value
+          }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
@@ -808,7 +826,10 @@
     },
     async onLoad(option) {
       if (option.disabled) {
-        this.disabled = option.disabled
+        this.disabled = true
+      }
+      if (option.disabledChildButton) {
+        this.disabledChildButton = true
       }
       await this.toAddPage()
       if (option.destApp) {

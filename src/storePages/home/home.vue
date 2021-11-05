@@ -237,10 +237,13 @@
       switchStore(e) {
         if (e.store_no) {
           this.storeNo = e.store_no
-          this.initPage()
-          setTimeout(_ => {
-            this.showHomePageSelector = false
-          }, 100)
+          uni.reLaunch({
+            url:`/storePages/home/home?store_no=${e.store_no}`
+          })
+          // this.initPage()
+          // setTimeout(_ => {
+          //   this.showHomePageSelector = false
+          // }, 100)
         }
       },
       goHome() {
@@ -1332,6 +1335,8 @@
     margin: 0 auto;
     // display: flex;
     // flex-wrap: wrap;
+    height: auto;
+    overflow: hidden;
 
     ::v-deep swiper.rectangle-dot {
 

@@ -112,7 +112,7 @@
         // return this.colV2?.tabs
       },
       listBarReadonly() {
-        return this.listConfig?.listBarReadonly
+        return this.listConfig?.listBarReadonly||this.disabled
       },
       publicButton() {
         if (Array.isArray(this.colV2?.gridButton) && this.colV2?.gridButton.length > 0) {
@@ -305,6 +305,7 @@
         },
         initCond: [],
         relationCondition: [],
+        disabled:false,
       }
     },
     methods: {
@@ -363,12 +364,9 @@
       },
       toOrder(e) {
         this.order = e
-        // this.orderCols = e
         setTimeout(_ => {
           this.getList()
         }, 100)
-        // this.$refs.bxList.getListData()
-        // this.hideModal()
       },
       toSearch(e) {
         let keywords = e || this.searchVal;
@@ -779,7 +777,6 @@
               buttonInfo.servcie_type);
             let res = await this.$http.post(url, req);
             if (res.data.state === 'SUCCESS') {
-              // this.getList()
               this.refresh()
             }
             return
@@ -991,7 +988,6 @@
           this.onButtonToUrl(data, this.appName).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
-                // this.getList()
                 this.refresh()
               }
             }
@@ -1202,12 +1198,15 @@
       if (option.hideChildList) {
         this.hideChildList = true
       }
+      if(option.disabled){
+        this.disabled= true
+      }
       if (option.showMockCount) {
         this.showMockCount = option.showMockCount
       }
+      let self = this
       uni.$on('dataChange', srv => {
-        this.refresh()
-        // this.getList(null, this.initCond)
+        self.refresh()
       })
       if (option.grid_span) {
         this.listConfig.grid_span = option.grid_span
@@ -1316,6 +1315,11 @@
       if (this.loadStatus === 'more') {
         this.pageNo++;
         this.getList(null, this.initCond)
+      }
+    },
+    onShow(){
+      if(Array.isArray(this.list)&&this.list.length>0){
+        this.refresh()
       }
     },
     onPullDownRefresh() {

@@ -239,6 +239,9 @@
       userInfo() {
         return this.$store?.state?.user?.userInfo
       },
+      bindUserInfo(){
+        return this.$store?.state?.user?.storeUserInfo
+      },
       statisConfig() {
         // 统计字段配置
         let config = this.storeInfo?.moreConfig?.statis
@@ -1409,21 +1412,25 @@
         position: absolute;
         background-color: #f33610;
         border-radius: 100px;
-        top: 10rpx;
-        right: 10rpx;
+        top: 0px;
+        right: 10px;
         padding: 0px 5px;
         height: 10px;
         width: 10px;
         color: #ffffff;
         z-index: 1;
       }
-
+      .badge{
+        top: 0px;
+        right: 10px;
+        z-index: 1;
+      }
       .badge-left {
         position: absolute;
         background-color: #f37b1d;
         border-radius: 100px;
-        top: -10rpx;
-        left: -10rpx;
+        top: 0px;
+        left: 10px;
         font-size: 10px;
         padding: 0px 5px;
         height: 14px;

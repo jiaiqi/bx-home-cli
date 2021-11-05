@@ -9,6 +9,11 @@
           <view class="col-item" :style="{
             width:column.width,
             color:column.color,
+            flex:column.flex,
+            'text-align':column.align,
+            'background-color':column.bg,
+            'border-radius':column.radius,
+            'padding':column.padding,
             'font-size':column.font_size
           }" v-for="column in detailConfig.top_col">
             <view class="label" v-if="setValue(column.col,column).label">
@@ -123,9 +128,9 @@
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
           <text class="cuIcon-fold " v-else></text>
         </view>
-        <view class="button-box" v-if="detail&&!disabled">
-          <button class="cu-btn line-orange round border" v-for="(item,index) in publicButton" :class="{disabled:disabled}" :key="index"
-            @click="onButton(item)">
+        <view class="button-box" v-if="detail&&disabled">
+          <button class="cu-btn line-orange round border" v-for="(item,index) in publicButton"
+            :class="{disabled:disabled}" :key="index" @click="onButton(item)">
             {{item.button_name||''}}
           </button>
         </view>
@@ -140,7 +145,7 @@
     </view>
     <view class="child-service-box" v-if="currentChild">
       <view class="child-service">
-        <child-list :disabled="disabled" :config="currentChild" :mainServiceName="serviceName"
+        <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
           @addChild="addChild" v-if="detail&&currentChild">
         </child-list>
@@ -148,9 +153,9 @@
     </view>
     <view class="child-service-box" v-if="detail">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
-        <child-list :disabled="disabled" :config="item" :mainServiceName="serviceName" :mainTable="v2Data.main_table"
-          :mainFkField="fkFields" :appName="appName" :mainData="detail" @addChild="addChild"
-          @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
+        <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
+          @addChild="addChild" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
     </view>
@@ -184,6 +189,7 @@
         showDetail: false,
         currentChild: null,
         disabled: false,
+        disabledChildButton: false, //子表禁止编辑
       }
     },
     computed: {
@@ -221,6 +227,9 @@
           return {}
         }
       },
+      fkConfig() {
+        return this.moreConfig?.fk_config
+      },
       detailConfig() {
         return this.moreConfig?.detail_config || false
       },
@@ -242,6 +251,12 @@
             item.use_type = 'detaillist'
             return item
           }).filter((item, index) => {
+            if (this.fkConfig && this.fkConfig.hide) {
+              let hideChildList = this.fkConfig.hide;
+              if (hideChildList.indexOf(item.foreign_key?.constraint_name)  !== -1) {
+                return false
+              }
+            }
             if (Array.isArray(this.detail?._child_tables) && this.v2Data.child_service.length === this
               .detail._child_tables.length) {
               if (this.detail._child_tables[index] === 0) {
@@ -683,8 +698,11 @@
         if (option.destApp) {
           this.appName = option.destApp
         }
+        if (option.disabledChildButton) {
+          this.disabledChildButton = true
+        }
         if (option.disabled) {
-          this.disabled = option.disabled
+          this.disabled = true
         }
         if (option.cond) {
           try {
@@ -779,7 +797,8 @@
 
         .col-item {
           display: flex;
-          .label{
+
+          .label {
             margin-bottom: 10rpx;
             margin-right: 20rpx;
           }

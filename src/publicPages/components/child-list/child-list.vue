@@ -9,11 +9,12 @@
         </view>
       </view>
 
-      <view class="to-more" v-if="config.unfold !==false&&!disabled">
-        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}" v-for="btn in publicButton"
-          @click="onButton(btn)">{{btn.button_name||''}}</button>
-        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}" @click="onButton({button_type:'list'})"
-          v-if="listData.length>0">查看全部</button>
+      <view class="to-more" v-if="config.unfold !==false">
+        <button class="cu-btn line-orange round border" v-show="disabled!==true" :class="{sm:publicButton.length>2}"
+          v-for="btn in publicButton" @click="onButton(btn)">
+          <text class="text">{{btn.button_name||''}}</text></button>
+        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}"
+          @click="onButton({button_type:'list'})" v-if="listData.length>0"><text class="text">查看全部</text></button>
       </view>
     </view>
     <view class="list-box" v-if="config.unfold !==false">
@@ -22,6 +23,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
+        <text class="cuIcon-add  more-btn hidden" v-if="!disabled"></text>
+        <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
       <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
         @click="onButton({button_type:'edit'},index)">
@@ -29,7 +32,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <text class="cuIcon-add text-black" v-if="!disabled" @click.stop="showAction(item)"></text>
+        <button class="cuIcon-add cu-btn bg-orange light more-btn" v-if="!disabled&&hasHandlerButton"
+          @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -119,7 +123,8 @@
         selectColInfo: null,
         initData: [],
         curItem: null,
-        allFields: []
+        allFields: [],
+
       }
     },
     filters: {
@@ -370,12 +375,33 @@
       })
     },
     methods: {
-      showAction(e) {
-        this.curItem = e;
-        let rowButton = this.rowButton || []
+      hasHandlerButton(e) {
+        let rowButton = []
+        if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
+          rowButton = this.deepClone(this.rowButton)
+        }
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
           rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
             .button_type))
+        }
+        return rowButton.length!==0
+      },
+      showAction(e) {
+        this.curItem = e;
+        let rowButton = []
+        if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
+          rowButton = this.deepClone(this.rowButton)
+        }
+        if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
+          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
+            .button_type))
+        }
+        if (rowButton.length === 0) {
+          uni.showToast({
+            icon: 'none',
+            title: "没有可用的操作"
+          })
+          return
         }
         uni.showActionSheet({
           itemList: rowButton.map(item => item.button_name),
@@ -448,7 +474,7 @@
           if (buttonInfo.operate_type === '删除') {
             this.onButtonToUrl(data, this.appName).then(res => {
               if (res.state === 'SUCCESS') {
-                this.refresh()
+                this.getList()
               }
             })
 
@@ -472,7 +498,13 @@
             let res = await this.$http.post(url, req);
             if (res.data.state === 'SUCCESS') {
               // this.getList()
-              this.refresh()
+              this.getList()
+            } else {
+              uni.showModal({
+                title: "提示",
+                content: res.data.resultMessage,
+                showCancel: false
+              })
             }
             return
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
@@ -647,7 +679,7 @@
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
                 // this.getList()
-                this.refresh()
+                this.getList()
               }
             }
             if (buttonInfo && buttonInfo.button_type === 'detail') {
@@ -1332,7 +1364,9 @@
         return
       },
       async onButton(e, index) {
-        if (this.disabled) {
+        if (e?.button_type == 'list') {
+
+        } else if (this.disabled) {
           return
         }
         if (e && e.button_type) {
@@ -1341,8 +1375,13 @@
               this.getList()
               break;
             case 'list':
+              let url =
+                `/publicPages/list2/list2?pageType=list&main_data=${JSON.stringify(this.mainData)}&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
+              if (this.disabled) {
+                url += `&disabled=true`
+              }
               uni.navigateTo({
-                url: `/publicPages/list2/list2?pageType=list&main_data=${JSON.stringify(this.mainData)}&serviceName=${this.serviceName}&destApp=${this.srvApp}&cond=${JSON.stringify(this.condition)}`
+                url
               })
               break;
             case 'add':
@@ -1752,6 +1791,33 @@
         display: flex;
         border-bottom: 1px solid #f1f1f1;
         padding: 10rpx 0;
+        line-height: 30px;
+
+        .bg-orange {
+          background-color: #F3A250;
+
+          &.light {
+            background-color: #fde6d2;
+          }
+        }
+
+        .more-btn {
+          width: 30px;
+          text-align: center;
+          justify-content: center;
+        }
+
+        .hidden {
+          opacity: 0;
+          font-size: 28rpx;
+        }
+
+        .cuIcon-add {
+          border-radius: 10rpx;
+          padding: 0 10rpx;
+          display: flex;
+          align-items: center;
+        }
 
         &.table-head {
           font-size: 24rpx;
@@ -1771,7 +1837,16 @@
     .to-more {
       text-align: right;
       padding-top: 20rpx;
-      
+
+      .line-orange {
+        // color: #FFE8D1;
+        color: #F3A250;
+
+        .text {
+          color: #F3A250;
+        }
+      }
+
       .line-cyan {
         color: #0BC99D;
       }

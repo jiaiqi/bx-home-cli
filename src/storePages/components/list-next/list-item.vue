@@ -21,8 +21,7 @@
         </view>
 
         <view class="col-item text-right flex-1 handler" v-if="listType==='cart'">
-          <view class="del-btn-box" :class="{active:inCartData&&amount}"
-            v-if="inCartData&&inCartData.id&&amount">
+          <view class="del-btn-box" :class="{active:inCartData&&amount}" v-if="inCartData&&inCartData.id&&amount">
             <text class="cu-btn sm radius" :style="{
                 color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
                 'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
@@ -101,23 +100,22 @@
       }
     },
     data() {
-      return {
-      }
+      return {}
     },
     computed: {
-      amount(){
+      amount() {
         let data = this.cartData.find(item => item.id === this.rowData.id);
-        if(data?.goods_count){
+        if (data?.goods_count) {
           return data.goods_count
-        }else {
+        } else {
           return false
         }
       },
       inCartData() {
         let data = this.cartData.find(item => item.id === this.rowData.id)
-        if(data){
+        if (data) {
           return data
-        }else{
+        } else {
           return false
         }
       },
@@ -145,7 +143,7 @@
             let arr = []
             Object.keys(this.rowData).forEach((key) => {
               if (!['id', 'create_time', 'create_user', 'modify_time', 'modify_user', 'create_user_disp',
-                  'modify_user_disp'
+                  'modify_user_disp','_buttons'
                 ].includes(key)) {
                 let col = {
                   "col": key,
@@ -175,12 +173,15 @@
         return this.setViewTemp?.btn_cfg
       },
       setRowButton() {
-        let buttons = this.rowButton.filter((item, index) => {
-          if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this.rowButton.length) {
-            return this.rowData._buttons[index] === 1
-          }
-          return true
-        })
+        let buttons = []
+        if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
+          buttons = this.rowButton.filter((item, index) => {
+            if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this.rowButton.length) {
+              return this.rowData._buttons[index] === 1
+            }
+            return true
+          })
+        }
         if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
           buttons = buttons.filter(item => item.is_public !== true || item.button_type === 'detail')
         }
@@ -271,6 +272,7 @@
                 'font-weight': cfg?.font_weight,
                 'text-align': cfg?.align,
                 'color': cfg?.color,
+                'background-color': cfg?.bg,
                 'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align === 'right' ? 'flex-end' :
                   cfg?.align
               },
@@ -367,7 +369,7 @@
             if (!obj.value && cfg?.default_val) {
               obj.value = cfg?.default_val
             }
-            if(!obj.value&&cfg?.show_null!==true){
+            if (!obj.value && cfg?.show_null !== true) {
               obj.class += ' hidden'
             }
             result.cols.push(obj)
@@ -525,11 +527,13 @@
           font-size: 28rpx;
           font-family: 苹方-简;
           color: #333333;
-          &.hidden{
+
+          &.hidden {
             display: none;
             width: 0;
             height: 0;
           }
+
           &.handler {
             width: 100%;
             display: flex;
@@ -598,7 +602,9 @@
       flex-wrap: wrap;
       justify-content: flex-end;
       width: 100%;
-
+      .bg-orange{
+        background-color: #F3A250;
+      }
       &.grid {
         width: auto;
       }

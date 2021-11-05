@@ -1,6 +1,6 @@
 <template>
   <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem&&isShow"
-    :class="{ 'is-swiper':pageItem.type === '轮播图','bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin':pageItem&&(pageItem.type === '店铺信息2') }">
+    :class="{ 'is-swiper':pageItem.type === '轮播图','bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin noPadding':pageItem&&(pageItem.type === '店铺信息2') }">
     <view class="title" v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '疫苗列表'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">
@@ -236,6 +236,10 @@
 
     &.noMargin {
       margin: 0;
+      border-radius: 0;
+    }
+    &.padding {
+      padding: 0;
       border-radius: 0;
     }
   }
