@@ -95,6 +95,7 @@
         </view>
       </view>
     </view>
+    <u-action-sheet :list="listItemAction" @click="clickActionItem" v-model="showActionSheet"></u-action-sheet>
   </view>
 </template>
 
@@ -124,6 +125,8 @@
         initData: [],
         curItem: null,
         allFields: [],
+        listItemAction: [],
+        showActionSheet: false
       }
     },
     filters: {
@@ -385,11 +388,28 @@
         }
         return rowButton.length !== 0
       },
+      closeAction() {
+        this.listItemAction = []
+      },
+      clickActionItem(index) {
+        let btn = this.listItemAction[index]
+        let obj = {
+          row: btn.rowData,
+          button: btn
+        }
+        this.onFootButton(obj)
+        this.showActionSheet = false
+      },
       showAction(e) {
         this.curItem = e;
+        debugger
         let rowButton = []
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
-          rowButton = this.deepClone(this.rowButton)
+          rowButton = this.deepClone(this.rowButton).map(item => {
+            item.text = item.button_name
+            item.rowData = e
+            return item
+          })
         }
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
           rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
@@ -402,20 +422,23 @@
           })
           return
         }
-        uni.showActionSheet({
-          itemList: rowButton.map(item => item.button_name),
-          success: (res) => {
-            console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
-            let obj = {
-              row: e,
-              button: rowButton[res.tapIndex]
-            }
-            this.onFootButton(obj)
-          },
-          fail: (res) => {
-            console.log(res.errMsg);
-          }
-        });
+        // let sheets = rowButton.map(item => item.button_name)
+        this.showActionSheet = true
+        this.listItemAction = rowButton
+        // uni.showActionSheet({
+        //   itemList: sheets,
+        //   success: (res) => {
+        //     console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
+        //     let obj = {
+        //       row: e,
+        //       button: rowButton[res.tapIndex]
+        //     }
+        //     this.onFootButton(obj)
+        //   },
+        //   fail: (res) => {
+        //     console.log(res.errMsg);
+        //   }
+        // });
       },
       async onFootButton(data) {
         let self = this

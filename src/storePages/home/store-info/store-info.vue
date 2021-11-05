@@ -33,6 +33,7 @@
           <button class="cu-btn border round" @click.stop="toManage" v-if="isManager">
             <text class="cuIcon-settingsfill margin-right-xs"></text>
             <text class="text-black">管理</text>
+            <text class=" badge" v-if="storeInfo&&storeInfo.kefu_unread_msg"><text class="unread bg-red round">{{storeInfo.kefu_unread_msg}}</text></text>
           </button>
           <button class="cu-btn border  round" @click.stop="toSetting">
             <text class="cuIcon-peoplefill"></text>
@@ -535,7 +536,14 @@
             color: #CF79EE;
             font-size: 24rpx;
             margin-right: 10rpx;
-
+            position: relative;
+            .unread{
+              font-size: 12px;
+              padding: 3px;
+              position: absolute;
+              top: -10px;
+              right: -10px;
+            }
             &.notice-setting {
               color: #FFBA2F;
 

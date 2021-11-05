@@ -238,7 +238,7 @@
         if (e.store_no) {
           this.storeNo = e.store_no
           uni.reLaunch({
-            url:`/storePages/home/home?store_no=${e.store_no}`
+            url: `/storePages/home/home?store_no=${e.store_no}`
           })
           // this.initPage()
           // setTimeout(_ => {
@@ -651,7 +651,9 @@
             rownumber: 1
           },
         };
-        let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
+        let serviceName = 'srvhealth_store_list_select'
+        serviceName = 'srvhealth_store_mgmt_select'
+        let res = await this.$fetch('select', serviceName, req, 'health')
         if (Array.isArray(res.data) && res.data.length > 0) {
           this.storeInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
@@ -882,9 +884,9 @@
       },
       async getQuery() {
         let isHandQuery = getApp().globalData.isHandQuery
-        if (isHandQuery) {
-          return
-        }
+        // if (isHandQuery) {
+        //   return
+        // }
         let url = this.getServiceUrl('health', 'srvsys_page_def_select', 'select');
         let req = {
           "serviceName": "srvsys_page_def_select",
@@ -987,10 +989,10 @@
               "srv": "ws_login",
               "value": uni.getStorageSync('bx_auth_ticket')
             }
-            uni.showToast({
-              title: "socket连接成功！",
-              icon: "none"
-            })
+            // uni.showToast({
+            //   title: "socket连接成功！",
+            //   icon: "none"
+            // })
             uni.sendSocketMessage({
               data: JSON.stringify(msg),
               complete(e) {

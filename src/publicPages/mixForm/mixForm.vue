@@ -87,6 +87,11 @@
         }
       },
     },
+    onShow() {
+      if(this.serviceName){
+          this.getList()
+      }
+    },
     async onLoad(option) {
 
       if (option.serviceName) {
