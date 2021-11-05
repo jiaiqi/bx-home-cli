@@ -257,7 +257,8 @@
         }
       },
       qrcodeCanvasComplete(e) {
-        this.qrcodePath = this.storeInfo?.barcode_pic || e;
+        this.qrcodePath = e;
+        // this.qrcodePath = this.storeInfo?.barcode_pic || e;
         this.$emit('getQrcode', e)
       },
       makePhoneCall() {
