@@ -33,7 +33,7 @@
         </view>
         <view class="label">入驻咨询</view>
       </view>
-      <view class="" style="margin-top: 30vh" v-if="loadStatus === 'noMore' && list.length === 0">
+      <view class="" style="margin-top: 30vh;text-align: center;" v-if="loadStatus === 'noMore' && list.length === 0">
         暂无数据
       </view>
       <uni-load-more :status="loadStatus" :contentText="loadText" @clickLoadMore="loadMore" v-if="

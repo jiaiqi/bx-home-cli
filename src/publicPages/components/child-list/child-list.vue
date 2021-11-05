@@ -32,7 +32,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn" v-if="!disabled&&hasHandlerButton"
+        <button class="cuIcon-add cu-btn bg-orange light more-btn" v-if="!disabled"
           @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
@@ -124,7 +124,6 @@
         initData: [],
         curItem: null,
         allFields: [],
-
       }
     },
     filters: {
@@ -384,7 +383,7 @@
           rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
             .button_type))
         }
-        return rowButton.length!==0
+        return rowButton.length !== 0
       },
       showAction(e) {
         this.curItem = e;

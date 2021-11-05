@@ -1036,10 +1036,10 @@
                 innerAudioContext.autoplay = true;
                 innerAudioContext.src = data.data.more_config.broadcast;
                 innerAudioContext.onPlay(() => {
-                  uni.showToast({
-                    title: "开始播放,h5",
-                    icon: "none"
-                  })
+                  // uni.showToast({
+                  //   title: "开始播放,h5",
+                  //   icon: "none"
+                  // })
                 });
                 innerAudioContext.onError((res) => {
                   console.log(res.errMsg);
