@@ -9,7 +9,8 @@
         'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
         'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
       }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType"
-        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart">
+        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp"
+        :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart">
       </list-item>
     </view>
   </view>
@@ -22,6 +23,7 @@
       listItem
     },
     props: {
+
       list: {
         type: Array
       },
@@ -39,7 +41,16 @@
       },
       cartData: {
         type: Array
-      }
+      },
+      gridButtonDisp: {
+        type: Object
+      },
+      rowButtonDisp: {
+        type: Object
+      },
+      formButtonDisp: {
+        type: Object
+      },
     },
     computed: {
       rowButton() {
@@ -133,9 +144,11 @@
     display: flex;
     flex-wrap: wrap;
     padding: 20rpx;
-    .list-item-wrap{
+
+    .list-item-wrap {
       width: 100%;
     }
+
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
@@ -226,72 +239,76 @@
       }
 
     }
+
     @media screen and (min-width: 1200px) {
       .grid_span2 {
         width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(2n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(4n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(6n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span3 {
         width: calc(100%/8 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(3n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(6n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(8n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span4 {
         width: calc(100%/10 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(4n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(8n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(10n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span5 {
         width: calc(100%/12 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(5n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(10n) {
           margin-right: 20rpx;
         }
-        
+
         &:nth-child(12n) {
           margin-right: 0;
         }
       }
-    
+
     }
   }
 </style>

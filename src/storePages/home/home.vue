@@ -293,7 +293,7 @@
             case '店铺信息':
             case '店铺信息2':
               keys = ['show_consult', 'show_set_home', 'margin', 'type', 'swiper_image', 'show_set_home',
-                'image_origin'
+                'image_origin', 'more_config'
               ]
               break;
             case '按钮组':
@@ -652,7 +652,7 @@
           },
         };
         let serviceName = 'srvhealth_store_list_select'
-        serviceName = 'srvhealth_store_mgmt_select'
+        // serviceName = 'srvhealth_store_mgmt_select'
         let res = await this.$fetch('select', serviceName, req, 'health')
         if (Array.isArray(res.data) && res.data.length > 0) {
           this.storeInfo = res.data[0];
@@ -883,6 +883,9 @@
         });
       },
       async getQuery() {
+        if (!this.pt_no) {
+          return
+        }
         let isHandQuery = getApp().globalData.isHandQuery
         // if (isHandQuery) {
         //   return
@@ -900,9 +903,6 @@
             "pageNo": 1,
             "rownumber": 1
           },
-        }
-        if (!this.pt_no) {
-          return
         }
         let res = await this.$http.post(url, req)
         if (res.data.state === 'SUCCESS') {
@@ -939,14 +939,29 @@
                 case 'list2':
                   break;
               }
+              if (data.serviceJson?.afterSubmit) {
+                url += `&afterSubmit=${data.serviceJson.afterSubmit}`
+              }
               if (url) {
                 let pages = getCurrentPages();
                 let curPage = pages[pages.length - 1]
-                getApp().globalData.beforeRedirectUrl = curPage?.$page?.fullPath
-                getApp().globalData.isHandQuery = true
-                uni.redirectTo({
-                  url
-                })
+                let beforeRedirectUrl = curPage?.$page?.fullPath
+                if (beforeRedirectUrl) {
+                  beforeRedirectUrl = beforeRedirectUrl.replace('pt_no', 'ptNo')
+                }
+                getApp().globalData.beforeRedirectUrl = beforeRedirectUrl
+                // getApp().globalData.isHandQuery = true
+                this.pt_no = ''
+                if (data?.serviceJson?.navType) {
+                  uni[data.serviceJson.navType]({
+                    url
+                  })
+                } else {
+                  uni.redirectTo({
+                    url
+                  })
+                }
+
               }
             }
             return data
@@ -967,6 +982,8 @@
           if (this.bindUserInfo?.id) {} else {
             await this.bindStore()
           }
+
+
           this.getQuery()
 
           if (!socketOpen) {

@@ -322,6 +322,9 @@
         }
       },
       deRowButDisplay: function(item, button, index) {
+        if (this.rowButtonDisp && this.rowButtonDisp[button.button_type] === false) {
+          return false
+        }
         if (Array.isArray(this.itemData._buttons)) {
           if (typeof index === 'number' && (index || index === 0)) {
             return this.itemData._buttons[index]
@@ -451,7 +454,16 @@
       },
       labels: { //要显示label的字段
         type: Array
-      }
+      },
+      gridButtonDisp: {
+        type: Object
+      },
+      rowButtonDisp: {
+        type: Object
+      },
+      formButtonDisp: {
+        type: Object
+      },
     },
     watch: {
       srv_cols: {

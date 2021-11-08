@@ -1,6 +1,7 @@
 <template>
   <view class="page-wrap">
     <list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols"
+      :gridButtonDisp="gridButtonDisp"
       :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
       @search="toSearch" v-if="showSearchBar">
@@ -104,7 +105,7 @@
     },
     data() {
       return {
-        hideChildList:false,
+        hideChildList: false,
         orderCols: [],
         modalName: "",
         showFilter: false, //是否显示筛选弹框
@@ -151,7 +152,11 @@
         labels: [], // 要显示label的字段
         col: 0, //每行数量
         foreign_key: null,
-        main_data: null
+        main_data: null,
+        disabled: false,
+        gridButtonDisp: null,
+        rowButtonDisp: null,
+        formButtonDisp: null
       };
     },
     onReachBottom() {
@@ -177,7 +182,31 @@
       }
     },
     onLoad(option) {
-      if(option.hideChildList){
+      if (option.rowButtonDisp) {
+        try {
+          this.rowButtonDisp = JSON.parse(option.rowButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.gridButtonDisp) {
+        try {
+          this.gridButtonDisp = JSON.parse(option.gridButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.formButtonDisp) {
+        try {
+          this.formButtonDisp = JSON.parse(option.formButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.disabled) {
+        this.disabled = true
+      }
+      if (option.hideChildList) {
         this.hideChildList = true
       }
       uni.$on('dataChange', srv => {
@@ -536,6 +565,9 @@
             if (this.main_data) {
               url += `&main_data=${JSON.stringify(this.main_data)}`
             }
+            if (this.disabled === true) {
+              url += '&disabled=true'
+            }
             uni.navigateTo({
               url: url
             });
@@ -604,6 +636,9 @@
                     });
                   }
                   return
+                }
+                if (this.disabled === true) {
+                  url += '&disabled=true'
                 }
                 uni.navigateTo({
                   url: url
@@ -711,7 +746,6 @@
               // 		'&cond=' +
               // 		decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
               // });
-              debugger
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
               if (moreConfig && typeof moreConfig === 'string') {
@@ -730,7 +764,7 @@
                   eventOrigin: buttonInfo
                 };
                 uni.navigateTo({
-                  url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                  url: '/publicPages/formPage/formPage?params=' + JSON.stringify(
                     params)
                 });
                 return
@@ -805,6 +839,9 @@
                 }
                 if (otherParams && otherParams.hideColumn) {
                   url += `&hideColumn=${JSON.stringify(otherParams.hideColumn)}`
+                }
+                if (this.disabled === true) {
+                  url += '&disabled=true'
                 }
                 uni.navigateTo({
                   url: url
@@ -895,11 +932,16 @@
               //   'childTableList') {
               // url = `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               // }
-              if(this.hideChildList){
-                url = `/publicPages/form/form?type=detail&serviceName=${btn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+              if (this.hideChildList) {
+                url =
+                  `/publicPages/form/form?type=detail&serviceName=${btn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
               if (this.appName) {
                 url += `&appName=${this.appName}`
+              }
+
+              if (this.disabled === true) {
+                url + '&disabled=true'
               }
               // if (button.service_name === 'srvdaq_cms_content_select') {
               //   if (rowData.content_no) {
@@ -1028,7 +1070,6 @@
                   })
                 })
               }
-              debugger
               Object.keys(data.row).forEach(key => {
                 if (!['id', 'modify_user_disp', 'modify_user', 'modify_time',
                     'create_user_disp', 'create_user', 'create_time', 'del_flag',
@@ -1089,6 +1130,15 @@
         if (colVs.more_config) {
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
+            if (colVs.moreConfig?.formButtonDisp && !this.formButtonDisp) {
+              this.formButtonDisp = colVs.moreConfig?.formButtonDisp
+            }
+            if (colVs.moreConfig?.rowButtonDisp && !this.rowButtonDisp) {
+              this.rowButtonDisp = colVs.moreConfig?.rowButtonDisp
+            }
+            if (colVs.moreConfig?.gridButtonDisp && !this.gridButtonDisp) {
+              this.gridButtonDisp = colVs.moreConfig?.gridButtonDisp
+            }
           } catch (e) {
             //TODO handle the exception
             console.info(e)

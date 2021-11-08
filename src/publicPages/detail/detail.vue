@@ -131,7 +131,7 @@
         <view class="button-box" v-if="detail&&disabled">
           <button class="cu-btn line-orange round border" v-for="(item,index) in publicButton"
             :class="{disabled:disabled}" :key="index" @click="onButton(item)">
-            {{item.button_name||''}}
+            {{item.button_custom_name||item.button_name||''}}
           </button>
         </view>
       </view>
@@ -160,11 +160,6 @@
       </view>
     </view>
 
-    <!-- 	<view class="cu-modal" :class="{show:modalName==='updatePopup'}" @click="hideModal">
-			<view class="cu-dialog" @click.stop="">
-				<bxForm></bxForm>
-			</view>
-		</view> -->
   </view>
 </template>
 
@@ -190,6 +185,7 @@
         currentChild: null,
         disabled: false,
         disabledChildButton: false, //子表禁止编辑
+        formButtonDisp: null
       }
     },
     computed: {
@@ -253,7 +249,7 @@
           }).filter((item, index) => {
             if (this.fkConfig && this.fkConfig.hide) {
               let hideChildList = this.fkConfig.hide;
-              if (hideChildList.indexOf(item.foreign_key?.constraint_name)  !== -1) {
+              if (hideChildList.indexOf(item.foreign_key?.constraint_name) !== -1) {
                 return false
               }
             }
@@ -278,6 +274,11 @@
       publicButton() {
         if (Array.isArray(this.v2Data?.formButton)) {
           return this.v2Data.formButton.filter((item, index) => {
+            if (this.formButtonDisp && this.formButtonDisp[item.button_type] === false) {
+              return false
+            }else if(this.formButtonDisp &&this.formButtonDisp[item.button_type]&&typeof this.formButtonDisp[item.button_type]==='string'){
+              item.button_custom_name = this.formButtonDisp[item.button_type]
+            }
             if (item.permission === false) {
               return false
             }
@@ -687,6 +688,13 @@
       },
     },
     onLoad(option) {
+      if (option.formButtonDisp) {
+        try {
+          this.formButtonDisp = JSON.parse(option.formButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
       uni.$on('dataChange', () => {
         this.getDetail()
       })

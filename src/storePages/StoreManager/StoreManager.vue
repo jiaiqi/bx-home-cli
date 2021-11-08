@@ -226,7 +226,8 @@
         childTable: [], // 子表列表
         colV2Data: {},
         buttonTitle: "",
-        displayColumn: ""
+        displayColumn: "",
+        noticeNum: {}
       };
     },
     filters: {
@@ -239,7 +240,7 @@
       userInfo() {
         return this.$store?.state?.user?.userInfo
       },
-      bindUserInfo(){
+      bindUserInfo() {
         return this.$store?.state?.user?.storeUserInfo
       },
       statisConfig() {
@@ -521,6 +522,18 @@
           }
           this.manageGroup = res.data.map(item => {
             item.buttonGroup = []
+            if (item.more_config) {
+              try {
+                item.moreConfig = JSON.parse(item.more_config)
+                debugger
+                if (item.moreConfig?.noticeNumConfig) {
+                  let noticeNumConfig = item.moreConfig.noticeNumConfig;
+                  this.getNoticeNum(noticeNumConfig)
+                }
+              } catch (e) {
+                //TODO handle the exception
+              }
+            }
             return item
           });
           for (let item of res.data) {
@@ -1123,7 +1136,25 @@
           }
         }
         return
-      }
+      },
+      async getNoticeNum(e) {
+        let serviceName = e?.service_name
+        let app = e?.app
+        let req = {
+          "colNames": ["*"],
+          "serviceName": serviceName,
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          }
+        }
+        let url = this.getServiceUrl(app, serviceName, 'select');
+        let res = await this.$http.post(url, req)
+        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          let data = res.data.data[0]
+          this.noticeNum = Object.assign(this.noticeNum, data)
+        }
+      },
     },
     onPullDownRefresh() {
       if (this.storeNo) {
@@ -1147,7 +1178,9 @@
       if (option.store_no) {
         this.storeNo = option.store_no;
         await this.getStoreInfo();
+        // await this.getNoticeNum()
         await this.selectChild()
+
         this.getButtonGroup()
       }
     }
@@ -1159,7 +1192,7 @@
     margin: 0 auto;
     height: 10px;
     width: 10px;
-    background-color: #f33610!important;
+    background-color: #f33610 !important;
     border-radius: 50px;
     box-shadow: 0px 0px 5px #f33610;
     // animation: fadeIn 1s 1  linear;
@@ -1420,11 +1453,13 @@
         color: #ffffff;
         z-index: 1;
       }
-      .badge{
+
+      .badge {
         top: 0px;
         right: 10px;
         z-index: 1;
       }
+
       .badge-left {
         position: absolute;
         background-color: #f37b1d;

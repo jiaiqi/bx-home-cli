@@ -15,7 +15,7 @@
           </view>
         </view>
         <view class="store-button">
-          <button class="image-btn" @click.stop="toManage" v-if="isManager">
+          <button class="image-btn" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <image class="image" :src="require('./setting.png')" mode=""></image>
           </button>
           <button class="image-btn" open-type="share">
@@ -30,12 +30,13 @@
       <view class="top">
         <view class="name">{{ storeInfo.name || "机构名称" }}</view>
         <view class="bind" v-if="isBind === true">
-          <button class="cu-btn border round" @click.stop="toManage" v-if="isManager">
+          <button class="cu-btn border round" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <text class="cuIcon-settingsfill margin-right-xs"></text>
             <text class="text-black">管理</text>
-            <text class=" badge" v-if="storeInfo&&storeInfo.kefu_unread_msg"><text class="unread bg-red round">{{storeInfo.kefu_unread_msg}}</text></text>
+            <text class=" badge" v-if="storeInfo&&storeInfo.kefu_unread_msg"><text
+                class="unread bg-red round">{{storeInfo.kefu_unread_msg}}</text></text>
           </button>
-          <button class="cu-btn border  round" @click.stop="toSetting">
+          <button class="cu-btn border  round" @click.stop="toSetting" v-if="showBtn.person">
             <text class="cuIcon-peoplefill"></text>
             <!-- <text class="text-black">个人</text> -->
           </button>
@@ -155,6 +156,31 @@
           return true
         }
       },
+      showBtn() {
+        let obj = {
+          manage: true,
+          person: true
+        }
+        let userRole = this.bindUserInfo?.user_role;
+        let disp_role = this.pageItem?.more_config?.btn_disp_role;
+        Object.keys(obj).forEach(key => {
+          if (disp_role && disp_role[key]) {
+            // 如果配置了自定义显示隐藏，则默认隐藏
+            obj[key] = false
+            if (userRole) {
+              let arr  = userRole.split(',')
+              if (Array.isArray(arr) && arr.length > 0) {
+                arr.forEach(role => {
+                  if (disp_role[key].indexOf(role) !== -1) {
+                     obj[key]  = true
+                  }
+                })
+              }
+            }
+          }
+        })
+        return obj
+      },
       isManager() {
         // 是否为用户之外的角色
         if (!this.bindUserInfo?.user_role) {
@@ -166,7 +192,7 @@
         if (arr.length > 0) {
           showManager = true
         }
-        if(this.hasManageBtn){
+        if (this.hasManageBtn) {
           return showManager
         }
       },
@@ -193,7 +219,7 @@
     },
     data() {
       return {
-        hasManageBtn:false,
+        hasManageBtn: false,
         qrCodeText: '',
         codeSize: uni.upx2px(700),
         qrcodePath: '', //图片url
@@ -316,7 +342,7 @@
         this.$emit('toConsult')
       },
     },
-    mounted(){
+    mounted() {
       this.getButtonGroup()
     },
   }
@@ -538,13 +564,16 @@
             font-size: 24rpx;
             margin-right: 10rpx;
             position: relative;
-            .unread{
+
+            .unread {
+              min-width: 20px;
               font-size: 12px;
               padding: 3px;
               position: absolute;
               top: -10px;
               right: -10px;
             }
+
             &.notice-setting {
               color: #FFBA2F;
 

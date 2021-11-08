@@ -3,6 +3,7 @@
     <count-bar :list="countData" v-if="showMockCount"></count-bar>
 
     <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
+      :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
       :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
       @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
       @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
@@ -15,8 +16,10 @@
         @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
       </filter-tags>
       <view class="list-view">
-        <list-next class="list-next" :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType"
-          :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart" />
+        <list-next class="list-next" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+          :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig" :list="list"
+          :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart"
+          @del2Cart="del2Cart" />
       </view>
 
     </view>
@@ -112,7 +115,7 @@
         // return this.colV2?.tabs
       },
       listBarReadonly() {
-        return this.listConfig?.listBarReadonly||this.disabled
+        return this.listConfig?.listBarReadonly || this.disabled
       },
       publicButton() {
         if (Array.isArray(this.colV2?.gridButton) && this.colV2?.gridButton.length > 0) {
@@ -305,7 +308,10 @@
         },
         initCond: [],
         relationCondition: [],
-        disabled:false,
+        disabled: false,
+        gridButtonDisp: null,
+        rowButtonDisp: null,
+        formButtonDisp: null
       }
     },
     methods: {
@@ -535,11 +541,19 @@
         if (colVs.more_config) {
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
-            debugger
             if (colVs.moreConfig?.detailType) {
               if (!this.detailType) {
                 this.detailType = colVs.moreConfig?.detailType
               }
+            }
+            if (colVs.moreConfig?.formButtonDisp && !this.formButtonDisp) {
+              this.formButtonDisp = colVs.moreConfig?.formButtonDisp
+            }
+            if (colVs.moreConfig?.rowButtonDisp && !this.rowButtonDisp) {
+              this.rowButtonDisp = colVs.moreConfig?.rowButtonDisp
+            }
+            if (colVs.moreConfig?.gridButtonDisp && !this.gridButtonDisp) {
+              this.gridButtonDisp = colVs.moreConfig?.gridButtonDisp
             }
             if (colVs.moreConfig?.customDetailUrl) {
               if (!this.customDetailUrl) {
@@ -705,6 +719,15 @@
         if (buttonInfo?._buttons) {
           delete buttonInfo._buttons
         }
+        let moreConfig = buttonInfo.more_config;
+        if (moreConfig && typeof moreConfig === 'string') {
+          try {
+            buttonInfo.moreConfig = JSON.parse(moreConfig);
+          } catch (e) {
+            //TODO handle the exception
+            console.log(e);
+          }
+        }
         if (!buttonInfo?.button_type) {
           uni.showModal({
             title: '提示',
@@ -780,6 +803,23 @@
               this.refresh()
             }
             return
+          } else if (buttonInfo.operate_type === "URL跳转") {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+
+            let obj = {
+              data: rowData,
+              rowData,
+              storeInfo,
+              bindUserInfo
+            };
+            if (buttonInfo?.moreConfig?.navUrl) {
+              let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
+              uni.navigateTo({
+                url
+              })
+            }
+
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
             // 自定义按钮
             let moreConfig = buttonInfo.more_config;
@@ -894,6 +934,9 @@
             if (app) {
               url += `&destApp=${app}`
             }
+            if (this.disabled === true) {
+              url += '&disabled=true'
+            }
             uni.navigateTo({
               url
             });
@@ -979,6 +1022,9 @@
               }
               targetUrl = url
             }
+            if (this.disabled === true) {
+              url += '&disabled=true'
+            }
             uni.navigateTo({
               url: targetUrl
             })
@@ -1038,6 +1084,9 @@
               //   }
               //   return
               // }
+              if (this.disabled === true) {
+                url += '&disabled=true'
+              }
               uni.navigateTo({
                 url: url
               })
@@ -1133,6 +1182,9 @@
                 if (this.appName) {
                   url += `&appName=${this.appName}`
                 }
+                if (this.disabled === true) {
+                  url += '&disabled=true'
+                }
                 uni.navigateTo({
                   url: url
                 });
@@ -1195,11 +1247,32 @@
       }
     },
     onLoad(option) {
+      if (option.rowButtonDisp) {
+        try {
+          this.rowButtonDisp = JSON.parse(option.rowButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.gridButtonDisp) {
+        try {
+          this.gridButtonDisp = JSON.parse(option.gridButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.formButtonDisp) {
+        try {
+          this.formButtonDisp = JSON.parse(option.formButtonDisp)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
       if (option.hideChildList) {
         this.hideChildList = true
       }
-      if(option.disabled){
-        this.disabled= true
+      if (option.disabled) {
+        this.disabled = true
       }
       if (option.showMockCount) {
         this.showMockCount = option.showMockCount
@@ -1317,8 +1390,8 @@
         this.getList(null, this.initCond)
       }
     },
-    onShow(){
-      if(Array.isArray(this.list)&&this.list.length>0){
+    onShow() {
+      if (Array.isArray(this.list) && this.list.length > 0) {
         this.refresh()
       }
     },

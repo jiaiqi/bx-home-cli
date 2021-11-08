@@ -21,6 +21,8 @@
 						:viewTemp="finalViewTemp" :viewType="viewType" :imageNum="imageNum" :gridRowNum="gridRowNum"
 						:rowButton="rowButton" :srv_cols="srv_cols" :listType="listType" :pageType="pageType"
 						:showFootBtn="showFootBtn" :layout="onlyShowTitle ? 'grid' : 'normal'"
+            :gridButtonDisp="gridButtonDisp"
+            :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
 						@click-list-item="clickItem" @click-foot-btn="clickFootBtn"></list-item>
 				</view>
 				<view v-if="listType === 'proc'">
@@ -28,6 +30,8 @@
 						:labels="ShowLabelColumn" :itemData="item" :viewTemp="finalViewTemp" :viewType="viewType"
 						:imageNum="imageNum" :gridRowNum="gridRowNum" :rowButton="rowButton" :srv_cols="srv_cols"
 						:pageType="pageType" :listType="listType" :showFootBtn="showFootBtn"
+            :gridButtonDisp="gridButtonDisp"
+            :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
 						@click-list-item="clickItem" @click-foot-btn="clickFootBtn"></list-item>
 				</view>
 			</sPullScroll>
@@ -364,7 +368,16 @@
 			customTemp: {
 				type: Boolean, // 强制使用本地代码中自定义的viewTemp
 				default: false
-			}
+			},
+      gridButtonDisp: {
+        type: Object
+      },
+      rowButtonDisp: {
+        type: Object
+      },
+      formButtonDisp: {
+        type: Object
+      },
 		},
 
 		methods: {

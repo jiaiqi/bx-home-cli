@@ -4,14 +4,14 @@
       <view class="search-form round">
         <text class="cuIcon-search"></text>
         <input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal"
-          :placeholder="placeholder" confirm-type="search" @confirm="toSearch"/>
+          :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
       </view>
       <view class="action">
-       <button class="cu-btn bg-white shadow-blur " @click="toSearch">
+        <button class="cu-btn bg-white shadow-blur " @click="toSearch">
           <text class="cuIcon-search"></text>
         </button>
         <button class="cu-btn bg-white   margin-left-xs" @click="clickGridButton(btn)"
-          v-for="(btn, btnIndex) in listButton" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">
+          v-for="(btn, btnIndex) in setListBtn" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">
           <text :class="[btn.icon]" class=""></text>
           <text class="button-name">{{btn.button_name||''}}</text>
         </button>
@@ -90,15 +90,28 @@
       orderColExtension: {
         type: Array
       },
-      readonly:{
-        type:[String,Boolean]
-      }
+      readonly: {
+        type: [String, Boolean]
+      },
       // orderCols:{
       // 	type:Array
       // }
+      gridButtonDisp: {
+        type: Object
+      }
 
     },
     computed: {
+      setListBtn() {
+        let listButton = this.listButton.filter(item => {
+          if (this.gridButtonDisp && this.gridButtonDisp[item.button_type] === false) {
+            return false
+          } else {
+            return true
+          }
+        })
+        return listButton
+      },
       filterCol() {
         return Array.isArray(this.filterCols) && this.filterCols.length > 0 ? this.filterCols : this.srvCols
       },
@@ -135,9 +148,9 @@
       }
     },
     methods: {
-      isShowBtn(btn){
-        let handlerBtn = ['add','delete']
-        if(this.readonly&&handlerBtn.includes(btn.button_type)){
+      isShowBtn(btn) {
+        let handlerBtn = ['add', 'delete']
+        if (this.readonly && handlerBtn.includes(btn.button_type)) {
           return false
         }
         return true
@@ -254,16 +267,18 @@
 
     .action {
       margin-right: 20rpx;
-      
+
       .cu-btn {
         padding: 0 10rpx;
         color: #474D59;
         font-size: 16px;
         font-family: 苹方-简;
         color: #474D59;
-        .button-name{
+
+        .button-name {
           font-size: 30rpx;
         }
+
         .text-sm {
           font-size: 32rpx;
         }

@@ -532,6 +532,15 @@
 			showBtn: {
 				type: Array,
 			},
+      gridButtonDisp: {
+        type: Object
+      },
+      rowButtonDisp: {
+        type: Object
+      },
+      formButtonDisp: {
+        type: Object
+      },
 		},
 		methods: {
 			submintForm() {

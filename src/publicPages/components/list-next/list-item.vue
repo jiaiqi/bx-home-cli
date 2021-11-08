@@ -97,7 +97,16 @@
       },
       cartData: {
         type: Array
-      }
+      },
+      gridButtonDisp: {
+        type: Object
+      },
+      rowButtonDisp: {
+        type: Object
+      },
+      formButtonDisp: {
+        type: Object
+      },
     },
     data() {
       return {}
@@ -191,6 +200,13 @@
         if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
           buttons = buttons.filter(item => item.is_public === true)
         }
+        buttons = buttons.filter((btn)=>{
+          if(this.rowButtonDisp&&this.rowButtonDisp[btn.button_type]===false){
+            return false
+          }else{
+            return true
+          }
+        })
         return buttons
       },
 

@@ -201,7 +201,9 @@
         }
       },
       rowButton() {
-        return this.v2Data?.rowButton
+        let rowButton = this.v2Data?.rowButton
+
+        return rowButton
       },
       calcRelations() {
         return this.config?.calcRelations
@@ -296,8 +298,16 @@
           if (this.use_type === 'detaillist') {
             // ignoreBtn.push('add')
           }
-          result = this.v2Data.gridButton.filter(item => item.permission === true && !ignoreBtn.includes(item
-            .button_type))
+
+          result = this.v2Data.gridButton.filter(item => {
+            if (this.fkMoreConfig?.gridButtonDisp && this.fkMoreConfig?.gridButtonDisp[item.button_type] ===
+              false) {
+              return false
+            } else {
+              return item.permission === true && !ignoreBtn.includes(item
+                .button_type)
+            }
+          })
           if (this.config?.foreign_key?.moreConfig?.batch_add?.target_column) {
             let batch_add = this.config.foreign_key.moreConfig.batch_add
             let column = this.orderCols.find(item => item.columns === batch_add.target_column)
@@ -414,6 +424,16 @@
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
           rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
             .button_type))
+        }
+        if (this.fkMoreConfig?.rowButtonDisp) {
+          rowButton = rowButton.filter(item => {
+            if (this.fkMoreConfig?.rowButtonDisp[item.button_type] === false) {
+              return false
+            }else if(this.fkMoreConfig?.rowButtonDisp[item.button_type]&&typeof this.fkMoreConfig?.rowButtonDisp[item.button_type]==='string'){
+              item.button_custom_name = this.fkMoreConfig?.rowButtonDisp[item.button_type]
+            }
+            return true
+          })
         }
         if (rowButton.length === 0) {
           uni.showToast({
@@ -1544,6 +1564,15 @@
             return item
           })
         }
+        if (this.fkMoreConfig?.rowButtonDisp) {
+          colVs.formButton = colVs.formButton.filter(item => {
+            if (this.fkMoreConfig.rowButtonDisp[item.button_type] === false) {
+              return false
+            } else {
+              return true
+            }
+          })
+        }
         this.updateV2 = colVs
         // }
       },
@@ -1560,6 +1589,15 @@
         }
         if (!colVs) {
           return
+        }
+        if (colVs.formButton && this.fkMoreConfig?.rowButtonDisp) {
+          colVs.formButton = colVs.formButton.filter(item => {
+            if (this.fkMoreConfig.rowButtonDisp[item.button_type] === false) {
+              return false
+            } else {
+              return true
+            }
+          })
         }
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2

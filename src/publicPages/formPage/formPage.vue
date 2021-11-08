@@ -290,7 +290,14 @@
                     showCancel: false,
                     success(res) {
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-                      if (beforeRedirectUrl) {
+                      if (self.afterSubmit === 'home') {
+                        getApp().globalData.beforeRedirectUrl = null
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                        return
+                      } else if (beforeRedirectUrl) {
                         uni.redirectTo({
                           url: beforeRedirectUrl
                         })
@@ -335,6 +342,11 @@
                           uni.$emit(self.submitAction)
                         }
                         uni.navigateBack()
+                      } else if (self.afterSubmit === 'home') {
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
                       } else {
                         uni.navigateBack()
                       }
@@ -387,15 +399,28 @@
               let res = await this.$http.post(url, reqData);
               if (res.data.state === 'SUCCESS') {
                 uni.$emit('dataChange', service)
+                let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                if (self.afterSubmit === 'home') {
+                  getApp().globalData.beforeRedirectUrl = null
+                  let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                  uni.reLaunch({
+                    url: `/storePages/home/home?store_no=${store_no}`
+                  })
+                  return
+                } else if (beforeRedirectUrl) {
+                  uni.redirectTo({
+                    url: beforeRedirectUrl
+                  })
+                  getApp().globalData.beforeRedirectUrl = null
+                  return
+                }
                 uni.showModal({
                   title: '提示',
                   content: res.data.resultMessage,
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
-                      uni.navigateBack({
-
-                      })
+                      uni.navigateBack({})
                     }
                   }
                 })

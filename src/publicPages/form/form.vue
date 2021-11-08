@@ -45,7 +45,7 @@
         defaultVal: null,
         showChildService: false,
         successTip: '操作成功',
-        afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面
+        afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页
         submitAction: '', //提交后要进行的emit操作
         keyboardHeight: 0,
         pageHeight: `calc(100vh - var(--window-top) - var(--window-bottom))`,
@@ -367,6 +367,7 @@
                       uni.setStorageSync('cur_user_no', this.params.submitData.no)
                     }
                   }
+                  debugger
                   uni.showModal({
                     title: '提示',
                     content: `${res.data.resultMessage}`,
@@ -410,6 +411,11 @@
                           uni.$emit(self.submitAction)
                         }
                         uni.navigateBack()
+                      } else if (self.afterSubmit === 'home') {
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url:`/storePages/home/home?store_no=${store_no}`
+                        })
                       } else {
                         uni.navigateBack()
                         // self.toPages('detail');
@@ -474,7 +480,14 @@
                   success(res) {
                     if (res.confirm) {
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-                      if (beforeRedirectUrl) {
+                      if (self.afterSubmit === 'home') {
+                        getApp().globalData.beforeRedirectUrl = null
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                        return
+                      } else if (beforeRedirectUrl) {
                         uni.redirectTo({
                           url: beforeRedirectUrl
                         })
@@ -496,6 +509,11 @@
                           uni.$emit(self.submitAction)
                         }
                         uni.navigateBack()
+                      } else if (self.afterSubmit === 'home') {
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url:`/storePages/home/home?store_no=${store_no}`
+                        })
                       } else {
                         self.toPages('detail');
                       }
@@ -1101,7 +1119,6 @@
               });
             }
           }
-          debugger
           this.fieldsCond = fieldsCond.map(item => {
             if (option.serviceName.indexOf('srvhealth_see_doctor') === -1) {
               if (item.column === 'user_info_no' && this.userInfo.no && !item.value) {
