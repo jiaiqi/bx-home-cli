@@ -12,7 +12,8 @@
         listConfig && listConfig.rowButton ? listConfig.rowButton : []
       " :showTab="false" :viewTemp="viewTemp" :listConfig="listConfig" :showButton="showRowButton" :fixed="true"
       :top="listTop" :searchWords="searchVal" :searchColumn="keyColumn" :tempWord="tempWord" :rownumber="42"
-      :colnumber="col" :customTemp="customTemp" :showFootBtn="showFootBtn" @click-list-item="clickItem"
+      :colnumber="col" :customTemp="customTemp" :showFootBtn="showFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+          :formButtonDisp="formButtonDisp" @click-list-item="clickItem"
       @list-change="listChange" @clickFootBtn="clickFootBtn" @loadEnd="loadEnd"></bx-list>
   </view>
 </template>
