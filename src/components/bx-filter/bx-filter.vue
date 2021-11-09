@@ -15,7 +15,7 @@
           class="cuIcon-refresh margin-right-xs "></text>重置</button>
       <button class="cu-btn bg-grey light" @click="cancel"><text
           class="cuIcon-close margin-right-xs "></text>取消</button>
-      <button class="cu-btn bg-blue light confirm" @click="toFilter" type="primary">
+      <button class="cu-btn bg-blue light confirm" :class="{'bx-bg-coffee':theme==='coffee'}" @click="toFilter">
         <text class="cuIcon-search margin-right-xs"></text>确定
       </button>
     </view>
@@ -37,6 +37,11 @@
       },
       srvApp: {
         type: String
+      }
+    },
+    computed: {
+      theme() {
+        return this.$store?.state?.app?.theme 
       }
     },
     data() {
@@ -134,7 +139,7 @@
       align-items: center;
       justify-content: space-around;
       margin: 0;
-      box-shadow: 6px 5px 13px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+      // box-shadow: 6px 5px 13px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
       padding: 20rpx;
       width: calc(100% - 40rpx);
       margin: 20rpx;
@@ -143,7 +148,7 @@
       .cu-btn {
         // flex: 1;
         width: 200rpx;
-
+        border-radius: 20px;
         &+.cu-btn {
           // margin-left: 20rpx;
         }

@@ -123,14 +123,14 @@
         </view>
       </view>
       <view class="handler-bar" v-if="!detailConfig">
-        <view class="show-or-hide" @click="changeDetailStatus">
+        <view class="show-or-hide" @click="changeDetailStatus" v-if="isArray(detailFields)&&detailFields.length>0">
           <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
           <text class="cuIcon-fold " v-else></text>
         </view>
-        <view class="button-box" v-if="detail&&disabled">
+        <view class="button-box" v-if="detail&&!disabled">
           <button class="cu-btn line-orange round border" v-for="(item,index) in publicButton"
-            :class="{disabled:disabled}" :key="index" @click="onButton(item)">
+            :class="{disabled:disabled,'bx-line-btn-coffee':theme==='coffee'}" :key="index" @click="onButton(item)">
             {{item.button_custom_name||item.button_name||''}}
           </button>
         </view>
@@ -189,6 +189,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       setShowDetail() {
         // if (this.notTempColMap) {
         //   return true
@@ -272,11 +275,13 @@
         return this.appName || uni.getStorageSync('activeApp')
       },
       publicButton() {
+        debugger
         if (Array.isArray(this.v2Data?.formButton)) {
           return this.v2Data.formButton.filter((item, index) => {
             if (this.formButtonDisp && this.formButtonDisp[item.button_type] === false) {
               return false
-            }else if(this.formButtonDisp &&this.formButtonDisp[item.button_type]&&typeof this.formButtonDisp[item.button_type]==='string'){
+            } else if (this.formButtonDisp && this.formButtonDisp[item.button_type] && typeof this.formButtonDisp[
+                item.button_type] === 'string') {
               item.button_custom_name = this.formButtonDisp[item.button_type]
             }
             if (item.permission === false) {
@@ -475,6 +480,9 @@
             }
           })
         }
+        if(colVs?.moreConfig?.formButtonDisp){
+          this.formButtonDisp = colVs?.moreConfig?.formButtonDisp
+        }
         this.v2Data = colVs;
 
       },
@@ -607,7 +615,8 @@
               // 	this.$refs.bxList.onRefresh();
               // }
               return
-            } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
+            } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转' || buttonInfo
+              .operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
               // 自定义按钮
               let moreConfig = buttonInfo.more_config;
               if (moreConfig && typeof moreConfig === 'string') {
@@ -622,10 +631,33 @@
                 let params = {
                   type: 'add',
                   serviceName: buttonInfo.service_name,
-                  defaultVal: data.row,
+                  defaultVal: buttonInfo.operate_params.data || data.row,
                   eventOrigin: buttonInfo
                 };
+                let fieldsCond = []
+                if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length > 0) {
+                  buttonInfo.operate_params.data.forEach(item => {
+                    if (Object.keys(item).length > 0) {
+                      Object.keys(item).forEach(key => {
+                        let obj = {
+                          column: key,
+                          value: item[key]
+                        }
+                        fieldsCond.push(obj)
+                      })
+                    }
+                  })
+                }
 
+                let url =
+                  `/publicPages/form/form?params=${JSON.stringify(params)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                  encodeURIComponent(JSON.stringify(fieldsCond));
+                if (this.appName) {
+                  url += `&appName=${this.appName}`
+                }
+                uni.navigateTo({
+                  url: url
+                });
                 return
               } else if (buttonInfo.servcie_type === 'update') {
                 let params = {

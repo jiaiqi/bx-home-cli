@@ -1,12 +1,12 @@
 <template>
-  <view class="page-bg">
+  <view class="page-bg" :class="'bx-bg-'+theme">
     <view class="page-wrap">
       <view class="head">
         <view class="store-name">
           <view class="name" @click="toStoreDetail">
             {{storeInfo.name||''}}
           </view>
-          <view class="phone" @click.stop="makePhoneCall">
+          <view class="phone" :class="'bx-bg-'+theme" @click.stop="makePhoneCall">
             <u-icon name="phone-fill"></u-icon>
           </view>
         </view>
@@ -41,7 +41,8 @@
           <!-- 		<text class="cuIcon-title text-orange margin-right">未回复</text>
 					<text class="cuIcon-title text-red">未读</text>-->
           <view class="buttons">
-            <button class="cu-btn round" @tap="toDetail(storeInfo)"><text class="cuIcon-settingsfill"></text>设置</button>
+            <button class="cu-btn round" @tap="toDetail(storeInfo)"><text class="cuIcon-settingsfill"
+                :class="'bx-text-'+theme"></text>设置</button>
           </view>
         </view>
         <view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
@@ -95,6 +96,7 @@
             <text class="margin-right">{{ manage.component_label || "管理" }}</text>
             <view class="buttons" v-if="mIndex===0">
               <button class="cu-btn round" @tap="toDetail(storeInfo)"><text
+               :class="'bx-text-'+theme"
                   class="cuIcon-settingsfill"></text>设置</button>
             </view>
           </view>
@@ -237,6 +239,10 @@
       }
     },
     computed: {
+      theme() {
+        let theme = this.$store?.state?.app?.theme
+        return theme
+      },
       userInfo() {
         return this.$store?.state?.user?.userInfo
       },
@@ -525,7 +531,6 @@
             if (item.more_config) {
               try {
                 item.moreConfig = JSON.parse(item.more_config)
-                debugger
                 if (item.moreConfig?.noticeNumConfig) {
                   let noticeNumConfig = item.moreConfig.noticeNumConfig;
                   this.getNoticeNum(noticeNumConfig)
@@ -1169,6 +1174,12 @@
       uni.$emit('updateUnread')
     },
     async onLoad(option) {
+      if (this.theme === 'coffee') {
+        uni.setNavigationBarColor({
+          frontColor: '#ffffff',
+          backgroundColor: '#BFA58B'
+        })
+      }
       uni.$on('updateKefuSessionLastLookTime', () => {
         if (this.storeNo) {
           this.getStoreInfo();
@@ -1235,6 +1246,7 @@
     background-color: #fff;
     border-radius: 50rpx 50rpx 0 0;
     overflow: hidden;
+    color: #333;
   }
 
   .statis-box {

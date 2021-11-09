@@ -23,15 +23,21 @@
       <view class="cu-dialog" @click.stop="">
         <view class="order-modal">
           <view class="order-column">
-            <view class="order-item" hover-class="hover" :class="{ current: item.selected }"
+            <view class="order-item" hover-class="hover"
+              :class="{ current: item.selected,'bx-btn-bg-coffee': item.selected&&theme==='coffee' }"
               v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
-              <view class="label">{{ item.label || "" }}</view>
-              <view class="order-option" v-if="item.selected">
+              <view class="label" :class="{'bx-text-coffee':theme==='coffee'&& item.selected}">{{ item.label || "" }}
+              </view>
+              <view class="order-option" v-if="item.selected"
+                :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected}">
                 <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
+                    'bx-text-coffee':theme==='coffee'&& item.selected,
+                    
 		              }"></text>
                 <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
+                     'bx-text-coffee':theme==='coffee'&& item.selected,
 		              }"></text>
               </view>
             </view>
@@ -41,7 +47,7 @@
           </view>
           <view class="button-box">
             <button class="cu-btn bg-gray" @click="hideModal">取消</button>
-            <button class="cu-btn bg-green" type="primary" @click="toOrder">
+            <button class="cu-btn bg-green" :class="{'bx-bg-coffee':theme==='coffee'}" @click="toOrder">
               确定
             </button>
           </view>
@@ -102,6 +108,9 @@
 
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       setListBtn() {
         let listButton = this.listButton.filter(item => {
           if (this.gridButtonDisp && this.gridButtonDisp[item.button_type] === false) {
@@ -351,7 +360,7 @@
           .active {
             animation: scale 0.2s;
             color: #0bc99d;
-            background-color: rgba($color: #0bc99d, $alpha: 0.1);
+            // background-color: rgba($color: #0bc99d, $alpha: 0.1);
           }
 
           @keyframes scale {
@@ -373,6 +382,7 @@
       background-color: #fff;
 
       .cu-btn {
+        border-radius: 20px;
         width: 45%;
         margin-right: 20rpx;
       }

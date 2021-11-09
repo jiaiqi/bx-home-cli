@@ -123,8 +123,10 @@
 	&.disabled-field{
 
 		.form-item-content{
-			opacity: 0.5;
-			cursor: not-allowed;
+        cursor: not-allowed;
+        color: #B8BAC0!important;
+			// opacity: 0.5;
+		
 		}
 	}
 	&.form-detail {

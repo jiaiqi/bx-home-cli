@@ -1,0 +1,34 @@
+.bx-bg-coffee{
+  color: #fff!important;
+  background-color: #BFA58B!important;
+  background-image: none!important;
+}
+.bx-text-coffee{
+  color:  #BFA58B!important;
+}
+.bx-border-coffee{
+  border-color: #BFA58B!important;
+}
+.border-left-coffee{
+  border-left-color: #BFA58B!important;
+  &::after{
+    border-left-color: #BFA58B!important;
+  }
+}
+.bx-line-btn-coffee{
+  border: 1px solid;
+  border-color: rgba($color: #BFA58B, $alpha: 0.3)!important;;
+  color: #BFA58B!important;
+}
+.bx-border-bottom-coffee{
+  border-bottom-color: #BFA58B!important;
+  &::after{
+    background-color:  #BFA58B!important;
+  }
+}
+.bx-btn-bg-coffee{
+  background-image: none;
+    background-color: rgba($color: #BFA58B, $alpha: 0.2)!important;
+    border-color: #BFA58B!important;
+    color: #BFA58B!important;
+}

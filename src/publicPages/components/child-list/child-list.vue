@@ -10,10 +10,12 @@
       </view>
 
       <view class="to-more" v-if="config.unfold !==false">
-        <button class="cu-btn line-orange round border" v-show="disabled!==true" :class="{sm:publicButton.length>2}"
-          v-for="btn in publicButton" @click="onButton(btn)">
+        <button class="cu-btn line-orange round border" v-show="disabled!==true"
+          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}" v-for="btn in publicButton"
+          @click="onButton(btn)">
           <text class="text">{{btn.button_name||''}}</text></button>
-        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2}"
+        <button class="cu-btn line-orange round border"
+          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}"
           @click="onButton({button_type:'list'})" v-if="listData.length>0"><text class="text">查看全部</text></button>
       </view>
     </view>
@@ -23,7 +25,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
-        <text class="cuIcon-add  more-btn hidden" v-if="!disabled"></text>
+        <text class="cuIcon-add  more-btn hidden" v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1"></text>
         <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
       <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
@@ -32,7 +34,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn" v-if="!disabled"
+        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme" v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1"
           @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
@@ -69,7 +71,7 @@
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="child-form-wrap">
-          <a-form :srvApp="appName" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
+          <a-form :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
             :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange" :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&addV2.formButton">
@@ -90,7 +92,7 @@
             :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-orange round" v-for="btn in updateV2.formButton"
+          <button class="cu-btn bg-orange round" :class="'bx-bg-'+theme" v-for="btn in updateV2.formButton"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -193,6 +195,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       curV2() {
         if (this.modalName === 'addChildData') {
           return this.addV2
@@ -289,7 +294,7 @@
         return this.v2Data?.moreConfig
       },
       srvApp() {
-        return this.appName || uni.getStorageSync('activeApp')
+        return this.config?.srv_app||this.appName || uni.getStorageSync('activeApp')
       },
       publicButton() {
         let result = []
@@ -429,7 +434,8 @@
           rowButton = rowButton.filter(item => {
             if (this.fkMoreConfig?.rowButtonDisp[item.button_type] === false) {
               return false
-            }else if(this.fkMoreConfig?.rowButtonDisp[item.button_type]&&typeof this.fkMoreConfig?.rowButtonDisp[item.button_type]==='string'){
+            } else if (this.fkMoreConfig?.rowButtonDisp[item.button_type] && typeof this.fkMoreConfig
+              ?.rowButtonDisp[item.button_type] === 'string') {
               item.button_custom_name = this.fkMoreConfig?.rowButtonDisp[item.button_type]
             }
             return true
@@ -534,7 +540,7 @@
               })
               return
             }
-            let app = this.appName || uni.getStorageSync('activeApp');
+            let app = this.srvApp;
             let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
               buttonInfo.servcie_type);
             let res = await this.$http.post(url, req);
@@ -630,8 +636,8 @@
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
-              if (this.appName) {
-                url += `&appName=${this.appName}`
+              if (this.srvApp) {
+                url += `&appName=${this.srvApp}`
               }
               if (Array.isArray(condition) && condition.length > 0) {
                 url += `&condition=${JSON.stringify(condition)}`
@@ -717,7 +723,7 @@
             return
           }
 
-          this.onButtonToUrl(data, this.appName).then(res => {
+          this.onButtonToUrl(data, this.srvApp).then(res => {
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
                 // this.getList()
@@ -760,8 +766,8 @@
                 url =
                   `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
-              if (this.appName) {
-                url += `&appName=${this.appName}`
+              if (this.srvApp) {
+                url += `&appName=${this.srvApp}`
               }
               // if (button.service_name === 'srvdaq_cms_content_select') {
               //   if (rowData.content_no) {
@@ -863,8 +869,8 @@
                 let url =
                   `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
-                if (this.appName) {
-                  url += `&appName=${this.appName}`
+                if (this.srvApp) {
+                  url += `&appName=${this.srvApp}`
                 }
                 uni.navigateTo({
                   url: url
@@ -898,8 +904,8 @@
 
               let url =
                 `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
-              if (self.appName) {
-                url += `&appName=${self.appName}`
+              if (self.srvApp) {
+                url += `&appName=${self.srvApp}`
               }
               uni.navigateTo({
                 url: url
@@ -1066,7 +1072,7 @@
                       if (!id) {
                         return
                       }
-                      let appName = this.appName || uni.getStorageSync('activeApp');
+                      let appName = this.srvApp || uni.getStorageSync('activeApp');
                       this.onRequest("delete", e.service_name,
                         req, appName).then((res) => {
                         this.hideModal()
@@ -1130,7 +1136,7 @@
               }],
               "data": [data]
             }]
-            let app = this.appName || uni.getStorageSync('activeApp');
+            let app = this.srvApp || uni.getStorageSync('activeApp');
             let url = this.getServiceUrl(app, this.updateService, 'update');
             this.$http.post(url, req).then(res => {
               this.hideModal()
@@ -1213,7 +1219,7 @@
               serviceName: e.service_name,
               data: [data]
             }];
-            let app = this.appName || uni.getStorageSync('activeApp');
+            let app = this.srvApp || uni.getStorageSync('activeApp');
             let type = "add"
             let url = this.getServiceUrl(app, e.service_name, type);
             let res = await this.$http.post(url, reqData);
@@ -1302,7 +1308,7 @@
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
-          result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+          result = await this.evalX_IF(table_name, cols, fieldModel, this.srvApp)
         }
 
         let calcResult = {}
@@ -1310,7 +1316,7 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
           debugger
         }
 
@@ -1324,7 +1330,7 @@
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.srvApp)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -1335,7 +1341,7 @@
               }
             }
           }
-          if (calcResult?.response && calcResult.response[item.column]) {
+          if (calcResult?.response &&( calcResult.response[item.column]|| calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
             // await this.updateValueChange(fieldModel, item)
@@ -1357,14 +1363,14 @@
 
         let result = null
         if (Array.isArray(cols) && cols.length > 0) {
-          result = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+          result = await this.evalX_IF(table_name, cols, fieldModel, this.srvApp)
         }
 
         let calcResult = {}
         let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
 
         for (let i = 0; i < this.allFields.length; i++) {
@@ -1375,7 +1381,7 @@
             item.value = e[item.column];
             // this.$set(this.allFields, i, item)
           }
-          if (calcResult?.response && calcResult.response[item.column]) {
+          if (calcResult?.response && (calcResult.response[item.column]|| calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
             // this.$set(this.allFields, i, item)
@@ -1386,7 +1392,7 @@
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+                result = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.srvApp)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -1462,8 +1468,8 @@
                   }
                   let url =
                     `/publicPages/detail/detail?serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
-                  if (this.appName) {
-                    url += `&appName=${this.appName}`
+                  if (this.srvApp) {
+                    url += `&appName=${this.srvApp}`
                   }
                   uni.navigateTo({
                     url: url
@@ -1520,7 +1526,7 @@
           return
         }
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
-        let app = this.appName || uni.getStorageSync('activeApp');
+        let app = this.srvApp || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
@@ -1580,7 +1586,7 @@
         let self = this
         let serviceName = btn?.service_name || this.serviceName
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
-        let app = this.appName || uni.getStorageSync('activeApp');
+        let app = this.srvApp || uni.getStorageSync('activeApp');
         let colVs = null
         if (this.addV2) {
           colVs = this.addV2
@@ -1671,14 +1677,14 @@
         }, {})
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
-        const result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        const result = await this.evalX_IF(table_name, cols, defaultVal, this.srvApp)
 
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
-                result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
+                result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.srvApp)
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
@@ -1727,7 +1733,7 @@
         // }
       },
       async getListV2() {
-        let app = this.appName || uni.getStorageSync('activeApp');
+        let app = this.srvApp || uni.getStorageSync('activeApp');
         let use_type = this.config?.use_type || 'detaillist'
         let colVs = await this.getServiceV2(this.serviceName, 'list', use_type, app);
         if (!colVs) {
@@ -1902,9 +1908,9 @@
         // color: #FFE8D1;
         color: #F3A250;
 
-        .text {
-          color: #F3A250;
-        }
+        // .text {
+        //   color: #F3A250;
+        // }
       }
 
       .line-cyan {

@@ -238,7 +238,7 @@
       margin: 0;
       border-radius: 0;
     }
-    &.padding {
+    &.noPadding {
       padding: 0;
       border-radius: 0;
     }

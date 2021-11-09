@@ -48,10 +48,11 @@
     </view>
     <view class="chart-page">
       <person-chat ref="chatInstance" :show-goods-card="showGoodsCard&&goodsInfo?true:false" :session-no="session_no"
-        :identity="identity" :sessionInfo="sessionInfo" page-type="session" @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete"
-        :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo"
-        :topHeight="topHeight" :group-no="groupNo" :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost"
-        v-if="session_no&&storeUserInfo" :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
+        :identity="identity" :sessionInfo="sessionInfo" page-type="session" @clickAvatar="clickAvatar"
+        @load-msg-complete="loadMsgComplete" :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo"
+        :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight" :group-no="groupNo"
+        :receiverInfo="receiverInfo" :banSend="banSend" :band-post="bandPost" v-if="session_no&&storeUserInfo"
+        :storeUserInfo="storeUserInfo" :queryOption="queryOption"></person-chat>
     </view>
   </view>
 </template>
@@ -776,7 +777,12 @@
     },
     async onLoad(option) {
       const self = this
-
+      if (this.$store?.state?.app?.theme === 'coffee') {
+        uni.setNavigationBarColor({
+          frontColor: '#ffffff',
+          backgroundColor: '#BFA58B'
+        })
+      }
       if (option.articleList) {
         try {
           this.articleList = JSON.parse(option.articleList)

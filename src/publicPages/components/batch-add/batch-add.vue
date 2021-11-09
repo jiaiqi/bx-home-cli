@@ -9,7 +9,8 @@
         <view class="add-box">
           <view class="add-item-box">
             <view class="add-item" v-for="(item,index) in list">
-              <view class="content" :class="{active:item.selected}" @click="clickItem(item,index)">
+              <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee'}"
+                @click="clickItem(item,index)">
                 <image :src="getImagePath(item[params.imgCol])" mode="aspectFit"
                   v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
                 <view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">
@@ -41,7 +42,7 @@
     <view class="add-box p-lr-0">
       <view class="add-item-box">
         <view class="add-item" v-for="(item,index) in list">
-          <view class="content" :class="{active:item.selected}" @click="clickItem(item,index)">
+          <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee'}" @click="clickItem(item,index)">
             <image :src="getImagePath(item[params.imgCol])" mode="aspectFit"
               v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
             <view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">
@@ -123,6 +124,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       propListTop() {
         return 100
       },

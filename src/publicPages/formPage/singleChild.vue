@@ -14,7 +14,7 @@
     </view>
 
     <view class="button-box" v-if="colsV2Data">
-      <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
+      <button class="cu-btn bg-blue" :class="{'bx-bg-coffee round':theme=='coffee'}" type="primary" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -52,6 +52,9 @@
       }
     },
     computed: {
+      theme(){
+        return this.$store?.state?.app?.theme
+      },
       formButtons() {
         let buttons = []
         if (Array.isArray(this.colsV2Data?._formButtons)) {

@@ -372,7 +372,6 @@
         if (colVs.more_config) {
           try {
             colVs.moreConfig = JSON.parse(colVs.more_config)
-            debugger
             if (colVs.moreConfig?.detailType) {
               if (!this.detailType) {
                 this.detailType = colVs.moreConfig?.detailType

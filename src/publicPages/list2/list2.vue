@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
     <count-bar :list="countData" v-if="showMockCount"></count-bar>
 
     <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
@@ -41,6 +41,12 @@
       countBar
     },
     computed: {
+      sysModel() {
+        return getApp().globalData.systemInfo?.model
+      },
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       countData() {
         let arr = [{
             label: "当前空房数",
@@ -1247,6 +1253,13 @@
       }
     },
     onLoad(option) {
+      // if (this.theme === 'coffee') {
+      //   uni.setNavigationBarColor({
+      //     frontColor: '#ffffff',
+      //     backgroundColor: '#BFA58B'
+      //   })
+      // }
+
       if (option.rowButtonDisp) {
         try {
           this.rowButtonDisp = JSON.parse(option.rowButtonDisp)
@@ -1423,6 +1436,11 @@
       .list-view {
         flex: 1;
         overflow-y: scroll;
+      }
+    }
+    &.pc-model{
+      .count-bar-box,.search-bar,.filter-tags-view{
+        display: none;
       }
     }
   }

@@ -16,7 +16,7 @@
       </view>
     </view>
     <view class="button-box" v-if="colsV2Data&&!disabled">
-      <button class="cu-btn bg-orange round lg" v-if="isArray(fields) && fields.length > 0"
+      <button class="cu-btn bg-orange round lg" :class="'bx-bg-'+theme" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -60,6 +60,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       storeInfo() {
         return this.$store?.state?.app?.storeInfo
       },
@@ -158,7 +161,9 @@
     },
     methods: {
       childListChange(e) {
+        debugger
         let self = this
+        // let _childData = {}
         if (e?.key && e?.data) {
           if (_childData) {
             _childData[e.key] = e.data
@@ -376,6 +381,113 @@
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
+              if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
+                let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
+                if (Array.isArray(submit_validate) && submit_validate.length > 0) {
+                  let num = 0;
+                  submit_validate.forEach(item => {
+                    if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item.relation)) {
+                      let left_key = item.left_child.no;
+                      let right_key = item.right_child.no;
+                      let left_data = this._childListData[left_key]
+                      let right_data = this._childListData[right_key]
+                      if (item.right_child.condition && Array.isArray(item.right_child.condition) && item
+                        .right_child.condition.length > 0 && Array.isArray(right_data)) {
+                        right_data = right_data.filter(rd => {
+                          let valid = 0;
+                          item.right_child.condition.forEach(cond => {
+                            if (cond.ruleType == 'eq') {
+                              if (cond.value === rd[cond.colName]) {
+                                valid += 1
+                              }
+                            }
+                          })
+                          if (valid === item.right_child.condition.length) {
+                            return true
+                          }
+                        })
+                      }
+                      let leftCol = item.left_child.col
+                      let rightCol = item.right_child.col
+                      let leftVal = left_data.reduce((pre, cur) => {
+                        if (cur[leftCol]) {
+                          pre += cur[leftCol]
+                        }
+                        return pre
+                      }, 0)
+
+                      let rightVal = right_data.reduce((pre, cur) => {
+                        if (cur[rightCol]) {
+                          pre += cur[rightCol]
+                        }
+                        return pre
+                      }, 0)
+
+                      switch (item.relation) {
+                        case 'lt':
+                          if (leftVal >= rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'le':
+                          if (leftVal > rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'ge':
+                          if (leftVal < rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'gt':
+                          if (leftVal <= rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'eq':
+                          if (leftVal !== rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                      }
+
+
+                    }
+
+                  })
+                  debugger
+                  if (num > 0) {
+
+                    return
+                  }
+                }
+              }
+
               let reqData = [{
                 serviceName: e.service_name,
                 condition: [],

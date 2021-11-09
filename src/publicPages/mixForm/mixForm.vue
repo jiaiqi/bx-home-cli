@@ -1,10 +1,10 @@
 <template>
   <view class="mix-form-list">
     <view class="tab-list">
-      <view class="tab-item" :class="{'active':curTab===0}" @click="changeTab(0)">
+      <view class="tab-item" :class="{'active':curTab===0,'bx-border-bottom-coffee':curTab===0&&theme==='coffee'}" @click="changeTab(0)">
         前台交班
       </view>
-      <view class="tab-item" :class="{'active':curTab===1}" @click="changeTab(1)">
+      <view class="tab-item" :class="{'active':curTab===1,'bx-border-bottom-coffee':curTab===1&&theme==='coffee'}" @click="changeTab(1)">
         交班记录
       </view>
       <view class="radius-box">
@@ -24,7 +24,7 @@
       </view>
 
       <view class="button-box" v-if="addV2&&formButtons&&curTab===0">
-        <button class="cu-btn bg-blue" type="primary" v-if="isArray(fields) && fields.length > 0"
+        <button class="cu-btn bg-blue" :class="'bx-bg-'+theme" v-if="isArray(fields) && fields.length > 0"
           v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
           {{ btn.button_name }}
         </button>
@@ -67,6 +67,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       storeInfo() {
         return this.$store?.state?.app?.storeInfo
       },
@@ -88,8 +91,8 @@
       },
     },
     onShow() {
-      if(this.serviceName){
-          this.getList()
+      if (this.serviceName) {
+        this.getList()
       }
     },
     async onLoad(option) {

@@ -12,6 +12,7 @@ env = 'h5'
 // #endif
 
 const state = {
+  theme:'coffee',
 	env: env,
 	homePath: '', //默认主页
 	globalTextFontSize: 16,

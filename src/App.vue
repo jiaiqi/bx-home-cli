@@ -6,9 +6,11 @@
       statusBarHeight: uni.getSystemInfoSync()['statusBarHeight'], // 获取导航栏的高度
       room_no: "", //酒店房间编号
       pt_no: "", //二维码参数编号
-      beforeRedirectUrl:"",
+      beforeRedirectUrl: "",
+      systemInfo: uni.getSystemInfoSync()
     },
     onLaunch(options) {
+      console.log(getApp())
       this.$store.commit('SET_SCENE', options.scene)
       if (options.scene === 1154) {
         // 朋友圈单页模式进入
@@ -91,6 +93,7 @@
   @import "colorui/icon.css";
   @import "uview-ui/index.scss";
   // @import "@/common/uni.css";
+  @import "@/common/theme/theme.scss";
 
   /*每个页面公共css */
   // --page-height:calc(100vh - var(--window-top) - var(--window-bottom))
@@ -101,12 +104,12 @@
   }
 
   /* #ifdef H5 */
-  uni-page-head{
-    display: none!important;
-  }
-  .uni-page-head{
-    display: none!important;
-  }
+  // uni-page-head{
+  //   display: none!important;
+  // }
+  // .uni-page-head{
+  //   display: none!important;
+  // }
   /* #endif */
   html,
   body {

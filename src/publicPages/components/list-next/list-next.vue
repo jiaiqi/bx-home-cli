@@ -200,10 +200,23 @@
       }
 
       .grid_span3 {
-        width: calc(100%/6 - 20rpx);
+        width: calc(100%/5 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(3n) {
+          margin-right: 20rpx;
+        }
+
+        &:nth-child(5n) {
+          margin-right: 0;
+        }
+      }
+
+      .grid_span4 {
+        width: calc(100%/6 - 20rpx);
+        margin-right: 20rpx;
+
+        &:nth-child(4n) {
           margin-right: 20rpx;
         }
 
@@ -212,37 +225,24 @@
         }
       }
 
-      .grid_span4 {
-        width: calc(100%/8 - 20rpx);
-        margin-right: 20rpx;
-
-        &:nth-child(4n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(8n) {
-          margin-right: 0;
-        }
-      }
-
       .grid_span5 {
-        width: calc(100%/10 - 20rpx);
+        width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(5n) {
           margin-right: 20rpx;
         }
 
-        &:nth-child(10n) {
+        &:nth-child(7n) {
           margin-right: 0;
         }
       }
 
     }
 
-    @media screen and (min-width: 1200px) {
+    @media screen and (min-width: 1000px) {
       .grid_span2 {
-        width: calc(100%/6 - 20rpx);
+        width: calc(100%/4 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(2n) {
@@ -253,13 +253,13 @@
           margin-right: 20rpx;
         }
 
-        &:nth-child(6n) {
+        &:nth-child(4n) {
           margin-right: 0;
         }
       }
 
       .grid_span3 {
-        width: calc(100%/8 - 20rpx);
+        width: calc(100%/5 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(3n) {
@@ -270,13 +270,13 @@
           margin-right: 20rpx;
         }
 
-        &:nth-child(8n) {
+        &:nth-child(5n) {
           margin-right: 0;
         }
       }
 
       .grid_span4 {
-        width: calc(100%/10 - 20rpx);
+        width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(4n) {
@@ -287,13 +287,13 @@
           margin-right: 20rpx;
         }
 
-        &:nth-child(10n) {
+        &:nth-child(6n) {
           margin-right: 0;
         }
       }
 
       .grid_span5 {
-        width: calc(100%/12 - 20rpx);
+        width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
 
         &:nth-child(5n) {
@@ -304,7 +304,7 @@
           margin-right: 20rpx;
         }
 
-        &:nth-child(12n) {
+        &:nth-child(7n) {
           margin-right: 0;
         }
       }

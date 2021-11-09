@@ -60,17 +60,17 @@
             </view>
           </view>
           <view class="col-item text-right flex-1 handler-btn">
-            <text class="hand-btn cu-btn line-orange border sm radius" @click="changeAmount(rowData,index,-1)">-</text>
+            <text class="hand-btn cu-btn line-orange border sm radius" :class="'bx-btn-bg-'+theme" @click="changeAmount(rowData,index,-1)">-</text>
             <view class="amount">
               {{rowData.goods_count||'0'}}
             </view>
-            <text class="hand-btn cu-btn bg-orange sm radius" @click="changeAmount(rowData,index,1)">+</text>
+            <text class="hand-btn cu-btn bg-orange sm radius" :class="'bx-bg-'+theme" @click="changeAmount(rowData,index,1)">+</text>
           </view>
         </view>
       </view>
     </view>
     <view class="cart-bottom" @click="changeStatus">
-      <view class="cart-icon" :class="{active:cartData&&cartData.length>0}">
+      <view class="cart-icon" :class="{active:cartData&&cartData.length>0,'bx-btn-bg-coffee':cartData&&cartData.length>0&&theme==='coffee'}">
         <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
@@ -78,7 +78,7 @@
         ￥{{sumPrice||'0'}}
       </view>
       <view class="handler">
-        <button class="cu-btn round" :class="{active:cartData&&cartData.length>0}" @click.stop="placeOrder">下单</button>
+        <button class="cu-btn round" :class="{active:cartData&&cartData.length>0,'bx-bg-coffee':cartData&&cartData.length>0&&theme==='coffee'}" @click.stop="placeOrder">下单</button>
       </view>
     </view>
   </view>
@@ -92,6 +92,9 @@
       }
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       storeInfo() {
         return this.$store?.state?.app?.storeInfo
       },

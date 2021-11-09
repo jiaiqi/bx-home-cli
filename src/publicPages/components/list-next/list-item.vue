@@ -325,6 +325,12 @@
                   'line-gray': cfg?.border_color === 'gray',
               }
             }
+            if(cfg?.bg&&cfg?.bg.indexOf('#')!==-1){
+              obj.style['background-color'] = cfg.bg
+            }
+            if(cfg?.border_color&&cfg?.border_color.indexOf('#')!==-1){
+              obj.style['border'] = `1rpx solid ${cfg?.border_color}`
+            }
             if (Object.keys(obj.class).length > 0) {
               obj.class = Object.keys(obj.class).reduce((res, cur) => {
                 if (obj.class[cur]) {

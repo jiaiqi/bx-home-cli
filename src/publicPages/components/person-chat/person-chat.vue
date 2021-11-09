@@ -329,7 +329,7 @@
               </view>
             </view>
             <view v-else-if="item.msg_content" @click="clickChatLink(item)" class="person-chat-item-right"
-              :class="item.msg_link ? 'person-chat-item-right-link' : ''">
+              :class="{'person-chat-item-right-link':item.msg_link,'bx-bg-coffee':theme==='coffee','border-left-coffee':theme==='coffee'} ">
               <text class="remind-someone" v-if="
                   item.attribute &&
                   item.attribute.type &&
@@ -494,7 +494,7 @@
           <view class="person-chat-rig-add-wrap">
             <view @click="openLink" v-if="!isFeed" class="person-chat-rig-add"><text class="cuIcon-roundadd"></text>
             </view>
-            <text class="send" @touchend.prevent="sendMessage" v-if="isFeed">发送</text>
+            <text class="send" :class="'bx-bg-'+theme" @touchend.prevent="sendMessage" v-if="isFeed">发送</text>
           </view>
         </view>
       </view>
@@ -648,7 +648,8 @@
         systemInfo: state => state.app.systemInfo,
         subscsribeStatus: state => state.app.subscsribeStatus,
         globalTextFontSize: state => state.app['globalTextFontSize'],
-        currentUserInfo: state => state.user.userInfo
+        currentUserInfo: state => state.user.userInfo,
+        theme:state=>state.app.theme
       }),
       chartHeight() {
         if (this.topHeight) {

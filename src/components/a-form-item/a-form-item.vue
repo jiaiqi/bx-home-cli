@@ -370,6 +370,9 @@
       }
     },
     computed: {
+      theme(){
+        return this.$store?.state?.app?.theme
+      },
       startVal() {
         return this.fieldData?.startVal
       },

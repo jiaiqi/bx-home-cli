@@ -9,7 +9,7 @@
       </a-form>
     </view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
-      <button class="cu-btn bg-orange round lg" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
+      <button class="cu-btn bg-orange round lg" :class="{'bx-bg-coffee':theme==='coffee'}" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
         @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -68,7 +68,8 @@
         userInfo: state => state.user.userInfo,
         doctorInfo: state => state.app.doctorInfo,
         globalTextFontSize: state => state.app.globalTextFontSize,
-        globalLabelFontSize: state => state.app.globalLabelFontSize
+        globalLabelFontSize: state => state.app.globalLabelFontSize,
+        theme:state=>state.app.theme
       })
     },
     methods: {
@@ -657,6 +658,7 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
+          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
 

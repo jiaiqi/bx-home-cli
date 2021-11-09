@@ -18,7 +18,7 @@
           </view>
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
-            <button class="cu-btn border line-blue round" @tap="toConnect(item)"
+            <button class="cu-btn border line-blue round" :class="'bx-bg-'+theme" @tap="toConnect(item)"
               v-if="activeWifiMac!==item.wifi_mac&&activeWifiMac!==item.wifi_ssid">连接</button>
             <!-- #endif -->
           </view>
@@ -52,6 +52,9 @@
       }
     },
     computed: {
+      theme(){
+        return this.$store?.state?.app?.theme
+      },
       activeWifiMac() {
         if (this.connectedWifi && this.connectedWifi.BSSID) {
           let activeWifiMac = this.wifiList.find(item => item.wifi_mac === this.connectedWifi.BSSID)
@@ -448,6 +451,12 @@
       })
     },
     onLoad(option) {
+      if(this.$store?.state?.app?.theme==='coffee'){
+        uni.setNavigationBarColor({
+            frontColor: '#ffffff',
+            backgroundColor: '#BFA58B'
+        })
+      }
       if (option.store_no) {
         this.store_no = option.store_no
       }
