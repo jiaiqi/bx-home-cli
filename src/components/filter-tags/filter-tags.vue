@@ -2,8 +2,9 @@
   <view class="filter-tags-view">
     <view class="filter-form" v-if="setTabs&&setTabs.length>0">
       <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex">
-        <view class="label" v-if="!tab.more_config.showLabel&&tab.more_config.showLabel!==false">
-          {{tab.label||''}}:
+        <view class="label" :class="{'pc-model':sysModel==='PC'}"
+          v-if="(!tab.more_config.showLabel&&tab.more_config.showLabel!==false)||sysModel==='PC'">
+          {{tab.label||''}}
         </view>
         <view class="form-item-content" v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]">
           <view v-if="tab._type === 'input'">
@@ -71,10 +72,15 @@
             'value': '[like'
           }]
         },
-        setTabs:[],
+        setTabs: [],
         formModel: {},
         onInputValue: false, // 是否有输入值
       };
+    },
+    computed: {
+      sysModel() {
+        return getApp().globalData.systemInfo?.model
+      },
     },
     props: {
       tabs: {
@@ -109,7 +115,7 @@
             formType: "",
             default: item.default
           }
-      
+
           item.options = self.getTabOptions(item)
           col.colName = item._colName
           col.inputType = item.inputType
@@ -337,7 +343,8 @@
           }
           if ((condsModel[tabs[i]].formType === 'checkbox' ||
               condsModel[tabs[i]].formType === 'radio') && condsModel[tabs[i]].value &&
-            condsModel[tabs[i]].value.length !== 0 &&condsModel[tabs[i]].value !== '_unlimited_' &&condsModel[tabs[i]].value[0] !== '_unlimited_') {
+            condsModel[tabs[i]].value.length !== 0 && condsModel[tabs[i]].value !== '_unlimited_' && condsModel[tabs[i]]
+            .value[0] !== '_unlimited_') {
             if (condsModel[tabs[i]].inputType === 'BetweenNumber' || condsModel[tabs[i]].inputType === 'Date' ||
               condsModel[tabs[i]].inputType === 'DateTime') {
               relation.relation = 'AND'
@@ -517,12 +524,23 @@
       align-items: center;
       padding-bottom: 10rpx;
       justify-content: center;
+      flex-wrap: wrap;
+
       .label {
         margin-right: 20rpx;
         min-width: 20%;
         height: 100%;
         display: flex;
         align-items: flex-start;
+
+        &.pc-model {
+          width: 100%;
+          color: #474849;
+          font-size: 14px;
+          font-weight: 600;
+          color: #474849;
+          margin-bottom: 5px;
+        }
       }
 
       .form-item-content {}

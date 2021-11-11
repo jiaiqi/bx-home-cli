@@ -116,13 +116,13 @@
         </view>
       </view>
       <view class="detail-form" v-if="!detailConfig">
-        <view class="form-wrap" :class="{show:setShowDetail}">
-          <a-form v-if="isArray(detailFields)" :fields="detailFields" :srvApp="appName" pageType="detail"
-            formType="detail" ref="bxForm">
+        <view class="form-wrap" :class="{show:setShowDetail||model==='PC'}">
+          <a-form class="bx-form" v-if="isArray(detailFields)" :fields="detailFields" :srvApp="appName"
+            pageType="detail" formType="detail" ref="bxForm">
           </a-form>
         </view>
       </view>
-      <view class="handler-bar" v-if="!detailConfig">
+      <view class="handler-bar" v-if="!detailConfig&&model!=='PC'">
         <view class="show-or-hide" @click="changeDetailStatus" v-if="isArray(detailFields)&&detailFields.length>0">
           <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
@@ -143,7 +143,7 @@
         class="cu-btn border bg-green shadow-blur margin-left-sm" @click="changeChild(item)"
         v-for="item in foldChildService">{{item.label||''}}</button>
     </view>
-    <view class="child-service-box" v-if="currentChild">
+    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild">
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
@@ -151,7 +151,7 @@
         </child-list>
       </view>
     </view>
-    <view class="child-service-box" v-if="detail">
+    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
@@ -192,7 +192,13 @@
       theme() {
         return this.$store?.state?.app?.theme
       },
+      model() {
+        return getApp()?.globalData?.systemInfo?.model
+      },
       setShowDetail() {
+        if (this.model === 'PC') {
+          return false
+        }
         // if (this.notTempColMap) {
         //   return true
         // } else {
@@ -480,7 +486,7 @@
             }
           })
         }
-        if(colVs?.moreConfig?.formButtonDisp){
+        if (colVs?.moreConfig?.formButtonDisp) {
           this.formButtonDisp = colVs?.moreConfig?.formButtonDisp
         }
         this.v2Data = colVs;
@@ -611,9 +617,10 @@
               let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
                 buttonInfo.servcie_type);
               let res = await this.$http.post(url, req);
-              // if (res.data.state === 'SUCCESS') {
-              // 	this.$refs.bxList.onRefresh();
-              // }
+              if (res.data.state === 'SUCCESS') {
+              	// this.$refs.bxList.onRefresh();
+                this.getDetail()
+              }
               return
             } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转' || buttonInfo
               .operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
@@ -807,6 +814,8 @@
     padding: 20rpx;
     background-color: #F5F5F5;
     min-height: calc(100vh - var(--window-top));
+    max-width: 1500px;
+    margin: 0 auto;
   }
 
   .detail-temp-box {
@@ -976,6 +985,15 @@
         height: auto;
         opacity: 1;
       }
+
+      .bx-form {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 10px;
+        padding-right: 0;
+        padding-bottom: 0;
+      }
+
     }
   }
 
@@ -1022,6 +1040,35 @@
         min-width: 25%;
         // margin-right: 20rpx;
         margin-left: 20rpx;
+      }
+    }
+  }
+  .child-service-box{
+    &.pc-model{
+      @media screen and (min-width:800px){
+        display: flex;
+        flex-wrap: wrap;
+        .child-service{
+          width: calc(50% - 5px);
+          margin-right:10px;
+          &:nth-child(2n){
+            margin-right: 0;
+          }
+        }
+      }
+      @media screen and (min-width:1600px){
+        display: flex;
+        flex-wrap: wrap;
+        .child-service{
+          width: calc(33.33% - 8px);
+          margin-right:10px;
+          &:nth-child(2n) {
+            margin-right: 10px;
+          }
+          &:nth-child(3n){
+            margin-right: 0;
+          }
+        }
       }
     }
   }

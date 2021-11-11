@@ -4,13 +4,14 @@
       '--page-height': pageHeight,
     }">
     <view>
-      <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :pageType="srvType" :formType="use_type"
-        ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal" :srvApp="appName">
+      <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
+        :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange" :mainData="defaultVal"
+        :defaultVal="defaultVal" :srvApp="appName">
       </a-form>
     </view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
-      <button class="cu-btn bg-orange round lg" :class="{'bx-bg-coffee':theme==='coffee'}" v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex"
-        @click="onButton(btn)">
+      <button class="cu-btn bg-orange round lg" :class="{'bx-bg-coffee':theme==='coffee'}"
+        v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
     </view>
@@ -53,6 +54,9 @@
       };
     },
     computed: {
+      model() {
+        return getApp()?.globalData?.systemInfo?.model
+      },
       childService() {
         if (this.showChildService !== 'false' && this.showChildService !== false && this.colsV2Data && Array
           .isArray(this.colsV2Data.child_service)) {
@@ -69,7 +73,7 @@
         doctorInfo: state => state.app.doctorInfo,
         globalTextFontSize: state => state.app.globalTextFontSize,
         globalLabelFontSize: state => state.app.globalLabelFontSize,
-        theme:state=>state.app.theme
+        theme: state => state.app.theme
       })
     },
     methods: {
@@ -415,7 +419,7 @@
                       } else if (self.afterSubmit === 'home') {
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
-                          url:`/storePages/home/home?store_no=${store_no}`
+                          url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else {
                         uni.navigateBack()
@@ -513,7 +517,7 @@
                       } else if (self.afterSubmit === 'home') {
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
-                          url:`/storePages/home/home?store_no=${store_no}`
+                          url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else {
                         self.toPages('detail');
@@ -1174,7 +1178,19 @@
       // background-color: #fff;
     }
 
+    .pc-model {
+      display: flex;
+      flex-wrap: wrap;
+      padding-top: 10px;
+      padding-left: 10px;
+
+      ::v-deep .form-item::after {
+        border-bottom: none !important;
+      }
+    }
+
     .button-box {
+      margin: 0 auto;
       margin-top: 20rpx;
       margin-bottom: 0;
       width: 100%;
@@ -1184,7 +1200,7 @@
       justify-content: space-around;
       align-items: center;
       z-index: 20;
-
+      max-width: 500px;
       .cu-btn {
         min-width: 45%;
       }

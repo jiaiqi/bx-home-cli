@@ -15,7 +15,7 @@
       <view class="tab-content" v-if="curTab===0">
         <view class="form-box">
           <a-form v-if="addV2 && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="'add'" :formType="'add'"
-            ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal"></a-form>
+            ref="bxForm" @value-blur="valueChange" :mainData="defaultVal" :defaultVal="defaultVal" class="form-wrap-box"></a-form>
         </view>
       </view>
       <view class="tab-content" v-if="curTab===1">
@@ -1181,6 +1181,49 @@
       margin: 0 20rpx;
       border-radius: 20rpx;
       min-height: 80vh;
+      .form-box{
+        
+          @media screen and (max-width:450px) {
+            .field-item {
+              min-width: 100%;
+            }
+          }
+        
+          @media screen and (min-width: 450px) {
+            .form-wrap-box{
+              display: flex;
+              flex-wrap: wrap;
+              padding-left: 10px;
+              padding-top: 10px;
+            }
+
+        
+            .field-item {
+              margin-right: 10px;
+              width: calc(50% - 10px);
+            }
+          }
+        
+          @media screen and (min-width: 800px) {
+        
+            .field-item {
+              width: inherit;
+              width: calc(25% - 10px);
+            }
+          }
+        
+          @media screen and (min-width: 1200px) {
+            .field-item {
+              width: calc(20% - 10px);
+            }
+          }
+        
+          @media screen and (min-width: 1600px) {
+            .field-item {
+              width: calc(12.5% - 10px);
+            }
+          }
+      }
     }
 
 

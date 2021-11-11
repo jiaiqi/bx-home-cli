@@ -1421,18 +1421,25 @@
         width: 25% !important;
       }
     }
-
-    @media screen and (min-width: 1300px) {
+    @media screen and (min-width: 600px) {
+      .box-item {
+        width: 20% !important;
+      }
+    }
+    
+    @media screen and (min-width: 960px) {
       .box-item {
         width: 15% !important;
       }
     }
-
-    @media screen and (min-width: 1260px) {
+    
+    
+    @media screen and (min-width: 1300px) {
       .box-item {
         width: 10% !important;
       }
     }
+
 
     .box-item {
       padding: 40rpx 20rpx;

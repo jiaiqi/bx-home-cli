@@ -1,91 +1,84 @@
 <template>
   <view class="authorization">
+    <!-- {{isBindUser}}{{client_env}}{{isShowUserLogin}} -->
     <view class="container">
-      <!-- <view class="container" v-if="isBindUser || client_env === 'web' || client_env === 'app'"> -->
       <view class="right-top-sign"></view>
       <!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
       <view class="wrapper">
-        <!-- <view class="left-top-sign">LOGIN</view> -->
         <view class="welcome">
           <!-- #ifdef H5 -->
-          欢迎回来！
+          你好, 欢迎回来！
           <!-- #endif -->
-          <!-- <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text> -->
+          <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
         </view>
-        <view class="input-content" v-if="client_env === 'web' || client_env === 'app' || isShowUserLogin">
+        <view class="input-content">
           <view class="input-item">
-            <text class="tit">帐号</text>
+            <!-- <text class="tit">帐号</text> -->
             <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
               @input="inputChange" />
           </view>
           <view class="input-item">
-            <text class="tit">密码</text>
+            <!-- <text class="tit">密码</text> -->
             <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
-              password data-key="password" @input="inputChange" @confirm="userLogined" />
+              password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
+            <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
+              data-key="password" @input="inputChange" @confirm="userLogined" v-if="eye_show" />
+            <image src="./hi_eye.png" mode="" v-if="eye_show" @click="eycClick"></image>
+            <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
           </view>
         </view>
-        <button v-if="(client_env === 'web' || client_env === 'app' || client_env === 'wxh5') && isShowUserLogin"
-          class="confirm-btn bg-gradual-green text-green" @click="userLogined">
+
+        <!-- 	<u-radio-group style="display: flex;justify-content: flex-end;margin:5px 15px;">
+					<u-radio class="" color="">
+						<view style="max-width: 700rpx;">记住密码</view>
+					</u-radio>
+				</u-radio-group> -->
+
+        <checkbox-group @change="checkboxChange" class=""
+          style="display: flex;justify-content: flex-end;margin:5px 30px;">
+          <label style="width: 90%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;">
+            <checkbox class="" value="cd" :checked="checkValue" style="margin-right: 5px;transform: scale(0.7);" />
+            <text>记住密码</text>
+          </label>
+        </checkbox-group>
+
+
+
+
+        <button class="confirm-btn bg-blue text-green" @click="userLogined">
           {{ isBindUser ? '提交绑定' : '登录' }}
         </button>
-        <button v-if="(client_env === 'web' || client_env === 'app' || client_env === 'wxh5') && isShowUserLogin"
-          class="confirm-btn bg-gradual-orange text-green" @click="toBack">
-          暂不，继续使用
+        <!--    <button class="confirm-btns" @click="showScan">
+          <text class="cuIcon-scan margin-right"></text>
+          扫码登录
+        </button> -->
+        <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
+          class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo"
+          @getuserinfo="saveWxUser" :withCredentials="false" :disabled="!isWeixin">
+          立即授权
         </button>
-        <!-- 		<view class="wx-login" v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">
-					<view class="tips">个人信息保护指引</view>
-					<button class="confirm-btn" type="primary" lang="zh_CN" open-type="getUserInfo" @getuserinfo="saveWxUser" :withCredentials="false" :disabled="disabled">
-						同意并授权访问用户信息
-					</button>
-				</view> -->
+        <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
+          class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">
+          暂不授权
+        </button>
       </view>
     </view>
-    <!-- #ifdef MP-WEIXIN -->
-    <view class="cu-modal show">
+    <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
       <view class="cu-dialog">
-        <view class="auth-explain">
-          <view class="title">隐私保护说明</view>
-          <view class="content">1. 我们会遵循用户协议与隐私政策手机、使用信息，但不会仅因同意本隐私政策而采取强制捆绑的方式收集信息。</view>
-          <view class="content">2. 为保障服务所必须，我们需要访问您的微信昵称、性别等基本信息。</view>
-          <view class="content">3. 为了记录您的活动与体能训练记录，我们需要访问您的微信运动数据。</view>
-          <view class="tip">
-            您可以查看完整版
-            <text class="text-cyan" @click="toArticle('CT2021012816330102')">用户协议</text>
-            和
-            <text class="text-cyan" @click="toArticle('CT2021012816470103')">隐私政策</text>
-          </view>
-          <view class="button-box">
-            <button type="primary" class="cu-btn bg-cyan" @tap="saveWxUser"
-              v-if="canIUseGetUserProfile">同意(授权微信用户信息)</button>
-            <button type="primary" class="cu-btn bg-cyan" lang="zh_CN" open-type="getUserInfo" @getuserinfo="saveWxUser"
-              :withCredentials="false" v-else>同意(授权微信用户信息)</button>
-            <!-- <button class="cu-btn bg-white text-grey" @click="disagree">不同意</button> -->
-            <navigator class="cu-btn bg-grey" open-type="exit" target="miniProgram" @click="disagree">
-              不同意(退出小程序)</navigator>
-          </view>
-        </view>
+        <view id="login_container" class="login_container"></view>
       </view>
     </view>
-    <!-- #endif -->
   </view>
 </template>
 
 <script>
-  import {
-    mapState
-  } from 'vuex';
   export default {
     // 账号授权页面
     name: 'AccountExec',
-    computed: {
-      ...mapState({
-        previousPageUrl: state => state.app.previousPageUrl
-      })
-    },
     data() {
       return {
-        code: '',
-        disabled: !this.isWeixinClient(),
+        showLoginQrCode: false,
+        isWeixin: this.isWeixinClient(),
         backUrl: '',
         user: {
           user_no: '',
@@ -95,145 +88,137 @@
         client_env: uni.getStorageSync('client_env'),
         isThirdParty: uni.getStorageSync('isThirdParty'), // 是否需要第三方认证
         isBindUser: false,
-        canIUseGetUserProfile: false,
+        showAllMenu: false,
+        checkValue: false,
+        eye_show: false
       };
     },
-    onShow() {
-      // #ifdef MP-WEIXIN
-      // this.getWxCode();
-      // #endif
-      // #ifdef H5
-      if (navigator.userAgent.indexOf('iPhone') !== -1) {
-        let linkUrl = window.location + '';
-        uni.setStorageSync('linkUrl', linkUrl);
+    created() {
+      let self = this;
+      let pwd = localStorage.getItem('pwd')
+      let user_no = localStorage.getItem('user_no')
+      if (pwd && user_no) {
+        self.user.user_no = localStorage.getItem('user_no')
+        self.user.pwd = localStorage.getItem('pwd')
       }
-      // #endif
     },
     onLoad(option) {
-      if (wx.canIUse('getUserProfile')) {
-        this.canIUseGetUserProfile = true
-      }
-      this.judgeClientEnviroment();
-      let self = this;
       if (uni.getStorageSync('isLogin')) {
         console.log('已登录，不进行初始化授权', uni.getStorageSync('isLogin'));
-        // #ifdef H5
-        if (uni.getStorageSync('backUrl') && uni.getStorageSync('backUrl') !== '/') {
-          if (uni.getStorageSync('backUrl').indexOf('/pages/') !== -1) {
-            uni.switchTab({
-              url: uni.getStorageSync('backUrl'),
-              fail() {
-                uni.redirectTo({
-                  url: uni.getStorageSync('backUrl')
-                })
-              }
-            });
-          } else {
-            uni.redirectTo({
-              url: uni.getStorageSync('backUrl')
-            });
-          }
+        if (uni.getStorageSync('backUrl') && uni.getStorageSync('backUrl') !== '/' && uni.getStorageSync(
+            'backUrl') !== '/fyzh/') {
+          uni.redirectTo({
+            url: uni.getStorageSync('backUrl')
+          });
         } else {
-          if (self.$api.homePath === '/pages/pedia/pedia') {
-            uni.switchTab({
-              url: self.$api.homePath,
-              fail() {
-                uni.redirectTo({
-                  url: self.$api.homePath
-                })
-              }
-            });
-          } else {
-            if (self.$api.homePath.indexOf('/pages/') !== -1) {
-              uni.switchTab({
-                url: self.$api.homePath,
-                fail() {
-                  uni.redirectTo({
-                    url: self.$api.homePath
-                  })
-                }
-              });
-            } else {
-              uni.redirectTo({
-                url: self.$api.homePath,
-                fail(err) {
-                  uni.showModal({
-                    title: '提示',
-                    content: err.errMsg,
-                    showCancel: false
-                  });
-                }
-              });
-            }
-          }
+          uni.redirectTo({
+            url: this.$api.homePath
+          });
         }
-        // #endif
       } else {
-        console.log('未登录，进行初始化授权', uni.getStorageSync('isLogin'));
-        // #ifdef H5
-        this.initLogin();
-        // #endif
+        console.log('onLoad 未登录，进行初始化授权', uni.getStorageSync('isLogin'));
+        // self.initLogin();
       }
       // #ifdef H5
-      if (navigator.userAgent.indexOf('iPhone') !== -1) {
-        let linkUrl = window.location + '';
-        uni.setStorageSync('linkUrl', linkUrl);
+      // let isWeixinClient = this.isWeixinClient();
+      let isLogin = uni.getStorageSync('isLogin')
+      // if (isWeixinClient) {
+      // 	// 微信公众号环境 , 静默登录
+      // 	this.initLogin()
+      // } else 
+      console.log('onLoad option', option, isLogin);
+      console.log('onLoad  .query', this.$route.query);
+      if (option.code && option.state && !isLogin) {
+        // 扫码登陆重定向
+        this.scanLogin(option)
+      } else if (this.$route.query?.code && this.$route.query?.state) {
+        this.scanLogin(this.$route.query)
+      } else if (!isLogin) {
+        // this.getScanQrCode()
       }
       // #endif
     },
     methods: {
-      toArticle(no) {
-        uni.navigateTo({
-          url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
-        });
+      eycClick() {
+        this.eye_show = !this.eye_show
       },
-      disagree() {
-        uni.showToast({
-          title: '您需要同意用户协议和隐私政策才能继续使用百想健康小程序',
-          icon: 'none'
-        });
+      checkboxChange(e) {
+        this.checkValue = !this.checkValue
+        console.log(this.checkValue)
       },
-      toBack() {
-        if (uni.getStorageSync('isLogin')) {
-          if (uni.getStorageSync('backUrl')) {
-            if (uni.getStorageSync('backUrl').indexOf('/pages/') !== -1) {
-              uni.switchTab({
-                url: uni.getStorageSync('backUrl'),
-                fail() {
-                  uni.redirectTo({
-                    url: uni.getStorageSync('backUrl')
-                  })
-                }
-              });
-            } else {
-              uni.redirectTo({
-                url: uni.getStorageSync('backUrl')
-              });
-            }
-          } else {
-            if (this.$api.homePath.indexOf('/pages/') !== -1) {
-              uni.switchTab({
-                url: self.$api.homePath,
-                fail() {
-                  uni.redirectTo({
-                    url: self.$api.homePath
-                  })
-                }
-              });
-            } else {
-              uni.redirectTo({
-                url: this.$api.homePath
-              });
-            }
-          }
-        } else {
-          this.initLogin();
+      async getScanQrCode() {
+        var callbackurl = window.location.origin + "/fyzh/pages/home/home";
+        var request = {};
+        request.serviceName = "srvwx_web_scan_cfg_select";
+        request.colNames = ["*"];
+        request.condition = [{
+          "colName": "callbackurl",
+          "value": callbackurl
+        }];
+        let res = await this.onRequest("select", "srvwx_web_scan_cfg_select", request, "wx")
+        if (res.data.state === 'SUCCESS') {
+          var data = res.data.data[0];
+          var obj = new WxLogin({
+            self_redirect: false,
+            id: "login_container",
+            appid: data.appid,
+            scope: "snsapi_login",
+            redirect_uri: data.callbackurl,
+            state: data.state,
+            style: "black",
+            href: callbackurl
+          });
         }
+      },
+      async scanLogin(e) {
+        const {
+          code,
+          state
+        } = e
+        let data = {};
+        data["code"] = code;
+        data["state"] = state;
+        var request = {};
+        request.serviceName = "srvwx_web_scan_auth";
+        request.data = [];
+        request.data.push(data);
+        var bxRequest = [];
+        bxRequest.push(request);
+        console.log('scanLogin', e)
+        let res = await this.onRequest("operate", "srvwx_web_scan_auth", bxRequest, "wx")
+        if (res.data.state === 'SUCCESS') {
+          var resp = res.data.response[0];
+          var bx_auth_ticket = resp.response.bx_auth_ticket;
+          console.log('scanLogin-resp', resp)
+          var current_login_user = resp.response.login_user_info;
+          uni.setStorageSync("bx_auth_ticket", bx_auth_ticket);
+          uni.setStorageSync("isLogin", true);
+          uni.setStorageSync("login_user_info", current_login_user);
+          top.user = current_login_user;
+          if (resp.response?.expire_time) {
+            let expire_timestamp = parseInt(new Date().getTime() / 1000) +
+              resp.response.expire_time; //过期时间的时间戳(秒)
+            uni.setStorageSync('expire_time', resp.response.expire_time); // 有效时间
+            uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
+          }
+          uni.reLaunch({
+            url: '/pages/home/home'
+          })
+        }
+      },
+      showScan() {
+        this.showLoginQrCode = !this.showLoginQrCode
       },
       navBack() {
         uni.navigateBack({
-          animationDuration: 200
-        });
+            animationDuration: 200
+          })
+          .then()
+          .catch(e => {
+            uni.redirectTo({
+              url: '/pages/basics/home/home'
+            });
+          });
       },
       inputChange(e) {
         // console.log(e)
@@ -242,14 +227,14 @@
         let that = this;
         let code = null;
         // 公众号环境
-        // #ifdef H5
-        code = this.$route.query.code;
-        // #endif
-        console.log('code:', code);
+        code = this.$route?.query?.code;
         let isLogin = uni.getStorageSync('isLogin');
         console.log('是否绑定账号:', isLogin);
         let isWeixinClient = this.isWeixinClient();
         const client_env = uni.getStorageSync('client_env');
+        // uni.showToast({
+        // 	title:isWeixinClient + "是否登录： "+ isLogin
+        // })
         console.log('是否微信环境', isWeixinClient);
         if (!isLogin) {
           if (isWeixinClient) {
@@ -265,11 +250,11 @@
             }
           } else if (!isWeixinClient) {
             // 非微信环境(H5或APP)
-            uni.showToast({
-              title: '请在微信中访问此页面',
-              icon: 'none',
-              duration: 3000
-            });
+            // uni.showToast({
+            // 	title: '请在微信中访问此页面',
+            // 	icon: 'none',
+            // 	duration: 3000
+            // });
           }
         } else {
           let url = uni.getStorageSync('backUrl');
@@ -279,25 +264,13 @@
             if (url && url.lastIndexOf('backUrl=') !== -1) {
               url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
             }
-            if (url.indexOf('/pages/') !== -1) {
-              uni.switchTab({
-                url: url
-              });
-            } else {
-              uni.reLaunch({
-                url: url
-              });
-            }
+            uni.reLaunch({
+              url: url
+            });
           } else {
-            if (that.$api.homePath.indexOf('/pages/') !== -1) {
-              uni.switchTab({
-                url: that.$api.homePath
-              });
-            } else {
-              uni.reLaunch({
-                url: that.$api.homePath
-              });
-            }
+            uni.reLaunch({
+              url: that.$api.homePath
+            });
           }
         }
       },
@@ -308,11 +281,29 @@
         let req = [{
           data: [{
             app_no: self.$api.appNo.wxh5,
-            redirect_uri: self.$api.frontEndAddress
+            redirect_uri: encodeURIComponent(self.$api.frontEndAddress)
           }],
           serviceName: 'srvwx_public_page_authorization'
         }];
         let burl = uni.getStorageSync('backUrl');
+        const res = await this.$http.post(url, req)
+        console.log(res)
+        try {
+          if (response?.data?.response[0]?.response?.authUrl) {
+            window.location.href = response.data.response[0].response.authUrl;
+          } else {
+            uni.showToast({
+              title: response.data.resultMessage,
+              icon: 'none'
+            });
+          }
+        } catch (e) {
+          //TODO handle the exception
+          uni.showToast({
+            title: typeof e === 'string' ? e : JSON.stringify(e),
+            icon: 'none'
+          });
+        }
         this.$http.post(url, req).then(response => {
           if (response.data.response[0].response.authUrl) {
             window.location.href = response.data.response[0].response.authUrl;
@@ -324,122 +315,78 @@
           }
         });
       },
-      async getUserProfile(e) {
-        let self = this
-        // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
-        // 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-        let res = await wx.getUserProfile({
-          desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-        })
-        this.$store.commit('SET_AUTH_USER', res)
-        if (res.userInfo) {
-          return self.handleUserInfo(res)
-        }
-      },
-      async handleUserInfo(res) {
-        let self = this
-        if (typeof res === 'object' && Object.keys(res).length > 0 && res.userInfo) {
-          let rawData = {
-            nickname: res.userInfo.nickName,
-            sex: res.userInfo.gender,
-            country: res.userInfo.country,
-            province: res.userInfo.province,
-            city: res.userInfo.city,
-            headimgurl: res.userInfo.avatarUrl
-          };
-          self.$store.commit('SET_WX_USERINFO', rawData);
-          self.$store.commit('SET_AUTH_USERINFO', true);
-          await self.setWxUserInfo(rawData);
-          return rawData
-        }
-      },
-      async saveWxUser(e) {
+      saveWxUser() {
         // 静默登录(验证登录)
-        const self = this;
-        const isWeixinClient = this.isWeixinClient();
+        let that = this;
+        const isWeixinClient = that.isWeixinClient();
         if (isWeixinClient) {
           const url = this.getServiceUrl('wx', 'srvwx_app_login_verify', 'operate');
           // #ifdef MP-WEIXIN
-          let userInfo = {}
-          if (wx.canIUse('getUserProfile')) {
-            userInfo = await self.getUserProfile()
-          } else if (e && e.mp && e.mp.detail) {
-            this.$store.commit('SET_AUTH_USER', e)
-            userInfo = await self.handleUserInfo(e.mp.detail);
-          }
+          wx.login({
+            // 获取小程序code
+            success(res) {
+              if (res.code) {
+                // that.checkAuthorization();
+                //验证登录
+                let url = that.$api.verifyLogin.url;
+                let req = [{
+                  data: [{
+                    code: res.code,
+                    app_no: that.$api.appNo.wxmp
+                  }],
+                  serviceName: 'srvwx_app_login_verify'
+                }];
+                that.$http.post(url, req).then(response => {
+                  if (response.data.resultCode === 'SUCCESS') {
+                    uni.hideLoading();
+                    console.log('授权成功', response);
+                    let resData = response.data.response[0].response;
+                    let loginMsg = {
+                      bx_auth_ticket: resData.bx_auth_ticket,
+                      expire_time: resData.expire_time
+                    };
+                    let expire_timestamp = parseInt(new Date().getTime() / 1000) +
+                      loginMsg.expire_time; //过期时间的时间戳(秒)
 
-          // const user = await this.getUserProfile()
-          const result = await self.wxVerifyLogin();
-          if (result) {
-            // 登录成功，返回上一页面
-            uni.$emit('loginStatusChange', true);
-            self.$store.commit('SET_LOGIN_STATE', true);
-            if (this.$store.state.app.shareType === 'seeDoctor') {
-              this.toAddPage();
-              return;
-            }
-            let num = getCurrentPages();
-            if (Array.isArray(num) && num.length === 1) {
-              if (self.previousPageUrl && self.previousPageUrl.indexOf('/accountExec') == -1) {
-                //
-                uni.reLaunch({
-                  url: self.previousPageUrl,
-                  fail() {
+                    uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
+                    uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
+                    uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
+                    if (that.checkValue) {
+                      localStorage.setItem('user_no', that.user.user_no)
+                      localStorage.setItem('pwd', that.user.pwd)
+                    }
+                    if (resData.login_user_info.user_no) {
+                      uni.setStorageSync('login_user_info', resData.login_user_info);
+                      // top.user = resData.login_user_info;
+                      console.log('resData.login_user_info', resData
+                        .login_user_info);
+                    }
+                    if (resData.login_user_info.data) {
+                      uni.setStorageSync('visiter_user_info', resData.login_user_info
+                        .data[0]);
+                      // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+                    }
+                    uni.setStorageSync('isLogin', true);
+                    console.log('that.backUrl', that.backUrl);
+
+                    // 获取用户微信信息
+                    that.getUserInfo();
                     uni.redirectTo({
-                      url: self.previousPageUrl,
-                      fail(e) {
-                        uni.showModal({
-                          title: '提示',
-                          content: e
-                        });
-                      }
+                      url: that.$api.homePath
+                    });
+                  } else if (response.data.resultCode === 'FAILURE') {
+                    uni.setStorageSync('isLogin', false);
+                    uni.showToast({
+                      title: response.data.resultMessage
                     });
                   }
                 });
               } else {
-                if (self.$api.homePath.indexOf('/pages/') !== -1) {
-                  uni.redirectTo({
-                    url: self.$api.homePath
-                  });
-                } else {
-                  uni.redirectTo({
-                    url: self.$api.homePath
-                  });
-                }
-              }
-            } else {
-              if (self.previousPageUrl && self.previousPageUrl.indexOf('/account') == -1) {
-                //
-                uni.redirectTo({
-                  url: self.previousPageUrl
-                });
-              } else {
-                uni.navigateBack({
-                  animationDuration: 500,
-                  fail: function(err) {
-                    if (err.errMsg && err.errMsg.indexOf(
-                        'cannot navigate back at first page') !== -1) {
-                      // 当前页面在页面栈中为第一页
-                      if (self.$api.homePath.indexOf('/pages/') !== -1) {
-                        uni.redirectTo({
-                          url: self.$api.homePath,
-                          fail() {
-                            uni.redirectTo({
-                              url: self.$api.homePath
-                            })
-                          }
-                        });
-                      } else {
-                        uni.redirectTo({
-                          url: self.$api.homePath
-                        });
-                      }
-                    }
-                  }
-                });
+                uni.setStorageSync('isLogin', false); // 登录状态
+                console.log('登录失败！' + res.errMsg);
               }
             }
-          }
+          });
           // #endif
           // #ifdef H5
           // 公众号环境
@@ -458,72 +405,112 @@
                 bx_auth_ticket: resData.bx_auth_ticket,
                 expire_time: resData.expire_time
               };
-              uni.setStorageSync('isLogin', true);
-              console.log('登录成功', uni.getStorageSync('isLogin'), resData);
-              let expire_timestamp = parseInt(new Date().getTime() / 1000) + loginMsg
-                .expire_time; //过期时间的时间戳(秒)
-              uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
-              uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
-              uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
 
-              if (resData.login_user_info && resData.login_user_info.user_no) {
-                uni.setStorageSync('login_user_info', resData.login_user_info);
-                console.log('resData.login_user_info', resData.login_user_info);
-              }
-              if (resData.login_user_info && resData.login_user_info.data) {
-                uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-              }
-              // 获取回调前记录的url 并再回调后 再次进入该url，没有该url时 进入 home
-              let url = uni.getStorageSync('backUrl');
-              console.log('that.backUrl', that.backUrl, '===', url);
-              uni.hideToast();
-              uni.hideLoading();
-              if (url && url !== '/') {
-                url = that.getDecodeUrl(url);
-                // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-                if (url && url.lastIndexOf('backUrl=') !== -1) {
-                  url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
-                  // console.log("授权成功，准备返回用户界面url",url)
+              if (resData.login_user_info.login_user_type === 'wx_user') {
+                that.isBindUser = true // 是否需要引导绑定
+                uni.setStorageSync('isLogin', true);
+                console.log('登录成功', uni.getStorageSync('isLogin'), resData);
+                let expire_timestamp = parseInt(new Date().getTime() / 1000) + loginMsg
+                  .expire_time; //过期时间的时间戳(秒)
+                uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
+                // let expire_timestamp = parseInt(new Date().getTime() / 1000) + 10; //过期时间的时间戳(秒)
+                // uni.setStorageSync('expire_time', 10); // 有效时间
+                uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
+                uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
+                if (resData.login_user_info && resData.login_user_info.user_no) {
+                  uni.setStorageSync('login_user_info', resData.login_user_info);
+                  console.log('resData.login_user_info', resData.login_user_info);
                 }
-                uni.reLaunch({
-                  url: url
+                if (that.checkValue) {
+                  localStorage.setItem('user_no', that.user.user_no)
+                  localStorage.setItem('pwd', that.user.pwd)
+                }
+                if (resData.login_user_info && resData.login_user_info.data) {
+                  uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
+                  // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+                }
+                uni.showModal({
+                  title: '提示',
+                  content: '是否继续绑定已有系统帐号？',
+                  cancelText: "不用了",
+                  confirmText: "是",
+                  success: function(res) {
+                    if (res.confirm) {
+                      that.isBindUser = true
+                    } else if (res.cancel) {
+                      console.log('用户点击取消');
+                      if (url) {
+                        url = that.getDecodeUrl(url)
+                        // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
+                        if (url && url.lastIndexOf("backUrl=") !== -1) {
+                          url = url.substring(url.lastIndexOf("backUrl=") +
+                            8, url.length)
+                          console.log("授权成功，准备返回用户界面url", url)
+                        }
+                        uni.reLaunch({
+                          url: url
+                        })
+                      } else {
+                        uni.reLaunch({
+                          url: that.$api.homePath
+                        })
+                      }
+                    }
+                  }
                 });
               } else {
-                uni.reLaunch({
-                  url: that.$api.homePath
-                });
+                uni.setStorageSync('isLogin', true);
+                console.log('登录成功', uni.getStorageSync('isLogin'), resData);
+                let expire_timestamp = parseInt(new Date().getTime() / 1000) + loginMsg
+                  .expire_time; //过期时间的时间戳(秒)
+                uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
+                // let expire_timestamp = parseInt(new Date().getTime() / 1000) + 10; //过期时间的时间戳(秒)
+                // uni.setStorageSync('expire_time', 10); // 有效时间
+                uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
+                uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
+                if (resData.login_user_info && resData.login_user_info.user_no) {
+                  uni.setStorageSync('login_user_info', resData.login_user_info);
+                  console.log('resData.login_user_info', resData.login_user_info);
+                }
+                if (that.checkValue) {
+                  localStorage.setItem('user_no', that.user.user_no)
+                  localStorage.setItem('pwd', that.user.pwd)
+                }
+                if (resData.login_user_info && resData.login_user_info.data) {
+                  uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
+                  // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+                }
+                // 获取回调前记录的url 并再回调后 再次进入该url，没有该url时 进入 home
+                let url = uni.getStorageSync('backUrl');
+
+                console.log('that.backUrl', that.backUrl, '===', url);
+                uni.hideToast();
+                uni.hideLoading();
+                if (url && url !== '/') {
+                  url = that.getDecodeUrl(url);
+                  // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
+                  if (url && url.lastIndexOf('backUrl=') !== -1) {
+                    url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
+                    // console.log("授权成功，准备返回用户界面url",url)
+                  }
+                  uni.reLaunch({
+                    url: url
+                  });
+                } else {
+                  uni.reLaunch({
+                    url: that.$api.homePath
+                  });
+                }
               }
-              // uni.showModal({
-              //     title: '提示',
-              //     content: '是否继续绑定已有百想系统帐号？',
-              // 	cancelText: "不用了",
-              // 	confirmText: "是",
-              //     success: function (res) {
-              //         if (res.confirm) {
-              //             that.isBindUser = true
-              //         } else if (res.cancel) {
-              //             console.log('用户点击取消');
-              // 			if (url) {
-              // 				url = that.getDecodeUrl(url)
-              // 				// alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-              // 				if(url && url.lastIndexOf("backUrl=") !== -1){
-              // 					url = url.substring(url.lastIndexOf("backUrl=")+8,url.length)
-              // 					console.log("授权成功，准备返回用户界面url",url)
-              // 				}
-              // 				uni.reLaunch({
-              // 					url:url
-              // 				})
-              // 			} else {
-              // 				uni.reLaunch({
-              // 					url:that.$api.homePath
-              // 				})
-              // 			}
-              //         }
-              //     }
-              // });
+
+
             } else {
               uni.setStorageSync('isLogin', false);
               console.log('授权失败');
+              // uni.showToast({
+              // 	title:'授权失败',
+              // 	icon:'none'
+              // })
             }
           });
 
@@ -536,24 +523,8 @@
           success: function() {
             wx.getUserInfo({
               success: function(res) {
-                self.$store.commit('SET_AUTH_SETTING', {
-                  type: 'userInfo',
-                  value: true
-                });
-                self.$store.commit('SET_AUTH_USERINFO', true);
+                self.setWxUserInfo(res.userInfo);
                 uni.setStorageSync('wxuserinfo', res.userInfo);
-                let rawData = {
-                  nickname: res.userInfo.nickName,
-                  sex: res.userInfo.gender,
-                  country: res.userInfo.country,
-                  province: res.userInfo.province,
-                  city: res.userInfo.city,
-                  headimgurl: res.userInfo.avatarUrl
-                };
-                uni.setStorageSync('wxUserInfo', rawData);
-                self.$store.commit('SET_WX_USERINFO', rawData);
-                rawData = JSON.stringify(rawData);
-                self.setWxUserInfo(rawData);
                 console.log(res);
               },
               fail: function() {
@@ -589,36 +560,9 @@
                                     .log(
                                       res
                                     );
-                                  let rawData = {
-                                    nickname: res
-                                      .userInfo
-                                      .nickName,
-                                    sex: res
-                                      .userInfo
-                                      .gender ===
-                                      0 ?
-                                      '男' : '女',
-                                    country: res
-                                      .userInfo
-                                      .country,
-                                    province: res
-                                      .userInfo
-                                      .province,
-                                    city: res
-                                      .userInfo
-                                      .city,
-                                    headimgurl: res
-                                      .userInfo
-                                      .avatarUrl
-                                  };
-                                  rawData
-                                    =
-                                    JSON
-                                    .stringify(
-                                      rawData
-                                    );
                                   self.setWxUserInfo(
-                                    rawData
+                                    res
+                                    .userInfo
                                   );
                                 }
                               });
@@ -659,7 +603,6 @@
         // #endif
         // #ifdef MP-WEIXIN
         client_env = 'wxmp';
-        this.isShowUserLogin = false;
         //#endif
         // #ifdef APP-PLUS
         client_env = 'app';
@@ -688,21 +631,15 @@
           client_type: client_type
         };
       },
-      async userLogined(e) {
-        console.log('srvuser_login', e);
+      async userLogined() {
         let that = this;
         let url = that.getServiceUrl('sso', 'srvuser_login', 'operate');
         let req = [{
           serviceName: 'srvuser_login',
           data: [that.user]
         }];
-        if (that.isBindUser) {
-          url = that.$api.bindWxUser;
-          req = [{
-            serviceName: 'srvwx_user_bind',
-            data: [that.user]
-          }];
-        }
+
+
         if (that.isInvalid(that.user.user_no) && that.isInvalid(this.user.pwd)) {
           let response = await that.$http.post(url, req);
           console.log('srvuser_login', response);
@@ -710,62 +647,43 @@
             let res = response.data.response[0].response;
             let expire_timestamp = parseInt(new Date().getTime() / 1000) + res.expire_time; //过期时间的时间戳(秒)
             uni.setStorageSync('bx_auth_ticket', res.bx_auth_ticket);
+            this.$store.commit('SET_TICKET', res.bx_auth_ticket)
             uni.setStorageSync('expire_time', res.expire_time); // 有效时间
             uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
-            if (res && res.login_user_info.user_no) {
+            if (res.login_user_info.user_no) {
               uni.setStorageSync('login_user_info', res.login_user_info);
               console.log('res.login_user_info', res.login_user_info);
-              that.$store.commit('SET_LOGIN_USER', res.login_user_info);
             }
+
             if (res.login_user_info.data) {
               uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
             }
             uni.setStorageSync('isLogin', true);
-            that.$store.commit('SET_LOGIN_STATE', true);
-            console.log('that.backUrl', that.backUrl);
-            let backUrl = uni.getStorageSync('backUrl');
-            if (backUrl && backUrl !== '/') {
-              backUrl = that.getDecodeUrl(backUrl);
-              if (backUrl && backUrl.lastIndexOf('backUrl=') !== -1) {
-                backUrl = backUrl.substring(backUrl.lastIndexOf('backUrl=') + 8, backUrl.length);
-              }
-
-              if (backUrl.indexOf('/pages/') !== -1) {
-                uni.switchTab({
-                  url: backUrl,
-                  fail() {
-                    uni.redirectTo({
-                      url: backUrl
-                    })
-                  }
-                });
-              } else {
-                uni.redirectTo({
-                  url: backUrl,
-                  fail() {
-                    uni.switchTab({
-                      url: '/pages/home/home',
-                      animationType: 'zoom-fade-in',
-                      fail() {
-                        uni.redirectTo({
-                          url: '/pages/home/home'
-                        })
-                      }
-                    })
-                  }
-                });
-              }
-            } else {
-              if (that.$api.homePath.indexOf('/pages/') !== -1) {
-                uni.switchTab({
-                  url: that.$api.homePath
-                });
-              } else {
-                uni.reLaunch({
-                  url: that.$api.homePath
-                });
-              }
+            if (that.checkValue) {
+              localStorage.setItem('user_no', that.user.user_no)
+              localStorage.setItem('pwd', that.user.pwd)
             }
+
+            console.log('that.backUrl', that.backUrl);
+
+            console.log('userLogined', response.data);
+            let url = uni.getStorageSync('backUrl');
+    
+            if (url && url !== '/') {
+              url = that.getDecodeUrl(url);
+              if (url && url.lastIndexOf('backUrl=') !== -1) {
+                console.log(2)
+                url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
+              }
+              url = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
+            } 
+            let model = getApp().globalData?.systemInfo?.model;
+            if(model==='PC'){
+              url = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
+            }
+            uni.reLaunch({
+              url
+            });
           } else {
             uni.showToast({
               title: response.data.resultMessage,
@@ -788,7 +706,9 @@
   .authorization {
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: #CCCED3;
+    background: url(./bg.png) no-repeat;
+    background-size: 100% 100%;
 
     .images {
       width: 100%;
@@ -801,45 +721,43 @@
       text-align: center;
       padding: 20upx 5%;
     }
-  }
-</style>
-<style lang="scss">
-  page {
-    background: #fff;
+
+    .button-box {
+      margin-top: 50upx;
+      height: 200upx;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+
+      .buttons {
+        width: 70%;
+        height: 70upx;
+        line-height: 70upx;
+        border-radius: 0upx;
+        font-size: 30upx;
+      }
+    }
   }
 
   .container {
-    padding-top: 115px;
+    padding-top: 36vh;
     position: relative;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: #fff;
+    // background: #fff;
   }
 
   .wrapper {
+    margin: 0 auto;
+    width: 500px;
     position: relative;
     z-index: 90;
     background: #fff;
     padding-bottom: 40upx;
-    text-align: center;
-    max-width: 375px;
-    margin: 0 auto;
-    background-color: #fff;
-
-    @media screen and (min-width: 480px) {
-      box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
-      border-radius: 10px;
-      margin-top: 100px;
-      padding: 50px;
-      .welcome{
-        top: -20px;
-      }
-      .confirm-btn{
-        min-width: 0;
-        width: 200px;
-      }
-    }
+    border-radius: 8px;
+    padding-bottom: 200upx;
   }
 
   .back-btn {
@@ -865,14 +783,14 @@
     right: -30upx;
     z-index: 95;
 
-    &:before,
-    &:after {
-      display: block;
-      content: '';
-      width: 400upx;
-      height: 80upx;
-      background: #b4f3e2;
-    }
+    // &:before,
+    // &:after {
+    // 	display: block;
+    // 	content: '';
+    // 	width: 400upx;
+    // 	height: 80upx;
+    // 	background: #b4f3e2;
+    // }
 
     &:before {
       transform: rotate(50deg);
@@ -900,9 +818,10 @@
 
   .welcome {
     position: relative;
+    left: 50upx;
     top: -90upx;
     font-size: 46upx;
-    color: #555;
+    color: #333;
     text-shadow: 1px 0px 1px rgba(0, 0, 0, 0.3);
   }
 
@@ -911,15 +830,15 @@
   }
 
   .input-item {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
     padding: 0 30upx;
-    background: #f8f6fc;
-    height: 120upx;
-    text-align: left;
-    border-radius: 4px;
+    background: #F8F8FA;
+    height: 80upx;
+    border-radius: 8px;
     margin-bottom: 50upx;
 
     &:last-child {
@@ -929,67 +848,87 @@
     .tit {
       height: 50upx;
       line-height: 56upx;
+      /* font-size: $font-sm+2upx; */
+      /* color: $font-color-base; */
     }
 
     input {
       height: 60upx;
+      /* font-size: $font-base + 2upx; */
+      /* color: $font-color-dark; */
       width: 100%;
-    }
-  }
-
-  .wx-login {
-    margin-top: 70upx;
-
-    .tips {
-      text-align: center;
-      color: #999;
+      /* box-sizing: border-box;
+			padding: 20upx; */
     }
 
-    .confirm-btn {
-      margin-top: 30rpx;
+    image {
+      position: absolute;
+      right: 17px;
+      width: 24px;
+      height: 24px;
     }
   }
 
   .confirm-btn {
-    min-width: 300px;
-    display: inline-block;
-    border-radius: 10px;
-    margin: 30px auto 0;
-    padding: 0;
-    text-align: center;
-    background-color: #02d199;
+    width: 550upx;
+    height: 76upx;
+    line-height: 76upx;
+    border-radius: 5px;
+    margin-top: 70upx;
     /* background: $uni-color-primary; */
     color: #fff;
+
     /* font-size: $font-lg; */
+    &:after {
+      // border-radius: 100px;
+
+    }
   }
 
-  .auth-explain {
-    padding: 30rpx;
-    background-color: #fff;
+  .confirm-btns {
+    width: 550upx;
+    height: 76upx;
+    line-height: 76upx;
+    border-radius: 50px;
+    margin-top: 30upx;
+    /* background: $uni-color-primary; */
+    color: #0088FE;
+    background: #fff;
+    border: 1px solid #0088FE;
 
-    .title {
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
+    /* font-size: $font-lg; */
+    &:after {
+      border-radius: 100px;
     }
+  }
 
-    .content {
-      text-align: left;
-      margin-bottom: 10px;
+  .forget-section {
+    /* font-size: $font-sm+2upx; */
+    /* color: $font-color-spec; */
+    text-align: center;
+    margin-top: 40upx;
+  }
+
+  .register-section {
+    position: absolute;
+    left: 0;
+    bottom: 50upx;
+    width: 100%;
+    /* font-size: $font-sm+2upx; */
+    /* color: $font-color-base; */
+    text-align: center;
+
+    text {
+      /* color: $font-color-spec; */
+      margin-left: 10upx;
     }
+  }
 
-    .tip {
-      font-size: 14px;
-      margin: 40px 0 20px;
-    }
+  .login_container {
+    text-align: center;
+  }
 
-    .button-box {
-      height: 100px;
-
-      .cu-btn {
-        width: 75%;
-        border-radius: 5px;
-      }
-    }
+  ::v-deep .uni-checkbox-input-checked {
+    background-color: #007aff !important;
   }
 </style>

@@ -102,7 +102,10 @@
             "navigationBarTitleText": "列表",
             "enablePullDownRefresh": true,
             "navigationBarTextStyle": "black",
-            "navigationBarBackgroundColor": "#fff"
+            "navigationBarBackgroundColor": "#fff",
+            "topWindow": false, // 当前页面不显示 topWindow
+            "leftWindow": false, // 当前页面不显示 leftWindow
+            "rightWindow": false // 当前页面不显示 rightWindow
           }
         }, {
           "path": "treeList/treeList",
@@ -124,6 +127,13 @@
             "navigationBarBackgroundColor": "#F8F8FA",
             "navigationBarTextStyle": "black"
           }
+        }, {
+          "path": "login/login",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
         }
       ]
     },
@@ -189,7 +199,9 @@
             "navigationBarTitleText": "文章管理",
             "enablePullDownRefresh": false
           }
-        },
+        }
+        //#ifdef MP-WEIXIN
+        ,
         {
           "path": "DeviceManager/DeviceManager",
           "style": {
@@ -258,16 +270,29 @@
             "navigationBarTextStyle": "black",
             "enablePullDownRefresh": false
           }
-
-        }, {
+        }
+        , {
           "path": "linkwifi/linkwifi",
           "style": {
             "navigationBarTitleText": "连接WiFi",
             "enablePullDownRefresh": true
           }
         }
+        // #endif
+
+        // #ifdef H5
+        , {
+          "path": "PrintTicket/PrintTicket",
+          "style": {
+            "navigationBarTitleText": "打印单",
+            "enablePullDownRefresh": false
+          }
+        }
+        // #endif
       ]
-    },
+    }
+    //#ifdef MP-WEIXIN
+    ,
     {
       "root": "questionnaire",
       "pages": [{
@@ -401,7 +426,6 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
         }, {
           "path": "wifiConfig/wifiConfig",
           "style": {
@@ -411,7 +435,17 @@
         }
       ]
     }
+    //#endif
   ],
+  // "leftWindow": {
+  //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件
+  //   "style": {
+  //     "width": "200px"
+  //   },
+  //   "matchMedia": {
+  //     "minWidth": 800 //生效条件，当窗口宽度大于800px时显示
+  //   }
+  // },
   "easycom": {
     "^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
   },
@@ -421,7 +455,7 @@
     "navigationBarBackgroundColor": "#fff",
     "backgroundColor": "#F8F8F8",
     "pageOrientation": "auto",
-    "rpxCalcMaxDeviceWidth": 960, // rpx 计算所支持的最大设备宽度，单位 px，默认值为 960
+    "rpxCalcMaxDeviceWidth": 500, // rpx 计算所支持的最大设备宽度，单位 px，默认值为 960
     "rpxCalcBaseDeviceWidth": 375, // rpx 计算使用的基准设备宽度，设备实际宽度超出 rpx 计算所支持的最大设备宽度时将按基准宽度计算，单位 px，默认值为 375
     "rpxCalcIncludeWidth": 750 // rpx 计算特殊处理的值，始终按实际的设备宽度计算，单位 rpx，默认值为 750
   },

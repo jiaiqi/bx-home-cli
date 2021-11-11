@@ -98,6 +98,11 @@ fly.interceptors.request.use(async (request) => {
 	if (store.state.app.bx_auth_ticket) {
 		bxAuthTicket = store.state.app.bx_auth_ticket
 	}
+  // #ifdef H5
+  // if(sessionStorage.getItem('bx_auth_ticket')){
+  //   bxAuthTicket = sessionStorage.getItem('bx_auth_ticket')
+  // }
+  // #endif
 	if (api.onTicket) {
 		request.headers["bx_auth_ticket"] = api.ticket
 	} else {

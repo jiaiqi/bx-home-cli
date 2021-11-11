@@ -104,12 +104,14 @@
     </view>
 
     <view class="margin-tb">
+      <!-- #ifdef MP-WEIXIN -->
       <ad
         unit-id="adunit-27e9d9a7b00e4f6a"
         ad-type="video"
         ad-theme="white"
         v-if="todayQue && todayQue.id && queStatus"
       ></ad>
+      <!-- #endif -->
     </view>
     <view class="cu-modal" :class="{'show':modalName==='realname'}" @click="hideModal" @touchmove.prevent>
 			<view class="cu-dialog" @click.stop>

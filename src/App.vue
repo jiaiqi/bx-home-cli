@@ -10,7 +10,10 @@
       systemInfo: uni.getSystemInfoSync()
     },
     onLaunch(options) {
-      console.log(getApp())
+      if (options?.query?.bx_auth_ticket) {
+        uni.setStorageSync('bx_auth_ticket',options.query.bx_auth_ticket)
+        this.$store.commit('SET_TICKET', options.query.bx_auth_ticket)
+      }
       this.$store.commit('SET_SCENE', options.scene)
       if (options.scene === 1154) {
         // 朋友圈单页模式进入
@@ -100,21 +103,28 @@
   #app,
   uni-page-body,
   uni-page-wrapper {
-    background: #fff !important;
+    // background: #fff !important;
   }
 
   /* #ifdef H5 */
-  // uni-page-head{
-  //   display: none!important;
-  // }
-  // .uni-page-head{
-  //   display: none!important;
-  // }
+  uni-page-head {
+    display: none !important;
+  }
+
+  .uni-page-head {
+    display: none !important;
+  }
+
+  .cu-dialog {
+    width: calc(100% - 20px) !important;
+    max-width: 800px;
+  }
+
   /* #endif */
   html,
   body {
     height: auto;
-    background: #fff !important;
+    // background: #fff !important;
   }
 
   uni-page-body>uni-view {

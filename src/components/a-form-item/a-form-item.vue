@@ -521,6 +521,7 @@
         // 跳转到fk字段的详情页面
         let serviceName = this.fieldData?.option_list_v2?.serviceName
         let column = this.fieldData?.option_list_v2?.refed_col
+        let app = this.fieldData?.option_list_v2?.srv_app
         if (serviceName && column && this.fieldData.value) {
           let fieldsCond = [{
             column: column,
@@ -530,6 +531,9 @@
 
           let url =
             `/publicPages/form/form?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+          if(app){
+            url+=`&appName=${app}`
+          }
           let pageStack = getCurrentPages()
           if (Array.isArray(pageStack) && pageStack.length > 9) {
             uni.redirectTo({

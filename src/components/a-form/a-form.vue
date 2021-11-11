@@ -1,6 +1,7 @@
 <template>
   <view>
-    <view class="field-item" v-show="showField(field)" v-for="(field,fIndex) in allField">
+    <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}" v-show="showField(field)"
+      v-for="(field,fIndex) in allField">
       <view class="section-name" v-if="field.section&&showSectionName">
         {{field.section}}
       </view>
@@ -22,6 +23,12 @@
   .field-item {
     overflow: hidden;
 
+    &.hidden {
+      width: 0 !important;
+      min-width: 0 !important;
+      display: none;
+    }
+
     .before-section {
       // border-radius: 0 0 20rpx 20rpx;
       border-bottom-left-radius: 20rpx;
@@ -40,6 +47,45 @@
       margin-top: 0;
     }
   }
+
+  @media screen and (max-width:450px) {
+    .field-item {
+      min-width: 100%;
+    }
+  }
+
+  @media screen and (min-width: 450px) {
+    .field-item {
+      min-width: 30%;
+      flex: 1;
+      // min-width: 250px;
+      background-color: #fff;
+      border: 1px solid #E5E6E9;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      .form-item{
+        
+      }
+    }
+  }
+
+  // @media screen and (min-width: 800px) {
+  //   .field-item {
+  //     min-width: 25%;
+  //   }
+  // }
+
+  // @media screen and (min-width: 1200px) {
+  //   .field-item {
+  //     min-width: 20%;
+  //   }
+  // }
+  // @media screen and (min-width: 1600px) {
+  //   .field-item {
+  //     min-width: 12.5%;
+  //   }
+  // }
 </style>
 <script>
   import evaluatorTo from '@/common/evaluator.js';

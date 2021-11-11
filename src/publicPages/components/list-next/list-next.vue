@@ -140,6 +140,56 @@
 </script>
 
 <style lang="scss" scoped>
+  .list-wrap {
+    @media screen and (max-width:450px) {
+      .list-item-wrap {
+        // min-width: 100%;
+      }
+      
+      &.grid-layout {
+        padding-top: 0 !important;
+        [class^="grid_span"]{
+          min-width: 0;
+        }
+      }
+    }
+
+    @media screen and (min-width: 450px) {
+      display: flex;
+      flex-wrap: wrap;
+      padding-left: 10px;
+
+      &.grid-layout {
+        padding-top: 0 !important;
+      }
+
+      .list-item-wrap {
+        margin-right: 10px;
+        width: calc(50% - 10px);
+      }
+    }
+
+    @media screen and (min-width: 800px) {
+
+      .list-item-wrap {
+        width: inherit;
+        width: calc(25% - 10px);
+      }
+    }
+
+    @media screen and (min-width: 1200px) {
+      .list-item-wrap {
+        width: calc(20% - 10px);
+      }
+    }
+
+    @media screen and (min-width: 1600px) {
+      .list-item-wrap {
+        width: calc(12.5% - 10px);
+      }
+    }
+  }
+
   .grid-layout {
     display: flex;
     flex-wrap: wrap;
@@ -183,61 +233,6 @@
       &:nth-child(5n) {
         margin-right: 0;
       }
-    }
-
-    @media screen and (min-width: 1300px) {
-      .grid_span2 {
-        width: calc(100%/4 - 20rpx);
-        margin-right: 20rpx;
-
-        &:nth-child(2n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(4n) {
-          margin-right: 0;
-        }
-      }
-
-      .grid_span3 {
-        width: calc(100%/5 - 20rpx);
-        margin-right: 20rpx;
-
-        &:nth-child(3n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(5n) {
-          margin-right: 0;
-        }
-      }
-
-      .grid_span4 {
-        width: calc(100%/6 - 20rpx);
-        margin-right: 20rpx;
-
-        &:nth-child(4n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(6n) {
-          margin-right: 0;
-        }
-      }
-
-      .grid_span5 {
-        width: calc(100%/7 - 20rpx);
-        margin-right: 20rpx;
-
-        &:nth-child(5n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(7n) {
-          margin-right: 0;
-        }
-      }
-
     }
 
     @media screen and (min-width: 1000px) {
@@ -310,5 +305,65 @@
       }
 
     }
+    
+    @media screen and (min-width: 1300px) {
+      .grid_span2 {
+        width: calc(100%/4 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(2n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(4n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span3 {
+        width: calc(100%/7 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(3n) {
+          margin-right: 20rpx;
+        }
+        &:nth-child(5n) {
+          margin-right: 20rpx;
+        }
+            
+    
+        &:nth-child(7n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span4 {
+        width: calc(100%/6 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(4n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(6n) {
+          margin-right: 0;
+        }
+      }
+    
+      .grid_span5 {
+        width: calc(100%/7 - 20rpx);
+        margin-right: 20rpx;
+    
+        &:nth-child(5n) {
+          margin-right: 20rpx;
+        }
+    
+        &:nth-child(7n) {
+          margin-right: 0;
+        }
+      }
+    
+    }
+    
   }
 </style>

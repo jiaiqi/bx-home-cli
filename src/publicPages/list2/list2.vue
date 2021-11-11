@@ -1,19 +1,24 @@
 <template>
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
-    <count-bar :list="countData" v-if="showMockCount"></count-bar>
-
-    <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
-      :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
-      :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
-      @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-      @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
-    </list-bar>
+    <view class="">
+      <count-bar :list="countData" v-if="showMockCount"></count-bar>
+      
+      <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
+        :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
+        :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
+        @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
+        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
+      </list-bar>
+      <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
+      </filter-tags>
+    </view>
 
     <view class="list-content" :style="{
         backgroundColor:list_config.bg
       }">
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
+        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags>
       <view class="list-view">
         <list-next class="list-next" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
@@ -1259,7 +1264,9 @@
       //     backgroundColor: '#BFA58B'
       //   })
       // }
-
+      if(this.sysModel ==='PC'){
+        this.rownumber = 100
+      }
       if (option.rowButtonDisp) {
         try {
           this.rowButtonDisp = JSON.parse(option.rowButtonDisp)
@@ -1372,7 +1379,12 @@
       if (option.cond) {
         let cond = option.cond
         try {
+          // #ifdef MP-WEIXIN
           cond = JSON.parse(decodeURIComponent(option.cond));
+          // #endif
+          // #ifdef H5
+          cond = JSON.parse(option.cond);
+          // #endif
         } catch (e) {
           console.log(e);
           //TODO handle the exception
@@ -1439,7 +1451,24 @@
       }
     }
     &.pc-model{
-      .count-bar-box,.search-bar,.filter-tags-view{
+      max-width: 1600px;
+      // min-width: 1000px;
+      margin: 0 auto;
+      flex-direction: row;
+      padding: 20px;
+      .list-wrap{
+        padding-top: 0;
+      }
+      .grid-layout{
+        padding-top:0!important ;
+      }
+      .filter-tags-view{
+        width: 250px;
+        background-color: #fff;
+        // margin-top: 10px;
+      }
+      .count-bar-box{
+      // .count-bar-box,.search-bar,.filter-tags-view{
         display: none;
       }
     }

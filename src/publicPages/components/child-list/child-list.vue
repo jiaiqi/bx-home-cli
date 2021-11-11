@@ -16,7 +16,7 @@
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border"
           :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}"
-          @click="onButton({button_type:'list'})" v-if="listData.length>0"><text class="text">查看全部</text></button>
+          @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text class="text">查看全部</text></button>
       </view>
     </view>
     <view class="list-box" v-if="config.unfold !==false">
@@ -34,8 +34,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme" v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1"
-          @click.stop="showAction(item)"></button>
+        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme"
+          v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1" @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -71,7 +71,7 @@
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="child-form-wrap">
-          <a-form :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
+          <a-form class="bx-form-wrap" :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
             :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange" :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&addV2.formButton">
@@ -88,7 +88,7 @@
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="child-form-wrap">
-          <a-form v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData" :pageType="use_type"
+          <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData" :pageType="use_type"
             :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
@@ -205,6 +205,15 @@
           return this.updateV2
         }
       },
+      showSeeAll(){
+        if(this.v2Data?.moreConfig?.gridButtonDisp?.seeAll===false){
+          return false
+        }
+        if(this.fkMoreConfig?.gridButtonDisp?.seeAll===false){
+          return false
+        }
+        return true
+      },
       rowButton() {
         let rowButton = this.v2Data?.rowButton
 
@@ -294,7 +303,7 @@
         return this.v2Data?.moreConfig
       },
       srvApp() {
-        return this.config?.srv_app||this.appName || uni.getStorageSync('activeApp')
+        return this.config?.srv_app || this.appName || uni.getStorageSync('activeApp')
       },
       publicButton() {
         let result = []
@@ -308,10 +317,13 @@
             if (this.fkMoreConfig?.gridButtonDisp && this.fkMoreConfig?.gridButtonDisp[item.button_type] ===
               false) {
               return false
-            } else {
-              return item.permission === true && !ignoreBtn.includes(item
-                .button_type)
             }
+            if (this.v2Data?.moreConfig?.gridButtonDisp && this.v2Data?.moreConfig?.gridButtonDisp[item.button_type] ===
+              false) {
+              return false
+            }
+            return item.permission === true && !ignoreBtn.includes(item
+              .button_type)
           })
           if (this.config?.foreign_key?.moreConfig?.batch_add?.target_column) {
             let batch_add = this.config.foreign_key.moreConfig.batch_add
@@ -417,7 +429,6 @@
       },
       showAction(e) {
         this.curItem = e;
-        debugger
         let rowButton = []
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
           rowButton = this.deepClone(this.rowButton).map(item => {
@@ -427,11 +438,22 @@
           })
         }
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
-          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate'].includes(item
-            .button_type))
+          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate', 'duplicatedeep']
+            .includes(item
+              .button_type))
         }
         if (this.fkMoreConfig?.rowButtonDisp) {
           rowButton = rowButton.filter(item => {
+            if (item.button_type === 'customize') {
+              if (this.fkMoreConfig?.rowButtonDisp && this.fkMoreConfig?.rowButtonDisp['customize_hide']) {
+                let customize_hide = this.fkMoreConfig?.rowButtonDisp['customize_hide']
+                if (Array.isArray(customize_hide)) {
+                  if (customize_hide.includes(item.id) || customize_hide.includes(item.button_name)) {
+                    return false
+                  }
+                }
+              }
+            }
             if (this.fkMoreConfig?.rowButtonDisp[item.button_type] === false) {
               return false
             } else if (this.fkMoreConfig?.rowButtonDisp[item.button_type] && typeof this.fkMoreConfig
@@ -1341,7 +1363,7 @@
               }
             }
           }
-          if (calcResult?.response &&( calcResult.response[item.column]|| calcResult.response[item.column] == 0)) {
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
             // await this.updateValueChange(fieldModel, item)
@@ -1381,7 +1403,7 @@
             item.value = e[item.column];
             // this.$set(this.allFields, i, item)
           }
-          if (calcResult?.response && (calcResult.response[item.column]|| calcResult.response[item.column] == 0)) {
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
             // this.$set(this.allFields, i, item)
@@ -1468,6 +1490,14 @@
                   }
                   let url =
                     `/publicPages/detail/detail?serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+
+                  if (this.config?.foreign_key?.moreConfig?.detailType === 'form-detail') {
+                    url =
+                      `/publicPages/form/form?type=detail&serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  }
+                  if (this.config?.foreign_key?.moreConfig?.detailDisabled == true) {
+                    url += '&disabled=true'
+                  }
                   if (this.srvApp) {
                     url += `&appName=${this.srvApp}`
                   }
@@ -1926,9 +1956,19 @@
   .child-form-wrap {
     max-height: 70vh;
     overflow-y: scroll;
+    margin-top: 10px;
+    .bx-form-wrap{
+      padding-left: 10px;
+      @media screen and(min-width:800px) {
+        display: flex;
+        flex-wrap: wrap;
+      }
+    }
   }
 
   .button-box {
+    max-width: 500px;
+    margin:10px auto 20px;
     .cu-btn {
       min-width: 40%;
     }

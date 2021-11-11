@@ -2,12 +2,13 @@
   <view class="form-wrap">
     <view class="form-content">
       <view class="main-form-edit">
-        <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
-          :formType="use_type" ref="bxForm" @value-blur="valueChange" @setColData="setColData">
+        <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
+          :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange"
+          @setColData="setColData">
         </a-form>
       </view>
 
-      <view class="child-service-box" v-if="colsV2Data && isArray(fields)">
+      <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :disabled="disabled || disabledChildButton" :appName="appName"
             :main-data="mainData" ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
@@ -62,6 +63,9 @@
     computed: {
       theme() {
         return this.$store?.state?.app?.theme
+      },
+      model() {
+        return getApp()?.globalData?.systemInfo?.model
       },
       storeInfo() {
         return this.$store?.state?.app?.storeInfo
@@ -475,10 +479,7 @@
                           }
                           break;
                       }
-
-
                     }
-
                   })
                   debugger
                   if (num > 0) {
@@ -1037,15 +1038,65 @@
     background-color: #fff;
     border-radius: 10rpx;
     margin-bottom: 20rpx;
+
+    .pc-model {
+      display: flex;
+      flex-wrap: wrap;
+      padding-top:10px ;
+      padding-left: 10px;
+      ::v-deep .form-item::after{
+        border-bottom: none!important;
+      }
+    }
   }
 
   .child-form-wrap {
     max-height: 60vh;
     overflow-y: scroll;
+
+  }
+
+  .child-service-box {
+    &.pc-model {
+
+      @media screen and (min-width:800px) {
+        display: flex;
+        flex-wrap: wrap;
+
+        .child-service {
+          width: calc(50% - 5px);
+          margin-right: 10px;
+
+          &:nth-child(2n) {
+            margin-right: 0;
+          }
+        }
+      }
+
+      @media screen and (min-width:1600px) {
+        display: flex;
+        flex-wrap: wrap;
+
+        .child-service {
+          width: calc(33.33% - 8px);
+          margin-right: 10px;
+          &:nth-child(2n) {
+            margin-right: 10px;
+          }
+          &:nth-child(3n) {
+            margin-right: 0;
+          }
+        }
+      }
+
+    }
   }
 
   .button-box {
     padding: 40rpx 20rpx;
+    min-width: 375px;
+    max-width: 800px;
+    margin: 10px auto 20px;
 
     .cu-btn {
       min-width: 45%;

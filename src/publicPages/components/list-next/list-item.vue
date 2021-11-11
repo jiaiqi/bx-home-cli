@@ -395,7 +395,7 @@
             if (!obj.value && cfg?.default_val) {
               obj.value = cfg?.default_val
             }
-            if (!obj.value && cfg?.show_null !== true) {
+            if (!obj.value&&obj.value!==0 && cfg?.show_null !== true) {
               obj.class += ' hidden'
             }
             result.cols.push(obj)
@@ -430,7 +430,7 @@
           resCol = arr[0]
         }
         res.label = labelMap[resCol] || cfg?.default_label || ''
-        res.value = detail[resCol] || cfg?.default_val || ''
+        res.value = detail[resCol] ?? cfg?.default_val ?? ''
 
         return res
       },

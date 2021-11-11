@@ -10,7 +10,7 @@
         <button class="cu-btn bg-white shadow-blur " @click="toSearch">
           <text class="cuIcon-search"></text>
         </button>
-        <button class="cu-btn bg-white   margin-left-xs" @click="clickGridButton(btn)"
+        <button v-if="sysModel!=='PC'" class="cu-btn bg-white margin-left-xs" @click="clickGridButton(btn)"
           v-for="(btn, btnIndex) in setListBtn" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">
           <text :class="[btn.icon]" class=""></text>
           <text class="button-name">{{btn.button_name||''}}</text>
@@ -18,7 +18,44 @@
       </view>
     </view>
 
+    <!-- <view class="bg-white cu-bar search" v-if="sysModel ==='PC'">
+      <view class="order-modal">
+        <view class="order-column">
+          <view class="order-item" hover-class="hover"
+            :class="{ current: item.selected,'bx-btn-bg-coffee': item.selected&&theme==='coffee' }"
+            v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
+            <view class="label" :class="{'bx-text-coffee':theme==='coffee'&& item.selected}">{{ item.label || "" }}
+            </view>
+            <view class="order-option" v-if="item.selected"
+              :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected}">
+              <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
+                  active: item.orderType === 'asc' && item.selected,
+                  'bx-text-coffee':theme==='coffee'&& item.selected,
+                  
+                }"></text>
+              <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
+                  active: item.orderType === 'desc' && item.selected,
+                   'bx-text-coffee':theme==='coffee'&& item.selected,
+                }"></text>
+            </view>
+          </view>
+          <view class="order-item" style="opacity: 0;" v-if="orderCols.length%2===1">
+      
+          </view>
+        </view>
+        <view class="button-box">
+          <button class="cu-btn bg-gray" @click="hideModal">取消</button>
+          <button class="cu-btn bg-green" :class="{'bx-bg-coffee':theme==='coffee'}" @click="toOrder">
+            确定
+          </button>
+        </view>
+      </view>
+    </view> -->
 
+<!--    <view class="bg-white cu-bar search" v-if="sysModel ==='PC'&&filterCol&&filterCol.length>0">
+      <a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter"
+       ></a-form>
+    </view> -->
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'orderModal' }" @click.stop="hideModal">
       <view class="cu-dialog" @click.stop="">
         <view class="order-modal">
@@ -110,6 +147,9 @@
     computed: {
       theme() {
         return this.$store?.state?.app?.theme
+      },
+      sysModel() {
+        return getApp().globalData.systemInfo?.model
       },
       setListBtn() {
         let listButton = this.listButton.filter(item => {
@@ -260,6 +300,17 @@
     // left: 0;
     // right: 0;
     width: 100%;
+    max-width: 800px;
+
+    .search {
+      margin-bottom: 10px;
+    }
+
+    @media screen and(min-width:800px) {
+      width: 250px;
+      max-width: 250px;
+      overflow: hidden;
+    }
 
     ::v-deep .uni-picker-container {
       z-index: 99999 !important;
