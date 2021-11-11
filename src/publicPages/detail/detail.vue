@@ -146,15 +146,17 @@
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild">
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
-          @addChild="addChild" v-if="detail&&currentChild">
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
+          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail" @addChild="addChild"
+          v-if="detail&&currentChild">
         </child-list>
       </view>
     </view>
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :appName="appName" :mainData="detail"
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
+          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail"
           @addChild="addChild" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
@@ -185,7 +187,9 @@
         currentChild: null,
         disabled: false,
         disabledChildButton: false, //子表禁止编辑
-        formButtonDisp: null
+        formButtonDisp: null,
+        gridButtonDisp: null,
+        rowButtonDisp: null
       }
     },
     computed: {
@@ -489,6 +493,12 @@
         if (colVs?.moreConfig?.formButtonDisp) {
           this.formButtonDisp = colVs?.moreConfig?.formButtonDisp
         }
+        if (colVs?.moreConfig?.gridButtonDisp) {
+          this.gridButtonDisp = colVs?.moreConfig?.gridButtonDisp
+        }
+        if (colVs?.moreConfig?.rowButtonDisp) {
+          this.rowButtonDisp = colVs?.moreConfig?.rowButtonDisp
+        }
         this.v2Data = colVs;
 
       },
@@ -618,7 +628,7 @@
                 buttonInfo.servcie_type);
               let res = await this.$http.post(url, req);
               if (res.data.state === 'SUCCESS') {
-              	// this.$refs.bxList.onRefresh();
+                // this.$refs.bxList.onRefresh();
                 this.getDetail()
               }
               return
@@ -1043,29 +1053,36 @@
       }
     }
   }
-  .child-service-box{
-    &.pc-model{
-      @media screen and (min-width:800px){
+
+  .child-service-box {
+    &.pc-model {
+      @media screen and (min-width:800px) {
         display: flex;
         flex-wrap: wrap;
-        .child-service{
+
+        .child-service {
           width: calc(50% - 5px);
-          margin-right:10px;
-          &:nth-child(2n){
+          margin-right: 10px;
+
+          &:nth-child(2n) {
             margin-right: 0;
           }
         }
       }
-      @media screen and (min-width:1600px){
+
+      @media screen and (min-width:1600px) {
         display: flex;
         flex-wrap: wrap;
-        .child-service{
+
+        .child-service {
           width: calc(33.33% - 8px);
-          margin-right:10px;
+          margin-right: 10px;
+
           &:nth-child(2n) {
             margin-right: 10px;
           }
-          &:nth-child(3n){
+
+          &:nth-child(3n) {
             margin-right: 0;
           }
         }

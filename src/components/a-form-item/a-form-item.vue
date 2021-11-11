@@ -469,7 +469,7 @@
         textareaValue: '',
         treePageInfo: {
           total: 0,
-          rownumber: 50,
+          rownumber: 100,
           pageNo: 1
         },
         selectorData: [],
@@ -876,6 +876,8 @@
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
+          condition = self.evalConditions(condition,fieldModelsData)
+          debugger
           condition = condition.map(item => {
             if (item.value && item.value.indexOf('data.') !== -1) {
               let colName = item.value.slice(item.value.indexOf('data.') + 5);
@@ -926,7 +928,7 @@
           return
         }
         let res = await self.onRequest('select', req.serviceName, req, appName);
-
+        debugger
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
             this.treePageInfo = res.data.page;
@@ -975,6 +977,7 @@
               return item;
             });
           }
+          debugger
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
               self.fieldData.value) {

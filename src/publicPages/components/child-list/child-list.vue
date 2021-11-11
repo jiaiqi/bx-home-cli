@@ -16,7 +16,8 @@
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border"
           :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}"
-          @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text class="text">查看全部</text></button>
+          @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text
+            class="text">查看全部</text></button>
       </view>
     </view>
     <view class="list-box" v-if="config.unfold !==false">
@@ -25,7 +26,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
-        <text class="cuIcon-add  more-btn hidden" v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1"></text>
+        <text class="cuIcon-add  more-btn hidden" v-if="showHandle"></text>
         <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
       <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
@@ -34,8 +35,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme"
-          v-if="!disabled&&use_type&&use_type.indexOf('detail')!==-1" @click.stop="showAction(item)"></button>
+        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme" v-if="showHandle"
+          @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -71,8 +72,9 @@
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="child-form-wrap">
-          <a-form class="bx-form-wrap" :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields" :pageType="use_type"
-            :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange" :main-data="mainData"></a-form>
+          <a-form class="bx-form-wrap" :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields"
+            :pageType="use_type" :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange"
+            :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&addV2.formButton">
           <button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
@@ -88,8 +90,9 @@
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="child-form-wrap">
-          <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData" :pageType="use_type"
-            :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange"></a-form>
+          <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData"
+            :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange">
+          </a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
           <button class="cu-btn bg-orange round" :class="'bx-bg-'+theme" v-for="btn in updateV2.formButton"
@@ -116,7 +119,7 @@
         localListData: [],
         listData: [],
         total: 0,
-        rownumber: 5,
+        rownumber: 100,
         orderCols: [],
         loading: false,
         modalName: "",
@@ -161,7 +164,13 @@
       },
       disabled: {
         type: [String, Boolean]
-      }
+      },
+      srvGridButtonDisp: {
+        type: Object
+      },
+      srvRowButtonDisp: {
+        type: Object
+      },
     },
     watch: {
       modalName: {
@@ -195,6 +204,21 @@
       }
     },
     computed: {
+      showHandle() {
+        // 是否显示操作按钮
+        let constraint_name = this.config?.foreign_key?.constraint_name
+        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
+            'handle']) {
+          return false
+        }
+        if (this.use_type && this.use_type.indexOf('detail') == -1) {
+          return false
+        }
+        if (this.disabled) {
+          return true
+        }
+        return true
+      },
       theme() {
         return this.$store?.state?.app?.theme
       },
@@ -205,12 +229,18 @@
           return this.updateV2
         }
       },
-      showSeeAll(){
-        if(this.v2Data?.moreConfig?.gridButtonDisp?.seeAll===false){
+      showSeeAll() {
+        if (this.v2Data?.moreConfig?.gridButtonDisp?.seeAll === false) {
           return false
         }
-        if(this.fkMoreConfig?.gridButtonDisp?.seeAll===false){
+        if (this.fkMoreConfig?.gridButtonDisp?.seeAll === false) {
           return false
+        }
+        let constraint_name = this.config?.foreign_key?.constraint_name
+        if (this.srvGridButtonDisp && constraint_name && this.srvGridButtonDisp[constraint_name]) {
+          if (this.srvGridButtonDisp[constraint_name]['seeAll'] === false) {
+            return false
+          }
         }
         return true
       },
@@ -308,18 +338,30 @@
       publicButton() {
         let result = []
         if (Array.isArray(this.v2Data?.gridButton)) {
-          let ignoreBtn = ['select', 'batch_delete', 'delete']
+          let ignoreBtn = ['select', 'batch_delete', 'delete', "batchupdate"]
           if (this.use_type === 'detaillist') {
             // ignoreBtn.push('add')
           }
 
           result = this.v2Data.gridButton.filter(item => {
+            // 外键关系上配置的隐藏按钮
+            if (item.permission === false) {
+              return false
+            }
             if (this.fkMoreConfig?.gridButtonDisp && this.fkMoreConfig?.gridButtonDisp[item.button_type] ===
               false) {
               return false
             }
-            if (this.v2Data?.moreConfig?.gridButtonDisp && this.v2Data?.moreConfig?.gridButtonDisp[item.button_type] ===
+            // 当前子表服务上配置的隐藏按钮
+            if (this.v2Data?.moreConfig?.gridButtonDisp && this.v2Data?.moreConfig?.gridButtonDisp[item
+                .button_type] ===
               false) {
+              return false
+            }
+            // 主表服务上配置的隐藏按钮
+            let constraint_name = this.config?.foreign_key?.constraint_name
+            if (constraint_name && this.srvGridButtonDisp && this.srvGridButtonDisp[constraint_name] && this
+              .srvGridButtonDisp[constraint_name][item.button_type] === false) {
               return false
             }
             return item.permission === true && !ignoreBtn.includes(item
@@ -442,6 +484,7 @@
             .includes(item
               .button_type))
         }
+
         if (this.fkMoreConfig?.rowButtonDisp) {
           rowButton = rowButton.filter(item => {
             if (item.button_type === 'customize') {
@@ -459,6 +502,15 @@
             } else if (this.fkMoreConfig?.rowButtonDisp[item.button_type] && typeof this.fkMoreConfig
               ?.rowButtonDisp[item.button_type] === 'string') {
               item.button_custom_name = this.fkMoreConfig?.rowButtonDisp[item.button_type]
+            }
+            return true
+          })
+        }
+        let constraint_name = this.config?.foreign_key?.constraint_name
+        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name]) {
+          rowButton = rowButton.filter((item, index) => {
+            if (this.srvRowButtonDisp[constraint_name][item.button_type] === false) {
+              return false
             }
             return true
           })
@@ -517,6 +569,12 @@
                   cond.value = cond.value.value;
                 }
               });
+              buttonInfo.operate_params.condition = buttonInfo.operate_params.condition.filter((item) => {
+                if (item.value === null && item.ruleType == 'eq') {
+                  return false
+                }
+                return true
+              })
             }
 
             if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length >
@@ -992,6 +1050,7 @@
         if (deleteList.length === 0) {
           return []
         }
+        deleteList = this.deepClone(deleteList)
         let ids = deleteList.map(row => row.id).join(",");
         let params = {
           condition: [{
@@ -1009,6 +1068,7 @@
         if (updateList.length === 0) {
           return []
         }
+        updateList = this.deepClone(updateList)
         let params = updateList.map((item, index) => {
           delete item._isMemoryData
           delete item._dirtyFlags
@@ -1037,6 +1097,7 @@
         if (addList.length === 0) {
           return []
         }
+        addList = this.deepClone(addList)
         let params = {
           data: addList.map(item => {
             delete item._isMemoryData
@@ -1957,8 +2018,10 @@
     max-height: 70vh;
     overflow-y: scroll;
     margin-top: 10px;
-    .bx-form-wrap{
+
+    .bx-form-wrap {
       padding-left: 10px;
+
       @media screen and(min-width:800px) {
         display: flex;
         flex-wrap: wrap;
@@ -1968,7 +2031,8 @@
 
   .button-box {
     max-width: 500px;
-    margin:10px auto 20px;
+    margin: 10px auto 20px;
+
     .cu-btn {
       min-width: 40%;
     }

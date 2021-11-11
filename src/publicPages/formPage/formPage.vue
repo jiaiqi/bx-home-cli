@@ -165,7 +165,6 @@
     },
     methods: {
       childListChange(e) {
-        debugger
         let self = this
         // let _childData = {}
         if (e?.key && e?.data) {
@@ -575,8 +574,11 @@
 
       },
       async valueChange(e, triggerField) {
-
+       
         const column = triggerField.column
+        if(this.mainData && typeof this.mainData==='object'){
+          this.mainData[column] = triggerField.value
+        }
         let fieldModel = e
         const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
@@ -638,6 +640,7 @@
                       mainData: this.mainData
                     }
                     strItem = strItem.replace(/new Date\(\)/ig, dayjs().format("YYYY-MM-DD"))
+                    debugger
                     strItem = this.renderStr(strItem, data)
                     item = JSON.parse(strItem)
                     item._type = 'initData'

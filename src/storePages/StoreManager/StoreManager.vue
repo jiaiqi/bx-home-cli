@@ -22,7 +22,20 @@
         </view>
 
       </view>
-      <view class="statis-box" v-if="statisConfig&&statisConfig.labels&&storeInfo" @click="toDashboard">
+      <view class="statis-box" v-if="countData&&storeInfo" @click="toDashboard">
+        <view class="statis-item" v-for="item in countData">
+          <view class="item-label" v-if="labelPosition==='top'">
+            {{item.label||'0'}}
+          </view>
+          <view class="item-value">
+            {{item.value||'0'}}
+          </view>
+          <view class="item-label" v-if="labelPosition!=='top'">
+            {{item.label||'0'}}
+          </view>
+        </view>
+      </view>
+      <view class="statis-box" v-else-if="statisConfig&&statisConfig.labels&&storeInfo" @click="toDashboard">
         <view class="statis-item" v-for="item in statisConfig.labels">
           <view class="item-label" v-if="statisConfig.labelPosition==='top'">
             {{item.label||'0'}}
@@ -95,8 +108,7 @@
           <view class="text-bold title">
             <text class="margin-right">{{ manage.component_label || "管理" }}</text>
             <view class="buttons" v-if="mIndex===0">
-              <button class="cu-btn round" @tap="toDetail(storeInfo)"><text
-               :class="'bx-text-'+theme"
+              <button class="cu-btn round" @tap="toDetail(storeInfo)"><text :class="'bx-text-'+theme"
                   class="cuIcon-settingsfill"></text>设置</button>
             </view>
           </view>
@@ -229,7 +241,8 @@
         colV2Data: {},
         buttonTitle: "",
         displayColumn: "",
-        noticeNum: {}
+        noticeNum: {},
+        countData: null, //统计
       };
     },
     filters: {
@@ -248,6 +261,16 @@
       },
       bindUserInfo() {
         return this.$store?.state?.user?.storeUserInfo
+      },
+      labelPosition() {
+        if (this.countConfig?.labelPosition) {
+          return this.countConfig?.labelPosition
+        } else {
+          return 'top'
+        }
+      },
+      countConfig() {
+        return this.moreConfig?.count_config || {}
       },
       statisConfig() {
         // 统计字段配置
@@ -1078,8 +1101,34 @@
         }
         return
       },
+      async getCountData(count_config) {
+        let serviceName = count_config?.serviceName;
+        let appName = count_config?.appName;
+        if (serviceName && appName) {
+          let req = {
+            "serviceName": serviceName,
+            "colNames": ["*"],
+            "condition": count_config.condition || [],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 1
+            }
+          }
+          let url = this.getServiceUrl(appName, serviceName, 'select');
+          let res = await this.$http.post(url, req);
+          if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+            let data = res.data.data[0]
+            if (Array.isArray(count_config.labelMap)) {
+              let result = count_config.labelMap.map(item => {
+                item.value = data[item.col];
+                return item
+              })
+              this.countData = result
+            }
+          }
+        }
+      },
       async getStoreInfo() {
-
         await this.selectStoreActivity()
         let req = {
           condition: [{
@@ -1104,10 +1153,18 @@
           }
           if (this.storeInfo.para_cfg) {
             try {
+              let data = {
+                storeInfo: this.storeInfo
+              }
+              this.storeInfo.para_cfg = this.renderStr(this.storeInfo.para_cfg, data)
               let moreConfig = JSON.parse(this.storeInfo.para_cfg)
               this.storeInfo.moreConfig = moreConfig
               if (moreConfig && moreConfig.displayColumn) {
                 this.displayColumn = moreConfig.displayColumn
+              }
+              debugger
+              if (moreConfig?.count_config) {
+                this.getCountData(moreConfig.count_config)
               }
             } catch (e) {
               //TODO handle the exception
@@ -1270,7 +1327,7 @@
       min-height: 200rpx;
 
       .item-label {
-        margin-top: 10rpx;
+        // margin-top: 10rpx;
         height: 16px;
         font-size: 11px;
         font-family: 苹方-简;
@@ -1283,6 +1340,7 @@
       .item-value {
         font-weight: bold;
         font-size: 36rpx;
+        margin: 10px;
       }
     }
   }
@@ -1421,19 +1479,20 @@
         width: 25% !important;
       }
     }
+
     @media screen and (min-width: 600px) {
       .box-item {
         width: 20% !important;
       }
     }
-    
+
     @media screen and (min-width: 960px) {
       .box-item {
         width: 15% !important;
       }
     }
-    
-    
+
+
     @media screen and (min-width: 1300px) {
       .box-item {
         width: 10% !important;

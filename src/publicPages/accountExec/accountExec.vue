@@ -7,18 +7,20 @@
       <view class="wrapper">
         <view class="welcome">
           <!-- #ifdef H5 -->
-          你好, 欢迎回来！
+          你好, 欢迎使用！
           <!-- #endif -->
           <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
         </view>
         <view class="input-content">
           <view class="input-item">
             <!-- <text class="tit">帐号</text> -->
+            <text class="cuIcon-people margin-right"></text>
             <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
               @input="inputChange" />
           </view>
           <view class="input-item">
             <!-- <text class="tit">密码</text> -->
+            <text class="cuIcon-lock margin-right"></text>
             <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
               password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
             <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
@@ -668,7 +670,7 @@
 
             console.log('userLogined', response.data);
             let url = uni.getStorageSync('backUrl');
-    
+
             if (url && url !== '/') {
               url = that.getDecodeUrl(url);
               if (url && url.lastIndexOf('backUrl=') !== -1) {
@@ -676,9 +678,9 @@
                 url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
               }
               url = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
-            } 
+            }
             let model = getApp().globalData?.systemInfo?.model;
-            if(model==='PC'){
+            if (model === 'PC') {
               url = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
             }
             uni.reLaunch({
@@ -706,10 +708,12 @@
   .authorization {
     width: 100%;
     height: 100%;
-    background-color: #CCCED3;
-    background: url(./bg.png) no-repeat;
-    background-size: 100% 100%;
-
+    background-color: #fff;
+    @media screen and(min-width:600px) {
+      background-color: #CCCED3;
+      background: url(./bg.png) no-repeat;
+      background-size: 100% 100%;
+    }
     .images {
       width: 100%;
       margin: 50upx 0;
@@ -741,7 +745,7 @@
   }
 
   .container {
-    padding-top: 36vh;
+    padding-top: 30vh;
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -751,7 +755,7 @@
 
   .wrapper {
     margin: 0 auto;
-    width: 500px;
+    max-width: 400px;
     position: relative;
     z-index: 90;
     background: #fff;
@@ -818,11 +822,12 @@
 
   .welcome {
     position: relative;
-    left: 50upx;
-    top: -90upx;
+    // left: 50upx;
+    // top: -90upx;
     font-size: 46upx;
     color: #333;
     text-shadow: 1px 0px 1px rgba(0, 0, 0, 0.3);
+    padding: 20px;
   }
 
   .input-content {
@@ -832,8 +837,8 @@
   .input-item {
     position: relative;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    // flex-direction: column;
+    align-items: center;
     justify-content: center;
     padding: 0 30upx;
     background: #F8F8FA;
@@ -870,7 +875,7 @@
   }
 
   .confirm-btn {
-    width: 550upx;
+    max-width: 200px;
     height: 76upx;
     line-height: 76upx;
     border-radius: 5px;

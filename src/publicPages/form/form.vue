@@ -372,7 +372,6 @@
                       uni.setStorageSync('cur_user_no', this.params.submitData.no)
                     }
                   }
-                  debugger
                   uni.showModal({
                     title: '提示',
                     content: `${res.data.resultMessage}`,
@@ -440,7 +439,6 @@
             break;
           case 'submit':
             if (req) {
-              debugger
               req = this.fields.reduce((res, cur) => {
                 res[cur.columns] = cur.value
                 return res
@@ -458,7 +456,6 @@
                 serviceName: e.service_name,
                 data: [data]
               }];
-              debugger
               let app = this.appName || uni.getStorageSync('activeApp');
               let url = this.getServiceUrl(app, e.service_name, 'add');
               let res = await this.$http.post(url, req);
@@ -662,7 +659,6 @@
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
 
@@ -673,7 +669,7 @@
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           item.old_value = item.value
-          if (calcResult?.response && calcResult.response[item.column]) {
+          if (calcResult?.response &&( calcResult.response[item.column]|| calcResult.response[item.column]===0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
           }
@@ -1044,7 +1040,15 @@
       }
       if (option.condition) {
         try {
-          this.condition = JSON.parse(decodeURIComponent(option.condition))
+          let condition = JSON.parse(decodeURIComponent(option.condition))
+          this.condition = condition.filter(item=>{
+            if(item.value==null||item.value==undefined){
+              if(item.ruleType==='eq'){
+                return false
+              }
+            }
+            return true
+          })
         } catch (e) {
           //TODO handle the exception
         }

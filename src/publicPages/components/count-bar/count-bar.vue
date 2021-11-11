@@ -1,7 +1,7 @@
 <template>
   <view class="count-bar-box" :class="'bx-bg-'+theme">
     <view class="count-bar-item" v-for="item in list">
-      <view class="label">
+      <view class="label" v-if="labelPostion=='top'">
         <text class="icon"></text>
         <text>{{item.label}}</text>
       </view>
@@ -9,6 +9,10 @@
         <text class="prefix">{{item.prefix||''}}</text>
         <text>{{item.value||''}}</text>
         <text class="suffix">{{item.suffix||''}}</text>
+      </view>
+      <view class="label" v-if="labelPostion==='bottom'">
+        <text class="icon"></text>
+        <text>{{item.label}}</text>
       </view>
     </view>
   </view>
@@ -20,8 +24,18 @@
       list: {
         type: Array
       },
+      config: {
+        type: Object
+      }
     },
     computed: {
+      labelPostion() {
+        if (this.config?.labelPosition) {
+          return this.config?.labelPosition
+        } else {
+          return 'top'
+        }
+      },
       theme() {
         return this.$store?.state?.app?.theme
       }

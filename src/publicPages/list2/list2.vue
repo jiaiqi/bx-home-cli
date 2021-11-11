@@ -1,8 +1,8 @@
 <template>
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
     <view class="">
-      <count-bar :list="countData" v-if="showMockCount"></count-bar>
-      
+      <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
+
       <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
@@ -10,7 +10,8 @@
         @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
       </list-bar>
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
       </filter-tags>
     </view>
 
@@ -18,7 +19,8 @@
         backgroundColor:list_config.bg
       }">
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags>
       <view class="list-view">
         <list-next class="list-next" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
@@ -52,23 +54,23 @@
       theme() {
         return this.$store?.state?.app?.theme
       },
-      countData() {
-        let arr = [{
-            label: "当前空房数",
-            value: 249
-          },
-          {
-            label: "今日预约数",
-            value: 12
-          },
-          {
-            label: "今日营业额",
-            value: 14709,
-            prefix: '￥'
-          }
-        ]
-        return arr
-      },
+      // countData() {
+      //   let arr = [{
+      //       label: "当前空房数",
+      //       value: 249
+      //     },
+      //     {
+      //       label: "今日预约数",
+      //       value: 12
+      //     },
+      //     {
+      //       label: "今日营业额",
+      //       value: 14709,
+      //       prefix: '￥'
+      //     }
+      //   ]
+      //   return arr
+      // },
       tags() {
         if (Array.isArray(this.colV2?.tabs)) {
           let tabs = this.colV2?.tabs
@@ -140,6 +142,7 @@
       moreConfig() {
         return this.colV2?.moreConfig || {}
       },
+
       list_config() {
         let config = this.colV2?.moreConfig?.list_config
         let obj = {
@@ -289,6 +292,9 @@
           }, [])
         }
       },
+      countConfig(){
+        return this.moreConfig?.count_config||{}
+      },
     },
     data() {
       return {
@@ -322,10 +328,51 @@
         disabled: false,
         gridButtonDisp: null,
         rowButtonDisp: null,
-        formButtonDisp: null
+        formButtonDisp: null,
+        countData:null
       }
     },
     methods: {
+      async getCountData(count_config) {
+        if (count_config && Array.isArray(count_config.condition) && count_config.condition.length > 0) {
+          let data = {
+            storeInfo: this.$store?.state?.app?.storeInfo
+          }
+          count_config.condition = count_config.condition.map(item => {
+            if (item.value && item.value.indexOf('${') !== -1) {
+              item.value = this.renderStr(item.value, data)
+            }
+            return item
+          })
+        }
+        if (count_config && count_config.serviceName && count_config.appName) {
+          let serviceName = count_config?.serviceName;
+          let appName = count_config?.appName;
+          if (serviceName && appName) {
+            let req = {
+              "serviceName": serviceName,
+              "colNames": ["*"],
+              "condition": count_config.condition || [],
+              "page": {
+                "pageNo": 1,
+                "rownumber": 1
+              }
+            }
+            let url = this.getServiceUrl(appName, serviceName, 'select');
+            let res = await this.$http.post(url, req);
+            if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+              let data = res.data.data[0]
+              if(Array.isArray(count_config.labelMap)){
+                let result = count_config.labelMap.map(item=>{
+                  item.value = data[item.col];
+                  return item
+                })
+                this.countData = result
+              }
+            }
+          }
+        }
+      },
       getListWithFilter(e) {
         let self = this
         let tabsConds = this.$refs.filterTabs.buildConditions()
@@ -571,12 +618,16 @@
                 this.customDetailUrl = colVs.moreConfig?.customDetailUrl
               }
             }
+            if(colVs.moreConfig?.count_config){
+              this.getCountData(colVs.moreConfig?.count_config)
+            }
           } catch (e) {
             //TODO handle the exception
             console.info(e)
           }
         }
         this.colV2 = colVs;
+       
         if (Array.isArray(colVs.srv_cols)) {
           this.orderCols = colVs.srv_cols.filter(item => {
             if (item.in_list === 1) {
@@ -589,6 +640,9 @@
         return colVs;
       },
       async getList(cond, initCond) {
+        if(this.moreConfig?.count_config){
+          this.getCountData(this.moreConfig?.count_config)
+        }
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -1264,7 +1318,7 @@
       //     backgroundColor: '#BFA58B'
       //   })
       // }
-      if(this.sysModel ==='PC'){
+      if (this.sysModel === 'PC') {
         this.rownumber = 100
       }
       if (option.rowButtonDisp) {
@@ -1450,25 +1504,30 @@
         overflow-y: scroll;
       }
     }
-    &.pc-model{
+
+    &.pc-model {
       max-width: 1600px;
       // min-width: 1000px;
       margin: 0 auto;
       flex-direction: row;
       padding: 20px;
-      .list-wrap{
+
+      .list-wrap {
         padding-top: 0;
       }
-      .grid-layout{
-        padding-top:0!important ;
+
+      .grid-layout {
+        padding-top: 0 !important;
       }
-      .filter-tags-view{
+
+      .filter-tags-view {
         width: 250px;
         background-color: #fff;
         // margin-top: 10px;
       }
-      .count-bar-box{
-      // .count-bar-box,.search-bar,.filter-tags-view{
+
+      .count-bar-box {
+        // .count-bar-box,.search-bar,.filter-tags-view{
         display: none;
       }
     }
