@@ -131,7 +131,8 @@
         curItem: null,
         allFields: [],
         listItemAction: [],
-        showActionSheet: false
+        showActionSheet: false,
+        fk_condition: null
       }
     },
     filters: {
@@ -171,24 +172,35 @@
       srvRowButtonDisp: {
         type: Object
       },
+      fkCondition: {
+        type: [Array, Object]
+      },
+      childListData: {
+        type: Object
+      }
     },
     watch: {
       modalName: {
         immediate: true,
         handler(newValue) {
+          let allFields = []
           if (newValue === 'addChildData') {
             if (Array.isArray(this.addV2?._fieldInfo)) {
-              this.allFields = this.deepClone(this.addV2?._fieldInfo)
+              allFields = this.deepClone(this.addV2?._fieldInfo)
               // this.allFields = this.addV2?._fieldInfo
             }
           } else if (newValue === 'updateChildData') {
             if (Array.isArray(this.updateV2?._fieldInfo)) {
-              this.allFields = this.deepClone(this.updateV2?._fieldInfo)
+              allFields = this.deepClone(this.updateV2?._fieldInfo)
               // this.allFields = this.updateV2?._fieldInfo
             }
-          } else {
-            this.allFields = []
           }
+          this.allFields = allFields.map(item => {
+            if (this.fk_condition && this.fk_condition[item.column]) {
+              item.fk_condition = this.fk_condition[item.column]
+            }
+            return item
+          })
         },
       },
       finalListData: {
@@ -1014,9 +1026,7 @@
 
       },
       setInitData(e) {
-        debugger
         this.initData = e
-        // this.memoryListData = [...this.memoryListData,...e]
       },
       unfold() {
         this.$emit('unfold', this.config)
@@ -1347,6 +1357,9 @@
           if (item.columns === this.foreignKey?.referenced_column_name) {
             item.display = false
           }
+          if (item.column === 'h_check_person') {
+            debugger
+          }
           return item
         })
 
@@ -1517,7 +1530,8 @@
               break;
             case 'add':
               this.getAddV2(e).then(_ => {
-                this.modalName = 'addChildData'
+                // this.modalName = 'addChildData'
+                this.showModal('addChildData')
               })
               break;
             case 'edit':
@@ -1568,7 +1582,8 @@
                 } else {
                   this.getUpdateV2(row).then(_ => {
                     this.currentItemIndex = index
-                    this.modalName = 'updateChildData'
+                    // this.modalName = 'updateChildData'
+                    this.showModal('updateChildData')
                   })
                 }
               }
@@ -1580,7 +1595,8 @@
                 this.getUpdateV2(row).then(_ => {
                   this.currentItemIndex = index
                   this.currentItemType = 'init'
-                  this.modalName = 'updateChildData'
+                  // this.modalName = 'updateChildData'
+                  this.showModal('updateChildData')
                 })
 
               }
@@ -1592,7 +1608,8 @@
                 this.getUpdateV2(row).then(_ => {
                   this.currentItemIndex = index
                   this.currentItemType = 'mem'
-                  this.modalName = 'updateChildData'
+                  this.showModal('updateChildData')
+                  // this.modalName = 'updateChildData'
                 })
               }
               break
@@ -1716,8 +1733,11 @@
           }
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             if (Array.isArray(self.initData) && self.initData.length > 0 && self.initData.find(e => e[item
-                .option_list_v2.refed_col] === self.mainData[item.option_list_v2.refed_col])) {} else {
-              item.value = this.mainData[item.option_list_v2.refed_col]
+                .option_list_v2.refed_col] === self.mainData[item.option_list_v2.refed_col])) {
+
+            } else {
+              let col = item.option_list_v2.refed_col
+              // item.value = this.mainData[item.option_list_v2.refed_col]
             }
           }
           if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2.conditions
@@ -1754,12 +1774,19 @@
                   .columns] === this.mainData[item.columns])) {
 
               } else {
-                item.value = this.mainData[item.columns]
+                // item.value = this.mainData[item.columns]
               }
             }
           }
+          // if (item.column === 'h_check_person') {
+          //   debugger
+          // }
+          if(this.mainData&&this.mainData[item.column]&&!item.value&&item.type==='date'){
+            item.value = this.mainData[item.column]
+          }
           return item
         })
+        debugger
         let defaultVal = colVs._fieldInfo.reduce((res, cur) => {
           if (cur.value) {
             res[cur.columns] = cur.value
@@ -1896,6 +1923,30 @@
             this.localListData = this.deepClone(res.data.data)
           }
         }
+      },
+      showModal(e) {
+        if (Array.isArray(this.fkCondition) && this.childListData && typeof this.childListData === 'object') {
+          let childData = this.deepClone(this.childListData)
+          let fk_condition = {}
+          this.fkCondition.forEach(item => {
+            if (childData && item.from_constraint_name && childData[item.from_constraint_name]) {
+              let target_col = item.target_col
+              let from_col = item.from_col
+              if (Array.isArray(childData[item.from_constraint_name])) {
+                let val = childData[item.from_constraint_name].map(item => item[from_col]).toString()
+                if (val && item.colName && target_col) {
+                  fk_condition[target_col] = [{
+                    colName: item.colName,
+                    ruleType: item.ruleType,
+                    value: val
+                  }]
+                }
+              }
+            }
+          })
+          this.fk_condition = fk_condition
+        }
+        this.modalName = e
       },
       hideModal() {
         this.currentItemIndex = null

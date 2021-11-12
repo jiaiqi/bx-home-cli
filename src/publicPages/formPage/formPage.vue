@@ -10,8 +10,9 @@
 
       <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
-          <child-list :config="item" :disabled="disabled || disabledChildButton" :appName="appName"
-            :main-data="mainData" ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
+          <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
+            :appName="appName" :main-data="mainData" :fkCondition="fkCondition[item.constraint_name]" ref="childList"
+            @onButton="onChildButton" @child-list-change="childListChange">
           </child-list>
         </view>
       </view>
@@ -55,7 +56,7 @@
         currentFormFk: null,
         isOnButton: false,
         disabled: false,
-        _childListData: {},
+        childListData: {},
         disabledChildButton: false, // 禁用子表
         disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
       }
@@ -99,6 +100,15 @@
           return {}
         }
       },
+      fkCondition() {
+        let fk_condition = this.moreConfig?.fk_condition || {}
+        // if(Object.keys(fk_condition).length>0){
+        //   Object.keys(fk_condition).forEach(key=>{
+
+        //   })
+        // }
+        return fk_condition
+      },
       moreConfig() {
         return this.colsV2Data?.moreConfig
       },
@@ -118,6 +128,9 @@
           }
           if (Array.isArray(result)) {
             return result.map(item => {
+              if (item?.foreign_key?.constraint_name) {
+                item.constraint_name = item?.foreign_key?.constraint_name
+              }
               if (item?.foreign_key?.section_name) {
                 item.label = item.foreign_key.section_name
               }
@@ -164,6 +177,9 @@
 
     },
     methods: {
+      getChildListData() {
+        return this.childListData
+      },
       childListChange(e) {
         let self = this
         // let _childData = {}
@@ -192,7 +208,7 @@
                 }
               })
             }
-            this._childListData = _childData
+            this.childListData = _childData
           }
         }
       },
@@ -392,8 +408,8 @@
                     if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item.relation)) {
                       let left_key = item.left_child.no;
                       let right_key = item.right_child.no;
-                      let left_data = this._childListData[left_key]
-                      let right_data = this._childListData[right_key]
+                      let left_data = this.childListData[left_key]
+                      let right_data = this.childListData[right_key]
                       if (item.right_child.condition && Array.isArray(item.right_child.condition) && item
                         .right_child.condition.length > 0 && Array.isArray(right_data)) {
                         right_data = right_data.filter(rd => {
@@ -480,7 +496,6 @@
                       }
                     }
                   })
-                  debugger
                   if (num > 0) {
 
                     return
@@ -574,9 +589,9 @@
 
       },
       async valueChange(e, triggerField) {
-       
+
         const column = triggerField.column
-        if(this.mainData && typeof this.mainData==='object'){
+        if (this.mainData && typeof this.mainData === 'object') {
           this.mainData[column] = triggerField.value
         }
         let fieldModel = e
@@ -599,6 +614,7 @@
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
+            this.mainData[item.column] = item.value
           }
 
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
@@ -640,7 +656,6 @@
                       mainData: this.mainData
                     }
                     strItem = strItem.replace(/new Date\(\)/ig, dayjs().format("YYYY-MM-DD"))
-                    debugger
                     strItem = this.renderStr(strItem, data)
                     item = JSON.parse(strItem)
                     item._type = 'initData'
@@ -740,10 +755,13 @@
         return colVs
       },
       async getFieldsV2() {
+        
         const app = this.appName || uni.getStorageSync('activeApp');
-        let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type,
-          app);
+        
+        let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
+        
         this[`${this.srvType}V2`] = colVs
+        
         if (['update', 'add'].includes(this.srvType)) {
           await this.getDetailV2(colVs.select_service_name)
         }
@@ -768,8 +786,10 @@
             return
           }
         }
+        
         let defaultVal = null
         let fields = null
+        
         switch (colVs.use_type) {
           case 'update':
           case 'detail':
@@ -914,6 +934,7 @@
               if (cur.defaultValue) {
                 res[cur.column] = cur.value || cur.defaultValue
                 cur.value = cur.value || cur.defaultValue
+                this.mainData[cur.column] = cur.value
               }
               return res
             }, {})
@@ -943,6 +964,7 @@
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
             defaultVal[item.column] = item.value
+            this.mainData[item.column] = item.value
           }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
@@ -1045,10 +1067,11 @@
     .pc-model {
       display: flex;
       flex-wrap: wrap;
-      padding-top:10px ;
+      padding-top: 10px;
       padding-left: 10px;
-      ::v-deep .form-item::after{
-        border-bottom: none!important;
+
+      ::v-deep .form-item::after {
+        border-bottom: none !important;
       }
     }
   }
@@ -1083,9 +1106,11 @@
         .child-service {
           width: calc(33.33% - 8px);
           margin-right: 10px;
+
           &:nth-child(2n) {
             margin-right: 10px;
           }
+
           &:nth-child(3n) {
             margin-right: 0;
           }

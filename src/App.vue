@@ -11,7 +11,7 @@
     },
     onLaunch(options) {
       if (options?.query?.bx_auth_ticket) {
-        uni.setStorageSync('bx_auth_ticket',options.query.bx_auth_ticket)
+        uni.setStorageSync('bx_auth_ticket', options.query.bx_auth_ticket)
         this.$store.commit('SET_TICKET', options.query.bx_auth_ticket)
       }
       this.$store.commit('SET_SCENE', options.scene)
@@ -95,8 +95,11 @@
   @import "colorui/main.css";
   @import "colorui/icon.css";
   @import "uview-ui/index.scss";
-  // @import "@/common/uni.css";
   @import "@/common/theme/theme.scss";
+  /* #ifdef H5 */
+  @import "@/common/uni.css";
+  @import "@/common/uni-nvue.css";
+  /* #endif */
 
   /*每个页面公共css */
   // --page-height:calc(100vh - var(--window-top) - var(--window-bottom))

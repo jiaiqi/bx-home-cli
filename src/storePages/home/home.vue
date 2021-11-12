@@ -109,6 +109,7 @@
     },
     data() {
       return {
+        unread_num: 0,
         networkErrTimes: 0,
         showHomeBtn: true,
         showHomePageSelector: false,
@@ -969,6 +970,7 @@
         }
       },
       async initPage() {
+        let self = this
         await this.toAddPage()
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
@@ -1031,6 +1033,9 @@
                   title: data.data.content,
                   icon: "none"
                 })
+              }
+              if (data?.data?.unread_num || data?.data?.unread_num === 0) {
+                self.unread_num = data?.data?.unread_num
               }
               if (data?.data?.more_config?.broadcast) {
                 // 语音播报MP3地址

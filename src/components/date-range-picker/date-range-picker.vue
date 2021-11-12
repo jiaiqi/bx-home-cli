@@ -29,8 +29,16 @@
         <view class="value" v-else>{{ selectVal }}</view>
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
-      <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01">
+      <!-- #ifdef H5 -->
+      <mx-datepicker :show="show" :type="mode" :value="value" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
+        :show-seconds="false" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
+      <!-- #endif -->
+
+      <!-- #ifdef MP -->
+      <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
+        max-date="2050-01-01">
       </u-calendar>
+      <!-- #endif -->
     </view>
     <view class="calendar-box" v-else-if="mode==='dateTime'">
       <datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
@@ -81,9 +89,13 @@
       return {
         show: false,
         modalName: ''
+
       };
     },
     computed: {
+      sysModel() {
+        return uni.getSystemInfoSync().model
+      },
       selectVal() {
         if (typeof this.value === 'string') {
           return this.value || '请选择'
@@ -104,8 +116,10 @@
     methods: {
       cancel(e) {
         debugger
+        this.show = false
       },
       change(e) {
+        debugger
         if (this.mode === 'dateTime' && e?.f3) {
           this.$emit('change', {
             detail: {
@@ -125,6 +139,19 @@
         } else if (e?.detail?.value) {
           // this.selectVal = e.detail.value
           this.$emit('change', e)
+        } else if (e?.value) {
+          // this.selectVal = e.detail.value
+          this.$emit('change', {
+            detail: {
+              value: e.value
+            }
+          })
+        } else if (typeof e === 'string') {
+          this.$emit('change', {
+            detail: {
+              value: e
+            }
+          })
         } else {
           if (e.result) {
             // this.selectVal = e.result
@@ -135,6 +162,7 @@
             })
           }
         }
+        this.show = false
       },
       showModal() {
         if (!this.disabled) {

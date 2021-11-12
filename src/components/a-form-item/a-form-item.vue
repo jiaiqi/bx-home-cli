@@ -370,7 +370,7 @@
       }
     },
     computed: {
-      theme(){
+      theme() {
         return this.$store?.state?.app?.theme
       },
       startVal() {
@@ -504,7 +504,7 @@
         handler(newValue, oldValue) {
           this.fieldData = newValue;
           this.$emit('setFieldModel', newValue)
-          if (newValue.type === 'Selector') {
+          if (newValue.type === 'Selector'&&newValue&&oldValue&&newValue.value!==oldValue.value) {
             this.pickerChange(newValue.value)
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
@@ -531,8 +531,8 @@
 
           let url =
             `/publicPages/form/form?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
-          if(app){
-            url+=`&appName=${app}`
+          if (app) {
+            url += `&appName=${app}`
           }
           let pageStack = getCurrentPages()
           if (Array.isArray(pageStack) && pageStack.length > 9) {
@@ -678,7 +678,6 @@
             let fileDatas = await self.getFilePath(self.fieldData.value);
             if (fileDatas) {
               self.imagesUrl = [];
-              debugger
               for (let i = 0; i < fileDatas.length; i++) {
                 const url =
                   `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}&thumbnailType=fwsu_100`;
@@ -749,6 +748,7 @@
         }
         this.hideModal();
         // this.onInput();
+        console.log(getCascaderValue)
         this.onBlur()
         this.getDefVal();
       },
@@ -809,6 +809,7 @@
         }
       },
       radioChange(e) {
+        console.log('radioChange')
         // this.onInput();
         this.onBlur()
       },
@@ -822,6 +823,7 @@
           this.fieldData['colData'] = optionData;
           this.$emit('setColData', this.fieldData)
           this.hideModal();
+          console.log('pickerChange')
           this.onBlur()
           // this.onInput();
         }
@@ -831,7 +833,6 @@
         if (option_list_v2?.serviceName) {
           let serviceName = option_list_v2.serviceName.replace('_select', '_add')
           let url = `/publicPages/form/form?serviceName=${serviceName}&type=add`
-          debugger
           if (option_list_v2.srv_app) {
             url += `&destApp=${option_list_v2.srv_app}`
           }
@@ -876,8 +877,7 @@
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
-          condition = self.evalConditions(condition,fieldModelsData)
-          debugger
+          condition = self.evalConditions(condition, fieldModelsData)
           condition = condition.map(item => {
             if (item.value && item.value.indexOf('data.') !== -1) {
               let colName = item.value.slice(item.value.indexOf('data.') + 5);
@@ -907,6 +907,9 @@
             return;
           }
         }
+        if (Array.isArray(req.condition) && Array.isArray(this.fieldData?.fk_condition)) {
+          req.condition = [...req.condition, ...this.fieldData.fk_condition]
+        }
         if (req.serviceName === 'srvsso_user_select') {
           if (Array.isArray(req.condition)) {} else {
             req.condition = [{
@@ -917,6 +920,7 @@
           }
           appName = 'sso';
         }
+
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
           delete req.condition;
@@ -928,7 +932,6 @@
           return
         }
         let res = await self.onRequest('select', req.serviceName, req, appName);
-        debugger
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
             this.treePageInfo = res.data.page;
@@ -977,7 +980,6 @@
               return item;
             });
           }
-          debugger
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
               self.fieldData.value) {
@@ -1254,4 +1256,28 @@
 
 <style lang="scss" scoped>
   @import "./style.scss";
+  @media screen and (min-width:800px) {
+    .cu-btn{
+      min-width: auto!important;
+      max-width: 200px!important;
+    }
+    .dialog-button{
+      .cu-btn{
+        width: 200px;
+        height: 40px;
+        border-radius: 50px;
+      }
+    }
+    .bottom-modal{
+      &::before{
+        vertical-align: middle;
+      }
+      .cu-dialog{
+        max-width: 500px;
+        border-radius: 20px!important;
+        overflow: hidden;
+      }
+    }
+  }
+
 </style>

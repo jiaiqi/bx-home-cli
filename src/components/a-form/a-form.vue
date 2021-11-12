@@ -22,7 +22,7 @@
 
   .field-item {
     overflow: hidden;
-
+    box-sizing: border-box;
     &.hidden {
       width: 0 !important;
       min-width: 0 !important;
@@ -47,14 +47,24 @@
       margin-top: 0;
     }
   }
-
-  @media screen and (max-width:450px) {
+  @media screen and (min-width:450px) {
     .field-item {
-      min-width: 100%;
+      background-color: #fff;
+      border: 1px solid #E5E6E9;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
     }
   }
 
-  @media screen and (min-width: 450px) {
+  @media screen and (max-width:750px) {
+    .field-item {
+      flex: 1;
+      min-width: 90%;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
     .field-item {
       min-width: 30%;
       flex: 1;
@@ -299,7 +309,6 @@
         const e = this.deepClone(obj)
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
-          console.log(item)
           if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
               .colData) !==
             true && Object.keys(e.colData).length > 0) {
@@ -338,6 +347,7 @@
       },
       async onValChange(e) {
         // 保存已经发生变化的字段值
+        console.log('onValChange')
         if (e.type === 'number' || e.type === 'digit') {
           e.value = Number(e.value);
         }

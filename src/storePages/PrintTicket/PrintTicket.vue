@@ -4,18 +4,23 @@
 
     </view>
     <!--startprint-->
-    <view class="ticket-wrap" v-if="receiptTemp">
+    <view class="ticket-wrap" v-if="detail&&receiptTemp">
       <view class="ticket-title" v-if="receiptTemp.title">
-        {{receiptTemp.title||''}}
+        {{title||receiptTemp.title||''}}
       </view>
       <view class="ticket-content" v-if="receiptTemp&&receiptTemp.fieldGroup">
         <view class="ticket-content-item" v-for="(item,gIndex) in receiptTemp.fieldGroup" :key="gIndex">
           <view class="" v-if="item.field">
-            <view class="field-item" v-for="(field,fIndex) in item.field" :key="fIndex">
+            <view class="field-item" v-show="field.value||detail[field.col]||field.show_null==true" v-for="(field,fIndex) in item.field" :key="fIndex">
               <view class="label margin-right">
                 {{field.label||labelMap[field.col]||''}}:
               </view>
-              <view class="value">
+              <view class="value-list" v-if="field.valueList&&isArray(field.valueList)">
+                <view class="value" v-show="val" v-for="val in field.valueList">
+                  {{val||''}}
+                </view>
+              </view>
+              <view class="value" v-else>
                 {{field.value||detail[field.col]||''}}
               </view>
             </view>
@@ -26,9 +31,9 @@
       </view>
       <!--endprint-->
       <view class="button-box noprint">
-        <view class="cu-btn round" @click="cancel">
+        <!--  <view class="cu-btn round" @click="cancel">
           取消
-        </view>
+        </view> -->
         <view class="cu-btn bx-bg-coffee round" @click="print">
           打印
         </view>
@@ -44,9 +49,10 @@
       return {
         appName: "",
         serviceName: "",
-        detail: {},
+        detail: null,
         colV2: null,
-        condition: []
+        condition: [],
+        title:""
       }
     },
     computed: {
@@ -94,6 +100,13 @@
                   }
                   return item
                 })
+                if (group.field.find(item => item.col && item.split == true && item.separator && this.detail[item
+                    .col])) {
+                  let index = group.field.findIndex(item => item.col && item.split == true && item.separator && this
+                    .detail[item.col])
+                  let item = group.field[index]
+                  group.field[index].valueList = this.detail[item.col].split(item.separator)
+                }
               }
             })
           }
@@ -189,14 +202,24 @@
           }
         }
         this.$http.post(url, req).then(res => {
-          if (res.data.state == 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-            this.detail = res.data.data[0]
+          if (res.data.state == 'SUCCESS') {
+            if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+              this.detail = res.data.data[0]
+            } else {
+              uni.showToast({
+                title: '未查找到相关数据',
+                icon: 'none'
+              })
+            }
           }
         })
       },
     },
 
     onLoad(option) {
+      if(option.page_title){
+        this.title = option.page_title
+      }
       if (option.condition) {
         this.condition = option.condition
       }
@@ -255,6 +278,9 @@
       font-size: 16px;
       font-weight: normal;
       color: #474849;
+      // text-align: center;
+      font-weight: bold;
+      text-indent: 10px;
     }
 
     .ticket-content {
@@ -278,11 +304,23 @@
           color: #474D59;
           display: flex;
           line-height: 30px;
+          flex-wrap: wrap;
+
+          .value {
+            flex: 1;
+          }
+
+          .value-list {
+            display: flex;
+            flex-direction: column;
+          }
         }
       }
     }
 
     .button-box {
+      margin: 0 auto;
+      max-width: 350px;
       padding: 0 0 20px;
       background-color: #fff;
       border-radius: 0 0 8px 8px;

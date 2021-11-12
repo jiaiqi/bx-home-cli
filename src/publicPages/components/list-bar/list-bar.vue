@@ -8,7 +8,8 @@
       </view>
       <view class="action">
         <button class="cu-btn bg-white shadow-blur " @click="toSearch">
-          <text class="cuIcon-search"></text>
+          <text class="cuIcon-search" v-if="searchVal"></text>
+          <text class="cuIcon-refresh" v-else></text>
         </button>
         <button v-if="sysModel!=='PC'" class="cu-btn bg-white margin-left-xs" @click="clickGridButton(btn)"
           v-for="(btn, btnIndex) in setListBtn" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">

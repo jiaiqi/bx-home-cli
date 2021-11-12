@@ -2044,7 +2044,6 @@ export default {
           "font_size": "中"
         }]
       }]
-      debugger
       try {
         let inviterInfo = store.state.app.inviterInfo
         if (inviterInfo.invite_user_no) {
@@ -2374,7 +2373,6 @@ export default {
         req[0].data = [data]
       }
       const res = await _http.post(url, req)
-      debugger
       if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length >
         0) {
         return res.data.response[0]
@@ -2461,5 +2459,50 @@ export default {
         return false
       }
     }
+    // #ifdef H5
+    Vue.prototype.addTab = function(url, tab_title) {
+      if (tab_title == undefined || tab_title == null || tab_title == "") {
+        tab_title = "新标页签";
+      }
+      if (window.top.tab) {
+        let page = {
+          title: tab_title,
+          url: url,
+          icon: ""
+        };
+        window.top.tab.addTab(page);
+      } else {
+        window.open(url)
+      }
+    };
+    // #endif
+
+    Vue.prototype.navigateTo = (params) => {
+      if (!params?.url) {
+        return
+      }
+      //#ifdef MP
+      uni.navigateTo({
+        ...params
+      })
+      //#endif
+      //#ifdef H5
+      let title = ''
+      if (params?.title) {
+        title = params?.title
+      }
+      let sysInfo = uni.getSystemInfoSync();
+      // if (sysInfo?.model === 'PC') {
+      // params.url = '/health/#' + params.url
+      //   Vue.prototype.addTab(params?.url, params?.title)
+      // } else {
+      uni.navigateTo({
+        ...params
+      })
+      // }
+      //#endif
+    }
+
+
   }
 }

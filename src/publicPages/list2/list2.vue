@@ -880,9 +880,11 @@
             };
             if (buttonInfo?.moreConfig?.navUrl) {
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
-              uni.navigateTo({
-                url
-              })
+              // uni.navigateTo({
+              //   url
+              // })
+              let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
+              this.navigateTo({url,title})
             }
 
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
@@ -903,10 +905,14 @@
                 defaultVal: rowData,
                 eventOrigin: buttonInfo
               };
-              uni.navigateTo({
-                url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
+              let url ='/pages/public/formPage/formPage?params=' + JSON.stringify(
                   params)
-              });
+              // uni.navigateTo({
+              //   url
+              // });
+              let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
+              this.navigateTo({url,title})
+         
               return
             } else if (buttonInfo.servcie_type === 'select') {
               let params = {
@@ -1002,12 +1008,13 @@
             if (this.disabled === true) {
               url += '&disabled=true'
             }
-            uni.navigateTo({
-              url
-            });
+            // uni.navigateTo({
+            //   url
+            // });
+            let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
+            this.navigateTo({url,title})
             return
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
-            debugger
             let fieldsCond = [];
             if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
               0) {
@@ -1035,9 +1042,11 @@
             }
             let url =
               `/publicPages/formPage/formPage?type=add&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
-            uni.navigateTo({
-              url
-            });
+            // uni.navigateTo({
+            //   url
+            // });
+            let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
+            this.navigateTo({url,title})
             return
           }
 
