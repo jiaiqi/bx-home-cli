@@ -121,7 +121,8 @@
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode"
-          :isRange="pageType==='filter'" :min="fieldData.min" @change="bindTimeChange" v-model="fieldData.value">
+          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :min="fieldData.min"
+          @change="bindTimeChange" v-model="fieldData.value">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
@@ -445,6 +446,9 @@
           }
           return type;
         }
+      },
+      datePriceConfig() {
+        return this.fieldData?.moreConfig?.date_price_config
       }
     },
     data() {
@@ -504,7 +508,7 @@
         handler(newValue, oldValue) {
           this.fieldData = newValue;
           this.$emit('setFieldModel', newValue)
-          if (newValue.type === 'Selector'&&newValue&&oldValue&&newValue.value!==oldValue.value) {
+          if (newValue.type === 'Selector' && newValue && oldValue && newValue.value !== oldValue.value) {
             this.pickerChange(newValue.value)
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
@@ -587,6 +591,7 @@
         }
       },
       numberChange(type) {
+
         if (this.fieldData.type === 'number' || this.fieldData.type === 'digit') {
           let step = this.fieldData.type === 'number' ? 1 : this.fieldData.type === 'digit' ? 0.5 : 0;
           if (this.fieldData.step) {
@@ -1256,28 +1261,31 @@
 
 <style lang="scss" scoped>
   @import "./style.scss";
+
   @media screen and (min-width:800px) {
-    .cu-btn{
-      min-width: auto!important;
-      max-width: 200px!important;
+    .cu-btn {
+      min-width: auto !important;
+      max-width: 200px !important;
     }
-    .dialog-button{
-      .cu-btn{
+
+    .dialog-button {
+      .cu-btn {
         width: 200px;
         height: 40px;
         border-radius: 50px;
       }
     }
-    .bottom-modal{
-      &::before{
+
+    .bottom-modal {
+      &::before {
         vertical-align: middle;
       }
-      .cu-dialog{
+
+      .cu-dialog {
         max-width: 500px;
-        border-radius: 20px!important;
+        border-radius: 20px !important;
         overflow: hidden;
       }
     }
   }
-
 </style>

@@ -11,8 +11,9 @@
       <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
-            :appName="appName" :main-data="mainData" :fkCondition="fkCondition[item.constraint_name]" ref="childList"
-            @onButton="onChildButton" @child-list-change="childListChange">
+            :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
+            :fkCondition="fkCondition[item.constraint_name]" ref="childList" @onButton="onChildButton"
+            @child-list-change="childListChange">
           </child-list>
         </view>
       </view>
@@ -99,6 +100,9 @@
         } else {
           return {}
         }
+      },
+      fkInitVal() {
+        return this.moreConfig?.fk_init_val || {}
       },
       fkCondition() {
         let fk_condition = this.moreConfig?.fk_condition || {}
@@ -658,6 +662,15 @@
                     strItem = strItem.replace(/new Date\(\)/ig, dayjs().format("YYYY-MM-DD"))
                     strItem = this.renderStr(strItem, data)
                     item = JSON.parse(strItem)
+                    if (this.fkInitVal && this.fkInitVal[key]) {
+                      let fkInitVal = this.fkInitVal[key]
+                      Object.keys(fkInitVal).forEach(initKey => {
+                        if (!item[initKey] && fkInitVal[initKey] && typeof fkInitVal[initKey] ===
+                          'string') {
+                          item[initKey] = this.renderStr(fkInitVal[initKey], data) || item[initKey]
+                        }
+                      })
+                    }
                     item._type = 'initData'
                     return item
                   })
@@ -755,13 +768,13 @@
         return colVs
       },
       async getFieldsV2() {
-        
+
         const app = this.appName || uni.getStorageSync('activeApp');
-        
+
         let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
-        
+
         this[`${this.srvType}V2`] = colVs
-        
+
         if (['update', 'add'].includes(this.srvType)) {
           await this.getDetailV2(colVs.select_service_name)
         }
@@ -786,10 +799,10 @@
             return
           }
         }
-        
+
         let defaultVal = null
         let fields = null
-        
+
         switch (colVs.use_type) {
           case 'update':
           case 'detail':

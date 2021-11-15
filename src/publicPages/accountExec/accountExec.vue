@@ -36,9 +36,8 @@
 					</u-radio>
 				</u-radio-group> -->
 
-        <checkbox-group @change="checkboxChange" class=""
-          style="display: flex;justify-content: flex-end;margin:5px 30px;">
-          <label style="width: 90%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;">
+        <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
+          <label style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
             <checkbox class="" value="cd" :checked="checkValue" style="margin-right: 5px;transform: scale(0.7);" />
             <text>记住密码</text>
           </label>
@@ -709,11 +708,13 @@
     width: 100%;
     height: 100%;
     background-color: #fff;
+
     @media screen and(min-width:600px) {
       background-color: #CCCED3;
       background: url(./bg.png) no-repeat;
       background-size: 100% 100%;
     }
+
     .images {
       width: 100%;
       margin: 50upx 0;

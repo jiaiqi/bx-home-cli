@@ -7,7 +7,7 @@
       </view>
       <view class="value">
         <text class="prefix">{{item.prefix||''}}</text>
-        <text>{{item.value||''}}</text>
+        <text>{{item.value||'0'}}</text>
         <text class="suffix">{{item.suffix||''}}</text>
       </view>
       <view class="label" v-if="labelPostion==='bottom'">

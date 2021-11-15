@@ -669,7 +669,7 @@
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           item.old_value = item.value
-          if (calcResult?.response &&( calcResult.response[item.column]|| calcResult.response[item.column]===0)) {
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] === 0)) {
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
           }
@@ -781,7 +781,7 @@
             return
           }
         }
-        const modal = colVs._fieldInfo.reduce((res, cur) => {
+        let modal = colVs._fieldInfo.reduce((res, cur) => {
           if (cur.defaultValue) {
             res[cur.column] = cur.defaultValue
             cur.value = cur.defaultValue
@@ -898,6 +898,17 @@
         }
 
 
+        modal = colVs._fieldInfo.reduce((res, cur) => {
+          if (cur.defaultValue) {
+            res[cur.column] = cur.defaultValue
+            cur.value = cur.defaultValue
+            if (self.defaultVal && self.defaultVal[cur.column]) {
+              self.defaultVal[cur.column] = cur.value
+            }
+          }
+          return res
+        }, {})
+
 
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
@@ -912,7 +923,8 @@
               }
               if (result?.response && result.response[item.column]) {
                 item.display = true
-              } else {
+              } else if (result?.response && result.response[item.column] == false) {
+
                 item.display = false
               }
             }
@@ -1041,9 +1053,9 @@
       if (option.condition) {
         try {
           let condition = JSON.parse(decodeURIComponent(option.condition))
-          this.condition = condition.filter(item=>{
-            if(item.value==null||item.value==undefined){
-              if(item.ruleType==='eq'){
+          this.condition = condition.filter(item => {
+            if (item.value == null || item.value == undefined) {
+              if (item.ruleType === 'eq') {
                 return false
               }
             }
@@ -1084,15 +1096,22 @@
         }
         try {
           fieldsCond = JSON.parse(option.fieldsCond);
+
         } catch (e) {
           console.warn(e);
-
           try {
             fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
           } catch (err) {
             //TODO handle the exception
             console.warn(err);
           }
+        }
+        if (option.fill_batch_no && Array.isArray(fieldsCond)) {
+          fieldsCond.push({
+            column: "fill_batch_no",
+            display: false,
+            value: option.fill_batch_no
+          })
         }
         if (Array.isArray(fieldsCond) && fieldsCond.length > 0) {
           if (option.serviceName === 'srvhealth_see_doctor_record_add') {
@@ -1205,6 +1224,7 @@
       align-items: center;
       z-index: 20;
       max-width: 500px;
+
       .cu-btn {
         min-width: 45%;
       }

@@ -30,14 +30,15 @@
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
       <!-- #ifdef H5 -->
-      <mx-datepicker :show="show" :type="mode" :value="value" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
-        :show-seconds="false" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
+   
       <!-- #endif -->
+      <mx-datepicker :show="show" :type="mode" :value="value" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
+        :show-seconds="false" :price-map="priceMap" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
 
       <!-- #ifdef MP -->
-      <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
+   <!--   <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
         max-date="2050-01-01">
-      </u-calendar>
+      </u-calendar> -->
       <!-- #endif -->
     </view>
     <view class="calendar-box" v-else-if="mode==='dateTime'">
@@ -83,13 +84,19 @@
       min: {
         type: String,
         default: "1950-01-01"
+      },
+      priceConfig:{
+        type:Object
+      },
+      fieldsModel:{
+        type:Object
       }
     },
     data() {
       return {
         show: false,
-        modalName: ''
-
+        modalName: '',
+        priceMap:{}
       };
     },
     computed: {
@@ -114,6 +121,36 @@
       }
     },
     methods: {
+     async getPrice(){
+        let serviceName = this.priceConfig?.serviceName;
+        let appName = this.priceConfig?.appName||uni.getStorageSync('activeApp');
+        let condition = []
+        if(this.priceConfig?.condition){
+          condition = this.priceConfig?.condition
+          if(Array.isArray(condition)&&condition.length>0){
+            condition = condition.map(item=>{
+              if(item.value){
+                let data = {
+                  data:this.fieldsModel||{}
+                }
+                item.value =this.renderStr(item.value,data)
+              }
+              return item
+            })
+          }
+        }
+        let url = this.getServiceUrl(appName, serviceName, 'select');;
+        let req = {
+          serviceName: serviceName,
+          colNames: ['*'],
+          condition:condition
+        };
+        let res = await this.$http.post(url, req);
+        if(res?.data?.state==='SUCCESS'&&res.data.data.length>0){
+          debugger
+          // this.priceMap 
+        }
+      },
       cancel(e) {
         debugger
         this.show = false
@@ -165,6 +202,9 @@
         this.show = false
       },
       showModal() {
+        if(this.mode==='date'&&this.priceConfig?.serviceName&&this.priceConfig?.appName){
+          this.getPrice()
+        }
         if (!this.disabled) {
           this.show = true
         }

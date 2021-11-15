@@ -175,6 +175,9 @@
       fkCondition: {
         type: [Array, Object]
       },
+      fkInitVal: {
+        type: [Array, Object]
+      },
       childListData: {
         type: Object
       }
@@ -1622,7 +1625,7 @@
         }
       },
 
-      async getUpdateV2(row) {
+      async getUpdateV2(row, config) {
         if (this.updateV2?._fieldInfo) {
           this.updateV2._fieldInfo = this.updateV2._fieldInfo.map(item => {
             if (row && row[item.columns]) {
@@ -1686,6 +1689,33 @@
               return true
             }
           })
+        }
+        let defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+          if (cur.value) {
+            res[cur.columns] = cur.value
+          }
+          return res
+        }, {})
+        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const table_name = colVs.main_table
+        const result = await this.evalX_IF(table_name, cols, defaultVal, this.srvApp)
+
+        for (let i = 0; i < colVs._fieldInfo.length; i++) {
+          const item = colVs._fieldInfo[i]
+          if (item.x_if) {
+            if (Array.isArray(item.xif_trigger_col)) {
+              if (item.table_name !== table_name) {
+                result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.srvApp)
+              }
+              if (result?.response && result.response[item.column]) {
+                item.display = true
+              } else if (result === true) {
+                item.display = true
+              } else {
+                item.display = false
+              }
+            }
+          }
         }
         this.updateV2 = colVs
         // }
@@ -1767,26 +1797,29 @@
 
           }
 
-          if (item.col_type === 'fk') {
-            if (this.mainData && this.mainData[item.columns]) {
-              // item.disabled = true
-              if (Array.isArray(this.initData) && this.initData.length > 0 && this.initData.find(e => e[item
-                  .columns] === this.mainData[item.columns])) {
+          // if (item.col_type === 'fk') {
+          //   if (this.mainData && this.mainData[item.columns]) {
+          //     // item.disabled = true
+          //     if (Array.isArray(this.initData) && this.initData.length > 0 && this.initData.find(e => e[item
+          //         .columns] === this.mainData[item.columns])) {
 
-              } else {
-                // item.value = this.mainData[item.columns]
-              }
-            }
-          }
-          // if (item.column === 'h_check_person') {
-          //   debugger
+          //     } else {
+          //       // item.value = this.mainData[item.columns]
+          //     }
+          //   }
           // }
-          if(this.mainData&&this.mainData[item.column]&&!item.value&&item.type==='date'){
-            item.value = this.mainData[item.column]
+          let fkInitVal = this.fkInitVal
+          if (!item.value && fkInitVal[item.column]&&item.display!==false) {
+            let obj = {
+              mainData: this.mainData
+            }
+            let val = this.renderStr(fkInitVal[item.column], obj)
+            if (val) {
+              item.value = val
+            }
           }
           return item
         })
-        debugger
         let defaultVal = colVs._fieldInfo.reduce((res, cur) => {
           if (cur.value) {
             res[cur.columns] = cur.value

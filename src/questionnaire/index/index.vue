@@ -135,7 +135,7 @@
     computed: {
       isShowOrder() {
         // 是否显示预定按钮
-        if(this.formType!=='detail'){
+        if (this.formType !== 'detail') {
           return false
         }
         let questArr = ['20211008104446000006', '20210929120256000001', '20211027112223000007']
@@ -150,7 +150,7 @@
             }, 0)
             if (num >= 3) {
               return this.activity_no
-            }else return true
+            } else return true
           } else if (this.activity_no === '20211008104446000006') {
             // ESS 嗜睡問卷調查
             let score = Object.keys(this.resultData).reduce((res, cur) => {
@@ -165,7 +165,7 @@
             }, 0)
             if (score > 12) {
               return this.activity_no
-            }else return true
+            } else return true
           } else if (this.activity_no === '20211027112223000007') {
             // 肺病筛查
             let score = Object.keys(this.resultData).reduce((res, cur) => {
@@ -183,7 +183,7 @@
             }, 0)
             if (score >= 5) {
               return this.activity_no
-            }else return true
+            } else return true
           }
         } else {
           return this.activity_no
@@ -220,7 +220,7 @@
           })
         } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
             .activity_no)) {
-          if (newValue==true) {
+          if (newValue == true) {
             if (this.activity_no === '20211027112223000007') {
               uni.showModal({
                 title: '提示',
@@ -283,6 +283,8 @@
             //TODO handle the exception
           }
           params.to = this.renderStr(params.to, obj)
+          debugger
+          params.to += `&fill_batch_no=${this.params.fill_batch_no}`
         }
 
         let url = `${params.to}`;
@@ -457,6 +459,7 @@
                           .fill_batch_no) {
                           self.params.fill_batch_no = res.data.response[0]
                             .response.fill_batch_no;
+                          debugger
                         }
                         if (self.params.to && self.params.fill_batch_no) {
                           self.showNextBtn = true;

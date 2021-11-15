@@ -225,6 +225,8 @@ export default {
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
             if (item.col_type === 'Date') {
               item.init_expr = dayjs().format('YYYY-MM-DD')
+            } else if (item.col_type === 'Time') {
+              item.init_expr = dayjs().format('HH:mm')
             } else {
               item.init_expr = dayjs().format('YYYY-MM-DD HH:mm')
             }
@@ -1172,6 +1174,19 @@ export default {
       }
       let userInfo = e
       console.log("setWxUserInfo", userInfo)
+
+      switch (userInfo.sex) {
+        case 0:
+          userInfo.sex = '未知'
+          break;
+        case 1:
+          userInfo.sex = '男'
+          break;
+        case 2:
+          userInfo.sex = '女'
+          break;
+      }
+
       let url = Vue.prototype.getServiceUrl('wx', 'srvwx_basic_user_info_save', 'operate')
       let req = [{
         "serviceName": "srvwx_basic_user_info_save",
@@ -1185,6 +1200,7 @@ export default {
           "headimgurl": userInfo.headimgurl
         }],
       }]
+
       if (e) {
         store.commit('SET_WX_USERINFO', userInfo)
         uni.setStorageSync('wxUserInfo', userInfo)

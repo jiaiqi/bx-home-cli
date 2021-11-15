@@ -6,7 +6,8 @@
       <text v-if="serialChar">{{ serialChar }}</text>
       <text v-if="!serialChar && name === parentData.value" class="bx-radio-checked"></text>
     </view>
-    <view class="bx-radio__label" hover-class="active" :class="{ checked: checked, disabled: disabled,'bx-btn-bg-coffee':theme==='coffee'&&checked  }">
+    <view class="bx-radio__label" hover-class="active"
+      :class="{ checked: checked, disabled: disabled,'bx-btn-bg-coffee':theme==='coffee'&&radioButtonClass==='button-mode'&&checked  }">
       <slot />
     </view>
   </view>
@@ -148,13 +149,13 @@
           // #endif
         }
         style['max-width'] = '100%'
-   
+
         return style;
       },
       radioButtonClass() {
         if (this.parent && (this.parent.radioMode || this.parent.mode)) {
           if (this.parent.radioMode === 'button' || this.parent.mode === 'button') {
-  
+
             return 'button-mode';
           }
         }
