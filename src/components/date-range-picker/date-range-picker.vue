@@ -30,13 +30,13 @@
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
       <!-- #ifdef H5 -->
-   
+
       <!-- #endif -->
       <mx-datepicker :show="show" :type="mode" :value="value" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
-        :show-seconds="false" :price-map="priceMap" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
+        :show-seconds="false" :price-map="priceMap" :price-config="priceConfig" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
 
       <!-- #ifdef MP -->
-   <!--   <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
+      <!--   <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
         max-date="2050-01-01">
       </u-calendar> -->
       <!-- #endif -->
@@ -85,18 +85,18 @@
         type: String,
         default: "1950-01-01"
       },
-      priceConfig:{
-        type:Object
+      priceConfig: {
+        type: Object
       },
-      fieldsModel:{
-        type:Object
+      fieldsModel: {
+        type: Object
       }
     },
     data() {
       return {
         show: false,
         modalName: '',
-        priceMap:{}
+        priceMap: {}
       };
     },
     computed: {
@@ -121,21 +121,28 @@
       }
     },
     methods: {
-     async getPrice(){
+      async getPrice() {
         let serviceName = this.priceConfig?.serviceName;
-        let appName = this.priceConfig?.appName||uni.getStorageSync('activeApp');
+        let appName = this.priceConfig?.appName || uni.getStorageSync('activeApp');
         let condition = []
-        if(this.priceConfig?.condition){
-          condition = this.priceConfig?.condition
-          if(Array.isArray(condition)&&condition.length>0){
-            condition = condition.map(item=>{
-              if(item.value){
+        if (this.priceConfig?.condition && Array.isArray(this.priceConfig?.condition)) {
+          condition = this.deepClone(this.priceConfig?.condition)
+          if (Array.isArray(condition) && condition.length > 0) {
+            condition = condition.map(item => {
+              if (item.value) {
                 let data = {
-                  data:this.fieldsModel||{}
+                  data: this.fieldsModel || {}
                 }
-                item.value =this.renderStr(item.value,data)
+                item.value = this.renderStr(item.value, data)
               }
               return item
+            }).filter(item => {
+              if (item.ruleType === 'eq' && (item.value === null || item.value === undefined || item.value ===
+                "")) {
+                return false
+              } else {
+                return true
+              }
             })
           }
         }
@@ -143,12 +150,16 @@
         let req = {
           serviceName: serviceName,
           colNames: ['*'],
-          condition:condition
+          condition: condition
         };
         let res = await this.$http.post(url, req);
-        if(res?.data?.state==='SUCCESS'&&res.data.data.length>0){
-          debugger
-          // this.priceMap 
+        if (res?.data?.state === 'SUCCESS' && res.data.data.length > 0) {
+          this.priceMap = res.data.data.reduce((res, cur) => {
+            if (cur[this.priceConfig.date_col] && cur[this.priceConfig.num_col]) {
+              res[cur[this.priceConfig.date_col]] = cur[this.priceConfig.num_col]
+            }
+            return res
+          }, {})
         }
       },
       cancel(e) {
@@ -202,7 +213,8 @@
         this.show = false
       },
       showModal() {
-        if(this.mode==='date'&&this.priceConfig?.serviceName&&this.priceConfig?.appName){
+        if (this.mode === 'date' && this.priceConfig?.serviceName && this.priceConfig?.appName && this.priceConfig
+          ?.num_col && this.priceConfig?.date_col) {
           this.getPrice()
         }
         if (!this.disabled) {

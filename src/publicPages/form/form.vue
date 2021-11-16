@@ -484,7 +484,7 @@
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
-                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        let store_no = self.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
@@ -511,11 +511,6 @@
                           uni.$emit(self.submitAction)
                         }
                         uni.navigateBack()
-                      } else if (self.afterSubmit === 'home') {
-                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                        uni.reLaunch({
-                          url: `/storePages/home/home?store_no=${store_no}`
-                        })
                       } else {
                         self.toPages('detail');
                       }

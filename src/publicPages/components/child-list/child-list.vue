@@ -1416,7 +1416,6 @@
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
-          debugger
         }
 
         for (let i = 0; i < this.allFields.length; i++) {
@@ -1448,7 +1447,6 @@
           this.$set(this.allFields, i, item)
           this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
           if (item.old_value !== item.value) {
-            debugger
             this.updateValueChange(fieldModel, item)
           }
         }
@@ -1484,7 +1482,6 @@
             item.value = calcResult?.response[item.column]
             fieldModel[item.column] = item.value
             // this.$set(this.allFields, i, item)
-            debugger
             // await this.handleCalc(item)
           }
 
@@ -1664,6 +1661,21 @@
           if (row && row[item.columns]) {
             item.value = row[item.columns]
           }
+
+          let fkInitVal = this.fkInitVal
+          // if (fkInitVal[item.column]&&item.display!==false) {
+          if (fkInitVal[item.column] && item.display !== false) {
+            if (!item.value) {
+              let obj = {
+                mainData: this.mainData
+              }
+              let val = this.renderStr(fkInitVal[item.column], obj)
+              if (val) {
+                item.value = val
+              }
+            }
+          }
+
           return item
         })
         colVs.rowData = row
@@ -1681,6 +1693,7 @@
             return item
           })
         }
+
         if (this.fkMoreConfig?.rowButtonDisp) {
           colVs.formButton = colVs.formButton.filter(item => {
             if (this.fkMoreConfig.rowButtonDisp[item.button_type] === false) {
@@ -1809,7 +1822,10 @@
           //   }
           // }
           let fkInitVal = this.fkInitVal
-          if (!item.value && fkInitVal[item.column]&&item.display!==false) {
+          // if (fkInitVal[item.column]&&item.display!==false) {
+          if (fkInitVal[item.column] && item.display !== false) {
+            debugger
+            // if(!item.value){
             let obj = {
               mainData: this.mainData
             }
@@ -1817,7 +1833,9 @@
             if (val) {
               item.value = val
             }
+            // }
           }
+
           return item
         })
         let defaultVal = colVs._fieldInfo.reduce((res, cur) => {

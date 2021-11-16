@@ -662,6 +662,7 @@
                     strItem = strItem.replace(/new Date\(\)/ig, dayjs().format("YYYY-MM-DD"))
                     strItem = this.renderStr(strItem, data)
                     item = JSON.parse(strItem)
+                    debugger
                     if (this.fkInitVal && this.fkInitVal[key]) {
                       let fkInitVal = this.fkInitVal[key]
                       Object.keys(fkInitVal).forEach(initKey => {
@@ -671,6 +672,7 @@
                         }
                       })
                     }
+                    debugger
                     item._type = 'initData'
                     return item
                   })

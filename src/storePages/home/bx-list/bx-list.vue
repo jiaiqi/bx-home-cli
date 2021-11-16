@@ -1,5 +1,8 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" v-if="list&&list.length>0">
+    <view class="title">
+      {{pageItem.component_label||''}}
+    </view>
     <view class="list-content" :style="{
         backgroundColor:list_config.bg
       }">
@@ -7,6 +10,9 @@
         <list-next class="list-next" :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType"
           :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" />
       </view>
+    </view>
+    <view class="" style="text-align: center;"  v-if="list&&list.length===0">
+      内容为空
     </view>
   </view>
 </template>
@@ -422,6 +428,19 @@
         }
         if (Array.isArray(cond) && cond.length > 0) {
           req.condition = req.condition.concat(cond);
+        }
+        if(Array.isArray(this.config?.condition)&&this.config.condition.length>0){
+          let data = {
+            userInfo:this.$store?.state?.user?.userInfo,
+            storeInfo:this.$store?.state?.app?.storeInfo
+          }
+          this.config.condition.forEach(cond=>{
+            let obj = {}
+            obj.colName = cond.colName;
+            obj.ruleType = cond.ruleType;
+            obj.value = this.renderStr(cond.value,data)
+            req.condition.push(obj)
+          })
         }
         if (Array.isArray(initCond) && initCond.length > 0) {
           req.condition = [...req.condition, ...initCond]
@@ -1072,7 +1091,10 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
+    .title{
+      font-size: 16px;
+      padding: 10rpx;
+    }
     .list-content {
       flex: 1;
       display: flex;

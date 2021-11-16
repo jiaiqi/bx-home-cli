@@ -80,6 +80,7 @@ fly.interceptors.request.use(async (request) => {
 			// #endif
 		}
 	}
+  
 	if (request.url && ignoreServiceName(request.url)) {
 		if (store.state.app.xhrNum === 0 && new Date().getTime() - store.state.app.xhrTimestamp > 1000) {
 			uni.showLoading({
@@ -88,6 +89,7 @@ fly.interceptors.request.use(async (request) => {
 			})
 		}
 	}
+  
 	store.commit('SET_XHR_NUM', store.state.app.xhrNum + 1)
 	console.log(store.state.app.xhrNum)
 	// 如果是浏览器运行的记录 请求的页面path和参数
@@ -135,7 +137,6 @@ fly.interceptors.request.use(async (request) => {
 	// 	}
 	// 	// #endif
 	// }
-
 
 	if (outTime) {
 		const isExpired = outTime < date

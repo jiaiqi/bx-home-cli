@@ -135,7 +135,7 @@
       showBackHome() {
         let status = this.storeInfo?.audit_status
         if (status) {
-          if (status === '仅本店') {
+          if (status === '仅本店'||status === '双向隔离') {
             return false
           }
           return true

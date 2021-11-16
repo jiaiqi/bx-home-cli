@@ -442,7 +442,7 @@
           url: '/storePages/home/home?store_no=' + option.store_no
         })
       } else {
-        this.getList()
+        // this.getList()
         this.initLogin()
       }
     },

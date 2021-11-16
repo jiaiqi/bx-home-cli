@@ -28,7 +28,7 @@
             <view class="picker-calendar-view-item"
               :style="{opacity: date.statusStyle.opacity, color: date.statusStyle.color, background: date.statusStyle.background}">
               <text>{{date.title}}</text>
-              <text v-if="priceMap&&date.dateStr&&priceMap[date.dateStr]">{{priceMap[date.dateStr]}}</text>
+              <text v-if="priceMap&&date.dateStr&&priceMap[date.dateStr]" :style="{color:priceConfig&&priceConfig.color?priceConfig&&priceConfig.color:''}" class="picker-calendar-view-item-number"><text v-if="priceConfig&&priceConfig.prefix" class="prefix">{{priceConfig.prefix}}</text> {{priceMap[date.dateStr]}}</text>
             </view>
             <!-- 小圆点样式 -->
             <view class="picker-calendar-view-dot"
@@ -221,7 +221,7 @@
       it.setDate(it.getDate() - ((it.getDay() == 0 ? 7 : it.getDay()) - 1)); //偏移量
       for (let i = 0; i < 42; i++) {
         let tmp = {
-          dateStr: DateTools.format(date, "yyyy-mm-dd"),
+          dateStr: DateTools.format(new Date(it), "yyyy-mm-dd"),
           dateObj: new Date(it),
           title: it.getDate(),
           isOtherMonth: it.getMonth() < date.getMonth() || it.getMonth() > date.getMonth()
@@ -307,6 +307,9 @@
       },
       // 日期对应价格
       priceMap: {
+        type: Object
+      },
+      priceConfig:{
         type: Object
       }
     },
@@ -789,6 +792,16 @@
           align-items: center;
           justify-content: center;
           flex-direction: column;
+          &-number{
+            font-size: 12px;
+            position: relative;
+            .prefix{
+              position: absolute;
+              left: -20rpx;
+              top: 0;
+              transform: scale(0.9);
+            }
+          }
         }
 
         &-dot {
