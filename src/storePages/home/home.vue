@@ -135,7 +135,7 @@
       showBackHome() {
         let status = this.storeInfo?.audit_status
         if (status) {
-          if (status === '仅本店'||status === '双向隔离') {
+          if (status === '仅本店' || status === '双向隔离') {
             return false
           }
           return true
@@ -1205,21 +1205,35 @@
         // 通用二维码参数
         if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
-          if (result.split('/').length == 3) {
-            option.store_no = result.split('/')[0];
-            option.invite_user_no = result.split('/')[1];
-            option.pt_no = result.split('/')[2];
+          let arr = result.split('/')
+          if (arr.length == 3) {
+            let rowData = this.getUrlParams(arr[2], 'rowData')
+            if (rowData) {
+              try {
+                this.rowData = JSON.parse(rowData)
+              } catch (e) {
+                //TODO handle the exception
+              }
+              option.pt_no = arr[1];
+              getApp().globalData.pt_no = option.pt_no
+              option.share_type = 'bindOrganization'
+              option.from = 'share'
+            } else {
+              option.invite_user_no = arr[1];
+              option.pt_no = arr[2];
+              getApp().globalData.pt_no = option.pt_no
+              option.share_type = 'bindOrganization'
+              option.from = 'share'
+            }
+            option.store_no = arr[0];
+          } else if (arr.length == 2) {
+            option.store_no = arr[0];
+            option.pt_no = arr[1];
             getApp().globalData.pt_no = option.pt_no
             option.share_type = 'bindOrganization'
             option.from = 'share'
-          } else if (result.split('/').length == 2) {
-            option.store_no = result.split('/')[0];
-            option.pt_no = result.split('/')[1];
-            getApp().globalData.pt_no = option.pt_no
-            option.share_type = 'bindOrganization'
-            option.from = 'share'
-          } else if (result.split('/').length === 1) {
-            option.store_no = result.split('/')[0];
+          } else if (arr.length === 1) {
+            option.store_no = arr[0];
             option.share_type = 'bindOrganization'
             option.from = 'share'
           }

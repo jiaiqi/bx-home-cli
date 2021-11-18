@@ -466,6 +466,12 @@
       footBtnClick(btn) {
         if (btn && (btn.type === 'qrCode' || btn.type === 'share')) {
           if (btn.qrCodeText) {
+            let rowData = {
+              share_user_no: this.$store?.state?.user?.userInfo?.userno,
+              no: this.itemData?.no,
+              store_no: this.itemData?.store_no
+            }
+            btn.qrCodeText += `/?rowData=${JSON.stringify(rowData)}`
             this.qrCodeText = btn.qrCodeText
             this.showModal('show-qrcode')
           }
@@ -535,7 +541,7 @@
         if (!button) {
           return false
         }
-        if(this.rowButtonDisp&&this.rowButtonDisp[button.button_type]===false){
+        if (this.rowButtonDisp && this.rowButtonDisp[button.button_type] === false) {
           return false
         }
         if (Array.isArray(this.itemData._buttons)) {

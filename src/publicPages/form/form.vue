@@ -991,6 +991,82 @@
           });
         }
       },
+      async handlePreAction(action) {
+        if (action?.actionNo) {
+          let arr = action.actionNo.split(',')
+          if (arr.length > 0 && Array.isArray(action?.valMap) && action.valMap.length == arr.length) {
+            if (action?.type === 'syncAssign') {
+              // 同步赋值
+              let valueArr = []
+              let self = this
+              let fieldsCond = []
+              for (let i = 0; i < arr.length; i++) {
+                let req = {
+                  "serviceName": "srvsys_page_def_select",
+                  "colNames": ["*"],
+                  "condition": [{
+                    colName: "pt_no",
+                    ruleType: "eq",
+                    value: arr[i]
+                  }],
+                  "page": {
+                    "pageNo": 1,
+                    "rownumber": 1
+                  }
+                }
+                let app = self.appName || uni.getStorageSync('activeApp');
+                let url = self.getServiceUrl('health', 'srvsys_page_def_select', 'select');
+                let resp = await self.$http.post(url, req)
+                if (Array.isArray(resp?.data?.data) && resp.data.data.length > 0) {
+                  let obj = resp.data.data[0];
+                  if (obj.service && obj.service_json) {
+                    let req1 = null;
+                    try {
+                      req1 = JSON.parse(obj.service_json);
+                      console.log(req1)
+                    } catch (e) {
+                      //TODO handle the exception
+                    }
+                    console.log(typeof req1)
+                    if (typeof req1 === 'object') {
+                      let url1 = self.getServiceUrl(obj?.app || app, obj.service, 'select');
+                      let res1 = await self.$http.post(url1, req1)
+                      console.log(res1)
+                      if (Array.isArray(res1?.data?.data) && res1.data.data.length > 0) {
+                        valueArr.push(res1.data.data[0])
+                      }
+                    }
+                  }
+                }
+              }
+
+              if (valueArr.length >= action.valMap.length) {
+                action.valMap.forEach((val, index) => {
+                  if (typeof val === 'object') {
+                    Object.keys(val).forEach(key => {
+                      let obj = {}
+                      obj.column = key;
+                      try {
+                        obj.value = valueArr[index][val[key]]
+                      } catch (e) {
+                        //TODO handle the exception
+                      }
+
+                      if (obj.value || obj.value === null || obj.value === 0) {
+                        obj.disabled = true;
+                        fieldsCond.push(obj)
+                      }
+                    })
+                  }
+                })
+              }
+              return {
+                fieldsCond
+              }
+            }
+          }
+        }
+      },
 
     },
     onHide() {
@@ -1158,6 +1234,19 @@
             }
             return item;
           });
+        }
+      }
+      if (option.preAction) {
+        let action = option.preAction
+        try {
+          action = JSON.parse(option.preAction)
+        } catch (e) {
+          //TODO handle the exception
+          console.log(e)
+        }
+        let data = await this.handlePreAction(action)
+        if (Array.isArray(data?.fieldsCond) && data.fieldsCond.length > 0) {
+          this.fieldsCond = [...this.fieldsCond, ...data.fieldsCond]
         }
       }
       if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond.length ===

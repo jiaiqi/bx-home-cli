@@ -1,7 +1,8 @@
 <template>
   <view class="page-wrap" v-if="list&&list.length>0">
     <view class="title">
-      {{pageItem.component_label||''}}
+      <text>{{pageItem.component_label||''}}</text>
+      <button class="cu-btn sm border  bg-white" @click="toAll">查看全部<text class="cuIcon-right"></text></button>
     </view>
     <view class="list-content" :style="{
         backgroundColor:list_config.bg
@@ -11,7 +12,7 @@
           :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" />
       </view>
     </view>
-    <view class="" style="text-align: center;"  v-if="list&&list.length===0">
+    <view class="" style="text-align: center;" v-if="list&&list.length===0">
       内容为空
     </view>
   </view>
@@ -29,6 +30,13 @@
       },
     },
     computed: {
+      isShowToAll(){
+        let num = this.config?.page?.rownumber||this.rownumber;
+        if(this.total>num){
+          return true
+        }
+        return false
+      },
       serviceName() {
         return this.config?.serviceName
       },
@@ -216,6 +224,11 @@
       }
     },
     methods: {
+      toAll(){
+        uni.navigateTo({
+          url:`/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
+        })
+      },
       getListWithFilter(e) {
         let self = this
         let tabsConds = this.$refs.filterTabs.buildConditions()
@@ -369,11 +382,6 @@
           'proclist' :
           'list', app);
         colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
-        if (!this.navigationBarTitle) {
-          uni.setNavigationBarTitle({
-            title: colVs.service_view_name
-          });
-        }
         console.log('colVs', colVs);
         if (colVs.more_config) {
           try {
@@ -414,7 +422,7 @@
           colNames: ['*'],
           condition: this.condition || [],
           page: {
-            rownumber: this.rownumber,
+            rownumber: this.config?.page?.rownumber || this.rownumber,
             pageNo: this.pageNo
           },
           order: this.orderList
@@ -429,16 +437,16 @@
         if (Array.isArray(cond) && cond.length > 0) {
           req.condition = req.condition.concat(cond);
         }
-        if(Array.isArray(this.config?.condition)&&this.config.condition.length>0){
+        if (Array.isArray(this.config?.condition) && this.config.condition.length > 0) {
           let data = {
-            userInfo:this.$store?.state?.user?.userInfo,
-            storeInfo:this.$store?.state?.app?.storeInfo
+            userInfo: this.$store?.state?.user?.userInfo,
+            storeInfo: this.$store?.state?.app?.storeInfo
           }
-          this.config.condition.forEach(cond=>{
+          this.config.condition.forEach(cond => {
             let obj = {}
             obj.colName = cond.colName;
             obj.ruleType = cond.ruleType;
-            obj.value = this.renderStr(cond.value,data)
+            obj.value = this.renderStr(cond.value, data)
             req.condition.push(obj)
           })
         }
@@ -480,6 +488,7 @@
           }
           this.list = this.list.concat(res.data.data);
           this.pageNo = res.data.page.pageNo;
+          this.total = res.data.page.total
           let page = res.data.page;
           if (this.listType === 'proc') {
             for (let i = 0; i < this.tabList.length; i++) {
@@ -513,7 +522,6 @@
         let self = this
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
-        debugger
         if (buttonInfo?.more_config) {
           try {
             buttonInfo.moreConfig = JSON.parse(buttonInfo.more_config)
@@ -1091,10 +1099,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    .title{
+
+    .title {
       font-size: 16px;
       padding: 10rpx;
+      display: flex;
+      justify-content: space-between;
     }
+
     .list-content {
       flex: 1;
       display: flex;

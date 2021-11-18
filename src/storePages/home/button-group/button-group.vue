@@ -445,6 +445,7 @@
         }
       },
       makeQrCode() {
+        debugger
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make()
         }
@@ -625,7 +626,6 @@
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo
             }
-            debugger
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
           } catch (e) {

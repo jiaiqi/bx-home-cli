@@ -24,6 +24,13 @@
         <view class="icon"><text class="cuIcon-settings"></text></view>
       </view>
     </view>
+    <view class="util-bar absolute" v-if="top_buttons">
+      <view class="util-item" @click="onButton(btn)" v-for="btn in top_buttons">
+        <!-- <view class="icon"><text class="cuIcon-notice"></text></view> -->
+        <text class="label">{{btn.name||''}}</text>
+      </view>
+
+    </view>
     <!--    <view style="height: 170px;" v-if="showGoodsCard&&goodsInfo">
       
     </view> -->
@@ -35,8 +42,8 @@
           <view class="title">
             {{goodsInfo.goods_name||''}}
           </view>
-          <view class="price">
-            {{goodsInfo.price||''}}
+          <view class="price text-red">
+            ￥{{goodsInfo.price||''}}
           </view>
         </view>
       </view>
@@ -67,6 +74,22 @@
       personChat
     },
     computed: {
+      moreConfig() {
+        let more_config = this.sessionInfo?.more_config;
+        if (typeof more_config === 'string') {
+          try {
+            more_config = JSON.parse(more_config)
+          } catch (e) {
+            //TODO handle the exception
+            console.log(e)
+            debugger
+          }
+          return more_config
+        }
+      },
+      // topButtons() {
+      //   return this.moreConfig?.top_buttons
+      // },
       bandPost() {
         // 是否群体禁言
         return this.sessionInfo?.band_post
@@ -100,14 +123,8 @@
       topHeight() {
         if ((this.groupInfo && this.groupNo) || this.sessionType === '店铺机构全员' || (this.storeNo && this
             .receiver_person_no)) {
-          // if (this.showGoodsCard && this.goodsInfo) {
-          //   return 212
-          // }
           return 42
         } else {
-          // if (this.showGoodsCard && this.goodsInfo) {
-          //   return 170
-          // }
           return 0
         }
       }
@@ -138,10 +155,25 @@
         lastMessage: {},
         goods_no: "",
         goodsInfo: null,
-        showGoodsCard: false
+        showGoodsCard: false,
+        top_buttons:[]
       }
     },
     methods: {
+      onButton(btn) {
+        if (btn.url) {
+          let data = {
+            userInfo: this.$store?.state?.user?.userInfo,
+            storeInfo: this.$store?.state?.app?.storeInfo
+          }
+          btn.url = this.renderStr(btn.url, data)
+        }
+
+        uni.navigateTo({
+          url: btn.url
+        })
+
+      },
       clickAvatar(e) {
         // 点击聊天记录中用户头像
         if (this.storeUserInfo && this.storeUserInfo.user_role && e.sender_person_no) {
@@ -777,6 +809,22 @@
     },
     async onLoad(option) {
       const self = this
+      if(option.top_buttons){
+        let top_buttons = option.top_buttons;
+        try{
+          top_buttons = decodeURIComponent(top_buttons)
+        }catch(e){
+          //TODO handle the exception
+        }
+        try{
+          top_buttons = JSON.parse(top_buttons)
+        }catch(e){
+          //TODO handle the exception
+        }
+        if(Array.isArray(top_buttons)){
+          this.top_buttons = top_buttons
+        }
+      }
       if (this.$store?.state?.app?.theme === 'coffee') {
         uni.setNavigationBarColor({
           frontColor: '#ffffff',
@@ -897,7 +945,10 @@
     /* #endif */
     width: 100%;
     z-index: 2;
-
+    &.absolute{
+      position: absolute;
+      top: 0;
+    }
     .util-item {
       display: flex;
       justify-content: center;
@@ -923,7 +974,7 @@
 
       .label {
         color: #999;
-        margin-top: 10rpx;
+        // margin-top: 10rpx;
         font-size: 24rpx;
         margin-left: 5px;
       }
@@ -955,13 +1006,16 @@
         display: flex;
         justify-content: center;
         flex-direction: column;
+        margin-left: 20px;
 
         .title {
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
           overflow: hidden;
+          font-weight: bold;
         }
+
       }
     }
 

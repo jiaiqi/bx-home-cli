@@ -222,8 +222,7 @@
       showHandle() {
         // 是否显示操作按钮
         let constraint_name = this.config?.foreign_key?.constraint_name
-        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
-            'handle']) {
+        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[constraint_name]['handle']===false) {
           return false
         }
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
@@ -1664,7 +1663,7 @@
 
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
-          if (fkInitVal[item.column] && item.display !== false) {
+          if (fkInitVal && fkInitVal[item.column] && item.display !== false) {
             if (!item.value) {
               let obj = {
                 mainData: this.mainData
@@ -1823,8 +1822,7 @@
           // }
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
-          if (fkInitVal[item.column] && item.display !== false) {
-            debugger
+          if (fkInitVal&&fkInitVal[item.column] && item.display !== false) {
             // if(!item.value){
             let obj = {
               mainData: this.mainData

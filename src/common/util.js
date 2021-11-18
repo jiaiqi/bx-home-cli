@@ -2519,6 +2519,9 @@ export default {
       //#endif
     }
 
-
+    Vue.prototype.getUrlParams = (url, params) => {
+      var res = new RegExp("(?:&|/?)" + params + "=([^&$]+)").exec(url);
+      return res ? res[1] : '';
+    }
   }
 }

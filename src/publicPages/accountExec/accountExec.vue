@@ -679,9 +679,9 @@
               url = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
             }
             let model = getApp().globalData?.systemInfo?.model;
-            if (model === 'PC') {
-              url = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
-            }
+            // if (model === 'PC') {
+            //   url = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
+            // }
             uni.reLaunch({
               url
             });
