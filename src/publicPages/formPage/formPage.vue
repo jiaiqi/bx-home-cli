@@ -162,7 +162,6 @@
       operateChildService() {
         return this.detailV2?.child_service.filter(item => {
           if (item.foreign_key?.foreign_key_type === '主子表') {
-            // item.use_type = 'add'
             if (this.use_type === 'update') {
               item.use_type = 'updatechildlist'
             } else if (this.use_type === 'add') {

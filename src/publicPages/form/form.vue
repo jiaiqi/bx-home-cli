@@ -891,8 +891,7 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
         }
-
-
+        console.log(this.deepClone(colVs._fieldInfo))
         modal = colVs._fieldInfo.reduce((res, cur) => {
           if (cur.defaultValue) {
             res[cur.column] = cur.defaultValue

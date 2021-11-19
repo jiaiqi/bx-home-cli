@@ -156,8 +156,8 @@
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail"
-          @addChild="addChild" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
+          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail" @addChild="addChild"
+          @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
     </view>
@@ -272,8 +272,10 @@
                 return false
               }
             }
+            
+            
             return true
-            // return item?.foreign_key?.foreign_key_type
+            return item.foreign_key?.foreign_key_type !== '主子表'
           })
         }
         return []
