@@ -821,6 +821,7 @@
       pickerChange(e) {
         if (this.fieldData.type === 'Selector') {
           let selectorData = this.radioOptions || this.selectorData
+          debugger
           let optionData = selectorData.find(item => item.value === e);
           if (optionData?.label) {
             this.fkFieldLabel = optionData.label;
@@ -987,7 +988,7 @@
           }
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
-              self.fieldData.value) {
+              self.fieldData.value&&(self.fieldData.value||self.fieldData.value===0)) {
               self.fieldData['colData'] = item;
               self.$emit('setColData', self.fieldData)
             }

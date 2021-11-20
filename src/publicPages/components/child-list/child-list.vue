@@ -1401,7 +1401,7 @@
 
         const column = triggerField.column
         let fieldModel = e
-        const cols = this.allFields.filter(item => item.x_if).map(item => item.column)
+        const cols = this.allFields.filter(item => item.x_if&&item.in_update===1).map(item => item.column)
         const table_name = this.updateV2.main_table
 
         let result = null
@@ -1454,7 +1454,7 @@
       async valueChange(e, triggerField) {
         const column = triggerField.column
         let fieldModel = e
-        const cols = this.allFields.filter(item => item.x_if).map(item => item.column)
+        const cols = this.allFields.filter(item => item.x_if&&item.in_add===1).map(item => item.column)
         const table_name = this.curV2.main_table
 
         let result = null
@@ -1708,7 +1708,7 @@
           }
           return res
         }, {})
-        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const cols = colVs._fieldInfo.filter(item => item.x_if&&item.in_update===1).map(item => item.column)
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, defaultVal, this.srvApp)
 
