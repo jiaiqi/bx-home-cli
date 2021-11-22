@@ -23,6 +23,7 @@
   .field-item {
     overflow: hidden;
     box-sizing: border-box;
+
     &.hidden {
       width: 0 !important;
       min-width: 0 !important;
@@ -47,6 +48,7 @@
       margin-top: 0;
     }
   }
+
   @media screen and (min-width:450px) {
     .field-item {
       background-color: #fff;
@@ -74,9 +76,8 @@
       margin-right: 10px;
       margin-bottom: 10px;
       border-radius: 8px;
-      .form-item{
-        
-      }
+
+      .form-item {}
     }
   }
 
@@ -257,19 +258,23 @@
                 }
                 model = this.deepClone(this.fieldModel);
                 break;
+              case 'addchildlist':
+                model = this.deepClone(this.fieldModel);
+                break;
               case 'detaillist':
                 for (let key in this.fieldModel) {
                   if (this.oldFieldModel[key] !== this.fieldModel[key]) {
                     model[key] = this.fieldModel[key];
                   }
                 }
-                default:
-                  for (let key in this.fieldModel) {
-                    if (this.oldFieldModel[key] !== this.fieldModel[key]) {
-                      model[key] = this.fieldModel[key];
-                    }
+                break;
+              default:
+                for (let key in this.fieldModel) {
+                  if (this.oldFieldModel[key] !== this.fieldModel[key]) {
+                    model[key] = this.fieldModel[key];
                   }
-                  break;
+                }
+                break;
             }
           }
           if (Object.keys(model).length > 0) {

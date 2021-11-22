@@ -62,7 +62,7 @@
   "mp-weixin": {
     /* 小程序特有相关 */
     "appid": "wxa3c50c8177ef6739", // 正式环境
-    // "appid" : "wx08876efb5760ca75", // 测试环境
+    // "appid": "wx08876efb5760ca75", // 测试环境
 
     // "resizable":true,
     "setting": {

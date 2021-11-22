@@ -616,6 +616,13 @@
               this.isBind = false
             }
             this.bindUserInfo = isBind
+            debugger
+            if (this.inviterInfo?.invite_user_no && this.bindUserInfo.invite_user_no !== this.inviterInfo
+              .invite_user_no) {
+              this.updateStoreUserInfo({
+                invite_user_no: this.inviterInfo.invite_user_no,
+              })
+            }
             this.push_msg_set = this.bindUserInfo.push_msg_set
             this.member_status = this.bindUserInfo.member_status
             this.$store.commit('SET_STORE_USER', this.bindUserInfo)
@@ -625,6 +632,25 @@
         } else {
           this.isBind = false
         }
+      },
+      updateStoreUserInfo(e) {
+        let url = this.getServiceUrl('health', 'srvhealth_store_user_update', 'operate')
+        let req = [{
+          "serviceName": "srvhealth_store_user_update",
+          "condition": [{
+            colName: 'id',
+            ruleType: 'eq',
+            value: this.bindUserInfo.id
+          }],
+          "data": [e]
+        }]
+
+        this.$http.post(url, req).then(res => {
+          this.selectBindUser()
+          if(res.data.state==='SUCCESS'&&Array.isArray(res.data.response)&&res.data.response.length>0&&Array.isArray(res.data.response[0].response.effect_data)&&res.data.response[0].response.effect_data.length>0){
+            this.bindUserInfo =  res.data.response[0].response.effect_data[0]
+          }
+        })
       },
       getGoodsListData() {
         let req = {

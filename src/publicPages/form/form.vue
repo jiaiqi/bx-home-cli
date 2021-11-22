@@ -766,7 +766,6 @@
         self.colsV2Data = colVs;
         colVs = self.deepClone(colVs);
 
-
         if (colVs && colVs.service_view_name) {
           uni.setNavigationBarTitle({
             title: colVs.service_view_name
@@ -891,9 +890,10 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
         }
+        
         console.log(this.deepClone(colVs._fieldInfo))
         modal = colVs._fieldInfo.reduce((res, cur) => {
-          if (cur.defaultValue) {
+          if (cur.defaultValue&&!cur.value) {
             res[cur.column] = cur.defaultValue
             cur.value = cur.defaultValue
             if (self.defaultVal && self.defaultVal[cur.column]) {
@@ -902,8 +902,7 @@
           }
           return res
         }, {})
-
-
+        
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, modal, this.appName)

@@ -30,9 +30,9 @@
       },
     },
     computed: {
-      isShowToAll(){
-        let num = this.config?.page?.rownumber||this.rownumber;
-        if(this.total>num){
+      isShowToAll() {
+        let num = this.config?.page?.rownumber || this.rownumber;
+        if (this.total > num) {
           return true
         }
         return false
@@ -51,6 +51,9 @@
       },
       moreConfig() {
         return this.colV2?.moreConfig || {}
+      },
+      showSeeAll() {
+        return this.pageItem.list_config.showSeeAll !== false
       },
       config() {
         if (this.pageItem && this.pageItem.list_config) {
@@ -224,9 +227,9 @@
       }
     },
     methods: {
-      toAll(){
+      toAll() {
         uni.navigateTo({
-          url:`/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
+          url: `/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
         })
       },
       getListWithFilter(e) {
@@ -440,7 +443,8 @@
         if (Array.isArray(this.config?.condition) && this.config.condition.length > 0) {
           let data = {
             userInfo: this.$store?.state?.user?.userInfo,
-            storeInfo: this.$store?.state?.app?.storeInfo
+            storeInfo: this.$store?.state?.app?.storeInfo,
+            bindUserInfo: this.$store?.state?.user?.storeUserInfo
           }
           this.config.condition.forEach(cond => {
             let obj = {}

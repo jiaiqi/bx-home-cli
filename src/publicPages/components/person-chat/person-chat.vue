@@ -2402,9 +2402,10 @@
           }
         }
       },
-      setRefreshMessageTimer(second = 30000 * 1000) {
+      setRefreshMessageTimer(second = 1 * 1000) {
         // 设置定时刷新消息的定时器
         clearInterval(this.refreshMessageTimer)
+        debugger
         this.refreshMessageTimer = setInterval(() => {
           this.initMessageList('refresh')
         }, second)
@@ -2438,7 +2439,7 @@
           })
         }
       },
-      /*查询当前病人**/
+      /*查询当前用户信息**/
       async getUserInfo(customer_no) {
         let url = this.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
         let req = {

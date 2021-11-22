@@ -81,11 +81,12 @@
     <view class="handler-bar">
       <text class="amount">共{{ totalAmount }}件</text>
       <text class="text">合计:</text>
-      <text class="money-amount" >
+      <text class="money-amount">
         <text class="money-operate">￥</text>
-        <text >{{ totalMoney ? totalMoney / 100 : "" }}</text>
+        <text>{{ totalMoney ? totalMoney / 100 : "" }}</text>
       </text>
-      <button class="cu-btn bg-gradual-orange round" :class="'bx-bg-'+theme" @click="submitOrder" v-if="orderInfo.order_state === '待提交'">
+      <button class="cu-btn bg-gradual-orange round" :class="'bx-bg-'+theme" @click="submitOrder"
+        v-if="orderInfo.order_state === '待提交'">
         提交订单
       </button>
       <button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="
@@ -172,7 +173,7 @@
         loginUserInfo: state => state.user.loginUserInfo,
         cartInfo: state => state.order.cartInfo,
         storeInfo: state => state.app.storeInfo,
-        theme:state=>state.app.theme
+        theme: state => state.app.theme
       }),
       needIdNum() {
         let goods = this.orderInfo.goodsList;
@@ -211,6 +212,7 @@
               pre += cur.car_num * cur.price;
             }
             return pre;
+          // }, 0)
           }, 0) * 100
         }
       }
@@ -370,9 +372,9 @@
         let req = [{
           serviceName: 'srvhealth_store_order_update',
           condition: [{
-            colName: 'id',
+            colName: 'order_no',
             ruleType: 'eq',
-            value: this.orderInfo.id
+            value: this.orderInfo.order_no
           }],
           data: [{
             order_state: order_state
@@ -386,7 +388,8 @@
           });
         }
         this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
-          ;
+          debugger
+          // 支付成功后修改订单状态和支付状态
         });
       },
       chooseAddress() {
