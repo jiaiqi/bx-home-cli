@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap"  :class="{'pc-model':sysModel==='PC'}">
+  <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
     <view class="">
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
 
@@ -15,7 +15,7 @@
       </filter-tags>
     </view>
 
-    <view class="list-content"  :class="['theme-'+theme]" :style="{
+    <view class="list-content" :class="['theme-'+theme]" :style="{
         backgroundColor:list_config.bg
       }">
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
@@ -292,8 +292,8 @@
           }, [])
         }
       },
-      countConfig(){
-        return this.moreConfig?.count_config||{}
+      countConfig() {
+        return this.moreConfig?.count_config || {}
       },
     },
     data() {
@@ -329,7 +329,7 @@
         gridButtonDisp: null,
         rowButtonDisp: null,
         formButtonDisp: null,
-        countData:null
+        countData: null
       }
     },
     methods: {
@@ -362,8 +362,8 @@
             let res = await this.$http.post(url, req);
             if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
               let data = res.data.data[0]
-              if(Array.isArray(count_config.labelMap)){
-                let result = count_config.labelMap.map(item=>{
+              if (Array.isArray(count_config.labelMap)) {
+                let result = count_config.labelMap.map(item => {
                   item.value = data[item.col];
                   return item
                 })
@@ -618,7 +618,7 @@
                 this.customDetailUrl = colVs.moreConfig?.customDetailUrl
               }
             }
-            if(colVs.moreConfig?.count_config){
+            if (colVs.moreConfig?.count_config) {
               this.getCountData(colVs.moreConfig?.count_config)
             }
           } catch (e) {
@@ -627,7 +627,7 @@
           }
         }
         this.colV2 = colVs;
-       
+
         if (Array.isArray(colVs.srv_cols)) {
           this.orderCols = colVs.srv_cols.filter(item => {
             if (item.in_list === 1) {
@@ -640,7 +640,7 @@
         return colVs;
       },
       async getList(cond, initCond) {
-        if(this.moreConfig?.count_config){
+        if (this.moreConfig?.count_config) {
           this.getCountData(this.moreConfig?.count_config)
         }
         let serviceName = this.serviceName;
@@ -852,6 +852,7 @@
               condition: buttonInfo.operate_params.condition,
               data: buttonInfo.operate_params.data
             }];
+
             if (!buttonInfo.operate_params.data && buttonInfo.servcie_type === 'update') {
               uni.showModal({
                 title: '提示',
@@ -863,10 +864,19 @@
             let app = this.appName || uni.getStorageSync('activeApp');
             let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
               buttonInfo.servcie_type);
-            let res = await this.$http.post(url, req);
-            if (res.data.state === 'SUCCESS') {
-              this.refresh()
-            }
+            uni.showModal({
+              title: '提示',
+              content: '是否确认操作?',
+              success: (res) => {
+                if (res.confirm) {
+                  this.$http.post(url, req).then(res => {
+                    if (res.data.state === 'SUCCESS') {
+                      this.refresh()
+                    }
+                  })
+                }
+              }
+            })
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
             let storeInfo = this.$store?.state?.app?.storeInfo
@@ -883,8 +893,11 @@
               // uni.navigateTo({
               //   url
               // })
-              let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
-              this.navigateTo({url,title})
+              let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+              this.navigateTo({
+                url,
+                title
+              })
             }
 
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
@@ -905,14 +918,17 @@
                 defaultVal: rowData,
                 eventOrigin: buttonInfo
               };
-              let url ='/pages/public/formPage/formPage?params=' + JSON.stringify(
-                  params)
+              let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                params)
               // uni.navigateTo({
               //   url
               // });
-              let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
-              this.navigateTo({url,title})
-         
+              let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+              this.navigateTo({
+                url,
+                title
+              })
+
               return
             } else if (buttonInfo.servcie_type === 'select') {
               let params = {
@@ -1011,8 +1027,11 @@
             // uni.navigateTo({
             //   url
             // });
-            let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
-            this.navigateTo({url,title})
+            let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+            this.navigateTo({
+              url,
+              title
+            })
             return
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
             let fieldsCond = [];
@@ -1045,8 +1064,11 @@
             // uni.navigateTo({
             //   url
             // });
-            let title = buttonInfo?.service_view_name|| buttonInfo?.button_name
-            this.navigateTo({url,title})
+            let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+            this.navigateTo({
+              url,
+              title
+            })
             return
           }
 

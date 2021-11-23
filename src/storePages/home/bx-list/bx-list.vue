@@ -2,7 +2,8 @@
   <view class="page-wrap" v-if="list&&list.length>0">
     <view class="title">
       <text>{{pageItem.component_label||''}}</text>
-      <button class="cu-btn sm border  bg-white" @click="toAll" v-if="showSeeAll">查看全部<text class="cuIcon-right"></text></button>
+      <button class="cu-btn sm border  bg-white" @click="toAll" v-if="showSeeAll">查看全部<text
+          class="cuIcon-right"></text></button>
     </view>
     <view class="list-content" :style="{
         backgroundColor:list_config.bg
@@ -606,11 +607,25 @@
             let app = this.appName || uni.getStorageSync('activeApp');
             let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
               buttonInfo.servcie_type);
-            let res = await this.$http.post(url, req);
-            if (res.data.state === 'SUCCESS') {
-              // this.getList()
-              this.refresh()
-            }
+
+            uni.showModal({
+              title: '提示',
+              content: '是否确认操作?',
+              success: (res) => {
+                if (res.confirm) {
+                  this.$http.post(url, req).then(res => {
+                    if (res.data.state === 'SUCCESS') {
+                      this.refresh()
+                    }
+                  })
+                }
+              }
+            })
+            // let res = await this.$http.post(url, req);
+            // if (res.data.state === 'SUCCESS') {
+            //   // this.getList()
+            //   this.refresh()
+            // }
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
             let storeInfo = this.$store?.state?.app?.storeInfo
