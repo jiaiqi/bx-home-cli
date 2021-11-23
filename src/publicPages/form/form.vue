@@ -2,7 +2,7 @@
   <view class="form" :style="{
       '--global-text-font-size': globalTextFontSize + 'px',
       '--page-height': pageHeight,
-    }">
+    }" :class="['theme-'+theme]">
     <view>
       <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
         :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange" :mainData="defaultVal"
@@ -890,10 +890,10 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
         }
-        
+
         console.log(this.deepClone(colVs._fieldInfo))
         modal = colVs._fieldInfo.reduce((res, cur) => {
-          if (cur.defaultValue&&!cur.value) {
+          if (cur.defaultValue && !cur.value) {
             res[cur.column] = cur.defaultValue
             cur.value = cur.defaultValue
             if (self.defaultVal && self.defaultVal[cur.column]) {
@@ -902,7 +902,7 @@
           }
           return res
         }, {})
-        
+
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, modal, this.appName)

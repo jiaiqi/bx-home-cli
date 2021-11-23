@@ -1,7 +1,8 @@
 <template>
   <view>
     <view class="cu-custom" :style="[{ height: CustomBar + 'px' }]">
-      <view class="cu-bar fixed" :style="style" :class="[bgImage != '' ? 'none-bg text-white bg-img' : '', bgColor]">
+      <view class="cu-bar fixed" :style="style" :class="className">
+      <!-- <view class="cu-bar fixed" :style="style" :class="[bgImage != '' ? 'none-bg text-white bg-img' : '', bgColor]"> -->
         <view class="action" @tap="BackPage" v-if="isBack">
           <text class="cuIcon-home" v-if="isFirstPage||backHome"></text>
           <text class="cuIcon-back" v-else></text>
@@ -37,20 +38,25 @@
         const pages = getCurrentPages()
         return pages && pages.length === 1
       },
+      className(){
+        if(this.theme){
+          return `bx-bg-color`
+        }
+      },
       style() {
         var StatusBar = this.StatusBar;
         var CustomBar = this.CustomBar;
         var bgImage = this.bgImage;
         var style = `height:${CustomBar}px;padding-top:${StatusBar}px;`;
-        if (this.bgImage) {
-          style = `${style}background-image:url(${bgImage});`;
-        }
+        // if (this.bgImage) {
+        //   style = `${style}background-image:url(${bgImage});`;
+        // }
         if (this.bgColor.indexOf('#') !== -1) {
           style += `background-color:${this.bgColor}`
         }
-        if (!this.bgColor) {
-          style += `background-color:#0bc99d;color:#fff;`
-        }
+        // if (!this.bgColor) {
+        //   style += `background-color:#0bc99d;color:#fff;`
+        // }
 
         return style
       }
@@ -64,13 +70,17 @@
         type: [Boolean, String],
         default: false
       },
-      bgImage: {
-        type: String,
-        default: ''
-      },
+      // bgImage: {
+      //   type: String,
+      //   default: ''
+      // },
       backHome: {
         type: Boolean,
         default: false
+      },
+      theme: {
+        type: String,
+        default: ''
       }
     },
     methods: {
@@ -79,7 +89,7 @@
       },
       BackPage() {
         this.$emit('onBack')
-        if (this.isFirstPage||this.backHome) {
+        if (this.isFirstPage || this.backHome) {
           uni.reLaunch({
             url: '/pages/index/index'
           })
@@ -95,7 +105,7 @@
 </script>
 
 <style>
-  .cu-custom{
+  .cu-custom {
     width: 100vw;
   }
 </style>

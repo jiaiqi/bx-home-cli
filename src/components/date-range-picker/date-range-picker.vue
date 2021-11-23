@@ -32,7 +32,7 @@
       <!-- #ifdef H5 -->
 
       <!-- #endif -->
-      <mx-datepicker :show="show" :type="mode" :value="value" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
+      <mx-datepicker :show="show" :type="mode" :value="value" :min="min" :show-tips="true" :begin-text="'入住'" :end-text="'离店'"
         :show-seconds="false" :price-map="priceMap" :price-config="priceConfig" @confirm="change" @cancel="cancel" format="yyyy-mm-dd" />
 
       <!-- #ifdef MP -->

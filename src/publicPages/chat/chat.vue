@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" :class="['theme-'+theme]">
     <view class="util-bar" v-if="
         (groupInfo && groupInfo.gc_no) ||
         sessionType === '店铺机构全员' ||
@@ -74,6 +74,9 @@
       personChat
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       moreConfig() {
         let more_config = this.sessionInfo?.more_config;
         if (typeof more_config === 'string') {
@@ -156,7 +159,7 @@
         goods_no: "",
         goodsInfo: null,
         showGoodsCard: false,
-        top_buttons:[]
+        top_buttons: []
       }
     },
     methods: {
@@ -809,35 +812,29 @@
     },
     async onLoad(option) {
       const self = this
-      if(option.top_buttons){
+      if (option.top_buttons) {
         let top_buttons = option.top_buttons;
-        try{
+        try {
           top_buttons = decodeURIComponent(top_buttons)
-        }catch(e){
+        } catch (e) {
           //TODO handle the exception
         }
-        try{
+        try {
           top_buttons = JSON.parse(top_buttons)
-        }catch(e){
+        } catch (e) {
           //TODO handle the exception
         }
-        if(Array.isArray(top_buttons)){
+        if (Array.isArray(top_buttons)) {
           this.top_buttons = top_buttons
         }
       }
-      if (this.$store?.state?.app?.theme === 'coffee') {
-        uni.setNavigationBarColor({
-          frontColor: '#ffffff',
-          backgroundColor: '#BFA58B'
-        })
-      }
+      this.setNavBg(this.$store?.state?.app?.theme||'blue')
       if (option.articleList) {
         try {
           this.articleList = JSON.parse(option.articleList)
           delete option.articleList
         } catch (e) {
           //TODO handle the exception
-
         }
       }
       this.queryOption = option
@@ -945,10 +942,12 @@
     /* #endif */
     width: 100%;
     z-index: 29999;
-    &.absolute{
+
+    &.absolute {
       position: absolute;
       top: 0;
     }
+
     .util-item {
       display: flex;
       justify-content: center;

@@ -61,10 +61,15 @@ export default {
       if (srv && srvType && pageType) {
         let len = srv.lastIndexOf('_')
         let serviceName = srv.slice(0, len) + '_'
+        let lastName = srv.slice(len + 1)
         if (srvType === 'list' || srvType === 'detail') {
           serviceName += 'select'
         } else {
-          serviceName += srvType
+          if (['add', 'update', 'select', 'delete'].indexOf(lastName)) {
+            serviceName += srvType
+          } else {
+            serviceName += `${lastName}`
+          }
         }
         let cols = self.$store.getters.srvCol ? self.$store.getters.srvCol : []
         // let cols = self.$store.getters.getSrvCol ? self.$store.getters.getSrvCol : []
@@ -154,8 +159,8 @@ export default {
           cols = cols.filter((item, index) => {
             // if (item.in_add !== 0) {
             if (item.in_add === 1 || item.in_add === 2) {
-              if(item.in_add==2){
-                item.x_if=null
+              if (item.in_add == 2) {
+                item.x_if = null
               }
               return item
             }
@@ -164,8 +169,8 @@ export default {
         case "update":
           cols = cols.filter((item, index) => {
             if (item.in_update === 1 || item.in_update === 2) {
-              if(item.in_update==2){
-                item.x_if=null
+              if (item.in_update == 2) {
+                item.x_if = null
               }
               return item
             }
@@ -290,6 +295,10 @@ export default {
             appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
               .table_name.indexOf("_"))
           }
+        } else if (item.col_type === "Set") {
+          // fieldInfo.type = "radioFk"
+          fieldInfo.type = "Set"
+          fieldInfo.options = item.option_list_v2
         } else if (item.col_type === "Enum" || item.col_type === "Dict") {
           // fieldInfo.type = "radioFk"
           fieldInfo.type = "Selector"
@@ -2071,7 +2080,7 @@ export default {
         if (inviterInfo.invite_user_no) {
           req[0].data[0].invite_user_no = inviterInfo.invite_user_no
         } else {
-          req[0].data[0].invite_user_no = 'jiaqi'
+          req[0].data[0].invite_user_no = ''
         }
         if (inviterInfo.add_url) {
           req[0].data[0].add_url = inviterInfo.add_url
@@ -2528,6 +2537,26 @@ export default {
     Vue.prototype.getUrlParams = (url, params) => {
       var res = new RegExp("(?:&|/?)" + params + "=([^&$]+)").exec(url);
       return res ? res[1] : '';
+    }
+
+    Vue.prototype.setNavBg = (theme) => {
+      let frontColor = '#ffffff'
+      let backgroundColor = '#fff'
+      switch (theme) {
+        case 'coffee':
+          backgroundColor = '#BFA58B'
+          break;
+        case 'red':
+          backgroundColor = '#fe5a3f'
+          break;
+        case 'blue':
+          backgroundColor = '#337fff'
+          break;
+      }
+      uni.setNavigationBarColor({
+        frontColor: frontColor,
+        backgroundColor: backgroundColor
+      })
     }
   }
 }

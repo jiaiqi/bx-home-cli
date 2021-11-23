@@ -3,7 +3,7 @@
       '--chart-height': chartHeight,
       '--keyboard-height': keyboardHeight + 'px',
       '--global-text-font-size': globalTextFontSize + 'px',
-    }">
+    }" :class="['theme-'+theme]">
     <view class="person-chat-top" @click.stop="closeBottomPoup" :class="
         doctor_info && !doctor_info.owner_account
           ? 'person-chat-top-w'
@@ -277,12 +277,12 @@
               <text class="cu-tag bg-blue sm"
                 v-else-if="item.identity && item.identity !== '客户'">{{ item.identity }}</text>
             </view>
-            <text class="unread" v-if="
+            <!--    <text class="unread" v-if="
                 item.msg_state === '未读' &&
                 !groupNo &&
                 (!groupInfo || !groupInfo.gc_no) &&
                 sessionType !== '店铺机构全员'
-              ">{{ item.msg_state }}</text>
+              ">{{ item.msg_state }}</text> -->
             <view @click="previewImages(item.img_url)" v-if="item.image && item.img_url"
               class="person-chat-item-right person-chat-item-right-image">
               <image :style="{
@@ -649,7 +649,7 @@
         subscsribeStatus: state => state.app.subscsribeStatus,
         globalTextFontSize: state => state.app['globalTextFontSize'],
         currentUserInfo: state => state.user.userInfo,
-        theme:state=>state.app.theme
+        theme: state => state.app.theme
       }),
       chartHeight() {
         if (this.topHeight) {
@@ -2119,7 +2119,7 @@
         }
       },
       // 初始化聊天记录
-      async initMessageList(type = null) {
+      async initMessageList(type = null, dontEmit) {
         this.scrollAnimation = false; //关闭滑动动画
         let url = this.getServiceUrl('health', 'srvhealth_consultation_chat_record_select', 'select');
         if (type === 'refresh') {
@@ -2249,10 +2249,12 @@
           delete req.relation_condition
         }
         let res = await this.$http.post(url, req);
-        if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-          this.$emit('load-msg-complete', res.data.data[0]);
-        } else {
-          this.$emit('load-msg-complete', res.data.data);
+        if (dontEmit !== true) {
+          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            this.$emit('load-msg-complete', res.data.data[0]);
+          } else {
+            this.$emit('load-msg-complete', res.data.data);
+          }
         }
         let resData = res.data.data;
         if (type) {
@@ -2390,7 +2392,7 @@
                 return true
               }
             })
-            this.updateMessageInfo(recordList)
+            // this.updateMessageInfo(recordList)
           }
           if (this.pageInfo.pageNo * this.pageInfo.rownumber >= res.data.page.total) {
             this.isAll = true;
@@ -2405,9 +2407,9 @@
       setRefreshMessageTimer(second = 1 * 1000) {
         // 设置定时刷新消息的定时器
         clearInterval(this.refreshMessageTimer)
-        debugger
         this.refreshMessageTimer = setInterval(() => {
-          this.initMessageList('refresh')
+          const dontEmit = true
+          this.initMessageList('refresh', dontEmit)
         }, second)
       },
       async updateMessageInfo(e) {
@@ -2728,7 +2730,7 @@
     created() {
       uni.$on('onBack', () => {
         this.initMessageList('refresh').then(_ => {
-          this.setRefreshMessageTimer()
+          // this.setRefreshMessageTimer()
         });
       })
       if (this.customer_no) {
@@ -2737,7 +2739,7 @@
       } else if (this.groupInfo && this.groupInfo.gc_no) {
         // 圈子聊天
         this.initMessageList('refresh').then(_ => {
-          this.setRefreshMessageTimer()
+          // this.setRefreshMessageTimer()
         });
       } else if (this.sessionNo) {
         this.initMessageList('refresh').then(_ => {
@@ -2915,6 +2917,7 @@
           flex-wrap: wrap;
           width: 100%;
           position: relative;
+          align-items: center;
 
           .record-popover {
             background-color: #555;
@@ -3192,6 +3195,7 @@
           display: flex;
           margin: 0 10rpx 20rpx;
           justify-content: flex-end;
+          align-items: center;
           min-width: 40%;
           max-width: 100%;
           flex-wrap: wrap;
@@ -3352,7 +3356,7 @@
               // border-left: 8px solid #12b7f5;
               position: absolute;
               right: -8px;
-              top: 15px;
+              top: 35%;
             }
 
             &.goods-card {

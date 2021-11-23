@@ -1,7 +1,7 @@
 <template>
   <view class="cu-modal bottom-modal" :class="{show:show}" @click="close" @touchmove.prevent v-if="inDialog">
     <view class="cu-dialog" @click.stop="">
-      <view class="batch-add">
+      <view class="batch-add" :class="['theme-'+theme]">
         <list-bar @change="changeSerchVal" :srvCols="srvCols" :listButton="listButton" @toOrder="toOrder"
           @toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
           :readonly="true" v-if="showSearchBar">
@@ -9,7 +9,7 @@
         <view class="add-box">
           <view class="add-item-box">
             <view class="add-item" v-for="(item,index) in list">
-              <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee'}"
+              <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee','bx-btn-bg-color':item.selected&&theme}"
                 @click="clickItem(item,index)">
                 <image :src="getImagePath(item[params.imgCol])" mode="aspectFit"
                   v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
@@ -39,10 +39,10 @@
       @toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
       :readonly="true" v-if="showSearchBar">
     </list-bar> -->
-    <view class="add-box p-lr-0">
+    <view class="add-box p-lr-0" :class="['theme-'+theme]">
       <view class="add-item-box">
         <view class="add-item" v-for="(item,index) in list">
-          <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee'}" @click="clickItem(item,index)">
+          <view class="content" :class="{active:item.selected,'bx-btn-bg-coffee':item.selected&&theme==='coffee','bx-btn-bg-color':item.selected&&theme}" @click="clickItem(item,index)">
             <image :src="getImagePath(item[params.imgCol])" mode="aspectFit"
               v-if="params&&params.imgCol&&item[params.imgCol]" class="image"></image>
             <view class="image" v-else-if="params&&params.imgCol&&!item[params.imgCol]">

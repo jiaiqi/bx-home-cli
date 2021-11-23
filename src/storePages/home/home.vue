@@ -1,7 +1,7 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
-  <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'">
-    <cu-custom-navbar bgColor="bg-white" :isBack="showBackHome" :back-home="showBackHome">
+  <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'" :class="['theme-'+theme]">
+    <cu-custom-navbar :theme="theme" :isBack="showBackHome" :back-home="showBackHome">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
           {{ storeInfo.name || "首页" }}
@@ -132,6 +132,9 @@
       };
     },
     computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
       showBackHome() {
         let status = this.storeInfo?.audit_status
         if (status) {
@@ -616,10 +619,10 @@
               this.isBind = false
             }
             this.bindUserInfo = isBind
-            debugger
+
             if (this.inviterInfo?.invite_user_no && this.bindUserInfo.invite_user_no !== this.inviterInfo
-              .invite_user_no) {
-              this.updateStoreUserInfo({
+              .invite_user_no && this.inviterInfo.invite_user_no !== 'jiaqi') {
+              await this.updateStoreUserInfo({
                 invite_user_no: this.inviterInfo.invite_user_no,
               })
             }
@@ -633,7 +636,7 @@
           this.isBind = false
         }
       },
-      updateStoreUserInfo(e) {
+      async updateStoreUserInfo(e) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_update', 'operate')
         let req = [{
           "serviceName": "srvhealth_store_user_update",
@@ -645,12 +648,18 @@
           "data": [e]
         }]
 
-        this.$http.post(url, req).then(res => {
-          this.selectBindUser()
-          if(res.data.state==='SUCCESS'&&Array.isArray(res.data.response)&&res.data.response.length>0&&Array.isArray(res.data.response[0].response.effect_data)&&res.data.response[0].response.effect_data.length>0){
-            this.bindUserInfo =  res.data.response[0].response.effect_data[0]
-          }
-        })
+        let res = await this.$http.post(url, req)
+        // .then(res => {
+        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length > 0 &&
+          Array.isArray(res.data.response[0].response.effect_data) && res.data.response[0].response.effect_data
+          .length > 0) {
+          this.bindUserInfo = res.data.response[0].response.effect_data[0]
+          this.push_msg_set = this.bindUserInfo.push_msg_set
+          this.member_status = this.bindUserInfo.member_status
+          this.$store.commit('SET_STORE_USER', this.bindUserInfo)
+        }
+        this.selectBindUser()
+        // })
       },
       getGoodsListData() {
         let req = {
@@ -682,6 +691,19 @@
         // serviceName = 'srvhealth_store_mgmt_select'
         let res = await this.$fetch('select', serviceName, req, 'health')
         if (Array.isArray(res.data) && res.data.length > 0) {
+          let theme = 'blue'
+          if (res.data[0].para_cfg) {
+            try {
+              let moreConfig = JSON.parse(res.data[0].para_cfg)
+              res.data[0].moreConfig = moreConfig
+              if (moreConfig.theme) {
+                theme = moreConfig.theme
+              }
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          this.$store.commit('SET_THEME', theme)
           this.storeInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
           if (this.storeInfo.type === '健康服务') {
@@ -873,7 +895,7 @@
             user_image: this.userInfo.user_image,
             person_name: this.userInfo.name || this.userInfo.nick_name,
             add_url: this.inviterInfo.add_url,
-            invite_user_no: invite_user_no || 'jiaqi',
+            invite_user_no: invite_user_no || '',
             store_no: this.storeNo,
             person_no: this.userInfo.no,
             user_role: '用户',
@@ -1004,13 +1026,12 @@
         }
         if (this.storeNo) {
           // this.storeInfo.store_no = null
-          this.getPageItem()
           await this.selectStoreInfo();
           await this.selectBindUser()
+          await this.getPageItem()
           if (this.bindUserInfo?.id) {} else {
             await this.bindStore()
           }
-
 
           this.getQuery()
 
@@ -1347,7 +1368,7 @@
       if (option.room_no) {
         getApp().globalData.room_no = option.room_no
         option.share_type = 'bindOrganization'
-        option.invite_user_no = option.invite_user_no || option.inviter || 'jiaqi'
+        option.invite_user_no = option.invite_user_no || option.inviter || ''
       }
       if ((option.share_type === 'bindOrganization' || option.share_type === 'bind') && option.store_no && option
         .invite_user_no && !this.authBoxDisplay) {
@@ -1442,7 +1463,7 @@
     align-items: center;
     padding: 10rpx 20rpx;
     width: 100%;
-    background-color: #fff;
+    // background-color: #fff;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

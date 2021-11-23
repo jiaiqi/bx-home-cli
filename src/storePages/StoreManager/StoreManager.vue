@@ -1,12 +1,12 @@
 <template>
-  <view class="page-bg" :class="'bx-bg-'+theme">
+  <view class="page-bg" :class="['bx-bg-'+theme,'theme-'+theme,'bx-bg-color']">
     <view class="page-wrap">
       <view class="head">
         <view class="store-name">
           <view class="name" @click="toStoreDetail">
             {{storeInfo.name||''}}
           </view>
-          <view class="phone" :class="'bx-bg-'+theme" @click.stop="makePhoneCall">
+          <view class="phone bx-bg-color" :class="'bx-bg-'+theme" @click.stop="makePhoneCall">
             <u-icon name="phone-fill"></u-icon>
           </view>
         </view>
@@ -838,7 +838,7 @@
               footer: 'rcv_addr_str'
             };
             url =
-              `/publicPages/list/list?pageType=list&serviceName=srvhealth_store_order_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
+              `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_order_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
             break;
           case 'see_doctor_count':
             viewTemp = {
@@ -1162,7 +1162,6 @@
               if (moreConfig && moreConfig.displayColumn) {
                 this.displayColumn = moreConfig.displayColumn
               }
-              debugger
               if (moreConfig?.count_config) {
                 this.getCountData(moreConfig.count_config)
               }
@@ -1231,12 +1230,8 @@
       uni.$emit('updateUnread')
     },
     async onLoad(option) {
-      if (this.theme === 'coffee') {
-        uni.setNavigationBarColor({
-          frontColor: '#ffffff',
-          backgroundColor: '#BFA58B'
-        })
-      }
+      
+      this.setNavBg(this.theme)
       uni.$on('updateKefuSessionLastLookTime', () => {
         if (this.storeNo) {
           this.getStoreInfo();

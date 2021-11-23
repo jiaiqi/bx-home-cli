@@ -1,5 +1,5 @@
 <template>
-  <view class="pay-order">
+  <view class="pay-order" :class="['theme-'+theme]">
     <view class="address-box" @click="chooseAddress" v-if="!room_no&&(storeInfo&&storeInfo.type!=='酒店')">
       <view class="left" v-if="addressInfo && addressInfo.userName && addressInfo.telNumber"><text
           class="cuIcon-locationfill"></text></view>
@@ -212,7 +212,7 @@
               pre += cur.car_num * cur.price;
             }
             return pre;
-          // }, 0)
+            // }, 0)
           }, 0) * 100
         }
       }
@@ -377,15 +377,12 @@
             value: this.orderInfo.order_no
           }],
           data: [{
-            order_state: order_state
-          }, {
+            order_state: order_state,
             pay_state: pay_state
           }]
         }];
         if (prepay_id) {
-          req[0].data.push({
-            prepay_id: prepay_id
-          });
+          req[0].data[0].prepay_id = prepay_id
         }
         this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
           debugger

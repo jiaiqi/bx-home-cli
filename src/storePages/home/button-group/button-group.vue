@@ -30,7 +30,7 @@
       </swiper-item>
     </swiper>
     <view class="swiper-item single-layout" v-else-if="menuList.length === 1">
-<!--      <view class="menu-item" @click="toSpeach">
+      <!--      <view class="menu-item" @click="toSpeach">
         语音合成
       </view> -->
       <view class="menu-item" :class="{
@@ -56,11 +56,16 @@
     <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
       <view class="cu-dialog " @click.stop="">
         <view class="qrcode-box">
-          <image :src="qrcodePath" mode="aspectFit" v-if="storeInfo&&qrcodePath" @click="toPreviewImage(qrcodePath)">
+          <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
+          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
+            @click="toPreviewImage(qrcodePath)">
           </image>
           <view class="qr-code-image" v-else @click="makeQrCode">
             <text class="cuIcon-refresh"></text>
           </view>
+    <!--      <view class="store-name">
+            {{storeInfo.name}}
+          </view> -->
         </view>
         <view class="button-box">
           <button @click.stop="hideQrcode" class="cu-btn">关闭</button>
@@ -970,6 +975,19 @@
   .qrcode-box {
     padding: 80rpx 40rpx;
     text-align: center;
+    position: relative;
+    .store-name{
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .store-logo {
+      position: absolute;
+      width: 100rpx;
+      height: 100rpx;
+      left: calc(50% - 50rpx);
+      top: 20rpx;
+      z-index: 2;
+    }
 
     .qr-code-image {
       width: 500rpx;
@@ -978,10 +996,14 @@
       margin: 0 auto;
       text-align: center;
       font-size: 20px;
-      border: 1rpx solid #ccc;
+      border: 15rpx solid #333;
+      padding: 10px;
+      border-radius: 20rpx;
     }
   }
-
+  .cu-dialog{
+    width: 100%!important;
+  }
   .qrcode-canvas {
     position: fixed;
     top: -999px;

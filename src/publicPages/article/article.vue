@@ -343,7 +343,7 @@
       width: 100%;
       align-items: center;
       line-height: 60upx;
-
+      margin-top: 60px;
       // justify-content: space-around;
       .modify-time {
         color: #999;

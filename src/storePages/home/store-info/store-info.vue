@@ -73,7 +73,9 @@
           makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
         </uni-qrcode>
         <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
-          @click="toPreviewImage(qrcodePath)"></image>
+          @click="showModal('showQrCode')"></image>
+        <!--    <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
+      @click="toPreviewImage(qrcodePath)"></image> -->
         <view class="qr-code-image" v-else @click="makeQrCode">
           <text class="cuIcon-refresh"></text>
         </view>
@@ -88,6 +90,26 @@
           <view class="button-box">
             <button class="cu-btn bg-cyan round margin-top shadow-blur" @click="hideModal">知道了</button>
           </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='showQrCode'}" @click="hideModal">
+      <view class="cu-dialog " @click.stop="">
+        <view class="qrcode-box">
+          <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
+          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
+            @click="toPreviewImage(qrcodePath)">
+          </image>
+          <view class="qr-code-image" v-else @click="makeQrCode">
+            <text class="cuIcon-refresh"></text>
+          </view>
+          <view class="store-name">
+            {{storeInfo.name||''}}
+          </view>
+        </view>
+        <view class="button-box">
+          <button @click.stop="hideModal()" class="cu-btn">关闭</button>
         </view>
       </view>
     </view>
@@ -168,11 +190,11 @@
             // 如果配置了自定义显示隐藏，则默认隐藏
             obj[key] = false
             if (userRole) {
-              let arr  = userRole.split(',')
+              let arr = userRole.split(',')
               if (Array.isArray(arr) && arr.length > 0) {
                 arr.forEach(role => {
                   if (disp_role[key].indexOf(role) !== -1) {
-                     obj[key]  = true
+                    obj[key] = true
                   }
                 })
               }
@@ -219,9 +241,10 @@
     },
     data() {
       return {
+        modalName: "",
         hasManageBtn: false,
         qrCodeText: '',
-        codeSize: uni.upx2px(700),
+        codeSize: uni.upx2px(1024),
         qrcodePath: '', //图片url
         qrCodeLogo: "",
         showNoticeModal: false,
@@ -269,9 +292,11 @@
         })
       },
       hideModal() {
+        this.modalName = ''
         this.showNoticeModal = false
       },
-      showModal() {
+      showModal(e) {
+        this.modalName = e
         this.showNoticeModal = true
       },
       toSetting() {
@@ -722,5 +747,41 @@
         padding: 5px;
       }
     }
+  }
+
+  .qrcode-box {
+    padding: 80rpx 40rpx;
+    text-align: center;
+    position: relative;
+
+    .store-name {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .store-logo {
+      position: absolute;
+      width: 100rpx;
+      height: 100rpx;
+      left: calc(50% - 50rpx);
+      top: 20rpx;
+      z-index: 2;
+    }
+
+    .qr-code-image {
+      width: 500rpx;
+      height: 500rpx;
+      line-height: 500rpx;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      border: 15rpx solid #333;
+      padding: 10px;
+      border-radius: 20rpx;
+    }
+  }
+
+  .cu-dialog {
+    width: 100% !important;
   }
 </style>

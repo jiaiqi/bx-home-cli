@@ -163,12 +163,12 @@ export default {
             add_store_no: option.store_no || 'S20210204016',
             home_store_no: option.store_no || 'S20210204016',
             add_url: pageInfo.add_url,
-            invite_user_no: option.invite_user_no || 'jiaqi'
+            invite_user_no: option.invite_user_no || ''
           });
         } else {
           store.commit('SET_INVITER_INFO', {
             add_url: pageInfo.add_url,
-            invite_user_no: option.invite_user_no || 'jiaqi'
+            invite_user_no: option.invite_user_no || ''
           });
         }
       }

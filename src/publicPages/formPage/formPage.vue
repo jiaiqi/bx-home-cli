@@ -1,5 +1,5 @@
 <template>
-  <view class="form-wrap">
+  <view class="form-wrap"  :class="['theme-'+theme]">
     <view class="form-content">
       <view class="main-form-edit">
         <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"

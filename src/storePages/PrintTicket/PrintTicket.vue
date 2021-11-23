@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap"  :class="['theme-'+theme]">
     <view class="ticket-bg">
 
     </view>
@@ -223,13 +223,7 @@
       if (option.condition) {
         this.condition = option.condition
       }
-      if (this.theme === 'coffee') {
-        uni.setNavigationBarColor({
-          frontColor: '#ffffff',
-          backgroundColor: '#BFA58B'
-        })
-      }
-
+      this.setNavBg(this.$store?.state?.app?.theme||'blue')
       if (option.appName) {
         this.appName = option.appName
       }

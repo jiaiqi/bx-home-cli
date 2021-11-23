@@ -1,10 +1,10 @@
-@import "./coffee.scss";
-
+// @import "./coffee.scss";
+// @import "./red.scss";
 
 $bx-color-primary:#BFA58B;
 
-
 $bx-text-color-primary:#ffffff;
+
 $bx-tip-text-color:#B8BAC0;
 
 $bx-font-size-title:16px;
@@ -14,3 +14,76 @@ $bx-font-size-tip:12px;
 $bx-btn-radius:20px;
 
 $bx-card-radius:8px;
+
+// 蓝色主题 - 默认
+.theme-blue{
+   --primary-color:#337fff;
+   --primary-color-rgb:rgb(51,127,255);
+   --primary-color-rgb-opacity1:rgba(51,127,255,0.1);
+   --primary-color-rgb-opacity3:rgba(51,127,255,0.3);
+}
+
+// 咖色主题 - 林豪酒店
+.theme-coffee{
+  --primary-color:#BFA58B;
+  --primary-color-rgb:rgb(191,165,139);
+  --primary-color-rgb-opacity1:rgba(191,165,139,0.1);
+  --primary-color-rgb-opacity3:rgba(191,165,139,0.3);
+}
+
+// 红色主题 - 订餐业务
+.theme-red{
+  --primary-color-rgb:rgb(254,90,63);
+  --primary-color:#fe5a3f;
+  --primary-color-rgb-opacity1:rgba(254,90,63,0.1);
+  --primary-color-rgb-opacity3:rgba(254,90,63,0.3);
+}
+
+
+.home-nav-bar-bg{
+  color: #fff!important;
+  background-color: var(--primary-color)!important;
+  background-image: none!important;
+}
+.bx-bg-color{
+  color: #fff!important;
+  background-color: var(--primary-color)!important;
+  background-image: none!important;
+}
+.bx-text-color{
+  color:  var(--primary-color)!important;
+}
+.bx-border-color{
+  border-color: var(--primary-color)!important;
+}
+.border-left-color{
+  border-left-color: var(--primary-color)!important;
+  &::after{
+    border-left-color: var(--primary-color)!important;
+  }
+}
+.bx-line-btn-color{
+  border: 1px solid;
+  border-color: var(--primary-color-rgb-opacity3)!important;;
+  color: var(--primary-color)!important;
+}
+.bx-border-bottom-color{
+  border-bottom-color: var(--primary-color)!important;
+  &::after{
+    background-color:  var(--primary-color)!important;
+  }
+}
+.bx-btn-bg-color{
+  background-image: none;
+  background-color: var(--primary-color)!important;
+  border-color: var(--primary-color)!important;
+  color: #fff!important;
+}
+.bx-btn-light-bg-color{
+  background-image: none;
+  background-color: var(--primary-color)!important;
+  background-color: var(--primary-color-rgb-opacity1)!important;
+  border-color: var(--primary-color)!important;
+  color: var(--primary-color)!important;
+}
+

@@ -2,7 +2,7 @@
   <view class="page-wrap" v-if="list&&list.length>0">
     <view class="title">
       <text>{{pageItem.component_label||''}}</text>
-      <button class="cu-btn sm border  bg-white" @click="toAll">查看全部<text class="cuIcon-right"></text></button>
+      <button class="cu-btn sm border  bg-white" @click="toAll" v-if="showSeeAll">查看全部<text class="cuIcon-right"></text></button>
     </view>
     <view class="list-content" :style="{
         backgroundColor:list_config.bg
@@ -53,7 +53,7 @@
         return this.colV2?.moreConfig || {}
       },
       showSeeAll() {
-        return this.pageItem.list_config.showSeeAll !== false
+        return this.config?.showSeeAll !== false
       },
       config() {
         if (this.pageItem && this.pageItem.list_config) {

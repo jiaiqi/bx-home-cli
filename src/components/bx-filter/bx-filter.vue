@@ -1,8 +1,5 @@
 <template>
-  <view class="bx-filter">
-    <view class="view">
-
-    </view>
+  <view class="bx-filter" :class="['theme-'+theme]">
     <view class="form-box">
       <a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter"
         v-if="filterCols"></a-form>
@@ -15,7 +12,8 @@
           class="cuIcon-refresh margin-right-xs "></text>重置</button>
       <button class="cu-btn bg-grey light" @click="cancel"><text
           class="cuIcon-close margin-right-xs "></text>取消</button>
-      <button class="cu-btn bg-blue light confirm" :class="{'bx-bg-coffee':theme==='coffee'}" @click="toFilter">
+      <button class="cu-btn bg-blue light confirm" :class="{'bx-bg-coffee':theme==='coffee',' bx-bg-color':theme}"
+        @click="toFilter">
         <text class="cuIcon-search margin-right-xs"></text>确定
       </button>
     </view>
@@ -41,7 +39,7 @@
     },
     computed: {
       theme() {
-        return this.$store?.state?.app?.theme 
+        return this.$store?.state?.app?.theme
       }
     },
     data() {
@@ -149,6 +147,7 @@
         // flex: 1;
         width: 200rpx;
         border-radius: 20px;
+
         &+.cu-btn {
           // margin-left: 20rpx;
         }

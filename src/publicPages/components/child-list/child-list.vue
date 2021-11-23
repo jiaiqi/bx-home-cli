@@ -1,5 +1,5 @@
 <template>
-  <view class="child-list">
+  <view class="child-list" :class="['theme-'+theme]">
     <view class="section-name">
       <view class="name" @click="unfold">
         <text>{{config.label||''}}</text>
@@ -11,11 +11,11 @@
 
       <view class="to-more" v-if="config.unfold !==false">
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
-          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}" v-for="btn in publicButton"
-          @click="onButton(btn)">
+          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee','bx-line-btn-color':theme}"
+          v-for="btn in publicButton" @click="onButton(btn)">
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border"
-          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee'}"
+          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee','bx-line-btn-color':theme}"
           @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text
             class="text">查看全部</text></button>
       </view>
@@ -35,8 +35,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn" :class="'bx-btn-bg-'+theme" v-if="showHandle"
-          @click.stop="showAction(item)"></button>
+        <button class="cuIcon-add cu-btn bg-orange light more-btn bx-btn-bg-color" :class="['bx-btn-bg-'+theme]"
+          v-if="showHandle" @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -95,7 +95,7 @@
           </a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-orange round" :class="'bx-bg-'+theme" v-for="btn in updateV2.formButton"
+          <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="btn in updateV2.formButton"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -222,7 +222,8 @@
       showHandle() {
         // 是否显示操作按钮
         let constraint_name = this.config?.foreign_key?.constraint_name
-        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[constraint_name]['handle']===false) {
+        if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
+            constraint_name]['handle'] === false) {
           return false
         }
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
@@ -626,6 +627,7 @@
               condition: buttonInfo.operate_params.condition,
               data: buttonInfo.operate_params.data
             }];
+            debugger
             if (!buttonInfo.operate_params.data && buttonInfo.servcie_type === 'update') {
               uni.showModal({
                 title: '提示',
@@ -1401,7 +1403,7 @@
 
         const column = triggerField.column
         let fieldModel = e
-        const cols = this.allFields.filter(item => item.x_if&&item.in_update===1).map(item => item.column)
+        const cols = this.allFields.filter(item => item.x_if && item.in_update === 1).map(item => item.column)
         const table_name = this.updateV2.main_table
 
         let result = null
@@ -1454,7 +1456,7 @@
       async valueChange(e, triggerField) {
         const column = triggerField.column
         let fieldModel = e
-        const cols = this.allFields.filter(item => item.x_if&&item.in_add===1).map(item => item.column)
+        const cols = this.allFields.filter(item => item.x_if && item.in_add === 1).map(item => item.column)
         const table_name = this.curV2.main_table
 
         let result = null
@@ -1708,7 +1710,7 @@
           }
           return res
         }, {})
-        const cols = colVs._fieldInfo.filter(item => item.x_if&&item.in_update===1).map(item => item.column)
+        const cols = colVs._fieldInfo.filter(item => item.x_if && item.in_update === 1).map(item => item.column)
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, defaultVal, this.srvApp)
 
@@ -1822,7 +1824,7 @@
           // }
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
-          if (fkInitVal&&fkInitVal[item.column] && item.display !== false) {
+          if (fkInitVal && fkInitVal[item.column] && item.display !== false) {
             // if(!item.value){
             let obj = {
               mainData: this.mainData

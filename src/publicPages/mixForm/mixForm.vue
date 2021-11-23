@@ -1,5 +1,5 @@
 <template>
-  <view class="mix-form-list">
+  <view class="mix-form-list"  :class="['theme-'+theme]">
     <view class="tab-list">
       <view class="tab-item" :class="{'active':curTab===0,'bx-border-bottom-coffee':curTab===0&&theme==='coffee'}" @click="changeTab(0)">
         前台交班

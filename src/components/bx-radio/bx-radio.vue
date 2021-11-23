@@ -7,7 +7,7 @@
       <text v-if="!serialChar && name === parentData.value" class="bx-radio-checked"></text>
     </view>
     <view class="bx-radio__label" hover-class="active"
-      :class="{ checked: checked, disabled: disabled,'bx-btn-bg-coffee':theme==='coffee'&&radioButtonClass==='button-mode'&&checked  }">
+      :class="{ checked: checked, disabled: disabled,'bx-btn-light-bg-color':theme&&radioButtonClass==='button-mode'&&checked  }">
       <slot />
     </view>
   </view>
@@ -153,12 +153,16 @@
         return style;
       },
       radioButtonClass() {
+        let res = ''
         if (this.parent && (this.parent.radioMode || this.parent.mode)) {
           if (this.parent.radioMode === 'button' || this.parent.mode === 'button') {
-
-            return 'button-mode';
+            res = 'button-mode';
           }
         }
+        // if (this.theme) {
+        //   res += ` theme-${this.theme}`
+        // }
+        return res
       }
     },
     created() {

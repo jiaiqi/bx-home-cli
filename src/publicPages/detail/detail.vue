@@ -1,5 +1,5 @@
 <template>
-  <view class="detail-wrap">
+  <view class="detail-wrap"  :class="['theme-'+theme]">
     <view class="detail-temp-box" v-if="detailConfig&&detail">
       <view class="detail-top">
         <view class="left-image" v-if="detailConfig.img&&setValue(detailConfig.img.col).value">

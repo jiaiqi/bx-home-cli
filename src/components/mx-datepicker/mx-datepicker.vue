@@ -311,6 +311,9 @@
       },
       priceConfig:{
         type: Object
+      },
+      min:{ //最小可选日期
+        type: String,
       }
     },
     data() {
@@ -420,6 +423,7 @@
           item.statusStyle.color = this.color;
           if (item.isOtherMonth) item.statusStyle.opacity = 0.3;
         }
+    
         //标记选中项
         this.checkeds.forEach(date => {
           if (DateTools.isSameDay(date, item.dateObj)) {
@@ -463,6 +467,11 @@
             item.dotStyle.opacity = 1;
             item.statusStyle.opacity = 1;
           }
+
+        }
+        if(new Date(item.dateObj) < new Date(this.min)){
+          item.statusStyle.color = '#ccc';
+          item.bgStyle.background = ''
         }
       },
       //刷新日历
@@ -494,6 +503,11 @@
       },
       //选中日期
       onSelectDate(date) {
+        if(this.min){
+          if(new Date(this.min)>new Date(date.dateObj)){
+            return
+          }
+        }
         if (~this.type.indexOf('range') && this.checkeds.length == 2) this.checkeds = [];
         else if (!(~this.type.indexOf('range')) && this.checkeds.length) this.checkeds = [];
         this.checkeds.push(new Date(date.dateObj));

@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
+  <view class="page-wrap"  :class="{'pc-model':sysModel==='PC'}">
     <view class="">
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
 
@@ -15,7 +15,7 @@
       </filter-tags>
     </view>
 
-    <view class="list-content" :style="{
+    <view class="list-content"  :class="['theme-'+theme]" :style="{
         backgroundColor:list_config.bg
       }">
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
@@ -1321,12 +1321,6 @@
       }
     },
     onLoad(option) {
-      // if (this.theme === 'coffee') {
-      //   uni.setNavigationBarColor({
-      //     frontColor: '#ffffff',
-      //     backgroundColor: '#BFA58B'
-      //   })
-      // }
       if (this.sysModel === 'PC') {
         this.rownumber = 100
       }

@@ -1,6 +1,6 @@
 <template>
-  <view class="search-bar">
-    <view class="bg-white cu-bar search">
+  <view class="search-bar" :class="['theme-'+theme]">
+    <view class="bg-white cu-bar search" :class="{'pc-model':sysModel=='PC'}">
       <view class="search-form round">
         <text class="cuIcon-search"></text>
         <input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal"
@@ -53,7 +53,7 @@
       </view>
     </view> -->
 
-<!--    <view class="bg-white cu-bar search" v-if="sysModel ==='PC'&&filterCol&&filterCol.length>0">
+    <!--    <view class="bg-white cu-bar search" v-if="sysModel ==='PC'&&filterCol&&filterCol.length>0">
       <a-form :fields="filterCols" :srvApp="srvApp" :mainData="mainData" ref='filterForm' pageType="filter"
        ></a-form>
     </view> -->
@@ -62,20 +62,20 @@
         <view class="order-modal">
           <view class="order-column">
             <view class="order-item" hover-class="hover"
-              :class="{ current: item.selected,'bx-btn-bg-coffee': item.selected&&theme==='coffee' }"
+              :class="{ current: item.selected,'bx-btn-bg-coffee': item.selected&&theme==='coffee','bx-btn-bg-color': item.selected&&theme }"
               v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
-              <view class="label" :class="{'bx-text-coffee':theme==='coffee'&& item.selected}">{{ item.label || "" }}
+              <view class="label" :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected}">{{ item.label || "" }}
               </view>
               <view class="order-option" v-if="item.selected"
-                :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected}">
+                :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected,'bx-border-color':theme && item.selected}">
                 <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
-                    'bx-text-coffee':theme==='coffee'&& item.selected,
+                    'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,
                     
 		              }"></text>
                 <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
-                     'bx-text-coffee':theme==='coffee'&& item.selected,
+                     'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,
 		              }"></text>
               </view>
             </view>
@@ -85,7 +85,7 @@
           </view>
           <view class="button-box">
             <button class="cu-btn bg-gray" @click="hideModal">取消</button>
-            <button class="cu-btn bg-green" :class="{'bx-bg-coffee':theme==='coffee'}" @click="toOrder">
+            <button class="cu-btn bg-green" :class="{'bx-bg-coffee':theme==='coffee','bx-bg-color':theme}" @click="toOrder">
               确定
             </button>
           </view>
@@ -303,7 +303,7 @@
     width: 100%;
     max-width: 800px;
 
-    .search {
+    .search.pc-model {
       margin-bottom: 10px;
     }
 

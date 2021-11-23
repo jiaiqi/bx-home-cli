@@ -1,6 +1,6 @@
 <template>
   <view :class="{fixed:fixed}" :style="{bottom:bottom}" class="cart-list-wrap">
-    <view class="goods-list" v-show="showList">
+    <view class="goods-list" v-show="showList" :class="['theme-'+theme]">
       <view class="title">
         <view class="left">
           已选商品
@@ -60,17 +60,20 @@
             </view>
           </view>
           <view class="col-item text-right flex-1 handler-btn">
-            <text class="hand-btn cu-btn line-orange border sm radius" :class="'bx-btn-bg-'+theme" @click="changeAmount(rowData,index,-1)">-</text>
+            <text class="hand-btn cu-btn line-orange border sm radius bx-btn-bg-color" :class="'bx-btn-bg-'+theme"
+              @click="changeAmount(rowData,index,-1)">-</text>
             <view class="amount">
               {{rowData.goods_count||'0'}}
             </view>
-            <text class="hand-btn cu-btn bg-orange sm radius" :class="'bx-bg-'+theme" @click="changeAmount(rowData,index,1)">+</text>
+            <text class="hand-btn cu-btn bg-orange sm radius bx-bg-color" :class="'bx-bg-'+theme"
+              @click="changeAmount(rowData,index,1)">+</text>
           </view>
         </view>
       </view>
     </view>
-    <view class="cart-bottom" @click="changeStatus">
-      <view class="cart-icon" :class="{active:cartData&&cartData.length>0,'bx-btn-bg-coffee':cartData&&cartData.length>0&&theme==='coffee'}">
+    <view class="cart-bottom" @click="changeStatus" :class="['theme-'+theme]">
+      <view class="cart-icon"
+        :class="{active:cartData&&cartData.length>0,'bx-btn-bg-coffee':cartData&&cartData.length>0&&theme==='coffee','bx-btn-bg-color':cartData&&cartData.length>0&&theme}">
         <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
@@ -78,7 +81,9 @@
         ￥{{sumPrice||'0'}}
       </view>
       <view class="handler">
-        <button class="cu-btn round" :class="{active:cartData&&cartData.length>0,'bx-bg-coffee':cartData&&cartData.length>0&&theme==='coffee'}" @click.stop="placeOrder">下单</button>
+        <button class="cu-btn round"
+          :class="{active:cartData&&cartData.length>0,'bx-bg-coffee':cartData&&cartData.length>0&&theme==='coffee','bx-bg-color':cartData&&cartData.length>0&&theme}"
+          @click.stop="placeOrder">下单</button>
       </view>
     </view>
   </view>
@@ -250,6 +255,7 @@
         font-size: 28rpx;
         font-family: 苹方-简;
         color: #333333;
+
         &.handler-btn {
           display: flex;
           align-items: center;

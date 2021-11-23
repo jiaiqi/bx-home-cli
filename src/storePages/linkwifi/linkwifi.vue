@@ -1,11 +1,11 @@
 <template>
-  <view class="wifi-manage">
+  <view class="wifi-manage" :class="['theme-'+theme]">
     <view class="wifi-list">
       <scroll-view scroll-y="true">
         <view class="wifi-item" v-for="item in pageData||resultWifiList">
           <view class="wifi-item-left">
             <view class="top">
-             <!-- <text class="wifi-icon">
+              <!-- <text class="wifi-icon">
                 <text class="wifi-1"></text>
                 <text class="wifi-2" :class="item.strength < 2 ? 'off' : ''"></text>
                 <text class="wifi-3" :class="item.strength < 3 ? 'off' : ''"></text>
@@ -52,7 +52,7 @@
       }
     },
     computed: {
-      theme(){
+      theme() {
         return this.$store?.state?.app?.theme
       },
       activeWifiMac() {
@@ -77,13 +77,13 @@
             }
             arr[parseInt(index / 5)].push(item)
           })
-          return arr[this.currentNo-1]
+          return arr[this.currentNo - 1]
         }
       },
-      resultTotal(){
-        if(Array.isArray(this.resultWifiList)){
+      resultTotal() {
+        if (Array.isArray(this.resultWifiList)) {
           return this.resultWifiList.length
-        }else{
+        } else {
           return 0
         }
       },
@@ -451,12 +451,7 @@
       })
     },
     onLoad(option) {
-      if(this.$store?.state?.app?.theme==='coffee'){
-        uni.setNavigationBarColor({
-            frontColor: '#ffffff',
-            backgroundColor: '#BFA58B'
-        })
-      }
+     this.setNavBg(this.$store?.state?.app?.theme||'blue')
       if (option.store_no) {
         this.store_no = option.store_no
       }
@@ -480,7 +475,8 @@
     min-height: calc(100vh - var(--window-top));
     display: flex;
     flex-direction: column;
-    .page-nav{
+
+    .page-nav {
       background-color: #fff;
       padding: 20rpx 20rpx 100rpx;
     }
@@ -502,6 +498,7 @@
     padding: 20rpx;
     border-radius: 0 0 20rpx 20rpx;
     flex: 1;
+
     .wifi-item {
       padding: 20rpx;
       display: flex;

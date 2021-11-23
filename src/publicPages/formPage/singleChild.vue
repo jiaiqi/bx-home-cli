@@ -1,5 +1,5 @@
 <template>
-  <view class="form-wrap">
+  <view class="form-wrap"  :class="['theme-'+theme]">
     <view class="main-form-edit">
       <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
         :formType="use_type" ref="bxForm" @value-blur="valueChange">
