@@ -126,6 +126,7 @@
             fieldsCond = JSON.parse(option.fieldsCond);
           } catch (e) {
             //TODO handle the exception
+            
           }
           //TODO handle the exception
         }

@@ -306,7 +306,7 @@
                     Array.isArray(res.data.response[0].response.effect_data) &&
                     res.data.response[0].response.effect_data.length > 0
                   ) {
-                    // this.params.submitData = res.data.response[0].response.effect_data[0];
+                    this.params.submitData = res.data.response[0].response.effect_data[0];
                     // if (e.service_name === 'srvhealth_person_info_update') {
                     //   this.$store.commit('SET_USERINFO', this.params.submitData);
                     //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
@@ -326,6 +326,8 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                         return
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('update');
                       } else if (beforeRedirectUrl) {
                         uni.redirectTo({
                           url: beforeRedirectUrl
@@ -539,6 +541,19 @@
               let res = await this.$http.post(url, reqData);
               if (res.data.state === 'SUCCESS') {
                 uni.$emit('dataChange', service)
+                if (
+                  Array.isArray(res.data.response) &&
+                  res.data.response.length > 0 &&
+                  res.data.response[0].response &&
+                  Array.isArray(res.data.response[0].response.effect_data) &&
+                  res.data.response[0].response.effect_data.length > 0
+                ) {
+                  this.params.submitData = res.data.response[0].response.effect_data[0];
+                  // if (e.service_name === 'srvhealth_person_info_update') {
+                  //   this.$store.commit('SET_USERINFO', this.params.submitData);
+                  //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
+                  // }
+                }
                 let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                 if (self.afterSubmit === 'home') {
                   getApp().globalData.beforeRedirectUrl = null
@@ -557,6 +572,8 @@
                     top.tab.closeCurrentTab()
                   }
                   return
+                } else if (self.afterSubmit === 'detail') {
+                  self.toPages('update');
                 } else if (beforeRedirectUrl) {
                   uni.redirectTo({
                     url: beforeRedirectUrl
@@ -618,7 +635,9 @@
           this.mainData[column] = triggerField.value
         }
         let fieldModel = e
-        const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        let cols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        // const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
         let xIfResult = null
         if (Array.isArray(cols) && cols.length > 0) {
@@ -944,7 +963,7 @@
                 res[cur.column] = cur.value || cur.defaultValue
                 cur.value = cur.value || cur.defaultValue
                 this.mainData[cur.column] = cur.value
-              } else if(cur.value){
+              } else if (cur.value) {
                 res[cur.column] = cur.value
               }
               return res
@@ -1001,6 +1020,9 @@
     async onLoad(option) {
       if (option.disabled) {
         this.disabled = true
+      }
+      if (option.afterSubmit) {
+        this.afterSubmit = option.afterSubmit
       }
       if (option.disabledChildButton) {
         this.disabledChildButton = true

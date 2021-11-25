@@ -990,6 +990,7 @@
               return item;
             });
           }
+          debugger
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
               self.fieldData.value && (self.fieldData.value || self.fieldData.value === 0)) {

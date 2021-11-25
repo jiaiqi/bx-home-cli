@@ -3,7 +3,7 @@
 
 let env = 'prod'
 
-// env = 'test'
+env = 'test'
 
 
 // if (process?.env?.APP_ENV) {
@@ -17,14 +17,14 @@ let conf = {
     serviceAddress: "https://wx.100xsys.cn",
     appNo: "APPNO20210926101030",
     appid: "wx08876efb5760ca75",
-    ws:"wss://wx.100xsys.cn:8081"
+    ws: "wss://wx.100xsys.cn:8081"
   },
   "prod": {
     // 生产环境
     serviceAddress: "https://srvms.100xsys.cn",
     appNo: "APPNO20201124160702",
     appId: "wxa3c50c8177ef6739",
-    ws:"wss://srvms.100xsys.cn:8081"
+    ws: "wss://srvms.100xsys.cn:8081"
   }
 }
 
@@ -33,7 +33,7 @@ let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
   ssoAddress: 'http://sso.100xsys.cn',
   serviceAddress: conf[env]['serviceAddress'],
-  frontEndAddress: 'https://login.100xsys.cn:1443',
+  frontEndAddress: 'https://wx2.100xsys.cn/health/publicPages/accountExec/accountExec',
   // frontEndAddress: 'https://wx2.100xsys.cn',
   singleApp: true, // 是否单应用， true 时 所有请求均使用 appName 配置
   appName: "health", //singleApp 为 true 时 必须配置
@@ -47,7 +47,7 @@ let ENV = {
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址
   frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
-  wsAddr:conf[env].ws,
+  wsAddr: conf[env].ws,
   appNo: {
     wxmp: conf[env]['appNo'],
     // wxmp: 'APPNO20210420103005', // 百想首页

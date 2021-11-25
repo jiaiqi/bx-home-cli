@@ -1456,6 +1456,7 @@
 
       },
       async valueChange(e, triggerField) {
+    
         const column = triggerField.column
         let fieldModel = e
         let allFields = this.addV2?._fieldInfo || []
@@ -1474,9 +1475,10 @@
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
-
+        
         for (let i = 0; i < allFields.length; i++) {
           const item = allFields[i]
+          
           item.old_value = item.value
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.old_value = item.value;
@@ -1511,6 +1513,7 @@
             this.valueChange(fieldModel, item)
           }
         }
+     
         return
       },
       async onButton(e, index) {

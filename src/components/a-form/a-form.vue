@@ -361,8 +361,24 @@
         const column = e.column
         // const triggerColumns = this.allField.filter((item)=>item.)
         this.handlerReduant(e)
+
+
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
+
+          if (e?.moreConfig?.val_trigger) {
+            let val_trigger = e?.moreConfig?.val_trigger;
+            if (val_trigger.col === item.column) {
+              let val = await this.getTriggerVal(val_trigger, this.fieldModel)
+              debugger
+              if (val && val[item.column]) {
+                item.value = val[item.column];
+                this.fieldModel[item.column] = item.value;
+              }
+            }
+          }
+
+
           if (Array.isArray(item.isShowExp) && item.isShowExp.length > 0) {
             item.display = this.colItemShowExps(item, this.fieldModel)
           } else if (item.formulaShow) {
@@ -384,6 +400,9 @@
 
           this.$set(this.allField, index, item)
         }
+
+
+
         this.$emit('value-blur', this.fieldModel, e);
       },
       onValBlur(e) {

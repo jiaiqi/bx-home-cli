@@ -9,12 +9,7 @@
           <view class="welcome">
             <!-- #ifdef H5 -->
             <text>你好, 欢迎使用！</text>
-
-            <!--    <view class="switch-qrcode-login">
-              <text class="cuIcon-qr_code"></text>
-            </view> -->
             <!-- #endif -->
-
             <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
           </view>
           <view class="input-content">
@@ -71,23 +66,23 @@
           </button>
         </view>
         <!-- #ifdef H5 -->
+        <view class="qrcode-login" v-if="loginType==='weixin-qrcode'">
+          <div id="login_container" class="login_container"></div>
+        </view>
         <view class="switch-login-type">
           其它方式登录
         </view>
-        <view class="login-type-box" v-if="loginType==='account'" @click="changeLoginType('weixin-qrcode')">
-          <text class="cuIcon-weixin text-green"></text>
+        <view class="login-type-box" v-if="loginType==='account'">
+          <text class="cuIcon-weixin text-green login-type" @click="changeLoginType('weixin-qrcode')"></text>
         </view>
         <view class="login-type-box" v-else>
-          <text class="cuIcon-peoplefill text-blue" @click="changeLoginType('account')"></text>
-        </view>
-        <view class="qrcode-login"  v-if="loginType==='weixin-qrcode'">
-          <div id="login_container" class="login_container"></div>
+          <text class="cuIcon-mobilefill text-blue login-type" @click="changeLoginType('account')"></text>
         </view>
         <!-- #endif -->
       </view>
 
     </view>
-  <!--  <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
+    <!--  <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
       <view class="cu-dialog">
         <view id="login_container" class="login_container"></view>
       </view>
@@ -115,7 +110,7 @@
         showAllMenu: false,
         checkValue: false,
         eye_show: false,
-        loginType: 'account', //account,weixin-qrcode
+        loginType: 'weixin-qrcode', //account,weixin-qrcode
       };
     },
     created() {
@@ -145,30 +140,49 @@
         // self.initLogin();
       }
       // #ifdef H5
-      // let isWeixinClient = this.isWeixinClient();
+      let isWeixinClient = this.isWeixinClient();
       let isLogin = uni.getStorageSync('isLogin')
       // if (isWeixinClient) {
-      // 	// 微信公众号环境 , 静默登录
-      // 	this.initLogin()
-      // } else 
-      debugger
-      console.log('onLoad option', option, isLogin);
-      console.log('onLoad  .query', this.$route.query);
-      if (option.code && option.state && !isLogin) {
+      //   // 微信公众号环境 , 静默登录
+      //   this.loginType = 'weixin-qrcode'
+      //   let fullPath = uni.getStorageSync('loginBackurl')
+      //   if (!fullPath) {
+      //     let pages = getCurrentPages()
+      //     if (pages.length > 1) {
+      //       fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
+      //       uni.setStorageSync('loginBackurl', fullPath)
+      //     }
+      //   }
+      //   if (option.code && option.state) {
+      //     this.initLogin(option)
+      //   } else if (this.$route.query?.code && this.$route.query?.state) {
+      //     this.initLogin(this.$route.query)
+      //   }else{
+      //     this.initLogin(option)
+      //   }
+      // } else {
+      if (option.code && option.state ) {
         // 扫码登陆重定向
         this.scanLogin(option)
       } else if (this.$route.query?.code && this.$route.query?.state) {
         this.scanLogin(this.$route.query)
-      } else if (!isLogin) {
-        // this.getScanQrCode()
+      } else {
+        this.getScanQrCode()
       }
+      // }
       // #endif
     },
     methods: {
       changeLoginType(e) {
         this.loginType = e
         if (e === 'weixin-qrcode') {
-          this.getScanQrCode()
+          let isWeixinClient = this.isWeixinClient();
+          if (isWeixinClient) {
+            // 微信公众号环境 , 静默登录
+            this.initLogin()
+          } else {
+            this.getScanQrCode()
+          }
         }
       },
       eycClick() {
@@ -187,7 +201,7 @@
         var loginBackurl = fullPath;
         // var loginBackurl = window.location.origin + `/health/#${fullPath}`;
         var callbackurl = window.location.origin + `/health/#/publicPages/accountExec/accountExec`;
-        uni.setStorageSync('loginBackurl',loginBackurl)
+        uni.setStorageSync('loginBackurl', loginBackurl)
         var cssUrl = 'https://login.100xsys.cn/main/css/loginqrcode.css'
         var request = {};
         request.serviceName = "srvwx_web_scan_cfg_select";
@@ -247,7 +261,7 @@
           if (pages.length > 1) {
             fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
           }
-          var loginBackurl = uni.getStorageSync('loginBackurl')||'/pages/index/index'
+          var loginBackurl = uni.getStorageSync('loginBackurl') || '/pages/index/index'
           // var callbackurl = window.location.origin + `/health/#${fullPath}`;
           uni.reLaunch({
             url: loginBackurl
@@ -271,7 +285,7 @@
       inputChange(e) {
         // console.log(e)
       },
-      initLogin() {
+      initLogin(query) {
         let that = this;
         let code = null;
         // 公众号环境
@@ -280,9 +294,6 @@
         console.log('是否绑定账号:', isLogin);
         let isWeixinClient = this.isWeixinClient();
         const client_env = uni.getStorageSync('client_env');
-        // uni.showToast({
-        // 	title:isWeixinClient + "是否登录： "+ isLogin
-        // })
         console.log('是否微信环境', isWeixinClient);
         if (!isLogin) {
           if (isWeixinClient) {
@@ -290,30 +301,31 @@
             if (code || client_env === 'wxmp') {
               // 已经得到code,进行验证登录
               console.log('已获取到code,即将进行验证登录');
-              this.saveWxUser();
+              this.saveWxUser(query);
             } else if (!code) {
               //公众号 未授权 -> 获取授权
               console.log('未发现code,尝试获取重定向链接');
+
               that.getAuthorized();
             }
           } else if (!isWeixinClient) {
             // 非微信环境(H5或APP)
-            // uni.showToast({
-            // 	title: '请在微信中访问此页面',
-            // 	icon: 'none',
-            // 	duration: 3000
-            // });
+            uni.showToast({
+              title: '请在微信中访问此页面',
+              icon: 'none',
+              duration: 3000
+            });
           }
         } else {
-          let url = uni.getStorageSync('backUrl');
+          let loginBackurl = uni.getStorageSync('loginBackurl');
           console.log('that.backUrl', that.backUrl, '===', url);
-          if (url) {
-            url = that.getDecodeUrl(url);
-            if (url && url.lastIndexOf('backUrl=') !== -1) {
-              url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
-            }
+          if (loginBackurl) {
+            // url = that.getDecodeUrl(url);
+            // if (url && url.lastIndexOf('backUrl=') !== -1) {
+            //   url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
+            // }
             uni.reLaunch({
-              url: url
+              url: loginBackurl
             });
           } else {
             uni.reLaunch({
@@ -329,7 +341,7 @@
         let req = [{
           data: [{
             app_no: self.$api.appNo.wxh5,
-            redirect_uri: encodeURIComponent(self.$api.frontEndAddress)
+            redirect_uri: self.$api.frontEndAddress
           }],
           serviceName: 'srvwx_public_page_authorization'
         }];
@@ -363,7 +375,7 @@
           }
         });
       },
-      saveWxUser() {
+      saveWxUser(query) {
         // 静默登录(验证登录)
         let that = this;
         const isWeixinClient = that.isWeixinClient();
@@ -440,7 +452,7 @@
           // 公众号环境
           let req = [{
             data: [{
-              code: that.$route.query.code,
+              code: query?.code || that.$route.query.code,
               app_no: that.$api.appNo.wxh5
             }],
             serviceName: 'srvwx_app_login_verify'
@@ -487,16 +499,17 @@
                       that.isBindUser = true
                     } else if (res.cancel) {
                       console.log('用户点击取消');
-                      if (url) {
-                        url = that.getDecodeUrl(url)
-                        // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-                        if (url && url.lastIndexOf("backUrl=") !== -1) {
-                          url = url.substring(url.lastIndexOf("backUrl=") +
-                            8, url.length)
-                          console.log("授权成功，准备返回用户界面url", url)
-                        }
+                      let loginBackurl = uni.getStorageSync('loginBackurl')
+                      if (loginBackurl) {
+                        // loginBackurl = that.getDecodeUrl(loginBackurl)
+                        // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
+                        // if (url && url.lastIndexOf("backUrl=") !== -1) {
+                        //   url = url.substring(url.lastIndexOf("backUrl=") +
+                        //     8, url.length)
+                        console.log("授权成功，准备返回用户界面url", url)
+                        // }
                         uni.reLaunch({
-                          url: url
+                          url: loginBackurl
                         })
                       } else {
                         uni.reLaunch({
@@ -529,20 +542,21 @@
                   // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
                 }
                 // 获取回调前记录的url 并再回调后 再次进入该url，没有该url时 进入 home
-                let url = uni.getStorageSync('backUrl');
+                // let url = uni.getStorageSync('backUrl');
 
                 console.log('that.backUrl', that.backUrl, '===', url);
                 uni.hideToast();
                 uni.hideLoading();
+                let loginBackurl = uni.getStorageSync('loginBackurl')
                 if (url && url !== '/') {
-                  url = that.getDecodeUrl(url);
-                  // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-                  if (url && url.lastIndexOf('backUrl=') !== -1) {
-                    url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
-                    // console.log("授权成功，准备返回用户界面url",url)
-                  }
+                  // url = that.getDecodeUrl(url);
+                  // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
+                  // if (url && url.lastIndexOf('backUrl=') !== -1) {
+                  //   url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
+                  //   // console.log("授权成功，准备返回用户界面url",url)
+                  // }
                   uni.reLaunch({
-                    url: url
+                    url: loginBackurl
                   });
                 } else {
                   uni.reLaunch({
@@ -860,8 +874,12 @@
     .login-type-box {
       font-size: 30px;
       text-align: center;
-      margin-top: 20px;
-      cursor: pointer;
+      padding: 20px;
+      z-index: 999;
+
+      .login-type {
+        cursor: pointer;
+      }
     }
   }
 
@@ -1048,8 +1066,16 @@
     }
   }
 
+  .qrcode-login {
+    width: 100%;
+    height: 300px;
+  }
+
   .login_container {
     text-align: center;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
   }
 
   ::v-deep .uni-checkbox-input-checked {

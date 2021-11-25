@@ -2558,5 +2558,50 @@ export default {
         backgroundColor: backgroundColor
       })
     }
+
+    Vue.prototype.getTriggerVal = async (params, data) => {
+      let serviceName = params.serviceName;
+      let appName = params.appName||uni.getStorageSync('activeApp')
+      let url = Vue.prototype.getServiceUrl(appName, serviceName, 'select')
+      let cond = params.params_val.split(',')
+      
+      // let dataArr = params.params_val.split(',')
+      // let dataObj = {}
+      // if (Array.isArray(dataArr)) {
+      //   dataArr.forEach(key => {
+      //     if(data[key]){
+      //       dataObj[key] = data[key]
+      //     }
+      //   })
+      // }else{
+      //   data = {}
+      // }
+      
+      
+      if (Array.isArray(cond)) {
+        cond = cond.map(key => {
+          return {
+            colName: key,
+            ruleType: 'eq',
+            value: data[key]
+          }
+        }).filter(item => item.value)
+      }else{
+        cond = []
+      }
+      let req = {
+        "serviceName": serviceName,
+        "colNames": ["*"],
+        // "page": {
+        //   "pageNo": 1,
+        //   "rownumber": 1
+        // },
+        "condition": cond
+      }
+      let res = await _http.post(url, req)
+      if(Array.isArray(res.data.data)&&res.data.data.length>0){
+        return res.data.data[0]
+      }
+    }
   }
 }
