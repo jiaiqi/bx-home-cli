@@ -1548,7 +1548,6 @@
         let serviceName = null;
         let req = null;
         let app = null;
-        debugger
         if (this.currentSendType === 'question') {
           (serviceName = 'srvdaq_activity_cfg_select'),
           (req = {
@@ -2260,7 +2259,8 @@
         if (type) {
           this.isLoading = false;
         }
-        if (Array.isArray(resData) !== true || this.isAll) {
+        if (Array.isArray(resData) !== true) {
+        // if (Array.isArray(resData) !== true || this.isAll) {
           return;
         }
         this.pageInfo.total = res.data.page.total;
@@ -2404,6 +2404,9 @@
           }
         }
       },
+      stopRefreshMsgTimer(){
+        clearInterval(this.refreshMessageTimer)
+      },
       setRefreshMessageTimer(second = 1 * 1000) {
         // 设置定时刷新消息的定时器
         clearInterval(this.refreshMessageTimer)
@@ -2484,7 +2487,6 @@
 
       },
       async sendArticle(data, cardType) {
-        debugger
         let serviceName = 'srvhealth_consultation_chat_record_add'
         if (this.sessionType === '机构用户客服') {
           if (this.identity === '客户') {

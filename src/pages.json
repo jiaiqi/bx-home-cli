@@ -289,7 +289,16 @@
           }
         }
         // #endif
-      ]
+          ,{
+                    "path" : "ProductItem/ProductItem",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#ifdef MP-WEIXIN
     ,

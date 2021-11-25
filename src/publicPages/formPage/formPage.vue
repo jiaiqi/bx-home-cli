@@ -1,5 +1,5 @@
 <template>
-  <view class="form-wrap"  :class="['theme-'+theme]">
+  <view class="form-wrap" :class="['theme-'+theme]">
     <view class="form-content">
       <view class="main-form-edit">
         <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
@@ -60,6 +60,7 @@
         childListData: {},
         disabledChildButton: false, // 禁用子表
         disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
+        afterSubmit: ""
       }
     },
     computed: {
@@ -316,6 +317,7 @@
                     content: `${res.data.resultMessage}`,
                     showCancel: false,
                     success(res) {
+                      debugger
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
@@ -375,7 +377,15 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else {
-                        uni.navigateBack()
+                        let pages = getCurrentPages();
+                        let data = res.data.response[0]?.response.effect_data[0]
+                        if (pages.length > 1) {
+                          uni.navigateBack()
+                        } else {
+                          uni.redirectTo({
+                            url: `/publicPages/detail/detail?serviceName=${this.addV2?.select_service_name||this.detailV2?.service_name}&destApp=${this.select_}&id=${data.id}`
+                          })
+                        }
                       }
                     }
                   });
@@ -536,6 +546,16 @@
                   uni.reLaunch({
                     url: `/storePages/home/home?store_no=${store_no}`
                   })
+                  return
+                } else if (self.afterSubmit === 'close') {
+                  // getApp().globalData.beforeRedirectUrl = null
+                  // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                  // uni.reLaunch({
+                  //   url: `/storePages/home/home?store_no=${store_no}`
+                  // })
+                  if (top.window?.tab?.closeCurrentTab) {
+                    top.tab.closeCurrentTab()
+                  }
                   return
                 } else if (beforeRedirectUrl) {
                   uni.redirectTo({
@@ -871,31 +891,6 @@
                   return item;
                 });
               }
-              // if (Array.isArray(field?.option_list_v2?.mconditions) && field.option_list_v2
-              //   .mconditions.length > 0) {
-              //   let mconditions = field.option_list_v2.mconditions.map(
-              //     field => {
-              //       field.value = this.renderStr(field.value, this.mainData)
-              //       return field
-              //     })
-              //   if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
-              //     .conditions
-              //     .length > 0) {
-              //     field.option_list_v2.conditions = [...field.option_list_v2
-              //       .conditions, ...mconditions
-              //     ]
-              //   } else {
-              //     field.option_list_v2.conditions = mconditions
-              //   }
-              // }
-              // if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
-              //   .conditions
-              //   .length > 0) {
-              //   field.option_list_v2.origin_conditions = this.deepClone(field.option_list_v2.conditions)
-              //   field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
-              //     .conditions, this.mainData)
-              // }
-
               if (this.defaultCondition && Array.isArray(this
                   .defaultCondition) && colVs
                 ._fieldInfo && Array.isArray(colVs._fieldInfo)) {
@@ -949,6 +944,8 @@
                 res[cur.column] = cur.value || cur.defaultValue
                 cur.value = cur.value || cur.defaultValue
                 this.mainData[cur.column] = cur.value
+              } else if(cur.value){
+                res[cur.column] = cur.value
               }
               return res
             }, {})

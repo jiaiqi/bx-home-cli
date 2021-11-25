@@ -121,8 +121,8 @@
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode"
-          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :min="fieldData.min"
-          @change="bindTimeChange" v-model="fieldData.value">
+          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="fieldData.max"
+          :min="fieldData.min" @change="bindTimeChange" v-model="fieldData.value">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
@@ -487,15 +487,19 @@
         longpressTimer: null,
         modalName: '', //当前显示的modal
         //录音相关参数
-        // RECORDER: null,
+        RECORDER: null,
+        // #ifdef MP-WEIXIN
         RECORDER: uni.getRecorderManager(),
+        // #endif
         voicePath: [],
         voiceUrl: [],
         voiceUrls: [],
         voiceText: '按住 说话',
         //播放语音相关参数
-        // AUDIO: null,
+        AUDIO: null,
+        // #ifdef MP-WEIXIN
         AUDIO: uni.createInnerAudioContext(),
+        // #endif
         playMsgid: null,
         VoiceTimer: null,
         onRecord: false //正在录音
@@ -988,7 +992,7 @@
           }
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
-              self.fieldData.value&&(self.fieldData.value||self.fieldData.value===0)) {
+              self.fieldData.value && (self.fieldData.value || self.fieldData.value === 0)) {
               self.fieldData['colData'] = item;
               self.$emit('setColData', self.fieldData)
             }

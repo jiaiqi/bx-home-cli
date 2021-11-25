@@ -186,6 +186,8 @@ fly.interceptors.response.use(
 						//  过滤无效的url
 						let index = requestUrl.indexOf('/pages/')
 						requestUrl = requestUrl.slice(index)
+            
+            debugger
 						uni.setStorageSync("backUrl", requestUrl)
 					}
 					try {

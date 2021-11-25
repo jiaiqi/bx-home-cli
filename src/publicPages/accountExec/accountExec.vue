@@ -5,70 +5,93 @@
       <view class="right-top-sign"></view>
       <!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
       <view class="wrapper">
-        <view class="welcome">
-          <!-- #ifdef H5 -->
-          你好, 欢迎使用！
-          <!-- #endif -->
-          <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
-        </view>
-        <view class="input-content">
-          <view class="input-item">
-            <!-- <text class="tit">帐号</text> -->
-            <text class="cuIcon-people margin-right"></text>
-            <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
-              @input="inputChange" />
+        <view class="account-login" v-if="loginType==='account'">
+          <view class="welcome">
+            <!-- #ifdef H5 -->
+            <text>你好, 欢迎使用！</text>
+
+            <!--    <view class="switch-qrcode-login">
+              <text class="cuIcon-qr_code"></text>
+            </view> -->
+            <!-- #endif -->
+
+            <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
           </view>
-          <view class="input-item">
-            <!-- <text class="tit">密码</text> -->
-            <text class="cuIcon-lock margin-right"></text>
-            <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
-              password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
-            <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
-              data-key="password" @input="inputChange" @confirm="userLogined" v-if="eye_show" />
-            <image src="./hi_eye.png" mode="" v-if="eye_show" @click="eycClick"></image>
-            <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
+          <view class="input-content">
+            <view class="input-item">
+              <!-- <text class="tit">帐号</text> -->
+              <text class="cuIcon-people margin-right"></text>
+              <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
+                @input="inputChange" />
+            </view>
+            <view class="input-item">
+              <!-- <text class="tit">密码</text> -->
+              <text class="cuIcon-lock margin-right"></text>
+              <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
+                password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
+              <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
+                data-key="password" @input="inputChange" @confirm="userLogined" v-if="eye_show" />
+              <image src="./hi_eye.png" mode="" v-if="eye_show" @click="eycClick"></image>
+              <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
+            </view>
           </view>
+
+          <!-- 	<u-radio-group style="display: flex;justify-content: flex-end;margin:5px 15px;">
+          	<u-radio class="" color="">
+          		<view style="max-width: 700rpx;">记住密码</view>
+          	</u-radio>
+          </u-radio-group> -->
+
+          <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
+            <label
+              style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
+              <checkbox class="" value="cd" :checked="checkValue" style="margin-right: 5px;transform: scale(0.7);" />
+              <text>记住密码</text>
+            </label>
+          </checkbox-group>
+
+
+
+
+          <button class="confirm-btn bg-blue text-green" @click="userLogined">
+            {{ isBindUser ? '提交绑定' : '登录' }}
+          </button>
+          <!--    <button class="confirm-btns" @click="showScan">
+            <text class="cuIcon-scan margin-right"></text>
+            扫码登录
+          </button> -->
+          <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
+            class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo"
+            @getuserinfo="saveWxUser" :withCredentials="false" :disabled="!isWeixin">
+            立即授权
+          </button>
+          <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
+            class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">
+            暂不授权
+          </button>
         </view>
-
-        <!-- 	<u-radio-group style="display: flex;justify-content: flex-end;margin:5px 15px;">
-					<u-radio class="" color="">
-						<view style="max-width: 700rpx;">记住密码</view>
-					</u-radio>
-				</u-radio-group> -->
-
-        <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
-          <label style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
-            <checkbox class="" value="cd" :checked="checkValue" style="margin-right: 5px;transform: scale(0.7);" />
-            <text>记住密码</text>
-          </label>
-        </checkbox-group>
-
-
-
-
-        <button class="confirm-btn bg-blue text-green" @click="userLogined">
-          {{ isBindUser ? '提交绑定' : '登录' }}
-        </button>
-        <!--    <button class="confirm-btns" @click="showScan">
-          <text class="cuIcon-scan margin-right"></text>
-          扫码登录
-        </button> -->
-        <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
-          class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo"
-          @getuserinfo="saveWxUser" :withCredentials="false" :disabled="!isWeixin">
-          立即授权
-        </button>
-        <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
-          class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">
-          暂不授权
-        </button>
+        <!-- #ifdef H5 -->
+        <view class="switch-login-type">
+          其它方式登录
+        </view>
+        <view class="login-type-box" v-if="loginType==='account'" @click="changeLoginType('weixin-qrcode')">
+          <text class="cuIcon-weixin text-green"></text>
+        </view>
+        <view class="login-type-box" v-else>
+          <text class="cuIcon-peoplefill text-blue" @click="changeLoginType('account')"></text>
+        </view>
+        <view class="qrcode-login"  v-if="loginType==='weixin-qrcode'">
+          <div id="login_container" class="login_container"></div>
+        </view>
+        <!-- #endif -->
       </view>
+
     </view>
-    <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
+  <!--  <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
       <view class="cu-dialog">
         <view id="login_container" class="login_container"></view>
       </view>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -91,7 +114,8 @@
         isBindUser: false,
         showAllMenu: false,
         checkValue: false,
-        eye_show: false
+        eye_show: false,
+        loginType: 'account', //account,weixin-qrcode
       };
     },
     created() {
@@ -127,6 +151,7 @@
       // 	// 微信公众号环境 , 静默登录
       // 	this.initLogin()
       // } else 
+      debugger
       console.log('onLoad option', option, isLogin);
       console.log('onLoad  .query', this.$route.query);
       if (option.code && option.state && !isLogin) {
@@ -140,6 +165,12 @@
       // #endif
     },
     methods: {
+      changeLoginType(e) {
+        this.loginType = e
+        if (e === 'weixin-qrcode') {
+          this.getScanQrCode()
+        }
+      },
       eycClick() {
         this.eye_show = !this.eye_show
       },
@@ -148,7 +179,16 @@
         console.log(this.checkValue)
       },
       async getScanQrCode() {
-        var callbackurl = window.location.origin + "/fyzh/pages/home/home";
+        let pages = getCurrentPages();
+        let fullPath = ''
+        if (pages.length > 1) {
+          fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
+        }
+        var loginBackurl = fullPath;
+        // var loginBackurl = window.location.origin + `/health/#${fullPath}`;
+        var callbackurl = window.location.origin + `/health/#/publicPages/accountExec/accountExec`;
+        uni.setStorageSync('loginBackurl',loginBackurl)
+        var cssUrl = 'https://login.100xsys.cn/main/css/loginqrcode.css'
         var request = {};
         request.serviceName = "srvwx_web_scan_cfg_select";
         request.colNames = ["*"];
@@ -167,7 +207,7 @@
             redirect_uri: data.callbackurl,
             state: data.state,
             style: "black",
-            href: callbackurl
+            href: cssUrl
           });
         }
       },
@@ -202,8 +242,15 @@
             uni.setStorageSync('expire_time', resp.response.expire_time); // 有效时间
             uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
           }
+          let pages = getCurrentPages();
+          let fullPath = ''
+          if (pages.length > 1) {
+            fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
+          }
+          var loginBackurl = uni.getStorageSync('loginBackurl')||'/pages/index/index'
+          // var callbackurl = window.location.origin + `/health/#${fullPath}`;
           uni.reLaunch({
-            url: '/pages/home/home'
+            url: loginBackurl
           })
         }
       },
@@ -668,22 +715,53 @@
             console.log('that.backUrl', that.backUrl);
 
             console.log('userLogined', response.data);
-            let url = uni.getStorageSync('backUrl');
+            let url2 = uni.getStorageSync('backUrl');
+            url2 = ''
 
-            if (url && url !== '/') {
-              url = that.getDecodeUrl(url);
-              if (url && url.lastIndexOf('backUrl=') !== -1) {
-                console.log(2)
-                url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
-              }
-              url = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
-            }
-            let model = getApp().globalData?.systemInfo?.model;
-            // if (model === 'PC') {
-            //   url = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
+            // if (url2 && url2 !== '/') {
+            //   debugger
+            //   url2 = that.getDecodeUrl(url2);
+            //   if (url2 && url2.lastIndexOf('backUrl=') !== -1) {
+            //     console.log(2)
+            //     url2 = url2.substring(url2.lastIndexOf('backUrl=') + 8, url2.length);
+            //   }
+            //   // url2 = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
             // }
+            let model = getApp().globalData?.systemInfo?.model;
+            // #ifdef H5
+            url2 = ''
+            debugger
+            let pages = getCurrentPages()
+            url2 = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
+            if (url2) {
+              uni.reLaunch({
+                url: url2
+              })
+            } else {
+              let pages = getCurrentPages()
+              if (pages.length === 1) {
+                url2 = that.$api.homePath
+                uni.reLaunch({
+                  url: url2
+                })
+                return
+              }
+              uni.navigateBack({
+                fail: (err) => {
+                  console.log(err)
+                }
+              })
+            }
+            // #endif
+            // #ifdef MP-WEIXIN
+            url2 = url2 || that.$api.homePath
+            // #endif
+            // if (model === 'PC') {
+            //   url2 = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
+            // }
+
             uni.reLaunch({
-              url
+              url: ` /${url2}`
             });
           } else {
             uni.showToast({
@@ -746,12 +824,45 @@
   }
 
   .container {
-    padding-top: 30vh;
+    padding-top: 25vh;
     position: relative;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+
     // background: #fff;
+    .switch-login-type {
+      padding-top: 30px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &::before {
+        display: block;
+        content: "";
+        width: 20%;
+        height: 1px;
+        background-color: rgb(219, 219, 219);
+        margin-right: 20px;
+      }
+
+      &::after {
+        display: block;
+        content: "";
+        width: 20%;
+        height: 1px;
+        background-color: rgb(219, 219, 219);
+        margin-left: 20px;
+      }
+    }
+
+    .login-type-box {
+      font-size: 30px;
+      text-align: center;
+      margin-top: 20px;
+      cursor: pointer;
+    }
   }
 
   .wrapper {
@@ -763,6 +874,7 @@
     padding-bottom: 40upx;
     border-radius: 8px;
     padding-bottom: 200upx;
+    padding-bottom: 30px;
   }
 
   .back-btn {
@@ -829,6 +941,12 @@
     color: #333;
     text-shadow: 1px 0px 1px rgba(0, 0, 0, 0.3);
     padding: 20px;
+    display: flex;
+    justify-content: space-between;
+
+    .switch-qrcode-login {
+      background-color: #F3F4F6;
+    }
   }
 
   .input-content {

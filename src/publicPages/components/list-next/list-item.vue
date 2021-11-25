@@ -590,6 +590,7 @@
 
             .goods-amount {
               flex: 1;
+              min-width: 30px;
               text-align: center;
               font-weight: normal;
               font-size: 28rpx;

@@ -1,6 +1,8 @@
 <template>
   <view>
-    <view class="list-wrap" :class="{
+    <view class="list-wrap"
+     v-if="setViewTemp"
+     :class="{
       'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
     }">
       <list-item v-for="(item,index) in list" :key="index" :class="{
@@ -8,8 +10,9 @@
         'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
         'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
         'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType"
-        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart">
+      }" class="list-item-wrap" :style="setViewTemp.item_style" :viewTemp="setViewTemp" :labelMap="labelMap"
+        :cartData='cartData' :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
+        @add2Cart="add2Cart" @del2Cart="del2Cart">
       </list-item>
     </view>
   </view>
@@ -67,23 +70,26 @@
         let viewTemp = this.viewTemp
         let obj = {
           "lp_style": this.listConfig?.lp_style || viewTemp?.lp_style || "复合",
+          item_style: this.listConfig?.item_style || viewTemp?.item_style || "",
           "grid_span": this.listConfig?.grid_span || viewTemp?.grid_span || "2",
           'margin': viewTemp?.margin,
           'padding': viewTemp?.padding,
           "btn_cfg": {
-            "show_custom_btn":this.listConfig?.btn_cfg?.show_custom_btn?? this.listConfig?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
-            "show_public_btn":this.listConfig?.btn_cfg?.show_public_btn?? this.listConfig?.show_public_btn ?? viewTemp?.btn_cfg?.show_public_btn ??
+            "show_custom_btn": this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig?.show_custom_btn ??
+              viewTemp?.btn_cfg?.show_custom_btn ?? null,
+            "show_public_btn": this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig?.show_public_btn ??
+              viewTemp?.btn_cfg?.show_public_btn ??
               null,
-            "show":  viewTemp?.btn_cfg?.show || true,
-            "bg_style":this.listConfig?.btn_cfg?.bg_style|| viewTemp?.btn_cfg?.bg_style || "line",
-            "bg":this.listConfig?.btn_cfg?.bg|| viewTemp?.btn_cfg?.bg || 'orange',
-            "width":this.listConfig?.btn_cfg?.width|| viewTemp?.btn_cfg?.width,
-            "height": this.listConfig?.btn_cfg?.height||viewTemp?.btn_cfg?.height,
-            'color': this.listConfig?.btn_cfg?.color||viewTemp?.btn_cfg?.color,
-            "font_size": this.listConfig?.btn_cfg?.font_size||viewTemp?.btn_cfg?.font_size,
-            "radius":this.listConfig?.btn_cfg?.radius|| viewTemp?.btn_cfg?.radius || "10px",
-            "size":this.listConfig?.btn_cfg?.size|| viewTemp?.btn_cfg?.size || "",
-            "padding": this.listConfig?.btn_cfg?.padding||viewTemp?.btn_cfg?.padding || null
+            "show": viewTemp?.btn_cfg?.show || true,
+            "bg_style": this.listConfig?.btn_cfg?.bg_style || viewTemp?.btn_cfg?.bg_style || "line",
+            "bg": this.listConfig?.btn_cfg?.bg || viewTemp?.btn_cfg?.bg || 'orange',
+            "width": this.listConfig?.btn_cfg?.width || viewTemp?.btn_cfg?.width,
+            "height": this.listConfig?.btn_cfg?.height || viewTemp?.btn_cfg?.height,
+            'color': this.listConfig?.btn_cfg?.color || viewTemp?.btn_cfg?.color,
+            "font_size": this.listConfig?.btn_cfg?.font_size || viewTemp?.btn_cfg?.font_size,
+            "radius": this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg?.radius || "10px",
+            "size": this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || "",
+            "padding": this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
           },
           "img": {
             "col": this.listConfig?.img?.col || viewTemp?.img?.col,
@@ -132,7 +138,7 @@
   .grid-layout {
     display: flex;
     flex-wrap: wrap;
-    padding: 20rpx;
+    padding: 20rpx 0;
 
     .list-item-wrap {
       width: 100%;

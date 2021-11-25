@@ -1002,7 +1002,7 @@
     }
   }
   .cu-dialog{
-    width: 100%!important;
+    // width: 100%!important;
   }
   .qrcode-canvas {
     position: fixed;

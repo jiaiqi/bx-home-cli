@@ -277,7 +277,8 @@
           }
 
           .amount {
-            width: 100rpx;
+            // width: 100rpx;
+            min-width: 60rpx;
             height: 50rpx;
             text-align: center;
             line-height: 50rpx;

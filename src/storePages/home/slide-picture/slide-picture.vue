@@ -1,5 +1,5 @@
 <template>
-  <view class="swiper-list">
+  <view class="swiper-list" :class="{'left-bottom-dot':dotPostion==='left-bottom'}">
     <view class="home-btn" @click="setHomePage" v-if="pageItem.show_set_home!=='否'">
       <button class=" cu-btn shadow-blur" v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no">
         <text class="cuIcon-home"></text></button>
@@ -17,8 +17,11 @@
 <script>
   export default {
     computed: {
+      dotPostion() {
+        return this.pageItem?.more_config?.dotPosition || 'bottom-center'
+      },
       height() {
-        return this.pageItem?.more_config?.swiperHeight||uni.upx2px(300)
+        return this.pageItem?.more_config?.swiperHeight || uni.upx2px(300)
       },
       calcStyle() {
         let obj = {}
@@ -128,10 +131,12 @@
     overflow: hidden;
     position: relative;
     min-width: 335px;
+
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;
     }
+
     .home-btn {
       position: absolute;
       right: 20rpx;
@@ -154,5 +159,14 @@
 
       .cuIcon-home {}
     }
+  }
+
+  .left-bottom-dot {
+
+    // uni-swiper[class*="-dot"] .wx-swiper-dots,
+    // uni-swiper[class*="-dot"] .a-swiper-dots,
+    // uni-swiper[class*="-dot"] .uni-swiper-dots {
+    //   justify-content: flex-start !important;
+    // }
   }
 </style>

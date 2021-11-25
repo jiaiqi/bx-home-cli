@@ -2,7 +2,7 @@
   <view class="form" :style="{
       '--global-text-font-size': globalTextFontSize + 'px',
       '--page-height': pageHeight,
-    }" :class="['theme-'+theme]">
+    }" :class="['theme-'+theme,model==='PC'?'pc-model-page':'']">
     <view>
       <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
         :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange" :mainData="defaultVal"
@@ -752,6 +752,7 @@
           if (res.data.state === 'SUCCESS') {
             if (Array.isArray(res.data.data) && res.data.data.length > 0) {
               this.params.defaultVal = res.data.data[0];
+              debugger
               this.defaultVal = res.data.data[0];
               return res.data.data[0];
             }
@@ -779,9 +780,11 @@
           if (cur.defaultValue) {
             res[cur.column] = cur.defaultValue
             cur.value = cur.defaultValue
-            if (self.defaultVal && self.defaultVal[cur.column]) {
-              self.defaultVal[cur.column] = cur.value
-            }
+            // if (self.defaultVal && self.defaultVal[cur.column]) {
+            //   self.defaultVal[cur.column] = cur.value
+            // }
+          } else if (cur.value) {
+            res[cur.column] = cur.value
           }
           return res
         }, {})
@@ -793,7 +796,6 @@
             if (Array.isArray(defaultVal) && defaultVal.length > 0) {
               defaultVal = defaultVal[0]
             }
-
             let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
               .defaultVal || {});
             if (!fields) {
@@ -899,10 +901,11 @@
             if (self.defaultVal && self.defaultVal[cur.column]) {
               self.defaultVal[cur.column] = cur.value
             }
+          } else if (cur.value) {
+            res[cur.column] = cur.value
           }
           return res
         }, {})
-
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, modal, this.appName)
@@ -1282,15 +1285,29 @@
     .scroll-view {
       // background-color: #fff;
     }
-
+    &.pc-model-page{
+      background-color: #fff;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 50px;
+    }
     .pc-model {
       display: flex;
       flex-wrap: wrap;
       padding-top: 10px;
       padding-left: 10px;
-
       ::v-deep .form-item::after {
         border-bottom: none !important;
+      }
+
+      ::v-deep .field-item {
+        min-width: 100%!important;
+        width: 100% !important;
+        border-radius: 0!important;
+        // border: none!important;
+        .form-item-content{
+          // border: 1px solid #f1f1f1;
+        }
       }
     }
 

@@ -16,8 +16,8 @@
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border"
           :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee','bx-line-btn-color':theme}"
-          @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text
-            class="text">查看全部</text></button>
+          @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text class="text">查看全部<text
+              v-if="total">({{total||''}})</text></text></button>
       </view>
     </view>
     <view class="list-box" v-if="config.unfold !==false">
@@ -119,7 +119,7 @@
         localListData: [],
         listData: [],
         total: 0,
-        rownumber: 100,
+        rownumber: 10,
         orderCols: [],
         loading: false,
         modalName: "",
@@ -190,12 +190,10 @@
           if (newValue === 'addChildData') {
             if (Array.isArray(this.addV2?._fieldInfo)) {
               allFields = this.deepClone(this.addV2?._fieldInfo)
-              // this.allFields = this.addV2?._fieldInfo
             }
           } else if (newValue === 'updateChildData') {
             if (Array.isArray(this.updateV2?._fieldInfo)) {
               allFields = this.deepClone(this.updateV2?._fieldInfo)
-              // this.allFields = this.updateV2?._fieldInfo
             }
           }
           this.allFields = allFields.map(item => {
@@ -256,6 +254,9 @@
           if (this.srvGridButtonDisp[constraint_name]['seeAll'] === false) {
             return false
           }
+        }
+        if (this.total <= this.listData.length) {
+          return false
         }
         return true
       },
@@ -1412,9 +1413,10 @@
         }
 
         let calcResult = {}
-        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
-          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-
+        let allFields = this.updateV2?._fieldInfo || []
+        // let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
+        //   .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
@@ -1456,7 +1458,8 @@
       async valueChange(e, triggerField) {
         const column = triggerField.column
         let fieldModel = e
-        const cols = this.allFields.filter(item => item.x_if && item.in_add === 1).map(item => item.column)
+        let allFields = this.addV2?._fieldInfo || []
+        const cols = allFields.filter(item => item.x_if && item.in_add === 1).map(item => item.column)
         const table_name = this.curV2.main_table
 
         let result = null
@@ -1465,19 +1468,20 @@
         }
 
         let calcResult = {}
-        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
-          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        // let calcCols = allFields.filter(item => item.redundant?.func && Array.isArray(item
+        //   .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
 
-        for (let i = 0; i < this.allFields.length; i++) {
-          const item = this.allFields[i]
+        for (let i = 0; i < allFields.length; i++) {
+          const item = allFields[i]
           item.old_value = item.value
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.old_value = item.value;
             item.value = e[item.column];
-            // this.$set(this.allFields, i, item)
+            // this.$set(allFields, i, item)
           }
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             item.value = calcResult?.response[item.column]
@@ -1500,6 +1504,7 @@
               }
             }
           }
+          this.allFields = allFields
           this.$set(this.allFields, i, item)
           this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
           if (item.old_value !== item.value) {
@@ -1822,6 +1827,7 @@
           //     }
           //   }
           // }
+
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
           if (fkInitVal && fkInitVal[item.column] && item.display !== false) {
@@ -1832,6 +1838,16 @@
             let val = this.renderStr(fkInitVal[item.column], obj)
             if (val) {
               item.value = val
+              let defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+                if (cur.value) {
+                  res[cur.columns] = cur.value
+                }
+                return res
+              }, {})
+              this.addV2 = colVs
+              if (item.old_value !== item.value) {
+                // this.valueChange(defaultVal, item)
+              }
             }
             // }
           }
@@ -1972,6 +1988,7 @@
           if (res.data?.state === 'SUCCESS') {
             this.listData = res.data.data
             this.localListData = this.deepClone(res.data.data)
+            this.total = res.data.page.total
           }
         }
       },

@@ -1,8 +1,8 @@
 <template>
   <view class="page-wrap" v-if="list&&list.length>0">
-    <view class="title">
+    <view class="title" :style="titleStyle">
       <text>{{pageItem.component_label||''}}</text>
-      <button class="cu-btn sm border  bg-white" @click="toAll" v-if="showSeeAll">查看全部<text
+      <button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">查看全部<text
           class="cuIcon-right"></text></button>
     </view>
     <view class="list-content" :style="{
@@ -32,7 +32,10 @@
     },
     computed: {
       isShowToAll() {
-        let num = this.config?.page?.rownumber || this.rownumber;
+        if (this.config?.showSeeAll == false) {
+          return false
+        }
+        let num = this.rownumber;
         if (this.total > num) {
           return true
         }
@@ -53,9 +56,9 @@
       moreConfig() {
         return this.colV2?.moreConfig || {}
       },
-      showSeeAll() {
-        return this.config?.showSeeAll !== false
-      },
+      // showSeeAll() {
+      //   return this.config?.showSeeAll !== false
+      // },
       config() {
         if (this.pageItem && this.pageItem.list_config) {
           let config = this.pageItem.list_config;
@@ -70,12 +73,18 @@
           return config
         }
       },
+      titleStyle() {
+        if (typeof this.pageItem?.more_config === 'object') {
+          return this.pageItem?.more_config?.titleStyle || ''
+        }
+      },
       listConfig() {
         return this.config?.list_config || {}
       },
       list_config() {
         let config = this.colV2?.moreConfig?.list_config
         let obj = {
+          item_style: this.listConfig?.item_style || config?.item_style || '',
           'bg': this.listConfig?.bg || config?.bg || '',
           "lp_style": this.listConfig?.lp_style || config?.lp_style || "复合",
           "grid_span": this.listConfig?.grid_span || config?.grid_span || "2",
@@ -109,6 +118,9 @@
             }
           },
           cols: this.listConfig?.cols || config?.cols
+        }
+        if(typeof obj.item_style==='object'){
+          obj.item_style = JSON.stringify(obj.item_style)
         }
         return obj
         // return this.colV2?.moreConfig?.list_config || {}
@@ -200,6 +212,10 @@
         })
         return arr
       },
+      rownumber() {
+        let rownumber = this.config?.page?.rownumber || 1
+        return rownumber
+      },
     },
     data() {
       return {
@@ -207,7 +223,6 @@
         showMockCount: false,
         list: [],
         pageNo: 1,
-        rownumber: 1,
         total: 0,
         loadStatus: 'more',
         condition: null,
@@ -426,7 +441,7 @@
           colNames: ['*'],
           condition: this.condition || [],
           page: {
-            rownumber: this.config?.page?.rownumber || this.rownumber,
+            rownumber: this.rownumber,
             pageNo: this.pageNo
           },
           order: this.orderList

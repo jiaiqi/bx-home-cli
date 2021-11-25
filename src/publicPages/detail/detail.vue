@@ -1,5 +1,5 @@
 <template>
-  <view class="detail-wrap"  :class="['theme-'+theme]">
+  <view class="detail-wrap" :class="['theme-'+theme]">
     <view class="detail-temp-box" v-if="detailConfig&&detail">
       <view class="detail-top">
         <view class="left-image" v-if="detailConfig.img&&setValue(detailConfig.img.col).value">
@@ -147,7 +147,7 @@
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail" @addChild="addChild"
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
           v-if="detail&&currentChild">
         </child-list>
       </view>
@@ -156,7 +156,7 @@
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :appName="appName" :mainData="detail" @addChild="addChild"
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
           @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
@@ -257,6 +257,9 @@
             if (item?.foreign_key?.section_name) {
               item.label = item.foreign_key.section_name
             }
+            if (item?.foreign_key?.constraint_name) {
+              item.constraint_name = item.foreign_key.constraint_name
+            }
             item.use_type = 'detaillist'
             return item
           }).filter((item, index) => {
@@ -272,8 +275,6 @@
                 return false
               }
             }
-            
-            
             return true
             return item.foreign_key?.foreign_key_type !== '主子表'
           })
@@ -282,6 +283,9 @@
       },
       moreConfig() {
         return this.v2Data?.moreConfig
+      },
+      fkInitVal() {
+        return this.moreConfig?.fk_init_val || {}
       },
       srvApp() {
         return this.appName || uni.getStorageSync('activeApp')
@@ -359,7 +363,8 @@
       },
       unfoldChild(item, index) {
         this.v2Data.child_service = this.v2Data.child_service.map((c, i) => {
-          if (i === index) {
+          if ((item.foreign_key?.key_no && item.foreign_key?.key_no === c.foreign_key?.key_no) || (item.foreign_key
+              ?.constraint_name && item.foreign_key?.constraint_name === c.foreign_key?.constraint_name)) {
             c.unfold = !c.unfold
           }
           return c

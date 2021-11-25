@@ -15,7 +15,7 @@
           </view>
         </view>
         <view class="store-button">
-          <button class="image-btn" @click.stop="toManage" v-if="isManager&&showBtn.manage">
+          <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <image class="image" :src="require('./setting.png')" mode=""></image>
           </button>
           <button class="image-btn" open-type="share">
@@ -29,21 +29,26 @@
     <view class="store-top">
       <view class="top">
         <view class="name">{{ storeInfo.name || "机构名称" }}</view>
-        <view class="bind" v-if="isBind === true">
-          <button class="cu-btn border round" @click.stop="toManage" v-if="isManager&&showBtn.manage">
+        <view class="bind store-button" v-if="isBind === true">
+          <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager&&showBtn.manage">
+            <image class="image" :src="require('./setting2.png')" mode=""></image>
+          </button>
+          <button class="image-btn" open-type="share">
+            <image class="image" :src="require('./share2.png')" mode=""></image>
+          </button>
+          <!--    <button class="cu-btn border round" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <text class="cuIcon-settingsfill margin-right-xs"></text>
             <text class="text-black">管理</text>
             <text class=" badge" v-if="storeInfo&&storeInfo.kefu_unread_msg"><text
                 class="unread bg-red round">{{storeInfo.kefu_unread_msg}}</text></text>
-          </button>
-          <button class="cu-btn border  round" @click.stop="toSetting" v-if="showBtn.person">
+          </button> -->
+          <!--          <button class="cu-btn border  round" @click.stop="toSetting" v-if="showBtn.person">
             <text class="cuIcon-peoplefill"></text>
-            <!-- <text class="text-black">个人</text> -->
-          </button>
-          <button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
+          </button> -->
+        <!--  <button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
             <text class="cuIcon-notice_forbid_fill "></text>
             <text class="cu-tag badge">待设置</text>
-          </button>
+          </button> -->
         </view>
         <view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
             class="bg-blue cu-btn round shadow-blur">
@@ -73,7 +78,7 @@
           makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
         </uni-qrcode>
         <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
-          @click="showModal('showQrCode')"></image>
+          @click.stop.prevent="showModal('showQrCode')"></image>
         <!--    <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
       @click="toPreviewImage(qrcodePath)"></image> -->
         <view class="qr-code-image" v-else @click="makeQrCode">
@@ -296,8 +301,11 @@
         this.showNoticeModal = false
       },
       showModal(e) {
-        this.modalName = e
-        this.showNoticeModal = true
+        if (e) {
+          this.modalName = e
+        } else {
+          this.showNoticeModal = true
+        }
       },
       toSetting() {
         this.$emit('toSetting')
@@ -442,37 +450,58 @@
 
         }
 
-        .store-button {
-          position: absolute;
-          top: -10%;
-          right: 0;
-          display: flex;
 
-          .image-btn {
-            width: 90rpx;
-            height: 90rpx;
-            outline: none;
-            border: none;
-            background-color: transparent;
-            padding: 0;
-            margin: 0;
-            margin-right: 40rpx;
-
-            &::after {
-              border: none;
-            }
-
-            .image {
-              width: 90rpx;
-              height: 90rpx;
-            }
-          }
-        }
       }
     }
   }
 
+  .store-button {
 
+    position: absolute;
+    top: -10%;
+    right: 0;
+    display: flex;
+
+    .image-btn {
+      width: 90rpx;
+      height: 90rpx;
+      outline: none;
+      border: none;
+      background-color: transparent;
+      padding: 0;
+      margin: 0;
+
+      // margin-right: 40rpx;
+      &.margin-right {
+        margin-right: 20rpx;
+      }
+
+      &::after {
+        border: none;
+      }
+
+      .image {
+        width: 90rpx;
+        height: 90rpx;
+      }
+    }
+  }
+
+  .layout-1 {
+    .store-button {
+      position: relative;
+
+      .image-btn {
+        width: 80rpx;
+        height: 80rpx;
+
+        .image {
+          width: 80rpx;
+          height: 80rpx;
+        }
+      }
+    }
+  }
 
   .notice-wrap {
     width: 100%;
@@ -664,8 +693,9 @@
 
     .instroduce {
       width: 65%;
-      background-color: #EBF9FA;
-      background: linear-gradient(to right, #EBF9FA, #EEF0FE);
+      // background-color: #EBF9FA;
+      // background: linear-gradient(to right, #EBF9FA, #EEF0FE);
+      background-color: #f7f8ff;
       border-radius: 20rpx;
       padding: 10rpx 20rpx;
       margin: 0 0 10rpx;
@@ -781,7 +811,7 @@
     }
   }
 
-  .cu-dialog {
-    width: 100% !important;
-  }
+  // .cu-dialog {
+  //   width: 100% !important;
+  // }
 </style>

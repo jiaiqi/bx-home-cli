@@ -71,12 +71,6 @@
       "es6": true,
       "minified": true
     },
-    // #ifdef MP-WEIXIN 
-    // "tencentvideo": {
-    // 	"version": "1.2.4",
-    // 	"provider": "wxa75efa648b60994b"
-    // }
-    // #endif
     "permission": {
       "scope.userLocation": {
         "desc": "查找周边WiFi需要获取位置信息"

@@ -47,16 +47,16 @@
         var StatusBar = this.StatusBar;
         var CustomBar = this.CustomBar;
         var bgImage = this.bgImage;
-        var style = `height:${CustomBar}px;padding-top:${StatusBar}px;`;
+        var style = `height:${CustomBar}px;padding-top:${StatusBar}px;font-size:16px;`;
         // if (this.bgImage) {
         //   style = `${style}background-image:url(${bgImage});`;
         // }
         if (this.bgColor.indexOf('#') !== -1) {
           style += `background-color:${this.bgColor}`
         }
-        // if (!this.bgColor) {
-        //   style += `background-color:#0bc99d;color:#fff;`
-        // }
+        if (!this.bgColor) {
+          style += `background-color:#F8F8FA;color:#333;`
+        }
 
         return style
       }

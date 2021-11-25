@@ -1,7 +1,9 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem&&isShow"
+  <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem&&isShow" :style="itemStyle"
     :class="{ 'is-swiper':pageItem.type === '轮播图','bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin noPadding':pageItem&&(pageItem.type === '店铺信息2') }">
-    <view class="title" v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '通用列表'&&pageItem.type !== '疫苗列表'" @click="toMore">
+    <view class="title"
+      :style="titleStyle"
+      v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '通用列表'&&pageItem.type !== '疫苗列表'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">
         查看更多
@@ -104,6 +106,16 @@
       }
     },
     computed: {
+      itemStyle() {
+        if (typeof this.pageItem?.more_config === 'object') {
+          return this.pageItem?.more_config?.style || ''
+        }
+      },
+      titleStyle() {
+        if (typeof this.pageItem?.more_config === 'object') {
+          return this.pageItem?.more_config?.titleStyle || ''
+        }
+      },
       isShow() {
         if (this.pageItem?.type === '连接WiFi') {
           return this.room_no
@@ -238,6 +250,7 @@
       margin: 0;
       border-radius: 0;
     }
+
     &.noPadding {
       padding: 0;
       border-radius: 0;
@@ -247,7 +260,7 @@
   .title {
     padding: 20rpx;
     position: relative;
-    padding-left: 40rpx;
+    // padding-left: 40rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;

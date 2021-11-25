@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0 shrink-to-fit=no">
-        <style type="text/css">
-          html,body{
-            font-size: 100vw/3.75 !important;
-          }
-        </style>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.documentElement.style.fontSize = document.documentElement.clientWidth / 20 + 'px'
-            })
-        </script>
-        <link rel="stylesheet" href="<%= BASE_URL %>static/index.<%= VUE_APP_INDEX_CSS_HASH %>.css" />
-    </head>
-    <script type="text/javascript" src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
-    <body>
-        <noscript>
-            <strong>Please enable JavaScript to continue.</strong>
-        </noscript>
-        <div id="app"></div>
-    </body>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0 shrink-to-fit=no">
+    <style type="text/css">
+      html,
+      body {
+        font-size: 100vw/3.75 !important;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = document.documentElement.clientWidth / 20 + 'px'
+      })
+    </script>
+    <link rel="stylesheet" href="<%= BASE_URL %>static/index.<%= VUE_APP_INDEX_CSS_HASH %>.css" />
+  </head>
+  <script type="text/javascript" src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+  <body>
+    <noscript>
+      <strong>Please enable JavaScript to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+  </body>
+  <!-- #ifdef H5  -->
+  <script type="text/javascript" src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+  <!--#endif-->
+
 </html>

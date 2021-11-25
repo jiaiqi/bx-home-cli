@@ -12,7 +12,7 @@ env = 'h5'
 // #endif
 
 const state = {
-  theme: getItem('theme') || '',
+  theme: getItem('theme') || 'blue',
   env: env,
   homePath: '', //默认主页
   globalTextFontSize: 16,

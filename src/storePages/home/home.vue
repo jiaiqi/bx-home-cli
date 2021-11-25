@@ -1,7 +1,7 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
   <view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'" :class="['theme-'+theme]">
-    <cu-custom-navbar :theme="theme" :isBack="showBackHome" :back-home="showBackHome">
+    <cu-custom-navbar :isBack="showBackHome" :back-home="showBackHome">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
           {{ storeInfo.name || "首页" }}
@@ -291,9 +291,7 @@
           let keys = []
           let config = {}
           switch (type) {
-            case '轮播图':
-              keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home', 'more_config']
-              break;
+
             case '店铺信息':
             case '店铺信息2':
               keys = ['show_consult', 'show_set_home', 'margin', 'type', 'swiper_image', 'show_set_home',
@@ -315,6 +313,9 @@
             case '文章列表':
               keys = ['category_no', 'row_number', 'article_style', 'margin']
               break;
+            case '轮播图':
+              // keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home', 'more_config']
+              // break;
             case '通用列表':
             case '疫苗列表':
             case '通知横幅':
@@ -704,6 +705,7 @@
             }
           }
           this.$store.commit('SET_THEME', theme)
+          // this.setNavBg(this.theme)
           this.storeInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
           if (this.storeInfo.type === '健康服务') {
@@ -1189,6 +1191,7 @@
 
     async onLoad(option) {
       // showHomeBtn
+      // this.setNavBg(this.theme)
       if (option.rowData) {
         try {
           this.rowData = JSON.parse(option.rowData)
