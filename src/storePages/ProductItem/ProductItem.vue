@@ -89,7 +89,7 @@
       <view class="cart-bottom" @click="changeCartStatus" :class="['theme-'+vtheme]">
         <view class="cart-bottom-left">
           <view class="cart-icon"
-            :class="{active:cartData&&cartData.length>0,'bx-btn-bg-color':cartData&&cartData.length>0&&vtheme}">
+            :class="{'active bx-btn-bg-color':cartActive}">
             <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
             <text class="cuIcon-cart"></text>
           </view>
@@ -98,9 +98,8 @@
           </view>
         </view>
         <view class="handler">
-          <button class="cu-btn round"
-            :class="{active:cartData&&cartData.length>0,'bx-bg-color':cartData&&cartData.length>0&&vtheme}"
-            @click.stop="toPlaceOrder" :disabled="cartData.length==0">下单</button>
+          <button class="cu-btn round" :class="{'active bx-btn-bg-color':cartActive}" @click.stop="toPlaceOrder"
+            :disabled="!cartActive">下单</button>
         </view>
       </view>
     </view>
@@ -130,11 +129,14 @@
       bannerStyle() {
         let height = this.config?.banner?.height || '275px'
         return `height:${height}`
-      }
+      },
+      cartActive() {
+        return this.cartData && this.cartData.length > 0
+      },
     },
-    created(){
-      if(this.storeInfo?.store_no){
-        if(this.vcart[this.storeInfo?.store_no]&&this.vcart[this.storeInfo?.store_no].cart){
+    created() {
+      if (this.storeInfo?.store_no) {
+        if (this.vcart[this.storeInfo?.store_no] && this.vcart[this.storeInfo?.store_no].cart) {
           this.cartData = this.vcart[this.storeInfo?.store_no].cart
         }
       }
@@ -232,7 +234,7 @@
             goodsInfo.car_num = goodsInfo.goods_count
             goodsInfo.unit_price = goodsInfo[this.config.price]
             return goodsInfo
-          }).filter(item=>item.car_num>0)
+          }).filter(item => item.car_num > 0)
           this.$store.commit('SET_STORE_CART', {
             storeInfo: this.storeInfo,
             store_no: this.storeInfo?.store_no,
@@ -250,7 +252,7 @@
         });
       },
       changeCartStatus() {
-        if(this.cartData.length>0){
+        if (this.cartData.length > 0) {
           this.showCartList = !this.showCartList
         }
       },
@@ -268,19 +270,19 @@
       async clearCart(confirm) {
         let isConfirm = true
         let color = this.getBtnBg()
-        if(confirm===true){
-          isConfirm = await new Promise((resove)=>{
+        if (confirm === true) {
+          isConfirm = await new Promise((resove) => {
             uni.showModal({
-              title:'提示',
-              content:'确认清空购物车?',
-              confirmColor:color,
+              title: '提示',
+              content: '确认清空购物车?',
+              confirmColor: color,
               success: (res) => {
                 resove(res.confirm)
               }
             })
           })
         }
-        if(isConfirm){
+        if (isConfirm) {
           this.showCartList = false
           this.amount = 0
           this.cartData = []
@@ -296,12 +298,12 @@
         if (val > 0) {
           this.add2Cart()
         } else {
-          this.cartData = this.cartData.map(item=>{
-            if(item.id==this.productDetail.id){
+          this.cartData = this.cartData.map(item => {
+            if (item.id == this.productDetail.id) {
               item.goods_count = 0;
             }
             return item
-          }).filter(item=>item.goods_count!==0)
+          }).filter(item => item.goods_count !== 0)
           this.saveCart()
         }
       },
@@ -315,14 +317,14 @@
             if (this.amount === 0) {
               // this.showCartList = false
               // this.cartData = []
-              this.cartData = this.cartData.map(item=>{
-                if(item.id==this.productDetail.id){
+              this.cartData = this.cartData.map(item => {
+                if (item.id == this.productDetail.id) {
                   item.goods_count = 0;
                 }
                 return item
-              }).filter(item=>item.goods_count!==0)
+              }).filter(item => item.goods_count !== 0)
               this.saveCart()
-            }else{
+            } else {
               this.$set(this.cartData, index, row)
             }
             this.saveCart()
@@ -345,8 +347,8 @@
         this.$http.post(url, req).then(res => {
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.productDetail = res.data.data[0]
-            if(this.cartData&&this.cartData.find(item=>item.id===this.productDetail.id)){
-              this.amount =  this.cartData.find(item=>item.id===this.productDetail.id).car_num
+            if (this.cartData && this.cartData.find(item => item.id === this.productDetail.id)) {
+              this.amount = this.cartData.find(item => item.id === this.productDetail.id).car_num
             }
             let bannerCol = this.config?.banner?.col
             if (bannerCol && this.productDetail[bannerCol]) {
@@ -415,9 +417,11 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 10px;
-        &:last-child{
+
+        &:last-child {
           margin-bottom: 0;
         }
+
         .main-image {
           .image {
             width: 50px;

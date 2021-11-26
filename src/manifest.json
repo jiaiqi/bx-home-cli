@@ -61,8 +61,8 @@
   /* 快应用特有相关 */
   "mp-weixin": {
     /* 小程序特有相关 */
-    "appid" : "wxa3c50c8177ef6739", // 正式环境
-    // "appid": "wx08876efb5760ca75", // 测试环境
+    // "appid" : "wxa3c50c8177ef6739", // 正式环境
+    "appid": "wx08876efb5760ca75", // 测试环境
     // "resizable":true,
     "setting": {
       "urlCheck": true,
@@ -78,14 +78,14 @@
     "requiredBackgroundModes": ["audio"],
     "plugins": {
       // #ifdef MP-WEIXIN
-      "WechatSI": {
-        "version": "0.3.5",
-        "provider": "wx069ba97219f66d99"
-      },
-      "live-player-plugin": {
-        "version": "1.3.2",
-        "provider": "wx2b03c6e691cd7370"
-      }
+      // "WechatSI": {
+      //   "version": "0.3.5",
+      //   "provider": "wx069ba97219f66d99"
+      // },
+      // "live-player-plugin": {
+      //   "version": "1.3.2",
+      //   "provider": "wx2b03c6e691cd7370"
+      // }
       // #endif
     }
   },
