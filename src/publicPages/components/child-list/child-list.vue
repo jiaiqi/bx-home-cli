@@ -11,11 +11,11 @@
 
       <view class="to-more" v-if="config.unfold !==false">
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
-          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee','bx-line-btn-color':theme}"
+          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
           v-for="btn in publicButton" @click="onButton(btn)">
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border"
-          :class="{sm:publicButton.length>2,'bx-line-btn-coffee':theme==='coffee','bx-line-btn-color':theme}"
+          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
           @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text class="text">查看全部<text
               v-if="total">({{total||''}})</text></text></button>
       </view>

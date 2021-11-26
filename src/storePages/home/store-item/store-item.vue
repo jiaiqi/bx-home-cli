@@ -86,12 +86,12 @@
       pageItem: {
         type: Object
       },
-      storeInfo: {
-        type: Object
-      },
-      userInfo: {
-        type: Object
-      },
+      // storeInfo: {
+      //   type: Object
+      // },
+      // userInfo: {
+      //   type: Object
+      // },
       bindUserInfo: {
         type: Object
       },

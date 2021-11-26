@@ -17,7 +17,7 @@ $bx-card-radius:8px;
 
 // 蓝色主题 - 默认
 
-:root,.theme-blue{
+:root,page,.theme-blue{
    --primary-color:#337fff;
    --primary-color-rgb:rgb(51,127,255);
    --primary-color-rgb-opacity1:rgba(51,127,255,0.1);
@@ -48,6 +48,10 @@ $bx-card-radius:8px;
 }
 
 
+
+
+
+
 .home-nav-bar-bg{
   color: #fff!important;
   background-color: var(--primary-color)!important;
@@ -74,6 +78,7 @@ $bx-card-radius:8px;
   border: 1px solid;
   border-color: var(--primary-color-rgb-opacity3)!important;;
   color: var(--primary-color)!important;
+  // box-shadow: var(--primary-btn-shadow)!important;
 }
 .bx-border-bottom-color{
   border-bottom-color: var(--primary-color)!important;
@@ -86,6 +91,7 @@ $bx-card-radius:8px;
   background-color: var(--primary-color)!important;
   border-color: var(--primary-color)!important;
   color: #fff!important;
+  box-shadow: var(--primary-btn-shadow)!important;
 }
 .bx-btn-light-bg-color{
   background-image: none;

@@ -134,12 +134,12 @@
       bindUserInfo: {
         type: Object,
       },
-      storeInfo: {
+   /*   storeInfo: {
         type: Object,
       },
       userInfo: {
         type: Object,
-      },
+      }, */
       pageItem: {
         type: Object,
       },

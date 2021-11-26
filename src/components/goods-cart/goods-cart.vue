@@ -60,7 +60,7 @@
             </view>
           </view>
           <view class="col-item text-right flex-1 handler-btn">
-            <text class="hand-btn cu-btn line-orange border sm radius bx-btn-bg-color" :class="'bx-btn-bg-'+theme"
+            <text class="hand-btn cu-btn line-orange border sm radius bx-btn-bg-color"
               @click="changeAmount(rowData,index,-1)">-</text>
             <view class="amount">
               {{rowData.goods_count||'0'}}

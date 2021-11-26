@@ -62,20 +62,22 @@
         <view class="order-modal">
           <view class="order-column">
             <view class="order-item" hover-class="hover"
-              :class="{ current: item.selected,'bx-btn-bg-coffee': item.selected&&theme==='coffee','bx-btn-bg-color': item.selected&&theme }"
+              :class="{ current: item.selected,'bx-btn-bg-color': item.selected&&theme }"
               v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
-              <view class="label" :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected}">{{ item.label || "" }}
+              <view class="label"
+                :class="{'bx-text-color':theme&& item.selected}">
+                {{ item.label || "" }}
               </view>
               <view class="order-option" v-if="item.selected"
-                :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected,'bx-border-color':theme && item.selected}">
+                :class="{'bx-text-color':theme&& item.selected,'bx-border-color':theme && item.selected}">
                 <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
-                    'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,
+                    'bx-text-color':theme&& item.selected,
                     
 		              }"></text>
                 <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
-                     'bx-text-coffee':theme==='coffee'&& item.selected,'bx-text-color':theme&& item.selected,
+                     'bx-text-color':theme&& item.selected,
 		              }"></text>
               </view>
             </view>
@@ -85,7 +87,8 @@
           </view>
           <view class="button-box">
             <button class="cu-btn bg-gray" @click="hideModal">取消</button>
-            <button class="cu-btn bg-green" :class="{'bx-bg-coffee':theme==='coffee','bx-bg-color':theme}" @click="toOrder">
+            <button class="cu-btn bg-green" :class="{'bx-bg-color':theme}"
+              @click="toOrder">
               确定
             </button>
           </view>
@@ -337,11 +340,11 @@
         color: #474D59;
 
         .button-name {
-          font-size: 30rpx;
+          font-size: 12px;
         }
 
         .text-sm {
-          font-size: 32rpx;
+          font-size: 14px;
         }
 
         &.bg-cyan {

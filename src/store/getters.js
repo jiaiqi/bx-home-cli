@@ -7,6 +7,32 @@ const getters = {
 	loginUserInfo: state => state.user.loginUserInfo,
 	authSetting:state=>state.app.authSetting,
 	env:state=>state.app.env,
-	authBoxDisplay:state=>state.app.authBoxDisplay
+	authBoxDisplay:state=>state.app.authBoxDisplay,
+  btnBg:state=>{
+    let obj = {
+      bg:'',
+      color:''
+    }
+    switch (state.app.theme){
+      case 'red':
+        obj.bg = '#FE5A3F'
+        obj.color = '#fff'
+        break;
+    }
+    return obj.bg
+  },
+  btnColor:state=>{
+    let obj = {
+      bg:'',
+      color:''
+    }
+    switch (state.app.theme){
+      case 'red':
+        obj.bg = '#FE5A3F'
+        obj.color = '#fff'
+        break;
+    }
+    return obj.color
+  },
 }
 export default getters

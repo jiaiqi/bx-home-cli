@@ -94,7 +94,11 @@ fly.interceptors.request.use(async (request) => {
 	console.log(store.state.app.xhrNum)
 	// 如果是浏览器运行的记录 请求的页面path和参数
 	if (uni.getStorageSync('client_env') === 'wxh5' || uni.getStorageSync('client_env') === 'web') {
-		// request.headers["requrl"] = window.location.pathname + window.location.search
+		 let requrl = window.location.pathname + window.location.search
+     if(requrl&&requrl.length>300){
+       requrl = requrl.substr(0,300)
+     }
+     request.headers["requrl"]  = requrl
 	}
 	let bxAuthTicket = uni.getStorageSync("bx_auth_ticket")
 	if (store.state.app.bx_auth_ticket) {
@@ -186,8 +190,6 @@ fly.interceptors.response.use(
 						//  过滤无效的url
 						let index = requestUrl.indexOf('/pages/')
 						requestUrl = requestUrl.slice(index)
-            
-            debugger
 						uni.setStorageSync("backUrl", requestUrl)
 					}
 					try {

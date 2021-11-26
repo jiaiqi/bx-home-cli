@@ -4,7 +4,7 @@
     <cu-custom-navbar :isBack="showBackHome" :back-home="showBackHome">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
-          {{ storeInfo.name || "首页" }}
+          {{ StoreInfo.name || "首页" }}
         </text>
         <text class="cuIcon-unfold margin-left-xs" :class="{ 'show-home': showHomePageSelector }"></text>
       </view>
@@ -12,7 +12,7 @@
 
 
     <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
-      :pageItem="getConfig(pageItem)" :storeInfo="storeInfo" :userInfo="userInfo" :is-bind="isBind"
+      :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
       :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
       @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode">
     </store-item>
@@ -118,7 +118,7 @@
         bindUserInfo: {},
         goodsListData: [],
         storeNo: '',
-        storeInfo: {},
+        StoreInfo: {},
         kefuSessionInfo: {},
         pageItemList: [],
         storeList: [],
@@ -136,7 +136,7 @@
         return this.$store?.state?.app?.theme
       },
       showBackHome() {
-        let status = this.storeInfo?.audit_status
+        let status = this.StoreInfo?.audit_status
         if (status) {
           if (status === '仅本店' || status === '双向隔离') {
             return false
@@ -187,8 +187,8 @@
     },
     methods: {
       getQrcode(e) {
-        this.storeInfo.store_qr_code = e;
-        this.$store.commit('SET_STORE_INFO', this.storeInfo)
+        this.StoreInfo.store_qr_code = e;
+        this.$store.commit('SET_STORE_INFO', this.StoreInfo)
       },
       savePushSet() {
         // 保存通知设置
@@ -706,13 +706,13 @@
           }
           this.$store.commit('SET_THEME', theme)
           // this.setNavBg(this.theme)
-          this.storeInfo = res.data[0];
+          this.StoreInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
-          if (this.storeInfo.type === '健康服务') {
+          if (this.StoreInfo.type === '健康服务') {
             this.getGoodsListData();
           }
-          if (this.storeInfo.is_show === '是') {
-            this.getStoreUserInfo(this.storeInfo.store_no).then(res => {
+          if (this.StoreInfo.is_show === '是') {
+            this.getStoreUserInfo(this.StoreInfo.store_no).then(res => {
               if (Array.isArray(res) && res.length >= 1) {
                 // 店铺用户列表中已存在此用户
               } else {
@@ -752,9 +752,9 @@
           "condition": [],
           "data": [{
             "store_no": this.storeNo,
-            "name": this.storeInfo.name,
-            "image": this.storeInfo.image,
-            "type": this.storeInfo.type,
+            "name": this.StoreInfo.name,
+            "image": this.StoreInfo.image,
+            "type": this.StoreInfo.type,
             "person_no": this.userInfo.no,
             "person_name": this.userInfo && this.userInfo.name ? this.userInfo.name
               .replace(
@@ -832,12 +832,12 @@
         if (!this.userInfo || !this.userInfo.no) {
           await this.toAddPage()
         }
-        if (!this.storeInfo || !this.storeInfo.store_no) {
+        if (!this.StoreInfo || !this.StoreInfo.store_no) {
           await this.selectStoreInfo()
         }
         uni.showModal({
           title: '提示',
-          content: `请确认是否${this.userInfo.home_store_no === this.storeNo ? "取消" : ""}将此${this.storeInfo.type}设置为首页`,
+          content: `请确认是否${this.userInfo.home_store_no === this.storeNo ? "取消" : ""}将此${this.StoreInfo.type}设置为首页`,
           success(result) {
             if (result.confirm) {
               self.$fetch('operate', 'srvhealth_person_info_update', req, 'health').then(res => {
@@ -901,13 +901,13 @@
             store_no: this.storeNo,
             person_no: this.userInfo.no,
             user_role: '用户',
-            "image": this.storeInfo.image,
-            "name": this.storeInfo.name,
-            "type": this.storeInfo.type
+            "image": this.StoreInfo.image,
+            "name": this.StoreInfo.name,
+            "type": this.StoreInfo.type
           }]
         }];
         uni.showModal({
-          title: `是否加入【${this.storeInfo.name}】`,
+          title: `是否加入【${this.StoreInfo.name}】`,
           content: "不加入则无法进行大部分操作",
           confirmText: "加入",
           confirmColor: "#0bc99d",
@@ -918,7 +918,7 @@
                 if (res.data.state === 'SUCCESS') {
                   uni.showModal({
                     title: '提示',
-                    content: `您已成功加入【${self.storeInfo.name}】`
+                    content: `您已成功加入【${self.StoreInfo.name}】`
                   });
                   self.initPage()
                 } else {
@@ -963,7 +963,7 @@
               let obj = {
                 rowData: this.rowData,
                 inviterInfo: this.$store?.state?.app?.inviterInfo,
-                storeInfo: this.storeInfo,
+                StoreInfo: this.StoreInfo,
                 userInfo: this.userInfo,
                 bindUserInfo: this.bindUserInfo
               }
@@ -1027,7 +1027,7 @@
           this.checkSubscribeStatus()
         }
         if (this.storeNo) {
-          // this.storeInfo.store_no = null
+          // this.StoreInfo.store_no = null
           await this.selectStoreInfo();
           await this.selectBindUser()
           await this.getPageItem()
@@ -1175,8 +1175,8 @@
       let path =
         `pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no
       }`;
-      let title = `${this.userInfo.name}邀请您关注【${this.storeInfo.name}】`;
-      let imageUrl = this.getImagePath(this.storeInfo.image);
+      let title = `${this.userInfo.name}邀请您关注【${this.StoreInfo.name}】`;
+      let imageUrl = this.getImagePath(this.StoreInfo.image);
       this.saveSharerInfo(this.userInfo, path);
       return {
         imageUrl: imageUrl,
@@ -1233,7 +1233,7 @@
       })
       uni.$on('updateStoreInfo', (e) => {
         if (e && e.store_no === this.storeNo) {
-          this.storeInfo = e
+          this.StoreInfo = e
         }
       })
       if (option.q) {
@@ -1378,7 +1378,7 @@
         // 绑定诊所
         // 查找店铺用户列表
         this.storeNo = option.store_no;
-        let storeInfo = await this.selectStoreInfo();
+        let StoreInfo = await this.selectStoreInfo();
         let storeUser = await this.getStoreUserInfo(option.store_no)
         if (Array.isArray(storeUser) && storeUser.length > 0) {
           // 店铺用户列表中已存在此用户

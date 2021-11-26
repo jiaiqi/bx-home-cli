@@ -328,8 +328,8 @@
                 </view>
               </view>
             </view>
-            <view v-else-if="item.msg_content" @click="clickChatLink(item)" class="person-chat-item-right"
-              :class="{'person-chat-item-right-link':item.msg_link,'bx-bg-coffee':theme==='coffee','border-left-coffee':theme==='coffee'} ">
+            <view v-else-if="item.msg_content" @click="clickChatLink(item)" class="person-chat-item-right bx-bg-color border-left-color"
+              :class="{'person-chat-item-right-link':item.msg_link} ">
               <text class="remind-someone" v-if="
                   item.attribute &&
                   item.attribute.type &&

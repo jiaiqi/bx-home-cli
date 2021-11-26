@@ -1,5 +1,5 @@
 <template>
-  <view class="form-wrap"  :class="['theme-'+theme]">
+  <view class="form-wrap" :class="['theme-'+theme]">
     <view class="main-form-edit">
       <a-form v-if="colsV2Data && isArray(fields)" :fields="fields" :srvApp="appName" :pageType="srvType"
         :formType="use_type" ref="bxForm" @value-blur="valueChange">
@@ -14,7 +14,7 @@
     </view>
 
     <view class="button-box" v-if="colsV2Data">
-      <button class="cu-btn bg-blue" :class="{'bx-bg-coffee round':theme=='coffee'}" type="primary" v-if="isArray(fields) && fields.length > 0"
+      <button class="cu-btn bg-blue bx-bg-color" type="primary" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -52,7 +52,7 @@
       }
     },
     computed: {
-      theme(){
+      theme() {
         return this.$store?.state?.app?.theme
       },
       formButtons() {
@@ -411,6 +411,16 @@
           }
           this.$set(this.fields, i, item)
         }
+      },
+      getServiceName(srv) {
+        let len = srv.lastIndexOf('_');
+        let serviceName = srv.slice(0, len) + '_';
+        if (this.srvType === 'list' || this.srvType === 'detail') {
+          serviceName += 'select';
+        } else {
+          serviceName += this.srvType;
+        }
+        return serviceName;
       },
       toPages(type, e) {
         this.srvType = type;

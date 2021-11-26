@@ -34,7 +34,7 @@
         <!--  <view class="cu-btn round" @click="cancel">
           取消
         </view> -->
-        <view class="cu-btn bx-bg-coffee round" @click="print">
+        <view class="cu-btn bx-bg-color round" @click="print">
           打印
         </view>
       </view>

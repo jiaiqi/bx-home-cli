@@ -404,6 +404,16 @@
           this.$set(this.fields, i, item)
         }
       },
+      getServiceName(srv) {
+        let len = srv.lastIndexOf('_');
+        let serviceName = srv.slice(0, len) + '_';
+        if (this.srvType === 'list' || this.srvType === 'detail') {
+          serviceName += 'select';
+        } else {
+          serviceName += this.srvType;
+        }
+        return serviceName;
+      },
       toPages(type,e) {
         this.srvType = type;
         if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this.params

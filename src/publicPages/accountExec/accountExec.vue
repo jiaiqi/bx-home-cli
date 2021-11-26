@@ -68,6 +68,7 @@
         <!-- #ifdef H5 -->
         <view class="qrcode-login" v-if="loginType==='weixin-qrcode'">
           <div id="login_container" class="login_container"></div>
+          <div style="text-align: center;"> （注意是用摄像头扫码，不是长按识别二维码）</div>
         </view>
         <view class="switch-login-type">
           其它方式登录
@@ -161,13 +162,18 @@
       //     this.initLogin(option)
       //   }
       // } else {
-      if (option.code && option.state ) {
-        // 扫码登陆重定向
-        this.scanLogin(option)
-      } else if (this.$route.query?.code && this.$route.query?.state) {
-        this.scanLogin(this.$route.query)
+      if (uni.getSystemInfoSync().model === 'PC') {
+        if (option.code && option.state) {
+          // 扫码登陆重定向
+          this.scanLogin(option)
+        } else if (this.$route.query?.code && this.$route.query?.state) {
+          this.scanLogin(this.$route.query)
+        } else {
+
+          this.getScanQrCode()
+        }
       } else {
-        this.getScanQrCode()
+        this.loginType = 'account'
       }
       // }
       // #endif
@@ -1074,7 +1080,7 @@
   .login_container {
     text-align: center;
     width: 100%;
-    height: 300px;
+    height: 250px;
     overflow: hidden;
   }
 

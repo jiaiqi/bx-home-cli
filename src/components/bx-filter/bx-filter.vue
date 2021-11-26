@@ -12,7 +12,7 @@
           class="cuIcon-refresh margin-right-xs "></text>重置</button>
       <button class="cu-btn bg-grey light" @click="cancel"><text
           class="cuIcon-close margin-right-xs "></text>取消</button>
-      <button class="cu-btn bg-blue light confirm" :class="{'bx-bg-coffee':theme==='coffee',' bx-bg-color':theme}"
+      <button class="cu-btn bg-blue light confirm" :class="{' bx-bg-color':theme}"
         @click="toFilter">
         <text class="cuIcon-search margin-right-xs"></text>确定
       </button>

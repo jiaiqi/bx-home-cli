@@ -1,28 +1,28 @@
 <template>
-  <view class="page-bg" :class="['bx-bg-'+theme,'theme-'+theme,'bx-bg-color']">
+  <view class="page-bg bx-bg-color" :class="['theme-'+theme]">
     <view class="page-wrap">
       <view class="head">
         <view class="store-name">
           <view class="name" @click="toStoreDetail">
-            {{storeInfo.name||''}}
+            {{StoreInfo.name||''}}
           </view>
-          <view class="phone bx-bg-color" :class="'bx-bg-'+theme" @click.stop="makePhoneCall">
+          <view class="phone bx-bg-color" @click.stop="makePhoneCall">
             <u-icon name="phone-fill"></u-icon>
           </view>
         </view>
-        <view class="store-info" v-if="storeInfo.address">
-          <image :src="getImagePath(storeInfo.image)" class="logo" @click="toStoreDetail">
+        <view class="store-info" v-if="StoreInfo.address">
+          <image :src="getImagePath(StoreInfo.image)" class="logo" @click="toStoreDetail">
           </image>
           <view class="store-address">
             <view class="address" @click="openLocation">
               <text class="location cuIcon-locationfill margin-left-xs"></text>
-              {{ storeInfo.address }}
+              {{ StoreInfo.address }}
             </view>
           </view>
         </view>
 
       </view>
-      <view class="statis-box" v-if="countData&&storeInfo" @click="toDashboard">
+      <view class="statis-box" v-if="countData&&StoreInfo" @click="toDashboard">
         <view class="statis-item" v-for="item in countData">
           <view class="item-label" v-if="labelPosition==='top'">
             {{item.label||'0'}}
@@ -35,13 +35,13 @@
           </view>
         </view>
       </view>
-      <view class="statis-box" v-else-if="statisConfig&&statisConfig.labels&&storeInfo" @click="toDashboard">
+      <view class="statis-box" v-else-if="statisConfig&&statisConfig.labels&&StoreInfo" @click="toDashboard">
         <view class="statis-item" v-for="item in statisConfig.labels">
           <view class="item-label" v-if="statisConfig.labelPosition==='top'">
             {{item.label||'0'}}
           </view>
           <view class="item-value">
-            {{storeInfo[item.col]||'0'}}
+            {{StoreInfo[item.col]||'0'}}
           </view>
           <view class="item-label" v-if="statisConfig.labelPosition!=='top'">
             {{item.label||'0'}}
@@ -49,19 +49,19 @@
         </view>
       </view>
       <view class="manager-view">
-        <view class="text-bold title" v-if="storeInfo.mgmt_button_type === '固定'||storeInfo.mgmt_button_type === '自动'">
+        <view class="text-bold title" v-if="StoreInfo.mgmt_button_type === '固定'||StoreInfo.mgmt_button_type === '自动'">
           <text class="margin-right">{{ buttonTitle || "管理" }}</text>
           <!-- 		<text class="cuIcon-title text-orange margin-right">未回复</text>
 					<text class="cuIcon-title text-red">未读</text>-->
           <view class="buttons">
-            <button class="cu-btn round" @tap="toDetail(storeInfo)"><text class="cuIcon-settingsfill"
+            <button class="cu-btn round" @tap="toDetail(StoreInfo)"><text class="cuIcon-settingsfill"
                 :class="'bx-text-'+theme"></text>设置</button>
           </view>
         </view>
-        <view class="manager-box" v-if="storeInfo.mgmt_button_type === '固定'">
+        <view class="manager-box" v-if="StoreInfo.mgmt_button_type === '固定'">
           <view class="box-item" v-for="item in list" @click="clickGrid(item)">
-            <view class="cu-tag amount bg-blue round light" v-if="storeInfo[item.type]">
-              {{ storeInfo[item.type] | overDisplay }}
+            <view class="cu-tag amount bg-blue round light" v-if="StoreInfo[item.type]">
+              {{ StoreInfo[item.type] | overDisplay }}
             </view>
             <view class="box-item-content">
               <text class="cu-tag badge-null" v-if="item.num===true"></text>
@@ -78,7 +78,7 @@
           </view>
         </view>
 
-        <view class="manager-box" v-if="storeInfo.mgmt_button_type === '自动'">
+        <view class="manager-box" v-if="StoreInfo.mgmt_button_type === '自动'">
           <view class="cu-bar justify-center bg-white">
             <view class="action sub-title">
               <text class="text-xl text-bold text-green">店铺子表</text>
@@ -108,7 +108,7 @@
           <view class="text-bold title">
             <text class="margin-right">{{ manage.component_label || "管理" }}</text>
             <view class="buttons" v-if="mIndex===0">
-              <button class="cu-btn round" @tap="toDetail(storeInfo)"><text :class="'bx-text-'+theme"
+              <button class="cu-btn round" @tap="toDetail(StoreInfo)"><text :class="'bx-text-'+theme"
                   class="cuIcon-settingsfill"></text>设置</button>
             </view>
           </view>
@@ -147,7 +147,7 @@
   export default {
     data() {
       return {
-        storeInfo: {},
+        StoreInfo: {},
         modalName: '',
         storeNo: '',
         gridList: [{
@@ -274,7 +274,7 @@
       },
       statisConfig() {
         // 统计字段配置
-        let config = this.storeInfo?.moreConfig?.statis
+        let config = this.StoreInfo?.moreConfig?.statis
         if (config) {
           const column = config?.column
           const label = config?.label
@@ -313,7 +313,7 @@
       },
       getChildServiceList() {
         // 查找子表列表数量
-        let formData = this.storeInfo;
+        let formData = this.StoreInfo;
         let req = [];
         let url = this.getServiceUrl('health', 'select', 'multi');
         if (this.childTable.length > 0) {
@@ -355,7 +355,7 @@
       toChildService(e) {
         // 跳转到子表列表
         let data = this.deepClone(e);
-        let formData = this.storeInfo;
+        let formData = this.StoreInfo;
         let condition = [{
           colName: e.foreign_key.column_name,
           ruleType: 'eq',
@@ -500,7 +500,7 @@
                 JSON.stringify(condition) +
                 '&viewTemp=' +
                 JSON.stringify(viewTemp) + '&foreign_key=' + JSON.stringify(foreign_key) +
-                '&main_data=' + JSON.stringify(this.storeInfo)
+                '&main_data=' + JSON.stringify(this.StoreInfo)
             });
           }
         } else if (data?.srv_app && data?.service_name && data?.foreign_key) {
@@ -664,7 +664,7 @@
           condition: [{
               colName: 'website_no',
               ruleType: 'eq',
-              value: this.storeInfo.website_no
+              value: this.StoreInfo.website_no
             },
             {
               colName: 'is_leaf',
@@ -729,16 +729,16 @@
       },
       makePhoneCall() {
         uni.makePhoneCall({
-          phoneNumber: this.storeInfo.telephone //仅为示例
+          phoneNumber: this.StoreInfo.telephone //仅为示例
         });
       },
       openLocation() {
-        if (this.storeInfo.latitude && this.storeInfo.longitude) {
+        if (this.StoreInfo.latitude && this.StoreInfo.longitude) {
           uni.openLocation({
-            latitude: Number(this.storeInfo.latitude),
-            longitude: Number(this.storeInfo.longitude),
-            name: this.storeInfo.name,
-            address: this.storeInfo.address
+            latitude: Number(this.StoreInfo.latitude),
+            longitude: Number(this.StoreInfo.longitude),
+            name: this.StoreInfo.name,
+            address: this.StoreInfo.address
           });
         }
       },
@@ -747,7 +747,7 @@
           e = e.$orig
         }
         if (e.type === 'setting') {
-          this.toDetail(this.storeInfo);
+          this.toDetail(this.StoreInfo);
           return
         }
         if (e.url) {
@@ -808,7 +808,7 @@
         let viewTemp = {};
         switch (type) {
           case 'setting':
-            this.toDetail(this.storeInfo);
+            this.toDetail(this.StoreInfo);
             break;
           case 'manual':
             // 操作手册
@@ -1140,25 +1140,25 @@
         if (this.colV2Data?.vpage_no) {
           req['vpage_no'] = this.colV2Data.vpage_no
         }
-        let storeInfo = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health');
-        if (storeInfo.success && Array.isArray(storeInfo.data) && storeInfo.data.length > 0) {
-          // storeInfo = storeInfo.data[0];
-          this.unreadNum = storeInfo.data[0].kefu_unread_msg
-          this.unreadNumber = storeInfo.data[0].kefu_unack_msg
-          this.storeInfo = storeInfo.data[0];
-          if (this.storeInfo?.name) {
+        let StoreInfo = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health');
+        if (StoreInfo.success && Array.isArray(StoreInfo.data) && StoreInfo.data.length > 0) {
+          // StoreInfo = StoreInfo.data[0];
+          this.unreadNum = StoreInfo.data[0].kefu_unread_msg
+          this.unreadNumber = StoreInfo.data[0].kefu_unack_msg
+          this.StoreInfo = StoreInfo.data[0];
+          if (this.StoreInfo?.name) {
             uni.setNavigationBarTitle({
-              title: this.storeInfo?.name || ''
+              title: this.StoreInfo?.name || ''
             })
           }
-          if (this.storeInfo.para_cfg) {
+          if (this.StoreInfo.para_cfg) {
             try {
               let data = {
-                storeInfo: this.storeInfo
+                StoreInfo: this.StoreInfo
               }
-              this.storeInfo.para_cfg = this.renderStr(this.storeInfo.para_cfg, data)
-              let moreConfig = JSON.parse(this.storeInfo.para_cfg)
-              this.storeInfo.moreConfig = moreConfig
+              this.StoreInfo.para_cfg = this.renderStr(this.StoreInfo.para_cfg, data)
+              let moreConfig = JSON.parse(this.StoreInfo.para_cfg)
+              this.StoreInfo.moreConfig = moreConfig
               if (moreConfig && moreConfig.displayColumn) {
                 this.displayColumn = moreConfig.displayColumn
               }
@@ -1170,9 +1170,9 @@
             }
           }
 
-          if (this.storeInfo?._child_tables && Array.isArray(this.storeInfo._child_tables) && this.storeInfo
+          if (this.StoreInfo?._child_tables && Array.isArray(this.StoreInfo._child_tables) && this.StoreInfo
             ._child_tables.length > 0) {
-            const arr = this.storeInfo._child_tables
+            const arr = this.StoreInfo._child_tables
             this.childTable = this.childTable.filter((item, index) => {
               if (arr[index] === 0) {
                 return false
@@ -1181,10 +1181,10 @@
               }
             })
           }
-          if (this.storeInfo?.mgmt_button_type === '自动') {
+          if (this.StoreInfo?.mgmt_button_type === '自动') {
             // this.selectChild()
           }
-          if (this.storeInfo.website_no) {
+          if (this.StoreInfo.website_no) {
             let obj = {
               url: '/storePages/articleManager/articleManager?store_no=' + this.storeNo,
               name: '文章管理',
@@ -1230,7 +1230,7 @@
       uni.$emit('updateUnread')
     },
     async onLoad(option) {
-      
+
       this.setNavBg(this.theme)
       uni.$on('updateKefuSessionLastLookTime', () => {
         if (this.storeNo) {

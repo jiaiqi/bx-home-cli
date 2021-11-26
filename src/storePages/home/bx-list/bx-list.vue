@@ -539,6 +539,7 @@
         }
       },
       async clickFootBtn(data) {
+        debugger
         let self = this
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
@@ -850,7 +851,7 @@
             });
           }
         } else {
-          if (buttonInfo.button_type === 'detail' && this.detailType === 'custom' && this.customDetailUrl) {
+          if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo
             let targetUrl = this.customDetailUrl

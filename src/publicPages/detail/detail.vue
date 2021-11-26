@@ -129,8 +129,8 @@
           <text class="cuIcon-fold " v-else></text>
         </view>
         <view class="button-box" v-if="detail&&!disabled">
-          <button class="cu-btn line-orange round border" v-for="(item,index) in publicButton"
-            :class="{disabled:disabled,'bx-line-btn-coffee':theme==='coffee'}" :key="index" @click="onButton(item)">
+          <button class="cu-btn line-orange round border bx-line-btn-color" v-for="(item,index) in publicButton"
+            :class="{disabled:disabled}" :key="index" @click="onButton(item)">
             {{item.button_custom_name||item.button_name||''}}
           </button>
         </view>

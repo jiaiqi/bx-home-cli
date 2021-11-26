@@ -7,6 +7,8 @@ import bxUtil from '@/common/util.js' // 公共方法(工具函数)
 import bxBusinessFunction from '@/common/specific.js' // 通用业务函数
 import fly from '@/common/http.js' // fly 请求拦截
 import cuCustom from './colorui/components/cu-custom.vue'
+import themeUtil from '@/common/theme/themeUtil.js'
+Vue.use(themeUtil)
 
 Vue.component('cu-custom', cuCustom)
 import uView from "uview-ui";
@@ -24,8 +26,8 @@ Vue.prototype.$api = api
 App.mpType = 'app'
 
 const app = new Vue({
-	store,
-	...App
+  store,
+  ...App
 })
 
 app.$mount()

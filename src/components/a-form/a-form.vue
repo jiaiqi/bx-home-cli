@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="a-form">
     <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}" v-show="showField(field)"
       v-for="(field,fIndex) in allField">
       <view class="section-name" v-if="field.section&&showSectionName">
@@ -67,36 +67,22 @@
   }
 
   @media screen and (min-width: 750px) {
+    .a-form{}
     .field-item {
-      min-width: 30%;
-      flex: 1;
+      // max-width: 30%;
+      width: 300px;
+      // flex: 1;
       // min-width: 250px;
       background-color: #fff;
       border: 1px solid #E5E6E9;
       margin-right: 10px;
       margin-bottom: 10px;
       border-radius: 8px;
-
+      max-width: 300px;
       .form-item {}
     }
   }
 
-  // @media screen and (min-width: 800px) {
-  //   .field-item {
-  //     min-width: 25%;
-  //   }
-  // }
-
-  // @media screen and (min-width: 1200px) {
-  //   .field-item {
-  //     min-width: 20%;
-  //   }
-  // }
-  // @media screen and (min-width: 1600px) {
-  //   .field-item {
-  //     min-width: 12.5%;
-  //   }
-  // }
 </style>
 <script>
   import evaluatorTo from '@/common/evaluator.js';

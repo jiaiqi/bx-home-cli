@@ -10,8 +10,8 @@
       </a-form>
     </view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
-      <button class="cu-btn bg-orange round lg" :class="{'bx-bg-coffee':theme==='coffee'}"
-        v-for="(btn, btnIndex) in colsV2Data._formButtons" :key="btnIndex" @click="onButton(btn)">
+      <button class="cu-btn bg-orange round lg bx-bg-color" v-for="(btn, btnIndex) in colsV2Data._formButtons"
+        :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
     </view>
@@ -1285,27 +1285,31 @@
     .scroll-view {
       // background-color: #fff;
     }
-    &.pc-model-page{
+
+    &.pc-model-page {
       background-color: #fff;
       max-width: 800px;
       margin: 0 auto;
       padding: 0 50px;
     }
+
     .pc-model {
       display: flex;
       flex-wrap: wrap;
       padding-top: 10px;
       padding-left: 10px;
+
       ::v-deep .form-item::after {
         border-bottom: none !important;
       }
 
       ::v-deep .field-item {
-        min-width: 100%!important;
+        min-width: 100% !important;
         width: 100% !important;
-        border-radius: 0!important;
+        border-radius: 0 !important;
+
         // border: none!important;
-        .form-item-content{
+        .form-item-content {
           // border: 1px solid #f1f1f1;
         }
       }

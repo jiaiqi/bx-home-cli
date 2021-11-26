@@ -19,7 +19,7 @@
       </view>
     </view>
     <view class="button-box" v-if="colsV2Data&&!disabled">
-      <button class="cu-btn bg-orange round lg" :class="'bx-bg-'+theme" v-if="isArray(fields) && fields.length > 0"
+      <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
@@ -60,7 +60,8 @@
         childListData: {},
         disabledChildButton: false, // 禁用子表
         disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
-        afterSubmit: ""
+        afterSubmit: "",
+        params: {},
       }
     },
     computed: {
@@ -317,7 +318,6 @@
                     content: `${res.data.resultMessage}`,
                     showCancel: false,
                     success(res) {
-                      debugger
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
@@ -327,7 +327,8 @@
                         })
                         return
                       } else if (self.afterSubmit === 'detail') {
-                        self.toPages('update');
+                        self.toPages('detail');
+                        return
                       } else if (beforeRedirectUrl) {
                         uni.redirectTo({
                           url: beforeRedirectUrl
@@ -554,40 +555,43 @@
                   //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
                   // }
                 }
-                let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-                if (self.afterSubmit === 'home') {
-                  getApp().globalData.beforeRedirectUrl = null
-                  let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                  uni.reLaunch({
-                    url: `/storePages/home/home?store_no=${store_no}`
-                  })
-                  return
-                } else if (self.afterSubmit === 'close') {
-                  // getApp().globalData.beforeRedirectUrl = null
-                  // let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                  // uni.reLaunch({
-                  //   url: `/storePages/home/home?store_no=${store_no}`
-                  // })
-                  if (top.window?.tab?.closeCurrentTab) {
-                    top.tab.closeCurrentTab()
-                  }
-                  return
-                } else if (self.afterSubmit === 'detail') {
-                  self.toPages('update');
-                } else if (beforeRedirectUrl) {
-                  uni.redirectTo({
-                    url: beforeRedirectUrl
-                  })
-                  getApp().globalData.beforeRedirectUrl = null
-                  return
-                }
+
                 uni.showModal({
                   title: '提示',
                   content: res.data.resultMessage,
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
-                      uni.navigateBack({})
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                      if (self.afterSubmit === 'home') {
+                        getApp().globalData.beforeRedirectUrl = null
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                        return
+                      } else if (self.afterSubmit === 'close') {
+                        // getApp().globalData.beforeRedirectUrl = null
+                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        // uni.reLaunch({
+                        //   url: `/storePages/home/home?store_no=${store_no}`
+                        // })
+                        if (top.window?.tab?.closeCurrentTab) {
+                          top.tab.closeCurrentTab()
+                        }
+                        return
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
+                      } else if (beforeRedirectUrl) {
+                        uni.redirectTo({
+                          url: beforeRedirectUrl
+                        })
+                        getApp().globalData.beforeRedirectUrl = null
+                        return
+                      }else{
+                        uni.navigateBack({})
+                      }
                     }
                   }
                 })
@@ -723,8 +727,19 @@
           }
         }
       },
+      getServiceName(srv) {
+        let len = srv.lastIndexOf('_');
+        let serviceName = srv.slice(0, len) + '_';
+        if (this.srvType === 'list' || this.srvType === 'detail') {
+          serviceName += 'select';
+        } else {
+          serviceName += this.srvType;
+        }
+        return serviceName;
+      },
       toPages(type, e) {
         this.srvType = type;
+        debugger
         if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this.params
             ?.idCol]) {
           uni.redirectTo({
@@ -1085,6 +1100,7 @@
     padding: 20rpx;
     display: flex;
     flex-direction: column;
+    margin: 0 auto;
 
     .form-content {
       flex: 1;
