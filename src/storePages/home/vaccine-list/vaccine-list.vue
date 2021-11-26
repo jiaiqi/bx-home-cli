@@ -532,9 +532,9 @@
       pageItem: {
         type: Object
       },
-      storeInfo: {
-        type: Object
-      },
+      // storeInfo: {
+      //   type: Object
+      // },
     },
     beforeDestroy() {
       uni.$off('backFromWebview')

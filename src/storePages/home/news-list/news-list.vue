@@ -124,9 +124,9 @@
         type: Number,
         default: 3
       },
-      storeInfo: {
-        type: Object
-      },
+      // storeInfo: {
+      //   type: Object
+      // },
       website_no: {
         type: String
       },
