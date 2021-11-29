@@ -1190,6 +1190,7 @@
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
         } else {
+          debugger
           let url = `/storePages/vaccineAppointment/vaccineAppointment?id=${e.id}&store_no=${this.storeInfo.store_no}`
           if (this.moreConfig?.app_type) {
             url += `&app_type=${this.moreConfig.app_type}`

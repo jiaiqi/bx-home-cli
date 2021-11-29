@@ -80,7 +80,7 @@ export default {
     return {
       storeNo: "",
       doctorNo: "",
-      storeInfo: {},
+      // storeInfo: {},
       professorInfo: {},
       timeArr: [ "", "上午", "下午" ],
       scheduleList: [ {

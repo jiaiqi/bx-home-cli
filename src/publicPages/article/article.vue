@@ -71,7 +71,7 @@
         serviceName: 'srvdaq_cms_content_select',
         storeName: '',
         storeNo: '',
-        storeInfo: {},
+        // storeInfo: {},
         qrCodeText: "",
         qrcodePath: "",
         codeSize: uni.upx2px(700),

@@ -71,9 +71,9 @@
       theme() {
         return this.$store?.state?.app?.theme
       },
-      storeInfo() {
-        return this.$store?.state?.app?.storeInfo
-      },
+      // storeInfo() {
+      //   return this.$store?.state?.app?.storeInfo
+      // },
       userInfo() {
         return this.$store?.state?.user?.userInfo
       },

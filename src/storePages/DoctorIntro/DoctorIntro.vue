@@ -74,7 +74,7 @@
 				doctorInfo: {},
 				storeNo: '',
 				relationInfo: {},
-				storeInfo: {},
+				// storeInfo: {},
 				calenderSelected: [{
 						date: '2021-01-22',
 						info: '出诊',

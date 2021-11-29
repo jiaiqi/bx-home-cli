@@ -38,7 +38,7 @@
 			return {
 				swiperList: [],
 				storeNo: '',
-				storeInfo: {},
+				// storeInfo: {},
 				qrCodeText: '',
 				codeSize: uni.upx2px(700),
 				qrcodePath: ""
@@ -90,7 +90,7 @@
 				return new Promise((resolve, reject) => {
 					this.$http.post(url, req).then(res => {
 						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-							this.storeInfo = res.data.data[0]
+							// this.storeInfo = res.data.data[0]
 							this.getSwiperList(this.storeInfo)
 							uni.setNavigationBarTitle({
 								title: this.storeInfo.name

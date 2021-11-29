@@ -67,7 +67,7 @@ export default {
     return {
       storeNo: "",
       selectedDate: '2021-04-12',
-      storeInfo: {},
+      // storeInfo: {},
       professorList: [],
       scheduleRange: [ {
         label: '上午',

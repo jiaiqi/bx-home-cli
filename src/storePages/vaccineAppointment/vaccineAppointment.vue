@@ -142,7 +142,7 @@
       return {
         id: "",
         store_no: "",
-        storeInfo: {},
+        // storeInfo: {},
         onSubmit: false,
         vaccineInfo: {},
         selectedVaccine: {},
@@ -238,7 +238,7 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
         if (res.success && res.data.length > 0) {
-          this.storeInfo = res.data[0]
+          // this.storeInfo = res.data[0]
           if (this.storeInfo.name) {
             uni.setNavigationBarTitle({
               title: this.storeInfo.name

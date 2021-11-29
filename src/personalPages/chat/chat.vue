@@ -4,7 +4,7 @@
 			<!-- 		<view class="util-item " @click="toPages('group-member')">
 				<view class="icon"><text class="cuIcon-friend "></text></view>
 							<text class="label">成员<text
-						v-if="storeInfo&&storeInfo.user_count">({{storeInfo.user_count}})</text></text>
+						v-if="StoreInfo&&StoreInfo.user_count">({{StoreInfo.user_count}})</text></text>
 			</view> -->
 			<view class="util-item " @click="toPages('group-util')"
 				v-if="(groupInfo && groupInfo.gc_no)||sessionType==='店铺机构全员'">
@@ -22,7 +22,7 @@
 		</view>
 		<chat ref="chatInstance" :session-no="session_no" :identity="identity" page-type="session"
 			@clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete" :groupInfo="groupInfo" :rowInfo="rowInfo"
-			:storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight"
+			:storeInfo="StoreInfo" :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight"
 			:group-no="groupNo" :receiverInfo="receiverInfo" :banSend="banSend" v-if="session_no"
 			:storeUserInfo='storeUserInfo' :queryOption="queryOption"></chat>
 	</view>
@@ -77,7 +77,7 @@
 				receiverInfo: {
 					// 接收者信息
 				},
-				storeInfo: {},
+				StoreInfo: {},
 				storeUserInfo: {}, // 当前登录用户在店铺成员列表中的信息
 				groupNo: '', //群组编号
 				row_no: '', // 一对一会话 用户关系编码
@@ -211,8 +211,8 @@
 				}
 				let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
 				if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-					this.storeInfo = res.data[0]
-					return this.storeInfo
+					this.StoreInfo = res.data[0]
+					return this.StoreInfo
 				}
 			},
 			async getGroup() {
@@ -270,8 +270,8 @@
 						if (res.data.length > 0) {
 							if (this.groupInfo && this.groupInfo.name) {
 								this.pageTitle = this.groupInfo.name + `(${res.page.total})`
-							} else if (this.storeInfo && this.storeInfo.name) {
-								this.pageTitle = this.storeInfo.name + `(${this.storeInfo.user_count})`
+							} else if (this.StoreInfo && this.StoreInfo.name) {
+								this.pageTitle = this.StoreInfo.name + `(${this.StoreInfo.user_count})`
 							}
 							if (this.pageTitle) {
 								uni.setNavigationBarTitle({
@@ -307,9 +307,9 @@
 					self.session_no = res.data[0].session_no
 					switch (self.sessionType) {
 						case '店铺机构全员':
-							if (self.storeInfo && self.storeInfo.user_count) {
+							if (self.StoreInfo && self.StoreInfo.user_count) {
 								self.pageTitle =
-									`${ self.sessionInfo.session_name||self.storeInfo.name　}(${self.storeInfo.user_count})`
+									`${ self.sessionInfo.session_name||self.StoreInfo.name　}(${self.StoreInfo.user_count})`
 							} else {
 
 							}
@@ -325,7 +325,7 @@
 						case '机构用户客服':
 							if (self.identity === '客户') {
 								if (!self.receiver_person_no) {
-									self.pageTitle = self.storeInfo.name
+									self.pageTitle = self.StoreInfo.name
 								}
 							} else if (self.identity === '客服') {
 								self.pageTitle = self.sessionInfo.store_user_name

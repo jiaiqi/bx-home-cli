@@ -190,7 +190,7 @@ export default {
       },
       gc_no: '', // 群组编码
       storeNo: '', // 店铺编码
-      storeInfo: {},
+      // storeInfo: {},
       joined: true, //当前登录用户是否已加入此圈子
       type: 'group-detail',
       qrCodeSize: uni.upx2px(500),

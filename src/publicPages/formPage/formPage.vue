@@ -71,9 +71,9 @@
       model() {
         return getApp()?.globalData?.systemInfo?.model
       },
-      storeInfo() {
-        return this.$store?.state?.app?.storeInfo
-      },
+      // storeInfo() {
+      //   return this.$store?.state?.app?.storeInfo
+      // },
       formButtons() {
         let buttons = []
         if (Array.isArray(this.colsV2Data?._formButtons)) {

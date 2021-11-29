@@ -12,9 +12,9 @@
       }
     },
     computed: {
-      storeInfo() {
-        return this.$store?.state?.app?.storeInfo
-      }
+      // storeInfo() {
+      //   return this.$store?.state?.app?.storeInfo
+      // }
     },
     methods: {
       

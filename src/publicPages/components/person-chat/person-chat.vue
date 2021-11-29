@@ -899,7 +899,7 @@
       onBlur() {
         this.showKeyboard = false;
         // 隐藏键盘
-        // this.toBottom()
+        this.toBottom()
       },
       inputChange(e) {
         const {
@@ -939,7 +939,7 @@
         }
       },
       onInput(e) {
-        // this.toBottom()
+        this.toBottom()
         this.isSendLink = false;
       },
       keyboardheightchange(e) {

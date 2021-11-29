@@ -51,7 +51,7 @@
       return {
         mode: "单选",
         queryOption: {},
-        storeInfo: {},
+        // storeInfo: {},
         list: [],
         key: '',
         checkedList: "",

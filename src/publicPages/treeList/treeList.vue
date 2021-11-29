@@ -68,9 +68,9 @@
       userInfo() {
         return this.$store?.state?.user?.userInfo
       },
-      storeInfo() {
-        return this.$store?.state?.app?.storeInfo
-      }
+      // storeInfo() {
+      //   return this.$store?.state?.app?.storeInfo
+      // }
     },
     data() {
       return {

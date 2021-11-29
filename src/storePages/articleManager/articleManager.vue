@@ -26,7 +26,8 @@ export default {
   data () {
     return {
       storeNo: "",
-      gridList: []
+      gridList: [],
+      StoreInfo:{}
     }
   },
   methods: {
@@ -60,7 +61,7 @@ export default {
       };
       let storeInfo = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health');
       if (storeInfo.success && Array.isArray(storeInfo.data) && storeInfo.data.length > 0) {
-        this.storeInfo = storeInfo.data[ 0 ];
+        this.StoreInfo = storeInfo.data[ 0 ];
         this.getStoreArticleColumns()
       }
     },
@@ -70,7 +71,7 @@ export default {
         condition: [ {
           colName: 'website_no',
           ruleType: 'eq',
-          value: this.storeInfo.website_no
+          value: this.StoreInfo.website_no
         },
         {
           colName: 'is_leaf',

@@ -308,7 +308,7 @@
               keys = ['row_number', 'margin', 'listdata']
               break;
             case '人员列表':
-              keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata']
+              keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata','more_config']
               break;
             case '文章列表':
               keys = ['category_no', 'row_number', 'article_style', 'margin']
@@ -426,7 +426,7 @@
                 }, {
                   colName: 'user_role',
                   ruleType: 'inset',
-                  value: element.user_role || '大夫'
+                  value: element.more_config?.user_role || '大夫'
                 }]
               }
               break;
