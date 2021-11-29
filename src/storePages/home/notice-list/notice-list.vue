@@ -154,6 +154,10 @@
   .notice-wrap {
     /* margin-bottom: 20rpx; */
     min-width: 335px;
+    margin: 10rpx 20rpx 0;
+    border-radius: 20rpx;
+    overflow: hidden;
+    background-color: #fff;
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;

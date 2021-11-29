@@ -118,9 +118,9 @@
       }
     },
     props: {
-      storeInfo: {
-        type: Object
-      },
+      // storeInfo: {
+      //   type: Object
+      // },
       storeNo: {
         type: String
       },

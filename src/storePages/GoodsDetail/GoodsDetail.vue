@@ -9,12 +9,12 @@
     </swiper>
     <!-- <image :src="getImagePath(goodsInfo.goods_img,true)" mode="aspectFill"></image> -->
     <view class="goods-info">{{ goodsInfo.goods_name||'' }}</view>
-    <view class="desc">
+    <view class="desc" v-if="goodsInfo.goods_desc">
       <view class="title">简介</view>
       <view class="">{{ goodsInfo.goods_desc||'' }}</view>
     </view>
     <view class="store-info" v-if="storeInfo&&storeInfo.store_no">
-      <image :src="getImagePath(storeInfo.logo)" class="store-icon"></image>
+      <image :src="getImagePath(storeInfo.logo,true)" class="store-icon"></image>
       <view class="store-name">{{ storeInfo.name||''}}</view>
       <view class="phoneCall" v-if="phone" @click="phoneCall"><text class="cuIcon-phone text-cyan"></text></view>
     </view>
@@ -57,7 +57,7 @@
   export default {
     data() {
       return {
-        storeInfo: {},
+        // storeInfo: {},
         goodsInfo: {},
         swiperList: [],
         goodsDetailImage: [],
@@ -251,7 +251,7 @@
       }
       if (option.storeNo) {
         this.storeNo = option.storeNo
-        this.getStoreInfo()
+        // this.getStoreInfo()
       }
       if (option.destApp) {
         this.destApp = option.destApp

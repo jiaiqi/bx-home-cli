@@ -328,7 +328,8 @@
                 </view>
               </view>
             </view>
-            <view v-else-if="item.msg_content" @click="clickChatLink(item)" class="person-chat-item-right bx-bg-color border-left-color"
+            <view v-else-if="item.msg_content" @click="clickChatLink(item)"
+              class="person-chat-item-right bx-bg-color border-left-color"
               :class="{'person-chat-item-right-link':item.msg_link} ">
               <text class="remind-someone" v-if="
                   item.attribute &&
@@ -619,9 +620,9 @@
       rowInfo: {
         type: Object
       },
-      storeInfo: {
-        type: Object
-      },
+      // storeInfo: {
+      //   type: Object
+      // },
       identity: {
         type: String //一对一会话身份 - 医生/患者
       },
@@ -722,7 +723,7 @@
           pageNo: 1
         },
         scrollNum: 0,
-        userInfo: '',
+        UserInfo: '',
         recordList: [],
         chatTextBottom: '',
         scrollAnimation: false,
@@ -898,7 +899,7 @@
       onBlur() {
         this.showKeyboard = false;
         // 隐藏键盘
-        this.toBottom()
+        // this.toBottom()
       },
       inputChange(e) {
         const {
@@ -938,7 +939,7 @@
         }
       },
       onInput(e) {
-        this.toBottom()
+        // this.toBottom()
         this.isSendLink = false;
       },
       keyboardheightchange(e) {
@@ -1636,9 +1637,9 @@
         this.sendMessageInfo();
         this.chatText = '';
         this.isSendLink = false;
-        setTimeout(() => {
-          this.toBottom()
-        }, 200)
+        // setTimeout(() => {
+        //   this.toBottom()
+        // }, 200)
       },
       changeVoice(type) {
         console.log('----------', type);
@@ -2260,7 +2261,7 @@
           this.isLoading = false;
         }
         if (Array.isArray(resData) !== true) {
-        // if (Array.isArray(resData) !== true || this.isAll) {
+          // if (Array.isArray(resData) !== true || this.isAll) {
           return;
         }
         this.pageInfo.total = res.data.page.total;
@@ -2397,14 +2398,14 @@
           if (this.pageInfo.pageNo * this.pageInfo.rownumber >= res.data.page.total) {
             this.isAll = true;
           }
-          if (type !== 'refresh') {
-            // setTimeout(() => {
-            // 	this.toBottom()
-            // }, 100)
-          }
+          // if (type !== 'refresh') {
+          setTimeout(() => {
+            this.toBottom()
+          }, 100)
+          // }
         }
       },
-      stopRefreshMsgTimer(){
+      stopRefreshMsgTimer() {
         clearInterval(this.refreshMessageTimer)
       },
       setRefreshMessageTimer(second = 1 * 1000) {
@@ -2467,11 +2468,11 @@
             // this.$api.downloadFile + res.data.data[0].profile_url + '&bx_auth_ticket=' + uni.getStorageSync(
             // 	'bx_auth_ticket');
           }
-          this.userInfo = res.data.data[0];
+          this.UserInfo = res.data.data[0];
           uni.setNavigationBarTitle({
-            title: this.userInfo.name || this.userInfo.nick_name
+            title: this.UserInfo.name || this.UserInfo.nick_name
           })
-          uni.setStorageSync('current_patient', this.userInfo);
+          uni.setStorageSync('current_patient', this.UserInfo);
           this.initMessageList('refresh');
           this.setRefreshMessageTimer()
           return res.data.data[0];
@@ -3016,7 +3017,7 @@
             // display: flex;
             align-items: center;
             box-shadow: 2px 1px 2px rgba(26, 26, 26, 0.2);
-
+            min-height: 30px;
             .border-bottom {
               display: inline-block;
               padding-bottom: 5px;
@@ -3304,7 +3305,7 @@
             padding: 5px 10px;
             font-size: var(--global-text-font-size);
             position: relative;
-
+            min-height: 30px;
             // display: flex;
             // align-items: center;
             .border-bottom {

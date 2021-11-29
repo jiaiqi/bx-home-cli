@@ -1,8 +1,7 @@
 <template>
   <view class="store-item" v-if="storeInfo && storeInfo.store_no&&pageItem&&isShow" :style="itemStyle"
-    :class="{ 'is-swiper':pageItem.type === '轮播图','bg-transparent': pageItem && pageItem.type === '关联店铺','noMargin noPadding':pageItem&&(pageItem.type === '店铺信息2') }">
-    <view class="title"
-      :style="titleStyle"
+    :class="{ 'is-swiper':pageItem.type === '轮播图','bg-transparent': pageItem && ['关联店铺','通知横幅'].includes(pageItem.type ),'noMargin noPadding':pageItem&& ['店铺信息2','通知横幅'].includes(pageItem.type )}">
+    <view class="title" :style="titleStyle"
       v-if="pageItem&&pageItem.show_label === '是'&& pageItem.type !== '通用列表'&&pageItem.type !== '疫苗列表'" @click="toMore">
       <text>{{ pageItem.component_label || "" }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">

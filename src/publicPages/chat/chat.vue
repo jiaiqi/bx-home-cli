@@ -120,7 +120,7 @@
       },
       ...mapState({
         systemInfo: state => state.app.systemInfo,
-        userInfo: state => state.user.userInfo,
+        // userInfo: state => state.user.userInfo,
         storeUser: state => state.user.storeUserInfo
       }),
       topHeight() {
@@ -145,7 +145,6 @@
         receiverInfo: {
           // 接收者信息
         },
-        storeInfo: {},
         storeUserInfo: {}, // 当前登录用户在店铺成员列表中的信息
         groupNo: '', //群组编号
         row_no: '', // 一对一会话 用户关系编码
@@ -294,28 +293,35 @@
       },
       async getStore() {
         // 查找店铺信息
-        let req = {
-          "condition": [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeNo
-          }],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 1
-          }
-        }
-        let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          this.storeInfo = res.data[0]
-          if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
-            const pageTitle =
-              `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
-            uni.setNavigationBarTitle({
-              title: pageTitle
-            })
-          }
-          return this.storeInfo
+        // let req = {
+        //   "condition": [{
+        //     "colName": "store_no",
+        //     "ruleType": "eq",
+        //     "value": this.storeNo
+        //   }],
+        //   "page": {
+        //     "pageNo": 1,
+        //     "rownumber": 1
+        //   }
+        // }
+        // let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+        // if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        //   this.storeInfo = res.data[0]
+        //   if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
+        //     const pageTitle =
+        //       `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
+        //     uni.setNavigationBarTitle({
+        //       title: pageTitle
+        //     })
+        //   }
+        //   return this.storeInfo
+        // }
+        if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
+          const pageTitle =
+            `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
+          uni.setNavigationBarTitle({
+            title: pageTitle
+          })
         }
       },
       async getGroup() {
@@ -828,7 +834,7 @@
           this.top_buttons = top_buttons
         }
       }
-      this.setNavBg(this.$store?.state?.app?.theme||'blue')
+      this.setNavBg(this.$store?.state?.app?.theme || 'blue')
       if (option.articleList) {
         try {
           this.articleList = JSON.parse(option.articleList)

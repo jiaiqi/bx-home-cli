@@ -18,7 +18,7 @@
           <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <image class="image" :src="require('./setting.png')" mode=""></image>
           </button>
-          <button class="image-btn" open-type="share">
+          <button class="image-btn margin-right" open-type="share">
             <image class="image" :src="require('./share.png')" mode=""></image>
           </button>
         </view>
@@ -45,7 +45,7 @@
           <!--          <button class="cu-btn border  round" @click.stop="toSetting" v-if="showBtn.person">
             <text class="cuIcon-peoplefill"></text>
           </button> -->
-        <!--  <button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
+          <!--  <button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
             <text class="cuIcon-notice_forbid_fill "></text>
             <text class="cu-tag badge">待设置</text>
           </button> -->

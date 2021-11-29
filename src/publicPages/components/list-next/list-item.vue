@@ -56,7 +56,7 @@
       }"
         v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position=='right'">
         <!-- <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" -->
-        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
+        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value,true)"
           :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
             'border-radius':setViewTemp.img.cfg.radius,
             'width':setViewTemp.img.cfg.width
@@ -254,7 +254,7 @@
           let imgCfg = this.setViewTemp?.img?.cfg;
           result.imgAlign = imgCfg.position || 'left'
           result.imgClass = `${imgCfg.position === 'top'?'m-r-0':''}`
-          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value)
+          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value,true)
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
             'width': imgCfg?.width,
