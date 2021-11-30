@@ -700,6 +700,7 @@
     },
     data() {
       return {
+        lastChatTime: '',
         sendArticleList: [],
         focusInput: false,
         holdKeyboard: true, //focus时，点击页面的时候不收起键盘
@@ -2377,16 +2378,35 @@
             resData = resData;
           } else {
             resData = [...resData, ...this.recordList];
-
           }
-          resData = resData.reduce((pre, cur) => {
-            if (Array.isArray(pre) && !pre.find(item => item.id === cur.id)) {
-              cur.showRecall = false
-              pre.push(cur);
-              return pre;
+          let arr = []
+          resData = resData.filter(item => {
+            if (arr.includes(item.id)) {
+              return false
+            } else {
+              arr.push(item.id);
+              return true
             }
-          }, []);
-          this.recordList = this._SortJson(resData);
+          })
+          // resData = resData.reduce((pre, cur) => {
+          //   if (Array.isArray(pre) && !pre.find(item => item.id === cur.id)) {
+          //     cur.showRecall = false
+          //     pre.push(cur);
+          //     return pre;
+          //   }
+          // }, []);
+          // console.log(this.deepClone(resData))
+          // debugger
+          resData.sort((a, b) => {
+            return new Date(a.create_time.replace(/\-/g, '/')).getTime() - new Date(b.create_time.replace(/\-/g,
+              '/')).getTime(); //时间反序
+          });
+          // console.log(this.deepClone(resData))
+          // debugger
+
+          // resData = resData.reverse()
+          this.recordList = resData;
+          // this.recordList = this._SortJson(resData);
           if (this.identity) {
             let recordList = this.recordList.filter((item) => {
               if (item.identity !== this.identity && item.msg_state === '未读') {
@@ -2398,17 +2418,20 @@
           if (this.pageInfo.pageNo * this.pageInfo.rownumber >= res.data.page.total) {
             this.isAll = true;
           }
-          // if (type !== 'refresh') {
-          setTimeout(() => {
-            this.toBottom()
-          }, 100)
-          // }
+
+          if (this.recordList.length > 0 && this.lastChatTime !== this.recordList[this.recordList.length - 1]
+            .create_time) {
+            this.lastChatTime = this.recordList[this.recordList.length - 1].create_time
+            setTimeout(() => {
+              this.toBottom()
+            }, 100)
+          }
         }
       },
       stopRefreshMsgTimer() {
         clearInterval(this.refreshMessageTimer)
       },
-      setRefreshMessageTimer(second = 1 * 1000) {
+      setRefreshMessageTimer(second = 2 * 1000) {
         // 设置定时刷新消息的定时器
         clearInterval(this.refreshMessageTimer)
         this.refreshMessageTimer = setInterval(() => {
@@ -2483,9 +2506,6 @@
             icon: 'none'
           });
         }
-      },
-      async sendGoods(data) {
-
       },
       async sendArticle(data, cardType) {
         let serviceName = 'srvhealth_consultation_chat_record_add'
@@ -2681,6 +2701,32 @@
       uni.hideKeyboard();
     },
     mounted() {
+      let socketData = {
+        "srv": "ws_chat_session_login",
+        "value": {
+          "session_no":this.sessionNo,
+          "bx_auth_ticket": uni.getStorageSync('bx_auth_ticket')
+        }
+      }
+      // uni.sendSocketMessage({
+      //   data: JSON.stringify(socketData),
+      //   complete(e) {
+      //     console.log(e)
+      //     debugger
+      //   }
+      // });
+      
+      // uni.onSocketMessage(function(res) {
+      //   console.log('收到服务器内容：' + res.data);
+      //   let data = JSON.parse(res.data)
+      //   debugger
+      //   if (data.code === 'Refresh') {
+      //    this.initMessageList('refresh').then(_ => {
+      //      // this.setRefreshMessageTimer()
+      //    });
+      //   }
+      // });
+
       uni.$on('backFromWebview', () => {
         this.checkSubscribeStatus()
       })
@@ -3018,6 +3064,7 @@
             align-items: center;
             box-shadow: 2px 1px 2px rgba(26, 26, 26, 0.2);
             min-height: 30px;
+
             .border-bottom {
               display: inline-block;
               padding-bottom: 5px;
@@ -3306,6 +3353,7 @@
             font-size: var(--global-text-font-size);
             position: relative;
             min-height: 30px;
+
             // display: flex;
             // align-items: center;
             .border-bottom {

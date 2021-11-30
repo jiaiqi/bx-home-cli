@@ -11,7 +11,7 @@
 
 				<view class="badge-ribbon notice need-set"
 					v-else-if="!subscsribeStatus&&!item.app_time_start&&!item.app_time_end">
-					<text class="tips">通知已预约</text>
+					<text class="tips">已预约,未设置通知提醒</text>
 				</view>
 				<view class="badge-ribbon notice"
 					v-else-if="subscsribeStatus&&!item.app_time_start&&!item.app_time_end">
@@ -514,12 +514,13 @@ export default {
         // }
 
         &.need-set {
-          &::after {
-            width: 125px;
-            right: 0px;
-            color: #ff5500;
-            content: "【未设置通知提醒】";
-          }
+          
+          // &::after {
+          //   width: 125px;
+          //   right: 20px;
+          //   color: #ff5500;
+          //   content: "【未设置通知提醒】";
+          // }
         }
       }
 

@@ -199,9 +199,7 @@
             "navigationBarTitleText": "文章管理",
             "enablePullDownRefresh": false
           }
-        }
-        //#ifdef MP-WEIXIN
-        ,
+        },
         {
           "path": "DeviceManager/DeviceManager",
           "style": {
@@ -270,30 +268,36 @@
             "navigationBarTextStyle": "black",
             "enablePullDownRefresh": false
           }
-        }
-        , {
+        }, {
           "path": "linkwifi/linkwifi",
           "style": {
             "navigationBarTitleText": "连接WiFi",
             "enablePullDownRefresh": true
           }
-        }
-        // #endif
+        },
 
         // #ifdef H5
-        , {
+        {
           "path": "PrintTicket/PrintTicket",
           "style": {
             "navigationBarTitleText": "打印单",
             "enablePullDownRefresh": false
           }
-        }
+        },
         // #endif
+        {
+          "path": "ProductItem/ProductItem",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
+        }
           ,{
-                    "path" : "ProductItem/ProductItem",
+                    "path" : "appointment/appointment",
                     "style" :                                                                                    
                 {
-                    "navigationBarTitleText": "",
+                    "navigationBarTitleText": "预约",
                     "enablePullDownRefresh": false
                 }
                 

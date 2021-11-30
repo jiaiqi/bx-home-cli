@@ -1,9 +1,127 @@
 <template>
-  <view class="appointment-wrap">
+  <view class="appointment-wrap" v-if="moreConfig&&moreConfig.detailConfig">
     <view class="appointment-content">
-      <view class="title">
-        {{vaccineInfo.vaccine_drug_name||''}}
+      <view class="title" v-if="detailConfig.title&&detailConfig.title.col">
+        {{vaccineInfo[detailConfig.title.col]||''}}
       </view>
+      <view class="title" v-else-if="detailConfig.title&&detailConfig.title.value">
+        {{detailConfig.title.value||''}}
+      </view>
+      <view class="content" v-if="detailConfig.content">
+        <view class="content-item" v-for="item in detailConfig.content">
+          <view class="sub-title">
+            <view class="text-cyan">
+              <text>{{item.title||''}}</text>
+              <text class="cu-btn sm round" v-if="vaccineInfo[item.badge_col]">
+                <text>{{vaccineInfo[item.badge_col]||''}}</text>
+              </text>
+            </view>
+            <view class="right" v-if="vaccineInfo[item.remark_pic_col]&&isArray(imagesUrl)">
+              <text class="cuIcon-pic"></text>
+              <text class="text" @tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
+                图片说明
+              </text>
+            </view>
+          </view>
+          <view class="description" v-if="item.content_type==='text'&&item.content_col&&vaccineInfo[item.content_col]">
+            {{vaccineInfo[item.content_col]||''}}
+          </view>
+          <view class="time-range-box" v-else-if="item.content_type==='timeRangeSelect'">
+            <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
+              <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
+                <view class="title">
+                  <text class="" v-if="item._date">{{dayjs(item._date).format("MM-DD")}} {{getDayOfWeek(item._date)}}
+                  </text>
+                  <text class="" v-else>{{dayjs(item.app_date).format("MM-DD")}} {{getDayOfWeek(item.app_date)}} </text>
+                  <text class="">（ 已约{{item.app_amount||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）</text>
+                </view>
+                <view class="date-area ">
+                  <view class="date-item" :class="{
+                      'line-cyan':(selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.app_date===radio.app_date&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,
+                      disabled:disabledTime(radio,item)}" v-for="(radio,rIndex) in item.list" :key="rIndex"
+                    @click="selectItem(radio,item)">
+                    <view v-if="radio.app_date">
+                      {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
+                    </view>
+                    <text
+                      class="vaccine_app_count ">已约:{{radio.app_amount||'0'}}人,可约{{radio.time_range_appointment_limit||'0'}}人</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
+              <view class="date-item"
+                :class="{'line-cyan':(selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
+                v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
+                v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
+                <view class="date">
+                  {{dayjs(radio.app_date).format('MM-DD')}}-{{
+              				getDayOfWeek(radio.app_date)
+              			}}
+                </view>
+                <view class="order-info">
+                  <view v-if="radio.app_date">
+                    {{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
+                    -
+                    {{radio.app_time_end?radio.app_time_end.slice(0,5):''}}
+                  </view>
+                  <view v-if="radio.app_count" class="vaccine_app_count">
+                    <text class="text-yellow" v-if="radio.app_count_limit<=radio.app_count"> 已约满</text>
+                    <text v-else> 已约:{{radio.app_count||'0'}}人,可约{{radio.app_count_limit||'0'}}人</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view class="date-area" v-if="!notEmpty">
+              <view class="date-time-box">
+                预约人数已满或无可预约 <text v-if="app_type&&app_type==='其它'">项目</text><text v-else>疫苗</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="form-box content" v-if="detailConfig.formConfig">
+        <view class="sub-title" v-if="detailConfig.formConfig.title">
+          <text class="text-cyan">{{detailConfig.formConfig.title}}</text>
+        </view>
+        <view class="person-info-form" v-if="detailConfig.formConfig.cols">
+          <view class="bx-form-group" :class="{'text-area':item.type==='textarea'}"
+            v-for="item in detailConfig.formConfig.cols" v-show="item.display!==false">
+            <text class="text-red" v-if="item.required===true">*</text>
+            <view class="title" v-if="item.type!=='textarea'">{{item.label}}</view>
+            <input :placeholder="item.label" class="input" name="input" placeholder-class="place-holder"
+              v-model="formModel[item.col]" v-if="item.type==='text'"></input>
+            <input :placeholder="item.label" name="input" placeholder-class="place-holder" class="input"
+              v-model="formModel[item.col]" v-if="item.type==='phone'"></input>
+            <picker mode="date" v-model="formModel[item.col]" start="1900-09-01" end="2022-09-01" @change="DateChange"
+              v-if="item.type==='date'">
+              <view class="picker input">
+                <text class="place-holder" v-if="!formModel[item.col]">请选择</text>
+                <text v-else> {{formModel[item.col]||''}}</text>
+                <text class="cuIcon-calendar  margin-left-xs" v-if="!formModel[item.col]"></text>
+                <text class="cuIcon-calendar text-cyan margin-left-xs" v-else></text>
+              </view>
+            </picker>
+            <view class="form-item" v-if="item.type==='textarea'">
+              <textarea v-model="formModel.appoint_remark" auto-height :placeholder="item.label"
+                placeholder-class="place-holder text-area" class="value textarea" :adjust-position="false" :fixed="true"
+                :show-confirm-bar="false" />
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="footer" v-if="detailConfig.formButton">
+
+        <button class="cu-btn" :class="[{disabled:onSubmit},btn.class]" v-for="btn in detailConfig.formButton"
+          @click="onButton(btn)">{{btn.name||''}}</button>
+
+        <!--  <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
+          v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>
+        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button> -->
+      </view>
+
+
+      <!-- 
       <view class="content">
         <view class="sub-title" v-if="vaccineInfo.usage||(vaccineInfo.remark_pic&&isArray(imagesUrl))">
           <view class="text-cyan">
@@ -25,9 +143,6 @@
         <view class="sub-title">
           <text class="text-cyan">{{vaccineTip||''}}</text>
         </view>
-        <view class="date-select">
-
-        </view>
         <view class="time-range-box">
           <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
             <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
@@ -35,9 +150,6 @@
                 <text class="" v-if="item._date">{{dayjs(item._date).format("MM-DD")}} {{getDayOfWeek(item._date)}}
                 </text>
                 <text class="" v-else>{{dayjs(item.app_date).format("MM-DD")}} {{getDayOfWeek(item.app_date)}} </text>
-                <!--   <text
-                  v-if="item.app_count_limit&&item.app_count>=item.app_count_limit">（已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）
-                </text> -->
                 <text class="">（ 已约{{item.app_amount||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）</text>
               </view>
               <view class="date-area ">
@@ -60,9 +172,6 @@
               v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
               v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
               <view class="date">
-                <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
-                  {{radio.appoint_name}}
-                </text> -->
                 {{dayjs(radio.app_date).format('MM-DD')}}-{{
             				getDayOfWeek(radio.app_date)
             			}}
@@ -120,13 +229,13 @@
               class="value textarea" :adjust-position="false" :fixed="true" :show-confirm-bar="false" />
           </view>
         </view>
-      </view>
-      <view class="footer">
+      </view> -->
+      <!-- <view class="footer">
         <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
         <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
           v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>
         <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button>
-      </view>
+      </view> -->
     </view>
   </view>
 </template>
@@ -146,21 +255,33 @@
         vaccineInfo: {},
         selectedVaccine: {},
         formModel: {
-          id_no: '',
-          phone_xcx: '',
-          customer_name: "",
-          customer_birth_day: "",
-          customer_phone: '',
-          appoint_remark: ''
+          // // phone_xcx: '',
+          // customer_name: "",
+          // customer_birth_day: "",
+          // customer_phone: '',
+          // appoint_remark: ''
         },
         timeArr: [],
         imagesUrl: [],
         dayOrderInfo: {},
         app_type: "", // 默认疫苗预约
-        moreConfig:{}
+        moreConfig: {}
       }
     },
     computed: {
+      validMsg() {
+        if (this.detailConfig?.formConfig?.cols && Array.isArray(this.detailConfig?.formConfig?.cols) && this
+          .detailConfig.formConfig.cols.length > 0) {
+          return this.detailConfig.formConfig.cols.reduce((res, cur) => {
+            if (cur.msg) {
+              res[cur.col] = cur.msg
+            }
+          }, {})
+        }
+      },
+      detailConfig() {
+        return this.moreConfig?.detailConfig
+      },
       notEmpty() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
           if (Array.isArray(this.getRange) && this.getRange.length > 0) {
@@ -194,14 +315,36 @@
       },
     },
     methods: {
+      onButton(e) {
+        switch (e.type) {
+          case 'navigate':
+            if (e.url) {
+              uni.navigateTo({
+                url:e.url
+              })
+            }
+            break;
+          case 'submit':
+            if (this.vaccineInfo && this.vaccineInfo.persons_count && this.vaccineInfo.persons_count === 1 && (this
+                .vaccineInfo.stock_count < 1 || !this.vaccineInfo.stock_count)) {
+              this.submitNotify()
+            } else {
+              this.submitOrder()
+            }
+            break;
+          case 'notify':
+            this.submitNotify()
+            break;
+        }
+      },
       async getVaccineInfo(id) {
         // 疫苗库存
         let serviceName = this.moreConfig?.serviceName || 'srvhealth_store_vaccine_stocks_select'
         let app = this.moreConfig?.app || 'health'
-        
-        
+
+
         let req = {
-          "serviceName":serviceName,
+          "serviceName": serviceName,
           "colNames": ["*"],
           "condition": [{
             colName: "id",
@@ -226,31 +369,6 @@
           }
         }
       },
-      async getStoreInfo(store_no) {
-        let req = {
-          "serviceName": "srvhealth_store_list_select",
-          "colNames": ["*"],
-          "condition": [{
-            colName: "store_no",
-            ruleType: 'eq',
-            value: store_no
-          }],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 1
-          },
-        }
-        let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
-        if (res.success && res.data.length > 0) {
-          // this.storeInfo = res.data[0]
-          if (this.storeInfo.name) {
-            uni.setNavigationBarTitle({
-              title: this.storeInfo.name
-            })
-          }
-          return this.storeInfo
-        }
-      },
       DateChange(e) {
         this.formModel.customer_birth_day = e.detail.value
       },
@@ -264,8 +382,6 @@
               if (data && data.app_amount >= data.app_count) {
                 return true
               }
-
-              // return false
             }
           } else {
             return true
@@ -298,7 +414,7 @@
         }
       },
       async getImage(e) {
-        if (e && e.remark_pic) {
+        if (this.detailConfig?.remark_pic_col && e && e[this.detailConfig.remark_pic_col]) {
           this.imagesUrl = [];
           let images = await this.getFilePath(e.remark_pic)
           if (Array.isArray(images)) {
@@ -361,8 +477,9 @@
           ]
           delete req.order
         }
-
-        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appointment_select', req, 'health')
+        let serviceName = this.detailConfig?.serviceName || 'srvhealth_store_vaccination_appointment_select'
+        let app = this.detailConfig?.app || 'health'
+        let res = await this.$fetch('select', serviceName, req, app)
         if (res.success) {
           let arr = []
           for (let index = 0; index < res.data.length; index++) {
@@ -447,8 +564,7 @@
                 let app_open_time = dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time)
 
                 if (result.predays && result.app_open_time && result._date === deadline && dayjs() - app_open_time <
-                  0) {
-                } else {
+                  0) {} else {
                   arr.push(result)
                 }
                 // }
@@ -465,10 +581,10 @@
           this.timeArr = arr
           let timeArr = res.data
 
-          this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
-          this.formModel.customer_phone = this.userInfo.phone || null
-          this.formModel.customer_birth_day = this.userInfo.birthday || null
-          this.formModel.phone_xcx = this.userInfo.phone_xcx || null
+          // this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
+          // this.formModel.customer_phone = this.userInfo.phone || null
+          // this.formModel.customer_birth_day = this.userInfo.birthday || null
+          // this.formModel.phone_xcx = this.userInfo.phone_xcx || null
           this.modalName = 'vaccine'
           this.getImage(e)
         }
@@ -477,9 +593,9 @@
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
             let title = `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`;
-            
+
             uni.showToast({
-              title:title,
+              title: title,
               icon: 'none'
             })
             return
@@ -522,8 +638,9 @@
           // return true
           return
         }
+        let serviceName = this.detailConfig?.recordService || 'srvhealth_store_vaccination_appoint_record_select'
         let req = {
-          "serviceName": "srvhealth_store_vaccination_appoint_record_select",
+          "serviceName": serviceName,
           "colNames": ["*"],
           "condition": [{
               "colName": "app_date",
@@ -581,7 +698,7 @@
             "value": item.sa_no
           })
         }
-        let res = await this.$fetch('select', 'srvhealth_store_vaccination_appoint_record_select', req, 'health')
+        let res = await this.$fetch('select', serviceName, req, 'health')
         if (res.success) {
           if (res.data.length > 0) {
             return res.data
@@ -594,11 +711,29 @@
         })
       },
       async submitForm() {
-        if (!this.formModel.customer_name) {
-          return {
-            msg: '请填写就诊人姓名'
+        let arr = this.detailConfig?.formConfig?.cols
+        if (Array.isArray(arr) && arr.length > 0) {
+          let msg = ''
+          arr.forEach(col => {
+            if (col.required && !this.formModel[col.col]) {
+              if (col.msg) {
+                msg = col.msg
+              } else {
+                msg = `请确认信息是否填写完整`
+              }
+            }
+          })
+          if (msg) {
+            return {
+              msg: msg
+            }
           }
         }
+        // if (!this.formModel.customer_name) {
+        //   return {
+        //     msg: '请填写就诊人姓名'
+        //   }
+        // }
         if (!this.selectedVaccine || !this.selectedVaccine.sa_no) {
           return {
             msg: '请选择预约时间'
@@ -628,9 +763,10 @@
             }
           }
         }
-
+        let serviceName = this.detailConfig?.formConfig?.serviceName
+        let app = this.detailConfig?.formConfig?.app||'health'
         let req = [{
-          "serviceName": "srvhealth_store_vaccination_appoint_record_add",
+          "serviceName": serviceName,
           "condition": [],
           "data": [{
             "store_no": this.storeInfo.store_no,
@@ -642,16 +778,22 @@
             "app_date": this.selectedVaccine.app_date,
             "app_time_start": this.selectedVaccine.timeStart || this.selectedVaccine.app_time_start,
             "app_time_end": this.selectedVaccine.timeEnd || this.selectedVaccine.app_time_end,
-            "customer_name": this.formModel.customer_name,
-            "customer_birth_day": this.formModel.customer_birth_day,
-            "customer_phone": this.formModel.customer_phone,
-            "appoint_remark": this.formModel.appoint_remark,
-            "person_no": this.userInfo.no,
-            "person_user_no": this.userInfo.userno,
-            "person_name": this.userInfo.name || this.userInfo.nick_name,
-            "person_image": this.userInfo.person_image || this.userInfo.profile_url
+            // "customer_name": this.formModel.customer_name,
+            // "customer_birth_day": this.formModel.customer_birth_day,
+            // "customer_phone": this.formModel.customer_phone,
+            // "appoint_remark": this.formModel.appoint_remark,
+            // "person_no": this.userInfo.no,
+            // "person_user_no": this.userInfo.userno,
+            // "person_name": this.userInfo.name || this.userInfo.nick_name,
+            // "person_image": this.userInfo.person_image || this.userInfo.profile_url
           }]
         }]
+        // let data = 
+        req[0].data[0] = {
+          ...req[0].data[0],
+          ...this.formModel
+        }
+        debugger
         let timeStart = req[0].data[0].app_time_start
         let timeEnd = req[0].data[0].app_time_end
         let app_time_slot = null
@@ -667,8 +809,8 @@
         }
         if (!this.onSubmit) {
           this.onSubmit = true
-          let res = await this.$fetch('operate', 'srvhealth_store_vaccination_appoint_record_add', req,
-            'health');
+          let res = await this.$fetch('operate', serviceName, req,
+            app);
           this.onSubmit = false
           if (res.success) {
             // this.$emit('submit', res.data)
@@ -760,22 +902,42 @@
       }, 1000)
     },
     async onLoad(option) {
-      
+
       if (option.app_type) {
         this.app_type = option.app_type
       }
-      
+
       if (option.moreConfig) {
+        if (typeof option.moreConfig === 'string') {
+          let data = {
+            userInfo: this.$store?.state.user?.userInfo,
+            storeInfo: this.$store?.state.app?.storeInfo,
+          }
+          option.moreConfig = this.renderStr(option.moreConfig, data)
+        }
         try {
           this.moreConfig = JSON.parse(option.moreConfig)
+          if (Array.isArray(this.moreConfig?.detailConfig?.formConfig?.cols) && this.moreConfig.detailConfig
+            .formConfig.cols
+            .length > 0) {
+            this.moreConfig.detailConfig.formConfig.cols.forEach(col => {
+              if (col.col) {
+                this.formModel[col.col] = '';
+                if (col.value) {
+                  this.formModel[col.col] = col.value;
+                }
+              }
+            })
+          }
+
         } catch (err) {
           console.log(err)
         }
       }
-      
+
       if (option.store_no) {
         this.store_no = option.store_no
-        await this.getStoreInfo(option.store_no)
+        // await this.getStoreInfo(option.store_no)
       }
       if (option.id) {
         this.id = option.id
@@ -878,6 +1040,7 @@
 
             &.text-area {
               color: #9092A5;
+              text-align: left;
             }
           }
 
@@ -887,6 +1050,13 @@
             text-align: right;
             font-size: 28rpx;
             padding: 10rpx 0;
+
+            &.text-area {
+              margin-top: 10px;
+              border-top: 1px solid #f1f1f1;
+              padding: 10px 0;
+              text-align: left;
+            }
 
             .input {
               font-size: 28rpx;

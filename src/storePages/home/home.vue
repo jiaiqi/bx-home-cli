@@ -1175,7 +1175,7 @@
       let path =
         `pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no
       }`;
-      let title = `${this.userInfo.name}邀请您关注【${this.StoreInfo.name}】`;
+      let title = `${this.userInfo.name}邀请您使用【${this.StoreInfo.name}】`;
       let imageUrl = this.getImagePath(this.StoreInfo.image, true);
       if (this.StoreInfo?.logo) {
         imageUrl = this.getImagePath(this.StoreInfo.logo, true);

@@ -137,7 +137,6 @@ fly.interceptors.response.use(
             requestUrl = requestUrl.slice(index)
             uni.setStorageSync("backUrl", requestUrl)
           }
-          debugger
           try {
             console.log("backUrl:", requestUrl, encodeURIComponent(requestUrl))
             // #ifdef H5

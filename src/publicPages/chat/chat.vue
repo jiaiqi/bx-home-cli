@@ -10,21 +10,21 @@
         <view class="icon"><text class="cuIcon-notice"></text></view>
         <text class="label">群公告</text>
       </view>
-      <view class="util-item" @click="toPages('group-util')"
+ <!--     <view class="util-item" @click="toPages('group-util')"
         v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
         <view class="icon"><text class="cuIcon-repair"></text></view>
         <text class="label">小工具</text>
-      </view>
+      </view> -->
       <view class="util-item" @click="toPages('doctor-info')" v-if="receiver_person_no">
         <view class="icon"><text class="cuIcon-people"></text></view>
         <text class="label">详细资料</text>
       </view>
-      <view class="util-item" @click="toPages('group-detail')"
+   <!--   <view class="util-item" @click="toPages('group-detail')"
         v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
         <view class="icon"><text class="cuIcon-settings"></text></view>
-      </view>
+      </view> -->
     </view>
-    <view class="util-bar absolute" v-if="top_buttons">
+    <view class="util-bar absolute" v-if="top_buttons&&top_buttons.length>0">
       <view class="util-item" @click="onButton(btn)" v-for="btn in top_buttons">
         <!-- <view class="icon"><text class="cuIcon-notice"></text></view> -->
         <text class="label">{{btn.name||''}}</text>
@@ -959,8 +959,8 @@
       justify-content: center;
       align-items: center;
       background-color: #fff;
-      border-radius: 50px;
-      padding: 5px 10px;
+      border-radius: 10px;
+      padding: 8px 10px;
 
       &+.util-item {
         margin-left: 5px;
@@ -980,7 +980,7 @@
       .label {
         color: #999;
         // margin-top: 10rpx;
-        font-size: 24rpx;
+        font-size: 28rpx;
         margin-left: 5px;
       }
     }
