@@ -1,6 +1,6 @@
 <template>
   <view class="a-form">
-    <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}" v-show="showField(field)"
+    <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}"
       v-for="(field,fIndex) in allField">
       <view class="section-name" v-if="field.section&&showSectionName">
         {{field.section}}
@@ -67,7 +67,8 @@
   }
 
   @media screen and (min-width: 750px) {
-    .a-form{}
+    .a-form {}
+
     .field-item {
       // max-width: 30%;
       width: 300px;
@@ -79,10 +80,10 @@
       margin-bottom: 10px;
       border-radius: 8px;
       max-width: 300px;
+
       .form-item {}
     }
   }
-
 </style>
 <script>
   import evaluatorTo from '@/common/evaluator.js';
@@ -192,9 +193,14 @@
             showsNum++;
             if (valids.valid) {
               valid++;
+            } else {
+              // debugger
             }
+          } else if (item.column !== valids.column) {
+            // debugger
           }
         });
+        // debugger
         let defaultValue = this.allField.reduce((res, cur) => {
           if (cur.defaultValue !== null && cur.defaultValue !== undefined) {
             res[cur.columns] = cur.defaultValue

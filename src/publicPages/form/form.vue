@@ -420,6 +420,23 @@
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
+                      } else if (self.afterSubmit === 'close') {
+                        // getApp().globalData.beforeRedirectUrl = null
+                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        // uni.reLaunch({
+                        //   url: `/storePages/home/home?store_no=${store_no}`
+                        // })
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab, '：-----》curTab')
+                          if (curTab?.layId) {
+                            top.window?.tab.closeCurrentTab(curTab.layId)
+                            return
+                          }
+                        }
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
                       } else {
                         uni.navigateBack()
                         // self.toPages('detail');
@@ -489,11 +506,36 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                         return
+                      } else if (self.afterSubmit === 'close') {
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab, '：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
                       } else if (beforeRedirectUrl) {
                         uni.redirectTo({
                           url: beforeRedirectUrl
                         })
                         getApp().globalData.beforeRedirectUrl = null
+                        return
+                      } else if (self.afterSubmit === 'close') {
+                        // getApp().globalData.beforeRedirectUrl = null
+                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        // uni.reLaunch({
+                        //   url: `/storePages/home/home?store_no=${store_no}`
+                        // })
+                        if (top.window?.tab?.closeCurrentTab && top?.tab?.getCurrentTab) {
+                          let curTab = top.tab.getCurrentTab();
+                          if (curTab) {
+                            top.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
                         return
                       }
                       if (self.shareType && self.shareType === 'seeDoctor') {

@@ -11,11 +11,10 @@
 
       <view class="to-more" v-if="config.unfold !==false">
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
-          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
-          v-for="btn in publicButton" @click="onButton(btn)">
+          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}" v-for="btn in publicButton"
+          @click="onButton(btn)">
           <text class="text">{{btn.button_name||''}}</text></button>
-        <button class="cu-btn line-orange round border"
-          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
+        <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
           @click="onButton({button_type:'list'})" v-if="listData.length>0&&showSeeAll"><text class="text">查看全部<text
               v-if="total">({{total||''}})</text></text></button>
       </view>
@@ -628,7 +627,6 @@
               condition: buttonInfo.operate_params.condition,
               data: buttonInfo.operate_params.data
             }];
-            debugger
             if (!buttonInfo.operate_params.data && buttonInfo.servcie_type === 'update') {
               uni.showModal({
                 title: '提示',
@@ -1359,11 +1357,12 @@
           if (item.in_add === 1) {
             item.display = true
           }
-          if (item.columns === this.foreignKey?.referenced_column_name) {
+          if (item.columns === this.foreignKey?.column_name) {
             item.display = false
-          }
-          if (item.column === 'h_check_person') {
-            debugger
+            if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
+              ?.referenced_column_name]) {
+              item.value = this.mainData[this.foreignKey?.referenced_column_name]
+            }
           }
           return item
         })
@@ -1456,7 +1455,7 @@
 
       },
       async valueChange(e, triggerField) {
-    
+
         const column = triggerField.column
         let fieldModel = e
         let allFields = this.addV2?._fieldInfo || []
@@ -1475,10 +1474,10 @@
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
-        
+
         for (let i = 0; i < allFields.length; i++) {
           const item = allFields[i]
-          
+
           item.old_value = item.value
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.old_value = item.value;
@@ -1513,7 +1512,7 @@
             this.valueChange(fieldModel, item)
           }
         }
-     
+
         return
       },
       async onButton(e, index) {
@@ -1664,8 +1663,11 @@
           if (item.columns === this.foreignKey?.ref_service_column) {
             item.display = false
           }
-          if (item.columns === this.foreignKey?.referenced_column_name) {
+          if (item.columns === this.foreignKey?.column_name) {
             item.display = false
+            if(this.foreignKey?.referenced_column_name&& this.mainData[this.foreignKey?.referenced_column_name]&&!item.value){
+              item.value = this.mainData[this.foreignKey?.referenced_column_name]
+            }
           }
           if (row && row[item.columns]) {
             item.value = row[item.columns]
@@ -1803,8 +1805,12 @@
           if (item.in_add === 1) {
             item.display = true
           }
-          if (item.columns === this.foreignKey?.referenced_column_name) {
-            item.display = false
+          if (item.columns === this.foreignKey?.column_name) {
+            item.display = false;
+            if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
+              ?.referenced_column_name]) {
+              item.value = this.mainData[this.foreignKey?.referenced_column_name]
+            }
           }
           if (item.col_type == self.mainTable) {
             if (Array.isArray(self.initData) && self.initData.length > 0 && self.initData.find(e => e[item

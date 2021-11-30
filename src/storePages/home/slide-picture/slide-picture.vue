@@ -6,9 +6,13 @@
     </view>
     <swiper class="screen-swiper item-box rectangle-dot" :style="[calcStyle]" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="true" interval="5000"
-      duration="500" :height="height">
-      <swiper-item v-for="(item, index) in swiperList" :key="item.url" @click.stop="toDetail(item)">
-        <image :src="item.url" mode="scaleToFill"></image>
+      duration="500" :height="height" @change="swiperChange">
+      <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
+        <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
+          :poster="item.videoPoster" @click.stop=""></video>
+        <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+          @click.stop="toDetail(item)">
+        </image>
       </swiper-item>
     </swiper>
   </view>
@@ -48,13 +52,25 @@
     },
     data() {
       return {
-        swiperList: []
+        current: 0,
+        swiperList: [],
+        videoContext: {}
       }
     },
     mounted() {
       this.getSwiperList()
     },
     methods: {
+      swiperChange(e) {
+        if (this.videoContext.parse) {
+          this.videoContext.parse()
+        }
+        this.current = e.detail.current
+        if (this.swiperList[this.current].file_type === '视频') {
+          this.videoContext = uni.createVideoContext(this.swiperList[this.current].store_video_file, this)
+        }
+        // this.pauseVideo()
+      },
       toDetail(item) {
         if (item.mini_program_url) {
           uni.navigateTo({
@@ -70,6 +86,16 @@
       },
       setHomePage() {
         this.$emit('setHomePage')
+      },
+      stopVideo() {
+        this.swiperList.forEach((item, index) => {
+          item.videoContext.stop()
+        })
+      },
+      pauseVideo() {
+        this.swiperList.forEach((item, index) => {
+          item.videoContext.pause()
+        })
       },
       getListFromDaq(item_no) {
         let req = {
@@ -103,7 +129,42 @@
           this.getListFromDaq(this.pageItem.more_config.item_no)
           return
         }
-        if (image) {
+        if (this.pageItem.image_origin === '子表' && this.pageItem.component_no) {
+          let serviceName = 'srvhealth_store_banner_video_select'
+          let condition = [{
+            colName: "store_video_component",
+            ruleType: "eq",
+            value: this.pageItem.component_no
+          }]
+          let req = {
+            "serviceName": "srvhealth_store_banner_video_select",
+            "colNames": ["*"],
+            "condition": condition,
+            "page": {
+              "pageNo": 1,
+              "rownumber": 10
+            },
+            "order": [{
+              "colName": "seq",
+              "orderType": "asc" // asc升序  desc降序
+            }]
+          }
+          let url = this.getServiceUrl('health', serviceName, 'select')
+          let res = await this.$http.post(url, req)
+          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            let list = res.data.data.filter(item => item.store_video_file).map(item => {
+              item.url = this.getImagePath(item.store_video_file, true)
+              if (item.file_type === '视频') {
+                // item.videoContext = uni.createVideoContext(item.store_video_file,this)
+              }
+              if (item.video_poster) {
+                item.videoPoster = this.getImagePath(item.video_poster, true)
+              }
+              return item
+            });
+            this.swiperList = list
+          }
+        } else if (image) {
           let res = await this.getFilePath(image);
           if (Array.isArray(res)) {
             let swiperList = res.reduce((pre, cur) => {

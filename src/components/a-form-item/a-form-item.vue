@@ -825,7 +825,6 @@
       pickerChange(e) {
         if (this.fieldData.type === 'Selector') {
           let selectorData = this.radioOptions || this.selectorData
-          debugger
           let optionData = selectorData.find(item => item.value === e);
           if (optionData?.label) {
             this.fkFieldLabel = optionData.label;
@@ -990,7 +989,6 @@
               return item;
             });
           }
-          debugger
           self.selectorData.forEach(item => {
             if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
               self.fieldData.value && (self.fieldData.value || self.fieldData.value === 0)) {
@@ -1149,6 +1147,14 @@
         }
       },
       getValid() {
+        if(this.fieldData.display===false){
+          this.fieldData.valid = {
+            valid: true,
+            msg: '有效'
+          };
+          this.valid.valid = true;
+          return this.valid
+        }
         if (this.fieldData.isRequire && this.fieldData.value) {
           if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty(
               'isType') && typeof this.fieldData._validators.isType === 'function') {

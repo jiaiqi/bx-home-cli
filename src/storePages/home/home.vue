@@ -308,7 +308,7 @@
               keys = ['row_number', 'margin', 'listdata']
               break;
             case '人员列表':
-              keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata','more_config']
+              keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata', 'more_config']
               break;
             case '文章列表':
               keys = ['category_no', 'row_number', 'article_style', 'margin']
@@ -1176,7 +1176,10 @@
         `pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no
       }`;
       let title = `${this.userInfo.name}邀请您关注【${this.StoreInfo.name}】`;
-      let imageUrl = this.getImagePath(this.StoreInfo.image);
+      let imageUrl = this.getImagePath(this.StoreInfo.image, true);
+      if (this.StoreInfo?.logo) {
+        imageUrl = this.getImagePath(this.StoreInfo.logo, true);
+      }
       this.saveSharerInfo(this.userInfo, path);
       return {
         imageUrl: imageUrl,

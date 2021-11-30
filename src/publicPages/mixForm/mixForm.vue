@@ -64,7 +64,8 @@
         relationCondition: [],
         defaultVal: {},
         fieldsCond: [],
-        curTab: 0
+        curTab: 0,
+        afterSubmit:''
       }
     },
     computed: {
@@ -97,7 +98,9 @@
       }
     },
     async onLoad(option) {
-
+      if(option.afterSubmit){
+        this.afterSubmit = option.afterSubmit
+      }
       if (option.serviceName) {
         this.serviceName = option.serviceName
       }
@@ -942,6 +945,16 @@
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
+                      if(self.afterSubmit==='close'){
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab,'：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
+                      }
                       uni.navigateBack({
 
                       })

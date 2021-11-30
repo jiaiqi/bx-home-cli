@@ -882,10 +882,15 @@
       if (this.userInfo && this.userInfo.userno) {
         path += `&invite_user_no=${this.userInfo.userno}`
       }
+      let imageUrl = this.getImagePath(this.storeInfo.image, true);
+      if (this.storeInfo?.logo) {
+        imageUrl = this.getImagePath(this.storeInfo.logo, true);
+      }
       this.saveSharerInfo(this.userInfo, path);
       return {
         title: this.formData.title,
-        path: path
+        path: path,
+        imageUrl: imageUrl,
       };
     },
     onLoad(option) {

@@ -1,9 +1,12 @@
 <template>
   <view>
     <swiper class="screen-swiper main-image square-dot" easing-function="linear" :height="300" :indicator-dots="true"
-      :circular="true" :autoplay="true" interval="5000" duration="500">
+      :circular="true" :autoplay="true" interval="5000" duration="500" @change="swiperChange">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url">
-        <image :src="item.url" :lazy-load="true" mode="aspectFill" @click.stop="toPreviewImage(item.url)">
+        <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
+          :poster="item.videoPoster" @click.stop=""></video>
+        <image :src="item.url" :lazy-load="true" mode="aspectFill" @click.stop="toPreviewImage(item.url)"
+          v-else-if="!item.store_video_file||item.file_type!=='视频'">
         </image>
       </swiper-item>
     </swiper>
@@ -57,6 +60,8 @@
   export default {
     data() {
       return {
+        current: 0,
+        videoContext: {},
         // storeInfo: {},
         goodsInfo: {},
         swiperList: [],
@@ -90,6 +95,16 @@
       })
     },
     methods: {
+      swiperChange(e) {
+        if (this.videoContext.parse) {
+          this.videoContext.parse()
+        }
+        this.current = e.detail.current
+        if (this.swiperList[this.current].file_type === '视频') {
+          this.videoContext = uni.createVideoContext(this.swiperList[this.current].store_video_file, this)
+        }
+        // this.pauseVideo()
+      },
       async getStoreInfo() {
         let req = {
           condition: [{
@@ -106,7 +121,7 @@
         let app = 'health'
         let res = await this.$fetch('select', service, req, app)
         if (Array.isArray(res.data) && res.data.length > 0) {
-          this.storeInfo = res.data[0];
+          // this.storeInfo = res.data[0];
           this.$store.commit('SET_STORE_INFO', res.data[0])
           if (this.storeInfo.type === '健康服务') {}
         } else {
@@ -168,7 +183,43 @@
         });
       },
       async getSwiperList(e) {
-        if (e.goods_img) {
+        if (e?.banner_video_config === '子表') {
+          let serviceName = 'srvhealth_store_banner_video_select'
+          let condition = [{
+            colName: "store_video_product_no",
+            ruleType: "eq",
+            value: this.goodsInfo.goods_no
+          }]
+          let req = {
+            "serviceName": "srvhealth_store_banner_video_select",
+            "colNames": ["*"],
+            "condition": condition,
+            "page": {
+              "pageNo": 1,
+              "rownumber": 10
+            },
+            "order": [{
+              "colName": "seq",
+              "orderType": "asc" // asc升序  desc降序
+            }]
+          }
+          let url = this.getServiceUrl('health', serviceName, 'select')
+          let res = await this.$http.post(url, req)
+          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            let list = res.data.data.filter(item => item.store_video_file).map(item => {
+              item.url = this.getImagePath(item.store_video_file, true)
+              if (item.file_type === '视频') {
+                // item.videoContext = uni.createVideoContext(item.store_video_file,this)
+              }
+              if (item.video_poster) {
+                item.videoPoster = this.getImagePath(item.video_poster, true)
+              }
+              return item
+            });
+            this.swiperList = list
+          }
+
+        } else if (e.goods_img) {
           let res = await this.getFilePath(e.goods_img);
           if (Array.isArray(res)) {
             this.swiperList = res.reduce((pre, cur) => {

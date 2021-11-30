@@ -374,6 +374,23 @@
                           uni.$emit(self.submitAction)
                         }
                         uni.navigateBack()
+                      } else if (self.afterSubmit === 'close') {
+                        // getApp().globalData.beforeRedirectUrl = null
+                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        // uni.reLaunch({
+                        //   url: `/storePages/home/home?store_no=${store_no}`
+                        // })
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab,'：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
                       } else if (self.afterSubmit === 'home') {
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
@@ -576,10 +593,14 @@
                         // uni.reLaunch({
                         //   url: `/storePages/home/home?store_no=${store_no}`
                         // })
-                        if (top.window?.tab?.closeCurrentTab) {
-                          top.tab.closeCurrentTab()
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab,'：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
                         }
-                        return
                       } else if (self.afterSubmit === 'detail') {
                         self.toPages('detail');
                         return
@@ -589,7 +610,7 @@
                         })
                         getApp().globalData.beforeRedirectUrl = null
                         return
-                      }else{
+                      } else {
                         uni.navigateBack({})
                       }
                     }
@@ -639,13 +660,18 @@
           this.mainData[column] = triggerField.value
         }
         let fieldModel = e
-        let cols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+        let xIfCols = this.colsV2Data._fieldInfo.filter(item => item.x_if && Array.isArray(item
+          .xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
         // const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = this.colsV2Data.main_table
         let xIfResult = null
-        if (Array.isArray(cols) && cols.length > 0) {
-          xIfResult = await this.evalX_IF(table_name, cols, fieldModel, this.appName)
+        // if (column === 'is_hour') {
+        //   console.log(this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+        //     .calc_trigger_col)))
+        //   debugger
+        // }
+        if (Array.isArray(xIfCols) && xIfCols.length > 0) {
+          xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
         }
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
