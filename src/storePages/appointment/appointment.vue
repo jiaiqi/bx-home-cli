@@ -320,7 +320,7 @@
           case 'navigate':
             if (e.url) {
               uni.navigateTo({
-                url:e.url
+                url: e.url
               })
             }
             break;
@@ -593,7 +593,9 @@
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
             let title = `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`;
-
+            if (this.detailConfig?.predaysMsg) {
+              title = this.detailConfig?.predaysMsg.replace('${app_open_time}', e.app_open_time.slice(0, 5))
+            }
             uni.showToast({
               title: title,
               icon: 'none'
@@ -764,7 +766,7 @@
           }
         }
         let serviceName = this.detailConfig?.formConfig?.serviceName
-        let app = this.detailConfig?.formConfig?.app||'health'
+        let app = this.detailConfig?.formConfig?.app || 'health'
         let req = [{
           "serviceName": serviceName,
           "condition": [],

@@ -199,24 +199,45 @@
       isShowOrder(newValue, oldValue) {
         if (this.activity_no === '20211027112223000007' && newValue === this.activity_no) {
           // 肺病筛查
+          let confirmText = this.params?.button_name || '确定'
           uni.showModal({
             title: '提示',
             content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
-            showCancel: false
+            showCancel: false,
+            confirmText: confirmText,
+            success: (res) => {
+              if (res.confirm) {
+                this.toNextPages()
+              }
+            }
           })
         } else if (this.activity_no === '20211008104446000006' && newValue === this.activity_no) {
           // ESS 嗜睡問卷調查
+          let confirmText = this.params?.button_name || '确定'
           uni.showModal({
             title: '提示',
             content: '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查',
-            showCancel: false
+            showCancel: false,
+            confirmText: confirmText,
+            success: (res) => {
+              if (res.confirm) {
+                this.toNextPages()
+              }
+            }
           })
         } else if (this.activity_no === '20210929120256000001' && newValue === this.activity_no) {
           // stop bang
+          let confirmText = this.params?.button_name || '确定'
           uni.showModal({
             title: '提示',
             content: '有三项及以上回答为是，符合OSAS高危人群的特征',
-            showCancel: false
+            showCancel: false,
+            confirmText: confirmText,
+            success: (res) => {
+              if (res.confirm) {
+                this.toNextPages()
+              }
+            }
           })
         } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
             .activity_no)) {
@@ -252,6 +273,10 @@
     },
     methods: {
       toNextPages() {
+        if(this.params&&typeof this.params==='object'){
+        }else{
+          return 
+        }
         let params = this.deepClone(this.params);
         let fieldsCond = params.fieldsCond || [];
         if (this.planNo) {
