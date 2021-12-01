@@ -147,8 +147,9 @@
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
-          v-if="detail&&currentChild">
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
+          :fkCondition="fkCondition[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
+          @child-list-change="childListChange" v-if="detail&&currentChild">
         </child-list>
       </view>
     </view>
@@ -156,8 +157,9 @@
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
-          @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
+          :fkCondition="fkCondition[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
+          @child-list-change="childListChange" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
     </view>
@@ -169,6 +171,7 @@
   // import ChildList from './child-list.vue'
   import ChildList from '@/publicPages/components/child-list/child-list.vue'
   import bxForm from '@/components/a-form-item/a-form-item.vue'
+  let _childData = {}
   export default {
     components: {
       ChildList,
@@ -189,7 +192,8 @@
         disabledChildButton: false, //子表禁止编辑
         formButtonDisp: null,
         gridButtonDisp: null,
-        rowButtonDisp: null
+        rowButtonDisp: null,
+        childListData: {},
       }
     },
     computed: {
@@ -287,6 +291,10 @@
       fkInitVal() {
         return this.moreConfig?.fk_init_val || {}
       },
+      fkCondition() {
+        let fk_condition = this.moreConfig?.fk_condition || {}
+        return fk_condition
+      },
       srvApp() {
         return this.appName || uni.getStorageSync('activeApp')
       },
@@ -321,6 +329,39 @@
       }
     },
     methods: {
+      childListChange(e) {
+        let self = this
+        // let _childData = {}
+        if (e?.key && e?.data) {
+          if (_childData) {
+            _childData[e.key] = e.data
+            if (Array.isArray(e?.calcRelations) && e.calcRelations.length > 0) {
+              e.calcRelations.forEach(relation => {
+                let table_col = relation.table_col; // 存储字段
+                let relation_table_col = relation.relation_table_col //源字段
+
+                if (_childData && _childData[relation.constraint_name]) {
+                  let result = _childData[relation.constraint_name].map(item => item[relation_table_col]).reduce((
+                    res, cur) => {
+                    if (cur) {
+                      res = (res * 1000 + cur * 1000) / 1000;
+                    }
+                    return res
+                  }, 0)
+                  // this.fields = this.fields.map(item => {
+                  //   if (item.column === table_col) {
+                  //     item.value = result || 0
+                  //   }
+                  //   return item
+                  // })
+                }
+              })
+            }
+            this.childListData = _childData
+          }
+        }
+
+      },
       setValue(col, cfg) {
         let labelMap = this.labelMap || {};
         let detail = this.detail || {}
@@ -506,6 +547,33 @@
         if (colVs?.moreConfig?.rowButtonDisp) {
           this.rowButtonDisp = colVs?.moreConfig?.rowButtonDisp
         }
+ 
+        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const table_name = colVs.main_table
+        let result = null
+        if (Array.isArray(cols) && cols.length > 0) {
+          result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        }
+
+        for (let i = 0; i < colVs._fieldInfo.length; i++) {
+          const item = colVs._fieldInfo[i]
+          if (item.x_if) {
+            if (Array.isArray(item.xif_trigger_col)) {
+              if (item.table_name !== table_name) {
+                result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
+              }
+              if (result?.response && result.response[item.column]) {
+                item.display = true
+              } else if (result === true) {
+                item.display = true
+              } else {
+                item.display = false
+              }
+            }
+          }
+        }
+
+
         this.v2Data = colVs;
 
       },

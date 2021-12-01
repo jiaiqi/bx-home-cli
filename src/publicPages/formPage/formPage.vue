@@ -108,11 +108,6 @@
       },
       fkCondition() {
         let fk_condition = this.moreConfig?.fk_condition || {}
-        // if(Object.keys(fk_condition).length>0){
-        //   Object.keys(fk_condition).forEach(key=>{
-
-        //   })
-        // }
         return fk_condition
       },
       moreConfig() {
@@ -313,6 +308,7 @@
                     //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
                     // }
                   }
+                  let resData = res.data
                   uni.showModal({
                     title: '提示',
                     content: `${res.data.resultMessage}`,
@@ -397,11 +393,12 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else {
+                        
                         let pages = getCurrentPages();
-                        let data = res.data.response[0]?.response.effect_data[0]
                         if (pages.length > 1) {
                           uni.navigateBack()
                         } else {
+                          let data = resData.response[0]?.response.effect_data[0]
                           uni.redirectTo({
                             url: `/publicPages/detail/detail?serviceName=${this.addV2?.select_service_name||this.detailV2?.service_name}&destApp=${this.select_}&id=${data.id}`
                           })
@@ -676,17 +673,21 @@
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-
         if (Array.isArray(calcCols) && calcCols.length > 0) {
+          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           item.old_value = item.value
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-            item.value = calcResult?.response[item.column]
-            fieldModel[item.column] = item.value
-            this.mainData[item.column] = item.value
+         
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              fieldModel[item.column] = item.value
+              this.mainData[item.column] = item.value
+            }
+            
           }
 
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
@@ -1033,9 +1034,12 @@
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-            item.value = calcResult?.response[item.column]
-            defaultVal[item.column] = item.value
-            this.mainData[item.column] = item.value
+     
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              defaultVal[item.column] = item.value
+              this.mainData[item.column] = item.value
+            }
           }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {

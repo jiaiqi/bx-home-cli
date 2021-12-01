@@ -15,7 +15,7 @@ export default {
       store.commit('SET_SUBSCRIBE_STATUS', result)
       return result
     }
-    Vue.prototype.saveSharerInfo = async (userInfo, share_url) => {
+    Vue.prototype.saveSharerInfo = async (userInfo, share_url,share_type) => {
       // 分享前保存分享人信息
       if (!userInfo) {
         userInfo = store.state.user.userInfo
@@ -23,6 +23,11 @@ export default {
       let pageInfo = Vue.prototype.getShareParams()
       if (pageInfo && pageInfo.add_url) {
         share_url = pageInfo.add_url
+      }
+      if(share_type){
+        share_url += `&share_type=${share_type}`
+      }else{
+        share_url += `&share_type=appMessage`
       }
       let url = Vue.prototype.getServiceUrl('health', 'srvhealth_share_record_add', 'operate');
       let req = [{

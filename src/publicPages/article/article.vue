@@ -151,7 +151,7 @@
       if (this.shareLogo) {
         query += `&logo=${this.shareLogo}`
       }
-      // this.saveSharerInfo(this.userInfo, query);
+      this.saveSharerInfo(this.userInfo, query,'timeline');
       return {
         imageUrl: this.shareLogo || null,
         title: this.articleData.title,

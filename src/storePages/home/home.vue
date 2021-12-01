@@ -11,11 +11,14 @@
     </cu-custom-navbar>
 
 
+
     <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
       :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
       :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
       @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode">
     </store-item>
+
+
 
 
     <view class="cu-modal bottom-modal" @click="hideModal" :class="{ show: showHomePageSelector }">
@@ -732,7 +735,14 @@
             uni.showModal({
               title: '未查找到机构信息',
               content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
-              showCancel: false
+              showCancel: false,
+              success(res) {
+                if(res.confirm){
+                  uni.reLaunch({
+                    url:'/pages/index/index'
+                  })
+                }
+              }
             })
           }
         }

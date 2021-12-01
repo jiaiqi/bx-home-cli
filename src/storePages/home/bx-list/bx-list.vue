@@ -20,7 +20,8 @@
 </template>
 
 <script>
-  import listNext from '../../components/list-next/list-next.vue';
+  import listNext from '@/components/list-next/list-next.vue';
+  // import listNext from '../../components/list-next/list-next.vue';
   export default {
     components: {
       listNext,

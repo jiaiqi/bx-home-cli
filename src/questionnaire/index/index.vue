@@ -76,7 +76,8 @@
         }}</view>
       </view>
     </view>
-    <view class="button-box" v-if="showNextBtn&&isShowOrder===activity_no">
+    <view class="button-box"
+      v-if="showNextBtn&&isShowOrder===activity_no&&!['20211008104446000006', '20210929120256000001', '20211027112223000007'].includes(activity_no)">
       <button class="button cu-btn" @click="toNextPages"
         v-if="params&&params.button_name">{{params.button_name}}</button>
       <button class="button cu-btn" @click="toNextPages" v-else>下一步</button>
@@ -273,9 +274,8 @@
     },
     methods: {
       toNextPages() {
-        if(this.params&&typeof this.params==='object'){
-        }else{
-          return 
+        if (this.params && typeof this.params === 'object') {} else {
+          return
         }
         let params = this.deepClone(this.params);
         let fieldsCond = params.fieldsCond || [];

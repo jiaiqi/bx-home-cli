@@ -36,7 +36,7 @@
 </template>
 
 <script>
-  import listNext from '../components/list-next/list-next.vue';
+  import listNext from '@/components/list-next/list-next.vue';
   import listBar from '../components/list-bar/list-bar.vue'
   import cartList from '../components/goods-cart/goods-cart.vue'
   import countBar from '../components/count-bar/count-bar.vue'

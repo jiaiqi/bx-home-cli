@@ -707,8 +707,10 @@
           const item = this.fields[i]
           item.old_value = item.value
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] === 0)) {
-            item.value = calcResult?.response[item.column]
-            fieldModel[item.column] = item.value
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              fieldModel[item.column] = item.value
+            }
           }
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {

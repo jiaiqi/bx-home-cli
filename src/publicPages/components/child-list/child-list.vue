@@ -1360,7 +1360,7 @@
           if (item.columns === this.foreignKey?.column_name) {
             item.display = false
             if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
-              ?.referenced_column_name]) {
+                ?.referenced_column_name]) {
               item.value = this.mainData[this.foreignKey?.referenced_column_name]
             }
           }
@@ -1442,8 +1442,11 @@
             }
           }
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-            item.value = calcResult?.response[item.column]
-            fieldModel[item.column] = item.value
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              fieldModel[item.column] = item.value
+            }
+
             // await this.updateValueChange(fieldModel, item)
           }
           this.$set(this.allFields, i, item)
@@ -1485,8 +1488,13 @@
             // this.$set(allFields, i, item)
           }
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-            item.value = calcResult?.response[item.column]
-            fieldModel[item.column] = item.value
+            // item.value = calcResult?.response[item.column]
+            // fieldModel[item.column] = item.value
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              fieldModel[item.column] = item.value
+            }
+            
             // this.$set(this.allFields, i, item)
             // await this.handleCalc(item)
           }
@@ -1665,7 +1673,8 @@
           }
           if (item.columns === this.foreignKey?.column_name) {
             item.display = false
-            if(this.foreignKey?.referenced_column_name&& this.mainData[this.foreignKey?.referenced_column_name]&&!item.value){
+            if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
+              ?.referenced_column_name] && !item.value) {
               item.value = this.mainData[this.foreignKey?.referenced_column_name]
             }
           }
@@ -1808,7 +1817,7 @@
           if (item.columns === this.foreignKey?.column_name) {
             item.display = false;
             if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
-              ?.referenced_column_name]) {
+                ?.referenced_column_name]) {
               item.value = this.mainData[this.foreignKey?.referenced_column_name]
             }
           }

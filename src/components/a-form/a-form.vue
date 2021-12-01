@@ -299,33 +299,44 @@
         }
       },
       setColData(e) {
+        this.handlerReduant(e)
         this.$emit('setColData', e)
       },
-      handlerReduant(obj) {
+      handlerReduant(obj, _dependFields) {
         // 处理冗余操作
         const e = this.deepClone(obj)
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
-          if (e.bx_col_type === 'fk' && e.colData && typeof e.colData === 'object' && Array.isArray(e
-              .colData) !==
-            true && Object.keys(e.colData).length > 0) {
+          if (e.bx_col_type === 'fk' && e.column !== item.column) {
             if (item.redundant && typeof item.redundant === 'object' && item.redundant
               .dependField ===
               e.column) {
               if (item.redundant.trigger === 'always') {
-                item.value = e.colData[item.redundant.refedCol];
+                if (e.colData && typeof e.colData === 'object' && Array.isArray(e
+                    .colData) !==
+                  true && Object.keys(e.colData).length > 0) {
+                  item.value = e.colData[item.redundant.refedCol];
+                } else {
+                  // item.value = null
+                }
+                item.old_value = item.value
                 let dependFields = this.allField.reduce((res, cur) => {
                   if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
                     res.push(cur.column)
                   }
                   return res
                 }, [])
-                if (dependFields && dependFields.length > 0) {
-                  this.handlerReduant(item)
+                if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
+                  this.handlerReduant(item, dependFields)
                 }
               } else if (item.redundant.trigger === 'isnull') {
                 if (!item.value) {
-                  item.value = e.colData[item.redundant.refedCol];
+                  if (e.colData && typeof e.colData === 'object' && Array.isArray(e
+                      .colData) !==
+                    true && Object.keys(e.colData).length > 0) {
+                    item.value = e.colData[item.redundant.refedCol];
+                    item.old_value = item.value
+                  }
                 }
               }
               this.fieldModel[item.column] = item.value;

@@ -4,9 +4,9 @@
       <button class=" cu-btn shadow-blur" v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no">
         <text class="cuIcon-home"></text></button>
     </view>
-    <swiper class="screen-swiper item-box rectangle-dot" :style="[calcStyle]" easing-function="linear"
+    <swiper class="screen-swiper item-box rectangle-dot" :style="calcStyle" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="true" interval="5000"
-      duration="500" :height="height" @change="swiperChange">
+      duration="500" @change="swiperChange">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
         <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
           :poster="item.videoPoster" @click.stop=""></video>
@@ -25,7 +25,10 @@
         return this.pageItem?.more_config?.dotPosition || 'bottom-center'
       },
       height() {
-        return this.pageItem?.more_config?.swiperHeight || uni.upx2px(300)
+        if (this.pageItem?.img_ratio) {
+          return `${uni.upx2px(710 * this.pageItem?.img_ratio)}px`
+        }
+        return `${this.pageItem?.more_config?.swiperHeight || uni.upx2px(300)}px`
       },
       calcStyle() {
         let obj = {}

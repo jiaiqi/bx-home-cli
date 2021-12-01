@@ -1,7 +1,8 @@
 <template>
   <view>
-    <swiper class="screen-swiper main-image square-dot" easing-function="linear" :height="300" :indicator-dots="true"
-      :circular="true" :autoplay="true" interval="5000" duration="500" @change="swiperChange">
+    <swiper class="screen-swiper main-image square-dot" easing-function="linear" :indicator-dots="true" :circular="true"
+      :autoplay="true" interval="5000" duration="500" @change="swiperChange"
+      :style="{height:imgHeight?imgHeight+'px':''}">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url">
         <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
           :poster="item.videoPoster" @click.stop=""></video>
@@ -71,10 +72,26 @@
         storeNo: '',
         serviceName: "",
         destApp: "",
-        hideButton: false
+        hideButton: false,
+        imgHeight: 0
       };
     },
     computed: {
+      // topImgRatio(){
+      //   if(Array.isArray(this.swiperList)&&this.swiperList.length>0){
+      //     let windowWidth = uni.getSystemInfoSync().windowWidth;
+      //     let firstImg = this.swiperList[0].url
+
+      //     // uni.getImageInfo({
+      //     //   src: firstImage,
+      //     //   success: function(image) {
+      //     //     debugger
+      //     //     console.log(image.width);
+      //     //     console.log(image.height);
+      //     //   }
+      //     // });
+      //   }
+      // },
       showPrice() {
         return this.moreConfig?.show_price === false ? false : true
       },
@@ -103,7 +120,6 @@
         if (this.swiperList[this.current].file_type === '视频') {
           this.videoContext = uni.createVideoContext(this.swiperList[this.current].store_video_file, this)
         }
-        // this.pauseVideo()
       },
       async getStoreInfo() {
         let req = {
@@ -183,6 +199,7 @@
         });
       },
       async getSwiperList(e) {
+        let self = this
         if (e?.banner_video_config === '子表') {
           let serviceName = 'srvhealth_store_banner_video_select'
           let condition = [{
@@ -220,6 +237,17 @@
           }
 
         } else if (e.goods_img) {
+          let firstImage = this.getImagePath(e.goods_img, true);
+          uni.getImageInfo({
+            src: firstImage,
+            success: function(image) {
+              debugger
+              let windowWidth = uni.getSystemInfoSync().windowWidth;
+              self.imgHeight = windowWidth * image.height / image.width
+              // console.log(image.width);
+              // console.log(image.height);
+            }
+          });
           let res = await this.getFilePath(e.goods_img);
           if (Array.isArray(res)) {
             this.swiperList = res.reduce((pre, cur) => {
@@ -292,6 +320,62 @@
           }
         });
       }
+    },
+    onShareTimeline() {
+      let pages = getCurrentPages()
+      let path = pages[pages.length - 1]?.$page?.fullPath
+      let query = ''
+      if (path && path.indexOf('?') !== -1) {
+        query = path.split('?')[1]
+      }
+      query += '&from=share'
+      if (this.userInfo?.userno) {
+        query += `&invite_user_no=${this.userInfo?.userno}`
+      }
+      if (this.storeInfo?.store_no) {
+        query += `&store_no=${this.storeInfo?.store_no}`
+      }
+      let title = `【${this.goodsInfo.goods_name}】`;
+
+      this.saveSharerInfo(this.userInfo, ` ${path}&${query}`, 'timeline');
+      let imageUrl = '';
+      if (this.storeInfo?.logo) {
+        imageUrl = this.getImagePath(this.storeInfo.logo, true);
+      }
+      if (this.goodsInfo?.goods_img) {
+        imageUrl = this.getImagePath(this.goodsInfo.goods_img, true);
+      }
+      return {
+        title: title,
+        query: query,
+        imageUrl: imageUrl,
+      }
+    },
+    onShareAppMessage() {
+      let pages = getCurrentPages()
+      let path = pages[pages.length - 1]?.$page?.fullPath
+      path += '&from=share'
+      if (this.userInfo?.userno) {
+        path += `&invite_user_no=${this.userInfo?.userno}`
+      }
+      if (this.storeInfo?.store_no) {
+        path += `&store_no=${this.storeInfo?.store_no}`
+      }
+
+      let title = `【${this.goodsInfo.goods_name}】`;
+      let imageUrl = '';
+      if (this.storeInfo?.logo) {
+        imageUrl = this.getImagePath(this.storeInfo.logo, true);
+      }
+      if (this.goodsInfo?.goods_img) {
+        imageUrl = this.getImagePath(this.goodsInfo.goods_img, true);
+      }
+      this.saveSharerInfo(this.userInfo, path, 'appMessage');
+      return {
+        imageUrl: imageUrl,
+        title: title,
+        path: path
+      };
     },
     onLoad(option) {
       if (option.hideButton) {
@@ -393,7 +477,10 @@
     width: 100%;
     height: 400rpx;
     overflow: hidden;
-
+    transition: height ease .1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     image {
       width: 100%;
       height: 100%;
