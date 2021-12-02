@@ -1450,15 +1450,14 @@
             // await this.updateValueChange(fieldModel, item)
           }
           this.$set(this.allFields, i, item)
-          this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
-          if (item.old_value !== item.value) {
-            this.updateValueChange(fieldModel, item)
-          }
+          // this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
+          // if (item.old_value !== item.value) {
+          //   this.updateValueChange(fieldModel, item)
+          // }
         }
 
       },
       async valueChange(e, triggerField) {
-
         const column = triggerField.column
         let fieldModel = e
         let allFields = this.addV2?._fieldInfo || []
@@ -1494,7 +1493,7 @@
               item.value = calcResult?.response[item.column]
               fieldModel[item.column] = item.value
             }
-            
+
             // this.$set(this.allFields, i, item)
             // await this.handleCalc(item)
           }
@@ -1515,10 +1514,10 @@
           }
           this.allFields = allFields
           this.$set(this.allFields, i, item)
-          this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
-          if (item.old_value !== item.value) {
-            this.valueChange(fieldModel, item)
-          }
+          // this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
+          // if (item.old_value !== item.value) {
+          //   this.valueChange(fieldModel, item)
+          // }
         }
 
         return
@@ -1674,7 +1673,7 @@
           if (item.columns === this.foreignKey?.column_name) {
             item.display = false
             if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
-              ?.referenced_column_name] && !item.value) {
+                ?.referenced_column_name] && !item.value) {
               item.value = this.mainData[this.foreignKey?.referenced_column_name]
             }
           }

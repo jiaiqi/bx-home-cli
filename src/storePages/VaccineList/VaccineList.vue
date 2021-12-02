@@ -41,40 +41,13 @@
           </view>
         </view>
         <view class="button-area">
-          <!-- <view class="margin-left  margin-right text-blue"
-            v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-            {{item.btnTextConfig.less.tip||''}}
-          </view>
-          <view class="margin-left  margin-right text-blue"
-            v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
-            库存较少
-          </view>
-          <view class="margin-left margin-right text-orange"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.sellOut&&(!item.stock_count||item.stock_count<1)">
-            {{item.btnTextConfig.sellOut.tip||''}}
-          </view>
-          <view class="margin-left margin-right text-orange" v-else-if="!item.stock_count||item.stock_count<1">
-            待到货
-          </view>
-      
-          <view class="margin-left  margin-right text-olive"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.needOrder&&item.persons_count!==1">
-            {{item.btnTextConfig.needOrder.tip||''}}
-          </view>
-          <view class="margin-left  margin-right text-olive" v-else-if="item.persons_count!==1">
-            需要预约
-          </view>
-          <view class="margin-left  margin-right text-green"
-            v-else-if="item.btnTextConfig&&item.btnTextConfig.full&&(item.persons_count!==1||(item.persons_count===1&&item.stock_count&&item.stock_count>0))">
-            {{item.btnTextConfig.full.tip||''}}
-          </view> -->
           <view class="button-box">
             <view class="cu-btn sm line-orange border round"
-              v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+              v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5" @click.stop="showModal(item)">
               {{item.btnTextConfig.less.button}}
             </view>
             <view class="cu-btn sm line-orange border round"
-              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5">
+              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5" @click.stop="showModal(item)">
               立即预约
             </view>
             <view class="cu-btn sm line-blue border round" @click.stop="showModal(item)"
@@ -83,7 +56,6 @@
             </view>
             <view class="cu-btn sm line-blue border round" @click.stop="showModal(item)"
               v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>=5">
-              <!-- 随时到店 -->
               预约
             </view>
             <view class="cu-btn sm line-cyan border round " @click.stop="showModal(item)"
@@ -485,6 +457,7 @@
         this.modalName = 'realname'
       },
       showModal(e) {
+        debugger
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
         } else {

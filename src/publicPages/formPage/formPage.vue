@@ -378,7 +378,7 @@
                         // })
                         if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
                           let curTab = top.window?.tab.getCurrentTab();
-                          console.log(curTab,'：-----》curTab')
+                          console.log(curTab, '：-----》curTab')
                           if (curTab) {
                             top.window?.tab.closeCurrentTab(curTab)
                             return
@@ -393,7 +393,7 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else {
-                        
+
                         let pages = getCurrentPages();
                         if (pages.length > 1) {
                           uni.navigateBack()
@@ -592,7 +592,7 @@
                         // })
                         if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
                           let curTab = top.window?.tab.getCurrentTab();
-                          console.log(curTab,'：-----》curTab')
+                          console.log(curTab, '：-----》curTab')
                           if (curTab) {
                             top.window?.tab.closeCurrentTab(curTab)
                             return
@@ -651,7 +651,6 @@
 
       },
       async valueChange(e, triggerField) {
-
         const column = triggerField.column
         if (this.mainData && typeof this.mainData === 'object') {
           this.mainData[column] = triggerField.value
@@ -659,14 +658,10 @@
         let fieldModel = e
         let xIfCols = this.colsV2Data._fieldInfo.filter(item => item.x_if && Array.isArray(item
           .xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
-        // const cols = this.colsV2Data._fieldInfo.filter(item => item.x_if).map(item => item.column)
+
         const table_name = this.colsV2Data.main_table
         let xIfResult = null
-        // if (column === 'is_hour') {
-        //   console.log(this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-        //     .calc_trigger_col)))
-        //   debugger
-        // }
+
         if (Array.isArray(xIfCols) && xIfCols.length > 0) {
           xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
         }
@@ -674,20 +669,19 @@
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          debugger
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
         for (let i = 0; i < this.fields.length; i++) {
           const item = this.fields[i]
           item.old_value = item.value
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-         
+
             if (item.redundant?.trigger === 'always' || !item.value) {
               item.value = calcResult?.response[item.column]
               fieldModel[item.column] = item.value
               this.mainData[item.column] = item.value
             }
-            
+
           }
 
           if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
@@ -707,9 +701,6 @@
             fieldModel[item.column] = item.value
           }
           this.$set(this.fields, i, item)
-          if (item.old_value !== item.value) {
-            this.valueChange(fieldModel, item)
-          }
         }
         if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
           let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
@@ -1034,7 +1025,7 @@
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-     
+
             if (item.redundant?.trigger === 'always' || !item.value) {
               item.value = calcResult?.response[item.column]
               defaultVal[item.column] = item.value

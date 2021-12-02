@@ -246,15 +246,12 @@ export default {
       }
     },
     onEditorReady (e) {
-      uni
-        .createSelectorQuery()
-        .in(this)
-        .select('.ql-container')
-        .fields({
+      uni.createSelectorQuery().in(this).select('.ql-container').fields({
           size: true,
           context: true
         },
           res => {
+            debugger
             this.editorCtx = res.context;
             this.editorCtx.setContents({
               html: this.html

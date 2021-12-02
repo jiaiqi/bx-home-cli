@@ -299,7 +299,8 @@
         }
       },
       setColData(e) {
-        this.handlerReduant(e)
+        // this.handlerReduant(e)
+        // debugger
         this.$emit('setColData', e)
       },
       handlerReduant(obj, _dependFields) {
@@ -307,35 +308,43 @@
         const e = this.deepClone(obj)
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
-          if (e.bx_col_type === 'fk' && e.column !== item.column) {
-            if (item.redundant && typeof item.redundant === 'object' && item.redundant
-              .dependField ===
-              e.column) {
+          if (e.bx_col_type === 'fk' && e.column !== item.column && item.redundant && item?.redundant?.dependField) {
+            if (item.redundant.dependField === e.column && e.colData) {
+              // debugger
               if (item.redundant.trigger === 'always') {
                 if (e.colData && typeof e.colData === 'object' && Array.isArray(e
                     .colData) !==
                   true && Object.keys(e.colData).length > 0) {
+                  item.old_value = item.value
                   item.value = e.colData[item.redundant.refedCol];
+                  let dependFields = this.allField.reduce((res, cur) => {
+                    if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
+                      res.push(cur.column)
+                    }
+                    return res
+                  }, [])
+                  if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
+                    this.handlerReduant(item, dependFields)
+                  }
                 } else {
                   // item.value = null
                 }
-                item.old_value = item.value
-                let dependFields = this.allField.reduce((res, cur) => {
-                  if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
-                    res.push(cur.column)
-                  }
-                  return res
-                }, [])
-                if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
-                  this.handlerReduant(item, dependFields)
-                }
+                // let dependFields = this.allField.reduce((res, cur) => {
+                //   if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
+                //     res.push(cur.column)
+                //   }
+                //   return res
+                // }, [])
+                // if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
+                //   this.handlerReduant(item, dependFields)
+                // }
               } else if (item.redundant.trigger === 'isnull') {
                 if (!item.value) {
                   if (e.colData && typeof e.colData === 'object' && Array.isArray(e
                       .colData) !==
                     true && Object.keys(e.colData).length > 0) {
-                    item.value = e.colData[item.redundant.refedCol];
                     item.old_value = item.value
+                    item.value = e.colData[item.redundant.refedCol];
                   }
                 }
               }
@@ -355,7 +364,7 @@
       },
       async onValChange(e) {
         // 保存已经发生变化的字段值
-        console.log('onValChange')
+        console.log('onValChange', e.column, e.value)
         if (e.type === 'number' || e.type === 'digit') {
           e.value = Number(e.value);
         }
@@ -363,17 +372,25 @@
         const fieldModel = this.fieldModel;
         const column = e.column
         // const triggerColumns = this.allField.filter((item)=>item.)
-        this.handlerReduant(e)
+        let dependFields = this.allField.reduce((res, cur) => {
+          if (cur?.redundant?.dependField === e.column && cur.column !== e.column) {
+            res.push(cur.column)
+          }
+          return res
+        }, [])
+        if (dependFields && dependFields.length > 0) {
+          // debugger
+          this.handlerReduant(e, dependFields)
+        }
+        // this.handlerReduant(e)
 
-
+       
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
-
           if (e?.moreConfig?.val_trigger) {
             let val_trigger = e?.moreConfig?.val_trigger;
-            if (val_trigger.col === item.column) {
+            if (val_trigger.col === item.column || val_trigger.col.indexOf(item.column) !== -1) {
               let val = await this.getTriggerVal(val_trigger, this.fieldModel)
-              debugger
               if (val && val[item.column]) {
                 item.value = val[item.column];
                 this.fieldModel[item.column] = item.value;
@@ -411,7 +428,7 @@
       onValBlur(e) {
         if (e.hasOwnProperty('value')) {
           this.fieldModel[e.column] = e.value;
-          this.$emit('value-blur', this.fieldModel, e);
+          // this.$emit('value-blur', this.fieldModel, e);
         }
       },
       chooseLocation(e) {

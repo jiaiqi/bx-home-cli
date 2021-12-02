@@ -206,7 +206,7 @@
     <view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
     <view class="cu-modal bottom-modal" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
       @click="hideModal">
-      <view class="cu-dialog" @tap.stop="">
+      <view class="cu-dialog" @tap.stop=""  v-if="modalName === 'RichEditor'" >
         <jin-edit :html="textareaValue" @editOk="saveRichText" :res2Url="uploadRes2Url" :form-data="uploadFormData"
           :header="reqHeader" :uploadFileUrl="uploadUrl" ref="richEditor" />
       </view>
@@ -506,13 +506,23 @@
       };
     },
     watch: {
+      'fieldData.value': {
+        deep: true,
+        immediate: true,
+        handler(newVal, oldVal) {
+          if (newVal !== oldVal) {
+            // debugger
+            this.$emit('on-value-change', this.fieldData);
+          }
+        }
+      },
       field: {
         deep: true,
         immediate: true,
         handler(newValue, oldValue) {
           this.fieldData = newValue;
           this.$emit('setFieldModel', newValue)
-          if (newValue.type === 'Selector' && newValue && oldValue && newValue.value !== oldValue.value) {
+          if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
             this.pickerChange(newValue.value)
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
@@ -521,6 +531,9 @@
           if (newValue.type === 'images') {
             this.getDefVal()
           }
+          // if (newValue && oldValue) {
+          //   this.$emit('on-value-change', this.fieldData);
+          // }
         }
       }
     },
@@ -757,7 +770,6 @@
         }
         this.hideModal();
         // this.onInput();
-        console.log(getCascaderValue)
         this.onBlur()
         this.getDefVal();
       },
@@ -771,7 +783,7 @@
           if (!option.key_disp_col && !option.refed_col) {
             return;
           }
-
+          debugger
           if (option.key_disp_col) {
             // relation_condition.data.push({
             // 	relation: 'AND',
@@ -803,6 +815,8 @@
             })
           }
           if (Array.isArray(option.conditions) && option.conditions.length > 0) {
+            let fieldModelsData = this.deepClone(this.fieldsModel);
+            option.conditions = this.evalConditions(option.conditions, fieldModelsData)
             let data = this.deepClone(relation_condition.data)
             relation_condition = {
               relation: 'AND',
@@ -830,11 +844,10 @@
             this.fkFieldLabel = optionData.label;
           }
           this.fieldData['colData'] = optionData;
-          this.$emit('setColData', this.fieldData)
+          // this.$emit('setColData', this.fieldData)
           this.hideModal();
-          console.log('pickerChange')
-          this.onBlur()
           // this.onInput();
+          this.onBlur()
         }
       },
       toFkAdd() {
@@ -853,6 +866,7 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
+        self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
           if (Array.isArray(this.fieldData.options)) {
             this.selectorData = this.fieldData.options;
@@ -864,6 +878,7 @@
           serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2
             .serviceName : '',
           colNames: ['*'],
+          condition: [],
           page: {
             pageNo: this.treePageInfo.pageNo,
             rownumber: this.treePageInfo.rownumber
@@ -929,7 +944,17 @@
           }
           appName = 'sso';
         }
-
+        if (self.fieldData.value && self.fieldData.disabled && self.fieldData.option_list_v2?.refed_col && !self
+          .fieldData?.redundant) {
+          if (Array.isArray(req.condition) !== true) {
+            req.condition = []
+          }
+          req.condition.push({
+            colName: self.fieldData.option_list_v2.refed_col,
+            ruleType: 'eq',
+            value: self.fieldData.value
+          })
+        }
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
           delete req.condition;
@@ -1008,7 +1033,7 @@
             return item;
           });
         }
-        this.$emit('on-value-change', this.fieldData);
+        // this.$emit('on-value-change', this.fieldData);
       },
       bindTimeChange(e, type) {
         if (type) {
@@ -1042,7 +1067,7 @@
         } else {
           this.fieldData.value = e.detail.value;
         }
-        this.$emit('on-value-change', this.fieldData);
+        // this.$emit('on-value-change', this.fieldData);
       },
       openModal(type) {
         // 打开弹出层
@@ -1074,7 +1099,10 @@
         // 输入框失去焦点 进行校验
         console.log('on-blur');
         this.getValid();
-        this.$emit('on-value-change', this.fieldData);
+        // if (this.fieldData.value !== this.fieldData.old_value) {
+        this.fieldData.old_value = this.fieldData.value
+        // this.$emit('on-value-change', this.fieldData);
+        // }
       },
       onInput() {
         // input事件
@@ -1147,7 +1175,7 @@
         }
       },
       getValid() {
-        if(this.fieldData.display===false){
+        if (this.fieldData.display === false) {
           this.fieldData.valid = {
             valid: true,
             msg: '有效'
@@ -1273,13 +1301,16 @@
 
 <style lang="scss" scoped>
   @import "./style.scss";
-
+  
+  // .cu-dialog{
+  //   width: 100%!important;
+  // }
   @media screen and (min-width:800px) {
     .cu-btn {
       min-width: auto !important;
       max-width: 200px !important;
     }
-
+    
     .dialog-button {
       .cu-btn {
         width: 200px;

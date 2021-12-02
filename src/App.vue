@@ -118,7 +118,10 @@
     display: none !important;
   }
 
-  .cu-dialog {
+  .bottom-modal{
+    
+  }
+  .cu-dialog:not(.bottom-modal>.cu-dialog) {
     width: calc(100% - 20px) !important;
     max-width: 800px;
   }
