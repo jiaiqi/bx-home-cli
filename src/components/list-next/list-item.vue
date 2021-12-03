@@ -485,7 +485,7 @@
 
 <style scoped lang="scss">
   .list-item-wrap {
-    width: 100%;
+    // width: 100%;
     background-color: #fff;
     margin-bottom: 20rpx;
     padding: 20rpx;

@@ -4,9 +4,9 @@
       '--page-height': pageHeight,
     }" :class="['theme-'+theme,model==='PC'?'pc-model-page':'']">
     <view>
-      <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
+      <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0" :fields="fields"
         :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange" :mainData="defaultVal"
-        :defaultVal="defaultVal" :srvApp="appName">
+        :srvApp="appName">
       </a-form>
     </view>
     <view class="button-box" v-if="isArray(fields) && fields.length > 0&&!disabled">
@@ -46,7 +46,7 @@
         defaultVal: null,
         showChildService: false,
         successTip: '操作成功',
-        afterSubmit: 'detail', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页
+        afterSubmit: 'back', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页,close:关闭当前页面 仅pc端框架内嵌页面中有用
         submitAction: '', //提交后要进行的emit操作
         keyboardHeight: 0,
         pageHeight: `calc(100vh - var(--window-top) - var(--window-bottom))`,
@@ -239,7 +239,8 @@
             url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
           });
         } else {
-          let serviceName = e?.service_name||this.colsV2Data?.select_service_name || this.getServiceName(this.serviceName)
+          let serviceName = e?.service_name || this.colsV2Data?.select_service_name || this.getServiceName(this
+            .serviceName)
           let url =
             `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
@@ -421,11 +422,6 @@
                           url: `/storePages/home/home?store_no=${store_no}`
                         })
                       } else if (self.afterSubmit === 'close') {
-                        // getApp().globalData.beforeRedirectUrl = null
-                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                        // uni.reLaunch({
-                        //   url: `/storePages/home/home?store_no=${store_no}`
-                        // })
                         if (top.window?.tab?.closeCurrentTab && top?.window?.tab?.getCurrentTab) {
                           let curTab = top.window?.tab.getCurrentTab();
                           console.log(curTab, '：-----》curTab')
@@ -694,7 +690,6 @@
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
@@ -729,9 +724,9 @@
             fieldModel[item.column] = item.value
           }
           this.$set(this.fields, i, item)
-          if (item.old_value !== item.value) {
-            this.valueChange(fieldModel, item)
-          }
+          // if (item.old_value !== item.value) {
+          //   this.valueChange(fieldModel, item)
+          // }
         }
       },
       async getFieldsModel(srv) {
@@ -762,10 +757,10 @@
       },
       async getDefaultVal() {
         if (this.use_type === 'detail' || this.use_type === 'update') {
-          let serviceName = this.serviceName.replace('_update', '_select').replace('_add', '_select');
-          if (this.service) {
-            serviceName = this.service
-          }
+          let serviceName = this.colsV2Data?.select_service_name || this.service || this.serviceName.replace(
+              '_update',
+              '_select')
+            .replace('_add', '_select');
           let condition = this.fieldsCond
             .filter(item => item.value)
             .map(item => {
@@ -820,6 +815,7 @@
             return
           }
         }
+        let fields = null
         let modal = colVs._fieldInfo.reduce((res, cur) => {
           if (cur.defaultValue) {
             res[cur.column] = cur.defaultValue
@@ -840,12 +836,12 @@
             if (Array.isArray(defaultVal) && defaultVal.length > 0) {
               defaultVal = defaultVal[0]
             }
-            let fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
+            fields = self.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : self.params
               .defaultVal || {});
             if (!fields) {
               return;
             }
-            self.fields = fields.map(field => {
+            fields = fields.map(field => {
               if (Array.isArray(field?.option_list_v2?.conditions) && field.option_list_v2
                 .conditions
                 .length > 0) {
@@ -882,7 +878,7 @@
             }).filter(item => !self.hideColumn.includes(item.column))
             break;
           case 'add':
-            self.fields = colVs._fieldInfo.map(field => {
+            fields = colVs._fieldInfo.map(field => {
               if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
                 field.option_list_v2 = field.option_list_v2.map(item => {
                   item.checked = false;
@@ -954,8 +950,30 @@
         const table_name = colVs.main_table
         const result = await this.evalX_IF(table_name, cols, modal, this.appName)
 
+        let calcResult = {}
+        let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item.calc_trigger_col))
+          .map(item => item.column)
+
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, modal, this.appName)
+        }
+
+
+
+
         for (let i = 0; i < colVs._fieldInfo.length; i++) {
           const item = colVs._fieldInfo[i]
+
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
+
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              modal[item.column] = item.value
+              this.defaultVal[item.column] = item.value
+            }
+          }
+
+
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
@@ -970,7 +988,7 @@
             }
           }
         }
-
+        this.fields = fields
       },
 
       async getStoreUserInfo(no) {

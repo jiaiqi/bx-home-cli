@@ -102,7 +102,7 @@
           </bx-radio-group>
         </view>
         <view @click="openModal(fieldData.type)" class="open-popup" v-else>
-          <view class="place-holder" v-if="!fieldData.value">
+          <view class="place-holder" v-if="!fieldData.value" @click="getSelectorData(null, null, null)">
             <text>{{!fieldData.disabled?'请选择':''}}</text>
             <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
           </view>
@@ -221,7 +221,6 @@
           <view class="content">
             <view class="cu-bar search bg-white" v-if="modalName === 'Selector' && fieldData.showSearch !== false">
               <view class="search-form round">
-                <!-- <text class="cuIcon-search"></text> -->
                 <input @input="searchFKDataWithKey" type="text" placeholder="搜索" confirm-type="search" />
               </view>
               <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs"
@@ -229,17 +228,19 @@
               <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
               </text>
             </view>
-            <bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
-              class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
-              <bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
-                {{ item.label }}
-              </bx-checkbox>
-            </bx-checkbox-group>
-            <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
-              v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
-              <bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
-              </bx-radio>
-            </bx-radio-group>
+            <view class="option-box">
+              <bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
+                class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
+                <bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
+                  {{ item.label }}
+                </bx-checkbox>
+              </bx-checkbox-group>
+              <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
+                v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
+                <bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
+                </bx-radio>
+              </bx-radio-group>
+            </view>
           </view>
           <view class="dialog-button">
             <view class="cu-btn bg-blue shadow" @tap="hideModal" v-if="modalName === 'MultiSelector'">确定
@@ -427,16 +428,28 @@
         deep: true,
         immediate: true,
         handler(newVal, oldVal) {
-          if (newVal !== oldVal) {
+          if (newVal !== oldVal && oldVal !== undefined) {
+            console.log('watch-fieldData.value', newVal, oldVal)
             this.$emit('on-value-change', this.fieldData);
           }
+          // if (this.fieldData.type === 'selector') {
+          //   self.getDefVal()
+          // }
         }
       },
+      // 'fieldData': {
+      //   deep: true,
+      //   immediate: true,
+      //   handler(newVal, oldVal) {
+      //     if (newVal?.colData) {
+      //       this.$emit('on-value-change', this.fieldData);
+      //     }
+      //   }
+      // },
       field: {
         deep: true,
         immediate: true,
         handler(newValue, oldValue) {
-          this.fieldData = newValue;
           // this.$emit('setFieldModel', newValue)
           if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
             this.pickerChange(newValue.value)
@@ -447,6 +460,7 @@
           if (newValue.type === 'images') {
             this.getDefVal()
           }
+          this.fieldData = newValue;
         }
       }
     },
@@ -630,6 +644,35 @@
           'string') {
           // 多选
           self.fieldData.value = self.fieldData.value.split(',');
+        } else if (self.fieldData && self.fieldData.type === 'Selector') {
+          let cond = null;
+          if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && self.formType !== 'add') {
+            cond = [{
+              colName: self.fieldData.option_list_v2.refed_col,
+              value: self.fieldData.value,
+              ruleType: 'like'
+            }];
+          }
+          self.getSelectorData(cond).then(_ => {
+            if (self.fieldData.value) {
+              let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
+              if (fkFieldLabel && fkFieldLabel.label) {
+                self.fkFieldLabel = fkFieldLabel.label
+              } else if (self.fieldData.value) {
+                self.fkFieldLabel = self.fieldData.value
+              }
+            }
+          });
+          // self.getSelectorData(cond).then(_ => {
+          //   if (self.fieldData.value) {
+          //     let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
+          //     if (fkFieldLabel && fkFieldLabel.label) {
+          //       self.fkFieldLabel = fkFieldLabel.label
+          //     } else if (self.fieldData.value) {
+          //       self.fkFieldLabel = self.fieldData.value
+          //     }
+          //   }
+          // });
         } else {
           Object.keys(this.fieldsModel).forEach(key => {
             if (this.fieldData.column === key && !this.fieldData.value && this.fieldsModel[key]) {
@@ -667,9 +710,8 @@
           let srvInfo = this.fieldData.srvInfo;
           this.fkFieldLabel = srvInfo.show_as_pair !== false ?
             `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
-
-          this.fieldData.value = e[srvInfo.refed_col];
           this.fieldData['colData'] = e;
+          this.fieldData.value = e[srvInfo.refed_col];
           this.$emit('setColData', this.fieldData)
 
         }
@@ -688,7 +730,6 @@
           if (!option.key_disp_col && !option.refed_col) {
             return;
           }
-          debugger
           if (option.key_disp_col) {
             relation_condition.data.push({
               colName: option.key_disp_col,
@@ -922,7 +963,6 @@
             return item;
           });
         }
-        // this.$emit('on-value-change', this.fieldData);
       },
       bindTimeChange(e, type) {
         if (type) {
@@ -1077,24 +1117,37 @@
       }
       this.initSetOptions()
       if (self.fieldData && self.fieldData.type === 'Selector') {
-        let cond = null;
-        if (this.fieldData.value && this.fieldData?.option_list_v2?.refed_col && this.formType !== 'add') {
-          cond = [{
-            colName: this.fieldData.option_list_v2.refed_col,
-            value: this.fieldData.value,
-            ruleType: 'like'
-          }];
-        }
-        self.getSelectorData(cond).then(_ => {
-          if (self.fieldData.value) {
-            let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
-            if (fkFieldLabel && fkFieldLabel.label) {
-              self.fkFieldLabel = fkFieldLabel.label
-            } else if (self.fieldData.value) {
-              self.fkFieldLabel = self.fieldData.value
-            }
-          }
-        });
+        self.getDefVal()
+        // let cond = null;
+        // if (this.fieldData.value && this.fieldData?.option_list_v2?.refed_col && this.formType !== 'add') {
+        //   cond = [{
+        //     colName: this.fieldData.option_list_v2.refed_col,
+        //     value: this.fieldData.value,
+        //     ruleType: 'like'
+        //   }];
+        // }
+        // if (self.fieldData.value) {
+        //   self.getSelectorData(cond).then(_ => {
+        //     if (self.fieldData.value) {
+        //       let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
+        //       if (fkFieldLabel && fkFieldLabel.label) {
+        //         self.fkFieldLabel = fkFieldLabel.label
+        //       } else if (self.fieldData.value) {
+        //         self.fkFieldLabel = self.fieldData.value
+        //       }
+        //     }
+        //   });
+        // }
+        // self.getSelectorData(cond).then(_ => {
+        //   if (self.fieldData.value) {
+        //     let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
+        //     if (fkFieldLabel && fkFieldLabel.label) {
+        //       self.fkFieldLabel = fkFieldLabel.label
+        //     } else if (self.fieldData.value) {
+        //       self.fkFieldLabel = self.fieldData.value
+        //     }
+        //   }
+        // });
       }
     }
   };

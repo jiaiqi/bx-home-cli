@@ -1400,7 +1400,6 @@
       // },
 
       async updateValueChange(e, triggerField) {
-
         const column = triggerField.column
         let fieldModel = e
         const cols = this.allFields.filter(item => item.x_if && item.in_update === 1).map(item => item.column)
@@ -1413,11 +1412,15 @@
 
         let calcResult = {}
         let allFields = this.updateV2?._fieldInfo || []
-        // let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
-        //   .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-        let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
+        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item.calc_trigger_col) &&
+          item.calc_trigger_col.includes(column)).map(item => item.column)
+        // let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
+        // let willCalc = calcCols.every(col => fieldModel[col] !== undefined && fieldModel[col] !== null)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
+          debugger
+          // if(willCalc){
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
+          // }
         }
 
         for (let i = 0; i < this.allFields.length; i++) {
@@ -1443,17 +1446,11 @@
           }
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             if (item.redundant?.trigger === 'always' || !item.value) {
-              item.value = calcResult?.response[item.column]
+              item.value = calcResult?.response[item.column] || item.value
               fieldModel[item.column] = item.value
             }
-
-            // await this.updateValueChange(fieldModel, item)
           }
           this.$set(this.allFields, i, item)
-          // this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
-          // if (item.old_value !== item.value) {
-          //   this.updateValueChange(fieldModel, item)
-          // }
         }
 
       },
@@ -1470,9 +1467,10 @@
         }
 
         let calcResult = {}
-        // let calcCols = allFields.filter(item => item.redundant?.func && Array.isArray(item
-        //   .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-        let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
+
+        // let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
+        let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item.calc_trigger_col) &&
+          item.calc_trigger_col.includes(column)).map(item => item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
@@ -1484,18 +1482,12 @@
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.old_value = item.value;
             item.value = e[item.column];
-            // this.$set(allFields, i, item)
           }
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
-            // item.value = calcResult?.response[item.column]
-            // fieldModel[item.column] = item.value
             if (item.redundant?.trigger === 'always' || !item.value) {
-              item.value = calcResult?.response[item.column]
+              item.value = calcResult?.response[item.column] || item.value
               fieldModel[item.column] = item.value
             }
-
-            // this.$set(this.allFields, i, item)
-            // await this.handleCalc(item)
           }
 
           if (item.x_if) {
@@ -1514,10 +1506,6 @@
           }
           this.allFields = allFields
           this.$set(this.allFields, i, item)
-          // this.$refs?.childForm?.setFieldModel ? this.$refs.childForm.setFieldModel(item) : ''
-          // if (item.old_value !== item.value) {
-          //   this.valueChange(fieldModel, item)
-          // }
         }
 
         return
@@ -1651,6 +1639,7 @@
         // if (this.config?.use_type === 'addchildlist' || this.config?.use_type === 'updatechildlist') {
         let app = this.srvApp || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
+        this.updateV2 = colVs
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
@@ -1749,7 +1738,7 @@
             }
           }
         }
-        this.updateV2 = colVs
+        // this.updateV2 = colVs
         // }
       },
       async getAddV2(btn) {
@@ -1766,6 +1755,7 @@
         if (!colVs) {
           return
         }
+        this.addV2 = colVs
         if (colVs.formButton && this.fkMoreConfig?.rowButtonDisp) {
           colVs.formButton = colVs.formButton.filter(item => {
             if (this.fkMoreConfig.rowButtonDisp[item.button_type] === false) {
@@ -1899,7 +1889,6 @@
           }
         }
 
-        this.addV2 = colVs
         if (Array.isArray(colVs?._fieldInfo)) {
           let colInfo = null
           let e = this.config?.foreign_key?.moreConfig?.batch_add

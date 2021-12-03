@@ -39,7 +39,7 @@
           obj.height = this.height
           obj.minHeight = this.height
         }
-        return obj
+        return `height:${obj.height};min-height:${obj.minHeight}`
       },
     },
     props: {

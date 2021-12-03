@@ -764,10 +764,10 @@
             fieldModel[item.column] = item.value
           }
           this.$set(this.fields, i, item)
-          if (item.old_value !== item.value) {
-            debugger
-            this.valueChange(fieldModel, item)
-          }
+          // if (item.old_value !== item.value) {
+          //   debugger
+          //   this.valueChange(fieldModel, item)
+          // }
         }
       },
       async getColV2(type = 'list') {

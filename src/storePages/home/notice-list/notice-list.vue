@@ -155,7 +155,7 @@
   .notice-wrap {
     /* margin-bottom: 20rpx; */
     min-width: 335px;
-    margin: 10rpx 20rpx 0;
+    margin: 0rpx 20rpx 0;
     border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;

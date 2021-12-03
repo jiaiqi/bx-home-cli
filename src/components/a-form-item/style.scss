@@ -408,6 +408,13 @@
 			position: inherit;
 			width: 100%;
 			pointer-events: auto;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      .option-box{
+        flex: 1;
+        overflow: scroll;
+      }
 			.bx-radio-group {
 				margin: 0 20rpx;
 				max-height: 60vh;

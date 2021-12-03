@@ -8,7 +8,7 @@
         </a-form>
       </view>
 
-      <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)">
+      <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
             :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
@@ -668,7 +668,8 @@
         }
         let calcResult = {}
         let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-          .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
+          .calc_trigger_col) && item.calc_trigger_col.includes(column) && item.value !== item.old_value).map(item =>
+          item.column)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
         }
@@ -678,7 +679,7 @@
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
 
             if (item.redundant?.trigger === 'always' || !item.value) {
-              item.value = calcResult?.response[item.column]
+              item.value = calcResult?.response[item.column] || item.value
               fieldModel[item.column] = item.value
               this.mainData[item.column] = item.value
             }
@@ -795,7 +796,7 @@
       },
       async getDefaultVal() {
         if (this.srvType === 'detail' || this.srvType === 'update') {
-          let serviceName = this.service || this.serviceName.replace('_update', '_select').replace(
+          let serviceName = this.colsV2Data?.select_service_name|| this.service || this.serviceName.replace('_update', '_select').replace(
             '_add',
             '_select');
           let condition = this.fieldsCond
@@ -938,12 +939,14 @@
             }
 
             fields = colVs._fieldInfo.map(field => {
+              
               if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
                 field.option_list_v2 = field.option_list_v2.map(item => {
                   item.checked = false;
                   return item;
                 });
               }
+              
               if (this.defaultCondition && Array.isArray(this
                   .defaultCondition) && colVs
                 ._fieldInfo && Array.isArray(colVs._fieldInfo)) {
@@ -1016,8 +1019,7 @@
         }
 
         let calcResult = {}
-        let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-          .calc_trigger_col)).map(item => item.column)
+        let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item.calc_trigger_col)).map(item => item.column)
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)

@@ -211,8 +211,7 @@
         }
       },
       setColData(e) {
-        // this.handlerReduant(e)
-        // debugger
+        this.handlerReduant(e)
         this.$emit('setColData', e)
       },
       handlerReduant(obj, _dependFields) {
@@ -228,25 +227,25 @@
                     .colData) !==
                   true && Object.keys(e.colData).length > 0) {
                   item.old_value = item.value
-                  item.value = e.colData[item.redundant.refedCol];
+                  item.value = e.colData[item.redundant.refedCol]||item.value;
                   let dependFields = this.allField.reduce((res, cur) => {
                     if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
                       res.push(cur.column)
                     }
                     return res
                   }, [])
-                  if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
-                    this.handlerReduant(item, dependFields)
-                  }
+                  // if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
+                  //   this.handlerReduant(item, dependFields)
+                  // }
                 } else {
                   // item.value = null
                 }
-                // let dependFields = this.allField.reduce((res, cur) => {
-                //   if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
-                //     res.push(cur.column)
-                //   }
-                //   return res
-                // }, [])
+                let dependFields = this.allField.reduce((res, cur) => {
+                  if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
+                    res.push(cur.column)
+                  }
+                  return res
+                }, [])
                 // if (item.value !== item.old_value && dependFields && dependFields.length > 0) {
                 //   this.handlerReduant(item, dependFields)
                 // }
@@ -260,13 +259,16 @@
                   }
                 }
               }
+              console.log('handlerReduant',item.column,item.value)
               this.fieldModel[item.column] = item.value;
-              this.$emit('value-blur', this.fieldModel, item);
+              // this.$emit('value-blur', this.fieldModel, item);
             }
           }
         }
+        return 
       },
       setFieldModel(e) {
+        console.log('setFieldModel',e.column,e.value)
         this.fieldModel[e.column] = e.value;
       },
       async onValChange(e) {
@@ -288,9 +290,11 @@
         }, [])
         if (dependFields && dependFields.length > 0) {
           // debugger
-          this.handlerReduant(e, dependFields)
+          await this.handlerReduant(e, dependFields)
+        }else{
+          // debugger
+          // this.handlerReduant(e)
         }
-        // this.handlerReduant(e)
 
 
         for (let index = 0; index < this.allField.length; index++) {
@@ -335,6 +339,7 @@
       },
       onValBlur(e) {
         if (e.hasOwnProperty('value')) {
+          console.log('onValBlur',e.column,e.value)
           this.fieldModel[e.column] = e.value;
           // this.$emit('value-blur', this.fieldModel, e);
         }
@@ -358,6 +363,7 @@
           this.allField = this.oldField.map((item, index) => {
             this.$refs.fitem[index].fieldData.value = item.value;
             this.fieldModel[item.columns] = item.value
+            console.log('onReset',item.column,item.value)
             if (this.pageType === 'filter') {
               if (item.defaultValue) {
                 item.value = item.defaultValue
@@ -467,15 +473,15 @@
 
     .field-item {
       // max-width: 30%;
-      width: 300px;
-      // flex: 1;
+      min-width: 300px;
+      flex: 1;
       // min-width: 250px;
       background-color: #fff;
       border: 1px solid #E5E6E9;
       margin-right: 10px;
       margin-bottom: 10px;
       border-radius: 8px;
-      max-width: 300px;
+      // max-width: 300px;
 
       .form-item {}
     }

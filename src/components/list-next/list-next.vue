@@ -79,8 +79,8 @@
         let obj = {
           "lp_style": this.listConfig?.lp_style || viewTemp?.lp_style || "复合",
           "grid_span": this.listConfig?.grid_span || viewTemp?.grid_span || "2",
-          'margin': this.listConfig?.margin || viewTemp?.margin,
-          'padding': this.listConfig?.margin || viewTemp?.padding,
+          'margin': this.listConfig?.margin ?? viewTemp?.margin,
+          'padding': this.listConfig?.padding ?? viewTemp?.padding,
           "btn_cfg": {
             "show_custom_btn": this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig?.show_custom_btn ??
               viewTemp?.btn_cfg?.show_custom_btn ?? null,

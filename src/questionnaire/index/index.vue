@@ -85,11 +85,14 @@
 
     <view class="cu-modal" :class="{show:showDialog}">
       <view class="cu-dialog padding" @click.stop="">
-        <view class="dialog-title text-bold text-center padding-sm text-lg">
-          提示
+        <view class="dialog-title text-bold padding-sm text-lg">
+          <image src="../static/error.png" style="width: 30px;height: 30px;"></image>
+          <text class="text">提示</text>
         </view>
         <view class="dialog-content text-bold">
-          <text class="cuIcon-info text-red margin-right-xs text-lg"></text>{{dialogContent||''}}
+          <!-- <image src="../static/error.png" style="width: 30px;height: 30px;"></image> -->
+          <!-- <text class="cuIcon-info text-red margin-right-xs text-lg"></text> -->
+          <text class="text">{{dialogContent||''}}</text>
         </view>
         <view class="dialog-button margin-tb-xs">
           <view class="button-box"
@@ -1137,6 +1140,15 @@
     }
   }
 
+  .dialog-content,.dialog-title{
+    display: flex;
+    align-items: center;
+    .text{
+      flex: 1;
+      text-align: left;
+      margin-left: 10px;
+    }
+  }
   .score-box {
     height: 100rpx;
     display: flex;

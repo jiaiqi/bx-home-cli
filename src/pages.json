@@ -300,7 +300,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "switchHome/switchHome",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "questionnaire",

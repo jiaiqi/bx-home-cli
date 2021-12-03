@@ -150,8 +150,8 @@
           "lp_style": this.listConfig?.lp_style || config?.lp_style || "复合",
           "grid_span": this.listConfig?.grid_span || config?.grid_span || "2",
           "detailPage": this.listConfig?.detailPage || config?.detailPage,
-          'margin': config?.margin,
-          'padding': config?.padding,
+          'margin': this.listConfig?.margin || config?.margin,
+          'padding': this.listConfig?.padding || config?.padding,
           "list_bar": this.listConfig?.list_bar ?? config?.list_bar,
           "btn_cfg": {
             "show_custom_btn": this.listConfig?.show_custom_btn ?? config?.btn_cfg?.show_custom_btn ?? null,
@@ -167,7 +167,7 @@
             "padding": config?.btn_cfg?.padding || null
           },
           "img": {
-            "col": config?.img?.col,
+            "col": this.listConfig?.img?.col || config?.img?.col,
             "cfg": {
               "width": this.listConfig?.img?.width || config?.img?.cfg?.width || "100%",
               "height": this.listConfig?.img?.height || config?.img?.cfg?.height || "150rpx",
@@ -178,7 +178,7 @@
               "margin": this.listConfig?.img?.margin || config?.img?.cfg?.margin || ""
             }
           },
-          cols: config?.cols
+          cols: this.listConfig?.cols || config?.cols
         }
         return obj
         // return this.colV2?.moreConfig?.list_config || {}
@@ -284,12 +284,14 @@
               return res
             }, [])
           }
-          return Object.keys(this.finalViewTemp).reduce((res, cur) => {
-            if (this.finalViewTemp[cur]) {
-              res.push(this.finalViewTemp[cur])
-            }
-            return res
-          }, [])
+          if (typeof this.finalViewTemp === 'object') {
+            return Object.keys(this.finalViewTemp).reduce((res, cur) => {
+              if (this.finalViewTemp[cur]) {
+                res.push(this.finalViewTemp[cur])
+              }
+              return res
+            }, [])
+          }
         }
       },
       countConfig() {
@@ -298,6 +300,7 @@
     },
     data() {
       return {
+        navigationBarTitle: "",
         hideChildList: false,
         showMockCount: false,
         serviceName: "srvhealth_store_vaccination_appoint_record_select",
@@ -591,8 +594,14 @@
           'list', app);
         colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
         if (!this.navigationBarTitle) {
+          let title = ''
+          if (this.listConfig?.navTitle) {
+            title = this.listConfig?.navTitle
+          } else {
+            title = colVs.service_view_name
+          }
           uni.setNavigationBarTitle({
-            title: colVs.service_view_name
+            title
           });
         }
         console.log('colVs', colVs);
@@ -1121,6 +1130,13 @@
             if (this.disabled === true) {
               url += '&disabled=true'
             }
+            let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
+            if (this.listConfig?.navType && navTypes.includes(this.listConfig?.navType)) {
+              uni[this.listConfig?.navType]({
+                url: targetUrl
+              })
+              return
+            }
             uni.navigateTo({
               url: targetUrl
             })
@@ -1388,13 +1404,21 @@
       }
       if (option.listConfig) {
         try {
-          this.listConfig = JSON.parse(option.listConfig)
+          this.listConfig = JSON.parse(decodeURIComponent(option.listConfig))
         } catch (e) {
           //TODO handle the exception
+          console.log(e)
+          try {
+            this.listConfig = JSON.parse(option.listConfig)
+          } catch (e) {
+            console.log(e)
+            //TODO handle the exception
+          }
         }
       }
       if (option.detailType && option.customDetailUrl) {
         this.detailType = option.detailType
+
         let decodeUrl = option.customDetailUrl
         try {
           decodeUrl = decodeURIComponent(decodeUrl)

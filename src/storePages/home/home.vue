@@ -282,13 +282,67 @@
         return res
       },
       openSwitchHomePage() {
-        if (Array.isArray(this.storeList) && this.storeList.length > 1) {
-          this.showHomePageSelector = !this.showHomePageSelector
-        } else {
-          this.selectInStore().then(_ => {
-            this.showHomePageSelector = !this.showHomePageSelector
+        let cond = [{
+          "colName": "person_no",
+          "ruleType": "eq",
+          "value": this.userInfo?.no
+        }, {
+          "colName": "member_status",
+          "ruleType": "eq",
+          "value": "正常"
+        }]
+        if (this.userInfo?.no) {
+          let listConfig = {
+            navTitle:"切换店铺",
+            listBarReadonly: true,
+            show_public_btn: false,
+            padding: '0px',
+            margin: "10px",
+            detailPage: "/storePages/home/home?store_no=${data.store_no}",
+            navType: "reLaunch",
+            img: {
+              col: 'image',
+              cfg: {
+                position: 'left',
+                width: "70px",
+                height: '50px',
+                radius: "5px 0 0 5px "
+              }
+            },
+            cols: [{
+                "col": "name",
+                cfg: {
+                  disp_label: false,
+                  'font_weight': 600,
+                  font_size: '16px',
+                  width:'100%'
+                }
+              },
+              {
+                "col": "user_role",
+                cfg: {
+                  disp_label: true,
+                  font_size: '12px',
+                  color: '#666',
+                }
+              }
+            ]
+          }
+          let url =
+            `/publicPages/list2/list2?serviceName=srvhealth_store_user_select&destApp=health&cond=${JSON.stringify(cond)}&listConfig=${encodeURIComponent(JSON.stringify(listConfig))}` +
+            `&customDetailUrl=${encodeURIComponent('/storePages/home/home?store_no=${data.store_no}')}&detailType=custom`
+
+          uni.navigateTo({
+            url
           })
         }
+        // if (Array.isArray(this.storeList) && this.storeList.length > 1) {
+        //   this.showHomePageSelector = !this.showHomePageSelector
+        // } else {
+        //   this.selectInStore().then(_ => {
+        //     this.showHomePageSelector = !this.showHomePageSelector
+        //   })
+        // }
       },
       getConfig(pageItem) {
         if (pageItem && pageItem.type) {
