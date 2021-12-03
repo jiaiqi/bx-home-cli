@@ -2558,25 +2558,13 @@ export default {
         backgroundColor: backgroundColor
       })
     }
-
+    
+    // 表单字段配置值改变时发送请求查找另一个字段的值并赋值
     Vue.prototype.getTriggerVal = async (params, data) => {
       let serviceName = params.serviceName;
       let appName = params.appName||uni.getStorageSync('activeApp')
       let url = Vue.prototype.getServiceUrl(appName, serviceName, 'select')
       let cond = params.params_val.split(',')
-      
-      // let dataArr = params.params_val.split(',')
-      // let dataObj = {}
-      // if (Array.isArray(dataArr)) {
-      //   dataArr.forEach(key => {
-      //     if(data[key]){
-      //       dataObj[key] = data[key]
-      //     }
-      //   })
-      // }else{
-      //   data = {}
-      // }
-      
       
       if (Array.isArray(cond)) {
         cond = cond.map(key => {

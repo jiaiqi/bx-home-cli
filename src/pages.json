@@ -127,14 +127,14 @@
             "navigationBarBackgroundColor": "#F8F8FA",
             "navigationBarTextStyle": "black"
           }
-        }, {
-          "path": "login/login",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
         }
+        // , {
+        //   "path": "login/login",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }
       ]
     },
     {
@@ -181,9 +181,9 @@
         {
           "path": "successPay/successPay"
         },
-        {
-          "path": "StoreIntroduce/StoreIntroduce"
-        },
+        // {
+        //   "path": "StoreIntroduce/StoreIntroduce"
+        // },
         {
           "path": "VaccineList/VaccineList",
           "style": {
@@ -292,20 +292,16 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "appointment/appointment",
+          "style": {
+            "navigationBarTitleText": "预约",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "appointment/appointment",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "预约",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
-    }
-    //#ifdef MP-WEIXIN
-    ,
+      ]
+    },
     {
       "root": "questionnaire",
       "pages": [{
@@ -364,13 +360,15 @@
             "navigationBarTitleText": ""
           }
         },
+
+        // {
+        //   "path": "HealthHistory/HealthHistory",
+        //   "style": {
+        //     "navigationBarTitleText": "我的状态",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, 
         {
-          "path": "HealthHistory/HealthHistory",
-          "style": {
-            "navigationBarTitleText": "我的状态",
-            "enablePullDownRefresh": false
-          }
-        }, {
           "path": "switchAccount/switchAccount",
           "style": {
             "navigationBarTitleText": "切换账号",
@@ -391,24 +389,26 @@
         // 		// "navigationBarTitleText": "建党100周年祝福接力"
         // 	}
         // },
+        // {
+        //   "path": "publish/publish",
+        //   "style": {
+        //     "navigationBarTitleText": "发表文字"
+        //   }
+        // },
+        // {
+        //   "path": "timeline/timeline",
+        //   "style": {
+        //     "navigationBarTitleText": "朋友圈"
+        //   }
+        // },
         {
-          "path": "publish/publish",
-          "style": {
-            "navigationBarTitleText": "发表文字"
-          }
-        },
-        {
-          "path": "timeline/timeline",
-          "style": {
-            "navigationBarTitleText": "朋友圈"
-          }
-        }, {
           "path": "dashboard/dashboard",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        }, {
+        },
+        {
           "path": "schedule/schedule",
           "style": {
             "navigationBarTitleText": "",
@@ -420,19 +420,22 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        }, {
-          "path": "wall/wall",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "groupRanking/groupRanking",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
+        },
+        // {
+        //   "path": "wall/wall",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, 
+        // {
+        //   "path": "groupRanking/groupRanking",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }, 
+        {
           "path": "scanWifi/scanWifi",
           "style": {
             "navigationBarTitleText": "",
@@ -447,7 +450,6 @@
         }
       ]
     }
-    //#endif
   ],
   // "leftWindow": {
   //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件

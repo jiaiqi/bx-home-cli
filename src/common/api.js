@@ -3,7 +3,7 @@
 
 let env = 'prod'
 
-env = 'test'
+// env = 'test'
 
 
 // if (process?.env?.APP_ENV) {
@@ -33,7 +33,7 @@ let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
   ssoAddress: 'http://sso.100xsys.cn',
   serviceAddress: conf[env]['serviceAddress'],
-  frontEndAddress: 'https://wx2.100xsys.cn/health/publicPages/accountExec/accountExec',
+  frontEndAddress: 'https://wx2.100xsys.cn/health/#/publicPages/accountExec/accountExec',
   // frontEndAddress: 'https://wx2.100xsys.cn',
   singleApp: true, // 是否单应用， true 时 所有请求均使用 appName 配置
   appName: "health", //singleApp 为 true 时 必须配置

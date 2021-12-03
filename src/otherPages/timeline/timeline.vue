@@ -1,10 +1,10 @@
 <template>
 	<div class="timeline">
-		<dcp-scroller :isLoading="loadStatus === 'loading'" @refresh="getList">
+<!-- 		<dcp-scroller :isLoading="loadStatus === 'loading'" @refresh="getList">
 			<timeline-list :profile="userInfo.profile_url" :storeNo="storeNo" :loadStatus="loadStatus" noMargin
 				loadOutData :showProfile="false" :list="listData" :condition="condition" :limit="20" @load="getList">
 			</timeline-list>
-		</dcp-scroller>
+		</dcp-scroller> -->
 		<uni-load-more :status="loadStatus" v-if="
         loadStatus !== 'noMore' ||
         (loadStatus === 'noMore' && listData.length !== 0)

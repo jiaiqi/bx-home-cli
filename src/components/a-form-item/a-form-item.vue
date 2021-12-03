@@ -17,7 +17,6 @@
         'background-color': labelPosition === 'left' ? '' : '',
       }">
       <text class="label" :for="fieldData.column">
-        <!-- <text class="cuIcon-titles text-cyan"></text> -->
         <text class="text-red is-required" v-if="fieldData.isRequire">{{
           fieldData.isRequire ? "*" : ""
         }}</text>
@@ -133,11 +132,6 @@
         v-else-if="fieldData.type === 'addr' || fieldData.type === 'location'" @click="getLocation">
         {{ fieldData.value || "点击选择地理位置" }}
       </view>
-      <view class="voice" v-else-if="fieldData.type === 'voice'">
-        <button class="bg-white cu-btn" @click="showModal('voice')">
-          {{ fieldData.value ? "点击查看录音" : "点击添加录音" }}
-        </button>
-      </view>
       <view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'" @click="showModal('RichEditor')">
         <view class="value rich-text" v-if="!fieldData.value">开始输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
@@ -206,7 +200,7 @@
     <view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
     <view class="cu-modal bottom-modal" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
       @click="hideModal">
-      <view class="cu-dialog" @tap.stop=""  v-if="modalName === 'RichEditor'" >
+      <view class="cu-dialog" @tap.stop="" v-if="modalName === 'RichEditor'">
         <jin-edit :html="textareaValue" @editOk="saveRichText" :res2Url="uploadRes2Url" :form-data="uploadFormData"
           :header="reqHeader" :uploadFileUrl="uploadUrl" ref="richEditor" />
       </view>
@@ -255,52 +249,14 @@
         </view>
       </view>
     </view>
-    <view class="cu-modal" :class="{ show: modalName === 'voice' }" @tap="hideModal">
-      <view class="cu-dialog" @tap.stop="">
-        <view class="voice-modal">
-          <view class="voice-list">
-            <audio :src="item" controls v-for="item in voiceUrl" :key="item"></audio>
-            <!-- <view class="voice-item cu-btn" v-for="item in voiceUrls" @click="playVoice(item.url)">{{ item.time }}</view> -->
-          </view>
-          <view class="loading">
-            <view class="spinner">
-              <view class="rect1" :class="{ rect: onRecord }"></view>
-              <view class="rect2" :class="{ rect: onRecord }"></view>
-              <view class="rect3" :class="{ rect: onRecord }"></view>
-              <view class="rect4" :class="{ rect: onRecord }"></view>
-              <view class="rect5" :class="{ rect: onRecord }"></view>
-            </view>
-          </view>
-          <view class="button-box">
-            <button class="cu-btn bg-blue" @click="startRecord">
-              <text class="cuIcon-playfill">开始录音</text>
-            </button>
-            <button class="cu-btn bg-red" @click="stopRecord">
-              <text class="cuIcon-stop">停止录音</text>
-            </button>
-          </view>
-        </view>
-      </view>
-    </view>
+
   </view>
 </template>
 
 <script>
-  let recorderManager = null;
-  let innerAudioContext = null;
-
   export default {
     name: 'aFormItem',
     filters: {
-      html2text: function(value) {
-        return value
-          .replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '')
-          .replace(/<[^>]+?>/g, '')
-          .replace(/\s+/g, ' ')
-          .replace(/ /g, ' ')
-          .replace(/&nbsp;/g, ' ')
-          .replace(/>/g, ' ');
-      },
       formalText(val) {
         if (Array.isArray(val)) {
           val = val.toString();
@@ -374,12 +330,6 @@
       theme() {
         return this.$store?.state?.app?.theme
       },
-      startVal() {
-        return this.fieldData?.startVal
-      },
-      endVal() {
-        return this.fieldData?.endVal
-      },
       canLink() {
         if (this.fieldData.value && this.fieldData.bx_col_type === 'fk') {
           return true
@@ -415,22 +365,6 @@
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
-        // if (
-        // 	this.pageType !== 'detail' &&
-        // 	((this.setOptionList.length > 6 && this.setOptionList.length < 15 && this.fieldData.type === 'Set') ||
-        // 		(
-        // 			this.selectorData.length > 6 &&
-        // 			this.fieldData.type === 'Selector'))
-        // ) {
-        // 	result = '100%';
-        // }
-        // if (((this.fieldData.type === 'textarea' && this.pageType == 'detail')) && (this.fieldData.value ||
-        // 		this.pageType !== 'detail')) {
-        // 	result = '100%';
-        // }
-        // if (this.fieldData.type === 'RichText') {
-        // 	result = '100%';
-        // }
         return result;
       },
       pickerMode() {
@@ -486,23 +420,6 @@
         },
         longpressTimer: null,
         modalName: '', //当前显示的modal
-        //录音相关参数
-        RECORDER: null,
-        // #ifdef MP-WEIXIN
-        RECORDER: uni.getRecorderManager(),
-        // #endif
-        voicePath: [],
-        voiceUrl: [],
-        voiceUrls: [],
-        voiceText: '按住 说话',
-        //播放语音相关参数
-        AUDIO: null,
-        // #ifdef MP-WEIXIN
-        AUDIO: uni.createInnerAudioContext(),
-        // #endif
-        playMsgid: null,
-        VoiceTimer: null,
-        onRecord: false //正在录音
       };
     },
     watch: {
@@ -511,7 +428,6 @@
         immediate: true,
         handler(newVal, oldVal) {
           if (newVal !== oldVal) {
-            // debugger
             this.$emit('on-value-change', this.fieldData);
           }
         }
@@ -521,7 +437,7 @@
         immediate: true,
         handler(newValue, oldValue) {
           this.fieldData = newValue;
-          this.$emit('setFieldModel', newValue)
+          // this.$emit('setFieldModel', newValue)
           if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
             this.pickerChange(newValue.value)
           }
@@ -531,9 +447,6 @@
           if (newValue.type === 'images') {
             this.getDefVal()
           }
-          // if (newValue && oldValue) {
-          //   this.$emit('on-value-change', this.fieldData);
-          // }
         }
       }
     },
@@ -662,7 +575,6 @@
         });
       },
       getLocation() {
-        // this.$emit('getLocation');
         if (this.pageType === 'detail') {
           return;
         }
@@ -683,11 +595,6 @@
       },
       showModal(name) {
         this.modalName = name;
-        // this.$nextTick(function() {
-        // 	if (name === 'TextArea') {
-        // 		// this.focusTextArea = true;
-        // 	}
-        // });
       },
       hideModal() {
         this.modalName = '';
@@ -748,7 +655,7 @@
           this.uploadFormData['file_no'] = this.fieldData.value;
         }
         // this.onInput();
-        this.onBlur()
+        // this.onBlur()
         this.getDefVal();
       },
       deleteImage(e) {
@@ -758,8 +665,6 @@
       getCascaderValue(e) {
         if (e) {
           let srvInfo = this.fieldData.srvInfo;
-
-          // this.fkFieldLabel = `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}`;
           this.fkFieldLabel = srvInfo.show_as_pair !== false ?
             `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
 
@@ -770,7 +675,7 @@
         }
         this.hideModal();
         // this.onInput();
-        this.onBlur()
+        // this.onBlur()
         this.getDefVal();
       },
       searchFKDataWithKey(e) {
@@ -785,14 +690,6 @@
           }
           debugger
           if (option.key_disp_col) {
-            // relation_condition.data.push({
-            // 	relation: 'AND',
-            // 	data: [{
-            // 		colName: option.key_disp_col,
-            // 		value: e.detail.value,
-            // 		ruleType: '[like]'
-            // 	}]
-            // });
             relation_condition.data.push({
               colName: option.key_disp_col,
               value: e.detail.value,
@@ -800,14 +697,6 @@
             })
           }
           if (option.refed_col) {
-            // relation_condition.data.push({
-            // 	relation: 'AND',
-            // 	data: [{
-            // 		colName: option.refed_col,
-            // 		value: e.detail.value,
-            // 		ruleType: '[like]'
-            // 	}]
-            // });
             relation_condition.data.push({
               colName: option.refed_col,
               value: e.detail.value,
@@ -833,8 +722,10 @@
       },
       radioChange(e) {
         console.log('radioChange')
-        // this.onInput();
-        this.onBlur()
+        // this.onBlur()
+        this.getValid();
+        this.fieldData.old_value = this.fieldData.value
+        this.$emit('on-value-change', this.fieldData);
       },
       pickerChange(e) {
         if (this.fieldData.type === 'Selector') {
@@ -847,7 +738,7 @@
           // this.$emit('setColData', this.fieldData)
           this.hideModal();
           // this.onInput();
-          this.onBlur()
+          // this.onBlur()
         }
       },
       toFkAdd() {
@@ -987,12 +878,10 @@
                 seq: '',
                 link: '',
                 type: 'button',
-                _childNode: []
               };
               a = Object.assign(a, item);
               a.title = item.pr_name;
               a.name = item.pr_name;
-              a._childNode = item._childNode;
               a.no = item.no;
               a.parent_no = item.parent_no;
               return a;
@@ -1100,7 +989,7 @@
         console.log('on-blur');
         this.getValid();
         // if (this.fieldData.value !== this.fieldData.old_value) {
-        this.fieldData.old_value = this.fieldData.value
+        // this.fieldData.old_value = this.fieldData.value
         // this.$emit('on-value-change', this.fieldData);
         // }
       },
@@ -1110,70 +999,7 @@
         // this.getValid();
         // this.$emit('on-value-change', this.fieldData);
       },
-      //录音开始UI效果
-      recordBegin(e) {
-        this.onRecord = true;
-      },
-      // 录音被打断
-      voiceCancel() {
-        this.RECORDER.stop(); //录音结束
-      },
-      // 录音开始
-      startRecord(e) {
-        this.onRecord = true;
-        this.RECORDER.start({
-          format: 'mp3'
-        }); //录音开始,
-      },
-      // 停止录音
-      stopRecord() {
-        this.onRecord = false;
-        this.RECORDER.stop(); //录音结束
-      },
-      playVoice(voicePath) {
-        console.log('播放录音');
-        if (voicePath) {
-          innerAudioContext.src = voicePath;
-          innerAudioContext.play();
-        }
-      },
-      saveRecord(res) {
-        this.voicePath.push(res.tempFilePath);
-        console.log(this.deepClone(this.voicePath));
-        this.uploadFile(res.tempFilePath);
-      },
-      async uploadFile(tempFilePath) {
-        let self = this;
-        console.log(this.uploadFormData);
-        this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync(
-          'activeApp');
-        this.uploadFormData['columns'] = this.fieldData.column;
-        if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !==
-          undefined) {
-          this.uploadFormData['file_no'] = this.fieldData.value;
-        }
-        this.uploadFormData['table_name'] = this.fieldData._colDatas.table_name;
-        let res = await uni.uploadFile({
-          filePath: tempFilePath,
-          url: self.$api.upload,
-          header: {
-            bx_auth_ticket: uni.getStorageSync('bx_auth_ticket')
-          },
-          formData: self.uploadFormData,
-          name: 'file'
-        });
-        if (Array.isArray(res) && res.length === 2 && typeof res[1].data === 'string') {
-          res = JSON.parse(res[1].data);
-          this.voiceUrl.push(self.$api.getFilePath + res.fileurl + '&bx_auth_ticket=' + uni.getStorageSync(
-            'bx_auth_ticket'));
-          this.voiceUrls.push({
-            url: self.$api.getFilePath + res.fileurl + '&bx_auth_ticket=' + uni.getStorageSync(
-              'bx_auth_ticket'),
-            time: res.create_time
-          });
-          self.fieldData.value = res.file_no;
-        }
-      },
+
       getValid() {
         if (this.fieldData.display === false) {
           this.fieldData.valid = {
@@ -1223,35 +1049,13 @@
               }
               return item;
             });
-            // if (this.pageType === 'filter' && !this.setOptionList.find(item => item.value === '全部')) {
-            // 	this.setOptionList.push({
-            // 		label: '全部',
-            // 		value: '全部',
-            // 		checked: this.setOptionList.find(item => item.checked) ? false : true
-            // 	})
-            // }
           }
         });
       },
     },
-    onReady() {
-      let self = this;
-      //语音自然播放结束
-      if (this.fieldData.type === 'voice') {
-        // innerAudioContext = uni.createInnerAudioContext();
-        // innerAudioContext.autoplay = true;
-        // self.AUDIO.onEnded(res => {
-        // 	self.playMsgid = null;
-        // });
-        //录音结束事件
-        this.RECORDER.onStop(e => {
-          self.saveRecord(e);
-        });
-      }
-    },
     created() {
       let self = this;
-      if (this.fieldData.type === 'images' || this.fieldData.type === 'voice' || this.fieldData.type ===
+      if (this.fieldData.type === 'images' || this.fieldData.type ===
         'RichText') {
         this.uploadFormData = {
           serviceName: 'srv_bxfile_service',
@@ -1289,9 +1093,6 @@
             } else if (self.fieldData.value) {
               self.fkFieldLabel = self.fieldData.value
             }
-            // self.fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value) ?
-            // 	self.selectorData.find(item => item.value === self.fieldData.value).label :
-            // 	'请选择';
           }
         });
       }
@@ -1301,16 +1102,13 @@
 
 <style lang="scss" scoped>
   @import "./style.scss";
-  
-  // .cu-dialog{
-  //   width: 100%!important;
-  // }
+
   @media screen and (min-width:800px) {
     .cu-btn {
       min-width: auto !important;
       max-width: 200px !important;
     }
-    
+
     .dialog-button {
       .cu-btn {
         width: 200px;

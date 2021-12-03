@@ -239,7 +239,7 @@
             url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
           });
         } else {
-          let serviceName = e?.service_name || this.getServiceName(this.serviceName)
+          let serviceName = e?.service_name||this.colsV2Data?.select_service_name || this.getServiceName(this.serviceName)
           let url =
             `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
@@ -1369,7 +1369,7 @@
       padding: 40rpx 20rpx;
       justify-content: space-around;
       align-items: center;
-      z-index: 20;
+      // z-index: 20;
       max-width: 500px;
 
       .cu-btn {

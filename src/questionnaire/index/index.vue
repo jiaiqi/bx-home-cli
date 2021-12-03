@@ -82,6 +82,26 @@
         v-if="params&&params.button_name">{{params.button_name}}</button>
       <button class="button cu-btn" @click="toNextPages" v-else>下一步</button>
     </view>
+
+    <view class="cu-modal" :class="{show:showDialog}">
+      <view class="cu-dialog padding" @click.stop="">
+        <view class="dialog-title text-bold text-center padding-sm text-lg">
+          提示
+        </view>
+        <view class="dialog-content text-bold">
+          <text class="cuIcon-info text-red margin-right-xs text-lg"></text>{{dialogContent||''}}
+        </view>
+        <view class="dialog-button margin-tb-xs">
+          <view class="button-box"
+            v-if="showNextBtn&&isShowOrder===activity_no&&['20211008104446000006', '20210929120256000001', '20211027112223000007'].includes(activity_no)">
+            <button class="button cu-btn" @click="toNextPages"
+              v-if="params&&params.button_name">{{params.button_name}}</button>
+            <button class="button cu-btn" @click="toNextPages" v-else>下一步</button>
+          </view>
+          <!-- <button class="cu-btn bg-blue" type="primary">{{params}}</button> -->
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -120,7 +140,9 @@
         params: {},
         showNextBtn: false,
         queue_no: "",
-        store_no: ""
+        store_no: "",
+        showDialog: false,
+        dialogContent: "",
       };
     },
     props: {
@@ -201,45 +223,52 @@
         if (this.activity_no === '20211027112223000007' && newValue === this.activity_no) {
           // 肺病筛查
           let confirmText = this.params?.button_name || '确定'
-          uni.showModal({
-            title: '提示',
-            content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
-            showCancel: false,
-            confirmText: confirmText,
-            success: (res) => {
-              if (res.confirm) {
-                this.toNextPages()
-              }
-            }
-          })
+          this.dialogContent = '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。'
+          this.showDialog = true;
+
+          // uni.showModal({
+          //   title: '提示',
+          //   content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
+          //   showCancel: false,
+          //   confirmText: confirmText,
+          //   success: (res) => {
+          //     if (res.confirm) {
+          //       this.toNextPages()
+          //     }
+          //   }
+          // })
         } else if (this.activity_no === '20211008104446000006' && newValue === this.activity_no) {
           // ESS 嗜睡問卷調查
           let confirmText = this.params?.button_name || '确定'
-          uni.showModal({
-            title: '提示',
-            content: '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查',
-            showCancel: false,
-            confirmText: confirmText,
-            success: (res) => {
-              if (res.confirm) {
-                this.toNextPages()
-              }
-            }
-          })
+          this.dialogContent = '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查。'
+          this.showDialog = true;
+          // uni.showModal({
+          //   title: '提示',
+          //   content: '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查',
+          //   showCancel: false,
+          //   confirmText: confirmText,
+          //   success: (res) => {
+          //     if (res.confirm) {
+          //       this.toNextPages()
+          //     }
+          //   }
+          // })
         } else if (this.activity_no === '20210929120256000001' && newValue === this.activity_no) {
           // stop bang
           let confirmText = this.params?.button_name || '确定'
-          uni.showModal({
-            title: '提示',
-            content: '有三项及以上回答为是，符合OSAS高危人群的特征',
-            showCancel: false,
-            confirmText: confirmText,
-            success: (res) => {
-              if (res.confirm) {
-                this.toNextPages()
-              }
-            }
-          })
+          // uni.showModal({
+          //   title: '提示',
+          //   content: '有三项及以上回答为是，符合OSAS高危人群的特征',
+          //   showCancel: false,
+          //   confirmText: confirmText,
+          //   success: (res) => {
+          //     if (res.confirm) {
+          //       this.toNextPages()
+          //     }
+          //   }
+          // })
+          this.dialogContent = '有三项及以上回答为是，符合OSAS高危人群的特征'
+          this.showDialog = true;
         } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
             .activity_no)) {
           if (newValue == true) {
@@ -929,8 +958,17 @@
         this.planNo = option.planNo;
       }
       if (option.params) {
-        this.params = JSON.parse(option.params);
-        // this.params = JSON.parse(decodeURIComponent(option.params));
+        try {
+          // #ifdef MP-WEIXIN
+          this.params = JSON.parse(option.params);
+          // #endif
+          // #ifdef H5
+          this.params = JSON.parse(decodeURIComponent(option.params));
+          // #endif
+        } catch (e) {
+          //TODO handle the exception
+          console.log(e)
+        }
       }
       this.emptyText = '正在请求问卷配置数据';
       setTimeout(() => {

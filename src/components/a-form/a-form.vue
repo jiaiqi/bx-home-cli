@@ -14,77 +14,7 @@
     </view>
   </view>
 </template>
-<style lang="scss">
-  .section-name {
-    padding: 10rpx;
-    color: #B8BAC0;
-  }
 
-  .field-item {
-    overflow: hidden;
-    box-sizing: border-box;
-
-    &.hidden {
-      width: 0 !important;
-      min-width: 0 !important;
-      display: none;
-    }
-
-    .before-section {
-      // border-radius: 0 0 20rpx 20rpx;
-      border-bottom-left-radius: 20rpx;
-      border-bottom-right-radius: 20rpx;
-      margin-bottom: 20rpx;
-    }
-
-    .section-top {
-      // border-radius: 20rpx 20rpx 0 0;
-      border-top-left-radius: 20rpx;
-      border-top-right-radius: 20rpx;
-
-    }
-
-    .section-top:first-child {
-      margin-top: 0;
-    }
-  }
-
-  @media screen and (min-width:450px) {
-    .field-item {
-      background-color: #fff;
-      border: 1px solid #E5E6E9;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-    }
-  }
-
-  @media screen and (max-width:750px) {
-    .field-item {
-      flex: 1;
-      min-width: 90%;
-    }
-  }
-
-  @media screen and (min-width: 750px) {
-    .a-form {}
-
-    .field-item {
-      // max-width: 30%;
-      width: 300px;
-      // flex: 1;
-      // min-width: 250px;
-      background-color: #fff;
-      border: 1px solid #E5E6E9;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      max-width: 300px;
-
-      .form-item {}
-    }
-  }
-</style>
 <script>
   import evaluatorTo from '@/common/evaluator.js';
   export default {
@@ -211,15 +141,12 @@
           console.log('表单校验通过', showsNum, valid, this.fieldModel);
           let model = {};
           if (this.formType === 'add') {
-            // model = this.deepClone(this.fieldModel)
-            // if (Object.keys(model).length === 0) {
             model = this.allField.reduce((res, cur) => {
               if (cur.value !== null && cur.value !== undefined) {
                 res[cur.columns] = cur.value
               }
               return res
             }, {})
-            // }
           } else if (this.formType === 'detail') {
             model = this.deepClone(this.fieldModel)
             if (Object.keys(model).length === 0) {
@@ -270,23 +197,8 @@
             }
           }
           if (Object.keys(model).length > 0) {
-            // this.oldField.forEach(item => {
-            // 	if (model[item.columns] === item.value) {
-            // 		delete model[item.columns]
-            // 	}
-            // })
             return model;
           } else {
-            // return this.allField.reduce((res, cur) => {
-            // 	if (cur.value) {
-            // 		res[cur.columns] = cur.value
-            // 	}
-            // 	return res
-            // }, {});
-            // uni.showToast({
-            // 	title: '没有需要提交的数据',
-            // 	icon: 'none'
-            // });
             return false;
           }
         } else {
@@ -349,11 +261,6 @@
                 }
               }
               this.fieldModel[item.column] = item.value;
-              if (item.type == 'images') {
-                setTimeout(() => {
-                  // this.$refs.fitem[index].getDefVal()
-                }, 200)
-              }
               this.$emit('value-blur', this.fieldModel, item);
             }
           }
@@ -366,12 +273,13 @@
         // 保存已经发生变化的字段值
         console.log('onValChange', e.column, e.value)
         if (e.type === 'number' || e.type === 'digit') {
-          e.value = Number(e.value);
+          e.value = e.value!==null&&e.value!==undefined? Number(e.value):null;
         }
         this.fieldModel[e.column] = e.value;
         const fieldModel = this.fieldModel;
         const column = e.column
-        // const triggerColumns = this.allField.filter((item)=>item.)
+
+
         let dependFields = this.allField.reduce((res, cur) => {
           if (cur?.redundant?.dependField === e.column && cur.column !== e.column) {
             res.push(cur.column)
@@ -384,7 +292,7 @@
         }
         // this.handlerReduant(e)
 
-       
+
         for (let index = 0; index < this.allField.length; index++) {
           const item = this.allField[index]
           if (e?.moreConfig?.val_trigger) {
@@ -504,3 +412,72 @@
     }
   };
 </script>
+
+<style lang="scss">
+  .section-name {
+    padding: 10rpx;
+    color: #B8BAC0;
+  }
+
+  .field-item {
+    overflow: hidden;
+    box-sizing: border-box;
+
+    &.hidden {
+      width: 0 !important;
+      min-width: 0 !important;
+      display: none;
+    }
+
+    .before-section {
+      border-bottom-left-radius: 20rpx;
+      border-bottom-right-radius: 20rpx;
+      margin-bottom: 20rpx;
+    }
+
+    .section-top {
+      border-top-left-radius: 20rpx;
+      border-top-right-radius: 20rpx;
+    }
+
+    .section-top:first-child {
+      margin-top: 0;
+    }
+  }
+
+  @media screen and (min-width:450px) {
+    .field-item {
+      background-color: #fff;
+      border: 1px solid #E5E6E9;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+  }
+
+  @media screen and (max-width:750px) {
+    .field-item {
+      flex: 1;
+      min-width: 90%;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .a-form {}
+
+    .field-item {
+      // max-width: 30%;
+      width: 300px;
+      // flex: 1;
+      // min-width: 250px;
+      background-color: #fff;
+      border: 1px solid #E5E6E9;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      max-width: 300px;
+
+      .form-item {}
+    }
+  }
+</style>

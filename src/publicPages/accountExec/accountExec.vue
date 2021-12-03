@@ -143,25 +143,44 @@
       // #ifdef H5
       let isWeixinClient = this.isWeixinClient();
       let isLogin = uni.getStorageSync('isLogin')
-      // if (isWeixinClient) {
-      //   // 微信公众号环境 , 静默登录
-      //   this.loginType = 'weixin-qrcode'
-      //   let fullPath = uni.getStorageSync('loginBackurl')
-      //   if (!fullPath) {
-      //     let pages = getCurrentPages()
-      //     if (pages.length > 1) {
-      //       fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
-      //       uni.setStorageSync('loginBackurl', fullPath)
-      //     }
-      //   }
-      //   if (option.code && option.state) {
-      //     this.initLogin(option)
-      //   } else if (this.$route.query?.code && this.$route.query?.state) {
-      //     this.initLogin(this.$route.query)
-      //   }else{
-      //     this.initLogin(option)
-      //   }
-      // } else {
+      if (isWeixinClient) {
+        // 微信公众号环境 , 静默登录
+        // this.loginType = 'weixin-qrcode'
+
+        let href = window.location.href;
+        // if (href.indexOf('code=') !== -1 && href.indexOf('&state=') !== -1) {
+        //   let queryStart = href.indexOf('?code=');
+        //   let queryEnd = href.indexOf('#/');
+        //   let urlLeft = href.substring(0, queryStart);
+        //   let urlRight = href.substring(queryEnd);
+        //   let queryContent = href.substring(queryStart, queryEnd)
+        //   console.log('href',href)
+        //   console.log('urlLeft',urlLeft)
+        //   console.log('urlRight',urlRight)
+        //   console.log('queryContent',queryContent)
+        //   window.location.href = urlLeft + '#/publicPages/accountExec/accountExec' + queryContent
+        // }
+        if (href.includes("/?code=")) { //url包括 /?code 证明为从微信跳转回来的
+          // var url = href.substring(0, href.length - 2); //vue自动在末尾加了 #/ 符号，截取去掉
+          var url = href.substring(0, href.length - 37);
+          var jingPosit = url.indexOf("/health/") + 8; //获取域名结束的位置
+          var urlLeft = url.substring(0, jingPosit); //url左侧部分
+          var urlRight = url.substring(jingPosit, url.length); //url右侧部分
+          console.log('url', url)
+          console.log('jingPosit', jingPosit)
+          console.log('urlLeft', urlLeft)
+          console.log('urlRight', urlRight)
+          window.location = urlLeft + '#/publicPages/accountExec/accountExec' + urlRight; //拼接跳转
+        }
+        if (option.code && option.state) {
+          this.initLogin(option)
+        } else if (this.$route.query?.code && this.$route.query?.state) {
+          this.initLogin(this.$route.query)
+        } else {
+          this.initLogin(option)
+        }
+      }
+      // else {
       if (uni.getSystemInfoSync().model === 'PC') {
         if (option.code && option.state) {
           // 扫码登陆重定向
@@ -169,7 +188,6 @@
         } else if (this.$route.query?.code && this.$route.query?.state) {
           this.scanLogin(this.$route.query)
         } else {
-
           this.getScanQrCode()
         }
       } else {
@@ -324,8 +342,8 @@
           }
         } else {
           let loginBackurl = uni.getStorageSync('loginBackurl');
-          console.log('that.backUrl', that.backUrl, '===', url);
-          if (loginBackurl) {
+          console.log('that.backUrl', that.backUrl, '===');
+          if (loginBackurl&&loginBackurl.indexOf('accountExec')==-1) {
             // url = that.getDecodeUrl(url);
             // if (url && url.lastIndexOf('backUrl=') !== -1) {
             //   url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
@@ -344,6 +362,7 @@
         let self = this;
         // 公众号环境获取回调地址(在回调地址中获取code)
         let url = self.getServiceUrl('wx', 'srvwx_public_page_authorization', 'operate');
+        let redirect_uri = self.$api.frontEndAddress.replace('/#/', '/')
         let req = [{
           data: [{
             app_no: self.$api.appNo.wxh5,
@@ -372,6 +391,16 @@
         }
         this.$http.post(url, req).then(response => {
           if (response.data.response[0].response.authUrl) {
+            let fullPath = uni.getStorageSync('loginBackurl')
+            if (!fullPath) {
+              let pages = getCurrentPages()
+              if (pages.length > 1) {
+                fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
+                if(fullPath&&fullPath.indexOf('/publicPages/accountExec/accountExec')==-1){
+                  uni.setStorageSync('loginBackurl', fullPath)
+                }
+              }
+            }
             window.location.href = response.data.response[0].response.authUrl;
           } else {
             uni.showToast({
@@ -463,7 +492,9 @@
             }],
             serviceName: 'srvwx_app_login_verify'
           }];
+
           that.$http.post(url, req).then(response => {
+            console.log('srvwx_app_login_verify', response)
             if (response.data.resultCode === 'SUCCESS' && response.data.response[0].response) {
               console.log('授权成功', response);
               let resData = response.data.response[0].response;
@@ -506,7 +537,7 @@
                     } else if (res.cancel) {
                       console.log('用户点击取消');
                       let loginBackurl = uni.getStorageSync('loginBackurl')
-                      if (loginBackurl) {
+                      if (loginBackurl&&loginBackurl.indexOf('accountExec')==-1) {
                         // loginBackurl = that.getDecodeUrl(loginBackurl)
                         // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
                         // if (url && url.lastIndexOf("backUrl=") !== -1) {
@@ -514,8 +545,14 @@
                         //     8, url.length)
                         console.log("授权成功，准备返回用户界面url", url)
                         // }
+
                         uni.reLaunch({
-                          url: loginBackurl
+                          url: loginBackurl,
+                          fail() {
+                            uni.reLaunch({
+                              url: '/' + loginBackurl,
+                            })
+                          }
                         })
                       } else {
                         uni.reLaunch({
@@ -554,7 +591,7 @@
                 uni.hideToast();
                 uni.hideLoading();
                 let loginBackurl = uni.getStorageSync('loginBackurl')
-                if (url && url !== '/') {
+                if (loginBackurl && loginBackurl !== '/'&&loginBackurl.indexOf('accountExec')==-1) {
                   // url = that.getDecodeUrl(url);
                   // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
                   // if (url && url.lastIndexOf('backUrl=') !== -1) {
@@ -562,8 +599,13 @@
                   //   // console.log("授权成功，准备返回用户界面url",url)
                   // }
                   uni.reLaunch({
-                    url: loginBackurl
-                  });
+                    url: loginBackurl,
+                    fail() {
+                      uni.reLaunch({
+                        url: '/' + loginBackurl,
+                      })
+                    }
+                  })
                 } else {
                   uni.reLaunch({
                     url: that.$api.homePath
@@ -807,11 +849,14 @@
     height: 100%;
     background-color: #fff;
 
+    /* #ifdef H5 */
     @media screen and(min-width:600px) {
       background-color: #CCCED3;
       background: url(./bg.png) no-repeat;
       background-size: 100% 100%;
     }
+
+    /* #endif */
 
     .images {
       width: 100%;

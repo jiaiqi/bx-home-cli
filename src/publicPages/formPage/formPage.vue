@@ -421,6 +421,7 @@
           case 'submit':
             if (req) {
               let data = this.deepClone(req);
+              debugger
               data.child_data_list = []
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0) {

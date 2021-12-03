@@ -282,11 +282,13 @@
         return res
       },
       openSwitchHomePage() {
-        this.selectInStore().then(_ => {
-          if (Array.isArray(this.storeList) && this.storeList.length > 1) {
+        if (Array.isArray(this.storeList) && this.storeList.length > 1) {
+          this.showHomePageSelector = !this.showHomePageSelector
+        } else {
+          this.selectInStore().then(_ => {
             this.showHomePageSelector = !this.showHomePageSelector
-          }
-        })
+          })
+        }
       },
       getConfig(pageItem) {
         if (pageItem && pageItem.type) {
@@ -625,7 +627,7 @@
             this.bindUserInfo = isBind
 
             if (this.inviterInfo?.invite_user_no && this.bindUserInfo.invite_user_no !== this.inviterInfo
-              .invite_user_no && this.inviterInfo.invite_user_no !== 'jiaqi') {
+              .invite_user_no) {
               await this.updateStoreUserInfo({
                 invite_user_no: this.inviterInfo.invite_user_no,
               })
@@ -737,9 +739,9 @@
               content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
               showCancel: false,
               success(res) {
-                if(res.confirm){
+                if (res.confirm) {
                   uni.reLaunch({
-                    url:'/pages/index/index'
+                    url: '/pages/index/index'
                   })
                 }
               }
@@ -1146,7 +1148,7 @@
           // 	icon: 'none'
           // })
         }
-
+        this.selectInStore()
       },
     },
     onPullDownRefresh() {

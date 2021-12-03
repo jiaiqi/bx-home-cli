@@ -1,7 +1,8 @@
 <template>
   <view class="notice-wrap" v-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
     <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
-      :type="theme" :color="color" :duration="duration" @click="clickNotice"></u-notice-bar>
+      :type="theme" :color="color" :duration="duration" @click="clickNotice">
+      </u-notice-bar>
   </view>
   <view class="notice-wrap" :style="[calcStyle]" v-else-if="pageItem&&noticeList&&noticeList.length>0">
     <view class="notice-item" v-for="item in noticeList" :key="item.id" @click="handelClick(item)" :style="{
