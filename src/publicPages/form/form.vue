@@ -43,7 +43,7 @@
         condition: null,
         fieldsCond: [],
         params: {},
-        defaultVal: null,
+        defaultVal: {},
         showChildService: false,
         successTip: '操作成功',
         afterSubmit: 'back', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页,close:关闭当前页面 仅pc端框架内嵌页面中有用
@@ -728,22 +728,6 @@
           //   this.valueChange(fieldModel, item)
           // }
         }
-      },
-      async getFieldsModel(srv) {
-        let app = this.appName || uni.getStorageSync('activeApp');
-        let serviceName = this.getServiceName(srv);
-        let url = this.getServiceUrl(app, serviceName, 'select');
-        let req = {
-          serviceName: serviceName,
-          colNames: ['*'],
-          condition: this.condition ? this.condition : [],
-          page: {
-            pageNo: 1,
-            rownumber: 10
-          }
-        };
-        let res = await this.$http.post(url, req);
-        if (res.data.state === 'SUCCESS') {}
       },
       getServiceName(srv) {
         let len = srv.lastIndexOf('_');

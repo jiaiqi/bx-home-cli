@@ -183,7 +183,7 @@
         path: path
       };
     },
-    onLoad(option) {
+    async onLoad(option) {
       if (option.article) {
         this.articleData = JSON.parse(decodeURIComponent(option.article));
       }
@@ -218,7 +218,7 @@
           option.from = 'share'
         }
       }
-
+      await this.toAddPage()
       this.checkOptionParams(option);
 
       if (option.content_no) {

@@ -118,7 +118,7 @@
                 {{ item.num || 0 }}
               </view>
               <view class="box-item-content">
-                <text class="cu-tag breathe" v-if="item.num == true"></text>
+                <text class="cu-tag breathe" v-if="item.num === true"></text>
                 <text class="cu-tag badge" v-else-if="item.num && item.label !== '用户列表'">{{ item.num }}</text>
                 <text class="cu-tag badge-left" v-if="item.unback">{{
                   item.unback
@@ -1205,10 +1205,29 @@
         let req = {
           "colNames": ["*"],
           "serviceName": serviceName,
+          "condition": [],
           "page": {
             "pageNo": 1,
             "rownumber": 1
           }
+        }
+        if (Array.isArray(e.condition) && e.condition.length > 0) {
+          let data = {
+            bindUserInfo: this.bindUserInfo,
+            storeInfo: this.storeInfo,
+            userInfo: this.userInfo
+          }
+          e.condition.forEach(item => {
+            let obj = {
+              colName: item.colName,
+              ruleType: 'eq',
+              value: item.value
+            }
+            if (item.value && item.value.indexOf('${') !== -1) {
+              obj.value = this.renderStr(item.value, data)
+            }
+            req.condition.push(obj)
+          })
         }
         let url = this.getServiceUrl(app, serviceName, 'select');
         let res = await this.$http.post(url, req)

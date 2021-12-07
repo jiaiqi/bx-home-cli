@@ -384,10 +384,10 @@
           }
         } catch (e) {
           //TODO handle the exception
-          uni.showToast({
-            title: typeof e === 'string' ? e : JSON.stringify(e),
-            icon: 'none'
-          });
+          // uni.showToast({
+          //   title: typeof e === 'string' ? e : JSON.stringify(e),
+          //   icon: 'none'
+          // });
         }
         this.$http.post(url, req).then(response => {
           if (response.data.response[0].response.authUrl) {

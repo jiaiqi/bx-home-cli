@@ -179,6 +179,7 @@
         path += `&rowData=${JSON.stringify(_data.rowData)}`
       }
       let imageUrl = this.getImagePath(this.storeInfo?.image, true);
+      debugger
       this.saveSharerInfo(this.userInfo, path);
 
       return {
@@ -187,7 +188,8 @@
         path: path
       };
     },
-    onLoad(option) {
+    async onLoad(option) {
+      await this.toAddPage()
       if (option.destApp) {
         this.appName = option.destApp
       }

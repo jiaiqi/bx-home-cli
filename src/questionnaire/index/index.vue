@@ -950,7 +950,7 @@
         imageUrl: imageUrl,
       };
     },
-    onLoad(option) {
+    async onLoad(option) {
       // #ifdef MP-WEIXIN
       wx.showShareMenu({
         withShareTicket: true,
@@ -994,6 +994,7 @@
       if (questionData) {
         questionData = JSON.parse(decodeURIComponent(option.questionData));
       }
+      await this.toAddPage()
       if (questionData && questionData.fill_batch_no) {
         this.formType = 'detail';
         this.questionData = questionData;

@@ -44,6 +44,7 @@ let remoteAddress = {
   homePath: "/storePages/home/home", // 首页路径， 配置完整路径
 }
 
+// #ifdef H5
 if (top?.window?.pathConfig?.gateway) {
   remoteAddress.serviceAddress = top?.window?.pathConfig?.gateway
 }
@@ -51,6 +52,7 @@ if (top?.window?.pathConfig?.gateway) {
 if (top?.window?.pathConfig?.ws_gateway) {
   remoteAddress.wsAddr = top?.window?.pathConfig?.ws_gateway
 }
+// #endif
 
 let ENV = {
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址

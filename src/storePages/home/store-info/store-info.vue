@@ -9,7 +9,7 @@
           <view class="store-name">
             {{storeInfo.name||''}}
           </view>
-          <view class="store-address" @click.stop="getCurrentLocation" v-if="storeInfo.address">
+          <view class="store-address can-wrap" @click.stop="getCurrentLocation" v-if="storeInfo.address">
             <text class="cuIcon-locationfill margin-right-xs"></text>
             {{storeInfo.address||''}}
           </view>
@@ -446,6 +446,12 @@
             font-weight: normal;
             color: #B8BAC0;
             margin-top: 10rpx;
+            &.can-wrap{
+              width: 100%;
+              overflow: auto;
+              text-overflow: initial;
+              white-space: initial;
+            }
           }
 
         }

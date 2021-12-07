@@ -161,12 +161,12 @@
             switch (this.pageType) {
               case 'update':
                 for (let key in defaultValue) {
-                  model[key] = defaultValue[key];
+                  model[key] = model[key] || defaultValue[key];
                 }
                 for (let key in this.fieldModel) {
-                  if (this.oldFieldModel[key] !== this.fieldModel[key]) {
-                    model[key] = this.fieldModel[key];
-                  }
+                  // if (this.oldFieldModel[key] !== this.fieldModel[key]) {
+                  model[key] = this.fieldModel[key];
+                  // }
                 }
                 break;
               case 'add':
@@ -227,7 +227,7 @@
                     .colData) !==
                   true && Object.keys(e.colData).length > 0) {
                   item.old_value = item.value
-                  item.value = e.colData[item.redundant.refedCol]||item.value;
+                  item.value = e.colData[item.redundant.refedCol] || item.value;
                   let dependFields = this.allField.reduce((res, cur) => {
                     if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
                       res.push(cur.column)
@@ -259,23 +259,23 @@
                   }
                 }
               }
-              console.log('handlerReduant',item.column,item.value)
+              console.log('handlerReduant', item.column, item.value)
               this.fieldModel[item.column] = item.value;
               // this.$emit('value-blur', this.fieldModel, item);
             }
           }
         }
-        return 
+        return
       },
       setFieldModel(e) {
-        console.log('setFieldModel',e.column,e.value)
+        console.log('setFieldModel', e.column, e.value)
         this.fieldModel[e.column] = e.value;
       },
       async onValChange(e) {
         // 保存已经发生变化的字段值
         console.log('onValChange', e.column, e.value)
         if (e.type === 'number' || e.type === 'digit') {
-          e.value = e.value!==null&&e.value!==undefined? Number(e.value):null;
+          e.value = e.value !== null && e.value !== undefined ? Number(e.value) : null;
         }
         this.fieldModel[e.column] = e.value;
         const fieldModel = this.fieldModel;
@@ -291,7 +291,7 @@
         if (dependFields && dependFields.length > 0) {
           // debugger
           await this.handlerReduant(e, dependFields)
-        }else{
+        } else {
           // debugger
           // this.handlerReduant(e)
         }
@@ -339,7 +339,7 @@
       },
       onValBlur(e) {
         if (e.hasOwnProperty('value')) {
-          console.log('onValBlur',e.column,e.value)
+          console.log('onValBlur', e.column, e.value)
           this.fieldModel[e.column] = e.value;
           // this.$emit('value-blur', this.fieldModel, e);
         }
@@ -363,7 +363,7 @@
           this.allField = this.oldField.map((item, index) => {
             this.$refs.fitem[index].fieldData.value = item.value;
             this.fieldModel[item.columns] = item.value
-            console.log('onReset',item.column,item.value)
+            console.log('onReset', item.column, item.value)
             if (this.pageType === 'filter') {
               if (item.defaultValue) {
                 item.value = item.defaultValue

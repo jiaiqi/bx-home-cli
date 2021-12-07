@@ -150,6 +150,7 @@ export default {
 		};
 	},
 	async onLoad() {
+    await this.toAddPage()
 		let userInfo = uni.getStorageSync('current_user_info');
 		let current_user_info = await this.selectBasicUserList();
 		if (current_user_info && current_user_info.userno) {

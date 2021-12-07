@@ -174,8 +174,3 @@ fileU.onProgressUpdate(e => console.log(e)) // { progress: 2， totalBytesExpect
 
 #### 默认所有服务器响应不为 [200, 401] 的请求会被视为请求失败，会被 catch 和被 onerror 监听，如果想要更多请求不被 catch 。可以在实例化时配置 statusCode: [201, 302, ...]
 
-onerror
-
-![onerror](https://raw.githubusercontent.com/yinchengnuo/uni_request/master/mde.png)
-
-

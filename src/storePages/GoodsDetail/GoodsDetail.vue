@@ -241,7 +241,6 @@
           uni.getImageInfo({
             src: firstImage,
             success: function(image) {
-              debugger
               let windowWidth = uni.getSystemInfoSync().windowWidth;
               self.imgHeight = windowWidth * image.height / image.width
               // console.log(image.width);
@@ -377,7 +376,7 @@
         path: path
       };
     },
-    onLoad(option) {
+    async onLoad(option) {
       if (option.hideButton) {
         this.hideButton = true
       }
@@ -397,7 +396,7 @@
       if (option.phone) {
         this.phone = option.phone
       }
-
+      await this.toAddPage()
       if (option.goods_no) {
         this.getGoodsInfo(option.goods_no);
       }

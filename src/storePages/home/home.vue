@@ -360,17 +360,17 @@
             case '按钮组':
               keys = ['show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
                 'component_no', 'show_public_button', 'row_number', 'margin', 'listdata', 'show_label',
-                'component_label', 'prompt'
+                'component_label', 'prompt','more_config'
               ]
               break;
             case '商品列表':
-              keys = ['row_number', 'margin', 'listdata']
+              keys = ['row_number', 'margin', 'listdata','more_config']
               break;
             case '人员列表':
               keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata', 'more_config']
               break;
             case '文章列表':
-              keys = ['category_no', 'row_number', 'article_style', 'margin']
+              keys = ['category_no', 'row_number', 'article_style', 'margin','more_config']
               break;
             case '轮播图':
               // keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home', 'more_config']
@@ -1218,30 +1218,30 @@
         // 检测是否已关注公众号
         this.checkSubscribeStatus()
       }
-      if (this.storeNo) {
-        if (this.userInfo && this.userInfo.no) {
-          // uni.startPullDownRefresh()
-          setTimeout(() => {
-            this.initPage()
-          }, 1000);
-        } else {
-          const option = {
-            store_no: this.storeNo
-          }
-          this.checkOptionParams(option);
-          this.toAddPage().then(_ => {
-            uni.startPullDownRefresh()
-          })
-        }
-      } else {
+      // if (this.storeNo) {
+      //   if (this.userInfo && this.userInfo.no) {
+      //     // uni.startPullDownRefresh()
+      //     setTimeout(() => {
+      //       this.initPage()
+      //     }, 1000);
+      //   } else {
+      //     const option = {
+      //       store_no: this.storeNo
+      //     }
+      //     this.toAddPage().then(_ => {
+      //       uni.startPullDownRefresh()
+      //     })
+      //   }
+      // } else {
 
-      }
+      // }
     },
     onShareAppMessage() {
       let path =
         `pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no
       }`;
       let title = `${this.userInfo.name}邀请您使用【${this.StoreInfo.name}】`;
+      // title = `${this.userInfo.name}邀请您使用【呼吸健康云助手】，【呼吸健康云助手】 -- 集患者服务，呼吸筛查，医生助理，科学研究为一体的功能性小程序`
       let imageUrl = this.getImagePath(this.StoreInfo.image, true);
       if (this.StoreInfo?.logo) {
         imageUrl = this.getImagePath(this.StoreInfo.logo, true);

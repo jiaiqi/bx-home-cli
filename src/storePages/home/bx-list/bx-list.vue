@@ -120,7 +120,7 @@
           },
           cols: this.listConfig?.cols || config?.cols
         }
-        if(typeof obj.item_style==='object'){
+        if (typeof obj.item_style === 'object') {
           obj.item_style = JSON.stringify(obj.item_style)
         }
         return obj
@@ -471,9 +471,23 @@
             req.condition.push(obj)
           })
         }
+
+        if (Array.isArray(this.config?.relation_condition) && this.config.relation_condition.length > 0) {
+          let data = {
+            userInfo: this.$store?.state?.user?.userInfo,
+            storeInfo: this.$store?.state?.app?.storeInfo,
+            bindUserInfo: this.$store?.state?.user?.storeUserInfo
+          }
+          try {
+            req.relation_condition = JSON.parse(this.renderStr(JSON.stringify(this.config?.relation_condition), data))
+          } catch (err) {
+            console.log(err)
+          }
+        }
         if (Array.isArray(initCond) && initCond.length > 0) {
           req.condition = [...req.condition, ...initCond]
         }
+        
 
         let keywords = this.searchVal;
 

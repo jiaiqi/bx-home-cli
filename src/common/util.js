@@ -2089,8 +2089,8 @@ export default {
           req[0].data[0].add_store_no = inviterInfo.add_store_no
           req[0].data[0].home_store_no = inviterInfo.add_store_no
         } else {
-          req[0].data[0].add_store_no = 'S20210204016'
-          req[0].data[0].home_store_no = 'S20210204016'
+          // req[0].data[0].add_store_no = 'S20210204016'
+          // req[0].data[0].home_store_no = 'S20210204016'
         }
       } catch (e) {}
       if (store.state.user.userInfo && store.state.user.userInfo.no) {

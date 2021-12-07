@@ -18,8 +18,6 @@ export default {
       }
     };
   },
-  onShareAppMessage () { },
-  onShareTimeline () { },
   onUnload () {
     uni.$emit('backFromWebview')
   },
