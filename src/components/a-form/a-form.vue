@@ -302,6 +302,7 @@
           if (e?.moreConfig?.val_trigger) {
             let val_trigger = e?.moreConfig?.val_trigger;
             if (val_trigger.col === item.column || val_trigger.col.indexOf(item.column) !== -1) {
+              debugger
               let val = await this.getTriggerVal(val_trigger, this.fieldModel)
               if (val && val[item.column]) {
                 item.value = val[item.column];

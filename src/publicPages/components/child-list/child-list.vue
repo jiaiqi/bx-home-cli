@@ -1672,7 +1672,7 @@
 
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
-          if (fkInitVal && fkInitVal[item.column] && item.display !== false) {
+          if (fkInitVal && fkInitVal[item.column](item.display !== false || item.in_update !== 0)) {
             if (!item.value) {
               let obj = {
                 mainData: this.mainData
@@ -1837,7 +1837,7 @@
 
           let fkInitVal = this.fkInitVal
           // if (fkInitVal[item.column]&&item.display!==false) {
-          if (fkInitVal && fkInitVal[item.column] && item.display !== false) {
+          if (fkInitVal && fkInitVal[item.column] && (item.display !== false || item.in_add !== 0)) {
             // if(!item.value){
             let obj = {
               mainData: this.mainData

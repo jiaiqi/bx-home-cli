@@ -293,7 +293,7 @@
         }]
         if (this.userInfo?.no) {
           let listConfig = {
-            navTitle:"切换店铺",
+            navTitle: "切换店铺",
             listBarReadonly: true,
             show_public_btn: false,
             padding: '0px',
@@ -315,7 +315,7 @@
                   disp_label: false,
                   'font_weight': 600,
                   font_size: '16px',
-                  width:'100%'
+                  width: '100%'
                 }
               },
               {
@@ -360,17 +360,17 @@
             case '按钮组':
               keys = ['show_subscribe', 'show_related_group', 'navigate_type', 'button_style',
                 'component_no', 'show_public_button', 'row_number', 'margin', 'listdata', 'show_label',
-                'component_label', 'prompt','more_config'
+                'component_label', 'prompt', 'more_config'
               ]
               break;
             case '商品列表':
-              keys = ['row_number', 'margin', 'listdata','more_config']
+              keys = ['row_number', 'margin', 'listdata', 'more_config']
               break;
             case '人员列表':
               keys = ['user_role', 'row_number', 'component_label', 'margin', 'listdata', 'more_config']
               break;
             case '文章列表':
-              keys = ['category_no', 'row_number', 'article_style', 'margin','more_config']
+              keys = ['category_no', 'row_number', 'article_style', 'margin', 'more_config']
               break;
             case '轮播图':
               // keys = ['swiper_image', 'image_origin', 'margin', 'show_set_home', 'more_config']
@@ -682,9 +682,14 @@
 
             if (this.inviterInfo?.invite_user_no && this.bindUserInfo.invite_user_no !== this.inviterInfo
               .invite_user_no) {
-              await this.updateStoreUserInfo({
+              let data = {
                 invite_user_no: this.inviterInfo.invite_user_no,
-              })
+              }
+              let inviterStoreUser = await this.getInviteStoreUser(this.inviterInfo.invite_user_no)
+              if (inviterStoreUser && inviterStoreUser.store_user_no) {
+                data.invite_store_user_no = inviterStoreUser.store_user_no
+              }
+              await this.updateStoreUserInfo(data)
             }
             this.push_msg_set = this.bindUserInfo.push_msg_set
             this.member_status = this.bindUserInfo.member_status
@@ -694,6 +699,24 @@
           }
         } else {
           this.isBind = false
+        }
+      },
+      async getInviteStoreUser(user_no) {
+        let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select')
+        let req = {
+          "serviceName": "srvhealth_store_user_select",
+          condition: [{
+            colName: 'user_account',
+            ruleType: 'eq',
+            value: user_no
+          }]
+        }
+        if (!user_no) {
+          return
+        }
+        let res = await this.$http.post(url, req)
+        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          return res.data.data[0]
         }
       },
       async updateStoreUserInfo(e) {
