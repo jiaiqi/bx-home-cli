@@ -680,8 +680,7 @@
             }
             this.bindUserInfo = isBind
 
-            if (this.inviterInfo?.invite_user_no && this.bindUserInfo.invite_user_no !== this.inviterInfo
-              .invite_user_no) {
+            if (this.inviterInfo?.invite_user_no) {
               let data = {
                 invite_user_no: this.inviterInfo.invite_user_no,
               }
@@ -704,12 +703,22 @@
       async getInviteStoreUser(user_no) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select')
         let req = {
+          colNames:["*"],
           "serviceName": "srvhealth_store_user_select",
           condition: [{
-            colName: 'user_account',
-            ruleType: 'eq',
-            value: user_no
-          }]
+              colName: 'user_account',
+              ruleType: 'eq',
+              value: user_no
+            },
+            {
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: this.StoreInfo.store_no
+            }
+          ],
+          page:{
+            rownumber:1
+          }
         }
         if (!user_no) {
           return

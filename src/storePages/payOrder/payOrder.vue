@@ -173,6 +173,7 @@
         loginUserInfo: state => state.user.loginUserInfo,
         cartInfo: state => state.order.cartInfo,
         storeInfo: state => state.app.storeInfo,
+        storeUserInfo: state => state.user.storeUserInfo,
         theme: state => state.app.theme
       }),
       needIdNum() {
@@ -487,6 +488,7 @@
             person_no: this.userInfo.no,
             person_name: this.userInfo.name,
             user_account: this.userInfo.userno,
+            store_user_no: this.storeUserInfo.store_user_no,
             nick_name: this.userInfo.nick_name ? this.userInfo.nick_name.replace(
               /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : '',
             profile_url: this.userInfo.profile_url,

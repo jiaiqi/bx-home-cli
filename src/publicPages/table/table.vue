@@ -36,7 +36,8 @@
               <text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
               <text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
               <text v-else-if="col.col_type=='Time'">{{item[col.columns]?item[col.columns].slice(0,5):''}}</text>
-              <image class="image" :src="getImagePath(item[col.columns],true)" @click.stop="toPreviewImage(getImagePath(item[col.columns],true))" mode="aspectFit" v-else-if="col.type==='images'&&item[col.columns]"></image>
+              <image class="image" :src="getImagePath(item[col.columns],true)" mode="aspectFit"
+                v-else-if="col.type==='images'&&item[col.columns]"></image>
               <text v-else> {{item[col.columns]||''}}</text>
             </view>
           </view>
@@ -1170,7 +1171,8 @@
         &:last-child {
           border-right: none;
         }
-        .image{
+
+        .image {
           width: 100rpx;
           height: 100rpx;
           border-radius: 5px;
