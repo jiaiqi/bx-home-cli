@@ -271,9 +271,11 @@
         return arr
       },
       finalSearchColumn() {
+        debugger
         if (this.moreConfig?.searchColumn) {
           return this.moreConfig.searchColumn
         } else {
+          debugger
           if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
             return this.srvCols.reduce((res, cur) => {
               if (!['id', 'create_time', 'create_user', 'create_user_disp', 'del_flag', 'modify_time',
