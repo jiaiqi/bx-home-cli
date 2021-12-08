@@ -228,48 +228,14 @@
           let confirmText = this.params?.button_name || '确定'
           this.dialogContent = '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。'
           this.showDialog = true;
-
-          // uni.showModal({
-          //   title: '提示',
-          //   content: '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。',
-          //   showCancel: false,
-          //   confirmText: confirmText,
-          //   success: (res) => {
-          //     if (res.confirm) {
-          //       this.toNextPages()
-          //     }
-          //   }
-          // })
         } else if (this.activity_no === '20211008104446000006' && newValue === this.activity_no) {
           // ESS 嗜睡問卷調查
           let confirmText = this.params?.button_name || '确定'
           this.dialogContent = '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查。'
           this.showDialog = true;
-          // uni.showModal({
-          //   title: '提示',
-          //   content: '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查',
-          //   showCancel: false,
-          //   confirmText: confirmText,
-          //   success: (res) => {
-          //     if (res.confirm) {
-          //       this.toNextPages()
-          //     }
-          //   }
-          // })
         } else if (this.activity_no === '20210929120256000001' && newValue === this.activity_no) {
           // stop bang
           let confirmText = this.params?.button_name || '确定'
-          // uni.showModal({
-          //   title: '提示',
-          //   content: '有三项及以上回答为是，符合OSAS高危人群的特征',
-          //   showCancel: false,
-          //   confirmText: confirmText,
-          //   success: (res) => {
-          //     if (res.confirm) {
-          //       this.toNextPages()
-          //     }
-          //   }
-          // })
           this.dialogContent = '有三项及以上回答为是，符合OSAS高危人群的特征'
           this.showDialog = true;
         } else if (['20210929120256000001', '20211008104446000006', '20211027112223000007'].includes(this
@@ -305,6 +271,59 @@
       }
     },
     methods: {
+      calcScore(resultData) {
+        let questArr = ['20211008104446000006', '20210929120256000001', '20211027112223000007']
+        if (questArr.includes(this.activity_no)) {
+          if (this.activity_no === '20210929120256000001') {
+            // stop bang
+            let num = Object.keys(resultData).reduce((res, cur) => {
+              if (resultData[cur] && resultData[cur].indexOf('是') !== -1) {
+                res++
+              }
+              return res
+            }, 0)
+            if (num >= 3) {
+              return '有三项及以上回答为是，符合OSAS高危人群的特征'
+            }
+          } else if (this.activity_no === '20211008104446000006') {
+            // ESS 嗜睡問卷調查
+            let score = Object.keys(resultData).reduce((res, cur) => {
+              if (resultData[cur] && resultData[cur].indexOf('很少') !== -1) {
+                res += 1
+              } else if (resultData[cur] && resultData[cur].indexOf('一半以上') !== -1) {
+                res += 2
+              } else if (resultData[cur] && resultData[cur].indexOf('几乎都会') !== -1) {
+                res += 3
+              }
+              return res
+            }, 0)
+            if (score > 12) {
+              return '您可能患有睡眠呼吸暂停，建议您做进一步预约，用专业的筛查设备进行睡眠筛查。'
+            }
+          } else if (this.activity_no === '20211027112223000007') {
+            // 肺病筛查
+            let score = Object.keys(resultData).reduce((res, cur) => {
+              let val = resultData[cur]
+              if (val) {
+                if (val.indexOf('有时感觉气短') !== -1 || val.indexOf('每月都咳几天') !== -1 || val.indexOf('大多数日子都咳') !== -1 ||
+                  val.indexOf('同意') !== -1) {
+                  res += 1
+                } else if (val.indexOf('经常感觉气短') !== -1 || val.indexOf('总是感觉气短') !== -1 || val.indexOf('每天都咳') !== -
+                  1 || val.indexOf('非常同意') !== -1 || val === '是' || val.indexOf('50') !== -1) {
+                  res += 2
+                }
+              }
+              return res
+            }, 0)
+            if (score >= 5) {
+              return '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。'
+            }
+          }else{
+            return '健康状况良好'
+          }
+        }
+
+      },
       toNextPages() {
         if (this.params && typeof this.params === 'object') {} else {
           return
@@ -484,6 +503,9 @@
                       resultData.push(obj);
                     }
                   });
+                  console.log(self.dialogContent, 'dialogContent')
+                  let survey_result = self.calcScore(itemData)
+                  debugger
                   let serviceName = 'srvdaq_activity_result_submit';
                   const url = self.getServiceUrl(self.appName ? self.appName : 'daq',
                     serviceName, 'operate');
@@ -492,6 +514,7 @@
                     data: [{
                       fill_batch_no: self.fill_batch_no,
                       activity_no: self.activity_no,
+                      survey_result: survey_result,
                       user_name: self.userInfo?.name || self.userInfo?.nick_name,
                       user_phone: self.userInfo?.phone || self.userInfo?.phone_xcx,
                       item_data: resultData
@@ -1141,15 +1164,18 @@
     }
   }
 
-  .dialog-content,.dialog-title{
+  .dialog-content,
+  .dialog-title {
     display: flex;
     align-items: center;
-    .text{
+
+    .text {
       flex: 1;
       text-align: left;
       margin-left: 10px;
     }
   }
+
   .score-box {
     height: 100rpx;
     display: flex;

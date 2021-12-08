@@ -721,6 +721,21 @@
         if (this.showCheckBox) {
           return
         }
+        if(this.moreConfig?.customDetailUrl){
+          let data = {
+            rowData:row,
+            userInfo:this.$store?.state?.user?.userInfo,
+            storeInfo:this.$store?.state?.app?.storeInfo,
+            bindUserInfo:this.$store?.state?.user?.storeUserInfo
+          }
+          let url = this.renderStr(this.moreConfig?.customDetailUrl,data)
+          uni.navigateTo({
+            url:url
+          })
+          return 
+        }
+        
+        
         if (row && row.id) {
           let fieldsCond = [{
             column: 'id',

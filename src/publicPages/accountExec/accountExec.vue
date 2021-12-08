@@ -792,7 +792,6 @@
             let model = getApp().globalData?.systemInfo?.model;
             // #ifdef H5
             url2 = ''
-            debugger
             let pages = getCurrentPages()
             url2 = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
             if (url2) {

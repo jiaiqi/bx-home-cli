@@ -78,16 +78,17 @@
       <view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
         <view class="selector-tip"
           v-if="selectorData.length===0&&setOptionList.length===0&&!fkFieldLabel&&!fieldData.value"
-          @click="getSelectorData(null, null, null)">
+          @click="openModal(fieldData.type)">
           请选择
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
-        <view class="" v-else-if="selectorData.length===0&&fkFieldLabel">
+        <view class="" v-else-if="selectorData.length===0&&fkFieldLabel" @click="openModal(fieldData.type)">
           {{fkFieldLabel}}
+          <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view v-else-if="
-            (setOptionList.length < 15 && fieldData.type === 'Set') ||
-            (selectorData.length <= 4 && fieldData.type === 'Selector')
+            (setOptionList.length < 5 && fieldData.type === 'Set') ||
+            (radioOptions.length <= 4 && fieldData.type === 'Selector')
           ">
           <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
             v-model="fieldData.value" mode="button" @change="onBlur">
@@ -102,7 +103,7 @@
           </bx-radio-group>
         </view>
         <view @click="openModal(fieldData.type)" class="open-popup" v-else>
-          <view class="place-holder" v-if="!fieldData.value" @click="getSelectorData(null, null, null)">
+          <view class="place-holder" v-if="!fieldData.value">
             <text>{{!fieldData.disabled?'请选择':''}}</text>
             <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
           </view>
@@ -237,7 +238,7 @@
               </bx-checkbox-group>
               <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
                 v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
-                <bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
+                <bx-radio v-for="item in radioOptions" :name="item.value">{{ item.label }}
                 </bx-radio>
               </bx-radio-group>
             </view>
@@ -998,11 +999,12 @@
         }
         // this.$emit('on-value-change', this.fieldData);
       },
-      openModal(type) {
+      async openModal(type) {
         // 打开弹出层
         if (this.fieldData.disabled) {
           return
         }
+        debugger
         let fieldData = this.deepClone(this.fieldData);
         switch (type) {
           case 'Set':
@@ -1017,9 +1019,11 @@
             }
             break;
           case 'Selector':
+            await this.getSelectorData(null, null, null)
             this.modalName = 'Selector';
             break;
           case 'TreeSelector':
+            await this.getSelectorData(null, null, null)
             this.modalName = 'TreeSelector';
             break;
         }

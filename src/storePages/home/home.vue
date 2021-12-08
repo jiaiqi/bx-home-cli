@@ -701,10 +701,10 @@
         }
       },
       async getInviteStoreUser(user_no) {
-        let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select')
+        let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select')
         let req = {
           colNames:["*"],
-          "serviceName": "srvhealth_store_user_select",
+          "serviceName": "srvhealth_store_user_share_select",
           condition: [{
               colName: 'user_account',
               ruleType: 'eq',
