@@ -95,6 +95,7 @@
           })
           let ignoreType = ['images', 'input', 'text', 'number']
           ignoreType = ['images']
+          console.log(this.deepClone(filterCols))
           this.filterCols = filterCols.filter(item => item.in_cond === 1 && item.in_list === 1 && !ignoreType
             .includes(item.type) && !/^\_.*\_disp$/.test(item.column))
         }

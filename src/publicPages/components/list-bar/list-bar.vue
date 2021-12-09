@@ -203,6 +203,11 @@
     methods: {
       isShowBtn(btn) {
         let handlerBtn = ['add', 'delete']
+        if(btn.button_type==='order'){
+          if(this.orderCols.length===0){
+            return false
+          }
+        }
         if (this.readonly && handlerBtn.includes(btn.button_type)) {
           return false
         }

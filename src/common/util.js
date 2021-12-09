@@ -253,6 +253,7 @@ export default {
           }
           fieldInfo.defaultValue = item.init_expr
           fieldInfo.value = item.init_expr
+          
         }
         fieldInfo.option_list_v2 = item.option_list_v2
         fieldInfo.bx_col_type = item.bx_col_type

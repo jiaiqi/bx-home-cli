@@ -341,7 +341,8 @@
       async getCountData(count_config) {
         if (count_config && Array.isArray(count_config.condition) && count_config.condition.length > 0) {
           let data = {
-            storeInfo: this.$store?.state?.app?.storeInfo
+            storeInfo: this.storeInfo,
+            userInfo:this.userInfo
           }
           count_config.condition = count_config.condition.map(item => {
             if (item.value && item.value.indexOf('${') !== -1) {
@@ -365,8 +366,19 @@
             }
             let url = this.getServiceUrl(appName, serviceName, 'select');
             let res = await this.$http.post(url, req);
-            if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-              let data = res.data.data[0]
+            if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) ) {
+              let data = {
+                
+              }
+              if( res.data.data.length > 0){
+                data = res.data.data[0]
+              }else{
+                data = count_config.labelMap.map(item=>{
+                  item.value = '0';
+                  return item
+                })
+              }
+              
               if (Array.isArray(count_config.labelMap)) {
                 let result = count_config.labelMap.map(item => {
                   item.value = data[item.col];

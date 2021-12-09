@@ -102,7 +102,7 @@
         queryCond: null,
         orderList: [],
         searchWords: '',
-        showSearchBar: false,
+        showSearchBar: true,
         listButton: [],
         descCol: null,
         ascCol: null,

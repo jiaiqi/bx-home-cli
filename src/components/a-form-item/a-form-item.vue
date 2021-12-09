@@ -87,8 +87,8 @@
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view v-else-if="
-            (setOptionList.length < 5 && fieldData.type === 'Set') ||
-            (radioOptions.length <= 4 && fieldData.type === 'Selector')
+            (setOptionList&&setOptionList.length < 5 && fieldData.type === 'Set') ||
+            (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector')
           ">
           <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
             v-model="fieldData.value" mode="button" @change="onBlur">
