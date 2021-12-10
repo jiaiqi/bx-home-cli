@@ -803,7 +803,6 @@
         let self = this
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);
-        debugger
         if (buttonInfo?._buttons) {
           delete buttonInfo._buttons
         }
