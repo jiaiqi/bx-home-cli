@@ -154,9 +154,186 @@
           phoneNumber: this.phone || '10086' //仅为示例
         });
       },
+      async getCart() {
+        let store_no = this.storeNo || this.storeInfo?.store_no;
+        let service = 'srvhealth_store_shopping_cart_select'
+        let req = {
+          "serviceName": service,
+          "colNames": ["*"],
+          "condition": [{
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: store_no
+            },
+            {
+              colName: 'user_account',
+              ruleType: 'eq',
+              value: this.storeInfo?.store_no
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          }
+        }
+        let app = 'health'
+        let res = await this.$fetch('select', service, req, app)
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          let cartInfo = res.data[0];
+          let goodsList = await this.getCartDetail(res.data[0].cart_no);
+          if (Array.isArray(goodsList)) {
+            cartInfo.goodsList = goodsList
+          } else {
+            cartInfo.goodsList = []
+          }
+          return res.data[0]
+        }
+      },
+      async getCartDetail(cart_no) {
+        let service = 'srvhealth_store_shopping_cart_goods_detail_select'
+        let req = {
+          "serviceName": service,
+          "colNames": ["*"],
+          "condition": [{
+            colName: 'cart_no',
+            ruleType: 'eq',
+            value: cart_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 99
+          }
+        }
+        let res = await this.$fetch('select', service, req, 'health')
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          return res.data
+        }
+      },
+      async addToCart(goods) {
+        if (goods?.goods_no) {
+          let cartInfo = await this.getCart()
+          if (cartInfo) {
+            if (cartInfo.goodsList.find(item => item.goods_no === goods.goods_no)) {
+              cartInfo.goodsList = cartInfo.goodsList.reduce((res, cur) => {
+                if (cur.goods_no === goods.goods_no) {
+                  cur.car_num = car_num + 1
+                }
+                res.push(cur)
+                return res
+              }, [])
+            } else {
+              goods._is_new = true
+              cartInfo.goodsList.push(goods)
+            }
+            this.updateCart(cartInfo)
+          } else {
+            cartInfo = {
+              storeInfo: this.storeInfo,
+              goodsList: [goods]
+            }
+            let service = 'srvhealth_store_shopping_cart_add'
+            let req = [{
+              "serviceName": "srvhealth_store_shopping_cart_add",
+              "condition": [],
+              "data": [{
+                "store_no": this.storeNo,
+                "store_name": this.storeInfo?.name,
+                "order_amount": goods.price,
+                "person_name": this.userInfo.name,
+                "user_account": this.userInfo.userno,
+                "nick_name": this.userInfo.nick_name,
+                "child_data_list": [{
+                  "serviceName": "srvhealth_store_shopping_cart_goods_detail_add",
+                  "condition": [],
+                  "depend_keys": [{
+                    "type": "column",
+                    "add_col": "cart_no",
+                    "depend_key": "cart_no"
+                  }],
+                  "data": [{
+                    "store_no": this.storeNo,
+                    "unit_price": goods.price,
+                    "goods_amount": 1,
+                    "sum_price": goods.price,
+                    "goods_desc": goods.goods_desc,
+                    "goods_image": goods.goods_img,
+                    "goods_name": goods.goods_name
+                  }]
+                }]
+              }]
+            }]
+            this.$fetch('add', service, req, 'health').then(res => {
+              if (res.success) {
+                uni.showToast({
+                  title: '添加成功',
+                })
+              }
+            })
+
+          }
+        }
+
+      },
+      async updateCart(cartInfo) {
+        let goodsList = cartInfo.goodsList;
+        let addGoods = goodsList.filter(item => item._is_new === true)
+        let updateGoods = goodsList.filter(item => item._is_new !== true)
+        if (updateGoods.length > 0) {
+          let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+          let req = [{
+            "serviceName": "srvhealth_store_shopping_cart_goods_detail_update",
+            "condition": [{
+              colName: 'goods_no',
+              ruleType: 'in',
+              value: goodsList.map(item => item.goods_no).toString()
+            }],
+            "data": goodsList.filter(item => item._is_new !== true).map(item => {
+              return {
+                goods_no: item.goods_no,
+                goods_name: item.goods_name,
+                goods_image: item.goods_img,
+                unit_price: item.unit_price,
+                goods_amount: item.car_num || item.goods_amount,
+                sum_price: item.unit_price * item.sum_price
+              }
+            })
+          }]
+          await this.$fetch('update', serviceName, req, 'health').then(res => {
+            if (res.success) {
+              uni.showToast({
+                title: '添加成功',
+              })
+            }
+          })
+        }
+        if (addGoods.length > 0) {
+          let serviceName = 'srvhealth_store_shopping_cart_goods_detail_add'
+          let req2 = [{
+            "serviceName": "srvhealth_store_shopping_cart_goods_detail_add",
+            "data": addGoods.map(item => {
+              return {
+                goods_no: item.goods_no,
+                goods_name: item.goods_name,
+                goods_image: item.goods_img,
+                unit_price: item.unit_price,
+                goods_amount: item.car_num || item.goods_amount,
+                sum_price: item.unit_price * item.sum_price
+              }
+            })
+          }]
+          await this.$fetch('add', serviceName, req, 'health').then(res => {
+            if (res.success) {
+              uni.showToast({
+                title: '添加成功',
+              })
+            }
+          })
+        }
+
+      },
       payOrder(e) {
-        let target_url = this.moreConfig?.target_url || e?.target_url
-        if (target_url) {
+        let target_url = e?.target_url || this.moreConfig?.target_url
+        if (target_url && target_url !== 'add_to_cart') {
           let storeInfo = this.$store?.state?.app?.storeInfo
           let bindUserInfo = this.$store?.state?.user?.storeUserInfo
           let data = {
@@ -167,7 +344,6 @@
             bindUserInfo
           }
           data = this.deepClone(data)
-          debugger
           let url = this.renderStr(target_url, data)
           uni.navigateTo({
             url: url
@@ -183,11 +359,18 @@
         goodsInfo.car_num = 1
         goodsInfo.unit_price = goodsInfo.price
         goodsInfo.type = this.storeInfo?.type
+        if (target_url === 'add_to_cart') {
+          // 添加到购物车表
+          this.addToCart(goodsInfo)
+          return
+        }
         this.$store.commit('SET_STORE_CART', {
           storeInfo: goodsInfo,
           store_no: goodsInfo.store_no,
           list: [goodsInfo]
         });
+
+
         let url = `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no }&goods_info=${encodeURIComponent(
           JSON.stringify(goodsInfo))}`
 
@@ -480,6 +663,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
     image {
       width: 100%;
       height: 100%;

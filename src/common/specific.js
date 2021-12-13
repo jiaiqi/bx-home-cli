@@ -15,7 +15,7 @@ export default {
       store.commit('SET_SUBSCRIBE_STATUS', result)
       return result
     }
-    Vue.prototype.saveSharerInfo = async (userInfo, share_url,share_type) => {
+    Vue.prototype.saveSharerInfo = async (userInfo, share_url, share_type) => {
       // 分享前保存分享人信息
       if (!userInfo) {
         userInfo = store.state.user.userInfo
@@ -24,9 +24,9 @@ export default {
       if (pageInfo && pageInfo.add_url) {
         share_url = pageInfo.add_url
       }
-      if(share_type){
+      if (share_type) {
         share_url += `&share_type=${share_type}`
-      }else{
+      } else {
         share_url += `&share_type=appMessage`
       }
       let url = Vue.prototype.getServiceUrl('health', 'srvhealth_share_record_add', 'operate');
@@ -161,7 +161,7 @@ export default {
           doctor_no: option.doctor_no,
         })
       }
-      let pageInfo = Vue.prototype.getShareParams()
+      let pageInfo = Vue.prototype.getShareParams(option)
       if (pageInfo && pageInfo.add_url) {
         if (option.store_no) {
           store.commit('SET_INVITER_INFO', {
@@ -180,7 +180,7 @@ export default {
         }
       }
     }
-    Vue.prototype.getShareParams = () => {
+    Vue.prototype.getShareParams = (option = {}) => {
       let userInfo = ''
       try {
         userInfo = store.state.user.userInfo
@@ -188,13 +188,13 @@ export default {
         //TODO handle the exception
       }
       if (userInfo) {
-        let pageStack = getCurrentPages()
+        let pageStack = getCurrentPages();
         if (Array.isArray(pageStack) && pageStack.length >= 1) {
           let currentPage = pageStack[pageStack.length - 1]
           store.commit('SET_CURRENT_PAGE', currentPage.route)
           return {
             add_url: currentPage.$page.fullPath ? currentPage.$page.fullPath.slice(0, 400) : '未知页面',
-            invite_user_no: userInfo.no ? userInfo.no : 'undefined'
+            invite_user_no: option.invite_user_no||userInfo?.invite_user_no|| option.doctor_no || 'undefined'
           }
         }
       }

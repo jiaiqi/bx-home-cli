@@ -131,7 +131,8 @@
         globalData: {},
         pt_no: "", // 二维码参数编号
         ptInfo: null,
-        rowData: {}
+        rowData: {},
+        invite_user_no: ""
       };
     },
     computed: {
@@ -703,7 +704,7 @@
       async getInviteStoreUser(user_no) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select')
         let req = {
-          colNames:["*"],
+          colNames: ["*"],
           "serviceName": "srvhealth_store_user_share_select",
           condition: [{
               colName: 'user_account',
@@ -716,8 +717,8 @@
               value: this.StoreInfo.store_no
             }
           ],
-          page:{
-            rownumber:1
+          page: {
+            rownumber: 1
           }
         }
         if (!user_no) {
@@ -865,8 +866,9 @@
             user_image: this.userInfo.user_image,
             "sex": this.userInfo.sex,
             "user_role": "用户",
-            add_url: this.inviterInfo.add_url,
-            invite_user_no: this.inviterInfo.invite_user_no,
+            add_url: this.userInfo?.add_url || this.inviterInfo.add_url,
+            invite_user_no: this.invite_user_no || this.userInfo?.invite_user_no || this.inviterInfo
+              .invite_user_no,
           }]
         }]
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
@@ -1448,7 +1450,9 @@
       }
 
       this.checkOptionParams(option);
-
+      if (option.invite_user_no) {
+        this.invite_user_no = option.invite_user_no
+      }
       await this.toAddPage()
       if (option.pt_no) {
         this.pt_no = option.pt_no

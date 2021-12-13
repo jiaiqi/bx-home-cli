@@ -55,7 +55,11 @@
     </view>
     <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
       <view class="cu-dialog " @click.stop="">
+
         <view class="qrcode-box">
+          <!-- <view class="title">
+            我的推广码
+          </view> -->
           <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
           <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
             @click="toPreviewImage(qrcodePath)">
@@ -63,9 +67,6 @@
           <view class="qr-code-image" v-else @click="makeQrCode">
             <text class="cuIcon-refresh"></text>
           </view>
-    <!--      <view class="store-name">
-            {{storeInfo.name}}
-          </view> -->
         </view>
         <view class="button-box">
           <button @click.stop="hideQrcode" class="cu-btn">关闭</button>
@@ -134,12 +135,12 @@
       bindUserInfo: {
         type: Object,
       },
-   /*   storeInfo: {
-        type: Object,
-      },
-      userInfo: {
-        type: Object,
-      }, */
+      /*   storeInfo: {
+           type: Object,
+         },
+         userInfo: {
+           type: Object,
+         }, */
       pageItem: {
         type: Object,
       },
@@ -976,10 +977,16 @@
     padding: 80rpx 40rpx;
     text-align: center;
     position: relative;
-    .store-name{
+
+    .title {
+      padding: 10px;
+    }
+
+    .store-name {
       margin-top: 10px;
       font-weight: bold;
     }
+
     .store-logo {
       position: absolute;
       width: 100rpx;
@@ -1001,9 +1008,11 @@
       border-radius: 20rpx;
     }
   }
-  .cu-dialog{
+
+  .cu-dialog {
     // width: 100%!important;
   }
+
   .qrcode-canvas {
     position: fixed;
     top: -999px;

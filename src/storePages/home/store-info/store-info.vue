@@ -101,7 +101,11 @@
 
     <view class="cu-modal bottom-modal" :class="{show:modalName==='showQrCode'}" @click="hideModal">
       <view class="cu-dialog " @click.stop="">
+      
         <view class="qrcode-box">
+          <view class="title">
+            我的推广码
+          </view>
           <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
           <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
             @click="toPreviewImage(qrcodePath)">
@@ -789,7 +793,11 @@
     padding: 80rpx 40rpx;
     text-align: center;
     position: relative;
-
+    .title{
+      padding:0 0 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
     .store-name {
       margin-top: 10px;
       font-weight: bold;
