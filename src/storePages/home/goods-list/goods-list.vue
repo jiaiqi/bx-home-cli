@@ -154,7 +154,7 @@
     // column-count: 2;
     // column-gap: 10px;
     padding: 0 5px 20px;
-    min-width: 335px;
+    min-width: 300px;
 
     @media screen and (min-width: 1300px) {
       width: 400px;

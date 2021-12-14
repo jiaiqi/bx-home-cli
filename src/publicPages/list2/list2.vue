@@ -23,15 +23,19 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags>
       <view class="list-view">
-        <list-next class="list-next" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+        <list-next class="list-next" ref="listRef" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
           :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig" :list="list"
           :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart"
-          @del2Cart="del2Cart" />
+          @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
       </view>
 
     </view>
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
+    <cart-bottom :sum-price="sumPrice" ref="cartBottom" @selectAll="selectAllChange" @del="del" :mode="cartMode"
+      @toPlaceOrder="toPlaceOrder" v-if="listType==='cartList'">
+    </cart-bottom>
+
   </view>
 </template>
 
@@ -40,12 +44,14 @@
   import listBar from '../components/list-bar/list-bar.vue'
   import cartList from '../components/goods-cart/goods-cart.vue'
   import countBar from '../components/count-bar/count-bar.vue'
+  import cartBottom from '../components/cart-bottom/cart-bottom.vue'
   export default {
     components: {
       listNext,
       listBar,
       cartList,
-      countBar
+      countBar,
+      cartBottom
     },
     computed: {
       sysModel() {
@@ -271,11 +277,9 @@
         return arr
       },
       finalSearchColumn() {
-        debugger
         if (this.moreConfig?.searchColumn) {
           return this.moreConfig.searchColumn
         } else {
-          debugger
           if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
             return this.srvCols.reduce((res, cur) => {
               if (!['id', 'create_time', 'create_user', 'create_user_disp', 'del_flag', 'modify_time',
@@ -299,9 +303,21 @@
       countConfig() {
         return this.moreConfig?.count_config || {}
       },
+      sumPrice() {
+        if (Array.isArray(this.list)) {
+          let sum = this.list.reduce((res, cur) => {
+            if (cur.checked === true) {
+              res += cur.unit_price * cur.goods_amount * 1000
+            }
+            return res
+          }, 0)
+          return sum / 1000
+        }
+      },
     },
     data() {
       return {
+        cartMode: 'default',
         navigationBarTitle: "",
         hideChildList: false,
         showMockCount: false,
@@ -338,11 +354,95 @@
       }
     },
     methods: {
+      checkboxChange(e) {
+        if (e.cart_goods_rec_no) {
+          this.list = this.list.map(item => {
+            if (e.cart_goods_rec_no === item.cart_goods_rec_no) {
+              item.checked = !item.checked
+            }
+            return item
+          })
+        }
+        if (this.list.every(item => item.checked === true)) {
+          this.$refs.cartBottom.selectAll = true
+        } else {
+          this.$refs.cartBottom.selectAll = false
+        }
+      },
+      selectAllChange(e) {
+        if (e) {
+          this.list = this.list.map(item => {
+            item.checked = true
+            return item
+          })
+        } else {
+          this.list = this.list.map(item => {
+            item.checked = false
+            return item
+          })
+        }
+      },
+      toPlaceOrder() {
+        let list = this.list.filter(item => item.checked === true && item.goods_amount);
+        list = this.deepClone(list)
+        if (list.length > 0) {
+          list = list.map(goodsInfo => {
+            goodsInfo.car_num = goodsInfo.goods_amount
+            goodsInfo.price = goodsInfo.unit_price
+            return goodsInfo
+          })
+
+          this.$store.commit('SET_STORE_CART', {
+            storeInfo: this.storeInfo,
+            store_no: this.storeInfo?.store_no,
+            list: list
+          });
+          let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
+          if (this.wxMchId) {
+            url += `&wxMchId=${this.wxMchId}`
+          }
+          uni.navigateTo({
+            url
+          });
+        }
+      },
+      del() {
+        let list = this.list.filter(item => item.checked);
+        if (Array.isArray(list) && list.length > 0) {
+          uni.showModal({
+            title: '提示',
+            content: '确认从购物车中删除已选项?',
+            success: (res) => {
+              if (res.confirm) {
+                let service = 'srvhealth_store_shopping_cart_goods_detail_delete'
+                let url = this.getServiceUrl('health', service, 'operate');
+                let req = [{
+                  "serviceName": service,
+                  "condition": [{
+                    "colName": "id",
+                    "ruleType": "in",
+                    "value": list.map(item => item.id).toString()
+                  }]
+                }]
+                this.$http.post(url, req).then(res => {
+                  if (res.data.state === 'SUCCESS') {
+                    this.refresh()
+                    uni.showToast({
+                      title: '删除成功!',
+                      icon: 'none'
+                    })
+                  }
+                })
+              }
+            }
+          })
+        }
+      },
       async getCountData(count_config) {
         if (count_config && Array.isArray(count_config.condition) && count_config.condition.length > 0) {
           let data = {
             storeInfo: this.storeInfo,
-            userInfo:this.userInfo
+            userInfo: this.userInfo
           }
           count_config.condition = count_config.condition.map(item => {
             if (item.value && item.value.indexOf('${') !== -1) {
@@ -366,19 +466,19 @@
             }
             let url = this.getServiceUrl(appName, serviceName, 'select');
             let res = await this.$http.post(url, req);
-            if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) ) {
+            if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
               let data = {
-                
+
               }
-              if( res.data.data.length > 0){
+              if (res.data.data.length > 0) {
                 data = res.data.data[0]
-              }else{
-                data = count_config.labelMap.map(item=>{
+              } else {
+                data = count_config.labelMap.map(item => {
                   item.value = '0';
                   return item
                 })
               }
-              
+
               if (Array.isArray(count_config.labelMap)) {
                 let result = count_config.labelMap.map(item => {
                   item.value = data[item.col];
@@ -419,29 +519,99 @@
       },
       del2Cart(e) {
         let data = this.deepClone(e)
-        let index = this.cartData.findIndex(item => item.id === data.id)
-        if (index !== -1) {
-          data.goods_count = this.cartData[index].goods_count - 1
-          if (data.goods_count === 0) {
-            this.cartData.splice(index, 1)
+        if (this.listType === 'cart') {
+          let index = this.cartData.findIndex(item => item.id === data.id)
+          if (index !== -1) {
+            data.goods_count = this.cartData[index].goods_count - 1
+            if (data.goods_count === 0) {
+              this.cartData.splice(index, 1)
+            } else {
+              this.$set(this.cartData, index, data)
+            }
           } else {
-            this.$set(this.cartData, index, data)
+            // data.goods_count = 1
+            // this.cartData.push(data)
           }
-        } else {
-          // data.goods_count = 1
-          // this.cartData.push(data)
+        } else if (this.listType === 'cartList') {
+          if (data.goods_amount > 1) {
+            this.list = this.list.map(item => {
+              if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
+                item.goods_amount -= 1
+                this.updateCart(item).then(res => {
+                  if (res.success) {
+                    // uni.showToast({
+                    //   title:'操作成功'
+                    // })
+                  }
+                })
+              }
+              return item
+            })
+          } else {
+            uni.showToast({
+              title: '不能再减少了~',
+              icon: 'none'
+            })
+          }
         }
       },
+
       add2Cart(e) {
         let data = this.deepClone(e)
-        let index = this.cartData.findIndex(item => item.id === data.id)
-        if (index !== -1) {
-          data.goods_count = this.cartData[index].goods_count + 1
-          this.$set(this.cartData, index, data)
-        } else {
-          data.goods_count = 1
-          this.cartData.push(data)
+        if (this.listType === 'cart') {
+          let index = this.cartData.findIndex(item => item.id === data.id)
+          if (index !== -1) {
+            data.goods_count = this.cartData[index].goods_count + 1
+            this.$set(this.cartData, index, data)
+          } else {
+            data.goods_count = 1
+            this.cartData.push(data)
+          }
+        } else if (this.listType === 'cartList') {
+          let goodsInfo = this.list.find(item => item.cart_goods_rec_no === data.cart_goods_rec_no)
+          if (goodsInfo) {
+            this.getGoodsStock(goodsInfo).then(res => {
+              if (res && res.id) {
+                if (res.amount > goodsInfo.goods_amount - 1) {
+                  this.list = this.list.map(item => {
+                    if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
+                      item.goods_amount += 1
+                      if (item.checked == false) {
+                        item.checked = true
+                      }
+                      this.updateCart(item).then(res => {
+                        if (res.success) {
+                          // uni.showToast({
+                          //   title:'操作成功'
+                          // })
+                        }
+                      })
+                    }
+                    return item
+                  })
+                } else {
+                  uni.showToast({
+                    title: '商品库存不足',
+                    icon: 'none'
+                  })
+                }
+              }
+            })
+
+          }
+
+
+          // this.list = this.list.map(item => {
+          //   if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
+          //     item.goods_amount += 1
+          //     if (item.checked == false) {
+          //       item.checked = true
+          //     }
+          //   }
+          //   return item
+          // })
         }
+
       },
       toOrder(e) {
         this.order = e
@@ -796,6 +966,14 @@
               this.loadStatus = 'more'
             }
           }
+          if (this.listType === 'cartList') {
+            this.list = this.list.map(item => {
+              if (!item.checked) {
+                item.checked = false;
+              }
+              return item
+            })
+          }
           return this.list;
         }
       },
@@ -1139,9 +1317,11 @@
                 url += `&appName=${this.appName}`
               }
               targetUrl = url
+
             }
+
             if (this.disabled === true) {
-              url += '&disabled=true'
+              targetUrl += '&disabled=true'
             }
             let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
             if (this.listConfig?.navType && navTypes.includes(this.listConfig?.navType)) {

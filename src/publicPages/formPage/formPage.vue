@@ -1195,7 +1195,7 @@
 
   .button-box {
     padding: 40rpx 20rpx;
-    min-width: 375px;
+    min-width: 300px;
     max-width: 800px;
     margin: 10px auto 20px;
 

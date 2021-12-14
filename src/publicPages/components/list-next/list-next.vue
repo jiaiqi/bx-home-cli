@@ -3,15 +3,22 @@
     <view class="list-wrap" :class="{
       'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
     }">
-      <list-item v-for="(item,index) in list" :key="index" :class="{
-        'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
-        'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
-        'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
-        'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType"
-        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp"
-        :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart">
-      </list-item>
+      <checkbox-group @change="checkboxChange">
+        <view class="" v-for="(item,index) in list" :key="index">
+          <checkbox :value="item.id" :checked="item.checked" v-if="listType==='cartList'" />
+          <list-item :class="{
+          'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
+          'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
+          'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
+          'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
+        }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData'
+            :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
+            :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
+            @add2Cart="add2Cart" @del2Cart="del2Cart">
+          </list-item>
+        </view>
+
+      </checkbox-group>
     </view>
   </view>
 </template>
@@ -126,6 +133,9 @@
     //   }
     // },
     methods: {
+      checkboxChange(e){
+        debugger
+      },
       add2Cart(e) {
         this.$emit('add2Cart', e)
       },
@@ -145,10 +155,11 @@
       .list-item-wrap {
         // min-width: 100%;
       }
-      
+
       &.grid-layout {
         padding-top: 0 !important;
-        [class^="grid_span"]{
+
+        [class^="grid_span"] {
           min-width: 0;
         }
       }
@@ -305,65 +316,66 @@
       }
 
     }
-    
+
     @media screen and (min-width: 1300px) {
       .grid_span2 {
         width: calc(100%/4 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(2n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(4n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span3 {
         width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(3n) {
           margin-right: 20rpx;
         }
+
         &:nth-child(5n) {
           margin-right: 20rpx;
         }
-            
-    
+
+
         &:nth-child(7n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span4 {
         width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(4n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(6n) {
           margin-right: 0;
         }
       }
-    
+
       .grid_span5 {
         width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
-    
+
         &:nth-child(5n) {
           margin-right: 20rpx;
         }
-    
+
         &:nth-child(7n) {
           margin-right: 0;
         }
       }
-    
+
     }
-    
+
   }
 </style>

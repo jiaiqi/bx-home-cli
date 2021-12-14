@@ -509,8 +509,7 @@
               }],
               data: this.orderInfo.goodsList.map(item => {
                 let obj = {
-                  goods_no: item.meal_no ? item.meal_no : item
-                    .goods_no,
+                  goods_no: item.meal_no || item.goods_no,
                   goods_amount: item.car_num,
                   goods_desc: item.name,
                   store_no: this.orderInfo.store_no,
@@ -541,11 +540,32 @@
           if (res.success && Array.isArray(res.data) && res.data.length > 0) {
             console.log(res.data[0]);
             this.orderNo = res.data[0].order_no;
+            let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
+            if (cartGoodsList.length > 0) {
+              let ids = cartGoodsList.map(item => item.id).toString()
+              if (ids) {
+                this.clearOrderCartGoods(ids)
+              }
+            }
             this.getOrderInfo().then(data => {
               this.toPay();
             });
           }
         });
+      },
+      clearOrderCartGoods(ids) {
+        // 清除购物车中在订单中的商品
+        let serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete';
+        let req = [{
+          "serviceName": serviceName,
+          "condition": [{
+            "colName": "id",
+            "ruleType": "in",
+            "value": ids
+          }]
+        }]
+        let url = this.getServiceUrl('health', serviceName, 'operate');
+        this.$http.post(url, req)
       },
       async toPay() {
         let self = this;

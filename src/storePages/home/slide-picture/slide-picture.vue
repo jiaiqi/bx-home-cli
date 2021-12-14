@@ -5,11 +5,11 @@
         <text class="cuIcon-home"></text></button>
     </view>
     <swiper class="screen-swiper item-box rectangle-dot" :style="calcStyle" easing-function="linear"
-      indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="true" interval="5000"
+      indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="autoplay" :interval="interval"
       duration="500" @change="swiperChange">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
         <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
-          :poster="item.videoPoster" @click.stop=""></video>
+          :poster="item.videoPoster"></video>
         <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
           @click.stop="toDetail(item)">
         </image>
@@ -21,6 +21,12 @@
 <script>
   export default {
     computed: {
+      interval() {
+        return this.pageItem?.more_config?.interval || '5000'
+      },
+      autoplay() {
+        return this.pageItem?.more_config?.autoplay ?? true
+      },
       dotPostion() {
         return this.pageItem?.more_config?.dotPosition || 'bottom-center'
       },

@@ -298,16 +298,16 @@
             listBarReadonly: true,
             show_public_btn: false,
             padding: '0px',
-            margin: "10px",
+            margin: "5px 10px 0",
             detailPage: "/storePages/home/home?store_no=${data.store_no}",
             navType: "reLaunch",
             img: {
               col: 'image',
               cfg: {
                 position: 'left',
-                width: "70px",
+                width: "75px",
                 height: '50px',
-                radius: "5px 0 0 5px "
+                radius: "5px 0 0 5px"
               }
             },
             cols: [{
@@ -682,14 +682,18 @@
             this.bindUserInfo = isBind
 
             if (this.inviterInfo?.invite_user_no) {
-              let data = {
-                invite_user_no: this.inviterInfo.invite_user_no,
+              if (this.StoreInfo?.standard !== '不更新') {
+                // 更新店铺用户的邀请人编码
+                let data = {
+                  invite_user_no: this.inviterInfo.invite_user_no,
+                }
+                let inviterStoreUser = await this.getInviteStoreUser(this.inviterInfo.invite_user_no)
+                if (inviterStoreUser && inviterStoreUser.store_user_no) {
+                  data.invite_store_user_no = inviterStoreUser.store_user_no
+                }
+                await this.updateStoreUserInfo(data)
               }
-              let inviterStoreUser = await this.getInviteStoreUser(this.inviterInfo.invite_user_no)
-              if (inviterStoreUser && inviterStoreUser.store_user_no) {
-                data.invite_store_user_no = inviterStoreUser.store_user_no
-              }
-              await this.updateStoreUserInfo(data)
+
             }
             this.push_msg_set = this.bindUserInfo.push_msg_set
             this.member_status = this.bindUserInfo.member_status

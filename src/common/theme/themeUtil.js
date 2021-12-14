@@ -19,13 +19,14 @@ export default {
           vtheme: state => state.app.theme,
           userInfo: state => state.user.userInfo,
           storeInfo: state => state.app.storeInfo,
-          vcart:state=>state.order.cartInfo
+          vcart: state => state.order.cartInfo,
+          vstoreUser: state => state.user.storeUserInfo
         })
       },
       methods: {
         ...mapGetters({
-          getBtnBg:'btnBg',
-          getBtnColor:'btnColor'
+          getBtnBg: 'btnBg',
+          getBtnColor: 'btnColor'
         }),
         getTheme() {
           return `theme-${this.vtheme}`

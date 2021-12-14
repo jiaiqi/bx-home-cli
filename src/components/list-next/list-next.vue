@@ -3,15 +3,24 @@
     <view class="list-wrap" v-if="setViewTemp" :class="{
       'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
     }">
-      <list-item v-for="(item,index) in list" :key="index" :class="{
-        'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
-        'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
-        'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
-        'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-      }" class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData' :listType="listType"
-        :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp"
-        :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart">
-      </list-item>
+      <!-- <checkbox-group @change="checkboxChange" class="check-box-group"> -->
+      <view class="check-box-item " :class="{
+          'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
+          'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
+          'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
+          'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
+        }" v-for="(item,index) in list" :key="index">
+        <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType==='cartList'"
+          style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)"/>
+        <!--   <checkbox class="check-box" :value="item.cart_goods_rec_no" :checked="item.checked"
+            v-if="listType==='cartList'" style="transform:scale(0.7);margin" /> -->
+        <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData'
+          :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
+          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
+          @add2Cart="add2Cart" @del2Cart="del2Cart">
+        </list-item>
+      </view>
+      <!-- </checkbox-group> -->
     </view>
   </view>
 </template>
@@ -22,8 +31,8 @@
     components: {
       listItem
     },
-    props: {
 
+    props: {
       list: {
         type: Array
       },
@@ -130,7 +139,11 @@
     //     amount:0, //添加到购物车中的商品数量
     //   }
     // },
+
     methods: {
+      checkboxChange(e) {
+        this.$emit('checkboxChange', e)
+      },
       add2Cart(e) {
         this.$emit('add2Cart', e)
       },
@@ -146,10 +159,25 @@
 
 <style lang="scss" scoped>
   .list-wrap {
-    @media screen and (max-width:450px) {
+    margin-bottom: 10px;
+    .check-box-group {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .check-box-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 0 10px;
+
       .list-item-wrap {
-        // min-width: 100%;
+        flex: 1;
       }
+    }
+
+    @media screen and (max-width:450px) {
+      .list-item-wrap {}
 
       &.grid-layout {
         padding-top: 0 !important;
@@ -203,11 +231,13 @@
 
     .list-item-wrap {
       width: 100%;
+
     }
 
     .grid_span2 {
       width: calc(100%/2 - 15rpx);
       margin-right: 20rpx;
+      margin-bottom: 20rpx;
 
       &:nth-child(2n) {
         margin-right: 0;
@@ -217,6 +247,7 @@
     .grid_span3 {
       width: calc(100%/3 - 50rpx/3);
       margin-right: 20rpx;
+      margin-bottom: 20rpx;
 
       &:nth-child(3n) {
         margin-right: 0;
@@ -226,6 +257,7 @@
     .grid_span4 {
       width: calc(100%/4 - 70rpx/4);
       margin-right: 20rpx;
+      margin-bottom: 20rpx;
 
       &:nth-child(4n) {
         margin-right: 0;
@@ -235,6 +267,7 @@
     .grid_span5 {
       width: calc(100%/5 - 90rpx/5);
       margin-right: 20rpx;
+      margin-bottom: 20rpx;
 
       &:nth-child(5n) {
         margin-right: 0;
@@ -245,6 +278,7 @@
       .grid_span2 {
         width: calc(100%/4 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(2n) {
           margin-right: 20rpx;
@@ -262,6 +296,7 @@
       .grid_span3 {
         width: calc(100%/5 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(3n) {
           margin-right: 20rpx;
@@ -279,6 +314,7 @@
       .grid_span4 {
         width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(4n) {
           margin-right: 20rpx;
@@ -296,6 +332,7 @@
       .grid_span5 {
         width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(5n) {
           margin-right: 20rpx;
@@ -316,6 +353,7 @@
       .grid_span2 {
         width: calc(100%/4 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(2n) {
           margin-right: 20rpx;
@@ -329,6 +367,7 @@
       .grid_span3 {
         width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(3n) {
           margin-right: 20rpx;
@@ -347,6 +386,7 @@
       .grid_span4 {
         width: calc(100%/6 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(4n) {
           margin-right: 20rpx;
@@ -360,6 +400,7 @@
       .grid_span5 {
         width: calc(100%/7 - 20rpx);
         margin-right: 20rpx;
+        margin-bottom: 20rpx;
 
         &:nth-child(5n) {
           margin-right: 20rpx;

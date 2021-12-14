@@ -387,7 +387,7 @@
 
 <style scoped lang="scss">
   .layout-2 {
-    min-width: 335px;
+    min-width: 300px;
 
     @media screen and (min-width: 1300px) {
       width: 400px;
@@ -566,7 +566,7 @@
     border-radius: 20rpx;
     overflow: hidden;
 
-    min-width: 335px;
+    min-width: 300px;
 
     @media screen and (min-width: 1300px) {
       width: 400px;

@@ -19,7 +19,26 @@
             <text v-if="item.suffix">{{item.suffix}}</text>
           </view>
         </view>
-
+        <view class="col-item text-right flex-1" v-if="listType==='cartList'&&rowData&&rowData.goods_amount">
+          <!--       <view class="del-btn-box" :class="{active:rowData&&rowData.goods_amount}"
+            v-if="rowData&&rowData.goods_amount">
+          
+          </view> -->
+          <view class="cu-btn sm radius cart-handler" :style="{
+              color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
+              'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
+              'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
+              'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
+              }" @click.stop="del" v-if="rowData&&rowData.goods_amount">-</view>
+          <view class="goods-amount flex-1 text-center" style="width: 50px;text-align: center;font-size: 16px;">
+            {{rowData.goods_amount||'1'}}</view>
+          <view class=" cu-btn sm radius cart-handler" :style="{
+              color:btn_cfg&&btn_cfg.color?btn_cfg.color:'',
+              'background-color':btn_cfg&&btn_cfg.bg?btn_cfg.bg:'',
+              'font-size':btn_cfg&&btn_cfg.font_size?btn_cfg.font_size:'',
+              'padding':btn_cfg&&btn_cfg.padding?btn_cfg.padding:'',
+              }" @click.stop="add">+</view>
+        </view>
         <view class="col-item text-right flex-1 handler" v-if="listType==='cart'">
           <view class="del-btn-box" :class="{active:inCartData&&amount}" v-if="inCartData&&inCartData.id&&amount">
             <text class="cu-btn sm radius" :style="{
@@ -152,7 +171,7 @@
             let arr = []
             Object.keys(this.rowData).forEach((key) => {
               if (!['id', 'create_time', 'create_user', 'modify_time', 'modify_user', 'create_user_disp',
-                  'modify_user_disp','_buttons'
+                  'modify_user_disp', '_buttons'
                 ].includes(key)) {
                 let col = {
                   "col": key,
@@ -190,7 +209,7 @@
             }
             return true
           })
-        }else{
+        } else {
           return []
         }
 
@@ -200,10 +219,10 @@
         if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
           buttons = buttons.filter(item => item.is_public === true)
         }
-        buttons = buttons.filter((btn)=>{
-          if(this.rowButtonDisp&&this.rowButtonDisp[btn.button_type]===false){
+        buttons = buttons.filter((btn) => {
+          if (this.rowButtonDisp && this.rowButtonDisp[btn.button_type] === false) {
             return false
-          }else{
+          } else {
             return true
           }
         })
@@ -254,7 +273,7 @@
           let imgCfg = this.setViewTemp?.img?.cfg;
           result.imgAlign = imgCfg.position || 'left'
           result.imgClass = `${imgCfg.position === 'top'?'m-r-0':''}`
-          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value,true)
+          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value, true)
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
             'width': imgCfg?.width,
@@ -325,10 +344,10 @@
                   'line-gray': cfg?.border_color === 'gray',
               }
             }
-            if(cfg?.bg&&cfg?.bg.indexOf('#')!==-1){
+            if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
               obj.style['background-color'] = cfg.bg
             }
-            if(cfg?.border_color&&cfg?.border_color.indexOf('#')!==-1){
+            if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
               obj.style['border'] = `1rpx solid ${cfg?.border_color}`
             }
             if (Object.keys(obj.class).length > 0) {
@@ -395,7 +414,7 @@
             if (!obj.value && cfg?.default_val) {
               obj.value = cfg?.default_val
             }
-            if (!obj.value&&obj.value!==0 && cfg?.show_null !== true) {
+            if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
               obj.class += ' hidden'
             }
             result.cols.push(obj)
@@ -487,7 +506,6 @@
   .list-item-wrap {
     // width: 100%;
     background-color: #fff;
-    margin-bottom: 20rpx;
     padding: 20rpx;
     display: flex;
     border-radius: 20rpx;
@@ -506,7 +524,7 @@
 
 
     .list-item {
-      width: 100%;
+      flex: 1;
       display: flex;
 
       .cuIcon-moreandroid {
@@ -553,7 +571,14 @@
           font-size: 28rpx;
           font-family: 苹方-简;
           color: #333333;
-
+          .cart-handler{
+            &.cu-btn{
+              width: 25px;
+              height: 25px;
+              line-height: 25px;
+              text-align: center;
+            }
+          }
           &.hidden {
             display: none;
             width: 0;

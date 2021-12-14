@@ -154,7 +154,7 @@
 <style scoped lang="scss">
   .notice-wrap {
     /* margin-bottom: 20rpx; */
-    min-width: 335px;
+    min-width: 300px;
     margin: 0rpx 20rpx 0;
     border-radius: 20rpx;
     overflow: hidden;

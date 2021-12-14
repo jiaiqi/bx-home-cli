@@ -12,7 +12,27 @@
       </swiper-item>
     </swiper>
     <!-- <image :src="getImagePath(goodsInfo.goods_img,true)" mode="aspectFill"></image> -->
-    <view class="goods-info">{{ goodsInfo.goods_name||'' }}</view>
+    <view class="goods-info">
+      <view class="goods-name">
+        {{ goodsInfo.goods_name||'' }}
+      </view>
+      <view class="handler-bar margin-top-xs">
+        <view class="price text-red  margin-right" v-if="showPrice&&fill2Digit(goodsInfo.price)">
+          <text class="symbol">￥</text>
+          <text class="number" v-if="fill2Digit(goodsInfo.price)">
+            <text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
+            <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
+          </text>
+        </view>
+        <view class="number-box" v-if="inCartGoodsInfo&&inCartGoodsInfo.goods_amount">
+          <view class="cu-btn sm radius cart-handler" @click.stop="del">-</view>
+          <view class="goods-amount flex-1 text-center" style="width: 50px;text-align: center;font-size: 16px;">
+            {{inCartGoodsInfo.goods_amount||''}}
+          </view>
+          <view class=" cu-btn sm radius cart-handler" @click.stop="add">+</view>
+        </view>
+      </view>
+    </view>
     <view class="desc" v-if="goodsInfo.goods_desc">
       <view class="title">简介</view>
       <view class="">{{ goodsInfo.goods_desc||'' }}</view>
@@ -32,13 +52,13 @@
       </view>
     </view>
     <view class="cu-bar foot bottom bg-white tabbar border shop">
-      <view class="price text-red margin-left margin-right" v-if="showPrice">
+      <!-- <view class="price text-red margin-left margin-right" v-if="showPrice">
         <text class="symbol">￥</text>
         <text class="number" v-if="fill2Digit(goodsInfo.price)">
           <text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
           <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
         </text>
-      </view>
+      </view> -->
       <view class="right-btn" v-if="moreConfig&&moreConfig.button_list">
         <button class="cu-btn bg-cyan  shadow-blur" @click="payOrder(item)" v-for="item in moreConfig.button_list">
           <text>{{item.button_name}}</text>
@@ -73,25 +93,23 @@
         serviceName: "",
         destApp: "",
         hideButton: false,
-        imgHeight: 0
+        imgHeight: 0,
+        cartList: []
       };
     },
     computed: {
-      // topImgRatio(){
-      //   if(Array.isArray(this.swiperList)&&this.swiperList.length>0){
-      //     let windowWidth = uni.getSystemInfoSync().windowWidth;
-      //     let firstImg = this.swiperList[0].url
-
-      //     // uni.getImageInfo({
-      //     //   src: firstImage,
-      //     //   success: function(image) {
-      //     //     debugger
-      //     //     console.log(image.width);
-      //     //     console.log(image.height);
-      //     //   }
-      //     // });
-      //   }
-      // },
+      inCartGoodsInfo() {
+        if (this.storeInfo?.store_no && Array.isArray(this.cartList) &&
+          this.goodsInfo.goods_no) {
+          let cartList = this.cartList;
+          if (Array.isArray(cartList)) {
+            let goodsInfo = cartList.find(item => item.goods_no === this.goodsInfo.goods_no)
+            if (goodsInfo) {
+              return goodsInfo
+            }
+          }
+        }
+      },
       showPrice() {
         return this.moreConfig?.show_price === false ? false : true
       },
@@ -112,6 +130,31 @@
       })
     },
     methods: {
+      getCartList() {
+        let req = {
+          "serviceName": "srvhealth_store_my_shopping_cart_goods_detail_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo?.store_no
+          }, {
+            "colName": "store_user_no",
+            "ruleType": "eq",
+            "value": this.vstoreUser?.store_user_no
+          }],
+          "page": {
+            "rownumber": 200,
+            "pageNo": 1
+          },
+        }
+        let url = this.getServiceUrl('health', 'srvhealth_store_my_shopping_cart_goods_detail_select', 'select')
+        this.$http.post(url, req).then(res => {
+          if (res.data.state === 'SUCCESS') {
+            this.cartList = res.data.data
+          }
+        })
+      },
       swiperChange(e) {
         if (this.videoContext.parse) {
           this.videoContext.parse()
@@ -154,42 +197,8 @@
           phoneNumber: this.phone || '10086' //仅为示例
         });
       },
-      async getCart() {
-        let store_no = this.storeNo || this.storeInfo?.store_no;
-        let service = 'srvhealth_store_shopping_cart_select'
-        let req = {
-          "serviceName": service,
-          "colNames": ["*"],
-          "condition": [{
-              colName: 'store_no',
-              ruleType: 'eq',
-              value: store_no
-            },
-            {
-              colName: 'user_account',
-              ruleType: 'eq',
-              value: this.storeInfo?.store_no
-            }
-          ],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 1
-          }
-        }
-        let app = 'health'
-        let res = await this.$fetch('select', service, req, app)
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          let cartInfo = res.data[0];
-          let goodsList = await this.getCartDetail(res.data[0].cart_no);
-          if (Array.isArray(goodsList)) {
-            cartInfo.goodsList = goodsList
-          } else {
-            cartInfo.goodsList = []
-          }
-          return res.data[0]
-        }
-      },
-      async getCartDetail(cart_no) {
+
+      async getCartDetail(cart_no, goods_no) {
         let service = 'srvhealth_store_shopping_cart_goods_detail_select'
         let req = {
           "serviceName": service,
@@ -204,132 +213,87 @@
             "rownumber": 99
           }
         }
+        if (goods_no) {
+          req.condition = [{
+            colName: 'goods_no',
+            ruleType: 'eq',
+            value: goods_no
+          }]
+        }
+        if (this.vstoreUser?.store_user_no) {
+          req.condition.push({
+            colName: 'store_user_no',
+            ruleType: 'eq',
+            value: this.vstoreUser?.store_user_no
+          })
+        }
         let res = await this.$fetch('select', service, req, 'health')
         if (Array.isArray(res.data) && res.data.length > 0) {
+          if (goods_no) {
+            return res.data[0]
+          }
           return res.data
         }
       },
       async addToCart(goods) {
         if (goods?.goods_no) {
-          let cartInfo = await this.getCart()
-          if (cartInfo) {
-            if (cartInfo.goodsList.find(item => item.goods_no === goods.goods_no)) {
-              cartInfo.goodsList = cartInfo.goodsList.reduce((res, cur) => {
-                if (cur.goods_no === goods.goods_no) {
-                  cur.car_num = car_num + 1
-                }
-                res.push(cur)
-                return res
-              }, [])
-            } else {
-              goods._is_new = true
-              cartInfo.goodsList.push(goods)
-            }
-            this.updateCart(cartInfo)
+          let goodsInfo = await this.getCartDetail(null, goods.goods_no)
+          if (goodsInfo?.goods_no) {
+            goodsInfo.goods_amount++
+            this.updateCart(goodsInfo)
           } else {
-            cartInfo = {
-              storeInfo: this.storeInfo,
-              goodsList: [goods]
-            }
-            let service = 'srvhealth_store_shopping_cart_add'
+            goodsInfo = goods;
+            let service = 'srvhealth_store_shopping_cart_goods_detail_add'
             let req = [{
-              "serviceName": "srvhealth_store_shopping_cart_add",
+              "serviceName": service,
               "condition": [],
               "data": [{
+                store_user_no: this.vstoreUser?.store_user_no,
                 "store_no": this.storeNo,
-                "store_name": this.storeInfo?.name,
-                "order_amount": goods.price,
-                "person_name": this.userInfo.name,
-                "user_account": this.userInfo.userno,
-                "nick_name": this.userInfo.nick_name,
-                "child_data_list": [{
-                  "serviceName": "srvhealth_store_shopping_cart_goods_detail_add",
-                  "condition": [],
-                  "depend_keys": [{
-                    "type": "column",
-                    "add_col": "cart_no",
-                    "depend_key": "cart_no"
-                  }],
-                  "data": [{
-                    "store_no": this.storeNo,
-                    "unit_price": goods.price,
-                    "goods_amount": 1,
-                    "sum_price": goods.price,
-                    "goods_desc": goods.goods_desc,
-                    "goods_image": goods.goods_img,
-                    "goods_name": goods.goods_name
-                  }]
-                }]
+                "unit_price": goods.price,
+                "goods_amount": 1,
+                "goods_no": goods.goods_no,
+                "sum_price": goods.price,
+                "goods_desc": goods.goods_desc,
+                "goods_image": goods.goods_img,
+                "goods_name": goods.goods_name
               }]
             }]
-            this.$fetch('add', service, req, 'health').then(res => {
+            this.$fetch('operate', service, req, 'health').then(res => {
               if (res.success) {
+                this.getCartList()
                 uni.showToast({
                   title: '添加成功',
                 })
               }
             })
-
           }
         }
 
       },
-      async updateCart(cartInfo) {
-        let goodsList = cartInfo.goodsList;
-        let addGoods = goodsList.filter(item => item._is_new === true)
-        let updateGoods = goodsList.filter(item => item._is_new !== true)
-        if (updateGoods.length > 0) {
-          let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+      async updateCart(goodsInfo) {
+        let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+        if (goodsInfo?.cart_goods_rec_no) {
           let req = [{
-            "serviceName": "srvhealth_store_shopping_cart_goods_detail_update",
+            "serviceName": serviceName,
             "condition": [{
-              colName: 'goods_no',
+              colName: 'cart_goods_rec_no',
               ruleType: 'in',
-              value: goodsList.map(item => item.goods_no).toString()
+              value: goodsInfo.cart_goods_rec_no
             }],
-            "data": goodsList.filter(item => item._is_new !== true).map(item => {
-              return {
-                goods_no: item.goods_no,
-                goods_name: item.goods_name,
-                goods_image: item.goods_img,
-                unit_price: item.unit_price,
-                goods_amount: item.car_num || item.goods_amount,
-                sum_price: item.unit_price * item.sum_price
-              }
-            })
+            "data": [{
+              goods_amount: goodsInfo.goods_amount
+            }]
           }]
           await this.$fetch('update', serviceName, req, 'health').then(res => {
             if (res.success) {
+              this.getCartList()
               uni.showToast({
-                title: '添加成功',
+                title: '操作成功',
               })
             }
           })
         }
-        if (addGoods.length > 0) {
-          let serviceName = 'srvhealth_store_shopping_cart_goods_detail_add'
-          let req2 = [{
-            "serviceName": "srvhealth_store_shopping_cart_goods_detail_add",
-            "data": addGoods.map(item => {
-              return {
-                goods_no: item.goods_no,
-                goods_name: item.goods_name,
-                goods_image: item.goods_img,
-                unit_price: item.unit_price,
-                goods_amount: item.car_num || item.goods_amount,
-                sum_price: item.unit_price * item.sum_price
-              }
-            })
-          }]
-          await this.$fetch('add', serviceName, req, 'health').then(res => {
-            if (res.success) {
-              uni.showToast({
-                title: '添加成功',
-              })
-            }
-          })
-        }
-
       },
       payOrder(e) {
         let target_url = e?.target_url || this.moreConfig?.target_url
@@ -501,7 +465,30 @@
             this.getDetaiImageList(this.goodsInfo);
           }
         });
-      }
+      },
+      del() {
+        if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount > 1) {
+          this.inCartGoodsInfo.goods_amount--
+          this.updateCart(this.inCartGoodsInfo)
+        }
+      },
+      add(e) {
+        if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
+          this.getGoodsStock(this.inCartGoodsInfo).then(res => {
+            if (res && res.id) {
+              if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
+                this.inCartGoodsInfo.goods_amount++
+                this.updateCart(this.inCartGoodsInfo)
+              } else {
+                uni.showToast({
+                  title: '商品库存不足',
+                  icon: 'none'
+                })
+              }
+            }
+          })
+        }
+      },
     },
     onShareTimeline() {
       let pages = getCurrentPages()
@@ -582,6 +569,7 @@
       await this.toAddPage()
       if (option.goods_no) {
         this.getGoodsInfo(option.goods_no);
+        this.getCartList()
       }
     }
   };
@@ -594,6 +582,17 @@
     padding: 20rpx;
     background-color: #fff;
     margin-bottom: 20rpx;
+
+    .handler-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .number-box {
+        display: flex;
+        align-items: center;
+      }
+    }
   }
 
   .store-info {

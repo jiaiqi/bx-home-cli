@@ -253,7 +253,7 @@ export default {
           }
           fieldInfo.defaultValue = item.init_expr
           fieldInfo.value = item.init_expr
-          
+
         }
         fieldInfo.option_list_v2 = item.option_list_v2
         fieldInfo.bx_col_type = item.bx_col_type
@@ -2559,14 +2559,14 @@ export default {
         backgroundColor: backgroundColor
       })
     }
-    
+
     // 表单字段配置值改变时发送请求查找另一个字段的值并赋值
     Vue.prototype.getTriggerVal = async (params, data) => {
       let serviceName = params.serviceName;
-      let appName = params.appName||uni.getStorageSync('activeApp')
+      let appName = params.appName || uni.getStorageSync('activeApp')
       let url = Vue.prototype.getServiceUrl(appName, serviceName, 'select')
       let cond = params.params_val.split(',')
-      
+
       if (Array.isArray(cond)) {
         cond = cond.map(key => {
           return {
@@ -2575,7 +2575,7 @@ export default {
             value: data[key]
           }
         }).filter(item => item.value)
-      }else{
+      } else {
         cond = []
       }
       let req = {
@@ -2588,9 +2588,53 @@ export default {
         "condition": cond
       }
       let res = await _http.post(url, req)
-      if(Array.isArray(res.data.data)&&res.data.data.length>0){
+      if (Array.isArray(res.data.data) && res.data.data.length > 0) {
         return res.data.data[0]
       }
     }
+
+    Vue.prototype.getGoodsStock = async (e) => {
+      if (e && e.goods_no) {
+        let req = {
+          "serviceName": "srvhealth_store_goods_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "goods_no",
+            "ruleType": "eq",
+            "value": e.goods_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          }
+        }
+        let url = Vue.prototype.getServiceUrl('health', "srvhealth_store_goods_select",
+          "select")
+        let res = await _http.post(url, req);
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          return res.data.data[0]
+        }
+      }
+    }
+
+    Vue.prototype.updateCart = async(goodsInfo)=> {
+      let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+      if (goodsInfo?.cart_goods_rec_no) {
+        let req = [{
+          "serviceName": serviceName,
+          "condition": [{
+            colName: 'cart_goods_rec_no',
+            ruleType: 'in',
+            value: goodsInfo.cart_goods_rec_no
+          }],
+          "data": [{
+            goods_amount: goodsInfo.goods_amount
+          }]
+        }]
+        return await Vue.prototype.$fetch('update', serviceName, req, 'health')
+      }
+    }
+    
+    
   }
 }

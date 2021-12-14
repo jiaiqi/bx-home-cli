@@ -98,7 +98,7 @@
     // margin: 0 20rpx;
     margin-bottom: 20rpx;
     border-radius: 12px;
-    min-width: 335px;
+    min-width: 300px;
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;

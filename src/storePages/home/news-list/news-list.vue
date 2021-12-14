@@ -377,7 +377,7 @@
 <style scoped lang="scss">
   .list-wrap {
     margin-bottom: 20rpx;
-    min-width: 335px;
+    min-width: 300px;
 
     @media screen and (min-width: 1300px) {
       width: 400px;

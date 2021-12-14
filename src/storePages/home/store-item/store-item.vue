@@ -238,7 +238,7 @@
     &.is-swiper {
       padding: 0;
       margin-top: 10rpx;
-      min-width: 355px;
+      min-width: 300px;
     }
 
     &.bg-transparent {

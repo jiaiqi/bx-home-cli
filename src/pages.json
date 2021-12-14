@@ -309,6 +309,15 @@
                 }
                 
                 }
+                ,{
+                    "path" : "cart/cart",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
             ]
     },
     {
