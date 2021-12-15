@@ -766,7 +766,7 @@
         this.showGoodsCard = false
       },
       sendGoods() {
-        let serviceName = this.queryOption?.goods_service || 'srvhealth_store_goods_select'
+        let serviceName = this.queryOption?.goods_service || 'srvhealth_store_goods_guest_select'
         let app = this.queryOption?.goods_app || "health"
         if (this.$refs.chatInstance?.sendArticle) {
           let data = [{
@@ -780,7 +780,7 @@
       },
       getGoodsInfo() {
         let option = this.queryOption;
-        let serviceName = option.goods_service || 'srvhealth_store_goods_select'
+        let serviceName = option.goods_service || 'srvhealth_store_goods_guest_select'
         let app = option?.goods_app || "health"
         let url = this.getServiceUrl(app, serviceName, 'select');
         let req = {

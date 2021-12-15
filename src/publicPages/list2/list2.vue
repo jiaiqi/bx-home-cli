@@ -33,7 +33,7 @@
     <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
     <cart-bottom :sum-price="sumPrice" ref="cartBottom" @selectAll="selectAllChange" @del="del" :mode="cartMode"
-      @toPlaceOrder="toPlaceOrder" v-if="listType==='cartList'">
+      @toOrderPage="toOrderPage" v-if="listType==='cartList'">
     </cart-bottom>
 
   </view>
@@ -363,7 +363,7 @@
             return item
           })
         }
-        if (this.list.every(item => item.checked === true)) {
+        if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
           this.$refs.cartBottom.selectAll = true
         } else {
           this.$refs.cartBottom.selectAll = false
@@ -382,7 +382,7 @@
           })
         }
       },
-      toPlaceOrder() {
+      toOrderPage() {
         let list = this.list.filter(item => item.checked === true && item.goods_amount);
         list = this.deepClone(list)
         if (list.length > 0) {
@@ -864,6 +864,8 @@
         }
 
         let keywords = this.searchVal;
+        debugger
+        // req.condition = []
         if (keywords && this.finalSearchColumn) {
           if (typeof this.finalSearchColumn === 'string') {
             req.condition = req.condition.concat([{
@@ -904,7 +906,7 @@
                 })
               }
             }
-            delete req.condition
+            // delete req.condition
           }
         }
 
@@ -973,6 +975,11 @@
               }
               return item
             })
+            if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
+              this.$refs.cartBottom.selectAll = true
+            } else {
+              this.$refs.cartBottom.selectAll = false
+            }
           }
           return this.list;
         }
@@ -1079,16 +1086,17 @@
             })
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
-            let storeInfo = this.$store?.state?.app?.storeInfo
-            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+            debugger
 
-            let obj = {
-              data: rowData,
-              rowData,
-              storeInfo,
-              bindUserInfo
-            };
             if (buttonInfo?.moreConfig?.navUrl) {
+              let storeInfo = this.$store?.state?.app?.storeInfo
+              let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+              let obj = {
+                data: rowData,
+                rowData,
+                storeInfo,
+                bindUserInfo
+              };
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
               // uni.navigateTo({
               //   url
@@ -1098,6 +1106,49 @@
                 url,
                 title
               })
+            } else if (buttonInfo?.pre_data_handle === 'requestPayment' || buttonInfo?.path_col ===
+              'requestPayment') {
+              let total_col = 'order_amount'
+              let order_no_col = 'order_no'
+              if (buttonInfo?.moreConfig?.total_col) {
+                total_col = buttonInfo?.moreConfig?.total_col
+              }
+              if (buttonInfo?.moreConfig?.order_no_col) {
+                order_no_col = buttonInfo?.moreConfig?.order_no_col
+              }
+              let total = rowData[total_col]
+              let orderNo = rowData[order_no_col]
+              rowData.order_no = rowData.order_no || orderNo
+              if (total && orderNo) {
+                let wx_mch_id = this.getwxMchId()
+                let result = await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type,
+                  rowData, wx_mch_id);
+                if (result && result.prepay_id) {
+                  let res = await this.getPayParams(result.prepay_id, wx_mch_id);
+                  wx.requestPayment({
+                    timeStamp: res.timeStamp.toString(),
+                    nonceStr: res.nonceStr,
+                    package: res.package,
+                    signType: 'MD5',
+                    paySign: res.paySign,
+                    success(res) {
+                      // 支付成功
+                      self.orderInfo.order_state = '待发货';
+                      self.updateOrderState('待发货', '已支付', result.prepay_id, rowData.order_no);
+                      uni.redirectTo({
+                        url: '/storePages/successPay/successPay?order_no=' + orderData
+                          .order_no + '&totalMoney=' + self.totalMoney
+                      });
+                    },
+                    fail(res) {
+                      // 支付失败/取消支付
+                      self.updateOrderState('待支付', '取消支付', result.prepay_id, rowData.order_no);
+                    }
+                  });
+                }
+              }
+
+
             }
 
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {

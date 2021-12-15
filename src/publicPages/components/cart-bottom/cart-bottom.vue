@@ -11,8 +11,8 @@
       <view class="price">
         <text>合计</text> <text class="text-red sum-price"><text class="prefix">￥</text> {{sumPrice||'0.00'}}</text>
       </view>
-      <button class="cu-btn round shadow-blur" :disabled="sumPrice===0"
-        :class="{active:sumPrice>0,'bx-bg-color':sumPrice>0&&vtheme}" @click.stop="placeOrder">去结算</button>
+      <button class="cu-btn round" :disabled="sumPrice===0"
+        :class="{active:sumPrice>0,'bx-bg-color':sumPrice>0&&vtheme}" @click.stop="toOrderPage">去结算</button>
     </view>
   </view>
 </template>
@@ -42,8 +42,8 @@
       del() {
         this.$emit('del')
       },
-      placeOrder() {
-        this.$emit('toPlaceOrder')
+      toOrderPage() {
+        this.$emit('toOrderPage')
       }
     },
   }

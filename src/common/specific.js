@@ -129,6 +129,30 @@ export default {
         })
       }
     }
+
+    Vue.prototype.updateOrderState = (order_state, pay_state, prepay_id, order_no) => {
+      if (order_no) {
+        let req = [{
+          serviceName: 'srvhealth_store_order_update',
+          condition: [{
+            colName: 'order_no',
+            ruleType: 'eq',
+            value: order_no
+          }],
+          data: [{
+            order_state: order_state,
+            pay_state: pay_state
+          }]
+        }];
+        if (prepay_id) {
+          req[0].data[0].prepay_id = prepay_id
+        }
+        this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
+          // 支付成功后修改订单状态和支付状态
+        });
+      }
+    }
+
     Vue.prototype.onshareParams = (userInfo) => {
       let path = '';
       let title = '百想健康'
@@ -194,7 +218,7 @@ export default {
           store.commit('SET_CURRENT_PAGE', currentPage.route)
           return {
             add_url: currentPage.$page.fullPath ? currentPage.$page.fullPath.slice(0, 400) : '未知页面',
-            invite_user_no: option.invite_user_no||userInfo?.invite_user_no|| option.doctor_no || 'undefined'
+            invite_user_no: option.invite_user_no || userInfo?.invite_user_no || option.doctor_no || 'undefined'
           }
         }
       }

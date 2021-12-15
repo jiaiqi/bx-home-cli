@@ -94,7 +94,8 @@
         destApp: "",
         hideButton: false,
         imgHeight: 0,
-        cartList: []
+        cartList: [],
+        onHandler: false
       };
     },
     computed: {
@@ -259,17 +260,16 @@
                 "goods_name": goods.goods_name
               }]
             }]
-            this.$fetch('operate', service, req, 'health').then(res => {
-              if (res.success) {
-                this.getCartList()
-                uni.showToast({
-                  title: '添加成功',
-                })
-              }
-            })
+            let res = await this.$fetch('operate', service, req, 'health')
+            if (res.success) {
+              this.getCartList()
+              uni.showToast({
+                title: '添加成功',
+              })
+            }
           }
         }
-
+        return
       },
       async updateCart(goodsInfo) {
         let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
@@ -296,6 +296,12 @@
         }
       },
       payOrder(e) {
+        if (this.onHandler === true) {
+          return
+        }
+
+        this.onHandler = true
+
         let target_url = e?.target_url || this.moreConfig?.target_url
         if (target_url && target_url !== 'add_to_cart') {
           let storeInfo = this.$store?.state?.app?.storeInfo
@@ -312,6 +318,7 @@
           uni.navigateTo({
             url: url
           })
+          this.onHandler = false
           return
         }
         let goodsInfo = this.deepClone(this.goodsInfo)
@@ -323,17 +330,20 @@
         goodsInfo.car_num = 1
         goodsInfo.unit_price = goodsInfo.price
         goodsInfo.type = this.storeInfo?.type
+
         if (target_url === 'add_to_cart') {
           // 添加到购物车表
-          this.addToCart(goodsInfo)
+          this.addToCart(goodsInfo).then(_ => {
+            this.onHandler = false
+          })
           return
         }
+
         this.$store.commit('SET_STORE_CART', {
           storeInfo: goodsInfo,
           store_no: goodsInfo.store_no,
           list: [goodsInfo]
         });
-
 
         let url = `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no }&goods_info=${encodeURIComponent(
           JSON.stringify(goodsInfo))}`
@@ -341,9 +351,12 @@
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`
         }
+
         uni.navigateTo({
           url
         });
+
+        this.onHandler = false
       },
       async getSwiperList(e) {
         let self = this

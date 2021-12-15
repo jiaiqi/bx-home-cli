@@ -827,7 +827,7 @@
               footer: 'store_name'
             };
             url =
-              `/publicPages/list/list?pageType=list&serviceName=srvhealth_store_goods_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
+              `/publicPages/list/list?pageType=list&serviceName=srvhealth_store_goods_guest_select&cond=${JSON.stringify(cond)}&viewTemp=${JSON.stringify(viewTemp)}`;
             break;
           case 'order_count':
             viewTemp = {

@@ -369,7 +369,7 @@
           self.selectorData = []
         }
       },
-      updateOrderState(order_state, pay_state, prepay_id) {
+      updateOrderState(order_state, pay_state, prepay_id,order_no) {
         let req = [{
           serviceName: 'srvhealth_store_order_update',
           condition: [{
@@ -386,7 +386,6 @@
           req[0].data[0].prepay_id = prepay_id
         }
         this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
-          debugger
           // 支付成功后修改订单状态和支付状态
         });
       },

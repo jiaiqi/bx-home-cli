@@ -20,7 +20,8 @@ export default {
           userInfo: state => state.user.userInfo,
           storeInfo: state => state.app.storeInfo,
           vcart: state => state.order.cartInfo,
-          vstoreUser: state => state.user.storeUserInfo
+          vstoreUser: state => state.user.storeUserInfo,
+          vloginUser: state => state.user.loginUserInfo
         })
       },
       methods: {
@@ -30,6 +31,10 @@ export default {
         }),
         getTheme() {
           return `theme-${this.vtheme}`
+        },
+        getwxMchId() {
+          // 获取商户号
+          return this.storeInfo?.wx_mch_id || '1485038452'
         },
         getStyleVar() {
           let styleVar = styleVarJson[this.vtheme]

@@ -2596,7 +2596,7 @@ export default {
     Vue.prototype.getGoodsStock = async (e) => {
       if (e && e.goods_no) {
         let req = {
-          "serviceName": "srvhealth_store_goods_select",
+          "serviceName": "srvhealth_store_goods_guest_select",
           "colNames": ["*"],
           "condition": [{
             "colName": "goods_no",
@@ -2608,7 +2608,7 @@ export default {
             "rownumber": 1
           }
         }
-        let url = Vue.prototype.getServiceUrl('health', "srvhealth_store_goods_select",
+        let url = Vue.prototype.getServiceUrl('health', "srvhealth_store_goods_guest_select",
           "select")
         let res = await _http.post(url, req);
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
