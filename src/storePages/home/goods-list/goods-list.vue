@@ -42,7 +42,8 @@
     },
     data() {
       return {
-        goodsList: []
+        goodsList: [],
+        pageNo:1
       };
     },
     mounted() {
@@ -53,6 +54,9 @@
     methods: {
       getGoodsListData() {
         let req = {
+          page:{
+            rownumber:999
+          },
           condition: [{
               colName: 'store_no',
               ruleType: 'eq',

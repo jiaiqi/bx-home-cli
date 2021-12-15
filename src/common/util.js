@@ -2328,11 +2328,31 @@ export default {
       return str
     }
 
+    Vue.prototype.renderEmoji = (str) => {
+      if (str) {
+        try{
+          str = str.replace(/\&\#(.*?);/, (match, key) => {
+            if(key){
+              key = '0'+key
+            }
+            if (String.fromCodePoint) {
+              return String.fromCodePoint(key)
+            }
+          })
+        }catch(e){
+          //TODO handle the exception
+          console.log('renderEmojiErr',e)
+        }
+      }
+      return str
+    }
+
     Vue.prototype.toArticle = (no) => {
       uni.navigateTo({
         url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
       });
     }
+    
     Vue.prototype.delNotChineseChar = (str) => {
       // 去掉非中文字符
       if (str) {
@@ -2617,7 +2637,7 @@ export default {
       }
     }
 
-    Vue.prototype.updateCart = async(goodsInfo)=> {
+    Vue.prototype.updateCart = async (goodsInfo) => {
       let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
       if (goodsInfo?.cart_goods_rec_no) {
         let req = [{
@@ -2634,7 +2654,7 @@ export default {
         return await Vue.prototype.$fetch('update', serviceName, req, 'health')
       }
     }
-    
-    
+
+
   }
 }

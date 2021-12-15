@@ -131,7 +131,8 @@
         }
       },
       version() {
-        return `V${dayjs().format('YYYYMMDDHHmm')}`
+        return version
+        // return `V${dayjs().format('YYYYMMDDHHmm')}`
         // V1.2.90-2021101520
       },
       ...mapState({

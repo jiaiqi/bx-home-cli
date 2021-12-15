@@ -147,7 +147,7 @@ export default {
         if (prepay_id) {
           req[0].data[0].prepay_id = prepay_id
         }
-        this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
+        Vue.prototype.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
           // 支付成功后修改订单状态和支付状态
         });
       }

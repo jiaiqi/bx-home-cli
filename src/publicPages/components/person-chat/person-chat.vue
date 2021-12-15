@@ -153,7 +153,7 @@
                     item.msg_content && item.msg_content.indexOf('</') !== -1
                   "
                 ></rich-text> -->
-                <u-parse :content="item.msg_content" />
+                <u-parse :content="renderEmoji(item.msg_content)" />
                 <!-- <text user-select selectable space="nbsp" v-else>{{
                   item.msg_content
                 }}</text> -->
@@ -336,7 +336,7 @@
                   item.attribute.type &&
                   item.attribute.type === 'remindPerson'
                 ">@{{ item.attribute.name }}</text>
-              <u-parse :content="item.msg_content" />
+              <u-parse :content="renderEmoji(item.msg_content)" />
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
               class="person-chat-item-right" :class="item.msg_link ? 'person-chat-item-right-link' : ''">

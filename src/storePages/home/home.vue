@@ -200,23 +200,23 @@
           push_msg_set: this.push_msg_set,
           member_status: this.member_status
         }
-        this.updateStoreUser(data)
+        this.updateStoreUser(data, true)
       },
       joinStore() {
         // 加入店铺 店铺用户状态改为正常
         let data = {
           member_status: '正常'
         }
-        this.updateStoreUser(data)
+        this.updateStoreUser(data, true)
       },
       exitStore() {
         // 退出店铺 店铺用户状态改为退出
         let data = {
           member_status: '退出'
         }
-        this.updateStoreUser(data)
+        this.updateStoreUser(data, true)
       },
-      async updateStoreUser(data) {
+      async updateStoreUser(data, showToast) {
         let req = [{
           "serviceName": "srvhealth_store_user_update",
           "condition": [{
@@ -229,9 +229,11 @@
         let res = await this.$fetch('operate', 'srvhealth_store_user_update', req, 'health')
         this.hideModal()
         if (res.success) {
-          uni.showToast({
-            title: '操作成功'
-          })
+          if (showToast) {
+            uni.showToast({
+              title: '操作成功'
+            })
+          }
           this.selectBindUser()
         }
       },
@@ -579,27 +581,27 @@
                 element['listdata'] = dataArray[index]
                 break;
               case '商品列表':
-                if (Array.isArray(dataArray[index]) && dataArray[index].length > 0) {
-                  element['listdata'] = dataArray[index].reduce((pre, cur) => {
-                    let url = this.getImagePath(cur['goods_img'], true);
-                    cur.url = url;
-                    if (cur['goods_img']) {
-                      this.getImageInfo({
-                        url: url
-                      }).then(picInfo => {
-                        if (picInfo.w && picInfo.h) {
-                          let res = this.setPicHeight(picInfo);
-                          if (res.w && res.h) {
-                            this.$set(cur, 'imgWidth', res.w);
-                            this.$set(cur, 'imgHeight', res.h);
-                          }
-                        }
-                      });
-                    }
-                    pre.push(cur)
-                    return pre
-                  }, []);
-                }
+                // if (Array.isArray(dataArray[index]) && dataArray[index].length > 0) {
+                //   element['listdata'] = dataArray[index].reduce((pre, cur) => {
+                //     let url = this.getImagePath(cur['goods_img'], true);
+                //     cur.url = url;
+                //     if (cur['goods_img']) {
+                //       this.getImageInfo({
+                //         url: url
+                //       }).then(picInfo => {
+                //         if (picInfo.w && picInfo.h) {
+                //           let res = this.setPicHeight(picInfo);
+                //           if (res.w && res.h) {
+                //             this.$set(cur, 'imgWidth', res.w);
+                //             this.$set(cur, 'imgHeight', res.h);
+                //           }
+                //         }
+                //       });
+                //     }
+                //     pre.push(cur)
+                //     return pre
+                //   }, []);
+                // }
                 break;
               case '通知横幅':
                 element['listdata'] = dataArray[index].map(item => {
@@ -680,18 +682,19 @@
               this.isBind = false
             }
             this.bindUserInfo = isBind
-
-            if (this.inviterInfo?.invite_user_no) {
+            let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
+              ?.invite_user_no
+            if (invite_user_no) {
               if (this.StoreInfo?.standard !== '不更新') {
                 // 更新店铺用户的邀请人编码
                 let data = {
-                  invite_user_no: this.inviterInfo.invite_user_no,
+                  invite_user_no: invite_user_no,
                 }
-                let inviterStoreUser = await this.getInviteStoreUser(this.inviterInfo.invite_user_no)
+                let inviterStoreUser = await this.getInviteStoreUser(invite_user_no)
                 if (inviterStoreUser && inviterStoreUser.store_user_no) {
                   data.invite_store_user_no = inviterStoreUser.store_user_no
                 }
-                await this.updateStoreUserInfo(data)
+                await this.updateStoreUser(data)
               }
 
             }
@@ -732,31 +735,6 @@
         if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
           return res.data.data[0]
         }
-      },
-      async updateStoreUserInfo(e) {
-        let url = this.getServiceUrl('health', 'srvhealth_store_user_update', 'operate')
-        let req = [{
-          "serviceName": "srvhealth_store_user_update",
-          "condition": [{
-            colName: 'id',
-            ruleType: 'eq',
-            value: this.bindUserInfo.id
-          }],
-          "data": [e]
-        }]
-
-        let res = await this.$http.post(url, req)
-        // .then(res => {
-        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.response) && res.data.response.length > 0 &&
-          Array.isArray(res.data.response[0].response.effect_data) && res.data.response[0].response.effect_data
-          .length > 0) {
-          this.bindUserInfo = res.data.response[0].response.effect_data[0]
-          this.push_msg_set = this.bindUserInfo.push_msg_set
-          this.member_status = this.bindUserInfo.member_status
-          this.$store.commit('SET_STORE_USER', this.bindUserInfo)
-        }
-        this.selectBindUser()
-        // })
       },
       getGoodsListData() {
         let req = {
@@ -872,7 +850,7 @@
             "user_role": "用户",
             add_url: this.userInfo?.add_url || this.inviterInfo.add_url,
             invite_user_no: this.invite_user_no || this.userInfo?.invite_user_no || this.inviterInfo
-              .invite_user_no,
+              ?.invite_user_no,
           }]
         }]
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
@@ -974,68 +952,8 @@
         };
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-
           return res.data.data;
         }
-      },
-      async addToStore(store_no, invite_user_no) {
-        // 添加用户到单位
-        let self = this;
-        if (!this.userInfo || !this.userInfo.no) {
-          await this.toAddPage()
-        }
-
-        if (this.authBoxDisplay) {
-          return
-        }
-        let url = this.getServiceUrl('health', 'srvhealth_store_user_add', 'operate');
-        let req = [{
-          serviceName: 'srvhealth_store_user_add',
-          condition: [],
-          data: [{
-            nick_name: this.userInfo.nick_name ? this.userInfo.nick_name.replace(
-              /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : '',
-            profile_url: this.userInfo.profile_url,
-            sex: this.userInfo.sex,
-            user_account: this.userInfo.userno,
-            user_image: this.userInfo.user_image,
-            person_name: this.userInfo.name || this.userInfo.nick_name,
-            add_url: this.inviterInfo.add_url,
-            invite_user_no: invite_user_no || '',
-            store_no: this.storeNo,
-            person_no: this.userInfo.no,
-            user_role: '用户',
-            "image": this.StoreInfo.image,
-            "name": this.StoreInfo.name,
-            "type": this.StoreInfo.type
-          }]
-        }];
-        uni.showModal({
-          title: `是否加入【${this.StoreInfo.name}】`,
-          content: "不加入则无法进行大部分操作",
-          confirmText: "加入",
-          confirmColor: "#0bc99d",
-          cancelColor: "#ccc",
-          success(res) {
-            if (res.confirm) {
-              self.$http.post(url, req).then(res => {
-                if (res.data.state === 'SUCCESS') {
-                  uni.showModal({
-                    title: '提示',
-                    content: `您已成功加入【${self.StoreInfo.name}】`
-                  });
-                  self.initPage()
-                } else {
-                  uni.showModal({
-                    title: '提示',
-                    content: res.data.resultMessage,
-                    showCancel: false
-                  });
-                }
-              });
-            }
-          }
-        });
       },
       async getQuery() {
         if (!this.pt_no) {
@@ -1240,7 +1158,7 @@
           // 	icon: 'none'
           // })
         }
-        this.selectInStore()
+        // this.selectInStore()
       },
     },
     onPullDownRefresh() {
@@ -1338,11 +1256,13 @@
           }
         }, 2000);
       })
+
       uni.$on('updateStoreInfo', (e) => {
         if (e && e.store_no === this.storeNo) {
           this.StoreInfo = e
         }
       })
+
       if (option.q) {
         let text = this.getDecodeUrl(option.q);
         if (text && text.indexOf('https://wx2.100xsys.cn/home/') !== -1) {
@@ -1475,7 +1395,6 @@
       }
       if (this.authBoxDisplay) {
         return //未授权
-        // await this.toAddPage()
       }
       if (option.room_no) {
         getApp().globalData.room_no = option.room_no
@@ -1495,30 +1414,6 @@
         } else {
           await this.bindStore(option.store_no, option.invite_user_no)
         }
-        // if (this.pt_no) {
-        //   // 查找二维码携带的页面信息
-        //   this.getQuery()
-        // }
-        // this.selectStoreInfo().then(res => {
-        //   this.getStoreUserInfo(option.store_no).then(res => {
-        //     if (Array.isArray(res) && res.length >= 1) {
-        //       // 店铺用户列表中已存在此用户
-        //       if (this.pt_no) {
-        //         // 查找二维码携带的页面信息
-        //         this.getQuery()
-        //       }
-        //     } else {
-        //       // 当前用户不在此诊所中 则添加当前用户到此诊所中
-        //       this.addToStore(option.store_no, option
-        //         .invite_user_no).then(_=>{
-        //           if (this.pt_no) {
-        //             // 查找二维码携带的页面信息
-        //             this.getQuery()
-        //           }
-        //         })
-        //     }
-        //   });
-        // });
       }
       this.initPage()
     }

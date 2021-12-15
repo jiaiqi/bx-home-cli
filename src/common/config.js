@@ -1,4 +1,4 @@
-let version = 'V1.2.90-2021101520'
+let version = '202112151115'
 
 export {
   version

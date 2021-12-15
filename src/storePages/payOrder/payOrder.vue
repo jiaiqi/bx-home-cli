@@ -1,10 +1,18 @@
 <template>
-  <view class="pay-order" :class="['theme-'+theme]">
+  <view class="pay-order" :class="['theme-'+theme]" v-if="orderInfo&&orderInfo.order_state">
     <view class="address-box" @click="chooseAddress" v-if="!room_no&&(storeInfo&&storeInfo.type!=='酒店')">
-      <view class="left" v-if="addressInfo && addressInfo.userName && addressInfo.telNumber"><text
+      <view class="left"
+        v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str"><text
           class="cuIcon-locationfill"></text></view>
       <view class="left" v-else><text class="cuIcon-warnfill"></text></view>
-      <view class="center" v-if="addressInfo && addressInfo.userName && addressInfo.telNumber">
+      <view class="center" v-if="orderInfo&&orderInfo.rcv_addr_str">
+        <view class="">
+          <text class="name">{{ orderInfo.rcv_name || "-" }}</text>
+          <text class="phone">{{ orderInfo.rcv_telephone || "-" }}</text>
+        </view>
+        <view class="address">{{ orderInfo.rcv_addr_str|| "-" }}</view>
+      </view>
+      <view class="center" v-else-if="addressInfo && addressInfo.userName && addressInfo.telNumber">
         <view class="">
           <text class="name">{{ addressInfo.userName || "-" }}</text>
           <text class="phone">{{ addressInfo.phone || "-" }}</text>
@@ -14,7 +22,7 @@
       <view class="center" v-else>
         <view class="center-select"> 请先选择地址 </view>
       </view>
-      <view class="right"><text class="cuIcon-right"></text></view>
+      <view class="right" v-if="!orderInfo||!orderInfo.rcv_addr_str"><text class="cuIcon-right"></text></view>
     </view>
 
     <view class="order-detail">
@@ -53,7 +61,8 @@
           </view>
         </view>
         <view class="order-remark">
-          <textarea class="textarea" v-model="order_remark" placeholder="订单备注" />
+          <textarea class="textarea" v-model="order_remark" placeholder="订单备注"
+            :disabled="orderInfo&&orderInfo.order_no" />
         </view>
         <view class="id-number-edit" v-if="needIdNum">
           <view class="cu-form-group ">
@@ -83,7 +92,7 @@
       <text class="text">合计:</text>
       <text class="money-amount">
         <text class="money-operate">￥</text>
-        <text>{{ totalMoney ? totalMoney / 100 : "" }}</text>
+        <text>{{ totalMoney || "" }}</text>
       </text>
       <button class="cu-btn bg-gradual-orange round" :class="'bx-bg-'+theme" @click="submitOrder"
         v-if="orderInfo.order_state === '待提交'">
@@ -214,7 +223,7 @@
             }
             return pre;
             // }, 0)
-          }, 0) * 100
+          }, 0)
         }
       }
     },
@@ -369,7 +378,7 @@
           self.selectorData = []
         }
       },
-      updateOrderState(order_state, pay_state, prepay_id,order_no) {
+      updateOrderState(order_state, pay_state, prepay_id, order_no) {
         let req = [{
           serviceName: 'srvhealth_store_order_update',
           condition: [{
@@ -390,6 +399,9 @@
         });
       },
       chooseAddress() {
+        if (this.orderInfo?.rcv_addr_str) {
+          return
+        }
         let self = this;
         // #ifdef MP-WEIXIN
         uni.chooseAddress({
@@ -413,6 +425,7 @@
         let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
+          this.order_remark = this.orderInfo.order_remark||''
           if (this.orderInfo.order_state === '待支付' && this.orderInfo.pay_state === '取消支付') {
             uni.setNavigationBarTitle({
               title: '等待买家付款'
@@ -495,7 +508,7 @@
             sex: this.userInfo.sex,
             user_role: this.userInfo.user_role,
             order_amount: this.totalMoney,
-            order_remark: this.order_remark || '订单备注',
+            order_remark: this.order_remark || '',
             pay_state: '待支付',
             order_state: '待支付',
             child_data_list: [{
@@ -570,7 +583,8 @@
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
-        if (typeof this.totalMoney !== 'number' || this.totalMoney.toString() === 'NaN') {
+        let totalMoney = orderData.order_amount || this.totalMoney
+        if (typeof totalMoney !== 'number' || totalMoney.toString() === 'NaN') {
           uni.showModal({
             title: '提示',
             content: '订单状态有误',
@@ -582,7 +596,7 @@
         if (orderData.prepay_id) {
           result.prepay_id = orderData.prepay_id;
         } else {
-          result = await this.toPlaceOrder(this.totalMoney || 1, this.loginUserInfo?.login_user_type,
+          result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
             orderData, this.wxMchId);
         }
         if (result && result.prepay_id) {
@@ -613,6 +627,7 @@
       }
     },
     onLoad(option) {
+      debugger
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId
       }
@@ -631,7 +646,7 @@
             this.orderInfo.pay_state = '待支付';
           }
         }
-      } else if (option.store_no) {
+      } else if (option.store_no && !option.order_no) {
         // 从购物车进入 还未生成订单
         this.store_no = option.store_no
         if (this.cartInfo[option.store_no] && Array.isArray(this.cartInfo[option.store_no].cart)) {

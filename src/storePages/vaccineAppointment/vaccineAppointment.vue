@@ -157,7 +157,7 @@
         imagesUrl: [],
         dayOrderInfo: {},
         app_type: "", // 默认疫苗预约
-        moreConfig:{}
+        moreConfig: {}
       }
     },
     computed: {
@@ -198,10 +198,10 @@
         // 疫苗库存
         let serviceName = this.moreConfig?.serviceName || 'srvhealth_store_vaccine_stocks_select'
         let app = this.moreConfig?.app || 'health'
-        
-        
+
+
         let req = {
-          "serviceName":serviceName,
+          "serviceName": serviceName,
           "colNames": ["*"],
           "condition": [{
             colName: "id",
@@ -321,6 +321,11 @@
               "value": this.store_no
             },
             {
+              "colName": "open_state",
+              "ruleType": "ne",
+              "value": '关闭'
+            },
+            {
               "colName": "app_date_end",
               "ruleType": "ge",
               "value": this.formateDate()
@@ -387,6 +392,8 @@
                 if (item.weekday_set.indexOf(week) === -1) {
                   continue;
                 }
+              } else {
+                continue;
               }
               let obj1 = this.deepClone(item)
               obj1.app_date = date
@@ -447,8 +454,7 @@
                 let app_open_time = dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time)
 
                 if (result.predays && result.app_open_time && result._date === deadline && dayjs() - app_open_time <
-                  0) {
-                } else {
+                  0) {} else {
                   arr.push(result)
                 }
                 // }
@@ -462,6 +468,7 @@
               }
             }
           }
+          debugger
           this.timeArr = arr
           let timeArr = res.data
 
@@ -477,9 +484,9 @@
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
             let title = `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`;
-            
+
             uni.showToast({
-              title:title,
+              title: title,
               icon: 'none'
             })
             return
@@ -760,11 +767,11 @@
       }, 1000)
     },
     async onLoad(option) {
-      
+
       if (option.app_type) {
         this.app_type = option.app_type
       }
-      
+
       if (option.moreConfig) {
         try {
           this.moreConfig = JSON.parse(option.moreConfig)
@@ -772,7 +779,7 @@
           console.log(err)
         }
       }
-      
+
       if (option.store_no) {
         this.store_no = option.store_no
         await this.getStoreInfo(option.store_no)

@@ -864,7 +864,6 @@
         }
 
         let keywords = this.searchVal;
-        debugger
         // req.condition = []
         if (keywords && this.finalSearchColumn) {
           if (typeof this.finalSearchColumn === 'string') {
@@ -1086,8 +1085,6 @@
             })
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
-            debugger
-
             if (buttonInfo?.moreConfig?.navUrl) {
               let storeInfo = this.$store?.state?.app?.storeInfo
               let bindUserInfo = this.$store?.state?.user?.storeUserInfo
@@ -1133,11 +1130,10 @@
                     paySign: res.paySign,
                     success(res) {
                       // 支付成功
-                      self.orderInfo.order_state = '待发货';
                       self.updateOrderState('待发货', '已支付', result.prepay_id, rowData.order_no);
                       uni.redirectTo({
                         url: '/storePages/successPay/successPay?order_no=' + orderData
-                          .order_no + '&totalMoney=' + self.totalMoney
+                          .order_no + '&totalMoney=' + orderData.order_amount
                       });
                     },
                     fail(res) {
@@ -1218,7 +1214,6 @@
               let fieldsCond = [];
               let condition = buttonInfo?.operate_params?.condition
               let defaultVal = buttonInfo?.operate_params?.data
-              debugger
               if (Array.isArray(defaultVal) && defaultVal.length > 0) {
                 let obj = defaultVal[0]
                 if (this.iObject(obj)) {
