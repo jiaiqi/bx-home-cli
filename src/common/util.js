@@ -2331,7 +2331,7 @@ export default {
     Vue.prototype.renderEmoji = (str) => {
       if (str) {
         try{
-          str = str.replace(/\&\#(.*?);/, (match, key) => {
+          str = str.replace(/\&\#(.*?);/g, (match, key) => {
             if(key){
               key = '0'+key
             }

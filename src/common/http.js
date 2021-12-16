@@ -167,6 +167,16 @@ fly.interceptors.response.use(
       if (store.state.app.xhrNum === 0) {
         uni.hideLoading()
       }
+      if(res.data.state==='SUCCESS'&&Array.isArray(res.data.data)){
+        try{
+          let str = JSON.stringify(res.data.data);
+          str = Vue.prototype.renderEmoji(str)
+          res.data.data = JSON.parse(str)
+        }catch(e){
+          //TODO handle the exception
+          console.log('xhr-error',e)
+        }
+      }
       //只将请求结果的data字段返回
       if (res.data.resultCode === "0011") { //未登录
         uni.setStorageSync('isLogin', false)

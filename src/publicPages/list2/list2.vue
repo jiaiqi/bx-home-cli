@@ -1095,9 +1095,7 @@
                 bindUserInfo
               };
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
-              // uni.navigateTo({
-              //   url
-              // })
+             
               let title = buttonInfo?.service_view_name || buttonInfo?.button_name
               this.navigateTo({
                 url,
