@@ -1095,7 +1095,7 @@
                 bindUserInfo
               };
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
-             
+
               let title = buttonInfo?.service_view_name || buttonInfo?.button_name
               this.navigateTo({
                 url,
@@ -1277,6 +1277,25 @@
               title
             })
             return
+          } else if (buttonInfo.operate_type === '详情跳转') {
+            debugger
+            let fieldsCond = [];
+            if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
+              0) {
+              buttonInfo.operate_params.condition.forEach(item => {
+                let obj = {
+                  column: item.colName,
+                  value: item.value,
+                  disabled: true
+                }
+                fieldsCond.push(obj)
+              })
+            }
+            let url =
+              `/publicPages/form/form?type=detail&disabled=true&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+            uni.navigateTo({
+              url
+            })
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
             let fieldsCond = [];
             if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
