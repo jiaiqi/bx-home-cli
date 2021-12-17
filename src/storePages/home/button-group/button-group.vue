@@ -91,12 +91,12 @@
             <view class="title">姓名</view>
             <input class="text-right" placeholder="请输入您的真实姓名" name="input" v-model="formModel.customer_name"></input>
           </view>
-          <view class="cu-form-group">
+          <view class="cu-form-group" v-if="realNameHideId!==true">
             <view class="title">身份证号</view>
             <input class="text-right" placeholder="请输入您的身份证号" name="input" type="idcard"
               v-model="formModel.id_no"></input>
           </view>
-          <view class="cu-form-group">
+          <view class="cu-form-group" v-if="realNameHideBirth!==true">
             <view class="title">出生日期</view>
             <picker mode="date" v-model="formModel.customer_birth_day" start="1930-09-01" end="2022-09-01"
               @change="DateChange">
@@ -151,6 +151,9 @@
     },
     data() {
       return {
+        realNameHideId: false,
+        realNameHideBirth: false,
+        hideRealnameFields: [], //['customer_name','id_no','phone_xcx','customer_phone','customer_birth_day'],
         groupList: [],
         globalData: {},
         showQrcode: false,
@@ -369,25 +372,32 @@
       async updateUserInfo() {
         let data = {}
         if (!this.formModel.customer_name || !this.formModel.customer_phone || !this.formModel
-          .customer_birth_day || !this.formModel.id_no) {
+          .customer_birth_day) {
           //  || !this.formModel.phone_xcx 暂不校验是否填写小程序手机号
           this.tip = '请确认所有实名信息已填写完整'
           return
         }
+        if (!this.formModel.id_no) {
+          if (this.realNameHideId != true) {
+            this.tip = '请确认所有实名信息已填写完整'
+            return
+          }
+        }
+
         this.tip = ''
-        if (!this.userInfo.id_no || this.formModel.id_no) {
+        if (this.formModel.id_no) {
           data.id_no = this.formModel.id_no
         }
-        if (!this.userInfo.phone || this.formModel.customer_phone) {
+        if (this.formModel.customer_phone) {
           data.phone = this.formModel.customer_phone
         }
-        if (!this.userInfo.phone_xcx || this.formModel.phone_xcx) {
+        if (this.formModel.phone_xcx) {
           data.phone_xcx = this.formModel.phone_xcx
         }
-        if (!this.userInfo.birthday || this.formModel.customer_birth_day) {
+        if (this.formModel.customer_birth_day) {
           data.birthday = this.formModel.customer_birth_day
         }
-        if (this.formModel.customer_name || this.formModel.customer_name) {
+        if (this.formModel.customer_name) {
           data.name = this.formModel.customer_name
         }
         let req = [{
@@ -615,12 +625,21 @@
 
 
         if (e.url) {
-
           if (e.url.indexOf('needRealNameAuth') > -1) {
             // 需要进行实名认证
+
             if (!this.userInfo?.phone_xcx || !this.userInfo?.id_no) {
-              this.showRealNameModal()
-              return
+              if (e.url.indexOf('realNameHideId') > -1) {
+                this.realNameHideId = true
+              }
+              if (e.url.indexOf('realNameHideBirth') > -1) {
+                this.realNameHideBirth = true
+              }
+              if (!this.userInfo?.phone_xcx || !this.realNameHideId) {
+                this.showRealNameModal()
+                return
+              }
+
             }
           }
 

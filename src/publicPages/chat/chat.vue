@@ -5,7 +5,7 @@
         sessionType === '店铺机构全员' ||
         receiver_person_no
       ">
-      <view class="util-item" @click="toPages('groupAnnouncement')"
+      <view class="util-item bg-white round" @click="toPages('groupAnnouncement')"
         v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
         <view class="icon"><text class="cuIcon-notice"></text></view>
         <text class="label">群公告</text>
@@ -15,7 +15,7 @@
         <view class="icon"><text class="cuIcon-repair"></text></view>
         <text class="label">小工具</text>
       </view> -->
-      <view class="util-item" @click="toPages('doctor-info')" v-if="receiver_person_no">
+      <view class="util-item bg-white round" @click="toPages('doctor-info')" v-if="receiver_person_no">
         <view class="icon"><text class="cuIcon-people"></text></view>
         <text class="label">详细资料</text>
       </view>
@@ -25,10 +25,10 @@
       </view> -->
     </view>
     <view class="util-bar absolute" v-if="top_buttons&&top_buttons.length>0">
-      <view class="util-item" @click="onButton(btn)" v-for="btn in top_buttons">
+      <button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)" v-for="btn in top_buttons">
         <!-- <view class="icon"><text class="cuIcon-notice"></text></view> -->
         <text class="label">{{btn.name||''}}</text>
-      </view>
+      </button>
 
     </view>
     <!--    <view style="height: 170px;" v-if="showGoodsCard&&goodsInfo">
@@ -90,9 +90,9 @@
           return more_config
         }
       },
-      // topButtons() {
-      //   return this.moreConfig?.top_buttons
-      // },
+      topButtons() {
+        return this.moreConfig?.top_buttons
+      },
       bandPost() {
         // 是否群体禁言
         return this.sessionInfo?.band_post
@@ -162,6 +162,13 @@
       }
     },
     methods: {
+      getBtnClassName(btn){
+        let className = ''
+        if(btn?.bg){
+          className += `bg-${btn.bg}`
+        }
+        return className
+      },
       onButton(btn) {
         if (btn.url) {
           let data = {
@@ -958,8 +965,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #fff;
-      border-radius: 10px;
+      // background-color: #fff;
+      // border-radius: 10px;
       padding: 8px 10px;
 
       &+.util-item {
@@ -975,13 +982,14 @@
         line-height: 40rpx;
         text-align: center;
         font-size: 40rpx;
+        margin-right: 5px;
       }
 
       .label {
-        color: #999;
+        // color: #999;
         // margin-top: 10rpx;
         font-size: 28rpx;
-        margin-left: 5px;
+        // margin-left: 5px;
       }
     }
   }

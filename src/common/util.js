@@ -2655,6 +2655,11 @@ export default {
       }
     }
 
-
+    Vue.prototype.getPlayAddress = async(fileNo)=>{
+      let res = await _http.get(`${api.serverURL}/file/getPlayAddress?fileNo=${fileNo}`)
+      if(res.data?.state==='SUCCESS'&&res.data?.data?.playUrl){
+        return res.data?.data?.playUrl
+      }
+    }
   }
 }

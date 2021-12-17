@@ -1133,9 +1133,10 @@
   }
 
   .main-form-edit {
-    background-color: #fff;
-    border-radius: 10rpx;
+    // background-color: #fff;
+    border-radius: 20rpx;
     margin-bottom: 20rpx;
+    overflow: hidden;
 
     .pc-model {
       display: flex;

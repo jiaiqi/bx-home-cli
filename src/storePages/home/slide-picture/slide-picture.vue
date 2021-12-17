@@ -1,25 +1,38 @@
 <template>
-  <view class="swiper-list" :class="{'left-bottom-dot':dotPostion==='left-bottom'}">
+  <view class="swiper-list" :class="{'left-bottom-dot':dotPostion==='left-bottom'}" id="home-swiper-list"
+    :data-order-no="pageItem['order_no']" v-if="pageItem">
     <view class="home-btn" @click="setHomePage" v-if="pageItem.show_set_home!=='否'">
       <button class=" cu-btn shadow-blur" v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no">
         <text class="cuIcon-home"></text></button>
     </view>
     <swiper class="screen-swiper item-box rectangle-dot" :style="calcStyle" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="autoplay" :interval="interval"
-      duration="500" @change="swiperChange">
+      duration="500" @change="swiperChange" v-if="swiperList.length!==1">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
-        <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
-          :poster="item.videoPoster"></video>
+        <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
+          <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
+        </view>
         <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
           @click.stop="toDetail(item)">
         </image>
       </swiper-item>
     </swiper>
+    <view class="single-media" v-else>
+      <view class="swiper-item-box" :style="calcStyle" v-for="(item, index) in swiperList" :key="item.url"
+        :data-id="item.id">
+        <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
+          :poster="item.videoPoster"></video>
+        <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+          @click.stop="toDetail(item)">
+        </image>
+      </view>
+    </view>
   </view>
 </template>
 
 <script>
   export default {
+    name: 'home-swiper-list',
     computed: {
       interval() {
         return this.pageItem?.more_config?.interval || '5000'
@@ -63,7 +76,8 @@
       return {
         current: 0,
         swiperList: [],
-        videoContext: {}
+        videoContext: {},
+        isFirstSwiperList: false
       }
     },
     mounted() {
@@ -201,6 +215,13 @@
     overflow: hidden;
     position: relative;
     min-width: 335px;
+
+    .swiper-item-box {
+      video {
+        width: 100%;
+        height: 100%;
+      }
+    }
 
     @media screen and (min-width: 1300px) {
       width: 400px;

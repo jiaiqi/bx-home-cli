@@ -7,7 +7,8 @@
       room_no: "", //酒店房间编号
       pt_no: "", //二维码参数编号
       beforeRedirectUrl: "",
-      systemInfo: uni.getSystemInfoSync()
+      systemInfo: uni.getSystemInfoSync(),
+      firstSwiperListOrder:null
     },
     onLaunch(options) {
       if (options?.query?.bx_auth_ticket) {

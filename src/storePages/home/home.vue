@@ -420,7 +420,14 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
         if (res.success) {
-          this.pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
+          let setFirstSwiper = false
+          this.pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员').map(item=>{
+            if(!setFirstSwiper&&item.type==='轮播图'){
+              item.isFirstSwiper = true
+              setFirstSwiper  = true
+            }
+            return item
+          })
           this.getComponentData()
         }
       },
@@ -686,6 +693,7 @@
               ?.invite_user_no
             if (invite_user_no) {
               if (this.StoreInfo?.standard !== '不更新') {
+                // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
                 // 更新店铺用户的邀请人编码
                 let data = {
                   invite_user_no: invite_user_no,
@@ -853,6 +861,16 @@
               ?.invite_user_no,
           }]
         }]
+        let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
+          ?.invite_user_no
+        try {
+          let inviterStoreUser = await this.getInviteStoreUser(invite_user_no)
+          if (inviterStoreUser && inviterStoreUser.store_user_no) {
+            req[0].data[0].invite_store_user_no = inviterStoreUser.store_user_no
+          }
+        } catch (err) {
+          console.log(err)
+        }
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
         if (res.success) {
           this.isBind = true

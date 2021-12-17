@@ -143,6 +143,10 @@
             ? fieldData.item_type_attr.max_len
             : 999
         " v-model="fieldData.value" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
+      <uni-rate v-model="fieldData.value" :readonly="fieldData.disabled"
+        :max="fieldData.moreConfig&&fieldData.moreConfig.max?fieldData.moreConfig.max:5"
+        :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
+        v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
       <input class="" style="width: 100%" @blur="onBlur"
         :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.label" :type="fieldData.type" @input="onInput"
         :maxlength="

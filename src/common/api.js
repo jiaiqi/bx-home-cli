@@ -3,7 +3,7 @@
 
 let env = 'prod'
 
-// env = 'test'
+env = 'test'
 
 
 // if (process?.env?.APP_ENV) {
@@ -23,7 +23,8 @@ let conf = {
     serviceAddress: "https://srvms.100xsys.cn",
     appNo: "APPNO20201124160702",
     appId: "wxa3c50c8177ef6739",
-    ws: "wss://srvms.100xsys.cn:8081"
+    ws: "wss://srvms.100xsys.cn:8081",
+    // serviceAddress: "http://192.168.0.241:8080", // 内网
   }
 }
 
