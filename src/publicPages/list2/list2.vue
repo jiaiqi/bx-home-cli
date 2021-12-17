@@ -1278,7 +1278,6 @@
             })
             return
           } else if (buttonInfo.operate_type === '详情跳转') {
-            debugger
             let fieldsCond = [];
             if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
               0) {
@@ -1296,6 +1295,7 @@
             uni.navigateTo({
               url
             })
+            return
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
             let fieldsCond = [];
             if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition.length >
