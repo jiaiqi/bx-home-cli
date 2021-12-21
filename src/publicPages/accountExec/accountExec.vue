@@ -7,7 +7,7 @@
       <view class="wrapper">
         <view class="account-login" v-if="loginType==='account'">
           <view class="welcome">
-            <!-- #ifdef H5 -->
+            <!-- #ifdef H5||APP-PLUS -->
             <text>你好, 欢迎使用！</text>
             <!-- #endif -->
             <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
@@ -65,7 +65,7 @@
             暂不授权
           </button>
         </view>
-        <!-- #ifdef H5 -->
+        <!-- #ifdef H5||APP-PLUS -->
         <view class="qrcode-login" v-if="loginType==='weixin-qrcode'">
           <div id="login_container" class="login_container"></div>
           <div style="text-align: center;"> （注意是用摄像头扫码，不是长按识别二维码）</div>
@@ -111,7 +111,7 @@
         showAllMenu: false,
         checkValue: false,
         eye_show: false,
-        loginType: 'weixin-qrcode', //account,weixin-qrcode
+        loginType: 'account', //account,weixin-qrcode
       };
     },
     created() {

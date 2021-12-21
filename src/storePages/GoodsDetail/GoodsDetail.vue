@@ -568,7 +568,7 @@
       }
       if (option.storeNo) {
         this.storeNo = option.storeNo
-        // this.getStoreInfo()
+        this.getStoreInfo()
       }
       if (option.destApp) {
         this.destApp = option.destApp

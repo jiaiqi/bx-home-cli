@@ -218,7 +218,7 @@
           option.from = 'share'
         }
       }
-      await this.toAddPage()
+      // await this.toAddPage()
       this.checkOptionParams(option);
 
       if (option.content_no) {

@@ -45,6 +45,7 @@
       getUserProfile(e) {
         // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
         // 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
+        // #ifdef MP-WEIXIN
         wx.getUserProfile({
           desc: '用于完善用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
           success: (res) => {
@@ -52,12 +53,26 @@
             this.handleUserInfo(res)
           }
         })
+        // #endif
+		// #ifndef MP
+		uni.navigateTo({
+			url:'/publicPages/accountExec/accountExec'
+		})
+		// #endif
       },
       getUserInfo(e) {
         // 不推荐使用getUserInfo获取用户信息，预计自2021年4月13日起，getUserInfo将不再弹出弹窗，并直接返回匿名的用户个人信息
-        this.handleUserInfo(e.detail)
+		// #ifdef MP-WEIXIN
+		 this.handleUserInfo(e.detail)
         this.$store.commit('SET_AUTH_USER', e)
         this.$emit('getuserinfo', e);
+		// #endif
+		// #ifndef MP
+		uni.navigateTo({
+			url:'/publicPages/accountExec/accountExec'
+		})
+		// #endif
+       
       },
       async handleUserInfo(res) {
         let self = this
