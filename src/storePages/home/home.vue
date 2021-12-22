@@ -1275,11 +1275,11 @@
         }, 2000);
       })
 
-      uni.$on('updateStoreInfo', (e) => {
-        if (e && e.store_no === this.storeNo) {
-          this.StoreInfo = e
-        }
-      })
+      // uni.$on('updateStoreInfo', (e) => {
+      //   if (e && e.store_no === this.storeNo) {
+      //     this.StoreInfo = e
+      //   }
+      // })
 
       if (option.q) {
         let text = this.getDecodeUrl(option.q);
