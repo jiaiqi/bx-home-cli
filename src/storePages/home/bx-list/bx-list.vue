@@ -1,6 +1,6 @@
 <template>
 	<view class="page-wrap">
-		<view class="list-box" v-if="list && list.length > 0&&tabs.length===0">
+		<view class="list-box" v-if="list && list.length > 0 && tabs.length === 0">
 			<view class="title" :style="titleStyle">
 				<text>{{ pageItem.component_label || '' }}</text>
 				<button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">
@@ -29,8 +29,28 @@
 			</view>
 			<view class="" style="text-align: center;" v-if="list && list.length === 0">内容为空</view>
 		</view>
-		<view class="tabs-list" v-else-if="tabs.length>0">
+		<view class="tabs-list" v-else-if="tabs.length > 0">
 			<u-tabs :list="tabs" :is-scroll="true" :current="curTab" @change="changeTab"></u-tabs>
+			<view
+				class="list-content"
+				:style="{
+					backgroundColor: list_config.bg
+				}"
+				v-for="(item, index) in tabs"
+				v-show="index === curTab"
+			>
+				<view class="list-view">
+					<list-next
+						class="list-next"
+						:listConfig="listConfig"
+						:list="list"
+						:listType="listType"
+						:colV2="colV2"
+						:appName="appName"
+						@click-foot-btn="clickFootBtn"
+					/>
+				</view>
+			</view>
 		</view>
 	</view>
 </template>
@@ -48,8 +68,8 @@ export default {
 		}
 	},
 	computed: {
-		tabs(){
-			return Array.isArray(this.config?.tabs)&&this.config.tabs.length>0?this.config.tabs:[]
+		tabs() {
+			return Array.isArray(this.config?.tabs) && this.config.tabs.length > 0 ? this.config.tabs : [];
 		},
 		isShowToAll() {
 			if (this.config?.showSeeAll == false) {
@@ -62,9 +82,15 @@ export default {
 			return false;
 		},
 		serviceName() {
+			if (this.tabs?.length > 0) {
+				return this.tabs[this.curTab].service || this.config?.serviceName;
+			}
 			return this.config?.serviceName;
 		},
 		appName() {
+			if (this.tabs?.length > 0) {
+				return this.tabs[this.curTab].app || this.config?.appName || uni.getStorageSync('activeApp');
+			}
 			return this.config?.appName || uni.getStorageSync('activeApp');
 		},
 		publicButton() {
@@ -96,6 +122,9 @@ export default {
 			}
 		},
 		listConfig() {
+			if(this.tabs?.length>0){
+				return this.tabs[this.curTab]['list_config']||this.config?.list_config || {}
+			}
 			return this.config?.list_config || {};
 		},
 		list_config() {
@@ -253,19 +282,27 @@ export default {
 			listType: 'list', //list,proc,cart
 			pageType: '', //list,proc,cart
 			detailType: '', //  normal,custom
-			tabList: [],
+			tabList: [[], [], []],
 			order: [],
 			cartData: [],
 			wxMchId: '',
 			customDetailUrl: '',
 			initCond: [],
 			relationCondition: [],
-			curTab:0
+			curTab: 0,
+			tabsData: []
 		};
 	},
 	methods: {
-		changeTab(e){
-			this.curTab = e
+		changeTab(e) {
+			this.curTab = e;
+			// this.serviceName  = this.tabs[e].service||this.serviceName
+			// this.appName  = this.tabs[e].app||this.appName
+			this.condition = this.tabs[e].condition || [];
+
+			this.getListV2().then(_ => {
+				this.refresh();
+			});
 		},
 		toAll() {
 			uni.navigateTo({
@@ -471,7 +508,7 @@ export default {
 			if (Array.isArray(cond) && cond.length > 0) {
 				req.condition = req.condition.concat(cond);
 			}
-			if (Array.isArray(this.config?.condition) && this.config.condition.length > 0) {
+			if (Array.isArray(this.config?.condition) && this.config.condition.length > 0 && this.tabs.length < 1) {
 				let data = {
 					userInfo: this.$store?.state?.user?.userInfo,
 					storeInfo: this.$store?.state?.app?.storeInfo,
@@ -486,7 +523,7 @@ export default {
 				});
 			}
 
-			if (Array.isArray(this.config?.relation_condition) && this.config.relation_condition.length > 0) {
+			if (Array.isArray(this.config?.relation_condition) && this.config.relation_condition.length > 0 && this.tabs.length < 1) {
 				let data = {
 					userInfo: this.$store?.state?.user?.userInfo,
 					storeInfo: this.$store?.state?.app?.storeInfo,
@@ -498,6 +535,7 @@ export default {
 					console.log(err);
 				}
 			}
+
 			if (Array.isArray(initCond) && initCond.length > 0) {
 				req.condition = [...req.condition, ...initCond];
 			}
