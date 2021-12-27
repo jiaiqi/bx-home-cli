@@ -8,7 +8,8 @@
       pt_no: "", //二维码参数编号
       beforeRedirectUrl: "",
       systemInfo: uni.getSystemInfoSync(),
-      firstSwiperListOrder:null
+      firstSwiperListOrder:null,
+	  scene:''
     },
     onLaunch(options) {
       if (options?.query?.bx_auth_ticket) {

@@ -91,6 +91,12 @@ export default {
 						latitude: item.latitude,
 						longitude: item.longitude
 					};
+					if(data.cfg&&data.cfg.lat_col&&data.cfg.lng_col){
+						if(item[data.cfg.lat_col]&&item[data.cfg.lng_col]){
+							obj.latitude = item[data.cfg.lat_col]
+							obj.longitude = item[data.cfg.lng_col]
+						}
+					}
 					if (item.name) {
 						obj.label.anchorX = -1 * item.name.length * 6;
 					}
@@ -158,8 +164,14 @@ export default {
 		async initMap() {
 			let resData = this.cfg;
 			let reqData = resData.service_json;
+			let cfgData = resData.merge_json
 			try {
 				reqData = JSON.parse(reqData);
+			} catch (e) {
+				//TODO handle the exception
+			}
+			try {
+				cfgData = JSON.parse(cfgData);
 			} catch (e) {
 				//TODO handle the exception
 			}
@@ -175,6 +187,9 @@ export default {
 							app: resData.app,
 							req: reqData
 						};
+						if(cfgData&&cfgData.map_cfg){
+							obj.cfg=cfgData.map_cfg
+						}
 						this.getData(obj);
 					}
 				}

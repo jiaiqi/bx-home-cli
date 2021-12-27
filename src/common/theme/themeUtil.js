@@ -21,7 +21,8 @@ export default {
           storeInfo: state => state.app.storeInfo,
           vcart: state => state.order.cartInfo,
           vstoreUser: state => state.user.storeUserInfo,
-          vloginUser: state => state.user.loginUserInfo
+          vloginUser: state => state.user.loginUserInfo,
+		  scene:state=>state.app.scene
         })
       },
       methods: {
