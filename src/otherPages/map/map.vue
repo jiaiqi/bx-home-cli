@@ -5,6 +5,7 @@
 			style="width: 100%;height: 100%;"
 			:latitude="latitude"
 			:longitude="longitude"
+			:show-location="true"
 			:show-compass="true"
 			:enable-3D="true"
 			:markers="markData"
@@ -18,8 +19,8 @@ export default {
 	data() {
 		return {
 			mapCtx: null,
-			longitude: '108.91189036989164',
-			latitude: '34.19414613592578',
+			longitude: '',
+			latitude: '',
 			markData: [],
 			cfgNo: '',
 			cfg: {}
@@ -197,15 +198,31 @@ export default {
 		}
 	},
 	onLoad(option) {
+		let self = this
+		uni.getLocation({
+		    type: 'gcj02',
+		    success: function (res) {
+		        console.log('当前位置的经度：' + res.longitude);
+		        console.log('当前位置的纬度：' + res.latitude);
+				self.longitude = res.longitude;
+				self.latitude = res.latitude
+		    }
+		});
 		this.mapCtx = wx.createMapContext('map', this);
 		if (option.pt_no) {
-			this.pt_no = option.pt_no;
-			this.getConfig();
+			self.pt_no = option.pt_no;
+			self.getConfig();
 		}
 		// this.initMap()
 		// this.mapCtx.on('markerClusterCreate', (res) => {
 		// 	console.log('markerClusterCreate',res)
 		// })
+	},
+	onShareAppMessage() {
+		
+	},
+	onShareTimeline() {
+		
 	}
 };
 </script>

@@ -314,7 +314,7 @@
           if (res.data.state === 'SUCCESS') {
             const data = res.data.data[0];
             if (data) {
-              const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl;
+              const fileurl = this.$api.fileSrv + '/file/download?filePath=' + data.fileurl;
               // const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl + '&thumbnailType=' + this.$api.imgThumbnailType;
               return fileurl;
             }

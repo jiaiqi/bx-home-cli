@@ -69,6 +69,9 @@
             }
           ]
         };
+		if (Array.isArray(this.pageItem?.more_config?.condition) && this.pageItem?.more_config?.condition.length > 0) {
+			req.condition = [...req.condition, ...this.pageItem?.more_config?.condition];
+		}
         this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
           if (Array.isArray(res.data)) {
             if (Array.isArray(res.data)) {
@@ -157,8 +160,9 @@
     flex-wrap: wrap;
     // column-count: 2;
     // column-gap: 10px;
-    padding: 0 5px 20px;
+    padding: 0 0px 0px;
     min-width: 300px;
+	justify-content: space-between;
 
     @media screen and (min-width: 1300px) {
       width: 400px;
@@ -172,11 +176,14 @@
     background-color: #fff;
     break-inside: avoid;
     margin-top: 20rpx;
-    width: calc(50% - 20rpx);
+    // width: calc(50% - 20rpx);
+	min-width: 45%;
+	flex: 1;
+	max-width: calc(50% - 10rpx);
     margin-right: 20rpx;
-
-    &:first-child {
-      // margin-top: 0;
+	// margin-bottom: 20rpx;
+    &:first-child,&:nth-child(2) {
+      margin-top: 0;
     }
 
     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);

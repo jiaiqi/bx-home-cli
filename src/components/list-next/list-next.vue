@@ -1,417 +1,445 @@
 <template>
-  <view>
-    <view class="list-wrap" v-if="setViewTemp" :class="{
-      'grid-layout':setViewTemp&&setViewTemp.lp_style==='宫格'
-    }">
-      <!-- <checkbox-group @change="checkboxChange" class="check-box-group"> -->
-      <view class="check-box-item " :class="{
-          'grid_span2':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='2'||setViewTemp.grid_span===2),
-          'grid_span3':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='3'||setViewTemp.grid_span===3),
-          'grid_span4':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='4'||setViewTemp.grid_span===4),
-          'grid_span5':setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp&&(setViewTemp.grid_span==='5'||setViewTemp.grid_span===5)
-        }" v-for="(item,index) in list" :key="index">
-        <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType==='cartList'"
-          style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)"/>
-        <!--   <checkbox class="check-box" :value="item.cart_goods_rec_no" :checked="item.checked"
+	<view>
+		<view
+			class="list-wrap"
+			v-if="setViewTemp"
+			:class="{
+				'grid-layout': setViewTemp && setViewTemp.lp_style === '宫格'
+			}"
+		>
+			<!-- <checkbox-group @change="checkboxChange" class="check-box-group"> -->
+			<view
+				class="check-box-item "
+				:class="{
+					grid_span2: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '2' || setViewTemp.grid_span === 2),
+					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
+					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
+					grid_span5: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '5' || setViewTemp.grid_span === 5)
+				}"
+				v-for="(item, index) in list"
+				:key="index"
+			>
+				<radio
+					:value="item.cart_goods_rec_no"
+					:checked="item.checked"
+					v-if="listType === 'cartList'"
+					style="transform:scale(0.7);margin-right:5px;"
+					@click="checkboxChange(item)"
+				/>
+				<!--   <checkbox class="check-box" :value="item.cart_goods_rec_no" :checked="item.checked"
             v-if="listType==='cartList'" style="transform:scale(0.7);margin" /> -->
-        <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData='cartData'
-          :listType="listType" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
-          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
-          @add2Cart="add2Cart" @del2Cart="del2Cart">
-        </list-item>
-      </view>
-      <!-- </checkbox-group> -->
-    </view>
-  </view>
+				<list-item
+					class="list-item-wrap"
+					:viewTemp="setViewTemp"
+					:labelMap="labelMap"
+					:cartData="cartData"
+					:listType="listType"
+					:rowData="item"
+					:rowButton="rowButton"
+					@click-foot-btn="clickFootBtn"
+					:gridButtonDisp="gridButtonDisp"
+					:rowButtonDisp="rowButtonDisp"
+					:formButtonDisp="formButtonDisp"
+					@add2Cart="add2Cart"
+					@del2Cart="del2Cart"
+				></list-item>
+			</view>
+			<!-- </checkbox-group> -->
+		</view>
+	</view>
 </template>
 
 <script>
-  import listItem from './list-item.vue'
-  export default {
-    components: {
-      listItem
-    },
+import listItem from './list-item.vue';
+export default {
+	components: {
+		listItem
+	},
 
-    props: {
-      list: {
-        type: Array
-      },
-      listType: {
-        type: String
-      },
-      colV2: {
-        type: Object
-      },
-      appName: {
-        type: String
-      },
-      listConfig: {
-        type: Object
-      },
-      cartData: {
-        type: Array
-      },
-      gridButtonDisp: {
-        type: Object
-      },
-      rowButtonDisp: {
-        type: Object
-      },
-      formButtonDisp: {
-        type: Object
-      },
-    },
-    computed: {
-      rowButton() {
-        return this.colV2?.rowButton.filter(item => item.permission !== false)
-      },
-      moreConfig() {
-        let result = null
-        if (this.colV2?.more_config) {
-          if (typeof this.colV2.more_config === 'string') {
-            try {
-              result = JSON.parse(this.colV2.more_config)
-            } catch (e) {
-              //TODO handle the exception
-            }
-          } else if (typeof this.colV2.more_config === 'object') {
-            result = this.colV2.more_config
-          }
-        }
-        return result
-      },
-      viewTemp() {
-        return this.moreConfig?.list_config
-      },
-      setViewTemp() {
-        let viewTemp = this.viewTemp
-        let obj = {
-          "lp_style": this.listConfig?.lp_style || viewTemp?.lp_style || "复合",
-          "grid_span": this.listConfig?.grid_span || viewTemp?.grid_span || "2",
-          'margin': this.listConfig?.margin ?? viewTemp?.margin,
-          'padding': this.listConfig?.padding ?? viewTemp?.padding,
-          "btn_cfg": {
-            "show_custom_btn": this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig?.show_custom_btn ??
-              viewTemp?.btn_cfg?.show_custom_btn ?? null,
-            "show_public_btn": this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig?.show_public_btn ??
-              viewTemp?.btn_cfg?.show_public_btn ??
-              null,
-            "show": viewTemp?.btn_cfg?.show || true,
-            "bg_style": this.listConfig?.btn_cfg?.bg_style || viewTemp?.btn_cfg?.bg_style || "line",
-            "bg": this.listConfig?.btn_cfg?.bg || viewTemp?.btn_cfg?.bg,
-            "width": this.listConfig?.btn_cfg?.width || viewTemp?.btn_cfg?.width,
-            "height": this.listConfig?.btn_cfg?.height || viewTemp?.btn_cfg?.height,
-            'color': this.listConfig?.btn_cfg?.color || viewTemp?.btn_cfg?.color,
-            "font_size": this.listConfig?.btn_cfg?.font_size || viewTemp?.btn_cfg?.font_size,
-            "radius": this.listConfig?.btn_cfg?.size || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg
-              ?.radius || "10px",
-            "size": this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || "sm",
-            "padding": this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
-          },
-          "img": {
-            "col": this.listConfig?.img?.col || viewTemp?.img?.col,
-            "cfg": {
-              "width": this.listConfig?.img?.cfg?.width || this.listConfig?.img?.width || viewTemp?.img?.cfg?.width ||
-                "100%",
-              "height": this.listConfig?.img?.cfg?.height || this.listConfig?.img?.height || viewTemp?.img?.cfg
-                ?.height || "150rpx",
-              "radius": this.listConfig?.img?.cfg?.radius || viewTemp?.img?.cfg?.radius || "10px 10px 0 0",
-              "position": this.listConfig?.img?.cfg?.position || viewTemp?.img?.cfg?.position || "top",
-              "mode": this.listConfig?.img?.cfg?.mode || this.listConfig?.img?.mode || viewTemp?.img?.cfg?.mode || ""
-            }
-          },
-          cols: this.listConfig?.cols || viewTemp?.cols
-        }
-        return obj
-      },
-      labelMap() {
-        if (Array.isArray(this.colV2?._fieldInfo)) {
-          return this.colV2._fieldInfo.reduce((res, cur) => {
-            res[cur.columns] = cur.label
-            return res
-          }, {})
-        }
-      },
-    },
-    // data() {
-    //   return {
-    //     inCart:false, // 是否在购物车中
-    //     amount:0, //添加到购物车中的商品数量
-    //   }
-    // },
+	props: {
+		list: {
+			type: Array
+		},
+		listType: {
+			type: String
+		},
+		colV2: {
+			type: Object
+		},
+		appName: {
+			type: String
+		},
+		listConfig: {
+			type: Object
+		},
+		cartData: {
+			type: Array
+		},
+		gridButtonDisp: {
+			type: Object
+		},
+		rowButtonDisp: {
+			type: Object
+		},
+		formButtonDisp: {
+			type: Object
+		}
+	},
+	computed: {
+		rowButton() {
+			return this.colV2?.rowButton.filter(item => item.permission !== false);
+		},
+		moreConfig() {
+			let result = null;
+			if (this.colV2?.more_config) {
+				if (typeof this.colV2.more_config === 'string') {
+					try {
+						result = JSON.parse(this.colV2.more_config);
+					} catch (e) {
+						//TODO handle the exception
+					}
+				} else if (typeof this.colV2.more_config === 'object') {
+					result = this.colV2.more_config;
+				}
+			}
+			return result;
+		},
+		viewTemp() {
+			return this.moreConfig?.list_config;
+		},
+		setViewTemp() {
+			let viewTemp = this.viewTemp;
+			let obj = {
+				lp_style: this.listConfig?.lp_style || viewTemp?.lp_style || '复合',
+				grid_span: this.listConfig?.grid_span || viewTemp?.grid_span || '2',
+				margin: this.listConfig?.margin ?? viewTemp?.margin,
+				padding: this.listConfig?.padding ?? viewTemp?.padding,
+				btn_cfg: {
+					show_custom_btn: this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
+					show_public_btn: this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig?.show_public_btn ?? viewTemp?.btn_cfg?.show_public_btn ?? null,
+					show: viewTemp?.btn_cfg?.show || true,
+					bg_style: this.listConfig?.btn_cfg?.bg_style || viewTemp?.btn_cfg?.bg_style || 'line',
+					bg: this.listConfig?.btn_cfg?.bg || viewTemp?.btn_cfg?.bg,
+					width: this.listConfig?.btn_cfg?.width || viewTemp?.btn_cfg?.width,
+					height: this.listConfig?.btn_cfg?.height || viewTemp?.btn_cfg?.height,
+					color: this.listConfig?.btn_cfg?.color || viewTemp?.btn_cfg?.color,
+					font_size: this.listConfig?.btn_cfg?.font_size || viewTemp?.btn_cfg?.font_size,
+					radius: this.listConfig?.btn_cfg?.size || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg?.radius || '10px',
+					size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || 'sm',
+					padding: this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
+				},
+				img: {
+					col: this.listConfig?.img?.col || viewTemp?.img?.col,
+					cfg: {
+						width: this.listConfig?.img?.cfg?.width || this.listConfig?.img?.width || viewTemp?.img?.cfg?.width || '100%',
+						height: this.listConfig?.img?.cfg?.height || this.listConfig?.img?.height || viewTemp?.img?.cfg?.height || '150rpx',
+						radius: this.listConfig?.img?.cfg?.radius || viewTemp?.img?.cfg?.radius || '10px 10px 0 0',
+						position: this.listConfig?.img?.cfg?.position || viewTemp?.img?.cfg?.position || 'top',
+						mode: this.listConfig?.img?.cfg?.mode || this.listConfig?.img?.mode || viewTemp?.img?.cfg?.mode || ''
+					}
+				},
+				cols: this.listConfig?.cols || viewTemp?.cols
+			};
+			return obj;
+		},
+		labelMap() {
+			if (Array.isArray(this.colV2?._fieldInfo)) {
+				return this.colV2._fieldInfo.reduce((res, cur) => {
+					res[cur.columns] = cur.label;
+					return res;
+				}, {});
+			}
+		}
+	},
+	// data() {
+	//   return {
+	//     inCart:false, // 是否在购物车中
+	//     amount:0, //添加到购物车中的商品数量
+	//   }
+	// },
 
-    methods: {
-      checkboxChange(e) {
-        this.$emit('checkboxChange', e)
-      },
-      add2Cart(e) {
-        this.$emit('add2Cart', e)
-      },
-      del2Cart(e) {
-        this.$emit('del2Cart', e)
-      },
-      clickFootBtn(e) {
-        this.$emit('click-foot-btn', e)
-      }
-    }
-  }
+	methods: {
+		checkboxChange(e) {
+			this.$emit('checkboxChange', e);
+		},
+		add2Cart(e) {
+			this.$emit('add2Cart', e);
+		},
+		del2Cart(e) {
+			this.$emit('del2Cart', e);
+		},
+		clickFootBtn(e) {
+			this.$emit('click-foot-btn', e);
+		}
+	}
+};
 </script>
 
 <style lang="scss" scoped>
-  .list-wrap {
-    margin-bottom: 10px;
-    .check-box-group {
-      display: flex;
-      flex-wrap: wrap;
-    }
+.list-wrap {
+	margin-bottom: 10px;
+	.check-box-group {
+		display: flex;
+		flex-wrap: wrap;
+	}
 
-    .check-box-item {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 0 10px;
+	.check-box-item {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		padding: 0 10px;
 
-      .list-item-wrap {
-        flex: 1;
-      }
-    }
+		.list-item-wrap {
+			flex: 1;
+		}
+	}
 
-    @media screen and (max-width:450px) {
-      .list-item-wrap {}
+	@media screen and (max-width: 450px) {
+		.list-item-wrap {
+		}
 
-      &.grid-layout {
-        padding-top: 0 !important;
+		&.grid-layout {
+			padding-top: 0 !important;
 
-        [class^="grid_span"] {
-          min-width: 0;
-        }
-      }
-    }
+			[class^='grid_span'] {
+				min-width: 0;
+			}
+		}
+	}
 
-    @media screen and (min-width: 450px) {
-      display: flex;
-      flex-wrap: wrap;
-      padding-left: 10px;
+	@media screen and (min-width: 450px) {
+		display: flex;
+		flex-wrap: wrap;
+		padding-left: 10px;
 
-      &.grid-layout {
-        padding-top: 0 !important;
-      }
+		&.grid-layout {
+			padding-top: 0 !important;
+		}
 
-      .list-item-wrap {
-        margin-right: 10px;
-        width: calc(50% - 10px);
-      }
-    }
+		.list-item-wrap {
+			margin-right: 10px;
+			width: calc(50% - 10px);
+		}
+	}
 
-    @media screen and (min-width: 800px) {
+	@media screen and (min-width: 800px) {
+		.list-item-wrap {
+			width: inherit;
+			width: calc(25% - 10px);
+		}
+	}
 
-      .list-item-wrap {
-        width: inherit;
-        width: calc(25% - 10px);
-      }
-    }
+	@media screen and (min-width: 1200px) {
+		.list-item-wrap {
+			width: calc(20% - 10px);
+		}
+	}
 
-    @media screen and (min-width: 1200px) {
-      .list-item-wrap {
-        width: calc(20% - 10px);
-      }
-    }
+	@media screen and (min-width: 1600px) {
+		.list-item-wrap {
+			width: calc(12.5% - 10px);
+		}
+	}
+}
 
-    @media screen and (min-width: 1600px) {
-      .list-item-wrap {
-        width: calc(12.5% - 10px);
-      }
-    }
-  }
+.grid-layout {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 20rpx 0;
 
-  .grid-layout {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20rpx 0;
+	.list-item-wrap {
+		width: 100%;
+	}
 
-    .list-item-wrap {
-      width: 100%;
+	.grid_span2 {
+		width: calc(100% / 2 - 15rpx);
+		margin-right: 20rpx;
+		margin-bottom: 20rpx;
+		// padding: 0;
+		// margin-right: 0;
+		// padding-right: 0;
+		
+		.list-item-wrap{
+			margin-right: 0;
+			padding: 0px;
+			.list-item-content{
+				padding: 10px;
+			}
+			
+		}
+		&:nth-child(2n+1) {
+			padding-right: 0;
+		}
+		&:nth-child(2n) {
+			margin-right: 0;
+			padding-left: 0;
+		}
+	}
 
-    }
+	.grid_span3 {
+		width: calc(100% / 3 - 50rpx / 3);
+		margin-right: 20rpx;
+		margin-bottom: 20rpx;
 
-    .grid_span2 {
-      width: calc(100%/2 - 15rpx);
-      margin-right: 20rpx;
-      margin-bottom: 20rpx;
+		&:nth-child(3n) {
+			margin-right: 0;
+		}
+	}
 
-      &:nth-child(2n) {
-        margin-right: 0;
-      }
-    }
+	.grid_span4 {
+		width: calc(100% / 4 - 70rpx / 4);
+		margin-right: 20rpx;
+		margin-bottom: 20rpx;
 
-    .grid_span3 {
-      width: calc(100%/3 - 50rpx/3);
-      margin-right: 20rpx;
-      margin-bottom: 20rpx;
+		&:nth-child(4n) {
+			margin-right: 0;
+		}
+	}
 
-      &:nth-child(3n) {
-        margin-right: 0;
-      }
-    }
+	.grid_span5 {
+		width: calc(100% / 5 - 90rpx / 5);
+		margin-right: 20rpx;
+		margin-bottom: 20rpx;
 
-    .grid_span4 {
-      width: calc(100%/4 - 70rpx/4);
-      margin-right: 20rpx;
-      margin-bottom: 20rpx;
+		&:nth-child(5n) {
+			margin-right: 0;
+		}
+	}
 
-      &:nth-child(4n) {
-        margin-right: 0;
-      }
-    }
+	@media screen and (min-width: 1000px) {
+		.grid_span2 {
+			width: calc(100% / 4 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-    .grid_span5 {
-      width: calc(100%/5 - 90rpx/5);
-      margin-right: 20rpx;
-      margin-bottom: 20rpx;
+			&:nth-child(2n) {
+				margin-right: 20rpx;
+			}
 
-      &:nth-child(5n) {
-        margin-right: 0;
-      }
-    }
+			&:nth-child(4n) {
+				margin-right: 20rpx;
+			}
 
-    @media screen and (min-width: 1000px) {
-      .grid_span2 {
-        width: calc(100%/4 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+			&:nth-child(4n) {
+				margin-right: 0;
+			}
+		}
 
-        &:nth-child(2n) {
-          margin-right: 20rpx;
-        }
+		.grid_span3 {
+			width: calc(100% / 5 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(4n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(3n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(4n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(6n) {
+				margin-right: 20rpx;
+			}
 
-      .grid_span3 {
-        width: calc(100%/5 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+			&:nth-child(5n) {
+				margin-right: 0;
+			}
+		}
 
-        &:nth-child(3n) {
-          margin-right: 20rpx;
-        }
+		.grid_span4 {
+			width: calc(100% / 6 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(6n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(4n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(5n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(8n) {
+				margin-right: 20rpx;
+			}
 
-      .grid_span4 {
-        width: calc(100%/6 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+			&:nth-child(6n) {
+				margin-right: 0;
+			}
+		}
 
-        &:nth-child(4n) {
-          margin-right: 20rpx;
-        }
+		.grid_span5 {
+			width: calc(100% / 7 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(8n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(5n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(6n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(10n) {
+				margin-right: 20rpx;
+			}
 
-      .grid_span5 {
-        width: calc(100%/7 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+			&:nth-child(7n) {
+				margin-right: 0;
+			}
+		}
+	}
 
-        &:nth-child(5n) {
-          margin-right: 20rpx;
-        }
+	@media screen and (min-width: 1300px) {
+		.grid_span2 {
+			width: calc(100% / 4 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(10n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(2n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(7n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(4n) {
+				margin-right: 0;
+			}
+		}
 
-    }
+		.grid_span3 {
+			width: calc(100% / 7 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-    @media screen and (min-width: 1300px) {
-      .grid_span2 {
-        width: calc(100%/4 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+			&:nth-child(3n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(2n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(5n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(4n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(7n) {
+				margin-right: 0;
+			}
+		}
 
-      .grid_span3 {
-        width: calc(100%/7 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
+		.grid_span4 {
+			width: calc(100% / 6 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(3n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(4n) {
+				margin-right: 20rpx;
+			}
 
-        &:nth-child(5n) {
-          margin-right: 20rpx;
-        }
+			&:nth-child(6n) {
+				margin-right: 0;
+			}
+		}
 
+		.grid_span5 {
+			width: calc(100% / 7 - 20rpx);
+			margin-right: 20rpx;
+			margin-bottom: 20rpx;
 
-        &:nth-child(7n) {
-          margin-right: 0;
-        }
-      }
+			&:nth-child(5n) {
+				margin-right: 20rpx;
+			}
 
-      .grid_span4 {
-        width: calc(100%/6 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
-
-        &:nth-child(4n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(6n) {
-          margin-right: 0;
-        }
-      }
-
-      .grid_span5 {
-        width: calc(100%/7 - 20rpx);
-        margin-right: 20rpx;
-        margin-bottom: 20rpx;
-
-        &:nth-child(5n) {
-          margin-right: 20rpx;
-        }
-
-        &:nth-child(7n) {
-          margin-right: 0;
-        }
-      }
-
-    }
-
-  }
+			&:nth-child(7n) {
+				margin-right: 0;
+			}
+		}
+	}
+}
 </style>

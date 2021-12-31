@@ -16,7 +16,8 @@ let conf = {
     serviceAddress: "https://wx.100xsys.cn",
     appNo: "APPNO20210926101030",
     appid: "wx08876efb5760ca75",
-    ws: "wss://wx.100xsys.cn:8081"
+    ws: "wss://wx.100xsys.cn:8081",
+	file: "https://wx.100xsys.cn",
   },
   "prod": {
     // 生产环境
@@ -24,6 +25,7 @@ let conf = {
     appNo: "APPNO20201124160702",
     appId: "wxa3c50c8177ef6739",
     ws: "wss://srvms.100xsys.cn:8081",
+	file:"https://file.100xsys.cn"
     // serviceAddress: "http://192.168.0.241:8080", // 内网
   }
 }
@@ -32,6 +34,7 @@ let conf = {
 let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
   ssoAddress: 'http://sso.100xsys.cn',
+  fileSrv:conf[env]['file'],
   serviceAddress: conf[env]['serviceAddress'],
   wsAddr: conf[env]['ws'],
   frontEndAddress: 'https://wx2.100xsys.cn/health/#/publicPages/accountExec/accountExec',
@@ -97,8 +100,8 @@ let ENV = {
   getSignature: remoteAddress.serviceAddress + '/wx/select/srvwx_app_signature_select', //获取js-sdk签名
   getUserInfo: remoteAddress.serviceAddress + '/wx/select/srvwx_basic_user_info_select', //获取用户信息
   saveShareRecord: remoteAddress.serviceAddress + '/daq/add/srvdaq_record_share_add', //保存微信分享记录
-  downloadFile: remoteAddress.serviceAddress + '/file/download?fileNo=', // 根据fileNo直接下载图片，不用查找filePath
-
+  downloadFile: remoteAddress.fileSrv + '/file/download?fileNo=', // 根据fileNo直接下载图片，不用查找filePath
+	fileSrv:remoteAddress.fileSrv,
   /**
    * 新旧api 分割线—————————————————————————————————————————————————————————— old 
    * */
@@ -121,8 +124,8 @@ let ENV = {
   untied: remoteAddress.ssoAddress + '/wx/untied', // 微信解绑 http://Ip:port/wx/untied
   loginAuthor: remoteAddress.ssoAddress + '/bindlogin', // 微信绑定登录地址http://Ip:port/bindlogin
   getImg: remoteAddress.assetsUrl + '/main/', // 图片地址
-  downloadImg: remoteAddress.serviceAddress + '/download?filePath=', // 图片地址
-  getFilePath: remoteAddress.serviceAddress + '/file/download?filePath=', // 文件路径地址
+  downloadImg: remoteAddress.fileSrv + '/download?filePath=', // 图片地址
+  getFilePath: remoteAddress.fileSrv + '/file/download?filePath=', // 文件路径地址
   select: remoteAddress.serviceAddress + '/bxsys/select', // 查询接口
   toLogin: remoteAddress.ssoAddress + '/bxsyslogin', // 用户相关接口
   selectByUser: remoteAddress.serviceAddress + '/bxsys/srvms.100xsys.cn', // 用户菜单
@@ -135,7 +138,7 @@ let ENV = {
   saveDraft: remoteAddress.serviceAddress + '/bxsys/saveDraft', // 保存草稿
   upload: remoteAddress.serviceAddress + '/file/upload',
   file: remoteAddress.serviceAddress + '/file/',
-  deleteFile: remoteAddress.serviceAddress + '/file/delete', // 删除文件
+  deleteFile: remoteAddress.fileSrv + '/file/delete', // 删除文件
   onTicket: remoteAddress.onTicket,
   ticket: remoteAddress.bx_auth_ticket,
   bindWxUser: remoteAddress.serviceAddress + "/wx/operate/srvwx_user_bind" // 绑定已有帐号

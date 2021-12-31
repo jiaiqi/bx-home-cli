@@ -1,10 +1,28 @@
 <template>
   <view class="menu-list" :style="[calcStyle]">
+	<view class="menu-list-box" v-if="pageItem.button_style === 'list'">
+		<view class="menu-list-item"  v-for="(item, index) in buttons" :key="index"  @click="toPages(item)">
+			<view class="left">
+				<text>{{item.button_label||''}}</text>
+			</view>
+			<view class="right text-gray">
+				<view class="cu-tag badge" v-if="item.num===true"></view>
+				<view class="cu-tag badge" v-else-if="item.num">{{
+				  item.num || ""
+				}}</view>
+				<view class="cu-tag badge-left" v-if="item.unbacknum">{{
+				  item.unbacknum || ""
+				}}</view>
+				<text class="cuIcon-right"></text>
+			</view>
+		</view>
+	</view>
     <swiper class="swiper" :class="{
         'rectangle-dot': pageItem.button_style !== 'grid',
         'grid-style': pageItem.button_style === 'grid',
+        'list-style': pageItem.button_style === 'list',
       }" :style="{ height: swiperHeight + 'px' }" indicator-active-color="#00aaff" indicator-color="#ccc"
-      :indicator-dots="indicatorDots" :autoplay="false" v-if="menuList.length > 1">
+      :indicator-dots="indicatorDots" :autoplay="false" v-else-if="menuList.length > 1">
       <swiper-item v-for="(swiperItem, swiperIndex) in menuList" :key="swiperIndex">
         <view class="swiper-item">
           <view class="menu-item" :class="{ 'grid-style': pageItem.button_style === 'grid' }" @click="toPages(item)"
@@ -35,6 +53,7 @@
       </view> -->
       <view class="menu-item" :class="{
           'grid-style': pageItem.button_style === 'grid',
+          'list-style': pageItem.button_style === 'list',
           'last-row': isLastRow(menuList[0], index),
         }" @click="toPages(item)" v-for="(item, index) in menuList[0]" :key="index">
         <view class="cu-tag badge" v-if="item.num">{{ item.num || "" }}</view>
@@ -880,10 +899,21 @@
     flex-wrap: wrap;
     // margin: 0 20rpx;
     // margin-bottom: 20rpx;
-    background: #FAFBFC;
+    // background: #FAFBFC;
     border-radius: 20rpx;
     min-width: 300px;
-
+	.menu-list-box{
+		width: 100%;
+		padding: 20rpx;
+		.menu-list-item{
+			display: flex;
+			justify-content: space-between;
+			padding:  10px 0;
+			&:active{
+				background: #FAFBFC;
+			}
+		}
+	}
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;
@@ -908,6 +938,10 @@
           box-shadow: none;
         }
       }
+	  &.list-style{
+		  display: flex;
+		  flex-direction: column;
+	  }
     }
 
     .swiper-item {

@@ -37,9 +37,10 @@
 					backgroundColor: list_config.bg
 				}"
 				v-for="(item, index) in tabs"
-				v-show="index === curTab"
+				
 			>
-				<view class="list-view">
+				<view class="list-view"
+				v-if="index === curTab">
 					<list-next
 						class="list-next"
 						:listConfig="listConfig"
@@ -263,6 +264,9 @@ export default {
 		},
 		rownumber() {
 			let rownumber = this.config?.page?.rownumber || 1;
+			if(this.tabs?.length>0&&this.tabs[this.curTab].page&&this.tabs[this.curTab].page.rownumber){
+				rownumber = this.tabs[this.curTab].page.rownumber
+			}
 			return rownumber;
 		}
 	},
@@ -305,8 +309,29 @@ export default {
 			});
 		},
 		toAll() {
+			let url = `/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
+			
+			if(Array.isArray(this.config?.condition)&&this.config?.condition.length>0){
+				let conds = this.config?.condition
+				
+				let data = {
+					userInfo: this.$store?.state?.user?.userInfo,
+					storeInfo: this.$store?.state?.app?.storeInfo,
+					bindUserInfo: this.$store?.state?.user?.storeUserInfo
+				};
+				conds = conds.map(cond => {
+					let obj = {};
+					obj.colName = cond.colName;
+					obj.ruleType = cond.ruleType;
+					obj.value = this.renderStr(cond.value, data);
+					return obj
+				});
+				
+				
+				url+=`&cond=${JSON.stringify(conds)}`
+			}
 			uni.navigateTo({
-				url: `/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
+				url:url
 			});
 		},
 		getListWithFilter(e) {
@@ -535,7 +560,21 @@ export default {
 					console.log(err);
 				}
 			}
-
+			if(Array.isArray(this.tabs)&&this.tabs.length>0){
+				let cur = this.tabs[this.curTab]
+				if(cur&&cur.condition){
+					let str = JSON.stringify(cur.condition)
+					let data = {
+						userInfo: this.$store?.state?.user?.userInfo,
+						storeInfo: this.$store?.state?.app?.storeInfo,
+						bindUserInfo: this.$store?.state?.user?.storeUserInfo
+					};
+					cur.condition = this.renderStr(str,data)||cur.condition
+				}
+				if(Array.isArray(cur.condition)&&cur.condition.length>0){
+					req.condition = [...req.condition,...cur.condition]
+				}
+			}
 			if (Array.isArray(initCond) && initCond.length > 0) {
 				req.condition = [...req.condition, ...initCond];
 			}
