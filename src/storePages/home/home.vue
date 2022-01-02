@@ -89,7 +89,7 @@
 			</view>
 		</view>
 		<u-tabbar
-			v-model="currentTab"
+			:value="currentTab"
 			:list="tabbarList"
 			:mid-button="false"
 			v-if="pageDefine && tabbarList && tabbarList.length > 0"
@@ -115,7 +115,7 @@ export default {
 	data() {
 		return {
 			pdNo: '', // 页面定义编号
-			currentTab: 0,
+			// currentTab: 0,
 			tabbarList: [],
 			pageDefine: {},
 			unread_num: 0,
@@ -142,6 +142,11 @@ export default {
 		};
 	},
 	computed: {
+		currentTab() {
+			if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0) {
+				return this.tabbarList.findIndex(item => item.link_pd_no === this.pdNo);
+			}
+		},
 		theme() {
 			return this.$store?.state?.app?.theme;
 		},
@@ -204,7 +209,7 @@ export default {
 					if (curTab.link_pd_json) {
 						let data = this;
 						try {
-							curTab.link_pd_json = this.renderStr(curTab.link_pd_json,data)
+							curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
 							let jsonStr = JSON.parse(curTab.link_pd_json);
 							if (jsonStr.url) {
 								uni.navigateTo({ url: jsonStr.url });
@@ -219,29 +224,27 @@ export default {
 			return true;
 		},
 		async changeTab(index) {
-			if (index !== this.pageDefine.active_nav_index) {
-				let curTab = this.tabbarList[index];
-				if (curTab?.link_pd_no) {
-					// uni.redirectTo({
-					// 	url: '/storePages/home/home?pd_no=' + curTab?.link_pd_no
-					// });
-					this.pdNo = curTab?.link_pd_no;
+			let curTab = this.tabbarList[index];
+			if (curTab?.link_pd_no) {
+				// uni.redirectTo({
+				// 	url: '/storePages/home/home?pd_no=' + curTab?.link_pd_no
+				// });
+				this.pdNo = curTab?.link_pd_no;
 
-					await this.getPageDefine(this.pdNo);
-					this.storeNo = this.pageDefine.store_no;
-					await this.getTabbar(this.pdNo);
-					await this.getPageComponent(this.pdNo);
+				await this.getPageDefine(this.pdNo);
+				this.storeNo = this.pageDefine.store_no;
+				await this.getTabbar(this.pdNo);
+				await this.getPageComponent(this.pdNo);
 
-					this.initPage();
-				} else if (curTab.link_pd_json) {
-					try {
-						let jsonStr = JSON.parse(curTab.link_pd_json);
-						if (jsonStr.url) {
-							uni.navigateTo({ url: jsonStr.url });
-						}
-					} catch (err) {
-						console.log(err);
+				this.initPage();
+			} else if (curTab.link_pd_json) {
+				try {
+					let jsonStr = JSON.parse(curTab.link_pd_json);
+					if (jsonStr.url) {
+						uni.navigateTo({ url: jsonStr.url });
 					}
+				} catch (err) {
+					console.log(err);
 				}
 			}
 		},
@@ -1308,7 +1311,7 @@ export default {
 			let res = await this.$http.post(url, req);
 			if (Array.isArray(res.data.data) && res.data.data.length > 0) {
 				this.pageDefine = res.data.data[0];
-				this.currentTab = this.pageDefine.active_nav_index;
+				// this.currentTab = this.pageDefine.active_nav_index;
 			}
 		},
 		async getPageComponent(home_page_no) {
@@ -1321,6 +1324,7 @@ export default {
 				order: []
 			};
 			let res = await this.$http.post(url, req);
+			this.pageItemList = []
 			if (Array.isArray(res.data.data) && res.data.data.length > 0) {
 				// this.pageItemList = res.data.data;
 				let setFirstSwiper = false;

@@ -526,7 +526,7 @@
     .list-item {
       flex: 1;
       display: flex;
-
+		width: 100%;
       .cuIcon-moreandroid {
         margin-bottom: 10rpx;
       }

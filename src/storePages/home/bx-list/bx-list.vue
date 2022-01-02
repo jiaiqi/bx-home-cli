@@ -940,6 +940,9 @@ export default {
 					});
 				}
 			} else {
+				if(this.config?.customDetailUrl){
+					this.customDetailUrl = this.config?.customDetailUrl
+				}
 				if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
 					let storeInfo = this.$store?.state?.app?.storeInfo;
 					let bindUserInfo = this.$store?.state?.user?.storeUserInfo;

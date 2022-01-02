@@ -227,7 +227,10 @@
                     .colData) !==
                   true && Object.keys(e.colData).length > 0) {
                   item.old_value = item.value
-                  item.value = e.colData[item.redundant.refedCol] || item.value;
+                  item.value = e.colData[item.redundant.refedCol] 
+				  if(e.colData[item.redundant.refedCol]===0){
+					  item.value = e.colData[item.redundant.refedCol]
+				  }
                   let dependFields = this.allField.reduce((res, cur) => {
                     if (cur?.redundant?.dependField === item.column && cur.column !== item.column) {
                       res.push(cur.column)
