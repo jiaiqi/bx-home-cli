@@ -1,6 +1,6 @@
 <template>
 	<!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
-	<view class="page-wrap" v-if="!authBoxDisplay || client_env === 'web'" :class="['theme-' + theme]">
+	<view class="page-wrap" v-if="(!authBoxDisplay || client_env === 'web')" :class="['theme-' + theme]" >
 		<cu-custom-navbar :isBack="showBackHome" :back-home="showBackHome">
 			<view class="nav-bar" @click="openSwitchHomePage">
 				<text class="home-name">{{ StoreInfo.name || '首页' }}</text>
@@ -8,23 +8,25 @@
 			</view>
 		</cu-custom-navbar>
 
-		<store-item
-			v-for="pageItem in pageItemList"
-			:goodsListData="goodsListData"
-			:key="pageItem.component_no"
-			:pageItem="getConfig(pageItem)"
-			:StoreInfo="StoreInfo"
-			:userInfo="userInfo"
-			:is-bind="isBind"
-			:bindUserInfo="bindUserInfo"
-			ref="storeItem"
-			@toDoctorDetail="toDoctorDetail"
-			@toConsult="toConsult"
-			@bindStore="bindStore"
-			@setHomePage="setHomePage"
-			@toSetting="toSetting"
-			@getQrcode="getQrcode"
-		></store-item>
+		<view class="" v-if="pageItemList&&pageItemList.length>0">
+			<store-item
+				v-for="pageItem in pageItemList"
+				:goodsListData="goodsListData"
+				:key="pageItem.component_no"
+				:pageItem="getConfig(pageItem)"
+				:StoreInfo="StoreInfo"
+				:userInfo="userInfo"
+				:is-bind="isBind"
+				:bindUserInfo="bindUserInfo"
+				ref="storeItem"
+				@toDoctorDetail="toDoctorDetail"
+				@toConsult="toConsult"
+				@bindStore="bindStore"
+				@setHomePage="setHomePage"
+				@toSetting="toSetting"
+				@getQrcode="getQrcode"
+			></store-item>
+		</view>
 
 		<view class="cu-modal bottom-modal" @click="hideModal" :class="{ show: showHomePageSelector }">
 			<view class="cu-dialog" @tap.stop>
@@ -229,8 +231,8 @@ export default {
 				// uni.redirectTo({
 				// 	url: '/storePages/home/home?pd_no=' + curTab?.link_pd_no
 				// });
+				this.pageItemList = []
 				this.pdNo = curTab?.link_pd_no;
-
 				await this.getPageDefine(this.pdNo);
 				this.storeNo = this.pageDefine.store_no;
 				await this.getTabbar(this.pdNo);

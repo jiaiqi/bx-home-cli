@@ -7,7 +7,7 @@
     </view>
     <swiper class="screen-swiper item-box rectangle-dot" :style="calcStyle" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="autoplay" :interval="interval"
-      duration="500" @change="swiperChange" v-if="swiperList.length!==1">
+      duration="500" @change="swiperChange" v-if="swiperList.length>1">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
         <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
           <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
