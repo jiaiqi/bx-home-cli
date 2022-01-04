@@ -1,6 +1,6 @@
 <template>
 	<view class="page-wrap">
-		<view class="list-box" v-if="list && list.length > 0 && tabs.length === 0">
+		<view class="list-box" v-if="tabs.length === 0&&total>0">
 			<view class="title" :style="titleStyle">
 				<text>{{ pageItem.component_label || '' }}</text>
 				<button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">
@@ -13,6 +13,7 @@
 				:style="{
 					backgroundColor: list_config.bg
 				}"
+				v-if="list&&list.length>0"
 			>
 				<view class="list-view">
 					<list-next
@@ -27,7 +28,7 @@
 					/>
 				</view>
 			</view>
-			<view class="" style="text-align: center;" v-if="list && list.length === 0">内容为空</view>
+			<view class="" style="text-align: center;" v-if="list && list.length === 0&&total==0">内容为空</view>
 		</view>
 		<view class="tabs-list" v-else-if="tabs.length > 0">
 			<u-tabs :list="tabs" :is-scroll="true" :current="curTab" @change="changeTab"></u-tabs>
@@ -263,7 +264,7 @@ export default {
 			return arr;
 		},
 		rownumber() {
-			let rownumber = this.config?.page?.rownumber || 1;
+			let rownumber = this.config?.page?.rownumber ?? 1;
 			if(this.tabs?.length>0&&this.tabs[this.curTab].page&&this.tabs[this.curTab].page.rownumber){
 				rownumber = this.tabs[this.curTab].page.rownumber
 			}
@@ -510,6 +511,9 @@ export default {
 			return colVs;
 		},
 		async getList(cond, initCond) {
+			// if(this.rownumber===0){
+			// 	return
+			// }
 			let serviceName = this.serviceName;
 			let app = this.appName || uni.getStorageSync('activeApp');
 			let url = this.getServiceUrl(app, serviceName, 'select');
@@ -641,7 +645,6 @@ export default {
 			}
 		},
 		async clickFootBtn(data) {
-			debugger;
 			let self = this;
 			let buttonInfo = this.deepClone(data.button);
 			let rowData = this.deepClone(data.row);

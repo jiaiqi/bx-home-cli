@@ -1343,7 +1343,7 @@
             });
           }
         } else {
-          if (buttonInfo.button_type === 'detail' && this.detailType === 'custom' && this.customDetailUrl) {
+          if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo
             let targetUrl = this.customDetailUrl
@@ -1672,8 +1672,8 @@
           }
         }
       }
-      if (option.detailType && option.customDetailUrl) {
-        this.detailType = option.detailType
+      if (option.customDetailUrl) {
+        this.detailType = option.detailType||''
 
         let decodeUrl = option.customDetailUrl
         try {

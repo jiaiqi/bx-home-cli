@@ -2661,5 +2661,29 @@ export default {
         return res.data?.data?.playUrl
       }
     }
+	
+	Vue.prototype.getPosterUrl = async(bpNo,text)=>{
+		if(!bpNo){
+			return
+		}
+		const url = `${api.serverURL}/health/select/srvhealth_page_share_bill_pic_select`
+		const req = {"serviceName":"srvhealth_page_share_bill_pic_select","colNames":["*"],"condition":[{
+			colName:'bp_no',
+			ruleType:'eq',
+			value:bpNo
+		}],"page":{"pageNo":1,"rownumber":1}}
+		const res = await _http.post(url,req)
+		if(res.data.state==='SUCCESS'&&Array.isArray(res.data.data)&&res.data.data.length!==0){
+			const cfg = res.data.data[0]
+			const {background_img,logfile,xp,yp,qrwidth} = cfg
+			const url = `${api.serverURL}/file/adv/download?imgFileNo=${background_img}&logoFileNo=${logfile}&qrcontent=${text}&xp=${xp}&yp=${yp}&qrwidth=${qrwidth}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+			return url
+			// const result = await _http.post(url)
+			// console.log(result)
+			// debugger
+			// return result.data?.data
+		}
+		
+	}
   }
 }

@@ -87,7 +87,7 @@
 				<view class="nick-name">
 					<!-- <open-data type="userNickName"></open-data> -->
 					<view class="name">{{ userInfo.name || userInfo.nick_name }}</view>
-					<view class="account">账号：{{ userInfo.userno }}</view>
+					<!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
 				</view>
 			</view>
 			<view class="right"><text class="cuIcon-message"></text></view>

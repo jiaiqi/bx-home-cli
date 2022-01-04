@@ -2,7 +2,9 @@
 	<view class=" layout-2" :style="[calcStyle]" v-if="pageItem && pageItem.type === '店铺信息2'">
 		<view class="image-bg" :style="{ 'background-image': backgroundImage }">
 			<view class="store-info" v-if="storeInfo">
-				<view class="store-icon" v-if="storeInfo.logo"><image class="store-icon" :src="getImagePath(storeInfo.logo)" mode="aspectFill"></image></view>
+				<view class="store-icon" v-if="storeInfo.logo">
+					<image class="store-icon" :src="getImagePath(storeInfo.logo)" mode="aspectFill"></image>
+				</view>
 				<view class="store-intro">
 					<view class="store-name">{{ storeInfo.name || '' }}</view>
 					<view class="store-address can-wrap" @click.stop="getCurrentLocation" v-if="storeInfo.address">
@@ -14,7 +16,9 @@
 					<button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
 						<image class="image" :src="require('./setting.png')" mode=""></image>
 					</button>
-					<button class="image-btn margin-right" open-type="share"><image class="image" :src="require('./share.png')" mode=""></image></button>
+					<button class="image-btn margin-right" open-type="share">
+						<image class="image" :src="require('./share.png')" mode=""></image>
+					</button>
 				</view>
 			</view>
 		</view>
@@ -35,7 +39,9 @@
 			<button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
 				<image class="image" :src="require('./setting.png')" mode=""></image>
 			</button>
-			<button class="image-btn margin-right" open-type="share"><image class="image" :src="require('./share.png')" mode=""></image></button>
+			<button class="image-btn margin-right" open-type="share">
+				<image class="image" :src="require('./share.png')" mode=""></image>
+			</button>
 		</view>
 	</view>
 	<view class="store-info layout-1" :style="[calcStyle]" v-else>
@@ -46,7 +52,9 @@
 					<button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
 						<image class="image" :src="require('./setting2.png')" mode=""></image>
 					</button>
-					<button class="image-btn" open-type="share"><image class="image" :src="require('./share2.png')" mode=""></image></button>
+					<button class="image-btn" @click="showShareDialog">
+						<image class="image" :src="require('./share2.png')" mode=""></image>
+					</button>
 					<!--    <button class="cu-btn border round" @click.stop="toManage" v-if="isManager&&showBtn.manage">
             <text class="cuIcon-settingsfill margin-right-xs"></text>
             <text class="text-black">管理</text>
@@ -61,7 +69,8 @@
             <text class="cu-tag badge">待设置</text>
           </button> -->
 				</view>
-				<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary" class="bg-blue cu-btn round shadow-blur">加入</button></view>
+				<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
+						class="bg-blue cu-btn round shadow-blur">加入</button></view>
 			</view>
 			<image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
 			<view class="logo" v-else-if="storeInfo.name">{{ storeInfo.name.slice(0, 1) }}</view>
@@ -76,20 +85,16 @@
 				</view>
 			</view>
 		</view>
-		<view class="instroduce" @click="showModal"><view v-html="storeInfo.introduction" class="introduce-content"></view></view>
+		<view class="instroduce" @click="showModal">
+			<view v-html="storeInfo.introduction" class="introduce-content"></view>
+		</view>
 		<view class="right">
 			<view class="qr-code" v-if="qrCodeText">
-				<uni-qrcode
-					cid="qrcodeCanvas"
-					:text="qrCodeText"
-					:size="codeSize"
-					class="qrcode-canvas"
-					foregroundColor="#333"
-					makeOnLoad
-					@makeComplete="qrcodeCanvasComplete"
-					ref="qrcodeCanvas"
-				></uni-qrcode>
-				<image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath" @click.stop.prevent="showModal('showQrCode')"></image>
+				<uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" :size="codeSize" class="qrcode-canvas"
+					foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete" ref="qrcodeCanvas">
+				</uni-qrcode>
+				<image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
+					@click.stop.prevent="showModal('showQrCode')"></image>
 				<!--    <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
       @click="toPreviewImage(qrcodePath)"></image> -->
 				<view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
@@ -99,7 +104,8 @@
 			<view class="cu-dialog" @click.stop style="width: 70%;">
 				<view class="notice-wrap" v-if="storeInfo && storeInfo.introduction">
 					<view v-html="storeInfo.introduction"></view>
-					<view class="button-box"><button class="cu-btn bg-cyan round margin-top shadow-blur" @click="hideModal">知道了</button></view>
+					<view class="button-box"><button class="cu-btn bg-cyan round margin-top shadow-blur"
+							@click="hideModal">知道了</button></view>
 				</view>
 			</view>
 		</view>
@@ -109,733 +115,1009 @@
 				<view class="qrcode-box">
 					<view class="title">我的推广码</view>
 					<!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
-					<image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo && qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
+					<image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo && qrcodePath"
+						@click="toPreviewImage(qrcodePath)"></image>
 					<view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
 					<view class="store-name">{{ storeInfo.name || '' }}</view>
 				</view>
 				<view class="button-box"><button @click.stop="hideModal()" class="cu-btn">关闭</button></view>
 			</view>
 		</view>
+
+		<view class="cu-modal transparent" :class="{show:modalName==='shareStore'}" @click="hideModal">
+			<view class="cu-dialog transparent" @click.stop="hideModal">
+				<view class="share-dialog" v-if="storeInfo" @click.stop="">
+					<view class="preview-img">
+						<view class="title">
+							分享预览
+						</view>
+						<view class="share-preview">
+							<view class="share-top text-left sm padding-bottom-xs">
+								<image class="app-logo" src="/static/basicprofile.jpg" mode=""></image>百想首页
+							</view>
+							<view class="share-title">
+								{{bindUserInfo.person_name||bindUserInfo.user_name||''}}邀请您使用【{{storeInfo.name}}】
+							</view>
+							<image class="share-image" v-if="storeInfo.logo||storeInfo.logo.image"
+								:src="getImagePath(storeInfo.logo,true)||getImagePath(storeInfo.image,true)"
+								mode="aspectFill"></image>
+						</view>
+						<view class="share-bottom">
+							<text class="cuIcon-link margin-right-xs text-purple"></text>小程序
+						</view>
+					</view>
+					<view class="bottom-bar">
+						<view class="share-list">
+							<view class="share-item">
+								<button class="cu-btn bg-transparent" open-type="share">
+									<view class="share-icon bg-orange">
+										<text class="cuIcon-weixin"></text>
+									</view>
+								</button>
+								<view class="share-label">
+									微信
+								</view>
+							</view>
+							<view class="share-item" @click="makePoster">
+								<button class="cu-btn bg-transparent">
+									<view class="share-icon bg-orange">
+										<text class="cuIcon-picfill"></text>
+									</view>
+								</button>
+								<view class="share-label">
+									生成海报
+								</view>
+							</view>
+						</view>
+						<view class="bottom-button">
+							<button class="cu-btn bg-white" @click="hideModal()">取消分享</button>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<view class="cu-modal transparent" :class="{show:modalName==='sharePoster'}" @click="hideModal()">
+			<view class="cu-dialog transparent" @click.stop="hideModal">
+				<view class="share-poster" @click.stop="">
+					<!-- <u-image  :src="postPath" width="90%" mode="aspectFit" class="poster-image"  :lazy-load="true"></u-image> -->
+					<image :src="postPath" mode="aspectFit" class="poster-image" :lazy-load="true"></image>
+					<view class="">
+						<button class="cu-btn bg-blue round" style="width: 60%;" type="primary"
+							@click="saveTolbum">保存到相册</button>
+						<!-- <button class="cu-btn bg-gray round" >取消</button> -->
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
-export default {
-	props: {
-		pageItem: {
-			type: Object
-		},
-		// storeInfo: {
-		//   type: Object
-		// },
-		// userInfo: {
-		//   type: Object
-		// },
-		bindUserInfo: {
-			type: Object
-		},
-		isBind: {
-			type: Boolean,
-			default: true
-		}
-	},
-	watch: {
-		qrcodePath(newValue) {
-			if (!newValue) {
-				this.makeQrCode();
+	export default {
+		props: {
+			pageItem: {
+				type: Object
+			},
+			// storeInfo: {
+			//   type: Object
+			// },
+			// userInfo: {
+			//   type: Object
+			// },
+			bindUserInfo: {
+				type: Object
+			},
+			isBind: {
+				type: Boolean,
+				default: true
 			}
 		},
-		storeInfo: {
-			deep: true,
-			immediate: true,
-			handler(newValue, oldValue) {
-				let result = '';
-				this.qrCodeText = '';
-				this.qrcodePath = '';
-				this.getFilePath(this.storeInfo.logo).then(res => {
-					if (Array.isArray(res) && res.length > 0) {
-						const item = res[0];
-						this.qrCodeLogo = this.$api.getFilePath + item.fileurl;
-					}
-				});
-				if (this.userInfo && this.userInfo.userno && this.storeInfo && this.storeInfo.store_no) {
-					result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`;
-				} else {
-					result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`;
+		watch: {
+			qrcodePath(newValue) {
+				if (!newValue) {
+					this.makeQrCode();
 				}
-				this.qrCodeText = result;
+			},
+			storeInfo: {
+				deep: true,
+				immediate: true,
+				handler(newValue, oldValue) {
+					let result = '';
+					this.qrCodeText = '';
+					this.qrcodePath = '';
+					this.getFilePath(this.storeInfo.logo).then(res => {
+						if (Array.isArray(res) && res.length > 0) {
+							const item = res[0];
+							this.qrCodeLogo = this.$api.getFilePath + item.fileurl;
+						}
+					});
+					if (this.userInfo && this.userInfo.userno && this.storeInfo && this.storeInfo.store_no) {
+						result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`;
+					} else {
+						result = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`;
+					}
+					this.qrCodeText = result;
+				}
 			}
-		}
-	},
+		},
 
-	computed: {
-		layout() {
-			return this.pageItem?.more_config?.style;
-		},
-		backgroundImage() {
-			if (this.storeInfo?.image) {
-				let path = this.getImagePath(this.storeInfo.image, true);
-				return `url(${path})`;
-			}
-		},
-		isAttention() {
-			// 是否关注公众号
-			if (this.$store.state?.app?.subscsribeStatus) {
-				return true;
-			}
-		},
-		showBtn() {
-			let obj = {
-				manage: true,
-				person: true
-			};
-			let userRole = this.bindUserInfo?.user_role;
-			let disp_role = this.pageItem?.more_config?.btn_disp_role;
-			Object.keys(obj).forEach(key => {
-				if (disp_role && disp_role[key]) {
-					// 如果配置了自定义显示隐藏，则默认隐藏
-					obj[key] = false;
-					if (userRole) {
-						let arr = userRole.split(',');
-						if (Array.isArray(arr) && arr.length > 0) {
-							arr.forEach(role => {
-								if (disp_role[key].indexOf(role) !== -1) {
-									obj[key] = true;
-								}
-							});
+		computed: {
+			layout() {
+				return this.pageItem?.more_config?.style;
+			},
+			backgroundImage() {
+				if (this.storeInfo?.image) {
+					let path = this.getImagePath(this.storeInfo.image, true);
+					return `url(${path})`;
+				}
+			},
+			isAttention() {
+				// 是否关注公众号
+				if (this.$store.state?.app?.subscsribeStatus) {
+					return true;
+				}
+			},
+			showBtn() {
+				let obj = {
+					manage: true,
+					person: true
+				};
+				let userRole = this.bindUserInfo?.user_role;
+				let disp_role = this.pageItem?.more_config?.btn_disp_role;
+				Object.keys(obj).forEach(key => {
+					if (disp_role && disp_role[key]) {
+						// 如果配置了自定义显示隐藏，则默认隐藏
+						obj[key] = false;
+						if (userRole) {
+							let arr = userRole.split(',');
+							if (Array.isArray(arr) && arr.length > 0) {
+								arr.forEach(role => {
+									if (disp_role[key].indexOf(role) !== -1) {
+										obj[key] = true;
+									}
+								});
+							}
 						}
 					}
+				});
+				return obj;
+			},
+			isManager() {
+				// 是否为用户之外的角色
+				if (!this.bindUserInfo?.user_role) {
+					return false;
 				}
-			});
-			return obj;
-		},
-		isManager() {
-			// 是否为用户之外的角色
-			if (!this.bindUserInfo?.user_role) {
-				return false;
-			}
-			let showManager = false;
-			let arr = this.bindUserInfo?.user_role
-				.split(',')
-				.map(item => item.trim())
-				.filter(item => item && item !== '用户');
-			if (arr.length > 0) {
-				showManager = true;
-			}
-			if (this.hasManageBtn) {
-				return showManager;
-			}
-		},
-		calcStyle() {
-			if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
-				return {
-					margin: this.pageItem.margin
-				};
-			}
-		},
-		msgNum() {
-			if (this.bindUserInfo && this.bindUserInfo.kefu_session_user_unread_msg) {
-				return this.bindUserInfo.kefu_session_user_unread_msg;
-			} else return 0;
-		},
-		introduction() {
-			if (this.storeInfo && this.storeInfo.introduction && this.storeInfo.introduction.length > 80) {
-				return this.storeInfo.introduction.slice(0, 80) + '...';
-			} else {
-				return this.storeInfo && this.storeInfo.introduction ? this.storeInfo.introduction : '';
-			}
-		}
-	},
-	data() {
-		return {
-			modalName: '',
-			hasManageBtn: false,
-			qrCodeText: '',
-			codeSize: uni.upx2px(1024),
-			qrcodePath: '', //图片url
-			qrCodeLogo: '',
-			showNoticeModal: false
-		};
-	},
-	methods: {
-		async getButtonGroup() {
-			const req = {
-				serviceName: 'srvhealth_store_home_component_user_select',
-				colNames: ['*'],
-				condition: [
-					{
-						colName: 'store_no',
-						ruleType: 'eq',
-						value: this.storeInfo?.store_no
-					},
-					{
-						colName: 'button_usage',
-						ruleType: 'eq',
-						value: '管理人员'
-					}
-				],
-				page: {
-					pageNo: 1,
-					rownumber: 5
+				let showManager = false;
+				let arr = this.bindUserInfo?.user_role
+					.split(',')
+					.map(item => item.trim())
+					.filter(item => item && item !== '用户');
+				if (arr.length > 0) {
+					showManager = true;
 				}
+				if (this.hasManageBtn) {
+					return showManager;
+				}
+			},
+			calcStyle() {
+				if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
+					return {
+						margin: this.pageItem.margin
+					};
+				}
+			},
+			msgNum() {
+				if (this.bindUserInfo && this.bindUserInfo.kefu_session_user_unread_msg) {
+					return this.bindUserInfo.kefu_session_user_unread_msg;
+				} else return 0;
+			},
+			introduction() {
+				if (this.storeInfo && this.storeInfo.introduction && this.storeInfo.introduction.length > 80) {
+					return this.storeInfo.introduction.slice(0, 80) + '...';
+				} else {
+					return this.storeInfo && this.storeInfo.introduction ? this.storeInfo.introduction : '';
+				}
+			}
+		},
+		data() {
+			return {
+				modalName: '',
+				hasManageBtn: false,
+				qrCodeText: '',
+				codeSize: uni.upx2px(1024),
+				qrcodePath: '', //图片url
+				qrCodeLogo: '',
+				showNoticeModal: false,
+				postPath: ''
 			};
-			const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health');
-			if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-				this.hasManageBtn = true;
-			}
 		},
-		toManage() {
-			let url = `/storePages/StoreManager/StoreManager?store_no=${this.storeInfo.store_no}`;
-			if (this.storeInfo.store_no) {
+		methods: {
+			saveTolbum() {
+				const postUrl = this.postPath
+				const self = this
+				console.log(postUrl)
+				uni.authorize({
+					scope: 'scope.writePhotosAlbum',
+					success: () => {
+						uni.showLoading({
+							title:'下载中...'
+						})
+						uni.downloadFile({
+						    url: postUrl, 
+						    success: (res) => {
+						        if (res.statusCode === 200) {
+						            console.log('下载成功',res);
+									const filePath = res.tempFilePath
+									uni.saveImageToPhotosAlbum({
+										filePath: filePath,
+										success: function(res) {
+											uni.hideLoading()
+											console.log('save success', res);
+											uni.showToast({
+												title: '图片已成功保存到相册'
+											})
+											self.hideModal()
+										},
+										fail: (res) => {
+											console.log(res)
+											uni.hideLoading()
+										}
+									});
+						        }
+						    },
+							complete() {
+								uni.hideLoading()
+							}
+						});
+						
+					},
+					complete() {
+					}
+				})
+
+			},
+			async makePoster() {
+				let posterNo = this.pageItem?.more_config?.posterNo;
+				if(!posterNo){
+					uni.showToast({
+						title:'未配置海报模板！',
+						icon:'none'
+					})
+					return
+				}
+				let resultText = ''
+				if (this.userInfo?.userno && this.storeInfo?.store_no) {
+					resultText =
+						`https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}/${this.userInfo.userno}`;
+				} else {
+					resultText = `https://wx2.100xsys.cn/shareClinic/${this.storeInfo.store_no}`;
+				}
+				if (resultText) {
+					resultText = encodeURIComponent(resultText)
+				}
+				
+				const postUrl = await this.getPosterUrl(posterNo, resultText)
+				this.postPath = postUrl
+				this.modalName = 'sharePoster'
+			},
+			showShareDialog() {
+				//  显示分享弹框
+				this.modalName = 'shareStore'
+			},
+			async getButtonGroup() {
+				const req = {
+					serviceName: 'srvhealth_store_home_component_user_select',
+					colNames: ['*'],
+					condition: [{
+							colName: 'store_no',
+							ruleType: 'eq',
+							value: this.storeInfo?.store_no
+						},
+						{
+							colName: 'button_usage',
+							ruleType: 'eq',
+							value: '管理人员'
+						}
+					],
+					page: {
+						pageNo: 1,
+						rownumber: 5
+					}
+				};
+				const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health');
+				if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+					this.hasManageBtn = true;
+				}
+			},
+			toManage() {
+				let url = `/storePages/StoreManager/StoreManager?store_no=${this.storeInfo.store_no}`;
+				if (this.storeInfo.store_no) {
+					uni.navigateTo({
+						url
+					});
+				}
+			},
+			toAttention() {
+				let url = '/publicPages/webviewPage/webviewPage';
+				url += `?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`;
 				uni.navigateTo({
 					url
 				});
-			}
-		},
-		toAttention() {
-			let url = '/publicPages/webviewPage/webviewPage';
-			url += `?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`;
-			uni.navigateTo({
-				url
-			});
-		},
-		hideModal() {
-			this.modalName = '';
-			this.showNoticeModal = false;
-		},
-		showModal(e) {
-			if (e) {
-				this.modalName = e;
-			} else {
-				this.showNoticeModal = true;
-			}
-		},
-		toSetting() {
-			this.$emit('toSetting');
-		},
-		makeQrCode() {
-			if (this.$refs.qrcodeCanvas) {
-				this.$refs.qrcodeCanvas.make();
-			}
-		},
-		qrcodeCanvasComplete(e) {
-			this.qrcodePath = e;
-			// this.qrcodePath = this.storeInfo?.barcode_pic || e;
-			this.$emit('getQrcode', e);
-		},
-		makePhoneCall() {
-			uni.makePhoneCall({
-				phoneNumber: this.storeInfo && this.storeInfo.telephone ? this.storeInfo.telephone : '10086'
-			});
-		},
-		getCurrentLocation() {
-			let latitude = 34.219329;
-			let longitude = 108.935485;
-			uni.openLocation({
-				latitude: this.storeInfo.latitude ? Number(this.storeInfo.latitude) : latitude,
-				longitude: this.storeInfo.longitude ? Number(this.storeInfo.longitude) : longitude,
-				name: this.storeInfo.name,
-				address: this.storeInfo.address,
-				success: function() {
-					console.log('success');
-				},
-				fail(err) {
-					console.log('err', err);
+			},
+			hideModal() {
+				this.modalName = '';
+				this.showNoticeModal = false;
+			},
+			showModal(e) {
+				if (e) {
+					this.modalName = e;
+				} else {
+					this.showNoticeModal = true;
 				}
-			});
-		},
-		setHomePage() {
-			this.$emit('setHomePage');
-		},
-		toPages(e, info) {
-			let url = '';
-			if ((!this.bindUserInfo || !this.bindUserInfo.store_user_no) && e !== 'health-manager') {
-				this.$emit('addToStore');
-				return;
-			}
-			switch (e) {
-				case 'instroduce':
-					url = '/storePages/StoreIntroduce/StoreIntroduce?store_no=' + this.storeInfo.store_no;
-					break;
-			}
-			if (url) {
-				uni.navigateTo({
-					url: url,
-					fail() {
-						uni.switchTab({
-							url: url
-						});
+			},
+			toSetting() {
+				this.$emit('toSetting');
+			},
+			makeQrCode() {
+				if (this.$refs.qrcodeCanvas) {
+					this.$refs.qrcodeCanvas.make();
+				}
+			},
+			qrcodeCanvasComplete(e) {
+				this.qrcodePath = e;
+				// this.qrcodePath = this.storeInfo?.barcode_pic || e;
+				this.$emit('getQrcode', e);
+			},
+			makePhoneCall() {
+				uni.makePhoneCall({
+					phoneNumber: this.storeInfo && this.storeInfo.telephone ? this.storeInfo.telephone : '10086'
+				});
+			},
+			getCurrentLocation() {
+				let latitude = 34.219329;
+				let longitude = 108.935485;
+				uni.openLocation({
+					latitude: this.storeInfo.latitude ? Number(this.storeInfo.latitude) : latitude,
+					longitude: this.storeInfo.longitude ? Number(this.storeInfo.longitude) : longitude,
+					name: this.storeInfo.name,
+					address: this.storeInfo.address,
+					success: function() {
+						console.log('success');
+					},
+					fail(err) {
+						console.log('err', err);
 					}
 				});
+			},
+			setHomePage() {
+				this.$emit('setHomePage');
+			},
+			toPages(e, info) {
+				let url = '';
+				if ((!this.bindUserInfo || !this.bindUserInfo.store_user_no) && e !== 'health-manager') {
+					this.$emit('addToStore');
+					return;
+				}
+				switch (e) {
+					case 'instroduce':
+						url = '/storePages/StoreIntroduce/StoreIntroduce?store_no=' + this.storeInfo.store_no;
+						break;
+				}
+				if (url) {
+					uni.navigateTo({
+						url: url,
+						fail() {
+							uni.switchTab({
+								url: url
+							});
+						}
+					});
+				}
+			},
+			async bindStore() {
+				// 将当前登录用户添加到店铺用户列表，角色为用户
+				this.$emit('bindUser');
+			},
+			async toConsult() {
+				// 在线咨询
+				this.$emit('toConsult');
 			}
 		},
-		async bindStore() {
-			// 将当前登录用户添加到店铺用户列表，角色为用户
-			this.$emit('bindUser');
-		},
-		async toConsult() {
-			// 在线咨询
-			this.$emit('toConsult');
+		mounted() {
+			this.getButtonGroup();
 		}
-	},
-	mounted() {
-		this.getButtonGroup();
-	}
-};
+	};
 </script>
 
 <style scoped lang="scss">
-.layout-2 {
-	min-width: 300px;
+	.layout-2 {
+		min-width: 300px;
 
-	@media screen and (min-width: 1300px) {
-		width: 400px;
-		margin: auto;
-	}
+		@media screen and (min-width: 1300px) {
+			width: 400px;
+			margin: auto;
+		}
 
-	.image-bg {
-		width: 100%;
-		height: 100%;
-		background-repeat: no-repeat;
-		background-size: 100%;
-		padding: 340rpx 0 0;
-		display: flex;
-		flex-direction: column;
-
-		.store-info {
-			background-image: url(../../../static/img/wave-bg.png);
-			background-position-y: bottom;
-			background-size: 100%;
-			background-repeat: no-repeat;
-			// width: calc(100% - 60rpx);
+		.image-bg {
 			width: 100%;
-			flex: 1;
-			padding-left: 60rpx;
+			height: 100%;
+			background-repeat: no-repeat;
+			background-size: 100%;
+			padding: 340rpx 0 0;
 			display: flex;
-			align-items: center;
-			min-height: 220rpx;
-			position: relative;
-			margin-bottom: -2rpx;
-			box-sizing: border-box;
+			flex-direction: column;
 
-			.store-icon {
-				width: 160rpx;
-				height: 160rpx;
-				border-radius: 50%;
-			}
-
-			.store-intro {
-				padding-left: 60rpx;
-				padding-top: 60rpx;
-				padding-right: 40rpx;
+			.store-info {
+				background-image: url(../../../static/img/wave-bg.png);
+				background-position-y: bottom;
+				background-size: 100%;
+				background-repeat: no-repeat;
+				// width: calc(100% - 60rpx);
+				width: 100%;
 				flex: 1;
+				padding-left: 60rpx;
+				display: flex;
+				align-items: center;
+				min-height: 220rpx;
+				position: relative;
+				margin-bottom: -2rpx;
+				box-sizing: border-box;
 
-				.store-name {
-					height: 50rpx;
-					width: 90%;
-					font-size: 18px;
-					font-family: 苹方-简;
-					font-weight: normal;
-					color: #474849;
+				.store-icon {
+					width: 160rpx;
+					height: 160rpx;
+					border-radius: 50%;
 				}
 
-				.store-address {
-					width: 90%;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					font-size: 12px;
-					font-family: 苹方-简;
-					font-weight: normal;
-					color: #b8bac0;
-					margin-top: 10rpx;
-					&.can-wrap {
-						width: 100%;
-						overflow: auto;
-						text-overflow: initial;
-						white-space: initial;
+				.store-intro {
+					padding-left: 60rpx;
+					padding-top: 60rpx;
+					padding-right: 40rpx;
+					flex: 1;
+
+					.store-name {
+						height: 50rpx;
+						width: 90%;
+						font-size: 18px;
+						font-family: 苹方-简;
+						font-weight: normal;
+						color: #474849;
 					}
-				}
-			}
-		}
-	}
-}
 
-.store-button {
-	position: absolute;
-	top: -10%;
-	right: 0;
-	display: flex;
-
-	.image-btn {
-		width: 90rpx;
-		height: 90rpx;
-		outline: none;
-		border: none;
-		background-color: transparent;
-		padding: 0;
-		margin: 0;
-
-		// margin-right: 40rpx;
-		&.margin-right {
-			margin-right: 20rpx;
-		}
-
-		&::after {
-			border: none;
-		}
-
-		.image {
-			width: 90rpx;
-			height: 90rpx;
-		}
-	}
-}
-
-.layout-1,.simple-layout {
-	.store-button {
-		position: relative;
-
-		.image-btn {
-			width: 80rpx;
-			height: 80rpx;
-
-			.image {
-				width: 80rpx;
-				height: 80rpx;
-			}
-		}
-	}
-}
-
-.notice-wrap {
-	width: 100%;
-	padding: 30rpx;
-	color: #666;
-
-	// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
-	.button-box {
-		margin-bottom: 0;
-
-		.cu-btn {
-			// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
-		}
-	}
-}
-
-.right {
-	padding: 10rpx;
-	background-color: #ebf9fa;
-	border-radius: 10rpx;
-	margin-bottom: 10rpx;
-}
-
-.qr-code {
-	background-color: #fff;
-	padding: 10rpx;
-	width: 170rpx;
-	height: 170rpx;
-	margin: 0 auto;
-
-	.qrcode-canvas {
-		position: fixed;
-		top: -999999px;
-	}
-
-	.qr-code-image {
-		width: 150rpx;
-		height: 150rpx;
-		line-height: 150rpx;
-		text-align: center;
-	}
-}
-.store-info.simple-layout {
-	display: flex;
-	background-color: transparent;
-	padding: 10px;
-	.logo {
-		width: 50px;
-		height: 50px;
-		border-radius: 50%;
-	}
-	.content-center {
-		flex: 1;
-		padding-left: 10px;
-		.store-address {
-			color: #888;
-			font-size: 14px;
-			padding-top: 3px;
-		}
-		
-	}
-	.store-button{
-		
-	}
-}
-.store-info.layout-1 {
-	background-color: #fff;
-	padding: 30rpx 28rpx 0;
-	display: flex;
-	margin-bottom: 20rpx;
-	position: relative;
-	padding-top: 20rpx;
-	flex-wrap: wrap;
-	border-radius: 20rpx;
-	overflow: hidden;
-
-	min-width: 300px;
-
-	@media screen and (min-width: 1300px) {
-		width: 400px;
-		margin: auto;
-	}
-
-	.top {
-		display: flex;
-		justify-content: space-between;
-		width: 100%;
-		padding: 10rpx 0;
-
-		.name {
-			width: 500rpx;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: wrap;
-			font-size: 32rpx;
-			color: #333;
-			font-weight: bold;
-			flex: 1;
-			display: flex;
-			align-items: center;
-		}
-
-		.tags {
-			display: flex;
-
-			.tag {
-				display: inline-block;
-				margin-left: 10rpx;
-				padding: 5rpx 10rpx;
-				background-color: #0ea8ff;
-				color: #fff;
-				border-radius: 10rpx;
-			}
-		}
-	}
-
-	.store-top {
-		width: 100%;
-		display: flex;
-		margin-bottom: 20rpx;
-		justify-content: space-between;
-		flex-wrap: wrap;
-
-		.name {
-			flex: 1;
-			display: flex;
-			flex-wrap: wrap;
-		}
-
-		.top {
-			.bind {
-				.cu-btn {
-					padding: 0 20rpx;
-					background-image: linear-gradient(to right, #eaf9f8, #edeefe);
-					color: #cf79ee;
-					font-size: 24rpx;
-					margin-right: 10rpx;
-					position: relative;
-
-					.unread {
-						min-width: 20px;
+					.store-address {
+						width: 90%;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
 						font-size: 12px;
-						padding: 3px;
-						position: absolute;
-						top: -10px;
-						right: -10px;
-					}
+						font-family: 苹方-简;
+						font-weight: normal;
+						color: #b8bac0;
+						margin-top: 10rpx;
 
-					&.notice-setting {
-						color: #ffba2f;
-
-						.badge {
-							transform: scale(0.8);
-							right: -30rpx;
-							top: -15rpx;
-							font-size: 24rpx;
+						&.can-wrap {
+							width: 100%;
+							overflow: auto;
+							text-overflow: initial;
+							white-space: initial;
 						}
 					}
 				}
-
-				[class*='cuIcon-'] {
-					font-size: 40rpx;
-				}
 			}
 		}
+	}
 
-		.logo {
-			width: 130rpx;
-			height: 130rpx;
-			border-radius: 20rpx;
-			margin-right: 20rpx;
-			font-size: 60rpx;
-			font-weight: bold;
-			line-height: 100rpx;
-			text-align: center;
-			border: 4rpx solid #ebf9fa;
+	.store-button {
+		position: absolute;
+		top: -10%;
+		right: 0;
+		display: flex;
+
+		.image-btn {
+			width: 90rpx;
+			height: 90rpx;
+			outline: none;
+			border: none;
+			background-color: transparent;
+			padding: 0;
+			margin: 0;
+
+			// margin-right: 40rpx;
+			&.margin-right {
+				margin-right: 20rpx;
+			}
+
+			&::after {
+				border: none;
+			}
+
+			.image {
+				width: 90rpx;
+				height: 90rpx;
+			}
 		}
+	}
 
-		.left {
-			display: flex;
-			flex-direction: column;
-			width: calc(100% - 150rpx);
-			// padding-right: 20rpx;
+	.layout-1,
+	.simple-layout {
+		.store-button {
+			position: relative;
 
-			.bottom {
-				padding-top: 10rpx;
-				color: #aaa;
+			.image-btn {
+				width: 80rpx;
+				height: 80rpx;
 
-				.address {
-					width: 100%;
-					display: flex;
-					align-items: center;
-					font-size: 16px;
-					font-family: 苹方-简;
-					font-weight: normal;
-					color: #9092a5;
-
-					.content {
-						flex: 1;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						// white-space: nowrap;
-					}
+				.image {
+					width: 80rpx;
+					height: 80rpx;
 				}
 			}
 		}
 	}
 
-	.instroduce {
-		width: 65%;
-		// background-color: #EBF9FA;
-		// background: linear-gradient(to right, #EBF9FA, #EEF0FE);
-		background-color: #f7f8ff;
-		border-radius: 20rpx;
-		padding: 10rpx 20rpx;
-		margin: 0 0 10rpx;
-		flex: 1;
-		// max-height: 180rpx;
-
-		position: relative;
+	.notice-wrap {
+		width: 100%;
+		padding: 30rpx;
 		color: #666;
 
-		&::after {
-			position: absolute;
-			left: 20px;
-			top: -20px;
-			content: '';
-			border: 10px solid;
-			border-color: transparent transparent #ebf9fa transparent;
-		}
+		// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
+		.button-box {
+			margin-bottom: 0;
 
-		.introduce-content {
-			overflow: hidden;
-			word-break: break-all;
-			display: -webkit-box;
-			-webkit-line-clamp: 4;
-			/**指定行数*/
-			-webkit-box-orient: vertical;
-		}
-	}
-
-	.home-btn {
-		font-weight: bold;
-		text-align: center;
-		position: absolute;
-		height: 30px;
-		top: -32px;
-		right: 0px;
-
-		.cu-btn {
-			border-radius: 20px 0 0 20px;
-			font-size: 20px;
-			font-weight: 300;
-		}
-
-		&.like-btn {
-			top: -70px;
+			.cu-btn {
+				// background-image: linear-gradient(to right, #EBF9FA, #EEF0FE);
+			}
 		}
 	}
 
 	.right {
+		padding: 10rpx;
+		background-color: #ebf9fa;
+		border-radius: 10rpx;
+		margin-bottom: 10rpx;
+	}
+
+	.qr-code {
+		background-color: #fff;
+		padding: 10rpx;
+		width: 170rpx;
+		height: 170rpx;
+		margin: 0 auto;
+
+		.qrcode-canvas {
+			position: fixed;
+			top: -999999px;
+		}
+
+		.qr-code-image {
+			width: 150rpx;
+			height: 150rpx;
+			line-height: 150rpx;
+			text-align: center;
+		}
+	}
+
+	.store-info.simple-layout {
 		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		position: relative;
-		margin-left: 20rpx;
+		background-color: transparent;
+		padding: 10px;
 
-		.right-item {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			font-size: 12px;
-			position: relative;
-		}
-
-		.image-box {
-			position: relative;
-		}
-
-		.image {
-			display: flex;
-			justify-content: center;
-			align-items: center;
+		.logo {
 			width: 50px;
 			height: 50px;
-			font-size: 20px;
-			color: #00aaff;
-			padding: 5px;
+			border-radius: 50%;
+		}
+
+		.content-center {
+			flex: 1;
+			padding-left: 10px;
+
+			.store-address {
+				color: #888;
+				font-size: 14px;
+				padding-top: 3px;
+			}
+
+		}
+
+		.store-button {}
+	}
+
+	.store-info.layout-1 {
+		background-color: #fff;
+		padding: 30rpx 28rpx 0;
+		display: flex;
+		margin-bottom: 20rpx;
+		position: relative;
+		padding-top: 20rpx;
+		flex-wrap: wrap;
+		border-radius: 20rpx;
+		overflow: hidden;
+
+		min-width: 300px;
+
+		@media screen and (min-width: 1300px) {
+			width: 400px;
+			margin: auto;
+		}
+
+		.top {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+			padding: 10rpx 0;
+
+			.name {
+				width: 500rpx;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: wrap;
+				font-size: 32rpx;
+				color: #333;
+				font-weight: bold;
+				flex: 1;
+				display: flex;
+				align-items: center;
+			}
+
+			.tags {
+				display: flex;
+
+				.tag {
+					display: inline-block;
+					margin-left: 10rpx;
+					padding: 5rpx 10rpx;
+					background-color: #0ea8ff;
+					color: #fff;
+					border-radius: 10rpx;
+				}
+			}
+		}
+
+		.store-top {
+			width: 100%;
+			display: flex;
+			margin-bottom: 20rpx;
+			justify-content: space-between;
+			flex-wrap: wrap;
+
+			.name {
+				flex: 1;
+				display: flex;
+				flex-wrap: wrap;
+			}
+
+			.top {
+				.bind {
+					.cu-btn {
+						padding: 0 20rpx;
+						background-image: linear-gradient(to right, #eaf9f8, #edeefe);
+						color: #cf79ee;
+						font-size: 24rpx;
+						margin-right: 10rpx;
+						position: relative;
+
+						.unread {
+							min-width: 20px;
+							font-size: 12px;
+							padding: 3px;
+							position: absolute;
+							top: -10px;
+							right: -10px;
+						}
+
+						&.notice-setting {
+							color: #ffba2f;
+
+							.badge {
+								transform: scale(0.8);
+								right: -30rpx;
+								top: -15rpx;
+								font-size: 24rpx;
+							}
+						}
+					}
+
+					[class*='cuIcon-'] {
+						font-size: 40rpx;
+					}
+				}
+			}
+
+			.logo {
+				width: 130rpx;
+				height: 130rpx;
+				border-radius: 20rpx;
+				margin-right: 20rpx;
+				font-size: 60rpx;
+				font-weight: bold;
+				line-height: 100rpx;
+				text-align: center;
+				border: 4rpx solid #ebf9fa;
+			}
+
+			.left {
+				display: flex;
+				flex-direction: column;
+				width: calc(100% - 150rpx);
+				// padding-right: 20rpx;
+
+				.bottom {
+					padding-top: 10rpx;
+					color: #aaa;
+
+					.address {
+						width: 100%;
+						display: flex;
+						align-items: center;
+						font-size: 16px;
+						font-family: 苹方-简;
+						font-weight: normal;
+						color: #9092a5;
+
+						.content {
+							flex: 1;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							// white-space: nowrap;
+						}
+					}
+				}
+			}
+		}
+
+		.instroduce {
+			width: 65%;
+			// background-color: #EBF9FA;
+			// background: linear-gradient(to right, #EBF9FA, #EEF0FE);
+			background-color: #f7f8ff;
+			border-radius: 20rpx;
+			padding: 10rpx 20rpx;
+			margin: 0 0 10rpx;
+			flex: 1;
+			// max-height: 180rpx;
+
+			position: relative;
+			color: #666;
+
+			&::after {
+				position: absolute;
+				left: 20px;
+				top: -20px;
+				content: '';
+				border: 10px solid;
+				border-color: transparent transparent #ebf9fa transparent;
+			}
+
+			.introduce-content {
+				overflow: hidden;
+				word-break: break-all;
+				display: -webkit-box;
+				-webkit-line-clamp: 4;
+				/**指定行数*/
+				-webkit-box-orient: vertical;
+			}
+		}
+
+		.home-btn {
+			font-weight: bold;
+			text-align: center;
+			position: absolute;
+			height: 30px;
+			top: -32px;
+			right: 0px;
+
+			.cu-btn {
+				border-radius: 20px 0 0 20px;
+				font-size: 20px;
+				font-weight: 300;
+			}
+
+			&.like-btn {
+				top: -70px;
+			}
+		}
+
+		.right {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			position: relative;
+			margin-left: 20rpx;
+
+			.right-item {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				font-size: 12px;
+				position: relative;
+			}
+
+			.image-box {
+				position: relative;
+			}
+
+			.image {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 50px;
+				height: 50px;
+				font-size: 20px;
+				color: #00aaff;
+				padding: 5px;
+			}
 		}
 	}
-}
 
-.qrcode-box {
-	padding: 80rpx 40rpx;
-	text-align: center;
-	position: relative;
-	.title {
-		padding: 0 0 10px;
-		font-size: 20px;
-		font-weight: bold;
-	}
-	.store-name {
-		margin-top: 10px;
-		font-weight: bold;
-	}
-
-	.store-logo {
-		position: absolute;
-		width: 100rpx;
-		height: 100rpx;
-		left: calc(50% - 50rpx);
-		top: 20rpx;
-		z-index: 2;
-	}
-
-	.qr-code-image {
-		width: 500rpx;
-		height: 500rpx;
-		line-height: 500rpx;
-		margin: 0 auto;
+	.qrcode-box {
+		padding: 80rpx 40rpx;
 		text-align: center;
-		font-size: 20px;
-		border: 15rpx solid #333;
-		padding: 10px;
-		border-radius: 20rpx;
-	}
-}
+		position: relative;
 
-// .cu-dialog {
-//   width: 100% !important;
-// }
+		.title {
+			padding: 0 0 10px;
+			font-size: 20px;
+			font-weight: bold;
+		}
+
+		.store-name {
+			margin-top: 10px;
+			font-weight: bold;
+		}
+
+		.store-logo {
+			position: absolute;
+			width: 100rpx;
+			height: 100rpx;
+			left: calc(50% - 50rpx);
+			top: 20rpx;
+			z-index: 2;
+		}
+
+		.qr-code-image {
+			width: 500rpx;
+			height: 500rpx;
+			line-height: 500rpx;
+			margin: 0 auto;
+			text-align: center;
+			font-size: 20px;
+			border: 15rpx solid #333;
+			padding: 10px;
+			border-radius: 20rpx;
+		}
+	}
+
+	// .cu-dialog {
+	//   width: 100% !important;
+	// }
+	.cu-modal.transparent {
+		z-index: 9999;
+	}
+
+	.cu-dialog.transparent {
+		background-color: transparent;
+		z-index: 9999;
+		width: 100vw !important;
+		border-radius: 0;
+	}
+
+	.share-dialog {
+		position: relative;
+		height: 100vh;
+		display: flex;
+		// align-items: center;
+		justify-content: center;
+
+		.preview-img {
+			padding: 10px;
+			margin-top: 200rpx;
+
+			.share-top {
+				display: flex;
+				align-items: center;
+				font-size: 12px;
+			}
+
+			.app-logo {
+				width: 20px;
+				height: 20px;
+
+				margin-right: 5px;
+			}
+
+			.share-title {
+				font-size: 16px;
+				text-align: left;
+				padding: 0px 10px 10px;
+			}
+
+			.title {
+				padding: 20px;
+				font-size: 16px;
+				color: #fff;
+			}
+
+			.share-preview {
+				background-color: #fff;
+				border-radius: 10px 10px 0 0;
+				padding: 10px;
+			}
+
+			.share-image {
+				width: 300px;
+				height: 200px;
+			}
+
+			.share-bottom {
+				background-color: #fff;
+				text-align: left;
+				color: #888;
+				border-radius: 0 0 10px 10px;
+				padding: 10px;
+			}
+		}
+
+		.bottom-bar {
+			position: absolute;
+			bottom: 0;
+			width: 100vw;
+			background-color: #fff;
+
+			.share-list {
+				display: flex;
+				justify-content: center;
+				padding: 20px;
+
+				.share-item {
+					width: 100px;
+					text-align: center;
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+
+					.bg-transparent {
+						height: 50px;
+						width: 50px;
+						padding: 0;
+						margin: 0;
+						background-color: transparent;
+					}
+
+					.share-icon {
+						width: 50px;
+						height: 50px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						font-size: 30px;
+
+						&.bg-green {
+							background-color: #6cca58;
+						}
+					}
+
+					.share-label {
+						text-align: center;
+						margin-top: 5px;
+					}
+				}
+			}
+
+			.bottom-button {
+				padding: 10px;
+				border-top: 1px solid #f1f1f1;
+
+			}
+		}
+	}
+
+	.poster-image {
+		// width: 100%;
+		width: 90vw;
+		height: 70vh;
+		// background-color: #F1f1f1;
+	}
 </style>

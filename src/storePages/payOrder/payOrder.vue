@@ -580,6 +580,9 @@
         this.$http.post(url, req)
       },
       async toPay() {
+		  if(this.storeInfo?.wx_mch_id){
+			  this.wxMchId = this.storeInfo?.wx_mch_id
+		  }
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
