@@ -556,13 +556,17 @@
 				if (Array.isArray(this.tabs) && this.tabs.length > 0) {
 					let cur = this.tabs[this.curTab]
 					if (cur && cur.condition) {
-						let str = JSON.stringify(cur.condition)
+						
 						let data = {
 							userInfo: this.$store?.state?.user?.userInfo,
 							storeInfo: this.$store?.state?.app?.storeInfo,
 							bindUserInfo: this.$store?.state?.user?.storeUserInfo
 						};
-						cur.condition = this.renderStr(str, data) || cur.condition
+						cur.condition =  cur.condition.map(item=>{
+							item.value = this.renderStr(item.value,data)
+							return item
+						})
+						
 					}
 					if (Array.isArray(cur.condition) && cur.condition.length > 0) {
 						req.condition = [...req.condition, ...cur.condition]

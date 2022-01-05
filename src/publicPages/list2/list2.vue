@@ -37,7 +37,9 @@
 		<cart-bottom :sum-price="sumPrice" ref="cartBottom" @selectAll="selectAllChange" @del="del" :mode="cartMode"
 			@toOrderPage="toOrderPage" v-if="listType==='cartList'">
 		</cart-bottom>
-
+		<view class="bottom-button" v-if="selectoDataId">
+			<button class="cu-btn bg-blue round shadow-blur" @click="confirmSelect">确认</button>
+		</view>
 	</view>
 </template>
 
@@ -62,23 +64,6 @@
 			theme() {
 				return this.$store?.state?.app?.theme
 			},
-			// countData() {
-			//   let arr = [{
-			//       label: "当前空房数",
-			//       value: 249
-			//     },
-			//     {
-			//       label: "今日预约数",
-			//       value: 12
-			//     },
-			//     {
-			//       label: "今日营业额",
-			//       value: 14709,
-			//       prefix: '￥'
-			//     }
-			//   ]
-			//   return arr
-			// },
 			tags() {
 				if (Array.isArray(this.colV2?.tabs)) {
 					let tabs = this.colV2?.tabs
@@ -338,7 +323,7 @@
 				proc_data_type: "", //流程状态
 				searchVal: "",
 				listType: "list", //list,proc,cart
-				pageType: "", //list,proc,cart
+				pageType: "", //list,proc,cart,selectorList
 				detailType: "", //  normal,custom
 				tabList: [],
 				order: [],
@@ -354,24 +339,51 @@
 				gridButtonDisp: null,
 				rowButtonDisp: null,
 				formButtonDisp: null,
-				countData: null
+				countData: null,
+				selectoDataId: '',
+				selectCol: ""
 			}
 		},
 		methods: {
+			confirmSelect() {
+				if (this.selectoDataId) {
+					uni.$emit('confirmSelect', {
+						val: this.selectoDataId,
+						service: this.serviceName,
+						col: this.selectCol,
+						data: this.list.find(item => this.selectoDataId.indexOf(item.id) !== -1)
+					})
+				}
+				uni.navigateBack({})
+			},
 			checkboxChange(e) {
-				if (e.cart_goods_rec_no) {
+				if (this.listType === 'selectorList') {
 					this.list = this.list.map(item => {
-						if (e.cart_goods_rec_no === item.cart_goods_rec_no) {
+						if (e.id === item.id) {
 							item.checked = !item.checked
+						} else {
+							item.checked = true
 						}
 						return item
 					})
-				}
-				if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
-					this.$refs.cartBottom.selectAll = true
+					let selectorList = this.list.filter(item => item.checked == true).map(item => item.id).toString()
+					this.selectoDataId = selectorList
 				} else {
-					this.$refs.cartBottom.selectAll = false
+					if (e.cart_goods_rec_no) {
+						this.list = this.list.map(item => {
+							if (e.cart_goods_rec_no === item.cart_goods_rec_no) {
+								item.checked = !item.checked
+							}
+							return item
+						})
+					}
+					if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
+						this.$refs.cartBottom.selectAll = true
+					} else {
+						this.$refs.cartBottom.selectAll = false
+					}
 				}
+
 			},
 			selectAllChange(e) {
 				if (e) {
@@ -930,9 +942,6 @@
 					}
 				}
 
-
-
-
 				if (this.colV2?.vpage_no) {
 					req['vpage_no'] = this.colV2.vpage_no
 				}
@@ -971,23 +980,33 @@
 							this.loadStatus = 'more'
 						}
 					}
-					if (this.listType === 'cartList') {
+					if (this.listType === 'cartList' || this.listType === 'selectorList') {
 						this.list = this.list.map(item => {
 							if (!item.checked) {
 								item.checked = false;
 							}
+							if (this.selectoDataId && Number(this.selectoDataId) === Number(item.id)) {
+								item.checked = true
+							}
 							return item
 						})
-						if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
-							this.$refs.cartBottom.selectAll = true
-						} else {
-							this.$refs.cartBottom.selectAll = false
+						if (this.listType === 'cartList') {
+							if (this.list.length > 0 && this.list.every(item => item.checked === true)) {
+								this.$refs.cartBottom.selectAll = true
+							} else {
+								this.$refs.cartBottom.selectAll = false
+							}
 						}
+
 					}
 					return this.list;
 				}
 			},
 			async clickFootBtn(data) {
+				if (this.listType === 'selectorList') {
+					this.checkboxChange(data.row)
+					return
+				}
 				let self = this
 				let buttonInfo = this.deepClone(data.button);
 				let rowData = this.deepClone(data.row);
@@ -1719,6 +1738,12 @@
 			if (option.listType) {
 				this.listType = option.listType
 			}
+			if (option.selectCol) {
+				this.selectCol = option.selectCol
+				if (option.selectedVal) {
+					this.selectoDataId = option.selectedVal
+				}
+			}
 			if (option.wxMchId) {
 				this.wxMchId = option.wxMchId
 			}
@@ -1868,6 +1893,19 @@
 				// .count-bar-box,.search-bar,.filter-tags-view{
 				display: none;
 			}
+		}
+	}
+
+
+	.bottom-button {
+		position: fixed;
+		bottom: 50px;
+		text-align: center;
+		width: 100%;
+
+		.cu-btn {
+			width: 80%;
+
 		}
 	}
 </style>

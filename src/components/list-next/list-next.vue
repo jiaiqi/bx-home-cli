@@ -22,7 +22,7 @@
 				<radio
 					:value="item.cart_goods_rec_no"
 					:checked="item.checked"
-					v-if="listType === 'cartList'"
+					v-if="listType === 'cartList'||listType==='selectorList'"
 					style="transform:scale(0.7);margin-right:5px;"
 					@click="checkboxChange(item)"
 				/>

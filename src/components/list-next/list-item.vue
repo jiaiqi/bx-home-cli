@@ -14,10 +14,6 @@
 					</view>
 				</view>
 				<view class="col-item text-right flex-1" v-if="listType === 'cartList' && rowData && rowData.goods_amount">
-					<!--       <view class="del-btn-box" :class="{active:rowData&&rowData.goods_amount}"
-            v-if="rowData&&rowData.goods_amount">
-          
-          </view> -->
 					<view
 						class="cu-btn sm radius cart-handler"
 						:style="{
@@ -74,10 +70,7 @@
 						+
 					</text>
 				</view>
-				<!-- 
-        <text class="cuIcon-moreandroid" @click.stop="showAction"
-          v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text> -->
-				<view class="foot-button-box grid" v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3">
+				<view class="foot-button-box grid" v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
 					<button
 						class="cu-btn"
 						:style="[setListView.btnStyle]"
@@ -115,8 +108,8 @@
 				></image>
 			</view>
 		</view>
-		<view class="foot-button-box" v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3"></view>
-		<view class="foot-button-box" v-else>
+		<view class="foot-button-box" v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'"></view>
+		<view class="foot-button-box" v-else-if="listType!=='selectorList'">
 			<button
 				class="cu-btn"
 				:class="[setListView.btnClass]"
