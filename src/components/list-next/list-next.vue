@@ -11,6 +11,7 @@
 			<view
 				class="check-box-item "
 				:class="{
+					'check-box_item':listType==='selectorList',
 					grid_span2: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '2' || setViewTemp.grid_span === 2),
 					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
@@ -22,12 +23,10 @@
 				<radio
 					:value="item.cart_goods_rec_no"
 					:checked="item.checked"
-					v-if="listType === 'cartList'||listType==='selectorList'"
+					v-if="listType === 'cartList'"
 					style="transform:scale(0.7);margin-right:5px;"
 					@click="checkboxChange(item)"
 				/>
-				<!--   <checkbox class="check-box" :value="item.cart_goods_rec_no" :checked="item.checked"
-            v-if="listType==='cartList'" style="transform:scale(0.7);margin" /> -->
 				<list-item
 					class="list-item-wrap"
 					:viewTemp="setViewTemp"
@@ -43,6 +42,13 @@
 					@add2Cart="add2Cart"
 					@del2Cart="del2Cart"
 				></list-item>
+				<radio
+					:value="item.id"
+					:checked="item.checked"
+					v-if="listType==='selectorList'"
+					style="transform:scale(1);margin-right:5px;"
+					@click="checkboxChange(item)"
+				/>
 			</view>
 			<!-- </checkbox-group> -->
 		</view>
@@ -188,7 +194,11 @@ export default {
 		align-items: center;
 		width: 100%;
 		padding: 0 10px;
-
+		&.check-box_item{
+			background-color: #fff;
+			border-radius: 10px;
+			margin: 10px;
+		}
 		.list-item-wrap {
 			flex: 1;
 		}
