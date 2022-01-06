@@ -420,7 +420,6 @@
 							}
 						}
 						break;
-
 					case 'submit':
 						if (req) {
 							let data = this.deepClone(req);
@@ -564,6 +563,7 @@
 							let res = await this.$http.post(url, reqData);
 							if (res.data.state === 'SUCCESS') {
 								uni.$emit('dataChange', service)
+								let effect_data = null
 								if (
 									Array.isArray(res.data.response) &&
 									res.data.response.length > 0 &&
@@ -576,8 +576,93 @@
 									//   this.$store.commit('SET_USERINFO', this.params.submitData);
 									//   uni.setStorageSync('cur_user_no', this.params.submitData.no)
 									// }
+									effect_data = res.data.response[0].response.effect_data[0];
 								}
-
+								let afterSubmit = self.moreConfig?.after_submit;
+								if(Array.isArray(afterSubmit)&&afterSubmit.length>0){
+									const actionResult = new Array(afterSubmit.length)
+									for(let i=0;i<afterSubmit.length;i++){
+										let item = afterSubmit[i];
+										if(i>0&&actionResult[i]){
+											if(item.type==='wx_pay'){
+												if(item.money_col&&item.order_no_col&&effect_data&&effect_data[item.order_no_col]){
+													const wxMchId = this.storeInfo?.wx_mch_id
+													const totalMoney = effect_data[item.money_col]||0
+													const orderData = {
+														order_no:effect_data[item.order_no_col]
+													}
+													const result = await this.toPlaceOrder(totalMoney * 100, '', orderData,wxMchId);
+													if (result && result.prepay_id) {
+													  let res = await this.getPayParams(result.prepay_id, wxMchId);
+													  const resData = await new Promise((resolve)=>{
+														  wx.requestPayment({
+														    timeStamp: res.timeStamp.toString(),
+														    nonceStr: res.nonceStr,
+														    package: res.package,
+														    signType: 'MD5',
+														    paySign: res.paySign,
+														    success(res) {
+														      // 支付成功
+														      resolve(true)
+														    },
+														    fail(res) {
+														      // 支付失败/取消支付
+															  resolve('支付失败/取消支付')
+														    }
+														  });
+													  })
+													  actionResult[i] = resData
+													}
+												}
+											}else if(item.type==='update_call_back'){
+												if(item.service&&item.app&&Array.isArray(item.data)&&item.cond){
+													const globalData = {
+														data:effect_data||{},
+														storeInfo:self.storeInfo,
+														userInfo:self.userInfo,
+														storeUser:self.vstoreUser
+													}
+													let url = this.getServiceUrl(item.app, item.service, 'operate');
+													let req = [{
+														serviceName:item.service,
+														condition:[],
+														data:item.data
+													}]
+													if(Array.isArray(item.cond)){
+														req[0].condition = item.cond.map(c=>{
+															c.value = self.renderStr(c.value,globalData)
+															return c
+														})
+													}
+													const res = await self.$http.post(url,req);
+													if(res.data.state=='SUCCESS'){
+														actionResult[i] = true
+													}else{
+														actionResult[i] = res.data.resultMessage
+													}
+												}
+											}
+										}
+										
+										
+									}
+									if(actionResult.length=== afterSubmit.length&&!actionResult.every(item=>item==true)){
+										self.srvType==='detail'
+										self.srvType==='use_type'
+										self.formButtons = []
+									}else{
+										actionResult.forEach(item=>{
+											if(item&&typeof item==='string'){
+												uni.showModal({
+													title:"提示",
+													content:item,
+													showCancel:false
+												})
+											}
+										})
+									}
+									return
+								}
 								uni.showModal({
 									title: '提示',
 									content: res.data.resultMessage,
@@ -587,17 +672,12 @@
 											let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
 											if (self.afterSubmit === 'home') {
 												getApp().globalData.beforeRedirectUrl = null
-												let store_no = this.$store?.state?.app?.storeInfo?.store_no
+												let store_no = self.$store?.state?.app?.storeInfo?.store_no
 												uni.reLaunch({
 													url: `/storePages/home/home?store_no=${store_no}`
 												})
 												return
 											} else if (self.afterSubmit === 'close') {
-												// getApp().globalData.beforeRedirectUrl = null
-												// let store_no = this.$store?.state?.app?.storeInfo?.store_no
-												// uni.reLaunch({
-												//   url: `/storePages/home/home?store_no=${store_no}`
-												// })
 												if (top.window?.tab?.closeCurrentTab && top?.window?.tab
 													?.getCurrentTab) {
 													let curTab = top.window?.tab.getCurrentTab();

@@ -852,22 +852,22 @@ export default {
 				return res.data.data[0];
 			}
 		},
-		getGoodsListData() {
-			let req = {
-				condition: [
-					{
-						colName: 'store_no',
-						ruleType: 'eq',
-						value: this.storeNo
-					}
-				]
-			};
-			this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
-				if (Array.isArray(res.data)) {
-					this.goodsListData = res.data;
-				}
-			});
-		},
+		// getGoodsListData() {
+		// 	let req = {
+		// 		condition: [
+		// 			{
+		// 				colName: 'store_no',
+		// 				ruleType: 'eq',
+		// 				value: this.storeNo
+		// 			}
+		// 		]
+		// 	};
+		// 	this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
+		// 		if (Array.isArray(res.data)) {
+		// 			this.goodsListData = res.data;
+		// 		}
+		// 	});
+		// },
 		async selectStoreInfo(times = 0) {
 			let req = {
 				condition: [
@@ -908,9 +908,9 @@ export default {
 					await this.getPageComponent(this.StoreInfo.home_page_no);
 				}
 				this.$store.commit('SET_STORE_INFO', res.data[0]);
-				if (this.StoreInfo.type === '健康服务') {
-					this.getGoodsListData();
-				}
+				// if (this.StoreInfo.type === '健康服务') {
+				// 	this.getGoodsListData();
+				// }
 				if (this.StoreInfo.is_show === '是') {
 					this.getStoreUserInfo(this.StoreInfo.store_no).then(res => {
 						if (Array.isArray(res) && res.length >= 1) {

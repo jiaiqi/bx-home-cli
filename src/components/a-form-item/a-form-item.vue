@@ -78,7 +78,6 @@
 					{{ item.label }}
 				</bx-checkbox>
 			</bx-checkbox-group>
-
 			<view class="form-item-content_value" v-else-if="popupFieldTypeList.includes(fieldData.type)">
 				<view class="selector-tip"
 					v-if="selectorData.length===0&&setOptionList.length===0&&!fkFieldLabel&&!fieldData.value"
@@ -140,8 +139,12 @@
 					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur"></textarea>
 			</view>
 			<view class="form-item-content_value location"
-				v-else-if="fieldData.type === 'addr' || fieldData.type === 'location'" @click="getLocation">
-				{{ fieldData.value || "点击选择地理位置" }}
+				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value" @click="getLocation">
+				{{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
+			</view>
+			<view class="form-item-content_value location"
+				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&!fieldData.value" @click="getLocation">
+				点击选择地理位置
 			</view>
 			<view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'"
 				@click="showModal('RichEditor')">
@@ -211,7 +214,7 @@
 				:showUploadProgress="true" :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum">
 			</robby-image-upload>
 		</view>
-		<view class="icon-area" v-if="fieldData.type === 'location' || fieldData.type === 'addr'"><text
+		<view class="icon-area" v-if="(fieldData.type === 'location' || fieldData.type === 'addr')"><text
 				class="cuIcon-locationfill text-blue" @click="getLocation"></text></view>
 		<view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
 		<view class="cu-modal bottom-modal" v-if="modalName === 'RichEditor'"
@@ -608,24 +611,80 @@
 					}
 				});
 			},
-			getLocation() {
+			async getLocation() {
 				if (this.pageType === 'detail') {
 					return;
 				}
 				let self = this;
-				uni.chooseLocation({
-					success: function(res) {
-						console.log('位置名称：' + res.name);
-						console.log('详细地址：' + res.address);
-						console.log('纬度：' + res.latitude);
-						console.log('经度：' + res.longitude);
-						self.$emit('chooseLocation', res);
-						self.fieldData.value = res.address;
-						// self.onInput();
-						self.onBlur()
-						self.getDefVal();
+				const resData = await uni.chooseLocation()
+				if (Array.isArray(resData) && resData.length > 1) {
+					const res = resData[1]
+					console.log('位置名称：' + res.name);
+					console.log('详细地址：' + res.address);
+					console.log('纬度：' + res.latitude);
+					console.log('经度：' + res.longitude);
+
+					if (self.fieldData.col_type === 'bxsys_obj_type_gps') {
+						self.fieldData.value = await this.saveLocation(res)
+						self.fkFieldLabel = res.address 
+					} else {
+						self.fieldData.value = res.address + res.name;
 					}
-				});
+					self.$emit('chooseLocation',res);
+					self.onBlur()
+					self.getDefVal();
+				}
+			},
+			async getLocationFromSys() {
+				const app = this.srvApp
+				const req = {
+					"serviceName": "srvsys_obj_type_gps_select",
+					"colNames": ["*"],
+					"condition": [{
+						colName: 'gno',
+						ruleType: 'eq',
+						value: this.fieldData.value
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					}
+				}
+				const res = await this.$fetch('select', 'srvsys_obj_type_gps_select', req, app)
+				if (res.success && res.data.length > 0) {
+					return res.data[0].gno
+				}
+			},
+			async saveLocation(e = {}) {
+				let gno = ''
+				if (this.fieldData.value) {
+					gno = await this.getLocationFromSys()
+				}
+				const app = this.srvApp
+				let serviceName = 'srvsys_obj_type_gps_add'
+				const req = [{
+					serviceName: serviceName,
+					data: [{
+						addr_str: e.address + e.name,
+						gcj_lat: e.latitude,
+						gcj_lon: e.longitude
+					}]
+				}]
+				if (gno) {
+					serviceName = 'srvsys_obj_type_gps_update'
+					req[0].serviceName = serviceName
+					req[0].condition = [{
+						colName: 'gno',
+						ruleType: 'eq',
+						value: gno
+					}]
+				}
+				const res = await this.$fetch('operate', serviceName, req, app)
+				if (res.success && res.data.length > 0) {
+					this.fieldData.colData = res.data[0]
+					return res.data[0].gno
+				}
+
 			},
 			showModal(name) {
 				this.modalName = name;
@@ -1056,12 +1115,14 @@
 							}
 							return item;
 						});
-						let url = `/publicPages/list2/list2?selectCol=${this.fieldData.column}&destApp=${option_list_v2.srv_app}&listType=selectorList&serviceName=${option_list_v2.serviceName}&cond=${JSON.stringify(condition)}`
-						if(this.fieldData?.moreConfig?.listConfig&&typeof this.fieldData?.moreConfig?.listConfig==='object'){
-							url+=`&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
+						let url =
+							`/publicPages/list2/list2?selectCol=${this.fieldData.column}&destApp=${option_list_v2.srv_app}&listType=selectorList&serviceName=${option_list_v2.serviceName}&cond=${JSON.stringify(condition)}`
+						if (this.fieldData?.moreConfig?.listConfig && typeof this.fieldData?.moreConfig?.listConfig ===
+							'object') {
+							url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
 						}
-						if(this.fieldData?.colData?.id){
-							url+=`&selectedVal=${this.fieldData?.colData?.id}`
+						if (this.fieldData?.colData?.id) {
+							url += `&selectedVal=${this.fieldData?.colData?.id}`
 						}
 						uni.navigateTo({
 							url: url

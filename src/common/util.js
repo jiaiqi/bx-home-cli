@@ -300,6 +300,11 @@ export default {
           // fieldInfo.type = "radioFk"
           fieldInfo.type = "Set"
           fieldInfo.options = item.option_list_v2
+        } else if (item.col_type === "bxsys_obj_type_gps" && item.bx_col_type === "fk") {
+          // fieldInfo.type = "radioFk"
+          fieldInfo.type = "location"
+          fieldInfo.option_list_v2 = item.option_list_v2
+          fieldInfo.options = item.option_list_v2
         } else if (item.col_type === "Enum" || item.col_type === "Dict") {
           // fieldInfo.type = "radioFk"
           fieldInfo.type = "Selector"

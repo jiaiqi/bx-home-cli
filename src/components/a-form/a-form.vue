@@ -360,7 +360,7 @@
           this.$set(this.allField, index, item);
           return item;
         });
-        this.$emit('value-blur', this.fieldModel);
+        // this.$emit('value-blur', this.fieldModel,fieldData);
       },
       onReset() {
         if (Array.isArray(this.oldField) && this.oldField.length > 0) {

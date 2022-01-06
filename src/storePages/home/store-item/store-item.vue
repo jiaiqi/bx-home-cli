@@ -42,7 +42,7 @@
 			ref="buttonGroup"
 		></button-list>
 		<goods-list
-			v-else-if="pageItem.type === '商品列表' && goodsListData.length > 0"
+			v-else-if="pageItem.type === '商品列表'"
 			:storeNo="storeNo"
 			:storeInfo="storeInfo"
 			image="goods_img"

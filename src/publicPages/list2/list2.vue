@@ -359,10 +359,10 @@
 			checkboxChange(e) {
 				if (this.listType === 'selectorList') {
 					this.list = this.list.map(item => {
-						if (e.id === item.id) {
+						if (e.id&&e.id === item.id) {
 							item.checked = !item.checked
 						} else {
-							item.checked = true
+							item.checked = false
 						}
 						return item
 					})
