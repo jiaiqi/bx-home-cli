@@ -33,6 +33,7 @@
 					:labelMap="labelMap"
 					:cartData="cartData"
 					:listType="listType"
+					:appName="appName"
 					:rowData="item"
 					:rowButton="rowButton"
 					@click-foot-btn="clickFootBtn"
@@ -194,6 +195,7 @@ export default {
 		align-items: center;
 		width: 100%;
 		padding: 0 10px;
+		margin-bottom: 10px;
 		&.check-box_item{
 			background-color: #fff;
 			border-radius: 10px;

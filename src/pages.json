@@ -135,7 +135,16 @@
 				//     "enablePullDownRefresh": false
 				//   }
 				// }
-			]
+			    ,{
+                    "path" : "dateTimeSelector/dateTimeSelector",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
 		},
 		{
 			"root": "storePages",

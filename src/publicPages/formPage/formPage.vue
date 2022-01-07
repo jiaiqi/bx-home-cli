@@ -1,5 +1,18 @@
 <template>
-	<view class="form-wrap" :class="['theme-'+theme]">
+	<view class="form-wrap" :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title}]">
+		<view class="custom-view bg-blue" v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
+			<view class="icon">
+				<text class="cuIcon-check text-blue"></text>
+			</view>
+			<view class="content">
+					<view class="title">
+						{{view_cfg.title}}
+					</view>
+					<view class="tip">
+						{{view_cfg.tip||''}}
+					</view>
+			</view>
+		</view>
 		<view class="form-content">
 			<view class="main-form-edit">
 				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
@@ -19,7 +32,13 @@
 				</view>
 			</view>
 		</view>
-		<view class="button-box" v-if="colsV2Data&&!disabled">
+		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
+			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
+				@click="onButton(btn)">
+				{{ btn.button_name}}
+			</button>
+		</view>
+		<view class="button-box" v-else-if="colsV2Data&&!disabled">
 			<button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
 				v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
 				{{ btn.button_name }}
@@ -63,6 +82,7 @@
 				disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
 				afterSubmit: "",
 				params: {},
+				view_cfg: null
 			}
 		},
 		computed: {
@@ -250,8 +270,29 @@
 				if (!e) {
 					return;
 				}
-
-				let self = this
+				const self = this
+				if (e.type === 'navToList') {
+					const globalData = {
+						// data: effect_data || {},
+						storeInfo: self.storeInfo,
+						userInfo: self.userInfo,
+						storeUser: self.vstoreUser
+					}
+					let url =
+						`/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
+					if (e.cond) {
+						debugger
+						const cond = e.cond.map(item => {
+							item.value = this.renderStr(item.value, globalData)
+							return item
+						})
+						url += `&cond=${JSON.stringify(cond)}`
+					}
+					uni.navigateTo({
+						url
+					})
+					return
+				}
 				let req = this.$refs.bxForm.getFieldModel();
 				for (let key in req) {
 					if (Array.isArray(req[key])) {
@@ -423,7 +464,6 @@
 					case 'submit':
 						if (req) {
 							let data = this.deepClone(req);
-							debugger
 							data.child_data_list = []
 							console.log(this.childService)
 							if (Array.isArray(this.childService) && this.childService.length > 0) {
@@ -447,13 +487,13 @@
 											if (item.right_child.condition && Array.isArray(item.right_child
 													.condition) && item
 												.right_child.condition.length > 0 && Array.isArray(right_data)
-												) {
+											) {
 												right_data = right_data.filter(rd => {
 													let valid = 0;
 													item.right_child.condition.forEach(cond => {
 														if (cond.ruleType == 'eq') {
 															if (cond.value === rd[cond
-																.colName]) {
+																	.colName]) {
 																valid += 1
 															}
 														}
@@ -579,84 +619,114 @@
 									effect_data = res.data.response[0].response.effect_data[0];
 								}
 								let afterSubmit = self.moreConfig?.after_submit;
-								if(Array.isArray(afterSubmit)&&afterSubmit.length>0){
+								if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+									const globalData = {
+										data: effect_data || {},
+										storeInfo: self.storeInfo,
+										userInfo: self.userInfo,
+										storeUser: self.vstoreUser
+									}
 									const actionResult = new Array(afterSubmit.length)
-									for(let i=0;i<afterSubmit.length;i++){
+									debugger
+									for (let i = 0; i < afterSubmit.length; i++) {
 										let item = afterSubmit[i];
-										if(i>0&&actionResult[i]){
-											if(item.type==='wx_pay'){
-												if(item.money_col&&item.order_no_col&&effect_data&&effect_data[item.order_no_col]){
+										if ((i > 0 && actionResult[i-1])||i==0) {
+											if (item.type === 'wx_pay') {
+												if (item.money_col && item.order_no_col && effect_data && effect_data[
+														item.order_no_col]) {
 													const wxMchId = this.storeInfo?.wx_mch_id
-													const totalMoney = effect_data[item.money_col]||0
+													const totalMoney = effect_data[item.money_col] || 0
 													const orderData = {
-														order_no:effect_data[item.order_no_col]
+														order_no: effect_data[item.order_no_col]
 													}
-													const result = await this.toPlaceOrder(totalMoney * 100, '', orderData,wxMchId);
+													const result = await this.toPlaceOrder(totalMoney * 100, '',
+														orderData, wxMchId);
 													if (result && result.prepay_id) {
-													  let res = await this.getPayParams(result.prepay_id, wxMchId);
-													  const resData = await new Promise((resolve)=>{
-														  wx.requestPayment({
-														    timeStamp: res.timeStamp.toString(),
-														    nonceStr: res.nonceStr,
-														    package: res.package,
-														    signType: 'MD5',
-														    paySign: res.paySign,
-														    success(res) {
-														      // 支付成功
-														      resolve(true)
-														    },
-														    fail(res) {
-														      // 支付失败/取消支付
-															  resolve('支付失败/取消支付')
-														    }
-														  });
-													  })
-													  actionResult[i] = resData
+														let res = await this.getPayParams(result.prepay_id, wxMchId);
+														const resData = await new Promise((resolve) => {
+															wx.requestPayment({
+																timeStamp: res.timeStamp.toString(),
+																nonceStr: res.nonceStr,
+																package: res.package,
+																signType: 'MD5',
+																paySign: res.paySign,
+																success(res) {
+																	// 支付成功
+																	resolve(true)
+																},
+																fail(res) {
+																	// 支付失败/取消支付
+																	resolve('支付失败/取消支付')
+																}
+															});
+														})
+														actionResult[i] = resData
 													}
 												}
-											}else if(item.type==='update_call_back'){
-												if(item.service&&item.app&&Array.isArray(item.data)&&item.cond){
-													const globalData = {
-														data:effect_data||{},
-														storeInfo:self.storeInfo,
-														userInfo:self.userInfo,
-														storeUser:self.vstoreUser
-													}
+											} else if (item.type === 'update_call_back') {
+												if (item.service && item.app && Array.isArray(item.data) && item
+													.cond) {
+
 													let url = this.getServiceUrl(item.app, item.service, 'operate');
 													let req = [{
-														serviceName:item.service,
-														condition:[],
-														data:item.data
+														serviceName: item.service,
+														condition: [],
+														data: item.data
 													}]
-													if(Array.isArray(item.cond)){
-														req[0].condition = item.cond.map(c=>{
-															c.value = self.renderStr(c.value,globalData)
+													if (Array.isArray(item.cond)) {
+														req[0].condition = item.cond.map(c => {
+															c.value = self.renderStr(c.value, globalData)
 															return c
 														})
 													}
-													const res = await self.$http.post(url,req);
-													if(res.data.state=='SUCCESS'){
+													const res = await self.$http.post(url, req);
+													if (res.data.state == 'SUCCESS') {
 														actionResult[i] = true
-													}else{
+													} else {
 														actionResult[i] = res.data.resultMessage
 													}
 												}
+											} else if (item.type === 'toDetail') {
+												this.srvType = 'detail'
+												let serviceName = this.addV2?.select_service_name || this
+													.getServiceName(this.serviceName)
+												let fieldsCond = [{
+													column: 'id',
+													value: effect_data.id,
+													display: false
+												}]
+												let url =
+													`/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+												if (this.appName) {
+													url += `&appName=${this.appName}`
+												}
+												if (item.custom_url) {
+													url = this.renderStr(item.custom_url, globalData);
+												}
+												if (item.view_cfg) {
+													url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
+												}
+
+												uni.redirectTo({
+													url
+												})
 											}
 										}
-										
-										
+
+
 									}
-									if(actionResult.length=== afterSubmit.length&&!actionResult.every(item=>item==true)){
-										self.srvType==='detail'
-										self.srvType==='use_type'
+									if (actionResult.length === afterSubmit.length && !actionResult.every(item =>
+											item == true)) {
+										self.srvType === 'detail'
+										self.srvType === 'use_type'
 										self.formButtons = []
-									}else{
-										actionResult.forEach(item=>{
-											if(item&&typeof item==='string'){
+									} else {
+										actionResult.forEach(item => {
+											if (item && typeof item === 'string') {
 												uni.showModal({
-													title:"提示",
-													content:item,
-													showCancel:false
+													title: "提示",
+													content: item,
+													showCancel: false
 												})
 											}
 										})
@@ -853,7 +923,6 @@
 			},
 			toPages(type, e) {
 				this.srvType = type;
-				debugger
 				if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this
 						.params
 						?.idCol]) {
@@ -1155,9 +1224,9 @@
 				this.modalName = null
 			},
 			changeValue(e) {
-				if (e?.col && e?.service&&e?.data) {
+				if (e?.col && e?.service && e?.data) {
 					this.fields = this.fields.map(item => {
-						if(item.column===e.col){
+						if (item.column === e.col) {
 							item.value = e.data[item.option_list_v2?.refed_col];
 							item.colData = e.data
 						}
@@ -1171,6 +1240,17 @@
 			uni.$on('confirmSelect', e => {
 				this.changeValue(e)
 			})
+			if (option.view_cfg) {
+				// 详情页面自定义展示效果
+				try {
+					this.view_cfg = JSON.parse(option.view_cfg)
+					if(this.view_cfg.hideColumn){
+						this.hideColumn = this.view_cfg.hideColumn
+					}
+				} catch (e) {
+					//TODO handle the exception
+				}
+			}
 			if (option.disabled) {
 				this.disabled = true
 			}
@@ -1240,10 +1320,44 @@
 		display: flex;
 		flex-direction: column;
 		margin: 0 auto;
-
+		&.no-padding{
+			padding: 0;
+			.form-content{
+				// background-color: #fff;
+			}
+			.main-form-edit{
+				background-color: #fff;
+				border-radius: 0;
+			}
+		}
 		.form-content {
 			flex: 1;
 			margin-bottom: 20rpx;
+		}
+		.custom-view{
+			margin-bottom: 10px;
+			padding: 10px 20px;
+			display: flex;
+			align-items: center;
+			.icon{
+				font-size: 40px;
+				background-color: #fff;
+				width: 60px;
+				height: 60px;
+				line-height: 60px;
+				text-align: center;
+				border-radius: 50%;
+				margin: 0 10px;
+			}
+			.content{
+				.title{
+					font-size: 18px;
+					line-height: 30px;
+				}
+				.tip{
+					font-size: 12px;
+				}
+			}
 		}
 	}
 

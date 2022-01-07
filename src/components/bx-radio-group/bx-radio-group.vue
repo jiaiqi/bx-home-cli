@@ -32,8 +32,7 @@ export default {
 		},
 		// 匹配某一个radio组件，如果某个radio的name值等于此值，那么这个radio就被会选中
 		value: {
-			type: [String, Number],
-			default: ''
+			type: [String, Number]
 		},
 		// 选中状态下的颜色
 		activeColor: {

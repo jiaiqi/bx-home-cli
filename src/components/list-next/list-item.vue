@@ -7,7 +7,16 @@
 			<view class="list-item-content" :style="{ width: setListView.listContentWidth }" v-if="setListView && setListView.cols">
 				<view class="col-item bg" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
 					<view class="label" v-if="item.label">{{ item.label }}:</view>
-					<view class="value" :style="{ 'white-space': item.valueWhiteSpace }">
+					<view class="value" v-if="item.type==='location_fk'">
+						<text class="cuIcon-locationfill"></text>
+					</view>
+					<view class="value" :style="{ 'white-space': item.valueWhiteSpace }"  v-if="item.event&&item.event.type==='location_fk'" @click.stop="openLocation(item.event)">
+						<text v-if="item.prefix">{{ item.prefix }}</text>
+						<text>{{ excludeEnter(item.value)}}</text>
+						<text v-if="item.suffix">{{ item.suffix }}</text>
+						<text class="cuIcon-locationfill text-blue"></text>
+					</view>
+					<view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
 						<text v-if="item.prefix">{{ item.prefix }}</text>
 						<text>{{ excludeEnter(item.value)}}</text>
 						<text v-if="item.suffix">{{ item.suffix }}</text>
@@ -158,6 +167,9 @@ export default {
 		},
 		formButtonDisp: {
 			type: Object
+		},
+		appName:{
+			type: String
 		}
 	},
 	data() {
@@ -391,6 +403,7 @@ export default {
 					obj.prefix = cfg?.prefix || '';
 					obj.suffix = cfg?.suffix || '';
 					obj.valueWhiteSpace = cfg?.white_space;
+					obj.event=col.event
 					if (col?.col) {
 						let getVal = this.setValue(col.col);
 						if (cfg?.disp_label !== false) {
@@ -452,6 +465,44 @@ export default {
 		}
 	},
 	methods: {
+		async getLocationFromSys(gno) {
+			const app = this.appName||uni.getStorageSync('activeApp')
+			const req = {
+				"serviceName": "srvsys_obj_type_gps_select",
+				"colNames": ["*"],
+				"condition": [{
+					colName: 'gno',
+					ruleType: 'eq',
+					value: gno
+				}],
+				"page": {
+					"pageNo": 1,
+					"rownumber": 1
+				}
+			}
+			const res = await this.$fetch('select', 'srvsys_obj_type_gps_select', req, app)
+			if (res.success && res.data.length > 0) {
+				return res.data[0]
+			}
+		},
+		async openLocation(e){
+			if(e?.col&&this.rowData[e.col]){
+				let res = await this.getLocationFromSys(this.rowData[e.col])
+				if(res.gcj_lat&&res.gcj_lon){
+					uni.chooseLocation({
+						longitude:res.gcj_lon,
+						latitude:res.gcj_lat,
+					    success: function (res) {
+					        console.log('位置名称：' + res.name);
+					        console.log('详细地址：' + res.address);
+					        console.log('纬度：' + res.latitude);
+					        console.log('经度：' + res.longitude);
+					    }
+					});
+
+				}
+			}
+		},
 		excludeEnter(val) {
 			if (val&&typeof val ==='string') {
 				return val.replaceAll('\n', '');

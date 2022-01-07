@@ -129,9 +129,10 @@
 				</view>
 			</view>
 			<view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
-				<date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :mode="pickerMode"
-					:isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel"
-					:max="fieldData.max" :min="fieldData.min" @change="bindTimeChange" v-model="fieldData.value">
+				<date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData"
+					:mode="pickerMode" :isRange="pageType==='filter'" :priceConfig="datePriceConfig"
+					:fieldsModel="fieldsModel" :max="fieldData.max" :min="fieldData.min" @change="bindTimeChange"
+					v-model="fieldData.value">
 				</date-range-picker>
 			</view>
 			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
@@ -139,11 +140,13 @@
 					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur"></textarea>
 			</view>
 			<view class="form-item-content_value location"
-				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value" @click="getLocation">
+				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value"
+				@click="getLocation">
 				{{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
 			</view>
 			<view class="form-item-content_value location"
-				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&!fieldData.value" @click="getLocation">
+				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&!fieldData.value"
+				@click="getLocation">
 				点击选择地理位置
 			</view>
 			<view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'"
@@ -392,6 +395,9 @@
 				return result;
 			},
 			pickerMode() {
+				if (this.fieldData?.moreConfig?.editor_type == 'date_time_linkage') {
+					return 'date_time_linkage'
+				}
 				let type = this.fieldData.type;
 				if (this.pickerFieldList.includes(type)) {
 					switch (type) {
@@ -452,7 +458,7 @@
 				immediate: true,
 				handler(newVal, oldVal) {
 					if (newVal !== oldVal && oldVal !== undefined) {
-						console.log('watch-fieldData.value', newVal, oldVal)
+						console.log('watch-fieldData.value', newVal, oldVal,this.fieldData)
 						this.$emit('on-value-change', this.fieldData);
 					}
 					// if (this.fieldData.type === 'selector') {
@@ -626,11 +632,11 @@
 
 					if (self.fieldData.col_type === 'bxsys_obj_type_gps') {
 						self.fieldData.value = await this.saveLocation(res)
-						self.fkFieldLabel = res.address 
+						self.fkFieldLabel = res.address
 					} else {
 						self.fieldData.value = res.address + res.name;
 					}
-					self.$emit('chooseLocation',res);
+					self.$emit('chooseLocation', res);
 					self.onBlur()
 					self.getDefVal();
 				}
@@ -879,6 +885,9 @@
 			async getSelectorData(cond, serv, relation_condition) {
 				let self = this;
 				self.fieldData.old_value = self.fieldData.value
+				if (self.fieldData.column === 'serveritem_code') {
+					debugger
+				}
 				if (this.fieldData.col_type === 'Enum') {
 					if (Array.isArray(this.fieldData.options)) {
 						this.selectorData = this.fieldData.options;
@@ -1047,6 +1056,7 @@
 				}
 			},
 			bindTimeChange(e, type) {
+				debugger
 				if (type) {
 					this.$set(this.fieldData, type, e.detail.value)
 					// this.fieldData[type] = e.detail.value;
@@ -1077,6 +1087,10 @@
 					debugger
 				} else {
 					this.fieldData.value = e.detail.value;
+					if (this.fieldData?.moreConfig?.editor_type === 'date_time_linkage') {
+						this.fieldData.colData = e.detail.time || {}
+					}
+					this.$emit('date-time-change', this.fieldData)
 				}
 				// this.$emit('on-value-change', this.fieldData);
 			},

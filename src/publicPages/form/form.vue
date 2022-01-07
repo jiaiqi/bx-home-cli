@@ -1278,7 +1278,7 @@
                 item.value = this.doctorInfo.store_no;
                 item.display = false;
               }
-			  if(item.value&&item.value.indexOf('${')){
+			  if(item.value&&typeof item.value==='string'&&item.value.indexOf('${')){
 				  item.value = this.renderStr(item.value,this)
 			  }
             }
