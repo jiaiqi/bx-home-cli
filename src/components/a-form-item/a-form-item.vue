@@ -135,9 +135,9 @@
 					v-model="fieldData.value">
 				</date-range-picker>
 			</view>
-			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'">
+			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'" :class="{disabled:fieldData.disabled}">
 				<textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
-					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur"></textarea>
+					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
 			</view>
 			<view class="form-item-content_value location"
 				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value"
@@ -249,7 +249,7 @@
 									confirm-type="search" />
 							</view>
 							<text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs"
-								@click="getSelectorData(null, null, null)"></text>
+								@click="refresh()"></text>
 							<text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
 							</text>
 						</view>
@@ -265,6 +265,7 @@
 								:disabled="fieldData.disabled">
 								<bx-radio v-for="item in radioOptions" :name="item.value">{{ item.label }}
 								</bx-radio>
+								<view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
 							</bx-radio-group>
 						</view>
 					</view>
@@ -354,6 +355,9 @@
 			}
 		},
 		computed: {
+			hasNext() {
+				return this.treePageInfo.total > this.treePageInfo.rownumber * this.treePageInfo.pageNo
+			},
 			theme() {
 				return this.$store?.state?.app?.theme
 			},
@@ -363,6 +367,11 @@
 				}
 			},
 			radioOptions() {
+				const nextRadio = {
+					label: '加载更多',
+					value: '加载更多',
+					checked: false
+				}
 				if (Array.isArray(this.fieldData.options)) {
 					if (this.pageType === 'filter') {
 						if (!this.fieldData.options.find(item => item.value === '全部')) {
@@ -378,6 +387,9 @@
 						return this.fieldData.options
 					}
 				} else if (Array.isArray(this.selectorData) && this.selectorData.length > 0) {
+					// if(this.treePageInfo.total>this.treePageInfo.rownumber*this.treePageInfo.pageNo){
+					// 	return [...this.selectorData,nextRadio]
+					// }
 					return this.selectorData
 				}
 			},
@@ -437,7 +449,7 @@
 				textareaValue: '',
 				treePageInfo: {
 					total: 0,
-					rownumber: 100,
+					rownumber: 30,
 					pageNo: 1
 				},
 				selectorData: [],
@@ -450,6 +462,7 @@
 				},
 				longpressTimer: null,
 				modalName: '', //当前显示的modal
+				selectorListUUID: ""
 			};
 		},
 		watch: {
@@ -458,28 +471,21 @@
 				immediate: true,
 				handler(newVal, oldVal) {
 					if (newVal !== oldVal && oldVal !== undefined) {
-						console.log('watch-fieldData.value', newVal, oldVal,this.fieldData)
-						this.$emit('on-value-change', this.fieldData);
+						console.log('watch-fieldData.value', newVal, oldVal, this.fieldData)
+						this.$emit('on-value-change', this.deepClone(this.fieldData));
+						this.$nextTick(()=>{
+							this.onBlur()
+						})
 					}
 					// if (this.fieldData.type === 'selector') {
 					//   self.getDefVal()
 					// }
 				}
 			},
-			// 'fieldData': {
-			//   deep: true,
-			//   immediate: true,
-			//   handler(newVal, oldVal) {
-			//     if (newVal?.colData) {
-			//       this.$emit('on-value-change', this.fieldData);
-			//     }
-			//   }
-			// },
 			field: {
 				deep: true,
 				immediate: true,
 				handler(newValue, oldValue) {
-					// this.$emit('setFieldModel', newValue)
 					if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
 						this.pickerChange(newValue.value)
 					}
@@ -498,7 +504,8 @@
 				// 跳转到fk字段的详情页面
 				let serviceName = this.fieldData?.option_list_v2?.serviceName
 				let column = this.fieldData?.option_list_v2?.refed_col
-				let app = this.fieldData?.option_list_v2?.srv_app
+				let app = this.fieldData?.option_list_v2?.srv_app || this.srvApp
+
 				if (serviceName && column && this.fieldData.value) {
 					let fieldsCond = [{
 						column: column,
@@ -619,6 +626,23 @@
 			},
 			async getLocation() {
 				if (this.pageType === 'detail') {
+					if (this.fieldData.value) {
+						let res = await this.getLocationFromSys()
+						if (res.gcj_lat && res.gcj_lon) {
+							uni.chooseLocation({
+								longitude: res.gcj_lon,
+								latitude: res.gcj_lat,
+								success: function(res) {
+									console.log('位置名称：' + res.name);
+									console.log('详细地址：' + res.address);
+									console.log('纬度：' + res.latitude);
+									console.log('经度：' + res.longitude);
+								}
+							});
+
+						}
+					}
+
 					return;
 				}
 				let self = this;
@@ -658,13 +682,14 @@
 				}
 				const res = await this.$fetch('select', 'srvsys_obj_type_gps_select', req, app)
 				if (res.success && res.data.length > 0) {
-					return res.data[0].gno
+					return res.data[0]
 				}
 			},
 			async saveLocation(e = {}) {
 				let gno = ''
 				if (this.fieldData.value) {
-					gno = await this.getLocationFromSys()
+					let gnoData = await this.getLocationFromSys()
+					gno = gnoData.gno
 				}
 				const app = this.srvApp
 				let serviceName = 'srvsys_obj_type_gps_add'
@@ -738,17 +763,25 @@
 							ruleType: 'like'
 						}];
 					}
-					self.getSelectorData(cond).then(_ => {
-						if (self.fieldData.value) {
-							let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData
-								.value)
-							if (fkFieldLabel && fkFieldLabel.label) {
-								self.fkFieldLabel = fkFieldLabel.label
-							} else if (self.fieldData.value) {
-								self.fkFieldLabel = self.fieldData.value
+					if (self.fieldData.colData && self.fieldData.colData[self.fieldData.option_list_v2.refed_col] &&
+						self.fieldData.colData[self.fieldData.option_list_v2.key_disp_col]) {
+						self.fkFieldLabel = self.fieldData.option_list_v2.show_as_pair === false ? self.fieldData
+							.colData[self.fieldData.option_list_v2.key_disp_col] :
+							`${self.fieldData.colData[self.fieldData.option_list_v2.key_disp_col]}/${self.fieldData.colData[self.fieldData.option_list_v2.refed_col]}`
+					} else {
+						self.getSelectorData(cond).then(_ => {
+							if (self.fieldData.value) {
+								let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData
+									.value)
+								if (fkFieldLabel && fkFieldLabel.label) {
+									self.fkFieldLabel = fkFieldLabel.label
+								} else if (self.fieldData.value) {
+									self.fkFieldLabel = self.fieldData.value
+								}
 							}
-						}
-					});
+						});
+					}
+
 					// self.getSelectorData(cond).then(_ => {
 					//   if (self.fieldData.value) {
 					//     let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
@@ -783,7 +816,6 @@
 				if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
 					this.uploadFormData['file_no'] = this.fieldData.value;
 				}
-				// this.onInput();
 				// this.onBlur()
 				this.getDefVal();
 			},
@@ -793,7 +825,7 @@
 			},
 			getCascaderValue(e) {
 				if (e) {
-					let srvInfo = this.fieldData.srvInfo;
+					let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
 					this.fkFieldLabel = srvInfo.show_as_pair !== false ?
 						`${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
 					this.fieldData['colData'] = e;
@@ -807,6 +839,7 @@
 				this.getDefVal();
 			},
 			searchFKDataWithKey(e) {
+				this.treePageInfo.pageNo = 1
 				if (e && e.detail && e.detail.value) {
 					let option = this.fieldData.option_list_v2;
 					let relation_condition = {
@@ -860,8 +893,8 @@
 					let optionData = selectorData.find(item => item.value === e);
 					if (optionData?.label) {
 						this.fkFieldLabel = optionData.label;
+						this.fieldData['colData'] = optionData;
 					}
-					this.fieldData['colData'] = optionData;
 					// this.$emit('setColData', this.fieldData)
 					this.hideModal();
 					// this.onInput();
@@ -882,19 +915,23 @@
 				}
 
 			},
+			refresh() {
+				this.treePageInfo.pageNo = 1
+				this.getSelectorData()
+			},
+			nextPage() {
+				this.treePageInfo.pageNo += 1
+				this.getSelectorData()
+			},
 			async getSelectorData(cond, serv, relation_condition) {
 				let self = this;
 				self.fieldData.old_value = self.fieldData.value
-				if (self.fieldData.column === 'serveritem_code') {
-					debugger
-				}
 				if (this.fieldData.col_type === 'Enum') {
 					if (Array.isArray(this.fieldData.options)) {
 						this.selectorData = this.fieldData.options;
 					}
 					return;
 				}
-
 				let req = {
 					serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2
 						.serviceName : '',
@@ -949,7 +986,15 @@
 					if (Array.isArray(condition) && condition.length > 0) {
 						req.condition = condition;
 					} else {
-						return;
+						// return;
+						// if(this.fieldData.value){
+						// 	debugger
+						// 	req.condition = [{
+						// 		colName:this.fieldData.option_list_v2?.refed_col,
+						// 		ruleType:'like',
+						// 		value:this.fieldData.value
+						// 	}]
+						// }
 					}
 				}
 				if (Array.isArray(req.condition) && Array.isArray(this.fieldData?.fk_condition)) {
@@ -1056,7 +1101,6 @@
 				}
 			},
 			bindTimeChange(e, type) {
-				debugger
 				if (type) {
 					this.$set(this.fieldData, type, e.detail.value)
 					// this.fieldData[type] = e.detail.value;
@@ -1095,6 +1139,7 @@
 				// this.$emit('on-value-change', this.fieldData);
 			},
 			async openModal(type) {
+				const self = this
 				// 打开弹出层
 				if (this.fieldData.disabled) {
 					return
@@ -1103,6 +1148,7 @@
 					'selectorList') {
 					let option_list_v2 = this.fieldData.option_list_v2;
 					if (Array.isArray(option_list_v2?.conditions)) {
+						option_list_v2 = this.deepClone(option_list_v2)
 						const fieldModelsData = this.fieldsModel
 						let condition = this.deepClone(option_list_v2.conditions);
 						condition = this.evalConditions(condition, fieldModelsData)
@@ -1135,16 +1181,42 @@
 							'object') {
 							url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
 						}
-						if (this.fieldData?.colData?.id) {
-							url += `&selectedVal=${this.fieldData?.colData?.id}`
+						let idCol = this.fieldData?.moreConfig?.option_id_col || this.fieldData.option_list_v2
+							?.refed_col || 'id'
+						if (idCol) {
+							url += `&idCol=${idCol}`
 						}
+						if (this.fieldData?.colData && this.fieldData.colData[idCol]) {
+							url += `&selectedVal=${this.fieldData.colData[idCol]}`
+						}
+						const uuid = uni.$u.guid()
+						this.selectorListUUID = uuid
+						url += `&uuid=${uuid}`
+						uni.$on('confirmSelect', (e) => {
+							if (e.uuid === uuid) {
+								const srvInfo = this.fieldData?.option_list_v2 || {}
+								const refed_col = srvInfo?.refed_col
+								const key_disp_col = srvInfo?.key_disp_col
+								if (refed_col) {
+									// self.getCascaderValue(e.data)
+									this.fkFieldLabel = srvInfo.show_as_pair !== false ?
+										`${e.data[ key_disp_col ]}/${e.data[ refed_col ]}` : e.data[
+											key_disp_col];
+									this.fieldData['colData'] = e.data;
+									this.fieldData.value = e.data[refed_col];
+									this.$nextTick(function() {
+										// this.$emit('setColData', this.fieldData)
+										uni.$off('confirmSelect')
+									})
+								}
+							}
+						})
 						uni.navigateTo({
 							url: url
 						})
 					}
 					return
 				}
-				debugger
 				let fieldData = this.deepClone(this.fieldData);
 				switch (type) {
 					case 'Set':
@@ -1208,11 +1280,21 @@
 					// this.valid.valid = this.fieldData.valid.valid;
 				} else if (this.fieldData.isRequire && (this.fieldData.value === '' || this.fieldData.value === null ||
 						this.fieldData.value === undefined)) {
-					this.fieldData.valid = {
-						valid: false,
-						msg: this.fieldData.label + '不能为空'
-					};
-					this.valid.valid = false;
+					// if (this.fieldsModel[this.fieldData.column]) {
+					// 	this.fieldData.value = this.fieldsModel[this.fieldData.column]
+					// 	this.fieldData.valid = {
+					// 		valid: true,
+					// 		msg: '有效'
+					// 	};
+					// 	this.valid.valid = true;
+					// } else {
+						this.fieldData.valid = {
+							valid: false,
+							msg: this.fieldData.label + '不能为空'
+						};
+						this.valid.valid = false;
+					// }
+
 				} else {
 					this.fieldData.valid = {
 						valid: true,

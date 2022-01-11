@@ -1,5 +1,8 @@
 <template>
 	<view class="a-form">
+		<view class="form-remark" v-if="remarkCfg&&remarkCfg.top" :style="[remarkCfg.top.style]">
+			{{remarkCfg.top.content||''}}
+		</view>
 		<view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}"
 			v-for="(field,fIndex) in allField">
 			<view class="section-name" v-if="field.section&&showSectionName">
@@ -10,7 +13,11 @@
 				:optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
 				@chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
 				:section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
-				@setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange"></a-form-item>
+				@setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">
+			</a-form-item>
+		</view>
+		<view class="form-remark" v-if="remarkCfg&&remarkCfg.bottom" :style="[remarkCfg.bottom.style]">
+			{{remarkCfg.bottom.content||''}}
 		</view>
 	</view>
 </template>
@@ -85,7 +92,12 @@
 		computed: {
 			showSectionName() {
 				return this.moreConfig?.showSectionName
-			}
+			},
+			remarkCfg(){
+				if(this.moreConfig?.remar_cfg){
+					return this.moreConfig?.remar_cfg
+				}
+			},
 		},
 		data() {
 			return {
@@ -99,15 +111,15 @@
 			};
 		},
 		methods: {
-			dateTimeChange(e){
+			dateTimeChange(e) {
 				const start_time_col = e?.moreConfig?.start_time_col
 				const end_time_col = e?.moreConfig?.end_time_col
-				this.allField = this.allField.map(item=>{
-					if(item.column===start_time_col){
+				this.allField = this.allField.map(item => {
+					if (item.column === start_time_col) {
 						item.value = e.colData['time_start']
 						this.fieldModel[start_time_col] = e.colData['time_start']
 					}
-					if(item.column===end_time_col){
+					if (item.column === end_time_col) {
 						item.value = e.colData['time_end']
 						this.fieldModel[end_time_col] = e.colData['time_end']
 					}
@@ -232,14 +244,23 @@
 				}
 			},
 			setColData(e) {
-				this.handlerReduant(e)
-				this.$emit('setColData', e)
+				if (e && e.column) {
+					// this.allField = this.allField.map(item=>{
+					// 	if(item.column===e.column){
+					// 		item.colData = e.colData
+					// 	}
+					// 	return item
+					// })
+					
+					this.handlerReduant(e)
+					this.$emit('setColData', e)
+				}
 			},
 			handlerReduant(obj, _dependFields) {
 				// 处理冗余操作
 				const e = this.deepClone(obj)
 				for (let index = 0; index < this.allField.length; index++) {
-					const item = this.allField[index]
+					let item = this.allField[index]
 					if (e.bx_col_type === 'fk' && e.column !== item.column && item.redundant && item?.redundant
 						?.dependField) {
 						if (item.redundant.dependField === e.column && e.colData) {
@@ -300,6 +321,7 @@
 			},
 			async onValChange(e) {
 				// 保存已经发生变化的字段值
+				e = this.deepClone(e)
 				console.log('onValChange', e.column, e.value)
 				if (e.type === 'number' || e.type === 'digit') {
 					e.value = e.value !== null && e.value !== undefined ? Number(e.value) : null;
@@ -307,10 +329,7 @@
 				this.fieldModel[e.column] = e.value;
 				const fieldModel = this.fieldModel;
 				const column = e.column
-				// let effectCol = this.allField.filter(item=>item.type==='Selector'&&Array.isArray(item.option_list_v2?.conditions)&&item.option_list_v2.conditions.find(cond=>cond.colName===e.column))
-				// if(Array.isArray(effectCol)&&effectCol.length>0){
-				// 	debugger
-				// }
+
 				let dependFields = this.allField.reduce((res, cur) => {
 					if (cur?.redundant?.dependField === e.column && cur.column !== e.column) {
 						res.push(cur.column)
@@ -318,16 +337,18 @@
 					return res
 				}, [])
 				if (dependFields && dependFields.length > 0) {
-					// debugger
 					await this.handlerReduant(e, dependFields)
 				} else {
 					// debugger
 					// this.handlerReduant(e)
 				}
 
-
 				for (let index = 0; index < this.allField.length; index++) {
 					const item = this.allField[index]
+					if (item.column === e.column) {
+						item = this.deepClone(e)
+					}
+
 					if (e?.moreConfig?.val_trigger) {
 						let val_trigger = e?.moreConfig?.val_trigger;
 						if (val_trigger.col === item.column || val_trigger.col.indexOf(item.column) !== -1) {
@@ -349,7 +370,6 @@
 						item.display = true
 					}
 					if (item.column === e.column) {
-						item.value = e.value;
 						if (item.type === 'Set') {
 							item.option_list_v2 = e.option_list_v2;
 						}
@@ -358,12 +378,14 @@
 					if (!item.value && this.pageType === 'filter') {
 						// item.value = '全部'
 					}
-
 					this.$set(this.allField, index, item)
+					this.$nextTick(()=>{
+						if (item.type === 'Selector' && Array.isArray(item.option_list_v2?.conditions) && item
+							.option_list_v2.conditions.find(cond => cond.colName === e.column)) {
+							this.$refs.fitem[index].refresh()
+						}
+					})
 				}
-
-
-
 				this.$emit('value-blur', this.fieldModel, e);
 			},
 			onValBlur(e) {
@@ -424,16 +446,13 @@
 						if (this.allField.length === 0) {
 							this.oldField = this.deepClone(newValue);
 						}
-						this.allField = newValue.map(item => {
-							// if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
-							// 	let login_user_info = uni.getStorageSync('login_user_info')
-							// 	item.value = login_user_info?.user_no || '';
-							// }
-							if (!item.value && this.pageType === 'filter') {
-								// item.value = '全部'
-							}
-							return item
-						});
+						this.allField = newValue
+						// this.allField = newValue.map(item => {
+						// 	if (!item.value && this.pageType === 'filter') {
+						// 		// item.value = '全部'
+						// 	}
+						// 	return item
+						// });
 					}
 				}
 			},

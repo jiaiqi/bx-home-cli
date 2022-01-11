@@ -14,7 +14,7 @@
 						<text v-if="item.prefix">{{ item.prefix }}</text>
 						<text>{{ excludeEnter(item.value)}}</text>
 						<text v-if="item.suffix">{{ item.suffix }}</text>
-						<text class="cuIcon-locationfill text-blue"></text>
+						<text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
 					</view>
 					<view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
 						<text v-if="item.prefix">{{ item.prefix }}</text>

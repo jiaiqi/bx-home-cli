@@ -74,7 +74,6 @@
     </view>
     <view class="cu-modal bottom-modal" :class="{show:showQrcode}" @click="hideQrcode">
       <view class="cu-dialog " @click.stop="">
-
         <view class="qrcode-box">
           <!-- <view class="title">
             我的推广码

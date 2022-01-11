@@ -202,7 +202,7 @@
     },
     methods: {
       isShowBtn(btn) {
-        let handlerBtn = ['add', 'delete']
+        let handlerBtn = ['add', 'delete','batch_delete']
         if(btn.button_type==='order'){
           if(this.orderCols.length===0){
             return false

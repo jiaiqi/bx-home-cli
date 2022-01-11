@@ -2,9 +2,9 @@
 	<view class="page-wrap">
 		<view class="fixed cu-bar">
 			<list-bar style="width: 100%;" :srvApp="appName" @change="changeSerchVal" :srvCols="filterCols"
-				:orderColExtension="orderColExtension" :readonly="listBarReadonly" :listButton="customButton" gridButtonDisp="gridButtonDisp" 
-				:custom-button="customButton" @toOrder="toOrder" :main-data="mainData" @toFilter="toFilter"
-				@onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
+				:orderColExtension="orderColExtension" :readonly="listBarReadonly" :listButton="customButton"
+				:gridButtonDisp="gridButtonDisp" :custom-button="customButton" @toOrder="toOrder" :main-data="mainData"
+				@toFilter="toFilter" @onGridButton="clickGridButton" @clickAddButton="clickAddButton" @search="toSearch"
 				v-if="showSearchBar">
 			</list-bar>
 		</view>
@@ -114,7 +114,10 @@
 				batchUpdateV2: null,
 				modalName: null,
 				relationCondition: {},
-				onInputValue: false // 是否有查询条件
+				onInputValue: false, // 是否有查询条件
+				eFilterCols: null,
+				// listBarReadonly:false,
+				readonly: false
 			}
 		},
 		filters: {
@@ -127,11 +130,11 @@
 			}
 		},
 		computed: {
-			gridButtonDisp(){
-				return this.moreConfig?.gridButtonDisp||{}
+			gridButtonDisp() {
+				return this.moreConfig?.gridButtonDisp || {}
 			},
 			listBarReadonly() {
-				return this.tableConfig?.listBarReadonly
+				return this.readonly || this.tableConfig?.listBarReadonly
 			},
 			hasNotSelect() {
 				return this.list.find(item => item.checked === false)
@@ -295,6 +298,10 @@
 					.type)))
 				if (Array.isArray(cols)) {
 					let filterColExtension = this.filterColExtension
+					if (Array.isArray(filterColExtension) && Array.isArray(this.eFilterCols) && this.eFilterCols.length >
+						0) {
+						filterColExtension = [...filterColExtension, ...this.eFilterCols]
+					}
 					if (Array.isArray(filterColExtension) && filterColExtension.length > 0) {
 						let extensionCols = filterColExtension.map(item => item.columns)
 						cols = cols.filter(item => !extensionCols.includes(item.columns))
@@ -1019,6 +1026,9 @@
 			}, 1000)
 		},
 		onLoad(option) {
+			if (option.readonly) {
+				this.readonly = true
+			}
 			uni.$on('dataChange', srv => {
 				if (this.serviceName && this.appName && srv && this.serviceName.indexOf(srv) !== -1) {
 					this.pageNo = 1;
@@ -1032,6 +1042,14 @@
 				if (option.destApp) {
 					this.appName = option.destApp
 				}
+				if (option.eFilterCols) {
+					try {
+						this.eFilterCols = option.eFilterCols.split(',')
+					} catch (e) {
+						//TODO handle the exception
+					}
+				}
+
 				if (option.initCond) {
 					try {
 						let initCond = JSON.parse(option.initCond)
@@ -1066,6 +1084,20 @@
 						//TODO handle the exception
 					}
 				}
+				if (Array.isArray(this.initCond) && this.initCond.length > 0) {
+					this.initCond = this.initCond.map(item => {
+						if (item.value && item.value.indexOf('$today') > -1) {
+							if (item.format) {
+								item.value = this.dayjs().format(item.format)
+								delete item.format
+							} else {
+								item.value = this.dayjs().format('YYYY-MM-DD')
+							}
+						}
+
+						return item
+					})
+				}
 				if (option.columns) {
 					this.columns = option.columns.split(',')
 				}
@@ -1088,7 +1120,6 @@
 						//TODO handle the exception
 					}
 				}
-				debugger
 				if (option.ascCol) {
 					try {
 						this.ascCol = option.ascCol.split(',').map(item => {

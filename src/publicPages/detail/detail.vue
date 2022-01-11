@@ -473,7 +473,7 @@
             return true
           }
         })
-        let defaultVal = await this.getDetail(colVs?.vpage_no)
+        let defaultVal = await this.getDetail(colVs?.vpage_no)||{}
         colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
 
         if (Array.isArray(colVs?.child_service) && colVs.child_service.length > 0) {

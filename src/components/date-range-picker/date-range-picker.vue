@@ -46,7 +46,7 @@
 		<view class="calendar-box" v-else-if="mode==='dateTime'">
 			<datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
 		</view>
-		<picker class="uni-picker" :mode="mode" :value="selectVal" v-else @change="change">
+		<picker class="uni-picker" :mode="mode" :value="selectVal" v-else @change="change" :disabled="disabled">
 			<view class="picker-content date-select-box">
 				<view class="place-holder" v-if="!selectVal">请选择</view>
 				<view class="value" v-else>{{ selectVal }}</view>

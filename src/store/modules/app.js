@@ -45,7 +45,6 @@ const state = {
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
   storeInfo:  {}, // 当前店铺信息
-  bindUserInfo: getItem('bindUserInfo') ? getItem('bindUserInfo') : {}, //当前店铺用户信息
 }
 let persistData = {}; //持久化数据
 const mutations = {
@@ -168,11 +167,7 @@ const mutations = {
   SET_STORE_INFO: (state, info) => {
     state.storeInfo = info
     setItem('storeInfo', info)
-  },
-  SET_BIND_USER_INFO: (state, info) => {
-    state.bindUserInfo = info
-    setItem('bindUserInfo', info)
-  },
+  }
 }
 
 const actions = {

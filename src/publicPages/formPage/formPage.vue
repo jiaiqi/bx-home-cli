@@ -5,17 +5,18 @@
 				<text class="cuIcon-check text-blue"></text>
 			</view>
 			<view class="content">
-					<view class="title">
-						{{view_cfg.title}}
-					</view>
-					<view class="tip">
-						{{view_cfg.tip||''}}
-					</view>
+				<view class="title">
+					{{view_cfg.title}}
+				</view>
+				<view class="tip">
+					{{view_cfg.tip||''}}
+				</view>
 			</view>
 		</view>
 		<view class="form-content">
 			<view class="main-form-edit">
 				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
+					:moreConfig="moreConfig"
 					:srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange"
 					@setColData="setColData">
 				</a-form>
@@ -627,10 +628,9 @@
 										storeUser: self.vstoreUser
 									}
 									const actionResult = new Array(afterSubmit.length)
-									debugger
 									for (let i = 0; i < afterSubmit.length; i++) {
 										let item = afterSubmit[i];
-										if ((i > 0 && actionResult[i-1])||i==0) {
+										if ((i > 0 && actionResult[i - 1]) || i == 0) {
 											if (item.type === 'wx_pay') {
 												if (item.money_col && item.order_no_col && effect_data && effect_data[
 														item.order_no_col]) {
@@ -834,7 +834,11 @@
 				}
 				for (let i = 0; i < this.fields.length; i++) {
 					const item = this.fields[i]
+
 					item.old_value = item.value
+					if (e.column && e.column === item.column) {
+						item = this.deepClone(e)
+					}
 					if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
 							.column] == 0)) {
 
@@ -1062,11 +1066,12 @@
 									return item;
 								});
 							}
-							if (Array.isArray(field.option_list_v2?.conditions)) {
-								field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
-									.conditions,
-									defaultVal)
-							}
+
+							// if (Array.isArray(field.option_list_v2?.conditions)) {
+							// 	field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+							// 		.conditions,
+							// 		defaultVal)
+							// }
 
 							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
 								this.fieldsCond.forEach(item => {
@@ -1237,14 +1242,14 @@
 			},
 		},
 		async onLoad(option) {
-			uni.$on('confirmSelect', e => {
-				this.changeValue(e)
-			})
+			// uni.$on('confirmSelect', e => {
+			// 	this.changeValue(e)
+			// })
 			if (option.view_cfg) {
 				// 详情页面自定义展示效果
 				try {
 					this.view_cfg = JSON.parse(option.view_cfg)
-					if(this.view_cfg.hideColumn){
+					if (this.view_cfg.hideColumn) {
 						this.hideColumn = this.view_cfg.hideColumn
 					}
 				} catch (e) {
@@ -1320,26 +1325,32 @@
 		display: flex;
 		flex-direction: column;
 		margin: 0 auto;
-		&.no-padding{
+
+		&.no-padding {
 			padding: 0;
-			.form-content{
+
+			.form-content {
 				// background-color: #fff;
 			}
-			.main-form-edit{
+
+			.main-form-edit {
 				background-color: #fff;
 				border-radius: 0;
 			}
 		}
+
 		.form-content {
 			flex: 1;
 			margin-bottom: 20rpx;
 		}
-		.custom-view{
+
+		.custom-view {
 			margin-bottom: 10px;
 			padding: 10px 20px;
 			display: flex;
 			align-items: center;
-			.icon{
+
+			.icon {
 				font-size: 40px;
 				background-color: #fff;
 				width: 60px;
@@ -1349,12 +1360,14 @@
 				border-radius: 50%;
 				margin: 0 10px;
 			}
-			.content{
-				.title{
+
+			.content {
+				.title {
 					font-size: 18px;
 					line-height: 30px;
 				}
-				.tip{
+
+				.tip {
 					font-size: 12px;
 				}
 			}

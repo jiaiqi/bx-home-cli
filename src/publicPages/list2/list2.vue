@@ -1,6 +1,6 @@
 <template>
 	<view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
-		<view class="">
+		<view class="top-bar">
 			<count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
 
 			<list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
@@ -24,7 +24,7 @@
 				v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
 			</filter-tags>
 			<view class="list-view">
-				<list-next class="list-next" ref="listRef" :gridButtonDisp="gridButtonDisp"
+				<list-next class="list-next" ref="listRef" :id-col="idCol" :gridButtonDisp="gridButtonDisp"
 					:rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" :cartData="cartData"
 					:listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
 					@click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart"
@@ -341,32 +341,37 @@
 				formButtonDisp: null,
 				countData: null,
 				selectoDataId: '',
-				selectCol: ""
+				selectCol: "",
+				idCol: "",
+				selectorUUID: ""
 			}
 		},
 		methods: {
 			confirmSelect() {
 				if (this.selectoDataId) {
+					const idCol = this.idCol || 'id'
 					uni.$emit('confirmSelect', {
+						uuid: this.selectorUUID,
 						val: this.selectoDataId,
 						service: this.serviceName,
 						col: this.selectCol,
-						data: this.list.find(item => this.selectoDataId.indexOf(item.id) !== -1)
+						data: this.list.find(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
 					})
 				}
 				uni.navigateBack({})
 			},
 			checkboxChange(e) {
 				if (this.listType === 'selectorList') {
+					let idCol = this.idCol || 'id'
 					this.list = this.list.map(item => {
-						if (e.id&&e.id === item.id) {
+						if (e[idCol] && e[idCol] === item[idCol]) {
 							item.checked = !item.checked
 						} else {
 							item.checked = false
 						}
 						return item
 					})
-					let selectorList = this.list.filter(item => item.checked == true).map(item => item.id).toString()
+					let selectorList = this.list.filter(item => item.checked == true).map(item => item[idCol]).toString()
 					this.selectoDataId = selectorList
 				} else {
 					if (e.cart_goods_rec_no) {
@@ -835,6 +840,9 @@
 						console.info(e)
 					}
 				}
+				if (colVs?.moreConfig?.list_config?.rownumber) {
+					this.rownumber = colVs?.moreConfig?.list_config?.rownumber
+				}
 				this.colV2 = colVs;
 
 				if (Array.isArray(colVs.srv_cols)) {
@@ -981,11 +989,12 @@
 						}
 					}
 					if (this.listType === 'cartList' || this.listType === 'selectorList') {
+						let idCol = this.idCol || 'id'
 						this.list = this.list.map(item => {
 							if (!item.checked) {
 								item.checked = false;
 							}
-							if (this.selectoDataId && Number(this.selectoDataId) === Number(item.id)) {
+							if (this.selectoDataId && Number(this.selectoDataId) === Number(item[idCol])) {
 								item.checked = true
 							}
 							return item
@@ -1001,6 +1010,131 @@
 					}
 					return this.list;
 				}
+			},
+			async onRequestPayment(rowData,moreConfig={}){
+				// 调起微信支付
+				if (moreConfig.money_col && moreConfig.order_no_col && rowData && rowData[
+						moreConfig.order_no_col]) {
+					const wxMchId = this.storeInfo?.wx_mch_id||this.getwxMchId()
+					const totalMoney = rowData[moreConfig.money_col] || 0
+					const orderData = {
+						order_no: rowData[moreConfig.order_no_col]
+					}
+					let prepay_id = ''
+					if (moreConfig.prepay_id_col && rowData[moreConfig.prepay_id_col]) {
+						prepay_id = rowData[moreConfig.prepay_id_col]
+					}
+					if (!prepay_id) {
+						const result = await this.toPlaceOrder(totalMoney * 100, '', orderData,
+							wxMchId);
+						prepay_id = result.prepay_id
+					}
+					if (prepay_id) {
+						let res = await this.getPayParams(prepay_id, wxMchId);
+						const resData = await new Promise((resolve) => {
+							wx.requestPayment({
+								timeStamp: res.timeStamp.toString(),
+								nonceStr: res.nonceStr,
+								package: res.package,
+								signType: 'MD5',
+								paySign: res.paySign,
+								success(res) {
+									// 支付成功
+									resolve(true)
+								},
+								fail(res) {
+									// 支付失败/取消支付
+									resolve('支付失败/取消支付')
+								}
+							});
+						})
+					}
+				}
+				let afterSubmit = moreConfig?.after_submit;
+				if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+					this.handleAfterSubmit(rowData)
+				}
+			},
+			async handleAfterSubmit(rowData) {
+				const globalData = {
+					data: rowData || {},
+					storeInfo: self.storeInfo,
+					userInfo: self.userInfo,
+					storeUser: self.vstoreUser
+				}
+				const actionResult = new Array(afterSubmit.length)
+				for (let i = 0; i < afterSubmit.length; i++) {
+					let item = afterSubmit[i];
+					if ((i > 0 && actionResult[i - 1]) || i == 0) {
+						if (item.type === 'update_call_back') {
+							if (item.service && item.app && Array.isArray(item.data) &&
+								item.cond) {
+								let url = this.getServiceUrl(item.app, item.service,
+									'operate');
+								let req = [{
+									serviceName: item.service,
+									condition: [],
+									data: item.data
+								}]
+								if (Array.isArray(item.cond)) {
+									req[0].condition = item.cond.map(c => {
+										c.value = self.renderStr(c.value,
+											globalData)
+										return c
+									})
+								}
+								const res = await self.$http.post(url, req);
+								if (res.data.state == 'SUCCESS') {
+									actionResult[i] = true
+								} else {
+									actionResult[i] = res.data.resultMessage
+								}
+							}
+						} else if (item.type === 'toDetail') {
+							this.srvType = 'detail'
+							let serviceName = this.addV2?.select_service_name || this
+								.getServiceName(this.serviceName)
+							let fieldsCond = [{
+								column: 'id',
+								value: rowData.id,
+								display: false
+							}]
+							let url =
+								`/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+							if (this.appName) {
+								url += `&appName=${this.appName}`
+							}
+							if (item.custom_url) {
+								url = this.renderStr(item.custom_url, globalData);
+							}
+							if (item.view_cfg) {
+								url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
+							}
+							uni.redirectTo({
+								url
+							})
+						}
+					}
+
+				}
+				if (actionResult.length === afterSubmit.length && !actionResult.every(
+						item =>
+						item == true)) {
+					self.srvType === 'detail'
+					self.srvType === 'use_type'
+					self.formButtons = []
+				} else {
+					actionResult.forEach(item => {
+						if (item && typeof item === 'string') {
+							uni.showModal({
+								title: "提示",
+								content: item,
+								showCancel: false
+							})
+						}
+					})
+				}
+				return
 			},
 			async clickFootBtn(data) {
 				if (this.listType === 'selectorList') {
@@ -1177,8 +1311,8 @@
 												.order_no);
 											uni.redirectTo({
 												url: '/storePages/successPay/successPay?order_no=' +
-													orderData
-													.order_no + '&totalMoney=' + orderData.order_amount
+													rowData
+													.order_no + '&totalMoney=' + rowData.order_amount
 											});
 										},
 										fail(res) {
@@ -1521,6 +1655,10 @@
 									console.log(e);
 								}
 							}
+							if (moreConfig?.type === 'wx_pay') {
+								this.onRequestPayment(rowData,moreConfig)
+								return
+							}
 							if (buttonInfo.servcie_type === 'add') {
 								let params = {
 									type: 'add',
@@ -1609,7 +1747,8 @@
 									url: url
 								});
 							}
-						} else if (buttonInfo && buttonInfo.button_type === 'duplicate') {
+						} else if (buttonInfo && (buttonInfo.button_type === 'duplicate' || buttonInfo
+								.button_type === 'duplicatedeep')) {
 							let fieldsCond = []
 							if (Array.isArray(self.condition)) {
 								self.condition.forEach(item => {
@@ -1669,6 +1808,12 @@
 		onLoad(option) {
 			if (this.sysModel === 'PC') {
 				this.rownumber = 100
+			}
+			if (option.uuid) {
+				this.selectorUUID = option.uuid
+			}
+			if (option.idCol) {
+				this.idCol = option.idCol
 			}
 			if (option.rowButtonDisp) {
 				try {
@@ -1853,18 +1998,27 @@
 		// min-height: calc(100vh - var(--window-top));
 		display: flex;
 		flex-direction: column;
-		overflow: hidden;
+		// overflow: hidden;
 		background-color: #F8F8FA;
+
+		.top-bar {
+			// position: fixed;
+			top: 0;
+			top: var(--window-top);
+			z-index: 10;
+		}
 
 		.list-content {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			overflow: hidden;
 
+			// overflow: hidden;
+			// padding-top: 50px;
 			.list-view {
+				padding: 10px;
 				flex: 1;
-				overflow-y: scroll;
+				// overflow-y: scroll;
 			}
 		}
 

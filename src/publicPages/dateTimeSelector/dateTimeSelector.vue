@@ -1,7 +1,8 @@
 <template>
 	<view class="page-wrap">
 		<view class="calendar-box">
-			<view class="date-select-box cu-btn line-blue radius" @click="showCalendar">
+			<view class="date-select-box cu-btn line-blue radius" @click="showCalendar"
+				:class="{'readonly':dateReadonly}">
 				<view class="place-holder " v-if="!date">点击选择日期</view>
 				<view class="value text-black" v-else>{{ date||'' }}</view>
 				<text class="cuIcon-calendar margin-left-xs text-black"></text>
@@ -19,6 +20,9 @@
 							<view class="content">
 								{{renderTemplate(item,'content')||''}}
 							</view>
+							<view class="content">
+								{{renderTemplate(item,'bottom')||''}}
+							</view>
 						</view>
 					</view>
 				</view>
@@ -27,7 +31,8 @@
 		<view class="button-box">
 			<button class="cu-btn bg-blue round xl" @click="confirm" :disabled="!isChecked">确定</button>
 		</view>
-		<u-calendar v-model="show" @change="changeDate" :max-date="maxDate" :min-date="minDate" :defaultDate="date"></u-calendar>
+		<u-calendar v-model="show" @change="changeDate" :max-date="maxDate" :min-date="minDate" :defaultDate="date">
+		</u-calendar>
 	</view>
 </template>
 
@@ -45,8 +50,11 @@
 			}
 		},
 		computed: {
-			isChecked(){
-				return this.date&&this.timeList.find(item=>item.checked===true)
+			dateReadonly() {
+				return this.cfg?.date_readonly == true
+			},
+			isChecked() {
+				return this.date && this.timeList.find(item => item.checked === true)
 			},
 		},
 		created() {
@@ -55,13 +63,13 @@
 			this.minDate = this.dayjs().add(-1, 'day').format("YYYY-MM-DD")
 		},
 		methods: {
-			confirm(){
+			confirm() {
 				const data = {
-					col:this.cfg.date_col,
-					value:this.date,
-					time:this.timeList.find(item=>item.checked===true)
+					col: this.cfg.date_col,
+					value: this.date,
+					time: this.timeList.find(item => item.checked === true)
 				}
-				uni.$emit('dateTimeSelectorConfirm',data)
+				uni.$emit('dateTimeSelectorConfirm', data)
 				uni.navigateBack()
 			},
 			tapTime(e) {
@@ -92,7 +100,7 @@
 				}
 			},
 			renderTemplate(item, key) {
-				const self =this
+				const self = this
 				const globalData = {
 					mainData: this.data,
 					data: item,
@@ -112,13 +120,20 @@
 				this.getTimeRange()
 			},
 			showCalendar() {
-				this.show = true
+				if (!this.dateReadonly) {
+					this.show = true
+				}else{
+					uni.showToast({
+						title:'不可编辑',
+						icon:'none'
+					})
+				}
 			},
 
 			async getTimeRange() {
 				const self = this
-				let range_cfg =  {}
-				if(this.cfg?.range_cfg&&typeof this.cfg?.range_cfg==='object'){
+				let range_cfg = {}
+				if (this.cfg?.range_cfg && typeof this.cfg?.range_cfg === 'object') {
 					range_cfg = this.deepClone(this.cfg?.range_cfg)
 				}
 				const appName = range_cfg?.app || uni.getStorageSync('activeApp')
@@ -140,8 +155,8 @@
 				if (Array.isArray(range_cfg.condition) && range_cfg.condition.length > 0) {
 					req.condition = range_cfg.condition.map(item => {
 						item.value = this.renderStr(item.value, globalData)
-						if(!item.value&&item.ruleType==='eq'){
-							item.ruleType='like'
+						if (!item.value && item.ruleType === 'eq') {
+							item.ruleType = 'like'
 						}
 						return item
 					})
@@ -156,15 +171,18 @@
 			},
 		},
 		onLoad(option) {
-			if(option.defaultVal){
-				this.date = option.defaultVal
-			}
+
 			if (option.cfg) {
 				try {
 					this.cfg = JSON.parse(option.cfg)
 				} catch (e) {
 					//TODO handle the exception
 				}
+			}
+			if (option.defaultVal) {
+				this.date = option.defaultVal
+				this.show = false
+				this.getTimeRange()
 			}
 			if (option.data) {
 				try {
@@ -178,19 +196,22 @@
 </script>
 
 <style lang="scss" scoped>
-	.page-wrap{
+	.page-wrap {
 		display: flex;
 		flex-direction: column;
 		height: calc(100vh - var(--window-top));
-		.main{
+
+		.main {
 			flex: 1;
 			overflow-y: scroll;
 		}
-		.button-box{
+
+		.button-box {
 			padding: 20px;
-			
+
 		}
 	}
+
 	.calendar-box {
 		// width: 100%;
 		display: flex;
@@ -206,6 +227,12 @@
 			border-radius: 5px;
 			padding: 10px 20px;
 			// justify-content: flex-end;
+			&.readonly{
+				color: #fff;
+				// opacity: 0.7;
+				background-color: #fff;
+				// cursor: not-allowed;
+			}
 		}
 	}
 
@@ -215,11 +242,10 @@
 		padding-left: 10px;
 
 		.time-item {
-			min-width: 30%;
-			flex: 1;
+			width: 30%;
+			// flex: 1;
 			display: flex;
 			justify-content: center;
-			padding: 10xp 0;
 			margin-right: 10px;
 			margin-bottom: 10px;
 
@@ -237,10 +263,10 @@
 			}
 		}
 	}
-	
-	.button-box{
-		
-		.cu-btn{
+
+	.button-box {
+
+		.cu-btn {
 			width: 80%;
 		}
 	}

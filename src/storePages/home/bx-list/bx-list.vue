@@ -556,17 +556,17 @@
 				if (Array.isArray(this.tabs) && this.tabs.length > 0) {
 					let cur = this.tabs[this.curTab]
 					if (cur && cur.condition) {
-						
+
 						let data = {
 							userInfo: this.$store?.state?.user?.userInfo,
 							storeInfo: this.$store?.state?.app?.storeInfo,
 							bindUserInfo: this.$store?.state?.user?.storeUserInfo
 						};
-						cur.condition =  cur.condition.map(item=>{
-							item.value = this.renderStr(item.value,data)
+						cur.condition = cur.condition.map(item => {
+							item.value = this.renderStr(item.value, data)
 							return item
 						})
-						
+
 					}
 					if (Array.isArray(cur.condition) && cur.condition.length > 0) {
 						req.condition = [...req.condition, ...cur.condition]
@@ -696,7 +696,8 @@
 										} else if (typeof data[item] === 'object' && data[item]
 											.value_type === 'constant') {
 											data[item] = data[item].value;
-										} else if (typeof data[item] === 'object' && data[item].value_type === 'globalVariable') {
+										} else if (typeof data[item] === 'object' && data[item]
+											.value_type === 'globalVariable') {
 											// 全局变量
 											const globalVariable = {
 												storeUser: this.vstoreUser,
@@ -706,7 +707,7 @@
 											}
 											data[item] = this.renderStr(data[item].value_key,
 												globalVariable)
-										}else{
+										} else {
 											debugger
 										}
 									});
@@ -963,13 +964,17 @@
 						});
 					}
 				} else {
+					let customDetailUrl = this.customDetailUrl
 					if (this.config?.customDetailUrl) {
-						this.customDetailUrl = this.config?.customDetailUrl
+						customDetailUrl = this.config?.customDetailUrl
 					}
-					if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
+					if (this.tabs[this.curTab].customDetailUrl) {
+						customDetailUrl = this.tabs[this.curTab].customDetailUrl
+					}
+					if (buttonInfo.button_type === 'detail' && customDetailUrl) {
 						let storeInfo = this.$store?.state?.app?.storeInfo;
 						let bindUserInfo = this.$store?.state?.user?.storeUserInfo;
-						let targetUrl = this.customDetailUrl;
+						let targetUrl = customDetailUrl;
 						let obj = {
 							data: rowData,
 							rowData,
@@ -977,7 +982,7 @@
 							bindUserInfo
 						};
 						obj = this.deepClone(obj);
-						targetUrl = this.renderStr(this.customDetailUrl, obj);
+						targetUrl = this.renderStr(customDetailUrl, obj);
 						if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
 							let condition = buttonInfo?.operate_params?.condition;
 							let fieldsCond = [{
@@ -1267,6 +1272,7 @@
 			.list-view {
 				flex: 1;
 				overflow-y: scroll;
+				padding: 0 10px;
 			}
 		}
 	}

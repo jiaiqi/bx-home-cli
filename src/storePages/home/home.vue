@@ -325,32 +325,32 @@ export default {
 				url: '/pages/index/index'
 			});
 		},
-		async selectInStore() {
-			// 查找当前账号所在的所有店铺
-			let req = {
-				condition: [
-					{
-						colName: 'person_no',
-						ruleType: 'eq',
-						value: this.userInfo.no
-					},
-					{
-						colName: 'member_status',
-						ruleType: 'eq',
-						value: '正常'
-					}
-				],
-				page: {
-					pageNo: 1,
-					rownumber: 20
-				}
-			};
-			let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health');
-			if (res.success) {
-				this.storeList = res.data;
-			}
-			return res;
-		},
+		// async selectInStore() {
+		// 	// 查找当前账号所在的所有店铺
+		// 	let req = {
+		// 		condition: [
+		// 			{
+		// 				colName: 'person_no',
+		// 				ruleType: 'eq',
+		// 				value: this.userInfo.no
+		// 			},
+		// 			{
+		// 				colName: 'member_status',
+		// 				ruleType: 'eq',
+		// 				value: '正常'
+		// 			}
+		// 		],
+		// 		page: {
+		// 			pageNo: 1,
+		// 			rownumber: 20
+		// 		}
+		// 	};
+		// 	let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health');
+		// 	if (res.success) {
+		// 		this.storeList = res.data;
+		// 	}
+		// 	return res;
+		// },
 		openSwitchHomePage() {
 			let cond = [
 				{
