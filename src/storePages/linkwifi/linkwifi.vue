@@ -2,7 +2,7 @@
   <view class="wifi-manage" :class="['theme-'+theme]">
     <view class="wifi-list">
       <scroll-view scroll-y="true">
-        <view class="wifi-item" v-for="item in pageData||resultWifiList">
+        <view class="wifi-item" v-for="(item,index) in pageData||resultWifiList" :key="index">
           <view class="wifi-item-left">
             <view class="top">
               <!-- <text class="wifi-icon">

@@ -74,7 +74,7 @@
 			<bx-checkbox-group :mode="optionMode" v-model="fieldData.value"
 				class="form-item-content_value checkbox-group" v-else-if="fieldData.type === 'checkboxFk'"
 				:disabled="fieldData.disabled || false" @change="onBlur">
-				<bx-checkbox v-model="item.checked" v-for="item in radioOptions" :name="item.label">
+				<bx-checkbox v-model="item.checked" v-for="(item,index) in radioOptions" :key="index" :name="item.label">
 					{{ item.label }}
 				</bx-checkbox>
 			</bx-checkbox-group>
@@ -101,13 +101,13 @@
           ">
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
 						v-model="fieldData.value" mode="button" @change="onBlur">
-						<bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
+						<bx-checkbox v-for="item in setOptionList" :key="item.value" :name="item.value" v-model="item.checked">
 							{{ item.label }}
 						</bx-checkbox>
 					</bx-checkbox-group>
 					<bx-radio-group v-if="fieldData.type === 'Selector'" class="form-item-content_value radio-group"
 						v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
-						<bx-radio v-for="item in radioOptions" :name="item.value">{{ item.label }}
+						<bx-radio v-for="item in radioOptions" :key='item.value' :name="item.value">{{ item.label }}
 						</bx-radio>
 					</bx-radio-group>
 				</view>
@@ -258,14 +258,14 @@
 						<view class="option-box">
 							<bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
 								class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
-								<bx-checkbox v-for="item in setOptionList" :name="item.value" v-model="item.checked">
+								<bx-checkbox v-for="item in setOptionList" :key="item.value" :name="item.value" v-model="item.checked">
 									{{ item.label }}
 								</bx-checkbox>
 							</bx-checkbox-group>
 							<bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
 								v-model="fieldData.value" mode="button" @change="pickerChange"
 								:disabled="fieldData.disabled">
-								<bx-radio v-for="item in radioOptions" :name="item.value">{{ item.label }}
+								<bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
 								</bx-radio>
 								<view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
 							</bx-radio-group>

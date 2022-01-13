@@ -309,7 +309,8 @@
 <script>
 	import uniEcCharts from '@/components/uni-ec-canvas/uni-echart.vue'
 	// import dietList from '@/archivesPages/components/balancedDiet/balancedDiet'
-	import dayjs from '@/static/js/dayjs.min.js'
+	// import dayjs from '@/static/js/dayjs.min.js'
+	const dayjs = require('dayjs');
 	import {
 		mapState
 	} from 'vuex'

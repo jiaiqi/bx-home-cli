@@ -5,7 +5,7 @@
     </view>
     <view class="wifi-list">
       <scroll-view scroll-y="true">
-        <view class="wifi-item" v-for="item in resultWifiList">
+        <view class="wifi-item" v-for="(item,index) in resultWifiList" :key="index">
           <view class="wifi-item-left">
             <view class="top">
               <text class="wifi-icon">

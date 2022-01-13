@@ -30,7 +30,7 @@
           </view>
           <view v-if="tab._type === 'checkbox'">
             <bx-checkbox-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData">
-              <bx-checkbox v-model="item.checked" v-for="item in tab.options" :name="item.value">
+              <bx-checkbox v-model="item.checked" v-for="item in tab.options" :key="item.value" :name="item.value">
                 {{ item.label }}
               </bx-checkbox>
             </bx-checkbox-group>

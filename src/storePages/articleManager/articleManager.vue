@@ -1,6 +1,6 @@
 <template>
   <view class="manager-box">
-    <view class="box-item" v-for="item in gridList" @click="goNoticeList(item)">
+    <view class="box-item" v-for="(item,index) in gridList" :key="index" @click="goNoticeList(item)">
       <view class="box-item-content">
         <text class="cu-tag badge" v-if="item.num">{{ item.num }}</text>
         <text class="cu-tag badge-left" v-if="item.unback">{{

@@ -14,7 +14,7 @@
           <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill"></image>
         </view>
         <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
-          <view class="col-item bg" v-for="item in setViewTemp.cols" :style="{
+          <view class="col-item bg" v-for="(item,index) in setViewTemp.cols" :key="index" :style="{
             'width':item.cfg.width,
             'min-width':item.cfg.min_width,
             'padding':item.cfg.padding,

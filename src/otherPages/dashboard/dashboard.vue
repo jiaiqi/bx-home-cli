@@ -4,7 +4,7 @@
 			仪表盘标题
 		</view>
 		<view class="chart-box">
-			<view class="chart-item" v-for="item in chartList">
+			<view class="chart-item" v-for="(item,index) in chartList" :key="index">
 				<!-- #ifdef MP-WEIXIN -->
 				<uni-ec-canvas class="uni-ec-charts" :canvasId="item.id"  :ec="item.option"></uni-ec-canvas>
 				<!-- #endif -->

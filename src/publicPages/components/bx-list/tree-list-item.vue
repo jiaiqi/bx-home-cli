@@ -51,7 +51,7 @@
         <view class="footer" v-if="rowButton.length > 0">
           <view class="footer-btn" v-if="showFootBtn&&!detailList">
             <button class="cu-btn bx-btn radius bg-blue" :data-row="itemData" :data-shareTitle="item.shareTitle"
-              :data-shareurl="item.shareUrl" :open-type="item.type" v-for="item in setCustomBtn"
+              :data-shareurl="item.shareUrl" :open-type="item.type" v-for="(item,index) in setCustomBtn" :key="index"
               @click="footBtnClick(item)">{{item.name}}</button>
             <button v-for="(item,index) in groupRowButton.otherBtn" :key="item.id" class="cu-btn bx-btn radius  bg-blue"
               :class="'cuIcon-' + item.button_type" @click="footBtnClick(item)">
@@ -386,7 +386,7 @@
         </view>
         <view class="special-button-list" v-if="specialButton.length>0">
           <button class="cu-btn radius bg-blue" :data-row="itemData" :data-shareTitle="item.shareTitle"
-            :data-shareurl="item.shareUrl" :open-type="item.type" v-for="item in specialButton"
+            :data-shareurl="item.shareUrl" :open-type="item.type" v-for="(item,index) in specialButton" :key="index"
             @click="footBtnClick(item)">{{item.name}}</button>
         </view>
       </view>

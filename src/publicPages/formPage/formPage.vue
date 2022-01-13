@@ -34,7 +34,7 @@
 			</view>
 		</view>
 		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
-			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
+			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn" :key='btnIndex'
 				@click="onButton(btn)">
 				{{ btn.button_name}}
 			</button>
@@ -49,7 +49,8 @@
 </template>
 
 <script>
-	import dayjs from '@/static/js/dayjs.min.js'
+	// import dayjs from '@/static/js/dayjs.min.js'
+	const dayjs = require('dayjs');
 	import ChildList from '@/publicPages/components/child-list/child-list.vue'
 	let _childData = {}
 	export default {

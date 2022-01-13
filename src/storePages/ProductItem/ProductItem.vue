@@ -42,7 +42,7 @@
         <view class="desc-title" v-if="config.descTitle">
           {{config.descTitle||''}}
         </view>
-        <view class="goods-desc-col" v-for="item in config.descCol">
+        <view class="goods-desc-col" v-for="(item,index) in config.descCol" :key="item.col">
           <view class="label">
             {{item.label||''}}:
           </view>

@@ -46,13 +46,13 @@
 				<image :lazy-load="true" :src="item.url" mode="aspectFill" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
-					}" v-for="item in goodsDetailImage" @click="toPreviewImage(item.url)"></image>
+					}" v-for="item in goodsDetailImage" :key="item.url" @click="toPreviewImage(item.url)"></image>
 			</view>
 		</view>
 		<view class="cu-bar foot bottom bg-white tabbar border shop" v-if="scene !== 1154">
 			<view class="right-btn bg-cyan" v-if="moreConfig && moreConfig.button_list">
 				<button class="cu-btn bg-cyan  shadow-blur" @click="payOrder(item)"
-					v-for="item in moreConfig.button_list">
+					v-for="(item,index) in moreConfig.button_list" :key="index">
 					<text>{{ item.button_name }}</text>
 				</button>
 			</view>

@@ -15,7 +15,7 @@
             'border-radius':column.radius,
             'padding':column.padding,
             'font-size':column.font_size
-          }" v-for="column in detailConfig.top_col">
+          }" v-for="column in detailConfig.top_col" :key="column.col">
             <view class="label" v-if="setValue(column.col,column).label">
               {{setValue(column.col,column).label}}:
             </view>
@@ -26,7 +26,7 @@
         </view>
       </view>
       <view class="other-col">
-        <view class="col-item" v-for="column in detailConfig.cols">
+        <view class="col-item" v-for="column in detailConfig.cols " :key="column.col">
           <view class="label" :class="{'label-top':column.label&&column.label.position==='top'}" :style="{
             'font-size':column.label&&column.label.font_size?column.label.font_size:null,
             'color':column.label&&column.label.color?column.label.color:null,
@@ -141,7 +141,7 @@
         :class="{
 					'bg-orange':currentChild&&currentChild.foreign_key&&currentChild.foreign_key.id&&item&&item.foreign_key&&item.foreign_key.id===currentChild.foreign_key.id}"
         class="cu-btn border bg-green shadow-blur margin-left-sm" @click="changeChild(item)"
-        v-for="item in foldChildService">{{item.label||''}}</button>
+        v-for="(item,index) in foldChildService" :key="index">{{item.label||''}}</button>
     </view>
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild">
       <view class="child-service">

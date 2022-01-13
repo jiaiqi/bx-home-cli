@@ -18,12 +18,12 @@
 			</view>
 			<view class="" style="text-align: center;" v-if="list && list.length === 0&&total==0">内容为空</view>
 		</view>
-		<view class="tabs-list" v-else-if="tabs.length > 0">
+		<view class="tabs-list list-box" v-else-if="tabs.length > 0">
 			<u-tabs :list="tabs" :is-scroll="true" :current="curTab" style="margin: 0 10px 5px;" @change="changeTab">
 			</u-tabs>
 			<view class="list-content" :style="{
 					backgroundColor: list_config.bg
-				}" v-for="(item, index) in tabs">
+				}" v-for="(item, index) in tabs" :key="index">
 				<view class="list-view" v-if="index === curTab">
 					<list-next class="list-next" :listConfig="listConfig" :list="list" :listType="listType"
 						:colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" />
@@ -1268,11 +1268,10 @@
 			display: flex;
 			flex-direction: column;
 			overflow: hidden;
-
+			padding: 0 10px;
 			.list-view {
 				flex: 1;
 				overflow-y: scroll;
-				padding: 0 10px;
 			}
 		}
 	}

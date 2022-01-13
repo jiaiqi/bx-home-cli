@@ -25,7 +25,7 @@
       </view> -->
     </view>
     <view class="util-bar absolute" v-if="top_buttons&&top_buttons.length>0">
-      <button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)" v-for="btn in top_buttons">
+      <button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)" v-for="(btn,index) in top_buttons" :key="index">
         <!-- <view class="icon"><text class="cuIcon-notice"></text></view> -->
         <text class="label">{{btn.name||''}}</text>
       </button>

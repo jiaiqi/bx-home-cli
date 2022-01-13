@@ -5,7 +5,7 @@
 				<image class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]"></image>
 			</view>
 			<view class="list-item-content" :style="{ width: setListView.listContentWidth }" v-if="setListView && setListView.cols">
-				<view class="col-item bg" v-for="item in setListView.cols" :style="[item.style]" :class="[item.class]">
+				<view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]" :class="[item.class]">
 					<view class="label" v-if="item.label">{{ item.label }}:</view>
 					<view class="value" v-if="item.type==='location_fk'">
 						<text class="cuIcon-locationfill"></text>
@@ -84,7 +84,8 @@
 						class="cu-btn"
 						:style="[setListView.btnStyle]"
 						:class="[setListView.btnClass]"
-						v-for="btn in setRowButton"
+						v-for="(btn,index) in setRowButton"
+						:key="index"
 						v-show="isShowBtn(btn)"
 						@click.stop="clickButton(btn)"
 					>
@@ -123,7 +124,8 @@
 				class="cu-btn"
 				:class="[setListView.btnClass]"
 				:style="[setListView.btnStyle]"
-				v-for="btn in setRowButton"
+				v-for="(btn,index) in setRowButton"
+				:key="index"
 				v-show="isShowBtn(btn)"
 				@click.stop="clickButton(btn)"
 			>
@@ -305,6 +307,7 @@ export default {
 				'font-size': btnCfg?.font_size,
 				'border-radius': btnCfg?.radius,
 				padding: btnCfg?.padding,
+				margin:btnCfg?.margin,
 				color: btnCfg?.color
 			};
 			if (btnCfg?.bg && btnCfg?.bg.indexOf('#') !== -1) {

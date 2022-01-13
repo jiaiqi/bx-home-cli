@@ -42,7 +42,7 @@
           v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></text> -->
         <view class="foot-button-box grid" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3">
           <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
-            v-for="btn in setRowButton" v-show="isShowBtn(btn)"
+            v-for="(btn,index) in setRowButton" :key="index" v-show="isShowBtn(btn)"
             @click.stop="clickButton(btn)">{{btn.button_name}}</button>
         </view>
       </view>
@@ -66,8 +66,8 @@
     </view>
     <view class="foot-button-box" v-if="setViewTemp&&setViewTemp.lp_style==='宫格'&&setViewTemp.grid_span>=3"></view>
     <view class="foot-button-box" v-else>
-      <button class="cu-btn" :class="[setListView.btnClass]" :style="[setListView.btnStyle]" v-for="btn in setRowButton"
-        v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">{{btn.button_name}}</button>
+      <button class="cu-btn" :class="[setListView.btnClass]" :style="[setListView.btnStyle]" v-for="(btn,index) in setRowButton"
+       :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">{{btn.button_name}}</button>
     </view>
   </view>
 </template>

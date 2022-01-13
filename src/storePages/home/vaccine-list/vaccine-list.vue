@@ -30,8 +30,8 @@
         </view>
         <swiper class="swiper " indicator-active-color="#00aaff" indicator-color="#ccc" :indicator-dots="true"
           :autoplay="false">
-          <swiper-item v-for="(child,index) in list" class="swiper-item">
-            <view class="vaccine-item" v-for="(item,itemIndex) in child" @click="showInfo(item)">
+          <swiper-item v-for="(child,index) in list" :key="index" class="swiper-item">
+            <view class="vaccine-item" v-for="(item,itemIndex) in child" :key="itemIndex" @click="showInfo(item)">
               <view class="title">
                 <text class="text">
                   {{item.vaccine_drug_name}}
@@ -188,7 +188,8 @@
   import {
     mapState
   } from 'vuex'
-  import dayjs from '@/static/js/dayjs.min.js'
+  // import dayjs from '@/static/js/dayjs.min.js'
+  const dayjs = require('dayjs');
   export default {
     name: "VaccineList", //疫苗预约列表
     computed: {
@@ -789,7 +790,7 @@
       align-items: center;
 
       .light {
-        background-image: linear-gradient(right, #eef2ff, #ebf9fa);
+        background-image: linear-gradient(to left, #eef2ff, #ebf9fa);
       }
     }
 

@@ -16,7 +16,7 @@
                 {{field.label||labelMap[field.col]||''}}:
               </view>
               <view class="value-list" v-if="field.valueList&&isArray(field.valueList)">
-                <view class="value" v-show="val" v-for="val in field.valueList">
+                <view class="value" v-show="val" v-for="(val,index) in field.valueList" :key="index">
                   {{val||''}}
                 </view>
               </view>

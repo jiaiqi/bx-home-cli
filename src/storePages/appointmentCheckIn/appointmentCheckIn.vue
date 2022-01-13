@@ -27,14 +27,14 @@
         </view>
       </view>
     </view> -->
-    <view class="order-item-box" v-for="item in multiUserVaccine">
+    <view class="order-item-box" v-for="(item,index) in multiUserVaccine" :key="index">
       <view class="title">
         {{item.vaccine_drug_name||item.svs_name||''}}
       </view>
       <view class="order-record-list">
         <view class="order-record-item light"
           :class="{'bg-gray':order.app_state==='待到场','bg-cyan line-cyan':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
-          @click="changeState(order)" v-for="order in item.recordList">
+          @click="changeState(order)" v-for="(order,index) in item.recordList" :key="index">
           <text>{{order.customer_name||order.person_name||''}}</text>
           <text class="hasCheckIn" v-if="order.app_state==='完成'">
             <text class="cuIcon-check"></text>
@@ -45,14 +45,14 @@
         </view>
       </view>
     </view>
-    <view class="order-item-box" v-for="item in nomralVaccineRecord">
+    <view class="order-item-box" v-for="(item,index) in nomralVaccineRecord" :key="index">
       <view class="title">
         {{item.appoint_name||''}}
       </view>
       <view class="order-record-list">
         <view class="order-record-item light"
           :class="{'bg-gray':order.app_state==='待到场','bg-cyan  line-cyan ':order.app_state==='完成','bg-grey':order.app_state==='取消','bg-orange':order.app_state==='爽约'}"
-          @click="changeState(order)" v-for="order in item.recordList">
+          @click="changeState(order)" v-for="(order,index) in item.recordList" :key="index">
           <text>{{order.customer_name||order.person_name||''}}</text>
           <text class="hasCheckIn" v-if="order.app_state==='完成'">
             <text class="cuIcon-check"></text>
@@ -81,7 +81,8 @@
 </template>
 
 <script>
-  import dayjs from '@/static/js/dayjs.min.js'
+  // import dayjs from '@/static/js/dayjs.min.js'
+  const dayjs = require('dayjs');
   let today = dayjs().format("YYYY-MM-DD")
   export default {
     data() {

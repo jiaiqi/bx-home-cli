@@ -176,7 +176,8 @@
   } from 'vuex'
   // 在页面中定义插屏广告
   let interstitialAd = null
-  import dayjs from '@/static/js/dayjs.min.js'
+  // import dayjs from '@/static/js/dayjs.min.js'
+  const dayjs = require('dayjs');
   export default {
     data() {
       return {

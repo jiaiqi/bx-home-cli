@@ -4,7 +4,7 @@
 			{{remarkCfg.top.content||''}}
 		</view>
 		<view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}"
-			v-for="(field,fIndex) in allField">
+			v-for="(field,fIndex) in allField" :key="fIndex">
 			<view class="section-name" v-if="field.section&&showSectionName">
 				{{field.section}}
 			</view>

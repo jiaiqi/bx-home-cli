@@ -1,7 +1,7 @@
 <template>
 	<view class="">
 			<view class="table" id="tabbox" v-if="list.length>0"  >
-				<view class="htmlbox" v-for="(item,index) in list" :style="{background:item.answer?'#c5efd6':''}" >
+				<view class="htmlbox" v-for="(item,index) in list" :style="{background:item.answer?'#c5efd6':''}" :key="index">
 					<!-- <view class="erjibox" :style="{color:item.Color}">{{item.text}}{{item.answSheet?('：'+item.answSheet.strAnsw):''}}</view> -->
 					<view class="erjibox" :style="{color:item.answer?'#42b983':''}">{{item.name}}{{item.answer?('：'+item.answer):''}}</view>
 					<text class="cuIcon-close close" @click="delHtml(item)"></text>

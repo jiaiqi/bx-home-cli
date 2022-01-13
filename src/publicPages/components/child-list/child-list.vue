@@ -11,7 +11,7 @@
 
       <view class="to-more" v-if="config.unfold !==false">
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
-          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}" v-for="btn in publicButton"
+          :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}" v-for="(btn,index) in publicButton" :key="index"
           @click="onButton(btn)">
           <text class="text">{{btn.button_name||''}}</text></button>
         <button class="cu-btn line-orange round border" :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}"
@@ -22,6 +22,7 @@
     <view class="list-box" v-if="config.unfold !==false">
       <view class="list-item table-head">
         <view class="col-item" v-for="col in showColumn"
+		:key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
@@ -31,6 +32,7 @@
       <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
         @click="onButton({button_type:'edit'},index)">
         <view class="col-item" v-for="col in showColumn"
+		:key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
@@ -39,16 +41,17 @@
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in initData" @click="onButton({button_type:'editInit'},index)">
-        <view class="col-item" v-for="col in showColumn"
+      <view class="list-item" v-for="(item,index) in initData" :key="index" @click="onButton({button_type:'editInit'},index)">
+        <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
         <text class="cuIcon-delete text-black" v-if="showDelete"
           @click.stop="onChildFormBtn({button_type:'delete_init'},index,true)"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in memoryListData" @click="onButton({button_type:'editMem'},index)">
+      <view class="list-item" v-for="(item,index) in memoryListData" :key="index" @click="onButton({button_type:'editMem'},index)">
         <view class="col-item" v-for="col in showColumn"
+		:key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
@@ -76,7 +79,7 @@
             :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&addV2.formButton">
-          <button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
+          <button class="cu-btn bg-blue" v-for="(btn,index) in addV2.formButton" :key="index"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -94,7 +97,7 @@
           </a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="btn in updateV2.formButton"
+          <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,idx) in updateV2.formButton" :key="idx"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -104,7 +107,8 @@
 </template>
 
 <script>
-  import dayjs from '@/static/js/dayjs.min.js'
+  // import dayjs from '@/static/js/dayjs.min.js'
+  const dayjs = require('dayjs');
   import batchAdd from '@/publicPages/components/batch-add/batch-add.vue'
   export default {
     components: {

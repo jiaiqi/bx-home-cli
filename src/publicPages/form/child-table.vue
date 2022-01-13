@@ -1,7 +1,7 @@
 <template>
 	<view class="child-service-box">
 		<!-- <view class="normal-title">子表</view> -->
-		<view class="child-service-item" v-for="item in list" @click="toChildServiceList(item)">
+		<view class="child-service-item" v-for="(item,index) in list" :key="index" @click="toChildServiceList(item)">
 			<view class="child-service-title">
 				<view class="cu-tag badge" v-if="item.total">
 					<block>{{ item.total > 99 ? '99+' : item.total}}</block>

@@ -22,7 +22,7 @@
 							@click="selectAll" />
 						<view class="col-item"
 							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
-							v-for="col in tableColumn">
+							v-for="col in tableColumn" :key="col.columns">
 							{{col.label||''}}
 						</view>
 					</view>
@@ -32,7 +32,7 @@
 						<view class="col-item" @click="toDetail(item)"
 							:style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}"
 							:class="{'bg-orange round light':isTomorrow(item[col.columns],col.col_type),'bg-red round light':isToday(item[col.columns],col.col_type)}"
-							v-for="col in tableColumn">
+							v-for="col in tableColumn" :key="col.columns">
 							<text v-if="isTomorrow(item[col.columns],col.col_type)">明天</text>
 							<text v-else-if="isToday(item[col.columns],col.col_type)">今天</text>
 							<text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
@@ -60,7 +60,7 @@
 		</scroll-view>
 
 		<view class="float-button-box" v-if="custom_btn&&custom_btn.handler_buttons">
-			<button class="cu-btn" :class="[item.bgColor]" v-for="item in custom_btn.handler_buttons"
+			<button class="cu-btn" :class="[item.bgColor]" v-for="(item,index) in custom_btn.handler_buttons" :key="index"
 				@click="onBatchOperate(item)">{{item.button_name||''}}</button>
 			<button class="cu-btn" @click="hideBatchBtn">取消</button>
 		</view>
@@ -72,7 +72,7 @@
 						:pageType="'update'" :formType="'update'" ref="updateForm"></a-form>
 					<view class="button-box" v-if="batchUpdateV2._formButtons">
 						<button class="cu-btn" @click="hideModal">取消</button>
-						<button class="cu-btn bg-blue" v-for="item in batchUpdateV2._formButtons"
+						<button class="cu-btn bg-blue" v-for="(item,index) in batchUpdateV2._formButtons" :key="index"
 							@click="onBatchFormButton(item)">{{item.button_name}}</button>
 					</view>
 				</view>
@@ -83,7 +83,8 @@
 
 <script>
 	import listBar from '@/publicPages/components/list-bar/list-bar.vue'
-	import dayjs from '@/static/js/dayjs.min.js'
+	// import dayjs from '@/static/js/dayjs.min.js'
+	const dayjs = require('dayjs');
 	export default {
 		components: {
 			// bxList

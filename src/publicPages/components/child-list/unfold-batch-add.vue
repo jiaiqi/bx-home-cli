@@ -61,7 +61,7 @@
             @value-blur="valueChange" :main-data="mainData"></a-form>
         </view>
         <view class="button-box" v-if="addV2&&modalName==='addChildData'&&addV2.formButton">
-          <button class="cu-btn bg-blue" v-for="btn in addV2.formButton"
+          <button class="cu-btn bg-blue" v-for="(btn,index) in addV2.formButton" :key="index"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>
@@ -79,7 +79,7 @@
             :main-data="mainData" :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName"></a-form>
         </view>
         <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-blue" v-for="btn in updateV2.formButton"
+          <button class="cu-btn bg-blue" v-for="(btn,idx) in updateV2.formButton" :key="idx"
             @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
         </view>
       </view>

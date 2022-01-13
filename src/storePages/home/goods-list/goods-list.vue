@@ -1,6 +1,6 @@
 <template>
   <view class="goods-list" :style="[calcStyle]">
-    <view class="goods-item" v-for="item in goodsList" @click="toGoodsDetail(item)">
+    <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
       <image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
         :style="{ height: item.imgHeight + 'px' }"></image>
       <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>

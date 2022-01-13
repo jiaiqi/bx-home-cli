@@ -65,7 +65,7 @@
 						<view class="setting-label">接收消息推送设置</view>
 						<view class="setting-content">
 							<bx-checkbox-group class="form-item-content_value checkbox-group" v-model="push_msg_set" mode="button">
-								<bx-checkbox v-for="item in pushMsgSetOptions" :name="item.value" v-model="item.checked">{{ item.label }}</bx-checkbox>
+								<bx-checkbox v-for="(item,index) in pushMsgSetOptions" :key="index" :name="item.value" v-model="item.checked">{{ item.label }}</bx-checkbox>
 							</bx-checkbox-group>
 						</view>
 					</view>

@@ -8,7 +8,7 @@
         {{detailConfig.title.value||''}}
       </view>
       <view class="content" v-if="detailConfig.content">
-        <view class="content-item" v-for="item in detailConfig.content">
+        <view class="content-item" v-for="(item,index) in detailConfig.content" :key="index">
           <view class="sub-title">
             <view class="text-cyan">
               <text>{{item.title||''}}</text>
@@ -86,7 +86,7 @@
         </view>
         <view class="person-info-form" v-if="detailConfig.formConfig.cols">
           <view class="bx-form-group" :class="{'text-area':item.type==='textarea'}"
-            v-for="item in detailConfig.formConfig.cols" v-show="item.display!==false">
+            v-for="item in detailConfig.formConfig.cols" v-show="item.display!==false" :key="item.col">
             <text class="text-red" v-if="item.required===true">*</text>
             <view class="title" v-if="item.type!=='textarea'">{{item.label}}</view>
             <input :placeholder="item.label" class="input" name="input" placeholder-class="place-holder"
@@ -112,8 +112,8 @@
       </view>
       <view class="footer" v-if="detailConfig.formButton">
 
-        <button class="cu-btn" :class="[{disabled:onSubmit},btn.class]" v-for="btn in detailConfig.formButton"
-          @click="onButton(btn)">{{btn.name||''}}</button>
+        <button class="cu-btn" :class="[{disabled:onSubmit},btn.class]" v-for="(btn,index) in detailConfig.formButton"
+         :key="index" @click="onButton(btn)">{{btn.name||''}}</button>
 
         <!--  <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
           v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>

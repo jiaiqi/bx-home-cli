@@ -1,6 +1,6 @@
 <template>
   <view class="count-bar-box" :class="['bx-bg-'+theme,'theme-'+theme]">
-    <view class="count-bar-item" v-for="item in list">
+    <view class="count-bar-item" v-for="(item,index) in list" :key="index">
       <view class="label" v-if="labelPostion=='top'">
         <text class="icon"></text>
         <text>{{item.label}}</text>

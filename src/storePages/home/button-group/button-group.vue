@@ -352,27 +352,27 @@
       },
     },
     methods: {
-      toSpeach() {
-        var plugin = requirePlugin("WechatSI")
-        plugin.textToSpeech({
-          lang: "zh_CN",
-          tts: true,
-          content: "支付宝到账一分钱",
-          success: function(res) {
-            console.log("succ tts", res.filename)
-            const bgAudioManager = uni.getBackgroundAudioManager();
-            bgAudioManager.title = '致爱丽丝';
-            bgAudioManager.singer = '暂无';
-            bgAudioManager.coverImgUrl =
-              'https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/7fbf26a0-4f4a-11eb-b680-7980c8a877b8.png';
-            bgAudioManager.src = res.filename
-            bgAudioManager.play()
-          },
-          fail: function(res) {
-            console.log("fail tts", res)
-          }
-        })
-      },
+      // toSpeach() {
+      //   var plugin = requirePlugin("WechatSI")
+      //   plugin.textToSpeech({
+      //     lang: "zh_CN",
+      //     tts: true,
+      //     content: "支付宝到账一分钱",
+      //     success: function(res) {
+      //       console.log("succ tts", res.filename)
+      //       const bgAudioManager = uni.getBackgroundAudioManager();
+      //       bgAudioManager.title = '致爱丽丝';
+      //       bgAudioManager.singer = '暂无';
+      //       bgAudioManager.coverImgUrl =
+      //         'https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-uni-app-doc/7fbf26a0-4f4a-11eb-b680-7980c8a877b8.png';
+      //       bgAudioManager.src = res.filename
+      //       bgAudioManager.play()
+      //     },
+      //     fail: function(res) {
+      //       console.log("fail tts", res)
+      //     }
+      //   })
+      // },
       DateChange(e) {
         this.formModel.customer_birth_day = e.detail.value
       },

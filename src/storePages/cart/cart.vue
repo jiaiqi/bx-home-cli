@@ -2,7 +2,7 @@
   <view>
     <checkbox-group @change="checkboxChange">
       <view class="goods-list">
-        <view class="list-item" v-for="item in list">
+        <view class="list-item" v-for="(item,index) in list" :key="index">
           <checkbox color="#0BC99D" :value="item.id+''" :checked="item.checked" v-if="showCheckBox"
             style="transform:scale(0.7)" />
           <view class="left-image">

@@ -19,7 +19,7 @@
 					<text class="store-name">{{ orderInfo.store_name ? orderInfo.store_name : orderInfo.name || '' }}</text>
 				</view>
 				<view class="goods-list">
-					<view class="goods-item" v-for="goods in orderInfo.goodsList">
+					<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
 						<image
 							class="goods-image"
 							:src="goods.goods_image ? getImagePath(goods.goods_image) : goods.image ? getImagePath(goods.image) : '../static/doctor_default.png'"

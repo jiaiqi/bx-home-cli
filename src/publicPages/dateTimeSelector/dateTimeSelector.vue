@@ -12,7 +12,7 @@
 			<view class="time-selector">
 				<view class="time-list">
 					<view class="time-item" :class="{active:item.checked===true}" @tap="tapTime(item)"
-						v-for="item in timeList">
+						v-for="(item,index) in timeList" :key="index">
 						<view class="time-box">
 							<view class="head">
 								{{renderTemplate(item,'head')||''}}

@@ -36,7 +36,7 @@
           }}</text>
         </view>
         <view class="goods-list">
-          <view class="goods-item" v-for="goods in orderInfo.goodsList">
+          <view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
             <image class="goods-image" :src="
                 goods.goods_image
                   ? getImagePath(goods.goods_image)
@@ -123,7 +123,7 @@
             </view>
             <bx-radio-group class="form-item-content_value radio-group" v-model="room_no" mode="button"
               @change="pickerChange">
-              <bx-radio v-for="item in selectorData" :name="item.value">{{ item.label }}
+              <bx-radio v-for="item in selectorData" :key="item.value" :name="item.value">{{ item.label }}
               </bx-radio>
             </bx-radio-group>
           </view>

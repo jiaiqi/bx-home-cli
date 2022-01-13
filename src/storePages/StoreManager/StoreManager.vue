@@ -23,7 +23,7 @@
 
       </view>
       <view class="statis-box" v-if="countData&&StoreInfo" @click="toDashboard">
-        <view class="statis-item" v-for="item in countData">
+        <view class="statis-item" v-for="(item,index) in countData" :key="index">
           <view class="item-label" v-if="labelPosition==='top'">
             {{item.label||'0'}}
           </view>
@@ -36,7 +36,7 @@
         </view>
       </view>
       <view class="statis-box" v-else-if="statisConfig&&statisConfig.labels&&StoreInfo" @click="toDashboard">
-        <view class="statis-item" v-for="item in statisConfig.labels">
+        <view class="statis-item" v-for="(item,index) in statisConfig.labels" :key="index">
           <view class="item-label" v-if="statisConfig.labelPosition==='top'">
             {{item.label||'0'}}
           </view>
@@ -59,7 +59,7 @@
           </view>
         </view>
         <view class="manager-box" v-if="StoreInfo.mgmt_button_type === '固定'">
-          <view class="box-item" v-for="item in list" @click="clickGrid(item)">
+          <view class="box-item" v-for="(item,index) in list" :key="index" @click="clickGrid(item)">
             <view class="cu-tag amount bg-blue round light" v-if="StoreInfo[item.type]">
               {{ StoreInfo[item.type] | overDisplay }}
             </view>
@@ -86,13 +86,13 @@
               <!-- last-child选择器-->
             </view>
           </view>
-          <view class="box-item" v-for="item in childTable" @click="toChildService(item)">
+          <view class="box-item" v-for="(item,index) in childTable" :key="index" @click="toChildService(item)">
             <view class="cu-tag amount bg-blue round light" v-if="item.total">
               {{ item.total || 0 }}
             </view>
             <view class="box-item-content">
               <view class="label-icon shadow-blur bg-blue light" v-if="item.label">
-                <view class="text" v-for="text in item.label.slice(0, 4).split('')">
+                <view class="text" v-for="text in item.label.slice(0, 4).split('')" :key='text'>
                   {{ text }}
                 </view>
               </view>
@@ -104,7 +104,7 @@
         </view>
 
 
-        <view class="" v-show="manageGroup" v-for="(manage,mIndex) in manageGroup">
+        <view class="" v-show="manageGroup" v-for="(manage,mIndex) in manageGroup" :key="mIndex">
           <view class="text-bold title">
             <text class="margin-right">{{ manage.component_label || "管理" }}</text>
             <view class="buttons" v-if="mIndex===0">
@@ -113,7 +113,7 @@
             </view>
           </view>
           <view class="manager-box">
-            <view class="box-item" v-for="item in manage.buttonGroup" @click="clickButton(item)">
+            <view class="box-item" v-for="(item,index) in manage.buttonGroup" :key="index" @click="clickButton(item)">
               <view class="cu-tag amount bg-blue round light" v-if="item.num && item.label === '用户列表'">
                 {{ item.num || 0 }}
               </view>
