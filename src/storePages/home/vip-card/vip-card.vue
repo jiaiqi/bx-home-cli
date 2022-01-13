@@ -1,0 +1,166 @@
+<template>
+	<view class="vip-card">
+		<view class="card-info" v-if="vipCardInfo&&vipCardInfo.id">
+			<view class="">
+				<view class="">
+					我的余额(元)
+				</view>
+				<view class="amount">
+					￥{{vipCardInfo[amountCol]||'0.00'}}
+				</view>
+			</view>
+			<view class="right-banner" v-if="rightBtn&&rightBtn.url" @click="onRightBtn">
+				{{rightBtn.text||""}}
+			</view>
+		</view>
+		<view class="not-vip" @click="toOpenVip" v-else>
+			<view class="">
+				<text class="cuIcon-crownfill text-white"></text>
+				<text>开通VIP享受更多权益</text>
+			</view>
+			<button class="cu-btn bg-white round sm">
+				立即开通
+				<text class="cuIcon-right"></text>
+			</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		props: {
+			config: {
+				type: Object
+			},
+		},
+		computed: {
+			rightBtn() {
+				return this.detailCfg.right_btn || {
+					"text": "消费明细",
+					"url": "xxx"
+				}
+			},
+			bindUserInfo() {
+				return this.vstoreUser
+			},
+			amountCol() {
+				return this.detailCfg?.amountCol || 'card_last_amount'
+			},
+			detailCfg() {
+				return this.moreConfig?.detail_cfg
+			},
+			moreConfig() {
+				return this.config?.more_config
+			}
+		},
+		data() {
+			return {
+				vipCardInfo: {}
+			}
+		},
+		mounted() {
+			uni.$on('vipCardChange', () => {
+				this.getCard()
+			})
+		},
+		created() {
+			if (this.detailCfg?.serviceName) {
+				this.getCard()
+			}
+		},
+		methods: {
+			onRightBtn() {
+				let url = this.rightBtn?.url
+				if (url) {
+					url = this.renderStr(url, this)
+					uni.navigateTo({
+						url
+					})
+				}
+			},
+			getCard() {
+				let condition = this.detailCfg.condition || [];
+				if (Array.isArray(condition) && condition.length > 0) {
+					condition = this.deepClone(condition)
+					condition = condition.map(item => {
+						item.value = this.renderStr(item.value, this);
+						return item
+					})
+				}
+				const serviceName = this.detailCfg?.serviceName
+				const req = {
+					"serviceName": serviceName,
+					"colNames": ["*"],
+					"condition": condition,
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					},
+					"query_source": "list_page"
+				}
+				const app = this.detailCfg?.app || uni.getStorageSync('activeApp')
+				const url = this.getServiceUrl(app, serviceName, 'select');
+
+				this.$http.post(url, req).then(res => {
+					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+						this.vipCardInfo = res.data.data[0]
+					}
+				})
+			},
+			toOpenVip() {
+				let url = this.moreConfig?.open_url
+				if (url) {
+					url = this.renderStr(url, this)
+					uni.navigateTo({
+						url: url
+					});
+				}
+			},
+		},
+	}
+</script>
+
+<style scoped lang="scss">
+	.vip-card {
+		background-color: #e4b963;
+		color: #fff;
+		border-radius: 10px;
+		margin: 0 10px;
+
+		.card-info {
+			background-image: url(vip-bg.png);
+			background-size: 100%;
+			background-repeat: no-repeat;
+			height: 130px;
+			padding: 20px;
+			position: relative;
+
+			.amount {
+				font-size: 24px;
+				padding-top: 10px;
+			}
+
+			.right-banner {
+				position: absolute;
+				top: 60%;
+				right: 0;
+				border-radius: 50px 0 0 50px;
+				background: linear-gradient(152deg, #FFFFFF 0%, #F2E3C0 100%);
+				box-shadow: 0px 3px 6px rgba(206, 150, 16, 0.3);
+
+				font-size: 16px;
+				font-family: 苹方-简;
+				color: #4A3931;
+				padding: 5px 20px;
+			}
+		}
+
+		.not-vip {
+			padding: 10px;
+			display: flex;
+			justify-content: space-between;
+			padding-left: 10px;
+			align-items: center;
+		}
+	}
+</style>

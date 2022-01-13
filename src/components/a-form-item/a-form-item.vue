@@ -97,7 +97,7 @@
 				</view>
 				<view v-else-if="
             (setOptionList&&setOptionList.length < 5 && fieldData.type === 'Set') ||
-            (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector')
+            (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
 					<bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
 						v-model="fieldData.value" mode="button" @change="onBlur">
@@ -1039,32 +1039,42 @@
 					if (res.data.page) {
 						this.treePageInfo = res.data.page;
 					}
-					let hasParentNo = res.data.data.filter(item => item.parent_no).length;
-					if (hasParentNo) {
-						self.selectorData = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
-							.option_list_v2);
-						if (res.data.page && res.data.page.pageNo > 1) {
-							let data = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
-								.option_list_v2);
-							self.selectorData = [...self.selectorData, ...data];
-						}
-						self.selectorData = self.selectorData.map((item, index) => {
-							let a = {
-								title: '',
-								name: '',
-								icon: '',
-								seq: '',
-								link: '',
-								type: 'button',
-							};
-							a = Object.assign(a, item);
-							a.title = item.pr_name;
-							a.name = item.pr_name;
-							a.no = item.no;
-							a.parent_no = item.parent_no;
-							return a;
-						});
-					} else {
+					// let hasParentNo = res.data.data.filter(item => item.parent_no).length;
+					// if (hasParentNo) {
+					// 	self.selectorData = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
+					// 		.option_list_v2);
+					// 	if (res.data.page && res.data.page.pageNo > 1) {
+					// 		let data = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
+					// 			.option_list_v2);
+					// 		self.selectorData = [...self.selectorData, ...data];
+					// 	}
+					// 	self.selectorData = self.selectorData.map((item, index) => {
+					// 		let a = {
+					// 			title: '',
+					// 			name: '',
+					// 			icon: '',
+					// 			seq: '',
+					// 			link: '',
+					// 			type: 'button',
+					// 		};
+					// 		// a = Object.assign(a, item);
+					// 		// a.title = item.pr_name;
+					// 		// a.name = item.pr_name;
+					// 		// a.no = item.no;
+					// 		// a.parent_no = item.parent_no;
+					// 		// a.label
+					// 		const config = this.deepClone(this.fieldData.option_list_v2);
+					// 		debugger
+					// 		// item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
+					// 		item.label = config.show_as_pair !== false ?
+					// 			`${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
+					// 				.key_disp_col]
+					// 		item.value = config.refed_col ? item[config.refed_col] : '';
+					// 		a = item;
+							
+					// 		return a;
+					// 	});
+					// } else {
 						if (res.data.page && res.data.page.pageNo > 1) {
 							let data = res.data.data;
 							self.selectorData = [...self.selectorData, ...data];
@@ -1073,6 +1083,7 @@
 						}
 						self.selectorData = self.selectorData.map(item => {
 							const config = this.deepClone(this.fieldData.option_list_v2);
+							debugger
 							// item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
 							item.label = config.show_as_pair !== false ?
 								`${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
@@ -1081,7 +1092,7 @@
 							item.value = config.refed_col ? item[config.refed_col] : '';
 							return item;
 						});
-					}
+					// }
 					self.selectorData.forEach(item => {
 						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
 							self.fieldData.value && (self.fieldData.value || self.fieldData.value === 0)) {
