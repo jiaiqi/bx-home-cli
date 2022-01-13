@@ -135,9 +135,11 @@
 					v-model="fieldData.value">
 				</date-range-picker>
 			</view>
-			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'" :class="{disabled:fieldData.disabled}">
+			<view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
+				:class="{disabled:fieldData.disabled}">
 				<textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
-					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
+					v-model="fieldData.value" :placeholder="'开始输入'" @input="onBlur"
+					:disabled="fieldData.disabled"></textarea>
 			</view>
 			<view class="form-item-content_value location"
 				v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value"
@@ -386,7 +388,7 @@
 					} else {
 						return this.fieldData.options
 					}
-				} else if (Array.isArray(this.selectorData) && this.selectorData.length > 0) {
+				} else if (Array.isArray(this.selectorData)) {
 					// if(this.treePageInfo.total>this.treePageInfo.rownumber*this.treePageInfo.pageNo){
 					// 	return [...this.selectorData,nextRadio]
 					// }
@@ -473,7 +475,7 @@
 					if (newVal !== oldVal && oldVal !== undefined) {
 						console.log('watch-fieldData.value', newVal, oldVal, this.fieldData)
 						this.$emit('on-value-change', this.deepClone(this.fieldData));
-						this.$nextTick(()=>{
+						this.$nextTick(() => {
 							this.onBlur()
 						})
 					}
@@ -1288,11 +1290,12 @@
 					// 	};
 					// 	this.valid.valid = true;
 					// } else {
-						this.fieldData.valid = {
-							valid: false,
-							msg: this.fieldData.label + '不能为空'
-						};
-						this.valid.valid = false;
+					this.fieldData.valid = {
+						display:this.fieldData.display,
+						valid: false,
+						msg: this.fieldData.label + '不能为空'
+					};
+					this.valid.valid = false;
 					// }
 
 				} else {

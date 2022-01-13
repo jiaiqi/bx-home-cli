@@ -265,7 +265,7 @@
         imagesUrl: [],
         dayOrderInfo: {},
         app_type: "", // 默认疫苗预约
-        moreConfig: {}
+        moreConfig: {},
       }
     },
     computed: {
@@ -578,6 +578,8 @@
               }
             }
           }
+		  console.log(dayjs,this.dayjs)
+		  debugger
           this.timeArr = arr
           let timeArr = res.data
 

@@ -94,8 +94,8 @@
 				return this.moreConfig?.showSectionName
 			},
 			remarkCfg(){
-				if(this.moreConfig?.remar_cfg){
-					return this.moreConfig?.remar_cfg
+				if(this.moreConfig?.remark_cfg){
+					return this.moreConfig?.remark_cfg
 				}
 			},
 		},
@@ -143,25 +143,29 @@
 					return field.in_add === 1
 				} else if (this.pageType === 'update') {
 					return field.in_update === 1
+				} else if (this.pageType === 'detail') {
+					return field.in_detail === 1
 				}
 				return true
 			},
 			getFieldModel() {
 				let valid = 0;
 				let showsNum = 0;
+				console.log(this.deepClone(this.allField))
 				this.allField.map((item, index) => {
 					let valids = this.$refs.fitem[index].getValid();
 					console.log('字段校验', valids, item);
-					if (item.display) {
+					debugger
+					// if (item.display) {
 						showsNum++;
 						if (valids.valid) {
 							valid++;
 						} else {
-							// debugger
+							debugger
 						}
-					} else if (item.column !== valids.column) {
-						// debugger
-					}
+					// } else if (item.column !== valids.column) {
+					// 	// debugger
+					// }
 				});
 				// debugger
 				let defaultValue = this.allField.reduce((res, cur) => {

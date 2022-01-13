@@ -1151,6 +1151,7 @@
 				if (moreConfig && typeof moreConfig === 'string') {
 					try {
 						buttonInfo.moreConfig = JSON.parse(moreConfig);
+						moreConfig = buttonInfo.moreConfig
 					} catch (e) {
 						//TODO handle the exception
 						console.log(e);
@@ -1189,7 +1190,6 @@
 								}
 							});
 						}
-
 						if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length >
 							0) {
 							buttonInfo.operate_params.data.forEach(data => {
@@ -1232,6 +1232,11 @@
 						})
 
 					} else if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+						debugger
+						if (moreConfig?.type === 'wx_pay') {
+							this.onRequestPayment(rowData,moreConfig)
+							return
+						}
 						let req = [{
 							serviceName: buttonInfo.operate_service,
 							condition: buttonInfo.operate_params.condition,

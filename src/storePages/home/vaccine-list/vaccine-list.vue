@@ -992,7 +992,7 @@
     margin-bottom: 10rpx;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 
     &:first-child {
       margin-top: 10px;
