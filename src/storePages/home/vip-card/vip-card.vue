@@ -35,10 +35,7 @@
 		},
 		computed: {
 			rightBtn() {
-				return this.detailCfg.right_btn || {
-					"text": "消费明细",
-					"url": "xxx"
-				}
+				return this.detailCfg.right_btn
 			},
 			bindUserInfo() {
 				return this.vstoreUser
@@ -129,9 +126,9 @@
 
 		.card-info {
 			background-image: url(vip-bg.png);
-			background-size: 100%;
+			background-size: 100% 100%;
 			background-repeat: no-repeat;
-			height: 130px;
+			height: 250rpx;
 			padding: 20px;
 			position: relative;
 

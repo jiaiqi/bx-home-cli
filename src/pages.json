@@ -323,7 +323,16 @@
 					}
 
 				}
-			]
+			    ,{
+                    "path" : "coupon/coupon",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "卡券",
+                    "enablePullDownRefresh": true
+                }
+                
+                }
+            ]
 		},
 		{
 			"root": "questionnaire",

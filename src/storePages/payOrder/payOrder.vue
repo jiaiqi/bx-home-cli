@@ -90,13 +90,21 @@
 			</view>
 
 			<view class="pay-mode">
-				<radio-group @change="payModeChange">
-					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="payMode='coupon'">
+				<radio-group @change="payModeChange" style="width: 100%;">
+					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
 						<view class="">
 							<text class="cuIcon-card text-red  icon"></text>
 							卡券支付
 						</view>
-						<view class="">
+						<view class="" style="display: flex;align-items: center;">
+							<view class="coupon-info" v-if="couponInfo">
+								<view class="coupon-name">
+									{{couponInfo.card_name||''}}
+								</view>
+								<view class="amount">
+									剩余金额:{{couponInfo.card_last_amount||''}}
+								</view>
+							</view>
 							<!-- <radio :checked="payMode==='coupon'" value="coupon" @change="payModeChange('coupon')" /> -->
 							<text class="cuIcon-right"></text>
 						</view>
@@ -128,10 +136,10 @@
 				v-if="orderInfo.order_state === '待提交'">
 				提交订单
 			</button>
-			<button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="
+			<button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="(
           orderInfo.order_state === '待支付' &&
           (orderInfo.pay_state === '取消支付' ||
-            orderInfo.pay_state === '待支付')
+            orderInfo.pay_state === '待支付'))&&payMode !== 'coupon'
         ">
 				付款
 			</button>
@@ -207,7 +215,8 @@
 						"value": "${storeInfo.store_no}"
 					}],
 					"key_disp_col": "room_no"
-				}
+				},
+				couponInfo: null
 			};
 		},
 		computed: {
@@ -262,6 +271,48 @@
 			}
 		},
 		methods: {
+			toCouponSelector() {
+				this.payMode = 'coupon'
+				let url =
+					'/storePages/coupon/coupon?serviceName=srvhealth_store_card_case_select&app=health&mode=selector&pageTitle=支付方式'
+				let condition = [{
+						colName: 'card_type',
+						ruleType: 'in',
+						value: '充值卡,面额卡'
+					},
+					{
+						colName: 'use_states',
+						ruleType: 'eq',
+						value: '使用中'
+					}, {
+						colName: 'use_start_date',
+						ruleType: 'le',
+						value: this.dayjs().format("YYYY-MM-DD")
+					}, {
+						colName: 'use_end_date',
+						ruleType: 'ge',
+						value: this.dayjs().format("YYYY-MM-DD")
+					},
+					{
+						colName: 'card_last_amount',
+						ruleType: 'ge',
+						value: this.totalMoney
+					},
+					{
+						colName: 'useing_store_user_no',
+						ruleType: 'eq',
+						value: this.vstoreUser?.store_user_no
+					}
+				]
+				let emitId = uni.$u.guid()
+				url += `&cond=${JSON.stringify(condition)}&emitId=${emitId}`
+				uni.$on(emitId, (e) => {
+					this.couponInfo = e
+				})
+				uni.navigateTo({
+					url
+				})
+			},
 			payModeChange(e) {
 				this.payMode = e.detail.value
 			},
@@ -271,7 +322,27 @@
 					"serviceName": serviceName,
 					"colNames": ["*"],
 					"condition": [{
-						colName: 'attr_store_user_no',
+						colName: 'card_type',
+						ruleType: 'in',
+						value: '充值卡,面额卡'
+					}, {
+						colName: 'use_states',
+						ruleType: 'eq',
+						value: '使用中'
+					}, {
+						colName: 'use_start_date',
+						ruleType: 'le',
+						value: this.dayjs().format("YYYY-MM-DD")
+					}, {
+						colName: 'use_end_date',
+						ruleType: 'ge',
+						value: this.dayjs().format("YYYY-MM-DD")
+					}, {
+						colName: 'card_last_amount',
+						ruleType: 'ge',
+						value: this.totalMoney
+					}, {
+						colName: 'useing_store_user_no',
 						ruleType: 'eq',
 						value: this.vstoreUser?.store_user_no
 					}],
@@ -459,6 +530,7 @@
 				}
 				this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
 					// 支付成功后修改订单状态和支付状态
+					this.getOrderInfo()
 				});
 			},
 			chooseAddress() {
@@ -642,6 +714,40 @@
 				let url = this.getServiceUrl('health', serviceName, 'operate');
 				this.$http.post(url, req)
 			},
+			async payByCoupon(orderData = {}, card_no = "") {
+				// 卡券支付
+				let req = [{
+					"serviceName": "srvhealth_store_card_recharge_detail_add",
+					"condition": [],
+					"data": [{
+						"bill_money": orderData.order_amount,
+						bill_type: "消费",
+						card_no: card_no,
+						"order_no": orderData.order_no
+					}]
+				}]
+				let url = this.getServiceUrl('health', 'srvhealth_store_card_recharge_detail_add', 'add');
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS') {
+					uni.showModal({
+						title: '提示',
+						showCancel: false,
+						content: res.data.resultMessage,
+						success:(res)=> {
+							// if(res.confirm){
+							// 	uni.navigateBack({})
+							// }
+						}
+					})
+					this.updateOrderState('待发货', '已支付');
+				} else {
+					uni.showModal({
+						title: '提示',
+						showCancel: false,
+						content: res.data.resultMessage
+					})
+				}
+			},
 			async toPay() {
 				if (this.storeInfo?.wx_mch_id) {
 					this.wxMchId = this.storeInfo?.wx_mch_id
@@ -657,6 +763,12 @@
 						showCancel: false
 					});
 					return;
+				}
+				if (this.payMode == 'coupon') {
+					if (this.couponInfo?.card_no && orderData.order_no) {
+						this.payByCoupon(orderData, this.couponInfo?.card_no)
+					}
+					return
 				}
 				let result = {};
 				if (orderData.prepay_id) {
@@ -918,11 +1030,21 @@
 			.pay-mode-item {
 				background-color: #fff;
 				// border-radius: 10rpx;
-				padding: 10px;
+				min-height: 50px;
+				padding: 5px 10px;
 				display: flex;
 				align-items: center;
 				border-bottom: 1px solid #f1f1f1;
 				justify-content: space-between;
+
+				.coupon-info {
+					text-align: right;
+					margin-right: 10px;
+
+					.amount {
+						font-size: 12px;
+					}
+				}
 
 				.icon {
 					font-size: 18px;

@@ -1,0 +1,383 @@
+<template>
+	<view>
+		<u-tabs :list="tabs" :is-scroll="true" :current="curTab" @change="changeTab"></u-tabs>
+		<view class="coupon-list">
+			<radio-group @change="radioChange">
+				<view class="coupon-item" v-for="item in list" :key="item.id" :style="[setStyle(item)]"
+					@click.stop="clickItem(item)">
+					<view class="coupon-item_left">
+						<view class="coupon-item-name">
+							<text>{{item.card_name||''}}</text>
+							<button class="cu-btn bg-yellow sm radius margin-left-xs" open-type="share" :data-item="item">赠送</button>
+						</view>
+						<view class="coupon-item-validity margin-tb-sm">
+							有效期：{{item.use_start_date||''}}至{{item.use_end_date||''}}
+						</view>
+						<view class="coupon-item-no">
+							No.{{item.card_no||''}}
+						</view>
+					</view>
+					<view class="coupon-item_right">
+						<view class="num">
+							{{getRightTemp(item).value||'-'}}
+						</view>
+						<view class="label">
+							{{getRightTemp(item).label||''}}
+						</view>
+						<view class="radio-box" v-if="mode==='selector'">
+							<radio :value="item.card_no" style="transform: scale(0.8);"
+								:checked="selectedId===item.card_no" /><text></text>
+						</view>
+						<view class="right-top-badge" v-else-if="rightTopBadgeCol&&item[rightTopBadgeCol]">
+							{{item[rightTopBadgeCol]}}
+						</view>
+
+					</view>
+				</view>
+			</radio-group>
+		</view>
+		<view class="bottom-button" v-if="mode==='selector'">
+			<button class="cu-btn bg-blue lg round" @click="confirm">确认</button>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				serviceName: "",
+				app: "",
+				pageTitle: "",
+				colV2: null,
+				tabsCol: {},
+				tabs: [],
+				curTab: 0,
+				page: {
+					pageNo: 1,
+					total: 0
+				},
+				list: [],
+				mode: '', //'selector'
+				condition: [],
+				emitId: "",
+				selectedId: ''
+			}
+		},
+		computed: {
+			rightTopBadgeCol() {
+				return this.tabsConfig?.right_top_badge_col
+			},
+			rightTemp() {
+				return this.tabsConfig?.right_temp
+			},
+			moreConfig() {
+				return this.colV2?.moreConfig
+			},
+			tabsConfig() {
+				return this.moreConfig?.tabs_cfg
+			}
+		},
+		methods: {
+			clickItem(item){
+				debugger
+				if (this.mode === 'selector') {
+					this.radioChange({
+						detail:{
+							value:item.card_no
+						}
+					})
+				}else{
+					let style = this.setStyle(item)
+					
+				}
+			},
+			radioChange(e) {
+				if (this.mode === 'selector') {
+					this.selectedId = e.detail.value
+				}
+			},
+			confirm() {
+				let cardInfo = this.list.find(item => item.card_no === this.selectedId)
+				debugger
+				if (this.emitId) {
+					uni.$emit(this.emitId, cardInfo)
+					uni.navigateBack({
+
+					})
+				}
+			},
+			getRightTemp(item) {
+				let res = {
+					label: '',
+					value: ''
+				}
+				const cfg = this.rightTemp;
+				if (cfg && typeof cfg === 'object') {
+					if (cfg?.relation_col && cfg?.col_map) {
+						let val = item[cfg?.relation_col]
+						if (cfg?.col_map[val]) {
+							res.label = cfg?.col_map[val]?.label
+							res.value = item[cfg?.col_map[val]?.col]
+						}
+					}
+				}
+
+				return res
+			},
+			setStyle(item) {
+				let cfg = this.tabsConfig?.item_bg;
+				let style = {
+
+				}
+				if (cfg?.bg_color) {
+					style.background = cfg.bg_color
+					// style += `background:${cfg.bg_color};`
+				}
+				if (cfg?.relation_col) {
+					let val = item[cfg?.relation_col];
+					if (val && cfg.bg_color_map && cfg.bg_color_map[val]) {
+						style.background = cfg.bg_color_map[val]
+					}
+				}
+				if (cfg?.color) {
+					style.color = cfg.color
+				}
+				return style
+			},
+			changeTab(index) {
+				this.curTab = index
+				this.page = {
+					pageNo: 1,
+					total: 0
+				}
+				this.getList()
+			},
+			async getList() {
+				let serviceName = this.serviceName;
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let url = this.getServiceUrl(app, serviceName, 'select');
+				let req = {
+					"serviceName": "srvhealth_store_card_case_select",
+					"colNames": ["*"],
+					"condition": [],
+					"page": {
+						"pageNo": this.page.pageNo,
+						"rownumber": 20
+					},
+					"order": [],
+				}
+				let curTab = this.tabs[this.curTab]
+				if (this.mode !== 'selector' && this.tabs.length > 0 && curTab?.value && curTab?.value !==
+					'_unlimited_') {
+					req.condition.push({
+						colName: this.tabsCol.columns,
+						ruleType: 'eq',
+						value: curTab.value
+					})
+				}
+				if (this.mode != "selector" && Array.isArray(this.tabsConfig?.condition) && this.tabsConfig?.condition
+					.length > 0) {
+					const data = {
+						storeUser: this.vstoreUser,
+						storeInfo: this.storeInfo,
+						userInfo: this.userInfo
+					}
+					this.tabsConfig?.condition.forEach(item => {
+						item.value = this.renderStr(item.value, data)
+						req.condition.push(item)
+					})
+				}
+				if (Array.isArray(this.condition) && this.condition.length > 0) {
+					const data = {
+						storeUser: this.vstoreUser,
+						storeInfo: this.storeInfo,
+						userInfo: this.userInfo
+					}
+					this.condition.forEach(item => {
+						// item.value = this.renderStr(item.value, data)
+						req.condition.push(item)
+					})
+				}
+
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS') {
+					this.list = res.data.data
+					this.page = res.data.page
+				}
+
+			},
+			async getListV2() {
+				let app = this.app || uni.getStorageSync('activeApp');
+				let self = this;
+				let colVs = await this.getServiceV2(this.serviceName, 'list', 'list', app);
+				// colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+				if (!this.pageTitle && colVs.service_view_name) {
+					uni.setNavigationBarTitle({
+						title: colVs.service_view_name
+					});
+				}
+				console.log('colVs', colVs);
+				if (colVs.more_config) {
+					try {
+						colVs.moreConfig = JSON.parse(colVs.more_config)
+					} catch (e) {
+						//TODO handle the exception
+						console.info(e)
+					}
+				}
+				this.colV2 = colVs;
+				if (this.mode !== 'selector' && colVs.moreConfig?.tabs_cfg?.colName && Array.isArray(colVs.srv_cols)) {
+					let tabsCol = colVs.srv_cols.find(item => item.columns === colVs.moreConfig?.tabs_cfg?.colName);
+					let tabs = tabsCol?.option_list_v2
+					if (Array.isArray(tabs) && tabs.length > 0) {
+						this.tabsCol = tabsCol
+						tabs = tabs.map(item => {
+							item.name = item.label;
+							return item
+						})
+						tabs.unshift({
+							name: "全部",
+							value: "_unlimited_"
+						})
+						this.tabs = tabs
+					}
+				}
+				this.getList()
+			},
+
+		},
+
+		onLoad(option) {
+			if (option.mode) {
+				this.mode = option.mode
+			}
+			if (option.emitId) {
+				this.emitId = option.emitId
+			}
+			if (option.cond) {
+				try {
+					this.condition = JSON.parse(option.cond)
+				} catch (e) {
+					//TODO handle the exception
+				}
+			}
+			if (option.pageTitle) {
+				this.pageTitle = option.pageTitle
+				uni.setNavigationBarTitle({
+					title: option.pageTitle
+				})
+			}
+			if (option.app) {
+				this.app = option.app
+			}
+			if (option.serviceName) {
+				this.serviceName = option.serviceName;
+				this.getListV2()
+			}
+		},
+		onPullDownRefresh() {
+			this.page.pageNo = 1
+			this.getList()
+			setTimeout(() => {
+				uni.stopPullDownRefresh()
+			}, 1000)
+		},
+		onReachBottom() {
+			if (this.page.pageNo * 20 < this.page.total) {
+				this.page.pageNo++;
+				this.getList()
+			}
+		},
+		onShareAppMessage(e) {
+			let title = `${this.userInfo.name}分享给您一张优惠券，快来打开小程序领取吧！`;
+			let storeNo = this.storeInfo?.store_no
+			let shareUserNo = this.vstoreUser?.store_user_no;
+			let cardNo = ''
+			if(e.target?.dataset?.item){
+				let data = e.target?.dataset?.item;
+				cardNo = data?.card_no
+			}
+			// let imageUrl = this.getImagePath(this.storeInfo?.image, true);
+			let url = `storePages/home/home?store_no=${storeNo}&shareStoreUserNo=${shareUserNo}&cardNo=${cardNo}&invite_user_no=${this.userInfo.userno}&share_type=shareCoupon`;
+			return {
+				path:url,
+				title:title
+			}
+		}
+
+
+	}
+</script>
+
+<style lang="scss" scoped>
+	.coupon-list {
+		padding: 10px;
+		min-height: 80vh;
+	}
+
+	.coupon-item {
+		padding: 15px;
+		border-radius: 10px;
+		margin-bottom: 10px;
+		display: flex;
+		justify-content: space-between;
+		overflow: hidden;
+
+		.coupon-item-name {
+			font-size: 18px;
+		}
+
+		.coupon-item_right {
+			position: relative;
+			width: 100px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+
+			.radio-box {
+				position: absolute;
+				top: -10px;
+				right: -10px;
+				// ::v-deep .uni-radio::before, uni-checkbox::before{
+				// 	color: transparent!important;
+				// }
+			}
+
+			.right-top-badge {
+				background: rgba(255, 255, 255, 0.3);
+				position: absolute;
+				top: -20px;
+				right: -60px;
+				transform: rotate(45deg);
+				padding: 20px 40px 5px;
+			}
+
+			&::before {
+				content: '';
+				position: absolute;
+				width: 0px;
+				height: 80%;
+				top: 10%;
+				left: 0;
+				// background-color: #fff;
+				border-left: 1px dashed #fff;
+			}
+
+			.num {
+				font-size: 26px;
+				margin-bottom: 5px;
+			}
+		}
+	}
+
+	.bottom-button {
+		text-align: center;
+		padding: 20px 0 40px;
+
+		.cu-btn {
+			width: 80%;
+		}
+	}
+</style>
