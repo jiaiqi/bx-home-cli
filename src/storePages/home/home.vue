@@ -1412,24 +1412,22 @@
 							let data = {
 								useing_store_user_no: this.bindUserInfo?.store_user_no
 							}
-							this.updateCouponInfo(data)
+							this.updateCouponInfo(data,cardNo)
 						}
 
 					}
 				}
 			},
-			async updateCouponInfo() {
+			async updateCouponInfo(data,cardNo) {
 				let url = this.getServiceUrl('health', 'srvhealth_store_card_case_update', 'update');
 				const req = [{
 					"serviceName": "srvhealth_store_card_case_update",
 					"condition": [{
-						"colName": "id",
+						"colName": "card_no",
 						"ruleType": "eq",
-						"value": "40"
+						"value": cardNo
 					}],
-					"data": [{
-						"last_use_time": "2022-01-15 00:44:31"
-					}]
+					"data": [data]
 				}]
 				const res = await this.$http.post(url, req)
 				if (res.data.state === 'SUCCESS') {
