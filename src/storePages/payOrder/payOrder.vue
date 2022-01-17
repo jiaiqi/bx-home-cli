@@ -284,15 +284,16 @@
 						colName: 'use_states',
 						ruleType: 'eq',
 						value: '使用中'
-					}, {
-						colName: 'use_start_date',
-						ruleType: 'le',
-						value: this.dayjs().format("YYYY-MM-DD")
-					}, {
-						colName: 'use_end_date',
-						ruleType: 'ge',
-						value: this.dayjs().format("YYYY-MM-DD")
-					},
+					}, 
+					// {
+					// 	colName: 'use_start_date',
+					// 	ruleType: 'le',
+					// 	value: this.dayjs().format("YYYY-MM-DD")
+					// }, {
+					// 	colName: 'use_end_date',
+					// 	ruleType: 'ge',
+					// 	value: this.dayjs().format("YYYY-MM-DD")
+					// },
 					{
 						colName: 'card_last_amount',
 						ruleType: 'ge',
@@ -329,15 +330,17 @@
 						colName: 'use_states',
 						ruleType: 'eq',
 						value: '使用中'
-					}, {
-						colName: 'use_start_date',
-						ruleType: 'le',
-						value: this.dayjs().format("YYYY-MM-DD")
-					}, {
-						colName: 'use_end_date',
-						ruleType: 'ge',
-						value: this.dayjs().format("YYYY-MM-DD")
-					}, {
+					}, 
+					// {
+					// 	colName: 'use_start_date',
+					// 	ruleType: 'le',
+					// 	value: this.dayjs().format("YYYY-MM-DD")
+					// }, {
+					// 	colName: 'use_end_date',
+					// 	ruleType: 'ge',
+					// 	value: this.dayjs().format("YYYY-MM-DD")
+					// }, 
+					{
 						colName: 'card_last_amount',
 						ruleType: 'ge',
 						value: this.totalMoney

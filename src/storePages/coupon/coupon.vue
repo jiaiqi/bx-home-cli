@@ -8,9 +8,16 @@
 					<view class="coupon-item_left">
 						<view class="coupon-item-name">
 							<text>{{item.card_name||''}}</text>
-							<button class="cu-btn bg-yellow sm radius margin-left-xs" open-type="share" :data-item="item">赠送</button>
+							<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
+								:open-type="btn.type&&btn.type.indexOf('share')>-1?'share':''" v-for="btn in buttons"
+								:key="btn.name" v-show="isShowBtn(item,btn)"
+								@click="onBtnClick(item,btn)">{{btn.name||''}}</button>
+							<!-- <button  open-type="share"
+								>赠送</button>
+							<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
+								@click="toActive(item)">激活</button> -->
 						</view>
-						<view class="coupon-item-validity margin-tb-sm">
+						<view class="coupon-item-validity margin-tb-sm" v-if="item.use_start_date&&item.use_end_date">
 							有效期：{{item.use_start_date||''}}至{{item.use_end_date||''}}
 						</view>
 						<view class="coupon-item-no">
@@ -37,7 +44,7 @@
 			</radio-group>
 		</view>
 		<view class="bottom-button" v-if="mode==='selector'">
-			<button class="cu-btn bg-blue lg round" @click="confirm">确认</button>
+			<button class="cu-btn bg-blue lg round" @click="confirm" :disabled="!hasChecked">确认</button>
 		</view>
 	</view>
 </template>
@@ -65,6 +72,14 @@
 			}
 		},
 		computed: {
+			buttons() {
+				return this.tabsConfig?.item_btn || []
+			},
+			hasChecked() {
+				if (Array.isArray(this.list)) {
+					return this.list.find(item => item.card_no === this.selectedId)
+				}
+			},
 			rightTopBadgeCol() {
 				return this.tabsConfig?.right_top_badge_col
 			},
@@ -79,17 +94,135 @@
 			}
 		},
 		methods: {
-			clickItem(item){
-				debugger
+			isShowBtn(item, btn) {
+				if (!btn?.disp_cond) {
+					return true
+				} else {
+					if (Array.isArray(btn?.disp_cond) && btn?.disp_cond.length > 0) {
+						let valid = 0;
+						btn.disp_cond.forEach(cond => {
+							if (cond.ruleType === 'eq') {
+								if (item[cond.colName] === cond.value) {
+									valid++
+								}
+							}
+						})
+						if (valid === btn.disp_cond.length) {
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+				return true
+			},
+			onBtnClick(rowData, btn) {
+				if (btn?.servcie_type === 'update') {
+					let service = btn.service
+					let operate_params = btn.operate_params;
+					if (operate_params && typeof operate_params === 'object') {
+						// 序列化操作参数
+						try {
+							if (Array.isArray(operate_params?.condition) && operate_params.condition
+								.length > 0) {
+								operate_params.condition.forEach(cond => {
+									if (typeof cond.value === 'object' && cond.value.value_type === 'rowData') {
+										cond.value = rowData[cond.value.value_key];
+									} else if (typeof cond.value === 'object' && cond.value.value_type ===
+										'constant') {
+										cond.value = cond.value.value;
+									} else if (typeof cond.value === 'object' && cond.value.value_type ===
+										'globalVariable') {
+										// 全局变量
+										const globalVariable = {
+											data: rowData,
+											storeUser: this.vstoreUser,
+											loginUser: this.vloginUser,
+											userInfo: this.userInfo,
+											storeInfo: this.storeInfo
+										}
+										cond.value = this.renderStr(cond.value.value_key, globalVariable)
+									}
+								});
+							}
+							if (Array.isArray(operate_params?.data) && operate_params.data.length >
+								0) {
+								operate_params.data.forEach(data => {
+									if (typeof data === 'object') {
+										Object.keys(data).forEach(item => {
+											if (typeof data[item] === 'object' && data[item].value_type ===
+												'rowData') {
+												data[item] = rowData[data[item].value_key];
+											} else if (typeof data[item] === 'object' && data[item]
+												.value_type === 'constant') {
+												data[item] = data[item].value;
+											} else if (typeof data[item] === 'object' && data[item]
+												.value_type ===
+												'globalVariable') {
+												// 全局变量
+												const globalVariable = {
+													storeUser: this.vstoreUser,
+													loginUser: this.vloginUser,
+													userInfo: this.userInfo,
+													storeInfo: this.storeInfo
+												}
+												data[item] = this.renderStr(data[item].value_key,
+													globalVariable)
+											}
+										});
+									}
+								});
+							}
+						} catch (e) {
+							//TODO handle the exception
+						}
+
+					}
+					if (service) {
+						debugger
+						let req = [{
+							serviceName: service,
+							condition: operate_params.condition,
+							data: operate_params.data
+						}];
+
+						if (!operate_params.data && servcie_type === 'update') {
+							uni.showModal({
+								title: '提示',
+								content: '按钮操作参数配置有误',
+								showCancel: false
+							})
+							return
+						}
+						let app = this.appName || uni.getStorageSync('activeApp');
+						let url = this.getServiceUrl(btn?.app || app, service,
+							btn.servcie_type);
+						uni.showModal({
+							title: '提示',
+							content: '是否确认操作?',
+							success: (res) => {
+								if (res.confirm) {
+									this.$http.post(url, req).then(res => {
+										if (res.data.state === 'SUCCESS') {
+											this.refresh()
+										}
+									})
+								}
+							}
+						})
+					}
+				}
+			},
+			clickItem(item) {
 				if (this.mode === 'selector') {
 					this.radioChange({
-						detail:{
-							value:item.card_no
+						detail: {
+							value: item.card_no
 						}
 					})
-				}else{
+				} else {
 					let style = this.setStyle(item)
-					
+
 				}
 			},
 			radioChange(e) {
@@ -99,7 +232,6 @@
 			},
 			confirm() {
 				let cardInfo = this.list.find(item => item.card_no === this.selectedId)
-				debugger
 				if (this.emitId) {
 					uni.$emit(this.emitId, cardInfo)
 					uni.navigateBack({
@@ -245,7 +377,10 @@
 				}
 				this.getList()
 			},
-
+			refresh() {
+				this.page.pageNo = 1
+				this.getList()
+			},
 		},
 
 		onLoad(option) {
@@ -277,8 +412,7 @@
 			}
 		},
 		onPullDownRefresh() {
-			this.page.pageNo = 1
-			this.getList()
+			this.refresh()
 			setTimeout(() => {
 				uni.stopPullDownRefresh()
 			}, 1000)
@@ -294,15 +428,19 @@
 			let storeNo = this.storeInfo?.store_no
 			let shareUserNo = this.vstoreUser?.store_user_no;
 			let cardNo = ''
-			if(e.target?.dataset?.item){
+			if (e.target?.dataset?.item) {
 				let data = e.target?.dataset?.item;
 				cardNo = data?.card_no
 			}
 			// let imageUrl = this.getImagePath(this.storeInfo?.image, true);
-			let url = `storePages/home/home?store_no=${storeNo}&shareStoreUserNo=${shareUserNo}&cardNo=${cardNo}&invite_user_no=${this.userInfo.userno}&share_type=shareCoupon`;
+			let url =
+				`storePages/home/home?store_no=${storeNo}&shareStoreUserNo=${shareUserNo}&cardNo=${cardNo}&invite_user_no=${this.userInfo.userno}`;
+			if (cardNo) {
+				url += `&share_type=shareCoupon`
+			}
 			return {
-				path:url,
-				title:title
+				path: url,
+				title: title
 			}
 		}
 
@@ -323,9 +461,12 @@
 		display: flex;
 		justify-content: space-between;
 		overflow: hidden;
+		min-height: 100px;
 
 		.coupon-item-name {
 			font-size: 18px;
+			vertical-align: middle;
+			margin-bottom: 5px;
 		}
 
 		.coupon-item_right {

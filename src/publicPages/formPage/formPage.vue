@@ -16,9 +16,8 @@
 		<view class="form-content">
 			<view class="main-form-edit">
 				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
-					:moreConfig="moreConfig"
-					:srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm" @value-blur="valueChange"
-					@setColData="setColData">
+					:moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm"
+					@value-blur="valueChange" @setColData="setColData">
 				</a-form>
 			</view>
 
@@ -34,8 +33,8 @@
 			</view>
 		</view>
 		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
-			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn" :key='btnIndex'
-				@click="onButton(btn)">
+			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
+				:key='btnIndex' @click="onButton(btn)">
 				{{ btn.button_name}}
 			</button>
 		</view>
@@ -479,104 +478,146 @@
 								let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
 								if (Array.isArray(submit_validate) && submit_validate.length > 0) {
 									let num = 0;
-									submit_validate.forEach(item => {
-										if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item
-												.relation)) {
-											let left_key = item.left_child.no;
-											let right_key = item.right_child.no;
-											let left_data = this.childListData[left_key]
-											let right_data = this.childListData[right_key]
-											if (item.right_child.condition && Array.isArray(item.right_child
-													.condition) && item
-												.right_child.condition.length > 0 && Array.isArray(right_data)
-											) {
-												right_data = right_data.filter(rd => {
-													let valid = 0;
-													item.right_child.condition.forEach(cond => {
-														if (cond.ruleType == 'eq') {
-															if (cond.value === rd[cond
-																	.colName]) {
-																valid += 1
+									for(let i =0;i<submit_validate.length;i++){
+										const item = submit_validate[i]
+										
+											if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item
+													.relation)) {
+												let left_key = item.left_child.no;
+												let right_key = item.right_child.no;
+												let left_data = this.childListData[left_key]
+												let right_data = this.childListData[right_key]
+												if (item.right_child.condition && Array.isArray(item.right_child
+														.condition) && item
+													.right_child.condition.length > 0 && Array.isArray(right_data)
+												) {
+													right_data = right_data.filter(rd => {
+														let valid = 0;
+														item.right_child.condition.forEach(cond => {
+															if (cond.ruleType == 'eq') {
+																if (cond.value === rd[cond
+																		.colName]) {
+																	valid += 1
+																}
 															}
+														})
+														if (valid === item.right_child.condition.length) {
+															return true
 														}
 													})
-													if (valid === item.right_child.condition.length) {
-														return true
-													}
-												})
-											}
-											let leftCol = item.left_child.col
-											let rightCol = item.right_child.col
-											let leftVal = left_data.reduce((pre, cur) => {
-												if (cur[leftCol]) {
-													pre += cur[leftCol]
 												}
-												return pre
-											}, 0)
-
-											let rightVal = right_data.reduce((pre, cur) => {
-												if (cur[rightCol]) {
-													pre += cur[rightCol]
+												let leftCol = item.left_child.col
+												let rightCol = item.right_child.col
+												let leftVal = left_data.reduce((pre, cur) => {
+													if (cur[leftCol]) {
+														pre += cur[leftCol]
+													}
+													return pre
+												}, 0)
+										
+												let rightVal = right_data.reduce((pre, cur) => {
+													if (cur[rightCol]) {
+														pre += cur[rightCol]
+													}
+													return pre
+												}, 0)
+										
+												switch (item.relation) {
+													case 'lt':
+														if (leftVal >= rightVal) {
+															num++
+															uni.showToast({
+																title: item.tip,
+																icon: "none",
+																duration: 3000
+															})
+														}
+														break;
+													case 'le':
+														if (leftVal > rightVal) {
+															num++
+															uni.showToast({
+																title: item.tip,
+																icon: "none",
+																duration: 3000
+															})
+														}
+														break;
+													case 'ge':
+														if (leftVal < rightVal) {
+															num++
+															uni.showToast({
+																title: item.tip,
+																icon: "none",
+																duration: 3000
+															})
+														}
+														break;
+													case 'gt':
+														if (leftVal <= rightVal) {
+															num++
+															uni.showToast({
+																title: item.tip,
+																icon: "none",
+																duration: 3000
+															})
+														}
+														break;
+													case 'eq':
+														if (leftVal !== rightVal) {
+															num++
+															uni.showToast({
+																title: item.tip,
+																icon: "none",
+																duration: 3000
+															})
+														}
+														break;
 												}
-												return pre
-											}, 0)
-
-											switch (item.relation) {
-												case 'lt':
-													if (leftVal >= rightVal) {
-														num++
+											} else if (item.type === 'no-repeat') {
+												const service = item.service
+												let condition = []
+												if (Array.isArray(item.condition)) {
+													condition = item.condition.map(cond => {
+														let obj = {
+															colName: cond.colName,
+															ruleType: cond.ruleType,
+															value: ''
+														}
+														if (cond?.value?.value_type === 'rowData') {
+															obj.value = data[cond?.value?.value_key]
+														}else if (cond?.value?.value_type === 'constant'){
+															obj.value = cond?.value?.value
+														}
+														return obj
+													})
+												}
+												let url = this.getServiceUrl(item?.app || this.appName || uni
+													.getStorageSync('activeApp'), service, 'select');
+												let req = {
+													"serviceName": service,
+													"condition": condition,
+													colNames: ['*'],
+													page: {
+														pageNo: 1,
+														rownumber: 1
+													}
+												}
+												let res = await this.$http.post(url, req)
+												if (res.data.state === 'SUCCESS'&&Array.isArray(res.data.data)&&res.data.data.length>0) {
+													num++
+													if(item.fail_tip){
 														uni.showToast({
-															title: item.tip,
-															icon: "none",
-															duration: 3000
+															title:item.fail_tip,
+															icon:'none'
 														})
 													}
-													break;
-												case 'le':
-													if (leftVal > rightVal) {
-														num++
-														uni.showToast({
-															title: item.tip,
-															icon: "none",
-															duration: 3000
-														})
-													}
-													break;
-												case 'ge':
-													if (leftVal < rightVal) {
-														num++
-														uni.showToast({
-															title: item.tip,
-															icon: "none",
-															duration: 3000
-														})
-													}
-													break;
-												case 'gt':
-													if (leftVal <= rightVal) {
-														num++
-														uni.showToast({
-															title: item.tip,
-															icon: "none",
-															duration: 3000
-														})
-													}
-													break;
-												case 'eq':
-													if (leftVal !== rightVal) {
-														num++
-														uni.showToast({
-															title: item.tip,
-															icon: "none",
-															duration: 3000
-														})
-													}
-													break;
+												}
 											}
-										}
-									})
+										
+									}
+									// submit_validate.forEach( async item => {})
 									if (num > 0) {
-
 										return
 									}
 								}
