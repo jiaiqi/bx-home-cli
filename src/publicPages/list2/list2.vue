@@ -322,8 +322,8 @@
 				orderCols: [],
 				proc_data_type: "", //流程状态
 				searchVal: "",
-				listType: "list", //list,proc,cart
-				pageType: "", //list,proc,cart,selectorList
+				listType: "list", //list,proc,cart,selectorList
+				pageType: "", //list,proc,cart,
 				detailType: "", //  normal,custom
 				tabList: [],
 				order: [],

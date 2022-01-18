@@ -135,16 +135,15 @@
 				//     "enablePullDownRefresh": false
 				//   }
 				// }
-			    ,{
-                    "path" : "dateTimeSelector/dateTimeSelector",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+				, {
+					"path": "dateTimeSelector/dateTimeSelector",
+					"style": {
+						"navigationBarTitleText": "",
+						"enablePullDownRefresh": false
+					}
+
+				}
+			]
 		},
 		{
 			"root": "storePages",
@@ -322,13 +321,27 @@
 						"enablePullDownRefresh": false
 					}
 
+				}, {
+					"path": "coupon/coupon",
+					"style": {
+						"navigationBarTitleText": "卡券",
+						"enablePullDownRefresh": true
+					}
+
+				}, {
+					"path": "coupon/detail",
+					"style": {
+						"navigationBarTitleText": "卡券详情",
+						"enablePullDownRefresh": true
+					}
+
 				}
 			    ,{
-                    "path" : "coupon/coupon",
+                    "path" : "verification/verification",
                     "style" :                                                                                    
                 {
-                    "navigationBarTitleText": "卡券",
-                    "enablePullDownRefresh": true
+                    "navigationBarTitleText": "核销",
+                    "enablePullDownRefresh": false
                 }
                 
                 }

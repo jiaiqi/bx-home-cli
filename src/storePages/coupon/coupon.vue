@@ -2,16 +2,18 @@
 	<view>
 		<u-tabs :list="tabs" :is-scroll="true" :current="curTab" @change="changeTab"></u-tabs>
 		<view class="coupon-list">
-			<radio-group @change="radioChange">
+			<radio-group @change="radioChange" style="width: 100%;">
 				<view class="coupon-item" v-for="item in list" :key="item.id" :style="[setStyle(item)]"
 					@click.stop="clickItem(item)">
 					<view class="coupon-item_left">
 						<view class="coupon-item-name">
 							<text>{{item.card_name||''}}</text>
-							<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
-								:open-type="btn.type&&btn.type.indexOf('share')>-1?'share':''" v-for="btn in buttons"
-								:key="btn.name" v-show="isShowBtn(item,btn)"
-								@click="onBtnClick(item,btn)">{{btn.name||''}}</button>
+							<view class="" v-if="mode!=='selector'">
+								<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
+									:open-type="btn.type&&btn.type==='shareCoupon'?'share':''" v-for="btn in buttons"
+									:key="btn.name" v-show="isShowBtn(item,btn)"
+									@click="onBtnClick(item,btn)">{{btn.name||''}}</button>
+							</view>
 							<!-- <button  open-type="share"
 								>赠送</button>
 							<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
@@ -105,6 +107,10 @@
 								if (item[cond.colName] === cond.value) {
 									valid++
 								}
+							}else if (cond.ruleType === 'ne') {
+								if (item[cond.colName] !== cond.value) {
+									valid++
+								}
 							}
 						})
 						if (valid === btn.disp_cond.length) {
@@ -179,7 +185,6 @@
 
 					}
 					if (service) {
-						debugger
 						let req = [{
 							serviceName: service,
 							condition: operate_params.condition,
@@ -205,6 +210,11 @@
 									this.$http.post(url, req).then(res => {
 										if (res.data.state === 'SUCCESS') {
 											this.refresh()
+										} else if (res.data.resultMessage) {
+											uni.showModal({
+												title: res.data.resultMessage,
+												showCancel: false
+											})
 										}
 									})
 								}
@@ -222,7 +232,16 @@
 					})
 				} else {
 					let style = this.setStyle(item)
-
+					let cond = [{
+						colName: 'id',
+						value: item.id,
+						ruleType: 'eq'
+					}]
+					let url =
+						`./detail?type=detail&serviceName=${this.serviceName}&cond=${JSON.stringify(cond)}&appName=health&style=${JSON.stringify(style)}&rightTemp=${JSON.stringify(this.rightTemp)}&rightTopBadgeCol=${this.rightTopBadgeCol}`
+					uni.navigateTo({
+						url
+					})
 				}
 			},
 			radioChange(e) {
@@ -254,7 +273,6 @@
 						}
 					}
 				}
-
 				return res
 			},
 			setStyle(item) {
@@ -462,11 +480,13 @@
 		justify-content: space-between;
 		overflow: hidden;
 		min-height: 100px;
+		width: 100%;
 
 		.coupon-item-name {
 			font-size: 18px;
 			vertical-align: middle;
 			margin-bottom: 5px;
+			display: flex;
 		}
 
 		.coupon-item_right {

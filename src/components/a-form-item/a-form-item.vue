@@ -631,14 +631,14 @@
 					if (this.fieldData.value) {
 						let res = await this.getLocationFromSys()
 						if (res.gcj_lat && res.gcj_lon) {
-							uni.chooseLocation({
+							uni.openLocation({
 								longitude: res.gcj_lon,
 								latitude: res.gcj_lat,
 								success: function(res) {
-									console.log('位置名称：' + res.name);
-									console.log('详细地址：' + res.address);
-									console.log('纬度：' + res.latitude);
-									console.log('经度：' + res.longitude);
+									// console.log('位置名称：' + res.name);
+									// console.log('详细地址：' + res.address);
+									// console.log('纬度：' + res.latitude);
+									// console.log('经度：' + res.longitude);
 								}
 							});
 

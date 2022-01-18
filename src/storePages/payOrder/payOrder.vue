@@ -89,7 +89,7 @@
         <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
 			</view>
 
-			<view class="pay-mode">
+			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付')">
 				<radio-group @change="payModeChange" style="width: 100%;">
 					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
 						<view class="">
@@ -284,7 +284,7 @@
 						colName: 'use_states',
 						ruleType: 'eq',
 						value: '使用中'
-					}, 
+					},
 					// {
 					// 	colName: 'use_start_date',
 					// 	ruleType: 'le',
@@ -323,32 +323,33 @@
 					"serviceName": serviceName,
 					"colNames": ["*"],
 					"condition": [{
-						colName: 'card_type',
-						ruleType: 'in',
-						value: '充值卡,面额卡'
-					}, {
-						colName: 'use_states',
-						ruleType: 'eq',
-						value: '使用中'
-					}, 
-					// {
-					// 	colName: 'use_start_date',
-					// 	ruleType: 'le',
-					// 	value: this.dayjs().format("YYYY-MM-DD")
-					// }, {
-					// 	colName: 'use_end_date',
-					// 	ruleType: 'ge',
-					// 	value: this.dayjs().format("YYYY-MM-DD")
-					// }, 
-					{
-						colName: 'card_last_amount',
-						ruleType: 'ge',
-						value: this.totalMoney
-					}, {
-						colName: 'useing_store_user_no',
-						ruleType: 'eq',
-						value: this.vstoreUser?.store_user_no
-					}],
+							colName: 'card_type',
+							ruleType: 'in',
+							value: '充值卡,面额卡'
+						}, {
+							colName: 'use_states',
+							ruleType: 'eq',
+							value: '使用中'
+						},
+						// {
+						// 	colName: 'use_start_date',
+						// 	ruleType: 'le',
+						// 	value: this.dayjs().format("YYYY-MM-DD")
+						// }, {
+						// 	colName: 'use_end_date',
+						// 	ruleType: 'ge',
+						// 	value: this.dayjs().format("YYYY-MM-DD")
+						// }, 
+						{
+							colName: 'card_last_amount',
+							ruleType: 'ge',
+							value: this.totalMoney
+						}, {
+							colName: 'useing_store_user_no',
+							ruleType: 'eq',
+							value: this.vstoreUser?.store_user_no
+						}
+					],
 					"page": {
 						"pageNo": 1,
 						"rownumber": 1
@@ -736,7 +737,7 @@
 						title: '提示',
 						showCancel: false,
 						content: res.data.resultMessage,
-						success:(res)=> {
+						success: (res) => {
 							// if(res.confirm){
 							// 	uni.navigateBack({})
 							// }

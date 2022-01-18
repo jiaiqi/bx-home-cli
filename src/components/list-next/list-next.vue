@@ -17,7 +17,7 @@
 					:listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
 					@click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
 					:formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
-				<radio :value=" item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
+				<radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
 					style="transform:scale(1);margin-right:5px;" @click="checkboxChange(item)" />
 			</view>
 			<!-- </checkbox-group> -->

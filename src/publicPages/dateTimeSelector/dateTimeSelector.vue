@@ -7,28 +7,37 @@
 				<view class="value text-black" v-else>{{ date||'' }}</view>
 				<text class="cuIcon-calendar margin-left-xs text-black"></text>
 			</view> -->
-			<view class="">
+			<view class="" style="margin-bottom: 5px;">
 				选择日期
 			</view>
 			<view class="date-box">
-			<!-- 	<view class="handler-icon" style="transform: rotate(180deg);margin: 5px;" @click="changeLeft(-100)">
+				<!-- 	<view class="handler-icon" style="transform: rotate(180deg);margin: 5px;" @click="changeLeft(-100)">
 					<text class="cuIcon-right"></text>
 				</view> -->
-				<scroll-view scroll-x="true" class="scroll-view_H" :scroll-left="scrollLeft" 
-					:scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper">
-					<view class="date-item" :class="{active:date==item.month_day}" :id="index+'aaa'"
-						v-for="(item,index) in dateList" :key="index" @click="selectDate(item.month_day)">
-						{{item.month_day}}({{week2CN(item.day_week)}})
+				<scroll-view scroll-x="true" class="scroll-view_H" :class="{'full':fullDate}" :scroll-left="scrollLeft"
+					:scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper"
+					v-if="cfg&&cfg.disp_date_col&&cfg.week_col&&cfg.val_date_col">
+					<view class="date-item" :class="{active:date==item[cfg.val_date_col]}" :id="item[cfg.val_date_col]"
+						v-for="(item,index) in dateList" :key="index" @click="selectDate(item)">
+						<text>{{item[cfg.disp_date_col]||''}}({{week2CN(item[cfg.week_col])}})
+						</text>
 					</view>
 				</scroll-view>
-			<!-- 	<view class="handler-icon" style="margin-left: 5px;" @click="changeLeft(100)">
+				<scroll-view scroll-x="true" class="scroll-view_H" :class="{'full':fullDate}" :scroll-left="scrollLeft"
+					:scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper" v-else>
+					<view class="date-item" :class="{active:date==item.month_day}" :id="item.month_day"
+						v-for="(item,index) in dateList" :key="index" @click="selectDate(item)">
+						<text>{{item.month_day}}({{week2CN(item.day_week)}})</text>
+					</view>
+				</scroll-view>
+				<!-- <view class="handler-icon" style="margin-left: 5px;" @click="changeLeft(100)">
 					<text class="cuIcon-right"></text>
 				</view> -->
 			</view>
 		</view>
 		<view class="main">
 			<view class="time-selector">
-				<view class="" style="padding-left: 10px;margin-bottom: 10px;" v-if="timeList.length>0">
+				<view class="" style="padding-left: 10px;margin-bottom:5px;" v-if="timeList.length>0">
 					选择时间段
 				</view>
 				<view class="time-list">
@@ -52,8 +61,8 @@
 		<view class="button-box">
 			<button class="cu-btn bg-blue round xl" @click="confirm" :disabled="!isChecked">确定</button>
 		</view>
-		<u-calendar v-model="show" @change="changeDate" :max-date="maxDate" :min-date="minDate" :defaultDate="date">
-		</u-calendar>
+		<!-- 		<u-calendar v-model="show" @change="changeDate" :max-date="maxDate" :min-date="minDate" :defaultDate="date">
+		</u-calendar> -->
 	</view>
 </template>
 
@@ -71,7 +80,10 @@
 				dateList: [],
 				scrollLeft: 0,
 				scrolId: '',
-				isLower:false
+				isLower: false,
+				fullDate: false,
+				selectedDate: {},
+				selectedTime: {}
 			}
 		},
 		computed: {
@@ -88,35 +100,39 @@
 			this.minDate = this.dayjs().format("YYYY-MM-DD")
 		},
 		methods: {
-			num2Str(e){
-				return ''+e
+			num2Str(e) {
+				return '' + e
 			},
 			scrolltoupper(e) {
 				console.log('scrolltoupper', e)
 			},
 			scrolltolower(e) {
 				console.log('scrolltolower', e)
-				debugger
 				this.isLower = true
 			},
 			changeLeft(num = 0) {
-				if(num<0){
+				// this.fullDate = true
+				// return 
+				if (num < 0) {
 					this.isLower = false
 				}
-				if(this.isLower){
+				if (this.isLower) {
 					return
 				}
 				let scrollLeft = this.scrollLeft + num
 				if (scrollLeft < 0) {
 					scrollLeft = 0
 				}
-			
-			
+
 				this.scrollLeft = scrollLeft
 			},
 			selectDate(e) {
 				if (!this.dateReadonly) {
-					this.date = e
+					this.selectedDate = e
+					this.date = e?.month_day
+					if (this.cfg?.val_date_col) {
+						this.date = e[this.cfg?.val_date_col]
+					}
 					this.getTimeRange()
 				} else {
 					uni.showToast({
@@ -134,10 +150,13 @@
 				return ''
 			},
 			confirm() {
-				const data = {
+				let data = {
 					col: this.cfg.date_col,
-					value: this.date,
+					value: this.selectedDate?.year_month_day,
 					time: this.timeList.find(item => item.checked === true)
+				}
+				if (this.cfg?.val_date_col && this.selectedDate && this.selectedDate[this.cfg?.val_date_col]) {
+					data.value = this.selectedDate[this.cfg?.val_date_col]
 				}
 				uni.$emit('dateTimeSelectorConfirm', data)
 				uni.navigateBack()
@@ -226,12 +245,15 @@
 					range_cfg = this.deepClone(this.cfg?.range_cfg)
 				}
 				const appName = range_cfg?.app || uni.getStorageSync('activeApp')
-				const globalData = {
+				let globalData = {
 					data: this.data,
-					date: this.date,
+					date: this.selectedDate?.year_month_day,
 					storeInfo: self.storeInfo,
 					userInfo: self.userInfo,
 					storeUser: self.vstoreUser
+				}
+				if (this.cfg?.val_date_col && this.selectedDate) {
+					globalData.date = this.selectedDate[this.cfg?.val_date_col]
 				}
 				let url = this.getServiceUrl(appName, range_cfg.service, 'select');
 				const req = {
@@ -247,9 +269,9 @@
 						if (!item.value && item.ruleType === 'eq') {
 							item.ruleType = 'like'
 						}
-						if (item.colName === 'app_date') {
-							item.value = `2022-${item.value}`
-						}
+						// if (item.colName === 'app_date') {
+						// 	item.value = `2022-${item.value}`
+						// }
 						return item
 					})
 				}
@@ -321,6 +343,7 @@
 		width: 100%;
 		// display: flex;
 		padding: 10px;
+		padding-right: 0;
 		// background-color: #fff;
 		margin-bottom: 10px;
 		// flex-wrap: wrap;
@@ -358,17 +381,23 @@
 
 			.scroll-view_H {
 				white-space: nowrap;
-				width: calc(100% - 60px);
+				width: 100%;
+
+				&.full {
+					white-space: inherit;
+				}
+
+				// width: calc(100% - 60px);
 				// flex:1;
 			}
 		}
 
 		.date-item {
-			margin: 0 10px 0 0;
+			margin: 0 10px 10px 0;
 			padding: 10px;
 			background-color: #d2e6f8;
 			color: #63bccc;
-			border-radius: 10px;
+			border-radius: 5px;
 			display: inline-block;
 
 			&.active {
