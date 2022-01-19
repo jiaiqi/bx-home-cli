@@ -300,27 +300,37 @@
 						req[key] = req[key].toString();
 					}
 				}
-
+debugger
 				switch (e.button_type) {
 					case 'edit':
 						if (e.page_type === '详情' && this.use_type === 'detail') {
 							this.toPages('update', e);
 							this.isOnButton = false;
 						} else {
+							let data = this.deepClone(req);
+							data.child_data_list = []
+							console.log(this.childService)
+							if (Array.isArray(this.childService) && this.childService.length > 0) {
+								this.childService.forEach((item, index) => {
+									let child_data = this.$refs.childList[index].getChildDataList()
+									data.child_data_list.push(...child_data)
+									// data.child_data_list.push(this.$refs.childList[index].getChildDataList())
+								})
+							}
 							if (req) {
-								req = [{
+								let reqData = [{
 									serviceName: e.service_name,
-									data: [req],
+									data: [data],
 									condition: this.condition
 								}];
 								if (self?.params?.defaultVal?.id) {
-									req[0].condition = [{
+									reqData[0].condition = [{
 										colName: 'id',
 										ruleType: 'eq',
 										value: self.params.defaultVal.id
 									}];
 								} else if (self?.mainData?.id) {
-									req[0].condition = [{
+									reqData[0].condition = [{
 										colName: 'id',
 										ruleType: 'eq',
 										value: self.mainData.id
@@ -328,14 +338,14 @@
 								}
 								let app = self.appName || uni.getStorageSync('activeApp');
 								let url = self.getServiceUrl(app, e.service_name, 'add');
-								if (!Array.isArray(req[0].condition) || req[0].condition.length === 0) {
+								if (!Array.isArray(reqData[0].condition) || reqData[0].condition.length === 0) {
 									uni.showToast({
 										title: '参数错误，请刷新重试',
 										icon: 'none'
 									});
 									return;
 								}
-								let res = await this.onRequest('update', e.service_name, req, app);
+								let res = await this.onRequest('update', e.service_name, reqData, app);
 								let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
 								if (res.data.state === 'SUCCESS') {
 									uni.$emit('dataChange', e.service_name)

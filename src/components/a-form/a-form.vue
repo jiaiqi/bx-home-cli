@@ -155,7 +155,6 @@
 				this.allField.map((item, index) => {
 					let valids = this.$refs.fitem[index].getValid();
 					console.log('字段校验', valids, item);
-					debugger
 					// if (item.display) {
 						showsNum++;
 						if (valids.valid) {

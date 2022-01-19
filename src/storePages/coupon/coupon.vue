@@ -107,7 +107,7 @@
 								if (item[cond.colName] === cond.value) {
 									valid++
 								}
-							}else if (cond.ruleType === 'ne') {
+							} else if (cond.ruleType === 'ne') {
 								if (item[cond.colName] !== cond.value) {
 									valid++
 								}
@@ -239,6 +239,9 @@
 					}]
 					let url =
 						`./detail?type=detail&serviceName=${this.serviceName}&cond=${JSON.stringify(cond)}&appName=health&style=${JSON.stringify(style)}&rightTemp=${JSON.stringify(this.rightTemp)}&rightTopBadgeCol=${this.rightTopBadgeCol}`
+					if (Array.isArray(this.buttons) && this.buttons.length > 0) {
+						
+					}
 					uni.navigateTo({
 						url
 					})

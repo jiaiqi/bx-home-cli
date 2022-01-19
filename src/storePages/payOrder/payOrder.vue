@@ -1,6 +1,7 @@
 <template>
 	<view class="pay-order" :class="['theme-'+theme]" v-if="orderInfo&&orderInfo.order_state">
-		<view class="address-box" @click="chooseAddress" v-if="!room_no&&(storeInfo&&storeInfo.type!=='酒店')">
+		<view class="address-box" @click="chooseAddress"
+			v-if="(!room_no&&(storeInfo&&storeInfo.type!=='酒店')&&(!orderInfo||!orderInfo.order_no))&&['快递','卖家配送'].includes(delivery_type)">
 			<view class="left"
 				v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
 				<text class="cuIcon-locationfill"></text>
@@ -38,7 +39,8 @@
           }}</text>
 				</view>
 				<view class="goods-list">
-					<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
+					<goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"></goods-item>
+			<!-- 		<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
 						<image class="goods-image" :src="
                 goods.goods_image
                   ? getImagePath(goods.goods_image)
@@ -47,20 +49,20 @@
                   : '../static/doctor_default.png'
               " mode=""></image>
 						<view class="content">
-							<view class="goods-name">{{ goods.name||goods.goods_desc||'' }}
+							<view class="goods-name">{{ goods.name||goods.goods_name||goods.goods_desc||'' }}
 							</view>
 						</view>
 						<view class="num">
-							<view class="price">
+							<view class="price" v-if="goods.unit_price ||goods.price">
 								<text class="money-operate">￥</text>
-								{{ goods.unit_price ? goods.unit_price : goods.price || "" }}
+								{{ goods.unit_price || goods.price || "" }}
 							</view>
 							<view class="amount">x{{
                   goods.goods_amount ? goods.goods_amount : goods.car_num || ""
                 }}
 							</view>
 						</view>
-					</view>
+					</view> -->
 				</view>
 				<view class="order-remark">
 					<textarea class="textarea" v-model="order_remark" placeholder="订单备注"
@@ -89,6 +91,24 @@
         <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
 			</view>
 
+			<view class="pay-mode" style="margin-top: 10px;">
+				<view class="pay-mode-item ">
+					<view class="">
+						<text class="cuIcon-deliver text-yellow  icon"></text>
+						提货方式
+					</view>
+					<view class="" v-if="orderInfo.delivery_type">
+						<text>{{orderInfo.delivery_type||''}}</text>
+						<!-- <text class="cuIcon-right"></text> -->
+					</view>
+				</view>
+				<view class="pay-mode-item" v-if="!orderInfo.delivery_type">
+					<view class="" style="width: 100%;">
+						<u-subsection :list="deliveryList" :current="curDelivery" @change="changeDelivery">
+						</u-subsection>
+					</view>
+				</view>
+			</view>
 			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付')">
 				<radio-group @change="payModeChange" style="width: 100%;">
 					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
@@ -101,7 +121,7 @@
 								<view class="coupon-name">
 									{{couponInfo.card_name||''}}
 								</view>
-								<view class="amount">
+								<view class="amount" v-if="couponInfo.card_last_amount">
 									剩余金额:{{couponInfo.card_last_amount||''}}
 								</view>
 							</view>
@@ -109,7 +129,7 @@
 							<text class="cuIcon-right"></text>
 						</view>
 					</view>
-					<view class="pay-mode-item" @click="payModeChange({detail:{value:'wx'}})">
+					<view class="pay-mode-item" @click="payModeChange({detail:{value:'wx'}})" v-if="!pay_method">
 						<view class="">
 							<text class="cuIcon-weixin text-green  icon"></text>
 							微信支付
@@ -122,19 +142,21 @@
 				</radio-group>
 			</view>
 
+
 		</view>
 
 
 		<view class="handler-bar">
 			<text class="amount">共{{ totalAmount }}件</text>
-			<text class="text">合计:</text>
-			<text class="money-amount">
+			<text class="text" v-if="totalMoney&&!pay_method">合计:</text>
+			<text class="money-amount" v-if="totalMoney&&!pay_method">
 				<text class="money-operate">￥</text>
 				<text>{{ totalMoney || "" }}</text>
 			</text>
 			<button class="cu-btn bg-gradual-orange round" :class="'bx-bg-'+theme" @click="submitOrder"
 				v-if="orderInfo.order_state === '待提交'">
-				提交订单
+				<text v-if="pay_method">确认核销</text>
+				<text v-else> 提交订单</text>
 			</button>
 			<button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="(
           orderInfo.order_state === '待支付' &&
@@ -183,9 +205,28 @@
 	import {
 		mapState
 	} from 'vuex';
+	import goodsItem from './goods-item.vue'
 	export default {
+		components:{
+			goodsItem
+		},
 		data() {
 			return {
+				curDelivery: 0,
+				deliveryList: [{
+						name: '快递'
+					},
+					{
+						name: '自提'
+					},
+					{
+						name: '卖家配送'
+					},
+					{
+						name: '当面交易'
+					}
+				],
+				delivery_type: "快递", //提货方式
 				payMode: 'wx',
 				couponList: [], //卡券列表
 				store_no: "",
@@ -216,7 +257,8 @@
 					}],
 					"key_disp_col": "room_no"
 				},
-				couponInfo: null
+				couponInfo: null,
+				pay_method: ""
 			};
 		},
 		computed: {
@@ -271,7 +313,84 @@
 			}
 		},
 		methods: {
+			async addVerRecord(order_no, childData) {
+				// 增加核销记录
+				let goodsList = childData || this.orderInfo.goodsList
+				let serviceName = 'srvhealth_store_package_approval_add'
+				let req = [{
+					"serviceName": serviceName,
+					"condition": [],
+					"data": []
+				}]
+				req[0].data = goodsList.map(item => {
+					let obj = {
+						"order_goods_no": item.order_goods_rec_no,
+						"card_case_detail_no": item.card_case_detail_no,
+						"card_no": this.card_no||this.couponInfo?.card_no,
+						"order_no": order_no,
+						"goods_no": item.goods_no,
+						"goods_name": item.goods_name,
+						"approval_num": item.car_num
+					}
+					return obj
+				})
+				let res = await this.$fetch('operate', 'srvhealth_store_package_approval_add', req, 'health')
+				if (res.success) {
+					return res.data
+				} else if (res.msg) {
+					uni.showModal({
+						title: '提示',
+						content: res.msg,
+						showCancel: false
+					})
+				}
+				return res
+			},
+			async addPayRecord(order_no) {
+				let req = [{
+					"serviceName": "srvhealth_store_order_payment_detail_add",
+					"condition": [],
+					"data": [{
+						"pay_type": "支付",
+						"order_no": order_no,
+						"pay_way": this.couponInfo?.card_type
+					}]
+				}]
+				let res = await this.$fetch('operate', 'srvhealth_store_order_payment_detail_add', req, 'health')
+				if (res.success) {
+					uni.showModal({
+						title: "提示",
+						content: '操作成功',
+						showCancel: false,
+						success: (res) => {
+							if (res.confirm) {
+								// if (this.uuid) {
+								// 	uni.$emit(this.uuid)
+								// }
+								// 					uni.navigateBack({
+
+								// 					})
+							}
+						}
+					})
+				} else if (res.msg) {
+					uni.showModal({
+						title: '提示',
+						content: res.msg,
+						showCancel: false
+					})
+				}
+				return res
+			},
+			changeDelivery(e) {
+				console.log(e)
+				this.delivery_type = this.deliveryList[e].name
+			},
 			toCouponSelector() {
+				if (this.pay_method) {
+
+					return
+				}
 				this.payMode = 'coupon'
 				let url =
 					'/storePages/coupon/coupon?serviceName=srvhealth_store_card_case_select&app=health&mode=selector&pageTitle=支付方式'
@@ -517,8 +636,10 @@
 				}
 			},
 			updateOrderState(order_state, pay_state, prepay_id, order_no) {
+				let serviceName = 'srvhealth_store_order_state_update'
+				// srvhealth_store_order_update
 				let req = [{
-					serviceName: 'srvhealth_store_order_update',
+					serviceName: serviceName,
 					condition: [{
 						colName: 'order_no',
 						ruleType: 'eq',
@@ -532,7 +653,7 @@
 				if (prepay_id) {
 					req[0].data[0].prepay_id = prepay_id
 				}
-				this.$fetch('operate', 'srvhealth_store_order_update', req, 'health').then(res => {
+				this.$fetch('operate', serviceName, req, 'health').then(res => {
 					// 支付成功后修改订单状态和支付状态
 					this.getOrderInfo()
 				});
@@ -588,7 +709,7 @@
 					this.$set(this.orderInfo, 'goodsList', goodsList.data);
 				}
 			},
-			submitOrder() {
+			async submitOrder() {
 				if (this.needIdNum && !this.idNum) {
 					uni.showModal({
 						title: '提示',
@@ -607,7 +728,7 @@
 					})
 					return
 				}
-				if (!this.addressInfo.fullAddress && !this.room_no) {
+				if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type)) {
 					uni.showToast({
 						title: '请先选择您的地址信息',
 						icon: 'none',
@@ -616,7 +737,8 @@
 					return
 				}
 
-				if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no) {
+				if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递', '卖家配送']
+					.includes(this.delivery_type)) {
 					uni.showToast({
 						title: '请确认您的姓名、地址、手机号是否填写完善',
 						icon: 'none',
@@ -687,22 +809,50 @@
 				if (this.room_no) {
 					req[0].data[0].rcv_hotel_room_no = this.room_no
 				}
-				this.$fetch('operate', 'srvhealth_store_order_add', req, 'health').then(res => {
-					if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-						console.log(res.data[0]);
-						this.orderNo = res.data[0].order_no;
-						let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
-						if (cartGoodsList.length > 0) {
-							let ids = cartGoodsList.map(item => item.id).toString()
-							if (ids) {
-								this.clearOrderCartGoods(ids)
-							}
+				if (this.couponInfo?.card_type) {
+					req[0].data[0].pay_method = this.couponInfo?.card_type
+				}
+				if (this.couponInfo?.card_no) {
+					req[0].data[0].card_no = this.couponInfo?.card_no
+				}
+				let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
+				// .then(res => {
+				if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+					console.log(res.data[0]);
+					this.orderNo = res.data[0].order_no;
+					let childData = res.childData
+					debugger
+					let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
+					if (cartGoodsList.length > 0) {
+						let ids = cartGoodsList.map(item => item.id).toString()
+						if (ids) {
+							this.clearOrderCartGoods(ids)
 						}
-						this.getOrderInfo().then(data => {
-							this.toPay();
-						});
 					}
-				});
+					const orderData = await this.getOrderInfo()
+					// .then(data => {
+					if (!this.pay_method) {
+						// 微信支付、充值卡、面额卡支付
+						this.toPay();
+					} else {
+						// 卡券核销
+						if (res.data[0].order_no) {
+							// 创建核销记录
+							await this.addVerRecord(res.data[0].order_no, childData)
+							// .then(_ => {
+							// 创建订单支付记录
+							await this.addPayRecord(res.data[0].order_no, childData)
+							// .then(_ => {
+							// 更新订单状态和支付状态
+							this.updateOrderState('待发货', '已支付');
+							// })
+							// })
+
+						}
+					}
+					// });
+				}
+				// });
 			},
 			clearOrderCartGoods(ids) {
 				// 清除购物车中在订单中的商品
@@ -812,7 +962,17 @@
 			if (option.wxMchId) {
 				this.wxMchId = option.wxMchId
 			}
-
+			if (option.pay_method) {
+				this.payMode = 'coupon'
+				this.pay_method = option.pay_method
+			}
+			if (option.cardInfo) {
+				try {
+					this.couponInfo = JSON.parse(option.cardInfo)
+				} catch (e) {
+					//TODO handle the exception
+				}
+			}
 			if (option.store_no && option.goods_info) {
 				this.store_no = option.store_no
 				if (this.cartInfo[option.store_no]) {
@@ -885,6 +1045,7 @@
 
 		.address-box {
 			margin: 20rpx;
+			margin-bottom: 0;
 			padding: 20rpx;
 			display: flex;
 			background-color: #fff;
@@ -927,6 +1088,7 @@
 
 		.order-detail {
 			flex: 1;
+			margin-top: 10px;
 		}
 
 		.order-info {

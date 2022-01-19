@@ -29,7 +29,7 @@
         <text class="cuIcon-add  more-btn hidden" v-if="showHandle"></text>
         <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" :key="index"
+      <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" 
         @click="onButton({button_type:'edit'},index)">
         <view class="col-item" v-for="col in showColumn"
 		:key="col.columns"
@@ -41,7 +41,7 @@
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in initData" :key="index" @click="onButton({button_type:'editInit'},index)">
+      <view class="list-item" v-for="(item,index) in initData"  @click="onButton({button_type:'editInit'},index)">
         <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
@@ -49,7 +49,7 @@
         <text class="cuIcon-delete text-black" v-if="showDelete"
           @click.stop="onChildFormBtn({button_type:'delete_init'},index,true)"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in memoryListData" :key="index" @click="onButton({button_type:'editMem'},index)">
+      <view class="list-item" v-for="(item,index) in memoryListData" @click="onButton({button_type:'editMem'},index)">
         <view class="col-item" v-for="col in showColumn"
 		:key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">

@@ -566,10 +566,19 @@ export default {
 						Array.isArray(res.data.response[0].response.effect_data) &&
 						res.data.response[0].response.effect_data.length > 0
 					) {
-						return {
+						debugger
+						let result =  {
 							success: true,
 							data: res.data.response[0].response.effect_data
 						}
+						if(Array.isArray(res.data.response) &&
+						res.data.response.length > 0 &&
+						res.data.response[0].response &&
+						Array.isArray(res.data.response[0].child_data_list)&&res.data.response[0].child_data_list.length>0){
+							let child_data_list = res.data.response[0].child_data_list[0]?.response?.effect_data;
+							result.childData = child_data_list||[]
+						}
+						return result
 					} else if (Array.isArray(res.data.response) &&
 						res.data.response.length > 0 &&
 						res.data.response[0].response) {

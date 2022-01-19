@@ -1410,18 +1410,20 @@
 
 						if (prompt === true) {
 							let data = {
-								useing_store_user_no: this.bindUserInfo?.store_user_no
+								useing_store_user_no: this.bindUserInfo?.store_user_no,
+								give_store_user_no: couponInfo.useing_store_user_no,
 							}
-							this.updateCouponInfo(data,cardNo)
+							this.updateCouponInfo(data, cardNo)
 						}
 
 					}
 				}
 			},
-			async updateCouponInfo(data,cardNo) {
-				let url = this.getServiceUrl('health', 'srvhealth_store_card_case_update', 'update');
+			async updateCouponInfo(data, cardNo) {
+				let serviceName = 'srvhealth_store_card_case_update';
+				let url = this.getServiceUrl('health', serviceName, 'update');
 				const req = [{
-					"serviceName": "srvhealth_store_card_case_update",
+					"serviceName": serviceName,
 					"condition": [{
 						"colName": "card_no",
 						"ruleType": "eq",

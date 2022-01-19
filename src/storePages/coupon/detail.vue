@@ -24,18 +24,38 @@
 				</view>
 			</view>
 		</view>
-		<view class="card-detail" v-if="cardList&&cardList.length>0">
+		<view class="card-detail" v-if="(cardInfo&&cardInfo.card_type==='面额卡')||cardList&&cardList.length>0">
 			<view class="card-detail-title">
 				{{cardDetailTitle||''}}
 			</view>
-			<view class="card-detail-list">
+			<view class="" v-if="cardInfo&&cardInfo.card_type==='面额卡'">
+				<view class="card-detail-item">
+					<view class="top">
+						<view class="left">
+							面值：{{cardInfo.card_amount||''}}
+						</view>
+						<!-- 		<view class="right">
+							已消费：{{cardInfo.goods_name||''}}
+						</view> -->
+					</view>
+					<view class="bottom">
+						<!-- 	<view class="left">
+							赠送金额：{{cardInfo.num}}
+						</view> -->
+						<view class="right">
+							剩余金额：{{cardInfo.card_last_amount}}
+						</view>
+					</view>
+				</view>
+			</view>
+			<view class="card-detail-list" v-if="cardList&&cardList.length>0">
 				<view class="card-detail-item" v-for="(item,index) in cardList" :key="index">
 					<view class="top">
 						<view class="left">
 							商品名称：{{item.goods_name||''}}
 						</view>
 						<view class="right">
-							剩余数量：{{item.goods_name||''}}
+							剩余数量：{{item.last_num||''}}
 						</view>
 					</view>
 					<view class="bottom">
@@ -43,18 +63,35 @@
 							购买数量：{{item.num}}
 						</view>
 						<view class="right">
-							已使用数量：{{item.num}}
+							已使用数量：{{item.useing_num}}
 						</view>
 					</view>
 				</view>
 			</view>
+			<!-- <view class="card-detail-list" style="text-align: center;padding: 20px 10px;background-color: #fff;">
+				暂无数据
+			</view> -->
 		</view>
 
-		<view class="use-record">
-
+		<view class="use-record" v-if="recordList&&recordList.length>0">
+			<view class="title">
+				<text>核销记录</text>
+				<!-- v-if="recordPage&&recordPage.total>recordPage.rownumber" -->
+				<text class="more" @click="toRecordList">查看全部<text class="cuIcon-right"></text></text>
+			</view>
+			<view class="use-record-item" v-for="(item,index) in recordList">
+				<view class="row">
+					<text>商品名称：{{item.goods_name||''}}</text>
+					<text>核销数量：{{item.approval_num||''}}</text>
+				</view>
+				<view class="row sm">
+					<text>核销时间：{{dayjs(item.create_time).format('YY/MM/DD HH:mm')||''}}</text>
+				</view>
+			</view>
 		</view>
 
-		<view class="bottom-btn" v-if="cardInfo&&['套餐卡','提货卡'].includes(cardInfo.card_type)">
+		<view class="bottom-btn"
+			v-if="cardInfo&&['套餐卡','提货卡'].includes(cardInfo.card_type)&&cardInfo.use_states==='使用中'">
 			<button class="cu-btn bg-blue shadow-blur lg round" @click="toHexiao">核销</button>
 		</view>
 	</view>
@@ -73,7 +110,9 @@
 				cond: [],
 				style: {},
 				rightTemp: {},
-				rightTopBadgeCol: ""
+				rightTopBadgeCol: "",
+				recordList: [], //核销记录
+				recordPage: {}
 			}
 		},
 		computed: {
@@ -87,13 +126,31 @@
 						res = '套餐内容'
 						break;
 					case '面额卡':
-						res = '卡券明细'
+						res = '权益清单'
 						break;
 				}
 				return res
 			}
 		},
 		methods: {
+			toRecordList() {
+				let cond = [{
+					"colName": "card_no",
+					"ruleType": "eq",
+					"value": this.cardInfo.card_no
+				}]
+				let listConfig = {
+					btn_cfg: {
+						show_custom_btn: false,
+						show_public_btn: false
+					}
+				}
+				let url =
+					`/publicPages/list2/list2?serviceName=srvhealth_store_package_approval_select&destApp=health&disabled=true&cond=${JSON.stringify(cond)}&listConfig=${JSON.stringify(listConfig)}`
+				uni.navigateTo({
+					url
+				})
+			},
 			getRightTemp(item) {
 				let res = {
 					label: '',
@@ -120,14 +177,41 @@
 				}]
 				let uuid = uni.$u.guid()
 				let url =
-					`/storePages/verification/verification?serviceName=srvhealth_store_card_case_detail_select&listType=selectorList&cond=${JSON.stringify(cond)}&idCol=card_case_detail_no&uuid=${uuid}&disabled=true&card_no=${this.cardInfo.card_no}&card_type=${this.cardInfo?.card_type}`
-					uni.$on(uuid,()=>{
-						this.getDetail()
-						uni.$off(uuid)
-					})
+					`/storePages/verification/verification?serviceName=srvhealth_store_card_case_detail_select&listType=selectorList&cond=${JSON.stringify(cond)}&idCol=card_case_detail_no&uuid=${uuid}&disabled=true&card_no=${this.cardInfo.card_no}`
+				uni.$on(uuid, () => {
+					this.getDetail()
+					uni.$off(uuid)
+				})
 				uni.navigateTo({
 					url
 				})
+			},
+			async getRecord() {
+				// 核销记录
+				let serviceName = 'srvhealth_store_package_approval_select';
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let url = this.getServiceUrl(app, serviceName, 'select');
+				let req = {
+					"serviceName": serviceName,
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "card_no",
+						"ruleType": "eq",
+						"value": this.cardInfo.card_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 5
+					},
+					"order": [],
+				}
+				let res = await this.$http.post(url, req)
+				if (Array.isArray(res.data.data)) {
+					this.recordList = res.data.data
+				}
+				if (res.data?.page?.total) {
+					this.recordPage = res.data.page
+				}
 			},
 			async getList() {
 				let serviceName = 'srvhealth_store_card_case_detail_select';
@@ -172,6 +256,7 @@
 				if (Array.isArray(res.data.data) && res.data.data.length > 0) {
 					this.cardInfo = res.data.data[0]
 					this.getList()
+					this.getRecord()
 				}
 			},
 		},
@@ -287,6 +372,8 @@
 		.card-detail-title {
 			padding: 10px;
 			background-color: #f9eeda;
+			font-weight: bold;
+			font-size: 16px;
 		}
 
 		.card-detail-item {
@@ -328,6 +415,39 @@
 
 		.cu-btn {
 			width: 80vw;
+		}
+	}
+
+	.use-record {
+		.title {
+			padding: 20px 10px 5px;
+			font-size: 16px;
+			font-weight: bold;
+			display: flex;
+			justify-content: space-between;
+
+			.more {
+				font-size: 14px;
+				font-weight: normal;
+			}
+		}
+
+		.use-record-item {
+			background-color: #fff;
+			border-radius: 2px;
+			margin-bottom: 1px;
+			padding: 5px 10px;
+
+			.row {
+				display: flex;
+				justify-content: space-between;
+				line-height: 25px;
+
+				&.sm {
+					font-size: 12px;
+					color: #666;
+				}
+			}
 		}
 	}
 </style>

@@ -5,8 +5,8 @@
 				<radio :value="item[idCol]" :checked="item.checked" style="transform:scale(1);margin-right:10px;"
 					@click.stop="checkboxChange(item,index)" />
 				<view class="item-content">
-					<image :src="getImagePath(item.goods_img,true)" mode="aspectFit" class="image"
-						v-if="item.goods_img"></image>
+					<image :src="getImagePath(item.goods_image,true)" mode="aspectFit" class="image"
+						v-if="item.goods_image"></image>
 					<view class="image" v-else></view>
 					<view class="goods-info">
 						<view class="">
@@ -39,7 +39,9 @@
 				card_type: "",
 				goodsList: [],
 				appName: "health",
-				uuid: ""
+				uuid: "",
+				orderInfo: {},
+				cardInfo: {}
 			}
 		},
 		computed: {
@@ -50,12 +52,68 @@
 			}
 		},
 		methods: {
+			toOrderPage() {
+				let list = this.goodsList.filter(item => item.checked === true && item.selectNum);
+				list = this.deepClone(list)
+				if (list.length > 0) {
+					list = list.map(goodsInfo => {
+						goodsInfo.car_num = goodsInfo.selectNum
+						// goodsInfo.price = goodsInfo.unit_price
+						return goodsInfo
+					})
+
+					this.$store.commit('SET_STORE_CART', {
+						storeInfo: this.storeInfo,
+						store_no: this.storeInfo?.store_no,
+						list: list
+					});
+					let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }&cardInfo=${JSON.stringify(this.cardInfo)}&pay_method=${this.cardInfo.card_type}`
+					// if (this.wxMchId) {
+					// 	url += `&wxMchId=${this.wxMchId}`
+					// }
+					uni.navigateTo({
+						url
+					});
+				}
+
+			},
+			async getCardInfo() {
+				let serviceName = 'srvhealth_store_card_case_select';
+				let app = this.appName || uni.getStorageSync('activeApp');
+				let url = this.getServiceUrl(app, serviceName, 'select');
+				let req = {
+					"serviceName": "srvhealth_store_card_case_select",
+					"colNames": ["*"],
+					"condition": [{
+						colName: 'card_no',
+						ruleType: 'eq',
+						value: this.card_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					},
+				}
+				let res = await this.$http.post(url, req)
+				if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+					this.cardInfo = res.data.data[0]
+				}
+				return this.cardInfo
+
+			},
 			async confirm() {
+				this.toOrderPage()
+				return
 				let goodsList = this.goodsList.filter(item => item.checked)
 				if (goodsList && goodsList.length > 0) {
 					let orderInfo = await this.addOrder(goodsList)
-					let verificationList = await this.addVerRecord(orderInfo)
-					await this.addPayRecord(orderInfo)
+					if (orderInfo?.order_no) {
+						// 创建核销记录
+						await this.addVerRecord(orderInfo)
+						// 创建订单支付记录
+						await this.addPayRecord(orderInfo)
+					}
+
 				}
 			},
 			async addOrder(goodsList) {
@@ -63,6 +121,7 @@
 					serviceName: 'srvhealth_store_order_add',
 					condition: [],
 					data: [{
+						card_no: this.card_no,
 						store_no: this.storeInfo?.store_no,
 						store_name: this.storeInfo?.name,
 						image: this.storeInfo.image,
@@ -70,20 +129,20 @@
 						// rcv_addr_str: this.addressInfo.fullAddress,
 						// rcv_name: this.addressInfo.userName,
 						// rcv_telephone: this.addressInfo.telNumber,
-						person_no: this.userInfo.no,
-						person_name: this.userInfo.name,
-						user_account: this.userInfo.userno,
-						store_user_no: this.vstoreUser?.store_user_no || '',
-						nick_name: this.userInfo.nick_name ? this.userInfo.nick_name.replace(
-							/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : '',
-						profile_url: this.userInfo.profile_url,
-						user_image: this.userInfo.user_image,
-						sex: this.userInfo.sex,
-						user_role: this.userInfo.user_role,
+						// person_no: this.userInfo.no,
+						person_name: this.cardInfo.using_person,
+						// user_account: this.userInfo.userno,
+						store_user_no: this.cardInfo?.useing_store_user_no || '',
+						// nick_name: this.userInfo.nick_name ? this.userInfo.nick_name.replace(
+						// 	/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : '',
+						// profile_url: this.userInfo.profile_url,
+						user_image: this.cardInfo.user_image,
+						sex: this.cardInfo.sex,
+						// user_role: this.userInfo.user_role,
 						// order_amount: this.totalMoney,
 						// order_remark: this.order_remark || '',
-						pay_state: '已支付',
-						order_state: '待发货',
+						pay_state: '待支付',
+						order_state: '待支付',
 						child_data_list: [{
 							serviceName: 'srvhealth_store_order_goods_detail_add',
 							condition: [],
@@ -115,10 +174,44 @@
 						}]
 					}]
 				}];
+				if (this.cardInfo?.card_type) {
+					req[0].data[0].pay_method = this.cardInfo.card_type
+				}
 				let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
 				if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+					this.orderInfo = res.data[0]
+					this.updateOrderState('待发货', '已支付');
 					return res.data[0]
+				} else if (res.msg) {
+					uni.showModal({
+						title: '提示',
+						content: res.msg,
+						showCancel: false
+					})
 				}
+			},
+			updateOrderState(order_state, pay_state, prepay_id, order_no) {
+				let serviceName = 'srvhealth_store_order_state_update'
+				// srvhealth_store_order_update
+				let req = [{
+					serviceName: serviceName,
+					condition: [{
+						colName: 'order_no',
+						ruleType: 'eq',
+						value: this.orderInfo.order_no
+					}],
+					data: [{
+						order_state: order_state,
+						pay_state: pay_state
+					}]
+				}];
+				// if (prepay_id) {
+				// 	req[0].data[0].prepay_id = prepay_id
+				// }
+				this.$fetch('operate', serviceName, req, 'health').then(res => {
+					// 支付成功后修改订单状态和支付状态
+					// this.getOrderInfo()
+				});
 			},
 			async addVerRecord(orderInfo) {
 				// 增加核销记录
@@ -132,6 +225,7 @@
 				req[0].data = goodsList.map(item => {
 					let obj = {
 						"order_goods_no": item.card_case_detail_no,
+						"card_case_detail_no": item.card_case_detail_no,
 						"card_no": this.card_no,
 						"order_no": orderInfo?.order_no,
 						"goods_no": item.goods_no,
@@ -143,6 +237,12 @@
 				let res = await this.$fetch('operate', 'srvhealth_store_package_approval_add', req, 'health')
 				if (res.success) {
 					return res.data
+				} else if (res.msg) {
+					uni.showModal({
+						title: '提示',
+						content: res.msg,
+						showCancel: false
+					})
 				}
 			},
 			async addPayRecord(orderInf) {
@@ -152,7 +252,7 @@
 					"data": [{
 						"pay_type": "支付",
 						"order_no": orderInf?.order_no,
-						"pay_way": this.card_type
+						"pay_way": this.cardInfo?.card_type
 					}]
 				}]
 				let res = await this.$fetch('operate', 'srvhealth_store_order_payment_detail_add', req, 'health')
@@ -167,10 +267,16 @@
 									uni.$emit(this.uuid)
 								}
 								uni.navigateBack({
-									
+
 								})
 							}
 						}
+					})
+				} else if (res.msg) {
+					uni.showModal({
+						title: '提示',
+						content: res.msg,
+						showCancel: false
 					})
 				}
 			},
@@ -211,10 +317,8 @@
 				})
 			},
 		},
-		onLoad(option) {
-			if (option.card_type) {
-				this.card_type = option.card_type
-			}
+		async onLoad(option) {
+
 			if (option.uuid) {
 				this.uuid = option.uuid
 			}
@@ -223,6 +327,7 @@
 			}
 			if (option.card_no) {
 				this.card_no = option.card_no;
+				await this.getCardInfo()
 				this.getList()
 			}
 		}
