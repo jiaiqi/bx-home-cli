@@ -317,8 +317,13 @@
 				})
 			},
 		},
+		onShow(){
+			// this.refresh()
+			if(this.card_no){
+				this.getList()
+			}
+		},
 		async onLoad(option) {
-
 			if (option.uuid) {
 				this.uuid = option.uuid
 			}

@@ -455,6 +455,9 @@
 						case '用户展示':
 							keys = Object.keys(pageItem);
 							break;
+						default:
+							keys = Object.keys(pageItem);
+							break
 					}
 					if (Array.isArray(keys) && keys.length > 0) {
 						keys.forEach(key => {
@@ -1420,7 +1423,7 @@
 				}
 			},
 			async updateCouponInfo(data, cardNo) {
-				let serviceName = 'srvhealth_store_card_case_update';
+				let serviceName = 'srvhealth_give_store_card_case_update';
 				let url = this.getServiceUrl('health', serviceName, 'update');
 				const req = [{
 					"serviceName": serviceName,

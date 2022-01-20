@@ -57,7 +57,7 @@
 			<view class="right"><text class="cuIcon-message"></text></view>
 		</view>
 		<vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'"></vip-card>
-<!-- 		<view class="vip-card" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'">
+		<!-- 		<view class="vip-card" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'">
 			<view class="not-vip" @click="toOpenVip">
 				<view class="">
 					<text class="cuIcon-crownfill text-white"></text>
@@ -79,6 +79,13 @@
 			<view class="share-menu">
 				<button class="cu-btn bg-white sm" open-type="share"><text class="text-blue sm">邀请好友</text></button>
 			</view>
+		</view>
+		<!-- 公众号关注组件 -->
+		<view class="official-account "
+			v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'&&moreConfig&&moreConfig.mp_no">
+			<text v-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
+			<text v-else> 关注xxx公众号，重要消息不再错过~</text>
+			<button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial">立即关注</button>
 		</view>
 	</view>
 </template>
@@ -144,6 +151,9 @@
 			}
 		},
 		computed: {
+			moreConfig() {
+				return this.pageItem?.more_config
+			},
 			itemStyle() {
 				if (typeof this.pageItem?.more_config === 'object') {
 					return this.pageItem?.more_config?.style || '';
@@ -187,6 +197,13 @@
 			});
 		},
 		methods: {
+			toOfficial() {
+				// 跳转到关注公众号页面
+				let webUrl =
+					`/storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+				let url =
+					`/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+			},
 			getUserList() {
 				let serviceName = 'srvhealth_store_user_visitor_select';
 				const req = {
@@ -415,4 +432,14 @@
 	//   top: calc(50% - 15rpx);
 	//   border-radius: 20rpx;
 	// }
+
+	.official-account {
+		padding: 5px 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background-color: #ee7b77;
+		border-radius: 10px;
+		color: #fff;
+	}
 </style>

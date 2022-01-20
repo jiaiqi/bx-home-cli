@@ -24,27 +24,31 @@
 				</view>
 			</view>
 		</view>
-		<view class="card-detail" v-if="(cardInfo&&cardInfo.card_type==='面额卡')||cardList&&cardList.length>0">
+		<view class="card-detail"
+			v-if="(cardInfo&&['面额卡','充值卡'].includes(cardInfo.card_type))||cardList&&cardList.length>0">
 			<view class="card-detail-title">
 				{{cardDetailTitle||''}}
 			</view>
-			<view class="" v-if="cardInfo&&cardInfo.card_type==='面额卡'">
+			<view class="" v-if="cardInfo&&['面额卡','充值卡'].includes(cardInfo.card_type)">
 				<view class="card-detail-item">
 					<view class="top">
 						<view class="left">
-							面值：{{cardInfo.card_amount||''}}
+							面值：<text>{{cardInfo.card_amount||'0'}}</text>
 						</view>
 						<!-- 		<view class="right">
 							已消费：{{cardInfo.goods_name||''}}
 						</view> -->
+						<view class="right">
+							剩余金额：{{cardInfo.card_last_amount||'0'}}
+						</view>
 					</view>
 					<view class="bottom">
 						<!-- 	<view class="left">
 							赠送金额：{{cardInfo.num}}
 						</view> -->
-						<view class="right">
-							剩余金额：{{cardInfo.card_last_amount}}
-						</view>
+					<!-- 	<view class="right">
+							剩余金额：{{cardInfo.card_last_amount||'0'}}
+						</view> -->
 					</view>
 				</view>
 			</view>
@@ -52,18 +56,18 @@
 				<view class="card-detail-item" v-for="(item,index) in cardList" :key="index">
 					<view class="top">
 						<view class="left">
-							商品名称：{{item.goods_name||''}}
+							商品名称：{{item.goods_name||'0'}}
 						</view>
 						<view class="right">
-							剩余数量：{{item.last_num||''}}
+							剩余数量：{{item.last_num||'0'}}
 						</view>
 					</view>
 					<view class="bottom">
 						<view class="left">
-							购买数量：{{item.num}}
+							购买数量：{{item.num||'0'}}
 						</view>
 						<view class="right">
-							已使用数量：{{item.useing_num}}
+							已使用数量：{{item.useing_num||'0'}}
 						</view>
 					</view>
 				</view>
@@ -72,8 +76,25 @@
 				暂无数据
 			</view> -->
 		</view>
-
-		<view class="use-record" v-if="recordList&&recordList.length>0">
+		<view class="use-record"
+			v-if="(cardInfo&&['面额卡','充值卡'].includes(cardInfo.card_type))&&recordList&&recordList.length>0">
+			<view class="title">
+				<text>消费记录</text>
+				<text class="more" @click="toRecordList('consume')">查看全部<text class="cuIcon-right"></text></text>
+			</view>
+			<view class="use-record-item" v-for="(item,index) in recordList">
+				<view class="row">
+					<text>类别：{{item.bill_type||'-'}}</text>
+					<text>消费金额：{{item.bill_money||'0'}}</text>
+				</view>
+				<view class="row sm">
+					<text>核销时间：{{dayjs(item.create_time).format('YY/MM/DD HH:mm')||''}}</text>
+					<text>余额：{{item.after_over_money||'0'}}</text>
+						
+				</view>
+			</view>
+		</view>
+		<view class="use-record" v-else-if="recordList&&recordList.length>0">
 			<view class="title">
 				<text>核销记录</text>
 				<!-- v-if="recordPage&&recordPage.total>recordPage.rownumber" -->
@@ -81,14 +102,15 @@
 			</view>
 			<view class="use-record-item" v-for="(item,index) in recordList">
 				<view class="row">
-					<text>商品名称：{{item.goods_name||''}}</text>
-					<text>核销数量：{{item.approval_num||''}}</text>
+					<text>商品名称：{{item.goods_name||'-'}}</text>
+					<text>核销数量：{{item.approval_num||'0'}}</text>
 				</view>
 				<view class="row sm">
 					<text>核销时间：{{dayjs(item.create_time).format('YY/MM/DD HH:mm')||''}}</text>
 				</view>
 			</view>
 		</view>
+
 
 		<view class="bottom-btn"
 			v-if="cardInfo&&['套餐卡','提货卡'].includes(cardInfo.card_type)&&cardInfo.use_states==='使用中'">
@@ -112,6 +134,7 @@
 				rightTemp: {},
 				rightTopBadgeCol: "",
 				recordList: [], //核销记录
+				consumeList: [], //消费记录
 				recordPage: {}
 			}
 		},
@@ -128,12 +151,15 @@
 					case '面额卡':
 						res = '权益清单'
 						break;
+					case '充值卡':
+						res = '权益清单'
+						break;
 				}
 				return res
 			}
 		},
 		methods: {
-			toRecordList() {
+			toRecordList(e) {
 				let cond = [{
 					"colName": "card_no",
 					"ruleType": "eq",
@@ -145,8 +171,12 @@
 						show_public_btn: false
 					}
 				}
+				let serviceName = 'srvhealth_store_package_approval_select'
+				if (['面额卡', '充值卡'].includes(this.cardInfo.card_type)) {
+					serviceName = 'srvhealth_store_card_recharge_detail_select'
+				}
 				let url =
-					`/publicPages/list2/list2?serviceName=srvhealth_store_package_approval_select&destApp=health&disabled=true&cond=${JSON.stringify(cond)}&listConfig=${JSON.stringify(listConfig)}`
+					`/publicPages/list2/list2?serviceName=${serviceName}&destApp=health&disabled=true&cond=${JSON.stringify(cond)}&listConfig=${JSON.stringify(listConfig)}`
 				uni.navigateTo({
 					url
 				})
@@ -163,6 +193,9 @@
 						if (cfg?.col_map[val]) {
 							res.label = cfg?.col_map[val]?.label
 							res.value = item[cfg?.col_map[val]?.col]
+							if(res.value===0){
+								res.value = '0'
+							}
 						}
 					}
 				}
@@ -189,6 +222,9 @@
 			async getRecord() {
 				// 核销记录
 				let serviceName = 'srvhealth_store_package_approval_select';
+				if (['面额卡', '充值卡'].includes(this.cardInfo.card_type)) {
+					serviceName = 'srvhealth_store_card_recharge_detail_select'
+				}
 				let app = this.appName || uni.getStorageSync('activeApp');
 				let url = this.getServiceUrl(app, serviceName, 'select');
 				let req = {
@@ -259,6 +295,19 @@
 					this.getRecord()
 				}
 			},
+			refresh() {
+				this.getDetail()
+			},
+		},
+		onShow() {
+			// this.refresh()
+			this.getDetail()
+		},
+		onPullDownRefresh() {
+			this.refresh()
+			setTimeout(() => {
+				uni.stopPullDownRefresh()
+			}, 1000)
 		},
 		onLoad(option) {
 			if (option.appName) {

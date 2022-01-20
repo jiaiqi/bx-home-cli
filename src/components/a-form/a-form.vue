@@ -69,7 +69,7 @@
 				}
 			}
 		},
-		mounted() {
+		created() {
 			let oldFieldModel = this.oldField.reduce((res, cur) => {
 				if (cur.value) {
 					if (cur.column) {

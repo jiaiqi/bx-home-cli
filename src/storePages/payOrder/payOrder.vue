@@ -91,7 +91,7 @@
         <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
 			</view>
 
-			<view class="pay-mode" style="margin-top: 10px;">
+			<view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;">
 				<view class="pay-mode-item ">
 					<view class="">
 						<text class="cuIcon-deliver text-yellow  icon"></text>
@@ -330,7 +330,7 @@
 						"order_no": order_no,
 						"goods_no": item.goods_no,
 						"goods_name": item.goods_name,
-						"approval_num": item.car_num
+						"approval_num": item.car_num||item.goods_amount
 					}
 					return obj
 				})
@@ -798,6 +798,9 @@
 								if (item.goods_img) {
 									obj.goods_image = item.goods_img;
 								}
+								if(item.card_case_detail_no){
+									obj.card_case_detail_no = item.card_case_detail_no
+								}
 								return obj;
 							})
 						}]
@@ -815,13 +818,15 @@
 				if (this.couponInfo?.card_no) {
 					req[0].data[0].card_no = this.couponInfo?.card_no
 				}
+				if(this.delivery_type){
+					req[0].data[0].delivery_type = this.delivery_type
+				}
 				let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
 				// .then(res => {
 				if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
 					console.log(res.data[0]);
 					this.orderNo = res.data[0].order_no;
 					let childData = res.childData
-					debugger
 					let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
 					if (cartGoodsList.length > 0) {
 						let ids = cartGoodsList.map(item => item.id).toString()

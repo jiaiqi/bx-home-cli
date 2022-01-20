@@ -15,8 +15,8 @@
 		</view>
 		<view class="form-content">
 			<view class="main-form-edit">
-				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)" :fields="fields"
-					:moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm"
+				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0" :fields="fields"
+					:moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm" :mainData="mainData"
 					@value-blur="valueChange" @setColData="setColData">
 				</a-form>
 			</view>

@@ -1307,7 +1307,7 @@
           value: option.id
         }]
       }
-      this.getDefaultVal();
+      await this.getDefaultVal();
       this.getFieldsV2();
     }
   };

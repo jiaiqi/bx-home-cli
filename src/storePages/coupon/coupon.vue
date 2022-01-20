@@ -12,7 +12,7 @@
 								<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
 									:open-type="btn.type&&btn.type==='shareCoupon'?'share':''" v-for="btn in buttons"
 									:key="btn.name" v-show="isShowBtn(item,btn)"
-									@click="onBtnClick(item,btn)">{{btn.name||''}}</button>
+									@click.stop="onBtnClick(item,btn)">{{btn.name||''}}</button>
 							</view>
 							<!-- <button  open-type="share"
 								>赠送</button>
@@ -273,6 +273,9 @@
 						if (cfg?.col_map[val]) {
 							res.label = cfg?.col_map[val]?.label
 							res.value = item[cfg?.col_map[val]?.col]
+							if(res.value===0){
+								res.value = '0'
+							}
 						}
 					}
 				}
