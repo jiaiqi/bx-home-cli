@@ -199,10 +199,14 @@
 		methods: {
 			toOfficial() {
 				// 跳转到关注公众号页面
+				const frontEndAddress = this.$api.frontEndAddress
 				let webUrl =
-					`/storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+					`${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
 				let url =
 					`/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+				uni.navigateTo({
+					url
+				})
 			},
 			getUserList() {
 				let serviceName = 'srvhealth_store_user_visitor_select';

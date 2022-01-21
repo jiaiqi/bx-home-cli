@@ -1,6 +1,6 @@
 <template>
 	<view class="vip-card">
-		<view class="card-info" v-if="vipCardInfo&&vipCardInfo.id">
+		<view class="card-info" v-if="vipCardInfo&&vipCardInfo.id" @click="toDetail">
 			<view class="">
 				<view class="">
 					我的余额(元)
@@ -9,7 +9,7 @@
 					￥{{vipCardInfo[amountCol]||'0.00'}}
 				</view>
 			</view>
-			<view class="right-banner" v-if="rightBtn&&rightBtn.url" @click="onRightBtn">
+			<view class="right-banner" v-if="rightBtn&&rightBtn.url" @click.stop="onRightBtn">
 				{{rightBtn.text||""}}
 			</view>
 		</view>
@@ -66,6 +66,15 @@
 			}
 		},
 		methods: {
+			toDetail() {
+				let url = this.moreConfig?.detailUrl
+				if (url) {
+					url = this.renderStr(url, this)
+					uni.navigateTo({
+						url
+					})
+				}
+			},
 			onRightBtn() {
 				let url = this.rightBtn?.url
 				if (url) {

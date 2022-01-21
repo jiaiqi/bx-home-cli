@@ -61,8 +61,8 @@
 	/* 快应用特有相关 */
 	"mp-weixin": {
 		// "resizable":true,
-		// "appid": "wx08876efb5760ca75", // 测试
-		"appid" : "wxa3c50c8177ef6739", //正式
+		"appid": "wx08876efb5760ca75", // 测试
+		// "appid" : "wxa3c50c8177ef6739", //正式
 
 		"lazyCodeLoading": "requiredComponents",
 		"setting": {

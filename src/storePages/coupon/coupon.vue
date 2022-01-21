@@ -8,12 +8,12 @@
 					<view class="coupon-item_left">
 						<view class="coupon-item-name">
 							<text>{{item.card_name||''}}</text>
-							<view class="" v-if="mode!=='selector'">
+						<!-- 	<view class="" v-if="mode!=='selector'">
 								<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
 									:open-type="btn.type&&btn.type==='shareCoupon'?'share':''" v-for="btn in buttons"
 									:key="btn.name" v-show="isShowBtn(item,btn)"
 									@click.stop="onBtnClick(item,btn)">{{btn.name||''}}</button>
-							</view>
+							</view> -->
 							<!-- <button  open-type="share"
 								>赠送</button>
 							<button class="cu-btn bg-yellow sm radius margin-left-xs" :data-item="item"
@@ -240,7 +240,7 @@
 					let url =
 						`./detail?type=detail&serviceName=${this.serviceName}&cond=${JSON.stringify(cond)}&appName=health&style=${JSON.stringify(style)}&rightTemp=${JSON.stringify(this.rightTemp)}&rightTopBadgeCol=${this.rightTopBadgeCol}`
 					if (Array.isArray(this.buttons) && this.buttons.length > 0) {
-						
+						url+=`&buttons=${JSON.stringify(this.buttons)}`
 					}
 					uni.navigateTo({
 						url
@@ -497,7 +497,7 @@
 
 		.coupon-item_right {
 			position: relative;
-			width: 100px;
+			width: 120px;
 			display: flex;
 			align-items: center;
 			justify-content: center;

@@ -24,12 +24,11 @@
 				</view>
 			</view>
 		</view>
-		<view class="card-detail"
-			v-if="(cardInfo&&['面额卡','充值卡'].includes(cardInfo.card_type))||cardList&&cardList.length>0">
+		<view class="card-detail" v-if="(cardInfo&&['面额卡'].includes(cardInfo.card_type))||cardList&&cardList.length>0">
 			<view class="card-detail-title">
 				{{cardDetailTitle||''}}
 			</view>
-			<view class="" v-if="cardInfo&&['面额卡','充值卡'].includes(cardInfo.card_type)">
+			<view class="" v-if="cardInfo&&['面额卡'].includes(cardInfo.card_type)">
 				<view class="card-detail-item">
 					<view class="top">
 						<view class="left">
@@ -46,7 +45,7 @@
 						<!-- 	<view class="left">
 							赠送金额：{{cardInfo.num}}
 						</view> -->
-					<!-- 	<view class="right">
+						<!-- 	<view class="right">
 							剩余金额：{{cardInfo.card_last_amount||'0'}}
 						</view> -->
 					</view>
@@ -82,7 +81,7 @@
 				<text>消费记录</text>
 				<text class="more" @click="toRecordList('consume')">查看全部<text class="cuIcon-right"></text></text>
 			</view>
-			<view class="use-record-item" v-for="(item,index) in recordList">
+			<view class="use-record-item" v-for="(item,index) in recordList" @click="toDetail(item,'xiaofei')">
 				<view class="row">
 					<text>类别：{{item.bill_type||'-'}}</text>
 					<text>消费金额：{{item.bill_money||'0'}}</text>
@@ -90,7 +89,7 @@
 				<view class="row sm">
 					<text>核销时间：{{dayjs(item.create_time).format('YY/MM/DD HH:mm')||''}}</text>
 					<text>余额：{{item.after_over_money||'0'}}</text>
-						
+
 				</view>
 			</view>
 		</view>
@@ -100,7 +99,7 @@
 				<!-- v-if="recordPage&&recordPage.total>recordPage.rownumber" -->
 				<text class="more" @click="toRecordList">查看全部<text class="cuIcon-right"></text></text>
 			</view>
-			<view class="use-record-item" v-for="(item,index) in recordList">
+			<view class="use-record-item" v-for="(item,index) in recordList" @click="toDetail(item,'hexiao')">
 				<view class="row">
 					<text>商品名称：{{item.goods_name||'-'}}</text>
 					<text>核销数量：{{item.approval_num||'0'}}</text>
@@ -115,6 +114,11 @@
 		<view class="bottom-btn"
 			v-if="cardInfo&&['套餐卡','提货卡'].includes(cardInfo.card_type)&&cardInfo.use_states==='使用中'">
 			<button class="cu-btn bg-blue shadow-blur lg round" @click="toHexiao">核销</button>
+		</view>
+		<view class="bottom-btn" v-else-if="cardInfo.use_states==='未激活'">
+			<button class="cu-btn bg-blue shadow-blur lg round" :data-item="cardInfo"
+				:open-type="btn.type&&btn.type==='shareCoupon'?'share':''" v-for="btn in buttons" :key="btn.name"
+				v-show="isShowBtn(cardInfo,btn)" @click.stop="onBtnClick(cardInfo,btn)">{{btn.name||''}}</button>
 		</view>
 	</view>
 </template>
@@ -135,7 +139,8 @@
 				rightTopBadgeCol: "",
 				recordList: [], //核销记录
 				consumeList: [], //消费记录
-				recordPage: {}
+				recordPage: {},
+				buttons: []
 			}
 		},
 		computed: {
@@ -159,6 +164,150 @@
 			}
 		},
 		methods: {
+			toDetail(data, type) {
+				// 
+				let url =''
+				if(type==='xiaofei'){
+					// 消费记录详情
+				url = 	`/publicPages/detail/detail?serviceName=srvhealth_store_card_recharge_detail_select&fieldsCond=[{\"column\":\"id\",\"value\":${data.id},\"display\":false}]&appName=health&disabled=true`
+				}else if(type==='hexiao'){
+					// 核销记录详情
+					url = `/publicPages/detail/detail?serviceName=srvhealth_store_package_approval_select&fieldsCond=[{\"column\":\"id\",\"value\":${data.id},\"display\":false}]&appName=health&disabled=true`
+				}
+				if(url){
+					uni.navigateTo({
+						url
+					})
+				}
+			},
+			onBtnClick(rowData, btn) {
+				rowData = rowData || this.cardInfo
+				if (btn?.servcie_type === 'update') {
+					let service = btn.service
+					let operate_params = btn.operate_params;
+					if (operate_params && typeof operate_params === 'object') {
+						// 序列化操作参数
+						try {
+							if (Array.isArray(operate_params?.condition) && operate_params.condition
+								.length > 0) {
+								operate_params.condition.forEach(cond => {
+									if (typeof cond.value === 'object' && cond.value.value_type === 'rowData') {
+										cond.value = rowData[cond.value.value_key];
+									} else if (typeof cond.value === 'object' && cond.value.value_type ===
+										'constant') {
+										cond.value = cond.value.value;
+									} else if (typeof cond.value === 'object' && cond.value.value_type ===
+										'globalVariable') {
+										// 全局变量
+										const globalVariable = {
+											data: rowData,
+											storeUser: this.vstoreUser,
+											loginUser: this.vloginUser,
+											userInfo: this.userInfo,
+											storeInfo: this.storeInfo
+										}
+										cond.value = this.renderStr(cond.value.value_key, globalVariable)
+									}
+								});
+							}
+							if (Array.isArray(operate_params?.data) && operate_params.data.length >
+								0) {
+								operate_params.data.forEach(data => {
+									if (typeof data === 'object') {
+										Object.keys(data).forEach(item => {
+											if (typeof data[item] === 'object' && data[item].value_type ===
+												'rowData') {
+												data[item] = rowData[data[item].value_key];
+											} else if (typeof data[item] === 'object' && data[item]
+												.value_type === 'constant') {
+												data[item] = data[item].value;
+											} else if (typeof data[item] === 'object' && data[item]
+												.value_type ===
+												'globalVariable') {
+												// 全局变量
+												const globalVariable = {
+													storeUser: this.vstoreUser,
+													loginUser: this.vloginUser,
+													userInfo: this.userInfo,
+													storeInfo: this.storeInfo
+												}
+												data[item] = this.renderStr(data[item].value_key,
+													globalVariable)
+											}
+										});
+									}
+								});
+							}
+						} catch (e) {
+							//TODO handle the exception
+						}
+
+					}
+					if (service) {
+						let req = [{
+							serviceName: service,
+							condition: operate_params.condition,
+							data: operate_params.data
+						}];
+
+						if (!operate_params.data && servcie_type === 'update') {
+							uni.showModal({
+								title: '提示',
+								content: '按钮操作参数配置有误',
+								showCancel: false
+							})
+							return
+						}
+						let app = this.appName || uni.getStorageSync('activeApp');
+						let url = this.getServiceUrl(btn?.app || app, service,
+							btn.servcie_type);
+						uni.showModal({
+							title: '提示',
+							content: '是否确认操作?',
+							success: (res) => {
+								if (res.confirm) {
+									this.$http.post(url, req).then(res => {
+										if (res.data.state === 'SUCCESS') {
+											this.refresh()
+										} else if (res.data.resultMessage) {
+											uni.showModal({
+												title: res.data.resultMessage,
+												showCancel: false
+											})
+										}
+									})
+								}
+							}
+						})
+					}
+				}
+			},
+			isShowBtn(item, btn) {
+				if (!btn?.disp_cond) {
+					return true
+				} else {
+					if (Array.isArray(btn?.disp_cond) && btn?.disp_cond.length > 0) {
+						let valid = 0;
+						btn.disp_cond.forEach(cond => {
+							if (cond.ruleType === 'eq') {
+								if (item[cond.colName] === cond.value) {
+									valid++
+								}
+							} else if (cond.ruleType === 'ne') {
+								if (item[cond.colName] !== cond.value) {
+									valid++
+								}
+							}
+						})
+						if (valid === btn.disp_cond.length) {
+							return true
+						} else {
+							return false
+						}
+					}
+				}
+				return true
+			},
 			toRecordList(e) {
 				let cond = [{
 					"colName": "card_no",
@@ -193,7 +342,7 @@
 						if (cfg?.col_map[val]) {
 							res.label = cfg?.col_map[val]?.label
 							res.value = item[cfg?.col_map[val]?.col]
-							if(res.value===0){
+							if (res.value === 0) {
 								res.value = '0'
 							}
 						}
@@ -314,6 +463,13 @@
 				this.appName = option.appName
 
 			}
+			if (option.buttons) {
+				try {
+					this.buttons = JSON.parse(option.buttons)
+				} catch (e) {
+					//TODO handle the exception
+				}
+			}
 			if (option.rightTopBadgeCol) {
 				this.rightTopBadgeCol = option.rightTopBadgeCol
 
@@ -343,6 +499,28 @@
 				this.serviceName = option.serviceName
 			}
 			this.getDetail()
+		},
+		onShareAppMessage(e) {
+			let title = `收到一张好友赠送的${this.cardInfo?.card_name||'卡券'}，快来打开小程序领取吧！`;
+			let storeNo = this.storeInfo?.store_no
+			let shareUserNo = this.vstoreUser?.store_user_no;
+			let cardNo = ''
+			if (e.target?.dataset?.item) {
+				let data = e.target?.dataset?.item;
+				cardNo = data?.card_no
+			} else {
+				return
+			}
+			// let imageUrl = this.getImagePath(this.storeInfo?.image, true);
+			let url =
+				`storePages/home/home?store_no=${storeNo}&shareStoreUserNo=${shareUserNo}&cardNo=${cardNo}&invite_user_no=${this.userInfo.userno}`;
+			if (cardNo) {
+				url += `&share_type=shareCoupon`
+			}
+			return {
+				path: url,
+				title: title
+			}
 		}
 	}
 </script>
@@ -371,7 +549,7 @@
 
 		.coupon-item_right {
 			position: relative;
-			width: 100px;
+			width: 120px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -464,6 +642,7 @@
 
 		.cu-btn {
 			width: 80vw;
+			margin-bottom: 20px;
 		}
 	}
 

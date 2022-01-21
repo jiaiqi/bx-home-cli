@@ -1,7 +1,7 @@
 <template>
 	<view class="pay-order" :class="['theme-'+theme]" v-if="orderInfo&&orderInfo.order_state">
 		<view class="address-box" @click="chooseAddress"
-			v-if="(!room_no&&(storeInfo&&storeInfo.type!=='酒店')&&(!orderInfo||!orderInfo.order_no))&&['快递','卖家配送'].includes(delivery_type)">
+			v-if="(!room_no&&(storeInfo&&storeInfo.type!=='酒店')&&(!orderInfo||!orderInfo.order_no))&&['快递','卖家配送'].includes(delivery_type)&&needAddress">
 			<view class="left"
 				v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
 				<text class="cuIcon-locationfill"></text>
@@ -91,7 +91,7 @@
         <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
 			</view>
 
-			<view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;">
+			<view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;" v-if="needAddress">
 				<view class="pay-mode-item ">
 					<view class="">
 						<text class="cuIcon-deliver text-yellow  icon"></text>
@@ -284,6 +284,9 @@
 						return good.remark
 					}
 				}
+			},
+			needAddress(){
+				return this.orderInfo?.goodsList&&this.orderInfo.goodsList.length>0&&this.orderInfo.goodsList.find(item=>item.goods_type==='产品')
 			},
 			totalAmount() {
 				if (Array.isArray(this.orderInfo.goodsList)) {
@@ -728,7 +731,7 @@
 					})
 					return
 				}
-				if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type)) {
+				if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type)&&this.needAddress) {
 					uni.showToast({
 						title: '请先选择您的地址信息',
 						icon: 'none',
@@ -738,7 +741,7 @@
 				}
 
 				if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递', '卖家配送']
-					.includes(this.delivery_type)) {
+					.includes(this.delivery_type)&&this.needAddress) {
 					uni.showToast({
 						title: '请确认您的姓名、地址、手机号是否填写完善',
 						icon: 'none',
@@ -818,7 +821,7 @@
 				if (this.couponInfo?.card_no) {
 					req[0].data[0].card_no = this.couponInfo?.card_no
 				}
-				if(this.delivery_type){
+				if(this.delivery_type&&this.needAddress){
 					req[0].data[0].delivery_type = this.delivery_type
 				}
 				let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')

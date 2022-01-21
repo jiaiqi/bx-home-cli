@@ -3,7 +3,7 @@
 
 let env = 'prod'
 
-// env = 'test'
+env = 'test'
 
 
 // if (process?.env?.APP_ENV) {
@@ -18,6 +18,7 @@ let conf = {
     appid: "wx08876efb5760ca75",
     ws: "wss://wx.100xsys.cn:8081",
 	file: "https://wx.100xsys.cn",
+	frontPath:"https://login.100xsys.cn:1443:/health/#/",
   },
   "prod": {
     // 生产环境
@@ -25,8 +26,9 @@ let conf = {
     appNo: "APPNO20201124160702",
     appId: "wxa3c50c8177ef6739",
     ws: "wss://srvms.100xsys.cn:8081",
-	file:"https://file.100xsys.cn"
+	file:"https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
+	frontPath:"https://wx2.100xsys.cn:/health/#/",
   }
 }
 
@@ -37,7 +39,8 @@ let remoteAddress = {
   fileSrv:conf[env]['file'],
   serviceAddress: conf[env]['serviceAddress'],
   wsAddr: conf[env]['ws'],
-  frontEndAddress: 'https://wx2.100xsys.cn/health/#/publicPages/accountExec/accountExec',
+  frontEndAddress: conf[env]['frontPath'],
+  // frontEndAddress: 'https://wx2.100xsys.cn/health/#/publicPages/accountExec/accountExec',
   // frontEndAddress: 'https://wx2.100xsys.cn',
   singleApp: true, // 是否单应用， true 时 所有请求均使用 appName 配置
   appName: "health", //singleApp 为 true 时 必须配置
