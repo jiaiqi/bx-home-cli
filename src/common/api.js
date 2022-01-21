@@ -18,7 +18,7 @@ let conf = {
     appid: "wx08876efb5760ca75",
     ws: "wss://wx.100xsys.cn:8081",
 	file: "https://wx.100xsys.cn",
-	frontPath:"https://login.100xsys.cn:1443:/health/#/",
+	frontPath:"https://login.100xsys.cn:1443/health/#/",
   },
   "prod": {
     // 生产环境
@@ -28,7 +28,7 @@ let conf = {
     ws: "wss://srvms.100xsys.cn:8081",
 	file:"https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
-	frontPath:"https://wx2.100xsys.cn:/health/#/",
+	frontPath:"https://wx2.100xsys.cn/health/#/",
   }
 }
 
