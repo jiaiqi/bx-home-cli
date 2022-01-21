@@ -40,7 +40,7 @@
 				</view>
 				<view class="goods-list">
 					<goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"></goods-item>
-			<!-- 		<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
+					<!-- 		<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
 						<image class="goods-image" :src="
                 goods.goods_image
                   ? getImagePath(goods.goods_image)
@@ -207,7 +207,7 @@
 	} from 'vuex';
 	import goodsItem from './goods-item.vue'
 	export default {
-		components:{
+		components: {
 			goodsItem
 		},
 		data() {
@@ -285,8 +285,9 @@
 					}
 				}
 			},
-			needAddress(){
-				return this.orderInfo?.goodsList&&this.orderInfo.goodsList.length>0&&this.orderInfo.goodsList.find(item=>item.goods_type==='产品')
+			needAddress() {
+				return this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
+					item => item.goods_type === '产品')
 			},
 			totalAmount() {
 				if (Array.isArray(this.orderInfo.goodsList)) {
@@ -329,11 +330,11 @@
 					let obj = {
 						"order_goods_no": item.order_goods_rec_no,
 						"card_case_detail_no": item.card_case_detail_no,
-						"card_no": this.card_no||this.couponInfo?.card_no,
+						"card_no": this.card_no || this.couponInfo?.card_no,
 						"order_no": order_no,
 						"goods_no": item.goods_no,
 						"goods_name": item.goods_name,
-						"approval_num": item.car_num||item.goods_amount
+						"approval_num": item.car_num || item.goods_amount
 					}
 					return obj
 				})
@@ -731,7 +732,8 @@
 					})
 					return
 				}
-				if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type)&&this.needAddress) {
+				if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type) &&
+					this.needAddress) {
 					uni.showToast({
 						title: '请先选择您的地址信息',
 						icon: 'none',
@@ -741,7 +743,7 @@
 				}
 
 				if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递', '卖家配送']
-					.includes(this.delivery_type)&&this.needAddress) {
+					.includes(this.delivery_type) && this.needAddress) {
 					uni.showToast({
 						title: '请确认您的姓名、地址、手机号是否填写完善',
 						icon: 'none',
@@ -801,7 +803,7 @@
 								if (item.goods_img) {
 									obj.goods_image = item.goods_img;
 								}
-								if(item.card_case_detail_no){
+								if (item.card_case_detail_no) {
 									obj.card_case_detail_no = item.card_case_detail_no
 								}
 								return obj;
@@ -821,8 +823,24 @@
 				if (this.couponInfo?.card_no) {
 					req[0].data[0].card_no = this.couponInfo?.card_no
 				}
-				if(this.delivery_type&&this.needAddress){
+				if (this.couponInfo?.useing_store_user_no) {
+					req[0].data[0].store_user_no = this.couponInfo?.useing_store_user_no
+				}
+
+				if (this.couponInfo?.user_image) {
+					req[0].data[0].user_image = this.couponInfo?.user_image
+				}
+				if (this.couponInfo?.sex) {
+					req[0].data[0].sex = this.couponInfo?.sex
+				}
+				if (this.couponInfo?.using_person) {
+					req[0].data[0].person_name = this.couponInfo?.using_person
+				}
+				if (this.delivery_type && this.needAddress) {
 					req[0].data[0].delivery_type = this.delivery_type
+					// if(this.delivery_type==='当面交易'){
+					// 	req[0].data[0].order_state = '已发货'
+					// }
 				}
 				let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
 				// .then(res => {

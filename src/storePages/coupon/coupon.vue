@@ -242,6 +242,9 @@
 					if (Array.isArray(this.buttons) && this.buttons.length > 0) {
 						url+=`&buttons=${JSON.stringify(this.buttons)}`
 					}
+					uni.$on('refreshCoupon',()=>{
+						this.refresh()
+					})
 					uni.navigateTo({
 						url
 					})

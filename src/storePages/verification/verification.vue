@@ -1,7 +1,8 @@
 <template>
 	<view>
 		<view class="list-box" v-if="idCol&&goodsList.length>0">
-			<view class="list-item" v-for="(item,index) in goodsList" :key="index">
+			<view class="list-item" :class="{'disabled':item.last_num===0}" v-for="(item,index) in goodsList"
+				:key="index">
 				<radio :value="item[idCol]" :checked="item.checked" style="transform:scale(1);margin-right:10px;"
 					@click.stop="checkboxChange(item,index)" />
 				<view class="item-content">
@@ -14,10 +15,10 @@
 						</view>
 						<view class="foot-box">
 							<view class="text">
-								剩余次数:{{item.last_num||'-'}}
+								剩余次数:{{item.last_num||'0'}}
 							</view>
 							<view class="">
-								<u-number-box v-model="item.selectNum" :min="1" :max="item.last_num||1"></u-number-box>
+								<u-number-box :value="item.selectNum" :min="1" :max="item.last_num||1"></u-number-box>
 							</view>
 						</view>
 					</view>
@@ -67,7 +68,8 @@
 						store_no: this.storeInfo?.store_no,
 						list: list
 					});
-					let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }&cardInfo=${JSON.stringify(this.cardInfo)}&pay_method=${this.cardInfo.card_type}`
+					let url =
+						`/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }&cardInfo=${JSON.stringify(this.cardInfo)}&pay_method=${this.cardInfo.card_type}`
 					// if (this.wxMchId) {
 					// 	url += `&wxMchId=${this.wxMchId}`
 					// }
@@ -281,9 +283,18 @@
 				}
 			},
 			checkboxChange(e, i) {
+				if (e?.last_num < 1) {
+					return
+				}
 				this.goodsList = this.goodsList.map((item, index) => {
 					if (i === index) {
 						item.checked = !item.checked
+					}
+					if (item.last_num < 1) {
+						item.checked = false
+					}
+					if(item.checked&&item.selectNum===0){
+						item.selectNum = 1
 					}
 					return item
 				})
@@ -317,9 +328,9 @@
 				})
 			},
 		},
-		onShow(){
+		onShow() {
 			// this.refresh()
-			if(this.card_no){
+			if (this.card_no) {
 				this.getList()
 			}
 		},
@@ -351,7 +362,10 @@
 		padding: 10px;
 		display: flex;
 		align-items: center;
-
+		&.disabled{
+			opacity: 0.8;
+			cursor: not-allowed;
+		}
 		.item-content {
 			flex: 1;
 			display: flex;

@@ -170,9 +170,15 @@
 				if(type==='xiaofei'){
 					// 消费记录详情
 				url = 	`/publicPages/detail/detail?serviceName=srvhealth_store_card_recharge_detail_select&fieldsCond=[{\"column\":\"id\",\"value\":${data.id},\"display\":false}]&appName=health&disabled=true`
+				// if(data.order_no){
+				// 	url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&order_no=${data.order_no}&disabled=true`
+				// }
 				}else if(type==='hexiao'){
 					// 核销记录详情
 					url = `/publicPages/detail/detail?serviceName=srvhealth_store_package_approval_select&fieldsCond=[{\"column\":\"id\",\"value\":${data.id},\"display\":false}]&appName=health&disabled=true`
+				}
+				if(data.order_no){
+					url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&order_no=${data.order_no}&disabled=true`
 				}
 				if(url){
 					uni.navigateTo({
@@ -269,6 +275,7 @@
 									this.$http.post(url, req).then(res => {
 										if (res.data.state === 'SUCCESS') {
 											this.refresh()
+											uni.$emit('refreshCoupon')
 										} else if (res.data.resultMessage) {
 											uni.showModal({
 												title: res.data.resultMessage,
