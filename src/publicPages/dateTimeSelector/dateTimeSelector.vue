@@ -7,9 +7,9 @@
 				<view class="value text-black" v-else>{{ date||'' }}</view>
 				<text class="cuIcon-calendar margin-left-xs text-black"></text>
 			</view> -->
-			<view class="" style="margin-bottom: 5px;">
+			<!-- 	<view class="" style="margin-bottom: 5px;">
 				选择日期
-			</view>
+			</view> -->
 			<view class="date-box">
 				<!-- 	<view class="handler-icon" style="transform: rotate(180deg);margin: 5px;" @click="changeLeft(-100)">
 					<text class="cuIcon-right"></text>
@@ -19,15 +19,20 @@
 					v-if="cfg&&cfg.disp_date_col&&cfg.week_col&&cfg.val_date_col">
 					<view class="date-item" :class="{active:date==item[cfg.val_date_col]}" :id="item[cfg.val_date_col]"
 						v-for="(item,index) in dateList" :key="index" @click="selectDate(item)">
-						<text>{{item[cfg.disp_date_col]||''}}({{week2CN(item[cfg.week_col])}})
-						</text>
+						<view>{{week2CN(item[cfg.week_col],item)}}</view>
+						<view>{{item[cfg.disp_date_col]||''}}
+						</view>
 					</view>
 				</scroll-view>
 				<scroll-view scroll-x="true" class="scroll-view_H" :class="{'full':fullDate}" :scroll-left="scrollLeft"
 					:scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper" v-else>
 					<view class="date-item" :class="{active:date==item.month_day}" :id="item.month_day"
 						v-for="(item,index) in dateList" :key="index" @click="selectDate(item)">
-						<text>{{item.month_day}}({{week2CN(item.day_week)}})</text>
+						<view class="">
+							{{week2CN(item.day_week,item)}}
+						</view>
+						<view>{{item.month_day}}</view>
+
 					</view>
 				</scroll-view>
 				<!-- <view class="handler-icon" style="margin-left: 5px;" @click="changeLeft(100)">
@@ -37,9 +42,9 @@
 		</view>
 		<view class="main">
 			<view class="time-selector">
-				<view class="" style="padding-left: 10px;margin-bottom:5px;" v-if="timeList.length>0">
+				<!-- 	<view class="" style="padding-left: 10px;margin-bottom:5px;" v-if="timeList.length>0">
 					选择时间段
-				</view>
+				</view> -->
 				<view class="time-list">
 					<view class="time-item" :class="{active:item.checked===true}" @tap="tapTime(item)"
 						v-for="(item,index) in timeList" :key="index">
@@ -53,6 +58,7 @@
 							<view class="content">
 								{{renderTemplate(item,'bottom')||''}}
 							</view>
+							<text class="cuIcon-roundcheckfill checked-icon" v-if="item.checked===true"></text>
 						</view>
 					</view>
 				</view>
@@ -142,10 +148,13 @@
 				}
 
 			},
-			week2CN(e) {
+			week2CN(day, e) {
 				let weekMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-				if ([0, 1, 2, 3, 4, 5, 6].indexOf(e) > -1) {
-					return weekMap[e]
+				if ([0, 1, 2, 3, 4, 5, 6].indexOf(day) > -1) {
+					if (e?.year_month_day === this.dayjs().format('YYYY-MM-DD')) {
+						return '今天'
+					}
+					return weekMap[day]
 				}
 				return ''
 			},
@@ -232,6 +241,9 @@
 				const res = await this.$http.post(url, req)
 				if (res.data.state === 'SUCCESS') {
 					this.dateList = res.data.data
+					if (res.data.data.length > 0) {
+						this.selectDate(res.data.data[0])
+					}
 					// .map(item => {
 					// 	item.checked = false;
 					// 	return item
@@ -326,6 +338,7 @@
 	.page-wrap {
 		display: flex;
 		flex-direction: column;
+		background-color: #fff;
 		height: calc(100vh - var(--window-top));
 
 		.main {
@@ -342,14 +355,14 @@
 	.calendar-box {
 		width: 100%;
 		// display: flex;
-		padding: 10px;
+		padding: 10px 10px 0;
 		padding-right: 0;
 		// background-color: #fff;
 		margin-bottom: 10px;
 		// flex-wrap: wrap;
 		// overflow-y: scroll;
 		overflow: hidden;
-
+		box-shadow: 0px 3px 6px rgba(216, 217, 223, 0.26);
 
 
 		.date-box {
@@ -393,16 +406,26 @@
 		}
 
 		.date-item {
-			margin: 0 10px 10px 0;
+			margin: 0;
 			padding: 10px;
-			background-color: #d2e6f8;
-			color: #63bccc;
-			border-radius: 5px;
 			display: inline-block;
+			text-align: center;
 
 			&.active {
-				color: #fff;
-				background-color: #63bccc;
+				position: relative;
+
+				&::after {
+					position: absolute;
+					content: '';
+					width: 80%;
+					left: 10%;
+					height: 3px;
+					background-color: #3ACBC6;
+					bottom: 0;
+				}
+
+				// border-bottom: 2px solid #63bccc;
+				// background-color: #63bccc;
 			}
 		}
 
@@ -436,16 +459,24 @@
 			justify-content: center;
 			margin-right: 10px;
 			margin-bottom: 10px;
-			color: #63bccc;
-
+			background-color: #F6F6F8;
+			position: relative;
+			border-radius: 10px;
+			.checked-icon{
+				color: #3ACBC6;
+				font-size: 25px;
+				position: absolute;
+				right: -2px;
+				bottom: -2px;
+			}
 			&:nth-child(3n) {
 				margin-right: 0;
 			}
 
 			&.active {
 				.time-box {
-					background-color: #62bdcd;
-					color: #fff;
+					background: rgba(58, 203, 198, 0.1);
+					border: 1px solid #3ACBC6;
 					// border: 1px solid #007AFF;
 				}
 			}
@@ -453,8 +484,8 @@
 			.time-box {
 				// border: 1px solid #fff;
 				// background-color: #fff;
-				background-color: #d2e6f8;
-				border-radius: 5px;
+				border-radius: 10px;
+				border: 1px solid #f6f6f8;
 				padding: 10px;
 				width: 100%;
 
@@ -466,7 +497,7 @@
 
 		.cu-btn {
 			width: 80%;
-			background-color: #63bccc;
+			background-color: #3ACBC6;
 		}
 	}
 </style>

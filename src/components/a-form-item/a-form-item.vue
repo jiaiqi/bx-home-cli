@@ -1083,7 +1083,6 @@
 						}
 						self.selectorData = self.selectorData.map(item => {
 							const config = this.deepClone(this.fieldData.option_list_v2);
-							debugger
 							// item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
 							item.label = config.show_as_pair !== false ?
 								`${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
