@@ -17,8 +17,8 @@ let conf = {
     appNo: "APPNO20210926101030",
     appid: "wx08876efb5760ca75",
     ws: "wss://wx.100xsys.cn:8081",
-	file: "https://wx.100xsys.cn",
-	frontPath:"https://login.100xsys.cn:1443/health/#/",
+    file: "https://wx.100xsys.cn",
+    frontPath: "https://login.100xsys.cn:1443/health/#/",
   },
   "prod": {
     // 生产环境
@@ -26,9 +26,9 @@ let conf = {
     appNo: "APPNO20201124160702",
     appId: "wxa3c50c8177ef6739",
     ws: "wss://srvms.100xsys.cn:8081",
-	file:"https://file.100xsys.cn",
+    file: "https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
-	frontPath:"https://wx2.100xsys.cn/health/#/",
+    frontPath: "https://wx2.100xsys.cn/health/#/",
   }
 }
 
@@ -36,7 +36,7 @@ let conf = {
 let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
   ssoAddress: 'http://sso.100xsys.cn',
-  fileSrv:conf[env]['file'],
+  fileSrv: conf[env]['file'],
   serviceAddress: conf[env]['serviceAddress'],
   wsAddr: conf[env]['ws'],
   frontEndAddress: conf[env]['frontPath'],
@@ -104,7 +104,7 @@ let ENV = {
   getUserInfo: remoteAddress.serviceAddress + '/wx/select/srvwx_basic_user_info_select', //获取用户信息
   saveShareRecord: remoteAddress.serviceAddress + '/daq/add/srvdaq_record_share_add', //保存微信分享记录
   downloadFile: remoteAddress.fileSrv + '/file/download?fileNo=', // 根据fileNo直接下载图片，不用查找filePath
-	fileSrv:remoteAddress.fileSrv,
+  fileSrv: remoteAddress.fileSrv,
   /**
    * 新旧api 分割线—————————————————————————————————————————————————————————— old 
    * */
