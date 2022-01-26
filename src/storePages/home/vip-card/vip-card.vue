@@ -35,7 +35,7 @@
 		},
 		computed: {
 			rightBtn() {
-				return this.detailCfg.right_btn
+				return this.detailCfg?.right_btn
 			},
 			bindUserInfo() {
 				return this.vstoreUser
