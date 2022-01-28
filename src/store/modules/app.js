@@ -32,7 +32,7 @@ const state = {
   dietRecord: getItem('dietRecord') ? getItem('dietRecord') : [],
   pageInfo: getItem('pageInfo') ? getItem('pageInfo') : {},
   currentPage: '',
-  inviterInfo: getItem('inviterInfo') ? getItem('inviterInfo') : {}, //邀请人
+  inviterInfo:  {}, //邀请人
   areRegistering: false, //是否正在注册
   payParams: {}, //支付相关参数
   prePayInfo: {}, //预支付信息

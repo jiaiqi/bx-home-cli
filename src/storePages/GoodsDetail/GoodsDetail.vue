@@ -31,7 +31,7 @@
 			</view>
 		</view>
 		<view class="desc" v-if="goodsInfo.goods_desc">
-			<view class="title">简介</view>
+			<view class="title">商品详情</view>
 			<view class="">{{ goodsInfo.goods_desc || '' }}</view>
 		</view>
 		<view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
