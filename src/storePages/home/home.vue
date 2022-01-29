@@ -283,7 +283,7 @@
               title: '操作成功'
             });
           }
-          this.selectBindUser();
+          this.selectBindUser(true);
         }
       },
       toSetting() {
@@ -741,7 +741,7 @@
         content.w = maxW;
         return content;
       },
-      async selectBindUser() {
+      async selectBindUser(updated=false) {
         let condition = [{
           colName: 'person_no',
           ruleType: 'eq',
@@ -776,8 +776,8 @@
             this.bindUserInfo = isBind;
             let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
               ?.invite_user_no;
-            if (invite_user_no!==this.userInfo?.userno) {
-              if (this.StoreInfo?.standard !== '不更新') {
+            if (invite_user_no&&invite_user_no!==this.userInfo?.userno&&!updated) {
+              if (this.StoreInfo?.standard == '更新') {
                 // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
                 // 更新店铺用户的邀请人编码
                 let data = {
