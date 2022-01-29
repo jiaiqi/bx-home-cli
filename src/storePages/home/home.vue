@@ -774,7 +774,8 @@
               this.isBind = false;
             }
             this.bindUserInfo = isBind;
-            let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no 
+            let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
+              ?.invite_user_no;
             if (invite_user_no!==this.userInfo?.userno) {
               if (this.StoreInfo?.standard !== '不更新') {
                 // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
