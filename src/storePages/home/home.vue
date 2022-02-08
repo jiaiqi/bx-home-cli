@@ -139,6 +139,9 @@
         return this.$store?.state?.app?.theme;
       },
       showBackHome() {
+        if(this.storeNo==="S0000000000"){
+          return false
+        }
         let status = this.StoreInfo?.audit_status;
         if (status) {
           if (status === '仅本店' || status === '双向隔离') {
@@ -305,37 +308,6 @@
           // }, 100)
         }
       },
-      goHome() {
-        uni.reLaunch({
-          url: '/pages/index/index'
-        });
-      },
-      // async selectInStore() {
-      // 	// 查找当前账号所在的所有店铺
-      // 	let req = {
-      // 		condition: [
-      // 			{
-      // 				colName: 'person_no',
-      // 				ruleType: 'eq',
-      // 				value: this.userInfo.no
-      // 			},
-      // 			{
-      // 				colName: 'member_status',
-      // 				ruleType: 'eq',
-      // 				value: '正常'
-      // 			}
-      // 		],
-      // 		page: {
-      // 			pageNo: 1,
-      // 			rownumber: 20
-      // 		}
-      // 	};
-      // 	let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health');
-      // 	if (res.success) {
-      // 		this.storeList = res.data;
-      // 	}
-      // 	return res;
-      // },
       openSwitchHomePage() {
         let cond = [{
             colName: 'person_no',
@@ -1154,6 +1126,7 @@
       },
       async initPage() {
         let self = this;
+        debugger
         await this.toAddPage();
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
@@ -1660,6 +1633,8 @@
       }
       if (option.store_no) {
         this.storeNo = option.store_no;
+      }else{
+        this.store_no = 'S0000000000'
       }
       if (this.authBoxDisplay) {
         return; //未授权

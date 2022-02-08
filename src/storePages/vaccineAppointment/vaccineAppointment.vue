@@ -122,10 +122,19 @@
         </view>
       </view>
       <view class="footer">
-        <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
+        <!--  <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
         <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
           v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>
-        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button>
+          <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button> -->
+        <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
+        <debounce-view
+          v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)"
+          @onTap="submitNotify">
+          <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}">提交</button>
+        </debounce-view>
+        <debounce-view @onTap="submitOrder" v-else>
+          <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}">提交预约</button>
+        </debounce-view>
       </view>
     </view>
   </view>
@@ -483,11 +492,18 @@
       selectItem(e, data) {
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
-            let title = `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`;
+            let title = `今天${e.app_open_time.slice(0,5)}后才可以预约${e.predays}天后的疫苗`;
 
-            uni.showToast({
-              title: title,
-              icon: 'none'
+            // uni.showToast({
+            //   title: title,
+            //   icon: 'none'
+            // })
+            
+            uni.showModal({
+              title: '提示',
+              content: title,
+              showCancel: false,
+              confirmText: '知道了'
             })
             return
           }
@@ -612,6 +628,7 @@
           }
         }
         let vaccineInfo = this.getRange.find(item => item.sa_no === this.selectedVaccine.sa_no)
+        debugger
         if (vaccineInfo?.app_count_limit) {
           if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
             uni.showToast({
@@ -622,6 +639,7 @@
           }
         }
         let selectedVaccine = this.deepClone(this.selectedVaccine)
+        debugger
         if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
           if (selectedVaccine.app_amount && selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >=
             selectedVaccine

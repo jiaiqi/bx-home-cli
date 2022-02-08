@@ -2,7 +2,7 @@
   <view>
     <view class="cu-custom" :style="[{ height: CustomBar + 'px' }]">
       <view class="cu-bar fixed" :style="style" :class="className">
-      <!-- <view class="cu-bar fixed" :style="style" :class="[bgImage != '' ? 'none-bg text-white bg-img' : '', bgColor]"> -->
+        <!-- <view class="cu-bar fixed" :style="style" :class="[bgImage != '' ? 'none-bg text-white bg-img' : '', bgColor]"> -->
         <view class="action" @tap="BackPage" v-if="isBack">
           <text class="cuIcon-home" v-if="isFirstPage||backHome"></text>
           <text class="cuIcon-back" v-else></text>
@@ -38,8 +38,8 @@
         const pages = getCurrentPages()
         return pages && pages.length === 1
       },
-      className(){
-        if(this.theme){
+      className() {
+        if (this.theme) {
           return `bx-bg-color`
         }
       },
@@ -91,7 +91,8 @@
         this.$emit('onBack')
         if (this.isFirstPage || this.backHome) {
           uni.reLaunch({
-            url: '/pages/index/index'
+            // url: '/pages/index/index',
+            url: "/storePages/home/home?store_no=S0000000000"
           })
         } else {
           uni.navigateBack({

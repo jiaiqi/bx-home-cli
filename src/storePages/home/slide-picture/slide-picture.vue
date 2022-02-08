@@ -217,7 +217,7 @@
     min-width: 335px;
 
     .swiper-item-box {
-      video {
+      video,image {
         width: 100%;
         height: 100%;
       }

@@ -43,7 +43,7 @@
     data() {
       return {
         goodsList: [],
-        pageNo:1
+        pageNo: 1
       };
     },
     mounted() {
@@ -54,8 +54,8 @@
     methods: {
       getGoodsListData() {
         let req = {
-          page:{
-            rownumber:999
+          page: {
+            rownumber: 999
           },
           condition: [{
               colName: 'store_no',
@@ -69,9 +69,16 @@
             }
           ]
         };
-		if (Array.isArray(this.pageItem?.more_config?.condition) && this.pageItem?.more_config?.condition.length > 0) {
-			req.condition = [...req.condition, ...this.pageItem?.more_config?.condition];
-		}
+        if (Array.isArray(this.pageItem?.more_config?.condition) && this.pageItem?.more_config?.condition.length > 0) {
+          req.condition = [...req.condition, ...this.pageItem?.more_config?.condition];
+        }
+        if (this.pageItem?.goods_classify_path) {
+          req.condition.push({
+            colName: 'goods_classify_path',
+            ruleType: 'like]',
+            value: this.pageItem?.goods_classify_path
+          })
+        }
         this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
           if (Array.isArray(res.data)) {
             if (Array.isArray(res.data)) {
@@ -149,6 +156,9 @@
       price: {
         type: String,
         default: 'price'
+      },
+      pageItem: {
+        type: Object
       }
     }
   };
@@ -162,7 +172,7 @@
     // column-gap: 10px;
     padding: 0 0px 0px;
     min-width: 300px;
-	justify-content: space-between;
+    justify-content: space-between;
 
     @media screen and (min-width: 1300px) {
       width: 400px;
@@ -177,12 +187,14 @@
     break-inside: avoid;
     margin-top: 20rpx;
     // width: calc(50% - 20rpx);
-	min-width: 45%;
-	flex: 1;
-	max-width: calc(50% - 10rpx);
+    min-width: 45%;
+    flex: 1;
+    max-width: calc(50% - 10rpx);
     margin-right: 20rpx;
-	// margin-bottom: 20rpx;
-    &:first-child,&:nth-child(2) {
+
+    // margin-bottom: 20rpx;
+    &:first-child,
+    &:nth-child(2) {
       margin-top: 0;
     }
 

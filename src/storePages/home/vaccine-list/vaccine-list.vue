@@ -684,9 +684,10 @@
           if (this.moreConfig && typeof this.moreConfig === 'object') {
             url += `&moreConfig=${JSON.stringify(this.moreConfig)}`
           }
-          if(this.moreConfig&&this.moreConfig.detailConfig){
-            url = url.replace('/vaccineAppointment/vaccineAppointment','/appointment/appointment')
-          }
+          // debugger
+          // if(this.moreConfig&&this.moreConfig.detailConfig){
+          //   url = url.replace('/vaccineAppointment/vaccineAppointment','/appointment/appointment')
+          // }
           uni.navigateTo({
             url
           })

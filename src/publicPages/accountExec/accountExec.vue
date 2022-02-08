@@ -47,10 +47,14 @@
 
 
 
-
-          <button class="confirm-btn bg-blue text-green" @click="userLogined">
+          <debounce-view @onTap="userLogined">
+            <button class="confirm-btn bg-blue text-green">
+              {{ isBindUser ? '提交绑定' : '登录' }}
+            </button>
+          </debounce-view>
+          <!--      <button class="confirm-btn bg-blue text-green" @click="userLogined">
             {{ isBindUser ? '提交绑定' : '登录' }}
-          </button>
+          </button> -->
           <!--    <button class="confirm-btns" @click="showScan">
             <text class="cuIcon-scan margin-right"></text>
             扫码登录
@@ -92,6 +96,9 @@
 </template>
 
 <script>
+  import {
+    debounce
+  } from '@/common/func/util.js'
   export default {
     // 账号授权页面
     name: 'AccountExec',
@@ -285,7 +292,8 @@
           if (pages.length > 1) {
             fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
           }
-          var loginBackurl = uni.getStorageSync('loginBackurl') || '/pages/index/index'
+          var loginBackurl = uni.getStorageSync('loginBackurl') || '/storePages/home/home?store_no=S0000000000'
+          // var loginBackurl = uni.getStorageSync('loginBackurl') || '/pages/index/index'
           // var callbackurl = window.location.origin + `/health/#${fullPath}`;
           uni.reLaunch({
             url: loginBackurl
@@ -343,7 +351,7 @@
         } else {
           let loginBackurl = uni.getStorageSync('loginBackurl');
           console.log('that.backUrl', that.backUrl, '===');
-          if (loginBackurl&&loginBackurl.indexOf('accountExec')==-1) {
+          if (loginBackurl && loginBackurl.indexOf('accountExec') == -1) {
             // url = that.getDecodeUrl(url);
             // if (url && url.lastIndexOf('backUrl=') !== -1) {
             //   url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
@@ -396,7 +404,7 @@
               let pages = getCurrentPages()
               if (pages.length > 1) {
                 fullPath = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
-                if(fullPath&&fullPath.indexOf('/publicPages/accountExec/accountExec')==-1){
+                if (fullPath && fullPath.indexOf('/publicPages/accountExec/accountExec') == -1) {
                   uni.setStorageSync('loginBackurl', fullPath)
                 }
               }
@@ -537,7 +545,7 @@
                     } else if (res.cancel) {
                       console.log('用户点击取消');
                       let loginBackurl = uni.getStorageSync('loginBackurl')
-                      if (loginBackurl&&loginBackurl.indexOf('accountExec')==-1) {
+                      if (loginBackurl && loginBackurl.indexOf('accountExec') == -1) {
                         // loginBackurl = that.getDecodeUrl(loginBackurl)
                         // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
                         // if (url && url.lastIndexOf("backUrl=") !== -1) {
@@ -591,7 +599,7 @@
                 uni.hideToast();
                 uni.hideLoading();
                 let loginBackurl = uni.getStorageSync('loginBackurl')
-                if (loginBackurl && loginBackurl !== '/'&&loginBackurl.indexOf('accountExec')==-1) {
+                if (loginBackurl && loginBackurl !== '/' && loginBackurl.indexOf('accountExec') == -1) {
                   // url = that.getDecodeUrl(url);
                   // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
                   // if (url && url.lastIndexOf('backUrl=') !== -1) {
@@ -741,6 +749,8 @@
           client_type: client_type
         };
       },
+
+      // debounceUserLogined: debounce(async function() {}, 1000, false),
       async userLogined() {
         let that = this;
         let url = that.getServiceUrl('sso', 'srvuser_login', 'operate');
