@@ -629,15 +629,7 @@
         }
         let vaccineInfo = this.getRange.find(item => item.sa_no === this.selectedVaccine.sa_no)
         debugger
-        if (vaccineInfo?.app_count_limit) {
-          if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
-            uni.showToast({
-              title: '已超过当前时间段预约人数限制!',
-              icon: 'none',
-            })
-            return
-          }
-        }
+       
         let selectedVaccine = this.deepClone(this.selectedVaccine)
         debugger
         if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
@@ -652,7 +644,17 @@
               msg: '已超过当前时间段预约人数限制'
             }
           }
-        }
+        }else {
+			if (vaccineInfo?.app_count_limit) {
+			  if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
+			    uni.showToast({
+			      title: '已超过当前时间段预约人数限制!',
+			      icon: 'none',
+			    })
+			    return
+			  }
+			}
+		}
 
         let req = [{
           "serviceName": "srvhealth_store_vaccination_appoint_record_add",
