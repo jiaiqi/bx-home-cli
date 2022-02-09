@@ -91,8 +91,8 @@
         this.$emit('onBack')
         if (this.isFirstPage || this.backHome) {
           uni.reLaunch({
-            url: '/pages/index/index',
-            // url: "/storePages/home/home?store_no=S0000000000"
+            // url: '/pages/index/index',
+            url: "/storePages/home/home?store_no=S0000000000"
           })
         } else {
           uni.navigateBack({
