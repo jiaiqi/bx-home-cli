@@ -1089,6 +1089,7 @@
         let params = updateList.map((item, index) => {
           delete item._isMemoryData
           delete item._dirtyFlags
+          delete item._buttons
           let row = this.localListData[index]
           let id = item.id
           Object.keys(row).forEach(key => {
@@ -1119,6 +1120,7 @@
           data: addList.map(item => {
             delete item._isMemoryData
             delete item._dirtyFlags
+            delete item._buttons
             delete item._type
             return item
           }),

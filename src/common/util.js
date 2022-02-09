@@ -1493,7 +1493,7 @@ export default {
 									display: false
 								}]
 								let url =
-									`/publicPages/form/form?type=update&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+									`/publicPages/formPage/formPage?type=update&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${JSON.stringify(fieldsCond)}`;
 								if (appName) {
 									url += `&appName=${appName}`
 								}

@@ -6,7 +6,7 @@
 			'noMargin noPadding': pageItem && ['店铺信息2', '通知横幅', '通用列表', '会员卡片'].includes(pageItem.type)
 		}">
     <view class="title" :style="titleStyle"
-      v-if="pageItem && pageItem.show_label === '是' && pageItem.type !== '通用列表' && pageItem.type !== '疫苗列表'"
+      v-if="pageItem && pageItem.show_label === '是' && !['通用列表','疫苗列表','商品列表'].indexOf(pageItem.type)"
       @click="toMore">
       <text>{{ pageItem.component_label || '' }}</text>
       <!-- <view class="cu-btn bg-white" v-if="pageItem.type === '朋友圈'">

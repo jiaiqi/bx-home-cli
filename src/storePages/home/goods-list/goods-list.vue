@@ -1,15 +1,24 @@
 <template>
-  <view class="goods-list" :style="[calcStyle]">
-    <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
-      <image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
-        :style="{ height: item.imgHeight + 'px' }"></image>
-      <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
-      <view class="goods-info">
-        <view class="goods-name">{{ item[name] }}</view>
-        <view class="desc">{{ item[desc] }}</view>
-        <view class="price text-cyan">
-          <text class="symbol">￥</text>
-          <text class="number">{{ item[price] }}</text>
+  <view class="goods-list-wrap">
+    <view class="title" :style="titleStyle" v-if="pageItem && pageItem.show_label === '是'">
+      <text>{{ pageItem.component_label || '' }}</text>
+      <view class="to-more cu-btn" v-if="hasMore" @click="toMore">
+        查看更多
+        <text class="cuIcon-right"></text>
+      </view>
+    </view>
+    <view class="goods-list" :style="[calcStyle]">
+      <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
+        <image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
+          :style="{ height: item.imgHeight + 'px' }"></image>
+        <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
+        <view class="goods-info">
+          <view class="goods-name">{{ item[name] }}</view>
+          <view class="desc">{{ item[desc] }}</view>
+          <view class="price text-cyan">
+            <text class="symbol">￥</text>
+            <text class="number">{{ item[price] }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -32,6 +41,11 @@
   export default {
     name: 'good-list',
     computed: {
+      titleStyle() {
+        if (typeof this.pageItem?.more_config === 'object') {
+          return this.pageItem?.more_config?.titleStyle || '';
+        }
+      },
       calcStyle() {
         if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
           return {
@@ -39,11 +53,18 @@
           }
         }
       },
+      rownumber() {
+        return this.pageItem?.row_number || 6
+      },
+      hasMore() {
+        return this.total > this.rownumber
+      },
     },
     data() {
       return {
         goodsList: [],
-        pageNo: 1
+        pageNo: 1,
+        total: 0
       };
     },
     mounted() {
@@ -52,10 +73,33 @@
       }
     },
     methods: {
+      toMore() {
+        let url = `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health`
+        let cond = [{
+          "colName": "store_no",
+          "ruleType": "eq",
+          "value": this.storeNo
+        }, {
+          "colName": "online_state",
+          "ruleType": "eq",
+          "value": "上线"
+        }]
+        if (this.pageItem?.goods_classify_path) {
+          cond.push({
+            colName: 'goods_classify_path',
+            ruleType: 'like]',
+            value: this.pageItem?.goods_classify_path
+          })
+        }
+        url += `&cond=${JSON.stringify(cond)}`
+        uni.navigateTo({
+          url
+        })
+      },
       getGoodsListData() {
         let req = {
           page: {
-            rownumber: 999
+            rownumber: this.rownumber
           },
           condition: [{
               colName: 'store_no',
@@ -81,6 +125,9 @@
         }
         this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
           if (Array.isArray(res.data)) {
+            if (res.page?.total) {
+              this.total = res.page.total
+            }
             if (Array.isArray(res.data)) {
               this.goodsList = res.data.reduce((pre, cur) => {
                 let url = this.getImagePath(cur[this.image], true);
@@ -165,6 +212,23 @@
 </script>
 
 <style scoped lang="scss">
+  .title {
+    padding: 20rpx;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-family: 苹方-简;
+    font-weight: normal;
+    color: #474849;
+
+    .to-more {
+      font-size: 14px;
+      background-color: transparent;
+    }
+  }
+
   .goods-list {
     display: flex;
     flex-wrap: wrap;

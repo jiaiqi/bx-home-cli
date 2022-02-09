@@ -1,8 +1,8 @@
 <template>
 	<view class="form-wrap" :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title}]">
-		<view class="custom-view bg-blue" v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
+		<view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}" v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
 			<view class="icon">
-				<text class="cuIcon-check text-blue"></text>
+				<text class="cuIcon-check text-blue" :style="{'color':view_cfg.bg}"></text>
 			</view>
 			<view class="content">
 				<view class="title">
@@ -34,7 +34,7 @@
 		</view>
 		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
 			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
-				:key='btnIndex' @click="onButton(btn)">
+				:key='btnIndex' :style="btn.style" @click="onButton(btn)">
 				{{ btn.button_name}}
 			</button>
 		</view>
@@ -282,13 +282,15 @@
 					let url =
 						`/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
 					if (e.cond) {
-						debugger
 						const cond = e.cond.map(item => {
 							item.value = this.renderStr(item.value, globalData)
 							return item
 						})
 						url += `&cond=${JSON.stringify(cond)}`
 					}
+          if(e.disabled){
+            url+=`&disabled=true`
+          }
 					uni.navigateTo({
 						url
 					})
@@ -300,7 +302,6 @@
 						req[key] = req[key].toString();
 					}
 				}
-debugger
 				switch (e.button_type) {
 					case 'edit':
 						if (e.page_type === '详情' && this.use_type === 'detail') {
@@ -313,6 +314,7 @@ debugger
 							if (Array.isArray(this.childService) && this.childService.length > 0) {
 								this.childService.forEach((item, index) => {
 									let child_data = this.$refs.childList[index].getChildDataList()
+                  debugger
 									data.child_data_list.push(...child_data)
 									// data.child_data_list.push(this.$refs.childList[index].getChildDataList())
 								})
@@ -480,6 +482,7 @@ debugger
 							if (Array.isArray(this.childService) && this.childService.length > 0) {
 								this.childService.forEach((item, index) => {
 									let child_data = this.$refs.childList[index].getChildDataList()
+                  
 									data.child_data_list.push(...child_data)
 									// data.child_data_list.push(this.$refs.childList[index].getChildDataList())
 								})
@@ -1398,16 +1401,17 @@ debugger
 
 		.custom-view {
 			margin-bottom: 10px;
-			padding: 10px 20px;
+			padding:20px;
 			display: flex;
 			align-items: center;
 
 			.icon {
 				font-size: 40px;
+        font-weight: bold;
 				background-color: #fff;
-				width: 60px;
-				height: 60px;
-				line-height: 60px;
+				width: 50px;
+				height: 50px;
+				line-height: 50px;
 				text-align: center;
 				border-radius: 50%;
 				margin: 0 10px;
@@ -1493,9 +1497,9 @@ debugger
 		min-width: 300px;
 		max-width: 800px;
 		margin: 10px auto 20px;
-
+    flex-wrap: wrap;
 		.cu-btn {
-			min-width: 45%;
+			min-width: 65%;
 		}
 	}
 </style>
