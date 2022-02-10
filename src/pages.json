@@ -350,6 +350,12 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "tg/tg",
+          "style": {
+            "navigationBarTitleText": "团购详情",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     },

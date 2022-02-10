@@ -34,7 +34,7 @@
 		</view>
 		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
 			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
-				:key='btnIndex' :style="btn.style" @click="onButton(btn)">
+				:key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
 				{{ btn.button_name}}
 			</button>
 		</view>

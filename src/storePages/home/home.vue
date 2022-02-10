@@ -1126,7 +1126,6 @@
       },
       async initPage() {
         let self = this;
-        debugger
         await this.toAddPage();
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号

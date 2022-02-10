@@ -584,7 +584,6 @@
 			},
 
 			toPages(e) {
-				debugger
 				if (e.$orig) {
 					e = e.$orig;
 				}

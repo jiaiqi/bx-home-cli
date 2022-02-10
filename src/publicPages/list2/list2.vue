@@ -31,6 +31,7 @@
           :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig"
           :list="list" :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn"
           @add2Cart="add2Cart" @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
+        <u-empty text="列表为空" mode="list" v-if="loadStatus==='norMore'&&list.length==0"></u-empty>
       </view>
 
     </view>
@@ -42,7 +43,6 @@
     <view class="bottom-button" v-if="selectoDataId">
       <button class="cu-btn bg-blue round shadow-blur" @click="confirmSelect">确认</button>
     </view>
-    <u-empty text="列表为空" mode="list" v-if="loadStatus==='norMore'&&list.length==0"></u-empty>
   </view>
 </template>
 
@@ -890,6 +890,20 @@
         if (colVs?.moreConfig?.list_config?.rownumber) {
           this.rownumber = colVs?.moreConfig?.list_config?.rownumber
         }
+        if (Array.isArray(colVs?.rowButton) && colVs?.rowButton.length > 0) {
+          colVs.rowButton = colVs.rowButton.map(item => {
+            try {
+              item.moreConfig = {}
+              if (item.more_config) {
+                item.moreConfig = JSON.parse(item.more_config)
+              }
+            } catch (e) {
+              console.log('error,', e)
+              //TODO handle the exception
+            }
+            return item
+          })
+        }
         this.colV2 = colVs;
 
         if (Array.isArray(colVs.srv_cols)) {
@@ -1323,7 +1337,8 @@
                 data: rowData,
                 rowData,
                 storeInfo,
-                bindUserInfo
+                bindUserInfo,
+                storeUser:bindUserInfo
               };
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
 
@@ -1989,7 +2004,6 @@
           //TODO handle the exception
         }
       }
-
       if (option.cond) {
         let cond = option.cond
         try {
@@ -2033,6 +2047,39 @@
       if (Array.isArray(this.list) && this.list.length > 0) {
         this.refresh()
       }
+    },
+    onShareAppMessage(e) {
+      let title = e?.target?.dataset?.sharetitle
+      let path = e?.target?.dataset?.shareurl
+      let row = e?.target?.dataset?.row
+      let _data = {
+        rowData: {
+          share_user_no: this.$store?.state?.user?.userInfo?.userno,
+          share_store_user_no:this.vstoreUser?.store_user_no,
+          ...row
+        },
+        storeUser:this.vstoreUser,
+        userInfo: this.$store?.state?.user?.userInfo,
+        storeInfo: this.$store?.state?.app?.storeInfo
+      }
+      if(title){
+        title = this.renderStr(title,_data)
+      }
+      if(path){
+        path = this.renderStr(path,_data)
+      }
+      // if (typeof _data.rowData === 'object') {
+      //   delete _data.rowData._buttons
+      //   path += `&rowData=${JSON.stringify(_data.rowData)}`
+      // }
+      let imageUrl = this.getImagePath(this.storeInfo?.image, true);
+      debugger
+      this.saveSharerInfo(this.userInfo, path);
+      return {
+        imageUrl: imageUrl,
+        title: title,
+        path: path
+      };
     },
     onPullDownRefresh() {
       this.refresh()
