@@ -227,6 +227,9 @@
         let buttons = [];
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
           buttons = this.rowButton.filter((item, index) => {
+            if(!item.moreConfig){
+              item.moreConfig = {}
+            }
             if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this
               .rowButton.length) {
               return this.rowData._buttons[index] === 1;

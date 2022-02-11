@@ -16,7 +16,7 @@
       </filter-tags>
     </view>
     <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
-      <u-tabs :list="tabsCfg.tabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
+      <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
         @change="changeTabs"></u-tabs>
     </view>
     <view class="list-content" :class="['theme-'+theme]" :style="{
@@ -60,7 +60,26 @@
       countBar,
       cartBottom
     },
+    watch: {
+      enumTabs: {
+        immediate: true,
+        deep: true,
+        handler(newValue, oldValue) {
+          if (Array.isArray(newValue) && newValue.length > 0) {
+            if (this.curTabVal) {
+              let tab = newValue.findIndex(item => item.name === this.curTabVal);
+              if (tab > -1) {
+                this.changeTabs(tab)
+              }
+            }
+          }
+        }
+      }
+    },
     computed: {
+      enumTabs() {
+        return this.tabsCfg.tabs || []
+      },
       tabsCfg() {
         let cfg = this.moreConfig?.tabs_cfg
         let res = {
@@ -72,15 +91,20 @@
           if (cfg?.type === 'enum_col' && cfg?.column) {
             if (Array.isArray(this.colV2?._fieldInfo)) {
               let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
+
               if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
                 res.tabs = [{
                   value: '_all',
                   name: '全部'
                 }]
-                col.option_list_v2.forEach(item => {
+                let allTab = col.option_list_v2
+                if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
+                  allTab = cfg.customTabs
+                }
+                allTab.forEach(item => {
                   res.tabs.push({
-                    name: item.label,
-                    value: item.label
+                    name: item.value,
+                    value: item.value
                   })
                 })
               }
@@ -375,6 +399,7 @@
         selectCol: "",
         idCol: "",
         selectorUUID: "",
+        curTabVal: "",
         curTab: 0
       }
     },
@@ -390,7 +415,10 @@
               ruleType: 'eq',
               value: tab.value
             }]
+          } else {
+            cond = []
           }
+          this.pageNo = 1;
           this.getList(cond)
         }
       },
@@ -918,6 +946,15 @@
         return colVs;
       },
       async getList(cond, initCond) {
+        if (!cond) {
+          if (this.curTabVal && this.tabsCfg?.col && Array.isArray(this.tabsCfg.tabs)) {
+            let index = this.tabsCfg.tabs.findIndex(item => item.name === this.curTabVal);
+            if (index > 0) {
+              this.changeTabs(index)
+              return
+            }
+          }
+        }
         if (this.moreConfig?.count_config) {
           this.getCountData(this.moreConfig?.count_config)
         }
@@ -1338,7 +1375,7 @@
                 rowData,
                 storeInfo,
                 bindUserInfo,
-                storeUser:bindUserInfo
+                storeUser: bindUserInfo
               };
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
 
@@ -1876,6 +1913,9 @@
       if (this.sysModel === 'PC') {
         this.rownumber = 100
       }
+      if (option.curTab) {
+        this.curTabVal = option.curTab
+      }
       if (option.uuid) {
         this.selectorUUID = option.uuid
       }
@@ -2055,18 +2095,18 @@
       let _data = {
         rowData: {
           share_user_no: this.$store?.state?.user?.userInfo?.userno,
-          share_store_user_no:this.vstoreUser?.store_user_no,
+          share_store_user_no: this.vstoreUser?.store_user_no,
           ...row
         },
-        storeUser:this.vstoreUser,
+        storeUser: this.vstoreUser,
         userInfo: this.$store?.state?.user?.userInfo,
         storeInfo: this.$store?.state?.app?.storeInfo
       }
-      if(title){
-        title = this.renderStr(title,_data)
+      if (title) {
+        title = this.renderStr(title, _data)
       }
-      if(path){
-        path = this.renderStr(path,_data)
+      if (path) {
+        path = this.renderStr(path, _data)
       }
       // if (typeof _data.rowData === 'object') {
       //   delete _data.rowData._buttons

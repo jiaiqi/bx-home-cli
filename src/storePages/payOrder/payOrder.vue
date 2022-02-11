@@ -28,8 +28,25 @@
     </view>
 
     <view class="order-detail">
+      <view class="person-info" v-if="orderType==='团购'">
+        <view class="cu-form-group">
+          <view class="title">姓名</view>
+          <input :placeholder="'请输入姓名'" name="input" v-model="addressInfo.userName" placeholder-style="fontSize:12px;"
+            :disabled="!!orderInfo.order_no"></input>
+          <text class="cuIcon-write" style="fontSize:14px;" v-if="!orderInfo.order_no"></text>
+        </view>
+        <view class="cu-form-group ">
+          <view class="title">手机号</view>
+          <input :placeholder="'请输入手机号'" name="input" v-model="addressInfo.telNumber" placeholder-style="fontSize:12px;"
+            :disabled="!!orderInfo.order_no"></input>
+          <text class="cuIcon-write" style="fontSize:14px;" v-if="!orderInfo.order_no"></text>
+        </view>
+      </view>
       <view class="order-info">
-        <view class="title-bar">
+        <view class="title-bar text-bold" v-if="orderType==='团购'">
+          已选商品
+        </view>
+        <view class="title-bar" v-else>
           <image class="store-logo" :src="getImagePath(orderInfo.image)" mode="aspectFill" v-if="orderInfo.image">
           </image>
           <text class="store-logo cuIcon-shop" v-else></text>
@@ -39,29 +56,6 @@
         </view>
         <view class="goods-list">
           <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"></goods-item>
-          <!-- 		<view class="goods-item" v-for="(goods,idx) in orderInfo.goodsList" :key="idx">
-						<image class="goods-image" :src="
-                goods.goods_image
-                  ? getImagePath(goods.goods_image)
-                  : goods.image
-                  ? getImagePath(goods.image)
-                  : '../static/doctor_default.png'
-              " mode=""></image>
-						<view class="content">
-							<view class="goods-name">{{ goods.name||goods.goods_name||goods.goods_desc||'' }}
-							</view>
-						</view>
-						<view class="num">
-							<view class="price" v-if="goods.unit_price ||goods.price">
-								<text class="money-operate">￥</text>
-								{{ goods.unit_price || goods.price || "" }}
-							</view>
-							<view class="amount">x{{
-                  goods.goods_amount ? goods.goods_amount : goods.car_num || ""
-                }}
-							</view>
-						</view>
-					</view> -->
         </view>
         <view class="order-remark">
           <textarea class="textarea" v-model="order_remark" placeholder="订单备注"
@@ -85,11 +79,9 @@
           {{room_no||''}}
         </view>
         <text class="cuIcon-right place-holder"></text>
-        <!--        <button class="cu-btn round bg-orange" v-if="!room_no"> <text>点击选择房间号</text></button>
-        <button class="cu-btn round bg-orange light" v-else> <text> {{room_no||''}}</text></button> -->
       </view>
 
-      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;" v-if="needAddress">
+      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;" v-if="needAddress&&orderType!=='团购'">
         <view class="pay-mode-item ">
           <view class="">
             <text class="cuIcon-deliver text-yellow  icon"></text>
@@ -231,7 +223,9 @@
         orderInfo: {},
         order_remark: "",
         addressInfo: {
-          fullAddress: ''
+          fullAddress: '',
+          userName: "",
+          telNumber: ""
         },
         wxMchId: "", //商户号
         idNum: '', //身份证号
@@ -254,7 +248,10 @@
           "key_disp_col": "room_no"
         },
         couponInfo: null,
-        pay_method: ""
+        pay_method: "",
+        orderType: '', //普通，团购
+        tgNo: "", //团购编号
+        goodsWay: "", //团购收货方式
       };
     },
     computed: {
@@ -840,6 +837,7 @@
           // 	req[0].data[0].order_state = '已发货'
           // }
         }
+
         if (this.couponInfo?.card_no && this.pay_method) {
           req[0].data[0].pay_state = '已支付'
         }
@@ -849,8 +847,19 @@
           this.curDelivery = 3
           req[0].data[0].delivery_type = '当面交易'
         }
+        
+        if (this.tgNo) {
+          // 团长开团编号
+          req[0].data[0].regimental_dumpling_no = this.tgNo
+          if (this.goodsWay === '快递') {
+            req[0].data[0].delivery_type = '快递'
+          } else {
+            // 团长代收
+            req[0].data[0].delivery_type = '自提'
+          }
+        }
+        
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
-        // .then(res => {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -863,7 +872,6 @@
             }
           }
           const orderData = await this.getOrderInfo()
-          // .then(data => {
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             this.toPay();
@@ -875,19 +883,14 @@
               // .then(_ => {
               // 创建订单支付记录
               await this.addPayRecord(res.data[0].order_no, childData)
-              // .then(_ => {
               // 更新订单状态和支付状态
               if (this.delivery_type !== '当面交易') {
                 this.updateOrderState('待发货', '已支付');
               } else {
                 // this.updateOrderState('', '已支付');
               }
-              // })
-              // })
-
             }
           }
-          // });
         } else if (res.success == false && res.msg) {
           uni.showModal({
             title: '提示',
@@ -1006,6 +1009,18 @@
       }
     },
     onLoad(option) {
+      if (option.tgNo) {
+        // 团购编号
+        this.tgNo = option.tgNo
+        this.addressInfo.telNumber = this.userInfo?.phone || this.userInfo?.phone_xcx || ''
+        this.addressInfo.userName = this.userInfo?.name || ''
+      }
+      if (option.goodsWay) {
+        this.goodsWay = option.goodsWay
+      }
+      if (option.orderType) {
+        this.orderType = option.orderType
+      }
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId
       }
@@ -1096,7 +1111,7 @@
       padding: 20rpx;
       display: flex;
       background-color: #fff;
-      border-radius: 10px;
+      border-radius: 5px;
       align-items: center;
 
       .left {
@@ -1133,9 +1148,27 @@
       }
     }
 
+    .person-info {
+      // 团购用户信息
+      margin: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+
+      .cu-form-group {
+        .title {
+          min-width: 80px;
+        }
+
+        input {
+          text-align: right;
+        }
+      }
+    }
+
     .order-detail {
       flex: 1;
       margin-top: 10px;
+      overflow-y: scroll;
     }
 
     .order-info {
@@ -1143,15 +1176,17 @@
       margin-top: 0;
       background-color: #fff;
       padding: 20rpx 20rpx 40rpx;
-      border-radius: 10px;
+      border-radius: 5px;
 
       .title-bar {
-        padding: 20rpx 0 30rpx;
+        padding: 0px 0 5px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #f1f1f1;
       }
 
       .order-remark {
         background-color: #F8F8FA;
-        border-radius: 20rpx;
+        border-radius: 5px;
         margin-top: 20rpx;
 
         .textarea {
@@ -1237,7 +1272,7 @@
 
     .pay-mode {
       margin: 0 20rpx;
-      border-radius: 10px;
+      border-radius: 5px;
       overflow: hidden;
 
       .pay-mode-item {
