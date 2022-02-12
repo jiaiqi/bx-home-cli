@@ -189,14 +189,12 @@ export default {
       if (pageInfo && pageInfo.add_url) {
         if (option.store_no) {
           store.commit('SET_INVITER_INFO', {
-            // add_store_no: option.store_no || 'S20210204016',
-            // home_store_no: option.store_no || 'S20210204016',
             add_store_no: option.store_no,
             home_store_no: option.store_no,
             add_url: pageInfo.add_url,
             invite_user_no: option.invite_user_no || ''
           });
-        } else {
+        } else if(option.invite_user_no) {
           store.commit('SET_INVITER_INFO', {
             add_url: pageInfo.add_url,
             invite_user_no: option.invite_user_no || ''
@@ -218,7 +216,7 @@ export default {
           store.commit('SET_CURRENT_PAGE', currentPage.route)
           return {
             add_url: currentPage.$page.fullPath ? currentPage.$page.fullPath.slice(0, 400) : '未知页面',
-            invite_user_no: option.invite_user_no || userInfo?.invite_user_no || option.doctor_no || 'undefined'
+            invite_user_no: option.invite_user_no || userInfo?.invite_user_no || option.doctor_no || ''
           }
         }
       }

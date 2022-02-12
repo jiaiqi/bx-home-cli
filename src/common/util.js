@@ -566,17 +566,18 @@ export default {
 						Array.isArray(res.data.response[0].response.effect_data) &&
 						res.data.response[0].response.effect_data.length > 0
 					) {
-						debugger
-						let result =  {
+						let result = {
 							success: true,
 							data: res.data.response[0].response.effect_data
 						}
-						if(Array.isArray(res.data.response) &&
-						res.data.response.length > 0 &&
-						res.data.response[0].response &&
-						Array.isArray(res.data.response[0].child_data_list)&&res.data.response[0].child_data_list.length>0){
-							let child_data_list = res.data.response[0].child_data_list[0]?.response?.effect_data;
-							result.childData = child_data_list||[]
+						if (Array.isArray(res.data.response) &&
+							res.data.response.length > 0 &&
+							res.data.response[0].response &&
+							Array.isArray(res.data.response[0].child_data_list) && res.data.response[0]
+							.child_data_list.length > 0) {
+							let child_data_list = res.data.response[0].child_data_list[0]?.response
+							?.effect_data;
+							result.childData = child_data_list || []
 						}
 						return result
 					} else if (Array.isArray(res.data.response) &&
@@ -2093,6 +2094,7 @@ export default {
 					"font_size": "中"
 				}]
 			}]
+			debugger
 			try {
 				let inviterInfo = store.state.app.inviterInfo
 				if (inviterInfo.invite_user_no) {
@@ -2107,18 +2109,13 @@ export default {
 					req[0].data[0].add_store_no = inviterInfo.add_store_no
 					req[0].data[0].home_store_no = inviterInfo.add_store_no
 				} else {
-					// req[0].data[0].add_store_no = 'S20210204016'
-					// req[0].data[0].home_store_no = 'S20210204016'
+					
 				}
 			} catch (e) {}
 			if (store.state.user.userInfo && store.state.user.userInfo.no) {
 				return store.state.user.userInfo
 			}
-			// if (store.state.app.areRegistering) {
-			//   debugger
-			//   // 有一个注册请求正在进行中
-			//   return false
-			// }
+			
 			store.commit('SET_REGIST_STATUS', true)
 			let res = await _http.post(url, req)
 			store.commit('SET_REGIST_STATUS', false)
@@ -2325,7 +2322,7 @@ export default {
 			// 		return true
 			// 	}
 			// })
-			
+
 			return conditions
 		}
 
@@ -2343,8 +2340,8 @@ export default {
 						arr.forEach(item => {
 							try {
 								result = result[item] ?? '';
-								if(result===0){
-									result='0'
+								if (result === 0) {
+									result = '0'
 								}
 							} catch (e) {
 								//TODO handle the exception

@@ -60,7 +60,8 @@
     "quickapp" : {},
     /* 快应用特有相关 */
     "mp-weixin" : {
-        "appid" : "wx08876efb5760ca75",
+        "appid" : "wxa3c50c8177ef6739",
+        // "appid" : "wx08876efb5760ca75",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
             "urlCheck" : true,

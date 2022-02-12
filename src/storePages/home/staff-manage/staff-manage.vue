@@ -80,13 +80,9 @@
         }
       },
       toDetail(e) {
-        // return
         this.$emit('toDoctorDetail', e)
       }
     },
-    // created () {
-    //   this.getStoreUserList()
-    // }
   }
 </script>
 

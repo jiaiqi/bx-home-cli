@@ -547,7 +547,7 @@
       {
         "name": "邀请新用户加入诊所",
         "path": "pages/home/home",
-        "query": "store_no=S20210204016&from=share&invite_user_no=jiaqi&&doctor_no=jiaqi&share_type=bindOrganization"
+        "query": "store_no=S20210204016&from=share&invite_user_no=jiaqi&share_type=bindOrganization"
       },
       {
         "name": "邀请新用户加入诊所",

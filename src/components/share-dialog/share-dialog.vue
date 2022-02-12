@@ -90,8 +90,7 @@
 			},
 			storeUser() {
 				return this.$store?.state?.user?.storeUserInfo || {}
-			},
-
+			}
 		},
 		methods: {
 			open(e) {

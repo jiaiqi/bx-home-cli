@@ -10,7 +10,6 @@ export default {
     return {
       webUrl: '',
       userno: '',
-      doctor_no: '',
       webviewStyles: {
         progress: {
           color: '#FF3333'
