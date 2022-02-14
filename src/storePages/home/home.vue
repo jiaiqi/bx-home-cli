@@ -1004,7 +1004,7 @@
 				}
 				uni.showModal({
 					title: '提示',
-					content: `请确认是否${this.userInfo.home_store_no === this.storeNo ? '取消' : ''}将此${this.StoreInfo.type}设置为首页`,
+					content: `请确认是否${this.userInfo.home_store_no === this.storeNo ? '取消' : ''}将 ${this.StoreInfo.name} 设置为首页`,
 					success(result) {
 						if (result.confirm) {
 							self.$fetch('operate', 'srvhealth_person_info_update', req, 'health').then(res => {
