@@ -11,22 +11,29 @@
         v-if="setListView && setListView.cols">
         <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
           :class="[item.class]">
-          <view class="label" v-if="item.label">{{ item.label }}:</view>
-          <view class="value" v-if="item.type==='location_fk'">
-            <text class="cuIcon-locationfill"></text>
-          </view>
-          <view class="value" :style="{ 'white-space': item.valueWhiteSpace }"
-            v-if="item.event&&item.event.type==='location_fk'" @click.stop="openLocation(item.event)">
-            <text v-if="item.prefix">{{ item.prefix }}</text>
-            <text>{{ excludeEnter(item.value)}}</text>
-            <text v-if="item.suffix">{{ item.suffix }}</text>
-            <text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
-          </view>
-          <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
-            <text v-if="item.prefix">{{ item.prefix }}</text>
-            <text>{{ excludeEnter(item.value)}}</text>
-            <text v-if="item.suffix">{{ item.suffix }}</text>
-          </view>
+          <template v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
+            <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
+              listType="list" :appName="appName" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
+            </list-item>
+          </template>
+          <template v-else>
+            <view class="label" v-if="item.label">{{ item.label }}:</view>
+            <view class="value" v-if="item.type==='location_fk'">
+              <text class="cuIcon-locationfill"></text>
+            </view>
+            <view class="value" :style="{ 'white-space': item.valueWhiteSpace }"
+              v-if="item.event&&item.event.type==='location_fk'" @click.stop="openLocation(item.event)">
+              <text v-if="item.prefix">{{ item.prefix }}</text>
+              <text>{{ excludeEnter(item.value)}}</text>
+              <text v-if="item.suffix">{{ item.suffix }}</text>
+              <text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
+            </view>
+            <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
+              <text v-if="item.prefix">{{ item.prefix }}</text>
+              <text>{{ excludeEnter(item.value)}}</text>
+              <text v-if="item.suffix">{{ item.suffix }}</text>
+            </view>
+          </template>
         </view>
         <view class="col-item text-right flex-1" v-if="listType === 'cartList' && rowData && rowData.goods_amount">
           <view class="cu-btn sm radius cart-handler" :style="{
@@ -112,7 +119,16 @@
 </template>
 
 <script>
+  // #ifdef MP-WEIXIN
+  import listItem from './list-item.vue';
+  // #endif
   export default {
+    name: "list-item",
+    components: {
+      // #ifdef MP-WEIXIN
+      'list-item': listItem,
+      // #endif
+    },
     props: {
       // 行数据
       rowData: {
@@ -148,10 +164,34 @@
       },
       appName: {
         type: String
+      },
+      childData: {
+        type: [Object, Array]
       }
     },
     data() {
-      return {};
+      return {
+        setChildData: null
+      };
+    },
+    watch: {
+      childData: {
+        deep: true,
+        immediate: true,
+        handler(newValue, oldValue) {
+          if (Array.isArray(newValue)) {
+            if (Array.isArray(this.setViewTemp?.cols)) {
+              let related_col = this.setViewTemp?.cols.find(item => item.type === 'childData')?.related_col
+              if (related_col) {
+                debugger
+                this.setChildData = newValue.filter(item => item[related_col] === this.rowData[
+                  related_col])
+              }
+            }
+          }
+
+        }
+      }
     },
     computed: {
       amount() {
@@ -227,7 +267,7 @@
         let buttons = [];
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
           buttons = this.rowButton.filter((item, index) => {
-            if(!item.moreConfig){
+            if (!item.moreConfig) {
               item.moreConfig = {}
             }
             if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this
@@ -255,8 +295,8 @@
         });
         return buttons;
       },
-
       setListView() {
+        let self = this
         let result = {
           rootClass: '',
           rootStyle: {
@@ -301,7 +341,8 @@
           let imgCfg = this.setViewTemp?.img?.cfg;
           result.imgAlign = imgCfg.position || 'left';
           result.imgClass = `${imgCfg.position === 'top' ? 'm-r-0' : ''}`;
-          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value, true);
+          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value, imgCfg?.compress ? false :
+            true);
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
             width: imgCfg?.width,
@@ -374,6 +415,9 @@
             };
             if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
               obj.style['background-color'] = cfg.bg;
+            }
+            if (cfg?.decoration) {
+              obj.style['text-decoration'] = cfg?.decoration;
             }
             if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
               obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
@@ -450,6 +494,20 @@
             }
             if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
               obj.class += ' hidden';
+            }
+            if (col.type === 'childData') {
+              obj = col;
+              obj.style = {
+                width: "100%"
+              }
+              if (col?.related_col) {
+                let related_col = col?.related_col
+                if (self.childData && Array.isArray(self.childData)) {
+                  obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
+                    related_col])
+                }
+              }
+
             }
             result.cols.push(obj);
           });
@@ -593,6 +651,15 @@
     overflow: hidden;
     flex-wrap: wrap;
 
+    &.child-data {
+      width: calc(100% - 40px);
+      // border-bottom: 1px dashed #f1f1f1;
+      // border-radius: 0;
+      // &:last-child{
+      //   border-bottom: none;
+      // }
+    }
+
     &.image-vertical {
       // 图片在垂直方向（上方、下方）
       flex-wrap: wrap;
@@ -651,6 +718,14 @@
           font-size: 28rpx;
           font-family: 苹方-简;
           color: #333333;
+
+          .child-data {
+            width: 100%;
+
+            .list-item-wrap {
+              width: 100%;
+            }
+          }
 
           .cart-handler {
             &.cu-btn {

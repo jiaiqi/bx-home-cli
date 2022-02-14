@@ -932,6 +932,7 @@
             return item
           })
         }
+
         this.colV2 = colVs;
 
         if (Array.isArray(colVs.srv_cols)) {
@@ -1055,10 +1056,21 @@
         let res = await this.$http.post(url, req);
 
         if (res.data.state === 'SUCCESS') {
+          let list = this.deepClone(this.list)
           if (this.pageNo === 1) {
             this.list = [];
           }
-          this.list = this.list.concat(res.data.data);
+          list = list.concat(res.data.data);
+          let viewTemp = this.colV2?.moreConfig?.list_config
+          if (Array.isArray(viewTemp?.cols) && viewTemp.cols.length > 0 && Array.isArray(this.list)) {
+            let col = viewTemp.cols.find(item => item.type === 'childData')
+            if (col) {
+              let childData = await this.getChildColData(col,list)
+              if (childData) {
+                this.colV2._childData = childData
+              }
+            }
+          }
           this.pageNo = res.data.page.pageNo;
           let page = res.data.page;
           if (this.listType === 'proc') {
@@ -1106,9 +1118,37 @@
             }
 
           }
+
+          this.list = list
           return this.list;
         }
       },
+
+      async getChildColData(col,list) {
+        // 查找模板的cols中类型为childData的数据
+        if (col?.type === 'childData') {
+          if (col?.related_col) {
+            if (col?.srvInfo?.srv_app && col?.srvInfo?.serviceName && Array.isArray(list)) {
+              let req = {
+                "serviceName": col?.srvInfo?.serviceName,
+                "colNames": ["*"],
+                "condition": [{
+                  "colName": col?.related_col,
+                  "ruleType": "in",
+                  "value": list.map(item => item[col?.related_col]).toString()
+                }]
+              }
+              let url = this.getServiceUrl(col?.srvInfo?.srv_app, col?.srvInfo?.serviceName, 'select');
+              let res = await this.$http.post(url, req)
+              if (res.data.state === 'SUCCESS') {
+                return res.data.data
+              }
+            }
+          }
+        }
+      },
+
+
       async onRequestPayment(rowData, moreConfig = {}) {
         // 调起微信支付
         if (moreConfig.money_col && moreConfig.order_no_col && rowData && rowData[

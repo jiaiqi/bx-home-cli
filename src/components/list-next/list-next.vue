@@ -14,9 +14,9 @@
         <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
           style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
         <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData"
-          :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
-          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
-          @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
+          :childData="colV2._childData" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
+          @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+          :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
         <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
           style="transform:scale(1);margin-right:5px;" @click="checkboxChange(item)" />
       </view>
@@ -31,7 +31,6 @@
     components: {
       listItem
     },
-
     props: {
       list: {
         type: Array
@@ -64,6 +63,18 @@
         type: String,
         default: 'id'
       }
+    },
+    watch: {
+      list: {
+        deep: true,
+        immediate: true,
+        handler(newValue, oldValue) {
+          if (newValue?.type === 'childData') {
+          } else {
+            this.childData = {}
+          }
+        }
+      },
     },
     computed: {
       rowButton() {
@@ -137,12 +148,11 @@
         }
       }
     },
-    // data() {
-    //   return {
-    //     inCart:false, // 是否在购物车中
-    //     amount:0, //添加到购物车中的商品数量
-    //   }
-    // },
+    data() {
+      return {
+        childData: {}, // 模板的cols中类型为childData的数据
+      }
+    },
 
     methods: {
       checkboxChange(e) {
