@@ -227,7 +227,7 @@
 					this.pageItemList = []
 					this.pdNo = curTab?.link_pd_no;
 					await this.getPageDefine(this.pdNo);
-					this.storeNo = this.pageDefine.store_no;
+					// this.storeNo = this.pageDefine.store_no;
 					await this.getTabbar(this.pdNo);
 					await this.getPageComponent(this.pdNo);
 
@@ -1659,7 +1659,7 @@
 				//
 				this.pdNo = option.pd_no;
 				await this.getPageDefine(this.pdNo);
-				this.storeNo = this.pageDefine.store_no;
+				// this.storeNo = this.pageDefine.store_no;
 				await this.getTabbar(this.pdNo);
 				await this.getPageComponent(this.pdNo);
 			}

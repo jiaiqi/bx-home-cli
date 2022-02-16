@@ -357,16 +357,7 @@
             "enablePullDownRefresh": false
           }
         }
-          ,{
-                    "path" : "addrSelect/addrSelect",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "地址管理",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",
