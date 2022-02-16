@@ -135,13 +135,11 @@
         <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true" v-model="fieldData.value"
           :placeholder="'开始输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
       </view>
-      <view class="form-item-content_value location"
-        v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&fieldData.value" @click="getLocation">
+      <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
       </view>
-      <view class="form-item-content_value location"
-        v-else-if="(fieldData.type === 'addr' || fieldData.type === 'location')&&!fieldData.value" @click="getLocation">
-        点击选择地理位置
+      <view class="form-item-content_value location" v-else-if="fieldData.type === 'addr'">
+        <input type="text" v-model="fieldData.value" placeholder="选择或填写位置" />
       </view>
       <view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'" @click="showModal('RichEditor')">
         <view class="value rich-text" v-if="!fieldData.value">开始输入</view>

@@ -145,14 +145,14 @@ fly.interceptors.request.use(async (request) => {
   if (outTime) {
     const isExpired = outTime < date
     console.log('登录是否过期:', isExpired, '\n过期时间:', FormateDate(new Date(outTime * 1000)), outTime, date)
-    if (isExpired) {
-      uni.setStorageSync('isLogin', false)
-      request.headers["USERlOGIN"] = "noneLogin" // normal || noneLogin
-      return request
-    } else {
-      request.headers["USERlOGIN"] = "normal" // normal || noneLogin
-      return request
-    }
+    // if (isExpired) {
+    //   uni.setStorageSync('isLogin', false)
+    //   request.headers["USERlOGIN"] = "noneLogin" // normal || noneLogin
+    //   return request
+    // } else {
+    request.headers["USERlOGIN"] = "normal" // normal || noneLogin
+    return request
+    // }
   } else {
     request.USERlOGIN = "normal"
     return request
@@ -167,14 +167,14 @@ fly.interceptors.response.use(
       if (store.state.app.xhrNum === 0) {
         uni.hideLoading()
       }
-      if(res.data.state==='SUCCESS'&&Array.isArray(res.data.data)){
-        try{
+      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+        try {
           let str = JSON.stringify(res.data.data);
           str = Vue.prototype.renderEmoji(str)
           res.data.data = JSON.parse(str)
-        }catch(e){
+        } catch (e) {
           //TODO handle the exception
-          console.log('xhr-error',e)
+          console.log('xhr-error', e)
         }
       }
       //只将请求结果的data字段返回

@@ -345,7 +345,7 @@ export default {
 						type: 'car_no'
 					}]
 				} else if (fieldInfo.type === 'addr') {
-					fieldInfo.type = 'location'
+					// fieldInfo.type = 'location'
 				} else if (item.bx_col_type === "string" && item.col_type === "fk") {
 					fieldInfo.type = "Selector"
 				} else if (item.bx_col_type === "string") {
@@ -2088,7 +2088,7 @@ export default {
 					"name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
 						/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
 					"profile_url": wxUserInfo ? wxUserInfo.headimgurl : "",
-					"user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
+					// "user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
 					"sex": sex ? sex : null,
 					"is_main": "是",
 					"font_size": "中"
@@ -2281,6 +2281,7 @@ export default {
 		Vue.prototype.evalConditions = (conditions, mainData) => {
 			conditions = conditions.map(op => {
 				let regVar = /\$\{(.*?)\}/
+        debugger
 				if (op.value.indexOf('data.hotel_no') !== -1) {
 					if (mainData?.store_no && !mainData?.hotel_no) {
 						op.value = 'data.store_no'
@@ -2290,7 +2291,13 @@ export default {
 					if (op.value === '${today}') {
 						op.value = dayjs().format("YYYY-MM-DD")
 					} else {
-						op.value = Vue.prototype.renderStr(op.value, mainData)
+            let obj = {
+              userInfo:store?.state?.user?.userInfo,
+              storeInfo:store?.state?.app?.storeInfo,
+              storeUser:store?.state?.user?.storeUserInfo,
+              data:mainData
+            }
+						op.value = Vue.prototype.renderStr(op.value, obj)
 					}
 				} else if (op.value && op.value.indexOf('data.') !== -1) {
 					let colName = op.value.slice(op.value.indexOf('data.') + 5);

@@ -402,7 +402,7 @@
             profile_url: this.userInfo.profile_url,
             sex: this.userInfo.sex,
             user_account: this.userInfo.userno,
-            user_image: this.userInfo.user_image,
+            // user_image: this.userInfo.user_image,
             person_name: this.userInfo.name || this.userInfo.nick_name,
             add_url: this.inviterInfo.add_url ? this.inviterInfo.add_url.slice(0, 150) : '',
             invite_user_no: this.inviterInfo.invite_user_no,
@@ -411,7 +411,11 @@
             user_role: '用户',
           }]
         }];
-
+        if(this.userInfo?.user_image){
+          if(this.userInfo?.user_image.indexOf('http')==-1){
+            req[0].data[0].user_image = this.userInfo?.user_image
+          }
+        }
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health')
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
           return res.data[0]

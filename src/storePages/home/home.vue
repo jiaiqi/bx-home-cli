@@ -311,6 +311,7 @@
 					// }, 100)
 				}
 			},
+      
 			openSwitchHomePage() {
 				let cond = [{
 						colName: 'person_no',
@@ -319,10 +320,11 @@
 					},
 					{
 						colName: 'member_status',
-						ruleType: 'eq',
+						ruleType: 'in',
 						value: '正常'
 					}
 				];
+        
 				if (this.userInfo?.no) {
 					let listConfig = {
 						navTitle: '切换店铺',
@@ -920,7 +922,7 @@
 						nick_name: this.userInfo && this.userInfo.nick_name ? this.userInfo.nick_name
 							.replace(/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, '') : '',
 						profile_url: this.userInfo.profile_url,
-						user_image: this.userInfo.user_image,
+						// user_image: this.userInfo.user_image,
 						sex: this.userInfo.sex,
 						user_role: '用户',
 						add_url: this.userInfo?.add_url || this.inviterInfo.add_url,
@@ -938,6 +940,11 @@
 				} catch (err) {
 					console.log(err);
 				}
+        if(this.userInfo?.user_image){
+          if(this.userInfo?.user_image.indexOf('http')==-1){
+            req[0].data[0].user_image = this.userInfo?.user_image
+          }
+        }
 				let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health');
 				if (res.success) {
 					this.isBind = true;
@@ -1453,6 +1460,11 @@
 		},
 
 		async onLoad(option) {
+      if (option?.bx_auth_ticket) {
+      	uni.setStorageSync('bx_auth_ticket', option.bx_auth_ticket)
+        uni.setStorageSync('isLogin',true)
+      	this.$store.commit('SET_TICKET', option.bx_auth_ticket)
+      }
 			if (option.rowData) {
 				try {
 					this.rowData = JSON.parse(option.rowData);

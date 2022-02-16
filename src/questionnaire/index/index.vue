@@ -970,7 +970,7 @@
       let title = this.formData.title
       title = this.renderEmoji(title)
       return {
-        title: ,
+        title ,
         path: path,
         imageUrl: imageUrl,
       };

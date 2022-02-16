@@ -14,6 +14,7 @@
 		onLaunch(options) {
 			if (options?.query?.bx_auth_ticket) {
 				uni.setStorageSync('bx_auth_ticket', options.query.bx_auth_ticket)
+        uni.setStorageSync('isLogin',true)
 				this.$store.commit('SET_TICKET', options.query.bx_auth_ticket)
 			}
 			this.$store.commit('SET_SCENE', options.scene)

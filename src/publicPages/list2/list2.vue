@@ -1054,12 +1054,11 @@
         }
         this.loadStatus = 'loading'
         let res = await this.$http.post(url, req);
-
         if (res.data.state === 'SUCCESS') {
-          let list = this.deepClone(this.list)
           if (this.pageNo === 1) {
             this.list = [];
           }
+          let list = this.deepClone(this.list)
           list = list.concat(res.data.data);
           let viewTemp = this.colV2?.moreConfig?.list_config
           if (Array.isArray(viewTemp?.cols) && viewTemp.cols.length > 0 && Array.isArray(this.list)) {
@@ -1275,6 +1274,7 @@
         return
       },
       async clickFootBtn(data) {
+        debugger
         if (this.listType === 'selectorList') {
           this.checkboxChange(data.row)
           return
@@ -1672,6 +1672,7 @@
             });
           }
         } else {
+          debugger
           if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo
@@ -1710,7 +1711,9 @@
                 url += `&appName=${this.appName}`
               }
               targetUrl = url
-
+              if(targetUrl&&targetUrl.indexOf(('/pages/home/home')==0)){
+                targetUrl = targetUrl.replace('/pages/home/home','/storePages/home/home')
+              }
             }
 
             if (this.disabled === true) {

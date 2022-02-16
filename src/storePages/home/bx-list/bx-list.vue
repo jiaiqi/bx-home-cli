@@ -1010,6 +1010,9 @@
 							}
 							targetUrl = url;
 						}
+            if(targetUrl&&targetUrl.indexOf(('/pages/home/home')==0)){
+              targetUrl = targetUrl.replace('/pages/home/home','/storePages/home/home')
+            }
 						uni.navigateTo({
 							url: targetUrl
 						});

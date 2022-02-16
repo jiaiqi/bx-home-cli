@@ -194,6 +194,7 @@
       &.check-box_item {
         background-color: #fff;
         border-radius: 10px;
+        align-items: center;
         // margin: 10px;
         // width: calc(100% - 20px);
       }
