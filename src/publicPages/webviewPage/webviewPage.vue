@@ -32,7 +32,11 @@ export default {
     if (option.webUrl) {
       let url = decodeURIComponent(option.webUrl)
       if(url&&url.indexOf('100xsys.cn')>-1){
-        url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+        if(url.indexOf('?')==-1){
+          url += `?bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+        }else{
+          url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+        }
       }
       this.webUrl = url
       // this.webUrl = 'http://srvms.100xsys.cn/health/remote/getPage?address=https://xw.qq.com/cmsid/20201201A0296600'
