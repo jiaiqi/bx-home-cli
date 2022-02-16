@@ -967,8 +967,10 @@
         imageUrl = this.getImagePath(this.storeInfo.logo, true);
       }
       this.saveSharerInfo(this.userInfo, path);
+      let title = this.formData.title
+      title = this.renderEmoji(title)
       return {
-        title: this.formData.title,
+        title: ,
         path: path,
         imageUrl: imageUrl,
       };

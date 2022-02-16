@@ -1065,7 +1065,7 @@
           if (Array.isArray(viewTemp?.cols) && viewTemp.cols.length > 0 && Array.isArray(this.list)) {
             let col = viewTemp.cols.find(item => item.type === 'childData')
             if (col) {
-              let childData = await this.getChildColData(col,list)
+              let childData = await this.getChildColData(col, list)
               if (childData) {
                 this.colV2._childData = childData
               }
@@ -1124,7 +1124,7 @@
         }
       },
 
-      async getChildColData(col,list) {
+      async getChildColData(col, list) {
         // 查找模板的cols中类型为childData的数据
         if (col?.type === 'childData') {
           if (col?.related_col) {
@@ -2153,8 +2153,8 @@
       //   path += `&rowData=${JSON.stringify(_data.rowData)}`
       // }
       let imageUrl = this.getImagePath(this.storeInfo?.image, true);
-      debugger
       this.saveSharerInfo(this.userInfo, path);
+      title = this.renderEmoji(title)
       return {
         imageUrl: imageUrl,
         title: title,

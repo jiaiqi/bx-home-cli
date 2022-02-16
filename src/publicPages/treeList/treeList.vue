@@ -179,9 +179,8 @@
         path += `&rowData=${JSON.stringify(_data.rowData)}`
       }
       let imageUrl = this.getImagePath(this.storeInfo?.image, true);
-      debugger
       this.saveSharerInfo(this.userInfo, path);
-
+      title = this.renderEmoji(title)
       return {
         imageUrl: imageUrl,
         title: title,

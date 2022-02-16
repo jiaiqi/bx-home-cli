@@ -465,6 +465,7 @@
 			if (cardNo) {
 				url += `&share_type=shareCoupon`
 			}
+      title = this.renderEmoji(title)
 			return {
 				path: url,
 				title: title

@@ -602,6 +602,7 @@
         imageUrl = this.getImagePath(this.goodsInfo.goods_img, true);
       }
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
+      title = this.renderEmoji(title)
       return {
         imageUrl: imageUrl,
         title: title,

@@ -1434,12 +1434,12 @@
 			let path =
 				`pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no}`;
 			let title = `${this.userInfo.name}邀请您使用【${this.StoreInfo.name}】`;
+      title = this.renderEmoji(title)
 			// title = `${this.userInfo.name}邀请您使用【呼吸健康云助手】，【呼吸健康云助手】 -- 集患者服务，呼吸筛查，医生助理，科学研究为一体的功能性小程序`
 			let imageUrl = this.getImagePath(this.StoreInfo.image, true);
 			if (this.StoreInfo?.logo) {
 				imageUrl = this.getImagePath(this.StoreInfo.logo, true);
 			}
-			debugger
 			this.saveSharerInfo(this.userInfo, path);
 			return {
 				imageUrl: imageUrl,

@@ -712,9 +712,11 @@ export default {
     if (this.userInfo && this.userInfo.userno) {
       path += `&invite_user_no=${this.userInfo.userno}`
     }
+    let title = this?.todayQue?.queue_name || '排队邀请'
+    title = this.renderEmoji(title)
     return {
       path,
-      title: this?.todayQue?.queue_name || '排队邀请'
+      title: title
     }
   },
   // 页面处理函数--监听用户下拉动作

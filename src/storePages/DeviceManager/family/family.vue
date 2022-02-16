@@ -410,6 +410,7 @@ export default {
   onShareAppMessage () {
     const path = `/storePages/DeviceManager/family/family?invite_user_no=${this.userInfo.userno}&inviter_no=${this.userInfo.no}&store_no=${this.store_no}&inviter_name=${this.userInfo.name || this.userInfo.nick_name}`;
     const title = `${this.userInfo.name || this.userInfo.nick_name}申请成为您的亲友`
+    title = this.renderEmoji(title)
     return {
       title,
       path

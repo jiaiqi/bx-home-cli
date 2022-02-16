@@ -151,7 +151,7 @@
       if (this.shareLogo) {
         query += `&logo=${this.shareLogo}`
       }
-      this.saveSharerInfo(this.userInfo, query,'timeline');
+      this.saveSharerInfo(this.userInfo, query, 'timeline');
       return {
         imageUrl: this.shareLogo || null,
         title: this.articleData.title,
@@ -177,9 +177,11 @@
         path += `&invite_user_no=${this.userInfo.userno}`
       }
       this.saveSharerInfo(this.userInfo, path);
+      let title = this.articleData.title || this.storeName
+      title = this.renderEmoji(title)
       return {
         imageUrl: this.shareLogo || null,
-        title: this.articleData.title || this.storeName,
+        title: title,
         path: path
       };
     },
@@ -344,6 +346,7 @@
       align-items: center;
       line-height: 60upx;
       margin-top: 60px;
+
       // justify-content: space-around;
       .modify-time {
         color: #999;
