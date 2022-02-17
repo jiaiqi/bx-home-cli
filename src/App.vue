@@ -16,6 +16,16 @@
 				uni.setStorageSync('bx_auth_ticket', options.query.bx_auth_ticket)
         uni.setStorageSync('isLogin',true)
 				this.$store.commit('SET_TICKET', options.query.bx_auth_ticket)
+        if(options?.query?.login_user_info){
+          try{
+            let login_user_info = JSON.parse(options?.query?.login_user_info)
+            if(login_user_info?.user_no){
+              uni.setStorageSync('login_user_info',login_user_info)
+            }
+          }catch(err){
+            
+          }
+        }
 			}
 			this.$store.commit('SET_SCENE', options.scene)
 			if (options.scene === 1154) {

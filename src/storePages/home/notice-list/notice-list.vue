@@ -80,7 +80,7 @@
       handelClick(e) {
         if (e.target_link) {
           uni.navigateTo({
-            url: e.target_link
+            url: e.target_link.trim()
           })
         } else if (e.content_no) {
           uni.navigateTo({

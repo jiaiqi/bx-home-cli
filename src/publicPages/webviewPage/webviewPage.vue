@@ -1,7 +1,7 @@
 <template>
   <view class="webview-page">
     <!-- #ifdef MP-WEIXIN -->
-    <web-view :webview-styles="webviewStyles" :src="webUrl"></web-view>
+    <web-view :webview-styles="webviewStyles" :src="webUrl" @message="onMessage"></web-view>
     <!-- #endif -->
     <!-- #ifdef H5 -->
     <iframe :src="webUrl" frameborder="0" style="width: 100vw;height: 100vh;"></iframe>
@@ -21,6 +21,12 @@
           }
         }
       };
+    },
+    methods: {
+      onMessage(e) {
+        console.log(e)
+        debugger
+      }
     },
     onUnload() {
       uni.$emit('backFromWebview')
@@ -43,6 +49,11 @@
             url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
           }
         }
+        let login_user_info = uni.getStorageSync('login_user_info')
+        if(login_user_info?.user_no){
+          url+=`&login_user_info=${encodeURIComponent(JSON.stringify(login_user_info))}`
+        }
+        debugger
         this.webUrl = url
       } else {
         uni.showModal({
@@ -60,7 +71,6 @@
         })
       }
     }
-
   };
 </script>
 
