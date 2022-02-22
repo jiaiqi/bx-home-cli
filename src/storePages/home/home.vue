@@ -1614,7 +1614,6 @@
 					}
 				}
 			}
-			debugger
 			this.checkOptionParams(option);
 			if (option.invite_user_no) {
 				this.invite_user_no = option.invite_user_no;

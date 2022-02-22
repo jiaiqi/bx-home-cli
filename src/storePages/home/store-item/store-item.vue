@@ -18,8 +18,8 @@
       @getQrcode="getQrcode"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
-    <goods-list v-else-if="pageItem.type === '商品列表'" :storeNo="storeNo" :page-item="pageItem" :storeInfo="storeInfo" image="goods_img"
-      name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
+    <goods-list v-else-if="pageItem.type === '商品列表'" :storeNo="storeNo" :page-item="pageItem" :storeInfo="storeInfo"
+      image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
     <vaccine-list :storeInfo="storeInfo" :pageItem="pageItem" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList">
     </vaccine-list>
     <staff-manage :storeNo="storeNo" :pageItem="pageItem" v-else-if="pageItem.type === '人员列表'"
@@ -48,6 +48,9 @@
           <!-- <open-data type="userNickName"></open-data> -->
           <view class="name">{{ userInfo.name || userInfo.nick_name }}</view>
           <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
+          <view class="text-orange" v-if="moreConfig&&moreConfig.showSubscribe&&!isAttention" @click="toOfficial(true)">
+            点击关注公众号,及时获取消息通知!
+          </view>
         </view>
       </view>
       <view class="right"><text class="cuIcon-message"></text></view>
@@ -66,11 +69,10 @@
 		</view> -->
     <avatar-list :storeNo="storeNo" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"></avatar-list>
     <!-- 公众号关注组件 -->
-    <view class="official-account "
-      v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'&&moreConfig&&moreConfig.mp_no">
+    <view class="official-account " v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'">
       <text class="text" v-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
       <text class="text" v-else> 关注xxx公众号，重要消息不再错过~</text>
-      <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial">立即关注</button>
+      <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()">立即关注</button>
     </view>
   </view>
 </template>
@@ -184,13 +186,20 @@
       });
     },
     methods: {
-      toOfficial() {
+      toOfficial(toSub = false) {
         // 跳转到关注公众号页面
         const frontEndAddress = this.$api.frontEndAddress
         let webUrl =
           `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
+
+        // if (toSub === true) {
+        //   webUrl =
+        //     `https://srvms.100xsys.cn/health/remote/getPage?address=${encodeURIComponent('https://mp.weixin.qq.com/mp/getmasssendmsg?__biz=MzI1NjE2NzE1OA==#wechat_webview_type=1&wechat_redirect')}`
+        // }
+
         let url =
           `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+
         uni.navigateTo({
           url
         })

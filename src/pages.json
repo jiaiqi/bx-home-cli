@@ -431,6 +431,13 @@
             "navigationBarTitleText": "切换账号",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "resetPwd/resetPwd",
+          "style": {
+            "navigationBarTitleText": "修改密码",
+            "enablePullDownRefresh": false
+          }
+
         }
       ]
     },

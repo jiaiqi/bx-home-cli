@@ -864,7 +864,6 @@
       background: url(./bg.png) no-repeat;
       background-size: 100% 100%;
     }
-
     /* #endif */
 
     .images {

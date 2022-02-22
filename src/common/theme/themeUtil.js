@@ -16,13 +16,14 @@ export default {
     Vue.mixin({
       computed: {
         ...mapState({
+          isAttention: state => state.app.subscsribeStatus,
           vtheme: state => state.app.theme,
           userInfo: state => state.user.userInfo,
           storeInfo: state => state.app.storeInfo,
           vcart: state => state.order.cartInfo,
           vstoreUser: state => state.user.storeUserInfo,
           vloginUser: state => state.user.loginUserInfo,
-		  scene:state=>state.app.scene
+          scene: state => state.app.scene
         })
       },
       methods: {

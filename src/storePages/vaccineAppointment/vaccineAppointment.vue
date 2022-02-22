@@ -208,7 +208,6 @@
         let serviceName = this.moreConfig?.serviceName || 'srvhealth_store_vaccine_stocks_select'
         let app = this.moreConfig?.app || 'health'
 
-
         let req = {
           "serviceName": serviceName,
           "colNames": ["*"],
@@ -265,6 +264,7 @@
       },
       disabledTime(e, data) {
         // 判断是否过期 已过期则禁用
+        // debugger
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (e.time_range_appointment_limit && e.time_range) {
             if (e.app_amount >= e.time_range_appointment_limit) {
@@ -273,13 +273,13 @@
               if (data && data.app_amount >= data.app_count) {
                 return true
               }
-
               // return false
             }
           } else {
             return true
           }
         }
+
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
             // uni.showToast({
@@ -289,6 +289,7 @@
             return true
           }
         }
+
         let time = new Date(e.app_date + ' ' + e.app_time_start)
         let now = new Date()
         if (time.getTime() < now.getTime()) {
@@ -298,13 +299,14 @@
             if (time.getTime() < now.getTime()) {
               return true
             } else {
-              return false
+              // return false
             }
           }
           return true
         } else {
-          return false
+          // return false
         }
+        return false
       },
       async getImage(e) {
         if (e && e.remark_pic) {
@@ -498,7 +500,7 @@
             //   title: title,
             //   icon: 'none'
             // })
-            
+
             uni.showModal({
               title: '提示',
               content: title,
@@ -629,7 +631,7 @@
         }
         let vaccineInfo = this.getRange.find(item => item.sa_no === this.selectedVaccine.sa_no)
         debugger
-       
+
         let selectedVaccine = this.deepClone(this.selectedVaccine)
         debugger
         if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
@@ -644,17 +646,17 @@
               msg: '已超过当前时间段预约人数限制'
             }
           }
-        }else {
-			if (vaccineInfo?.app_count_limit) {
-			  if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
-			    uni.showToast({
-			      title: '已超过当前时间段预约人数限制!',
-			      icon: 'none',
-			    })
-			    return
-			  }
-			}
-		}
+        } else {
+          if (vaccineInfo?.app_count_limit) {
+            if (vaccineInfo?.app_amount >= vaccineInfo?.app_count_limit) {
+              uni.showToast({
+                title: '已超过当前时间段预约人数限制!',
+                icon: 'none',
+              })
+              return
+            }
+          }
+        }
 
         let req = [{
           "serviceName": "srvhealth_store_vaccination_appoint_record_add",
