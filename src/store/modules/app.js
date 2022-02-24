@@ -23,7 +23,7 @@ const state = {
   backUrl: "", //当前页面的上一级页面
   authSetting: {}, //微信授权信息
   authUserInfo: getItem('authUserInfo') ? getItem('authUserInfo') : {}, //微信授权信息
-  authBoxDisplay: getItem('authBoxDisplay') ? getItem('authBoxDisplay') : false,
+  hasNotRegInfo: getItem('hasNotRegInfo') ? getItem('hasNotRegInfo') : false, //未注册用户信息
   sickItem: "",
   symptomArr: [],
   doctorInfo: {},
@@ -32,7 +32,7 @@ const state = {
   dietRecord: getItem('dietRecord') ? getItem('dietRecord') : [],
   pageInfo: getItem('pageInfo') ? getItem('pageInfo') : {},
   currentPage: '',
-  inviterInfo:  {}, //邀请人
+  inviterInfo: {}, //邀请人
   areRegistering: false, //是否正在注册
   payParams: {}, //支付相关参数
   prePayInfo: {}, //预支付信息
@@ -44,7 +44,8 @@ const state = {
   systemInfo: wx.getSystemInfoSync(),
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
-  storeInfo:  {}, // 当前店铺信息
+  storeInfo: {}, // 当前店铺信息
+  showLoginDialog: false
 }
 let persistData = {}; //持久化数据
 const mutations = {
@@ -84,9 +85,9 @@ const mutations = {
     if (data.type) {
       state.authSetting[data.type] = data.value
       if (data.value === true) {
-        state.authBoxDisplay = false // 不显示授权组件
+        state.hasNotRegInfo = false // 不显示授权组件
       } else if (data.value === false) {
-        state.authBoxDisplay = true //显示授权组件
+        state.hasNotRegInfo = true //显示授权组件
       }
     }
   },
@@ -98,9 +99,9 @@ const mutations = {
   },
   SET_AUTH_USERINFO: (state, isAuth) => {
     state.authUserInfo = isAuth
-    state.authBoxDisplay = !isAuth
+    state.hasNotRegInfo = !isAuth
     if (uni.getStorageSync('client_env') === 'web') {
-      state.authBoxDisplay = false
+      state.hasNotRegInfo = false
       state.authUserInfo = true
     }
     setItem('authUserInfo', state.authUserInfo)
@@ -167,6 +168,10 @@ const mutations = {
   SET_STORE_INFO: (state, info) => {
     state.storeInfo = info
     setItem('storeInfo', info)
+  },
+  SET_LOGIN_DIALOG: (state, show) => {
+    // 显示登录弹框
+    state.showLoginDialog = show
   }
 }
 

@@ -287,8 +287,7 @@
           return this.orderInfo.goodsList.reduce((pre, cur) => {
             if (cur.goods_amount) {
               pre += cur.goods_amount;
-            }
-            if (cur.car_num) {
+            }else if (cur.car_num) {
               pre += cur.car_num;
             }
             return pre;

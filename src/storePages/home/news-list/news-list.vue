@@ -160,6 +160,12 @@
         this.list = this.noticeList[this.current] ? this.noticeList[this.current].list : []
       },
       toMore(e) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         if (e.no) {
           let url = `/publicPages/articleList/articleList?cateNo=${e.no}`
           if (e.name) {

@@ -11,35 +11,37 @@
       <text>{{ pageItem.component_label || '' }}</text>
     </view>
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
-      @setHomePage="setHomePage" :pageItem="pageItem"></slide-list>
+      @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
       v-else-if="pageItem.type === '店铺信息' || pageItem.type === '店铺信息2'" :isBind="isBind" :pageItem="pageItem"
       @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
-      @getQrcode="getQrcode"></store-info>
+      @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
     <goods-list v-else-if="pageItem.type === '商品列表'" :storeNo="storeNo" :page-item="pageItem" :storeInfo="storeInfo"
-      image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList"></goods-list>
+      image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList" :beforeClick="beforeClick"></goods-list>
     <vaccine-list :storeInfo="storeInfo" :pageItem="pageItem" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList">
-    </vaccine-list>
+    </vaccine-list :beforeClick="beforeClick">
     <staff-manage :storeNo="storeNo" :pageItem="pageItem" v-else-if="pageItem.type === '人员列表'"
       @toDoctorDetail="toDoctorDetail" ref="staffList"></staff-manage>
     <news-list :pageItem="pageItem" :website_no="storeInfo && storeInfo.website_no" ref="articleList"
       :article-style="pageItem.article_style" :rownumber="pageItem.row_number" :cateNo="pageItem.category_no"
-      :storeInfo="storeInfo" v-else-if="pageItem.type === '文章列表'"></news-list>
-    <notice-list v-else-if="pageItem.type === '通知横幅'" ref="noticeList" :storeNo="storeNo" :pageItem="pageItem">
+      :storeInfo="storeInfo" :beforeClick="beforeClick" v-else-if="pageItem.type === '文章列表'"></news-list>
+    <notice-list v-else-if="pageItem.type === '通知横幅'" :beforeClick="beforeClick" ref="noticeList" :storeNo="storeNo"
+      :pageItem="pageItem">
     </notice-list>
-    <relation-store v-else-if="pageItem && pageItem.type === '关联店铺'" ref="relationStore" :storeNo="storeNo"
-      :pageItem="pageItem"></relation-store>
-    <timeline-list :showProfile="false" :profile="userInfo.profile_url" :storeNo="storeNo" noMargin showMore
-      :condition="timelinecondition" :limit="3" :showPublish="false"
+    <relation-store v-else-if="pageItem && pageItem.type === '关联店铺'" :beforeClick="beforeClick" ref="relationStore"
+      :storeNo="storeNo" :pageItem="pageItem"></relation-store>
+    <timeline-list :showProfile="false" :profile="userInfo.profile_url" :beforeClick="beforeClick" :storeNo="storeNo"
+      noMargin showMore :condition="timelinecondition" :limit="3" :showPublish="false"
       v-else-if="storeNo && pageItem && pageItem.type === '朋友圈' && userInfo && userInfo.userno"></timeline-list>
-    <link-wifi :store_no="storeNo" v-else-if="storeNo && pageItem && pageItem.type === '连接WiFi' && room_no">
+    <link-wifi :store_no="storeNo" :beforeClick="beforeClick"
+      v-else-if="storeNo && pageItem && pageItem.type === '连接WiFi' && room_no">
     </link-wifi>
-    <bx-list v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :pageItem="pageItem" class="bx-list" />
-
+    <bx-list v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick" :pageItem="pageItem"
+      class="bx-list" />
     <view class="user-card" v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'">
-      <view class="left">
+      <view class="left" v-if="!hasNotRegInfo">
         <view class="profile-image">
           <!-- <open-data type="userAvatarUrl"></open-data> -->
           <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image"></image>
@@ -53,21 +55,16 @@
           </view>
         </view>
       </view>
+      <view class="left" v-else>
+        <button class="cu-btn bg-white" @click="toLogin">请点击登录</button>
+      </view>
       <view class="right"><text class="cuIcon-message"></text></view>
     </view>
-    <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'"></vip-card>
+    <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
+    </vip-card>
 
-    <!-- 		<view class="user-avatar-list padding-sm" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'">
-			<view class="cu-avatar-group">
-				<view class="cu-avatar round " v-for="(item, index) in avatarList" :key="index"
-					:style="[{ backgroundImage: 'url(' + avatarList[index] + ')', 'z-index': avatarList.length - index }]">
-				</view>
-			</view>
-			<view class="share-menu">
-				<button class="cu-btn bg-white sm" open-type="share"><text class="text-blue sm">邀请好友</text></button>
-			</view>
-		</view> -->
-    <avatar-list :storeNo="storeNo" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"></avatar-list>
+    <avatar-list :storeNo="storeNo" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
+      :beforeClick="beforeClick"></avatar-list>
     <!-- 公众号关注组件 -->
     <view class="official-account " v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'">
       <text class="text" v-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
@@ -124,6 +121,10 @@
       },
       isBind: {
         type: Boolean
+      },
+      beforeClick: {
+        type: Function,
+        default: null
       }
     },
     watch: {
@@ -186,7 +187,20 @@
       });
     },
     methods: {
+      toLogin() {
+        if (this.hasNotRegInfo) {
+          uni.navigateTo({
+            url: '/publicPages/accountExec/accountExec'
+          })
+        }
+      },
       toOfficial(toSub = false) {
+        if (this.hasNotRegInfo) {
+          uni.navigateTo({
+            url: '/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         // 跳转到关注公众号页面
         const frontEndAddress = this.$api.frontEndAddress
         let webUrl =

@@ -36,6 +36,12 @@
 
     methods: {
       toWifi() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         uni.navigateTo({
           url: '/storePages/linkwifi/linkwifi?store_no=' + this.store_no
         })

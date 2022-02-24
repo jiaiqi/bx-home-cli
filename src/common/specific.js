@@ -194,7 +194,7 @@ export default {
             add_url: pageInfo.add_url,
             invite_user_no: option.invite_user_no || ''
           });
-        } else if(option.invite_user_no) {
+        } else if (option.invite_user_no) {
           store.commit('SET_INVITER_INFO', {
             add_url: pageInfo.add_url,
             invite_user_no: option.invite_user_no || ''
@@ -289,8 +289,12 @@ export default {
       }
       if (nickname) {
         req[0].data[0].nick_name = nickname.replace(/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "");
+        let userInfo = store.state.user.userInfo
+        if (userInfo?.id && !userInfo?.name) {
+          req[0].data[0].name = req[0].data[0].nick_name
+        }
       }
-      if (sex) {
+      if (sex && sex !== '未知') {
         req[0].data[0].sex = sex;
       }
       if (Object.keys(req[0].data[0]).length > 0) {

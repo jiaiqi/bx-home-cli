@@ -6,30 +6,42 @@ const mpAppNo = api.appNo.wxmp
 const dayjs = require('dayjs');
 import uDebounce from '@/common/utils/debounce.js'
 import {
+  mapState
+} from 'vuex'
+import {
 	checkIsAttention,
 	wxVerifyLogin,
 	selectPersonInfo
 } from '@/common/api/login.js'
 export default {
 	install(Vue, options) {
+    
 		Vue.prototype.dayjs = dayjs
 		Vue.prototype.$uDebounce = uDebounce
 		Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
-		/**
-		 *@param {Array} loginInfoList 要存储的登录信息 [{key:'',value:''}]
-		 */
-		Vue.prototype.saveLoginInfo = function(loginInfoList = []) {
-			loginInfoList.map(item => {
-				uni.setStorageSync(item.key, item.value)
-			})
-		}
-		Vue.prototype.$logout = function() {
-			try {
-				uni.clearStorageSync();
-			} catch (e) {
-				console.error(e)
-			}
-		}
+    
+    // 混入
+    Vue.mixin({
+      computed: {
+        ...mapState({
+          isAttention: state => state.app.subscsribeStatus, //是否关注公众号
+          userInfo: state => state.user.userInfo,
+          storeInfo: state => state.app.storeInfo,
+          vcart: state => state.order.cartInfo,
+          vstoreUser: state => state.user.storeUserInfo,
+          vloginUser: state => state.user.loginUserInfo,
+          scene: state => state.app.scene,
+          hasNotRegInfo: state => state.app.hasNotRegInfo //授权访问用户信息
+        })
+      },
+      methods:{
+        getwxMchId() {
+          // 获取商户号
+          return this.storeInfo?.wx_mch_id || '1485038452'
+        },
+      }
+    })
+    
 		// 初始化查询
 		Vue.prototype.selectRequestObjs = function(srv, cond, order) { // 给自定义方法起个名
 			let selectRequestObj = {}
@@ -1208,7 +1220,6 @@ export default {
 			}
 			let userInfo = e
 			console.log("setWxUserInfo", userInfo)
-
 			switch (userInfo.sex) {
 				case 0:
 					userInfo.sex = '未知'
@@ -1220,7 +1231,6 @@ export default {
 					userInfo.sex = '女'
 					break;
 			}
-
 			let url = Vue.prototype.getServiceUrl('wx', 'srvwx_basic_user_info_save', 'operate')
 			let req = [{
 				"serviceName": "srvwx_basic_user_info_save",
@@ -1245,7 +1255,6 @@ export default {
 					return response.data
 				}
 			}
-
 			return
 		}
 		Vue.prototype.isInvalid = function(e) {
@@ -1963,7 +1972,7 @@ export default {
 		Vue.prototype.updateUserInfo = async (e) => {
 			let userInfo = JSON.parse(JSON.stringify(e))
 			let gender = userInfo.gender || userInfo.sex //性别 0：未知、1：男、2：女
-			userInfo.sex = gender === 1 ? '男' : gender === 2 ? '女' : null
+			userInfo.sex = gender === 1 ? '男' : gender === 2 ? '女' :  userInfo.sex 
 			let vuex_userInfo = store.state.user.userInfo
 			if (vuex_userInfo && vuex_userInfo.no && (userInfo.avatarUrl !== vuex_userInfo
 					.profile_url || userInfo.nickName !== vuex_userInfo.nick_name ||
@@ -1972,8 +1981,6 @@ export default {
 					userInfo.nickName || userInfo.nickname, userInfo.sex)
 			}
 			store.commit('SET_AUTH_USERINFO', true);
-			// 	}
-			// });
 		}
 		Vue.prototype.initLogin = async () => {
 			// 初始化登录状态
@@ -1982,175 +1989,169 @@ export default {
 			let userInfo = await Vue.prototype.selectBasicUserInfo()
 			// #endif
 		}
-		Vue.prototype.toAddPage = async () => {
+		Vue.prototype.toAddPage = async (rawData) => {
 			let isLogin = store.state.app.isLogin
 			if (!isLogin) {
 				isLogin = await wxVerifyLogin()
 			}
 			// 登录 查找基本信息
+      // return
 			let data = await selectPersonInfo()
+      
+      let wxUserInfo = ''
+      if (store && store.state && store.state.user) {
+      	wxUserInfo = store.state.user.wxUserInfo
+      }
 			if (data && data.no && data.nick_name && data.profile_url) {
 				// 已有用户信息
 				store.commit('SET_AUTH_USERINFO', true)
-				if (!store.state.app.subscsribeStatus) {
-					Vue.prototype.checkSubscribeStatus()
-				}
+				// if (!store.state.app.subscsribeStatus) {
+				// 	Vue.prototype.checkSubscribeStatus()
+				// }
 				// 自动更新头像昵称
 				store.commit('SET_REGIST_STATUS', false)
 				return true
-			} else {
+			} else if(data?.no) {
 				// 未查到用户信息
 				store.commit('SET_AUTH_USERINFO', false)
 				// 获取授权，登记用户信息
+        // return 
 				// #ifdef MP-WEIXIN
-				const wxUser = await wx.getUserProfile({
-					desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-				})
-				if (wxUser && wxUser.userInfo) {
-					let rawData = {
-						nickname: wxUser.userInfo.nickName,
-						sex: wxUser.userInfo.gender,
-						country: wxUser.userInfo.country,
-						province: wxUser.userInfo.province,
-						city: wxUser.userInfo.city,
-						headimgurl: wxUser.userInfo.avatarUrl
-					};
-					// 保存用户信息
-					await Vue.prototype.setWxUserInfo(rawData);
-					store.commit('SET_WX_USERINFO', rawData);
-					store.commit('SET_AUTH_USERINFO', true);
-				}
-				// #endif
-			}
-			let wxUserInfo = ''
-			if (store && store.state && store.state.user) {
-				wxUserInfo = store.state.user.wxUserInfo
-			}
-			if ((wxUserInfo && (!wxUserInfo.nickname || wxUserInfo.nickname === '微信用户')) || !wxUserInfo) {
-				// 未授权获取用户信息
-				console.log(store.state.app.authBoxDisplay)
-				store.commit('SET_AUTH_USERINFO', false)
-				store.commit('SET_REGIST_STATUS', false)
-				return
-				// 未授权不进行注册
-			} else {
-				if (data && data.no) {
-					await Vue.prototype.updateUserInfo(wxUserInfo)
-				}
-			}
-
-			// 没有基本信息 创建基本信息
-			let login_user_info = uni.getStorageSync('login_user_info')
-			let user_no = login_user_info.user_no
-			try {
-				if (store.state.user.loginUserInfo) {
-					login_user_info = store.state.user.loginUserInfo
-					user_no = store.state.user.loginUserInfo.user_no
-				}
-			} catch (e) {
-				//TODO handle the exception
-			}
-			let sex = ''
-			if (wxUserInfo && wxUserInfo.sex) {
-				switch (wxUserInfo.sex) {
-					case 0:
-						sex = ''
-						break;
-					case 1:
-						sex = '男'
-						break;
-					case 2:
-						sex = '女'
-						break;
-				}
-			}
-			if (wxUserInfo && wxUserInfo.gender) {
-				switch (wxUserInfo.gender) {
-					case 0:
-						sex = ''
-						break;
-					case 1:
-						sex = '男'
-						break;
-					case 2:
-						sex = '女'
-						break;
-				}
-			}
-			let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
-			let req = [{
-				"serviceName": "srvhealth_person_info_add",
-				"data": [{
-					"nick_name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname
-						.replace(
-							/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
-					"userno": user_no,
-					"name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
-						/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
-					"profile_url": wxUserInfo ? wxUserInfo.headimgurl : "",
-					// "user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
-					"sex": sex ? sex : null,
-					"is_main": "是",
-					"font_size": "中"
-				}]
-			}]
-			debugger
-			try {
-				let inviterInfo = store.state.app.inviterInfo
-				if (inviterInfo.invite_user_no) {
-					req[0].data[0].invite_user_no = inviterInfo.invite_user_no
-				} else {
-					req[0].data[0].invite_user_no = ''
-				}
-				if (inviterInfo.add_url) {
-					req[0].data[0].add_url = inviterInfo.add_url
-				}
-				if (inviterInfo.add_store_no) {
-					req[0].data[0].add_store_no = inviterInfo.add_store_no
-					req[0].data[0].home_store_no = inviterInfo.add_store_no
-				} else {
-					
-				}
-			} catch (e) {}
-			if (store.state.user.userInfo && store.state.user.userInfo.no) {
-				return store.state.user.userInfo
-			}
-			
-			store.commit('SET_REGIST_STATUS', true)
-			let res = await _http.post(url, req)
-			store.commit('SET_REGIST_STATUS', false)
-			if (res.data && res.data.resultCode === "SUCCESS") {
-				console.log("信息登记成功")
-				if (
-					Array.isArray(res.data.response) &&
-					res.data.response.length > 0 &&
-					res.data.response[0].response &&
-					Array.isArray(res.data.response[0].response.effect_data) &&
-					res.data.response[0].response.effect_data.length > 0
-				) {
-					store.commit('SET_AUTH_USERINFO', true)
-					store.commit('SET_REGIST_STATUS', true)
-					store.commit('SET_USERINFO', res.data.response[0].response.effect_data[0])
-				}
-				if (store.state.app.doctorInfo && store.state.app.doctorInfo.no) {
-					let result = await Vue.prototype.bindDoctorInfo(store.state.app.doctorInfo
-						.no)
-				}
-				if (!store.state.app.subscsribeStatus) {
-					Vue.prototype.checkSubscribeStatus()
-				}
-				return true
-			} else {
-				// uni.showModal({
-				//   title: '提示',
-				//   content: JSON.stringify(res.data)
+				// const wxUser = await wx.getUserProfile({
+				// 	desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
 				// })
-				if (res.data.resultCode === '0011') {
-					// 未登录
-					return false
-				}
-				return false
-			}
+				// if (wxUser && wxUser.userInfo) {
+				// 	let rawData = {
+				// 		nickname: wxUser.userInfo.nickName,
+				// 		sex: wxUser.userInfo.gender,
+				// 		country: wxUser.userInfo.country,
+				// 		province: wxUser.userInfo.province,
+				// 		city: wxUser.userInfo.city,
+				// 		headimgurl: wxUser.userInfo.avatarUrl
+				// 	};
+				// 	// 保存用户信息
+				// 	await Vue.prototype.setWxUserInfo(rawData);
+				// 	store.commit('SET_WX_USERINFO', rawData);
+				// 	store.commit('SET_AUTH_USERINFO', true);
+				// }
+				// #endif
+
+        if ((wxUserInfo && (!wxUserInfo.nickname || wxUserInfo.nickname === '微信用户')) || !wxUserInfo) {
+        	// 未授权获取用户信息
+        	store.commit('SET_AUTH_USERINFO', false)
+        	store.commit('SET_REGIST_STATUS', false)
+        	// return
+        	// 未授权不进行注册
+        } else if(wxUserInfo?.nickname) {
+        	if (data && data.no) {
+        		await Vue.prototype.updateUserInfo(wxUserInfo)
+            return
+        	}
+        }
+			}else{
+        // 没有基本信息 创建基本信息
+        let login_user_info = uni.getStorageSync('login_user_info')
+        let user_no = login_user_info.user_no
+        try {
+        	if (store.state.user.loginUserInfo) {
+        		login_user_info = store.state.user.loginUserInfo
+        		user_no = store.state.user.loginUserInfo.user_no
+        	}
+        } catch (e) {
+        	//TODO handle the exception
+        }
+        let sex = ''
+        if (wxUserInfo && wxUserInfo.sex) {
+        	switch (wxUserInfo.sex) {
+        		case 0:
+        			sex = ''
+        			break;
+        		case 1:
+        			sex = '男'
+        			break;
+        		case 2:
+        			sex = '女'
+        			break;
+        	}
+        }
+        if (wxUserInfo && wxUserInfo.gender) {
+        	switch (wxUserInfo.gender) {
+        		case 0:
+        			sex = ''
+        			break;
+        		case 1:
+        			sex = '男'
+        			break;
+        		case 2:
+        			sex = '女'
+        			break;
+        	}
+        }
+        let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
+        let req = [{
+        	"serviceName": "srvhealth_person_info_add",
+        	"data": [{
+        		"nick_name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname
+        			.replace(
+        				/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
+        		"userno": user_no,
+        		"name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
+        			/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
+        		"profile_url": wxUserInfo ? wxUserInfo.headimgurl : "",
+        		// "user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
+        		"sex": sex ? sex : null,
+        		"is_main": "是",
+        		"font_size": "中"
+        	}]
+        }]
+        try {
+        	let inviterInfo = store.state.app.inviterInfo
+        	if (inviterInfo.invite_user_no) {
+        		req[0].data[0].invite_user_no = inviterInfo.invite_user_no
+        	} else {
+        		req[0].data[0].invite_user_no = ''
+        	}
+        	if (inviterInfo.add_url) {
+        		req[0].data[0].add_url = inviterInfo.add_url
+        	}
+        	if (inviterInfo.add_store_no) {
+        		req[0].data[0].add_store_no = inviterInfo.add_store_no
+        		req[0].data[0].home_store_no = inviterInfo.add_store_no
+        	} else {
+        		
+        	}
+        } catch (e) {}
+        if (store.state.user.userInfo && store.state.user.userInfo.no) {
+        	return store.state.user.userInfo
+        }
+        store.commit('SET_REGIST_STATUS', true)
+        let res = await _http.post(url, req)
+        store.commit('SET_REGIST_STATUS', false)
+        if (res.data && res.data.resultCode === "SUCCESS") {
+        	console.log("信息登记成功")
+        	if (
+        		Array.isArray(res.data.response) &&
+        		res.data.response.length > 0 &&
+        		res.data.response[0].response &&
+        		Array.isArray(res.data.response[0].response.effect_data) &&
+        		res.data.response[0].response.effect_data.length > 0
+        	) {
+        		store.commit('SET_AUTH_USERINFO', true)
+        		store.commit('SET_REGIST_STATUS', true)
+        		store.commit('SET_USERINFO', res.data.response[0].response.effect_data[0])
+        	}
+          
+        	return true
+        } else {
+          
+        	if (res.data.resultCode === '0011') {
+        		// 未登录
+        		return false
+        	}
+        	return false
+        }
+      }
+      // return
 			return
 		}
 
@@ -2281,7 +2282,6 @@ export default {
 		Vue.prototype.evalConditions = (conditions, mainData) => {
 			conditions = conditions.map(op => {
 				let regVar = /\$\{(.*?)\}/
-        debugger
 				if (op.value.indexOf('data.hotel_no') !== -1) {
 					if (mainData?.store_no && !mainData?.hotel_no) {
 						op.value = 'data.store_no'
@@ -2726,19 +2726,7 @@ export default {
 				const url =
 					`${api.serverURL}/file/adv/download?imgFileNo=${background_img}&logoFileNo=${logfile}&qrcontent=${text}&xp=${xp}&yp=${yp}&qrwidth=${qrwidth}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
 				return url
-				// const result = await _http.post(url)
-				// console.log(result)
-				// debugger
-				// return result.data?.data
 			}
-
 		}
-
-		// Vue.prototype.getUUID = () => {
-		// 	var temp_url = URL.createObjectURL(new Blob());
-		// 	var uuid = temp_url.toString(); // blob:https://xxx.com/b250d159-e1b6-4a87-9002-885d90033be3
-		// 	URL.revokeObjectURL(temp_url);
-		// 	return uuid.substr(uuid.lastIndexOf("/") + 1);
-		// }
 	}
 }

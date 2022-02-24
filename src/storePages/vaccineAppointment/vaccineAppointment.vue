@@ -25,9 +25,6 @@
         <view class="sub-title">
           <text class="text-cyan">{{vaccineTip||''}}</text>
         </view>
-        <view class="date-select">
-
-        </view>
         <view class="time-range-box">
           <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
             <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
@@ -35,9 +32,6 @@
                 <text class="" v-if="item._date">{{dayjs(item._date).format("MM-DD")}} {{getDayOfWeek(item._date)}}
                 </text>
                 <text class="" v-else>{{dayjs(item.app_date).format("MM-DD")}} {{getDayOfWeek(item.app_date)}} </text>
-                <!--   <text
-                  v-if="item.app_count_limit&&item.app_count>=item.app_count_limit">（已约{{item.app_amount||item.app_count||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）
-                </text> -->
                 <text class="">（ 已约{{item.app_amount||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）</text>
               </view>
               <view class="date-area ">
@@ -60,9 +54,6 @@
               v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
               v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
               <view class="date">
-                <!--    <text v-if="vaccineInfo.persons_count===1||radio.appoint_name">
-                  {{radio.appoint_name}}
-                </text> -->
                 {{dayjs(radio.app_date).format('MM-DD')}}-{{
             				getDayOfWeek(radio.app_date)
             			}}
@@ -264,7 +255,14 @@
       },
       disabledTime(e, data) {
         // 判断是否过期 已过期则禁用
-        // debugger
+        // if (e.app_count_limit && e.app_count && e.appoint_type !== '登记') {
+        //   //
+        //   if (e.app_count_limit <= e.app_count) {
+        //     if (data && data.app_amount >= data.app_count) {
+        //       return true
+        //     }
+        //   }
+        // }
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (e.time_range_appointment_limit && e.time_range) {
             if (e.app_amount >= e.time_range_appointment_limit) {
@@ -279,13 +277,10 @@
             return true
           }
         }
-
+        debugger
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
-            // uni.showToast({
-            //   title: `今天${e.app_open_time.slice(0,5)}才可预约${e.predays}天后的疫苗`,
-            //   icon: 'none'
-            // })
+            // 还没到可以提前预约的时间
             return true
           }
         }
@@ -479,7 +474,6 @@
               }
             }
           }
-          debugger
           this.timeArr = arr
           let timeArr = res.data
 
@@ -563,26 +557,18 @@
             {
               "colName": "store_no",
               ruleType: 'eq',
-              value: this.storeInfo.store_no
+              value: this.storeInfo.store_no || this.store_no
             }
           ],
           "group": [{
               "colName": "sa_no",
               "type": "by"
             },
-            // {
-            //   "colName": "app_date",
-            //   "type": "by",
-            // }, 
             {
               "colName": "id",
               "type": "count",
               aliasName: "amount"
-            },
-            // {
-            //   colName: 'appoint_name',
-            //   "type": "by"
-            // }
+            }
           ],
           "page": {
             "pageNo": 1,
@@ -630,10 +616,8 @@
           }
         }
         let vaccineInfo = this.getRange.find(item => item.sa_no === this.selectedVaccine.sa_no)
-        debugger
 
         let selectedVaccine = this.deepClone(this.selectedVaccine)
-        debugger
         if (selectedVaccine.time_range && selectedVaccine.time_range_appointment_limit) {
           if (selectedVaccine.app_amount && selectedVaccine.app_amount > 0 && selectedVaccine.app_amount >=
             selectedVaccine

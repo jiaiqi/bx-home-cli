@@ -467,6 +467,12 @@
         })
       },
       toMore() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         let url = `/storePages/VaccineList/VaccineList?storeNo=${this.storeInfo.store_no}`
         if (this.moreConfig && typeof this.moreConfig === 'object') {
           url += `&moreConfig=${JSON.stringify(this.moreConfig)}`
@@ -474,36 +480,6 @@
         uni.navigateTo({
           url
         })
-      },
-      disabledTime(e) {
-        // 判断是否过期 已过期则禁用
-        if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
-          if (e.time_range_appointment_limit && e.time_range) {
-            if (e.app_amount >= e.time_range_appointment_limit) {
-              return true
-            } else {
-              // return false
-            }
-          } else {
-            return true
-          }
-        }
-        let time = new Date(e.app_date + ' ' + e.app_time_start)
-        let now = new Date()
-        if (time.getTime() < now.getTime()) {
-          if (e.time_range_appointment_limit && e.time_range) {
-            let time = new Date(e.app_date + ' ' + e.timeStart)
-            let now = new Date()
-            if (time.getTime() < now.getTime()) {
-              return true
-            } else {
-              return false
-            }
-          }
-          return true
-        } else {
-          return false
-        }
       },
       async getImage(e) {
         if (e && e.remark_pic) {
@@ -521,6 +497,12 @@
         }
       },
       async showInfo(e) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         this.vaccineInfo = e
         this.getImage(e)
         this.modalName = 'vaccine-info'
@@ -708,23 +690,6 @@
       },
       onBlur() {
         this.activeField = ''
-      },
-      selectItem(e) {
-        if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
-          uni.showToast({
-            title: '预约人数已满',
-            icon: 'none'
-          })
-          return
-        }
-        if (this.disabledTime(e)) {
-          uni.showToast({
-            title: '已过期,不可预约',
-            icon: 'none'
-          })
-          return
-        }
-        this.selectedVaccine = e
       },
       getList() {
         let list = []

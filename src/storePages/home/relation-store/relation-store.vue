@@ -85,6 +85,12 @@
     },
     methods: {
       toMore() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         const url =
           `/publicPages/list/list?pageType=list&col=4&searchKey=b_name&hideFootBtn=true&customTemp=true&serviceName=srvhealth_store_relation_select&cond=${JSON.stringify([ { colName: "relation_type", ruleType: "in", value: "包含" }, { colName: "a_store_no", ruleType: "eq", value: this.storeNo } ])}&viewTemp={"title":"b_name_short||b_name","img":"b_logo"}`
         uni.navigateTo({
@@ -92,6 +98,12 @@
         })
       },
       toStore(e) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         if (e.b_store_no) {
           uni.navigateTo({
             animationType: "zoom-fade-out",

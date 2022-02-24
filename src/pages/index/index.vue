@@ -140,7 +140,7 @@
         inviterInfo: state => state.app.inviterInfo,
         wxUserInfo: state => state.user.wxUserInfo,
         isLogin: state => state.app.isLogin,
-        authBoxDisplay: state => state.app.authBoxDisplay,
+        // hasNotRegInfo: state => state.app.hasNotRegInfo,
         userInfo: state => state.user.userInfo,
         storeInfo:state=>state.app.storeInfo,
         loginUserInfo: state => state.user.loginUserInfo,

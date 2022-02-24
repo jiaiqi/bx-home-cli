@@ -74,10 +74,22 @@
     },
     methods: {
       clickNotice(index) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         let e = this.noticeList[index]
         this.handelClick(e)
       },
       handelClick(e) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         if (e.target_link) {
           uni.navigateTo({
             url: e.target_link.trim()

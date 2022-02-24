@@ -67,6 +67,12 @@
 		},
 		methods: {
 			toDetail() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = this.moreConfig?.detailUrl
 				if (url) {
 					url = this.renderStr(url, this)
@@ -76,6 +82,12 @@
 				}
 			},
 			onRightBtn() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = this.rightBtn?.url
 				if (url) {
 					url = this.renderStr(url, this)
@@ -114,6 +126,12 @@
 				})
 			},
 			toOpenVip() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = this.moreConfig?.open_url
 				if (url) {
 					url = this.renderStr(url, this)

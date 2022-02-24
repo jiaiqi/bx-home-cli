@@ -1274,7 +1274,6 @@
         return
       },
       async clickFootBtn(data) {
-        debugger
         if (this.listType === 'selectorList') {
           this.checkboxChange(data.row)
           return
@@ -1370,7 +1369,6 @@
             })
 
           } else if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
-            debugger
             if (moreConfig?.type === 'wx_pay') {
               this.onRequestPayment(rowData, moreConfig)
               return
@@ -1672,7 +1670,6 @@
             });
           }
         } else {
-          debugger
           if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo

@@ -324,6 +324,12 @@
 				}
 			},
 			toManage() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = `/storePages/StoreManager/StoreManager?store_no=${this.storeInfo.store_no}`;
 				if (this.storeInfo.store_no) {
 					uni.navigateTo({
@@ -332,6 +338,12 @@
 				}
 			},
 			toAttention() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = '/publicPages/webviewPage/webviewPage';
 				url += `?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`;
 				uni.navigateTo({
@@ -363,6 +375,12 @@
 				this.$emit('getQrcode', e);
 			},
 			makePhoneCall() {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				uni.makePhoneCall({
 					phoneNumber: this.storeInfo && this.storeInfo.telephone ? this.storeInfo.telephone : '10086'
 				});
@@ -387,6 +405,12 @@
 				this.$emit('setHomePage');
 			},
 			toPages(e, info) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
 				let url = '';
 				if ((!this.bindUserInfo || !this.bindUserInfo.store_user_no) && e !== 'health-manager') {
 					this.$emit('addToStore');

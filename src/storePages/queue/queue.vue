@@ -531,7 +531,7 @@ export default {
         await this.toAddPage()
       }
 
-      if (this.authBoxDisplay) {
+      if (this.hasNotRegInfo) {
         return
       }
       let url = this.getServiceUrl('health', 'srvhealth_store_user_add', 'operate');

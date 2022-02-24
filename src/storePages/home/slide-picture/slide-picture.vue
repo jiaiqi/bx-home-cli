@@ -65,12 +65,10 @@
       pageItem: {
         type: Object
       },
-      // storeInfo: {
-      //   type: Object
-      // },
-      // userInfo: {
-      //   type: Object
-      // }
+      beforeClick:{
+        type: Function,
+        default: null
+      }
     },
     data() {
       return {
@@ -95,6 +93,12 @@
         // this.pauseVideo()
       },
       toDetail(item) {
+        if(this.hasNotRegInfo){
+          uni.navigateTo({
+            url:'/publicPages/accountExec/accountExec'
+          })
+          return
+        }
         if (item.mini_program_url) {
           uni.navigateTo({
             url: item.mini_program_url

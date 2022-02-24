@@ -76,7 +76,6 @@
 			},
 			async handleUserInfo(res) {
 				let self = this
-				debugger
 				if (typeof res === 'object' && Object.keys(res).length > 0 && res.userInfo) {
 					let rawData = {
 						nickname: res.userInfo.nickName,
@@ -89,8 +88,9 @@
 					self.$store.commit('SET_WX_USERINFO', rawData);
 					self.$store.commit('SET_AUTH_USERINFO', true);
 					await self.setWxUserInfo(rawData);
+          await this.toAddPage(rawData)
 					this.$emit('auth-complete')
-					this.toAddPage()
+          return
 					let url = '/storePages/home/home'
 					let pageStack = getCurrentPages();
 					if (Array.isArray(pageStack) && pageStack.length >= 1) {
@@ -100,7 +100,6 @@
 						  url = currentPage?.$page?.fullpath
 					  }
 					}
-					debugger
 					uni.reLaunch({
 						url: url
 					})

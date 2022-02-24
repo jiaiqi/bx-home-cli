@@ -1,6 +1,6 @@
 <template>
   <view class="authorization">
-    <!-- {{isBindUser}}{{client_env}}{{isShowUserLogin}} -->
+    <!-- #ifdef H5 -->
     <view class="container">
       <view class="right-top-sign"></view>
       <!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
@@ -12,15 +12,14 @@
             <!-- #endif -->
             <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
           </view>
+          <!-- #ifndef MP-WEIXIN -->
           <view class="input-content">
             <view class="input-item">
-              <!-- <text class="tit">帐号</text> -->
               <text class="cuIcon-people margin-right"></text>
               <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
                 @input="inputChange" />
             </view>
             <view class="input-item">
-              <!-- <text class="tit">密码</text> -->
               <text class="cuIcon-lock margin-right"></text>
               <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
                 password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
@@ -30,13 +29,7 @@
               <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
             </view>
           </view>
-
-          <!-- 	<u-radio-group style="display: flex;justify-content: flex-end;margin:5px 15px;">
-          	<u-radio class="" color="">
-          		<view style="max-width: 700rpx;">记住密码</view>
-          	</u-radio>
-          </u-radio-group> -->
-
+    
           <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
             <label
               style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
@@ -44,14 +37,14 @@
               <text>记住密码</text>
             </label>
           </checkbox-group>
-
-
-
+    
           <debounce-view @onTap="userLogined">
             <button class="confirm-btn bg-blue text-green">
               {{ isBindUser ? '提交绑定' : '登录' }}
             </button>
           </debounce-view>
+          <!-- #endif -->
+    
           <!--      <button class="confirm-btn bg-blue text-green" @click="userLogined">
             {{ isBindUser ? '提交绑定' : '登录' }}
           </button> -->
@@ -62,11 +55,11 @@
           <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
             class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo"
             @getuserinfo="saveWxUser" :withCredentials="false" :disabled="!isWeixin">
-            立即授权
+            微信用户一键登录
           </button>
           <button v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin"
             class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">
-            暂不授权
+            暂不登录
           </button>
         </view>
         <!-- #ifdef H5||APP-PLUS -->
@@ -85,13 +78,12 @@
         </view>
         <!-- #endif -->
       </view>
-
+    
     </view>
-    <!--  <view class="cu-modal bottom-modal" :class="{show:showLoginQrCode}" @click="showScan">
-      <view class="cu-dialog">
-        <view id="login_container" class="login_container"></view>
-      </view>
-    </view> -->
+    <!-- #endif -->
+    <!-- #ifdef MP-WEIXIN -->
+    <bx-auth  @auth-complete="initPage"></bx-auth>
+    <!-- #endif -->
   </view>
 </template>
 
@@ -122,6 +114,7 @@
       };
     },
     created() {
+      // #ifdef H5
       let self = this;
       let pwd = localStorage.getItem('pwd')
       let user_no = localStorage.getItem('user_no')
@@ -129,8 +122,10 @@
         self.user.user_no = localStorage.getItem('user_no')
         self.user.pwd = localStorage.getItem('pwd')
       }
+      // #endif
     },
     onLoad(option) {
+      // #ifdef H5
       if (uni.getStorageSync('isLogin')) {
         console.log('已登录，不进行初始化授权', uni.getStorageSync('isLogin'));
         if (uni.getStorageSync('backUrl') && uni.getStorageSync('backUrl') !== '/' && uni.getStorageSync(
@@ -147,7 +142,6 @@
         console.log('onLoad 未登录，进行初始化授权', uni.getStorageSync('isLogin'));
         // self.initLogin();
       }
-      // #ifdef H5
       let isWeixinClient = this.isWeixinClient();
       let isLogin = uni.getStorageSync('isLogin')
       if (isWeixinClient) {
@@ -204,6 +198,10 @@
       // #endif
     },
     methods: {
+      initPage(e){
+        this.selectBasicUserList()
+        uni.navigateBack()
+      },
       changeLoginType(e) {
         this.loginType = e
         if (e === 'weixin-qrcode') {
@@ -454,10 +452,6 @@
                     uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
                     uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
                     uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
-                    if (that.checkValue) {
-                      localStorage.setItem('user_no', that.user.user_no)
-                      localStorage.setItem('pwd', that.user.pwd)
-                    }
                     if (resData.login_user_info.user_no) {
                       uni.setStorageSync('login_user_info', resData.login_user_info);
                       // top.user = resData.login_user_info;
@@ -864,6 +858,7 @@
       background: url(./bg.png) no-repeat;
       background-size: 100% 100%;
     }
+
     /* #endif */
 
     .images {

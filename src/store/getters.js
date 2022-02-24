@@ -7,7 +7,7 @@ const getters = {
 	loginUserInfo: state => state.user.loginUserInfo,
 	authSetting:state=>state.app.authSetting,
 	env:state=>state.app.env,
-	authBoxDisplay:state=>state.app.authBoxDisplay,
+	hasNotRegInfo:state=>state.app.hasNotRegInfo,
   btnBg:state=>{
     let obj = {
       bg:'',

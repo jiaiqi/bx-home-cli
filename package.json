@@ -105,7 +105,7 @@
   "uni-app": {
     "scripts": {
       "edge": {
-        "title": "Microsoft Edge",
+        "title": "bx-home",
         "browser": "Edge",
         "env": {
           "UNI_PLATFORM": "h5"
