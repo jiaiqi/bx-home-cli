@@ -19,6 +19,25 @@
         </view>
       </view>
     </view>
+    <view class="menu-list-box" v-if="pageItem.button_style === 'info-list'">
+      <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
+        <view class="left">
+          <image class="image" :src="getImagePath(item.icon,true)" mode="aspectFit">
+          </image>
+          <!--   <button :open-type="item.openType" v-if="item.openType" @getphonenumber="getPhoneNumber"
+            class="cu-btn bg-white text">{{item.button_label}}</button>
+          <text v-else>{{item.button_label||''}}</text> -->
+        </view>
+        <view class="right">
+          <view class="title">
+            {{item.button_label||''}}
+          </view>
+          <view class="intro">
+            {{item.describe||''}}
+          </view>
+        </view>
+      </view>
+    </view>
     <swiper class="swiper" :class="{
         'rectangle-dot': pageItem.button_style !== 'grid',
         'grid-style': pageItem.button_style === 'grid',
@@ -164,6 +183,9 @@
       pageItem: {
         type: Object,
       },
+      buttonList: {
+        type: Array,
+      }
     },
     mounted() {
       let globalData = getApp().globalData
@@ -189,12 +211,28 @@
           customer_birth_day: "",
           customer_phone: '',
           appoint_remark: ''
-        }
-        // buttons: this.pageItem.listdata || []
+        },
+        // buttons: []
       };
     },
 
     watch: {
+      'pageItem': {
+        deep: true,
+        immediate: true,
+        handler(newValue, oldValue) {
+          if (newValue && Array.isArray(newValue.listdata)) {
+            debugger
+            // this.buttons = newValue.listdata.map(item => {
+            //   item.url = item.dest_page
+            //   if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
+            //     item.openType = 'getPhoneNumber'
+            //   }
+            //   return item
+            // });
+          }
+        }
+      },
       storeNo: {
         immediate: true,
         handler(newValue, oldValue) {
@@ -214,8 +252,8 @@
     },
     computed: {
       buttons() {
-        if (Array.isArray(this.pageItem.listdata)) {
-          return this.pageItem.listdata.map(item => {
+        if (Array.isArray(this.buttonList)) {
+          return this.buttonList.map(item => {
             item.url = item.dest_page
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
@@ -328,10 +366,10 @@
           }]
         }]
         let url = this.getServiceUrl('sso', 'srvsso_phone_reset', 'operate')
-        this.$http.post(url,req).then(res=>{
-          if(res.data.state==="SUCCESS"){
+        this.$http.post(url, req).then(res => {
+          if (res.data.state === "SUCCESS") {
             uni.showToast({
-              title:'手机号更新成功！',
+              title: '手机号更新成功！',
             })
           }
         })
@@ -523,7 +561,6 @@
         }
       },
       makeQrCode() {
-        debugger
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make()
         }
@@ -661,9 +698,9 @@
       },
 
       toPages(e) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -962,9 +999,23 @@
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
-
+        
         .left {
           flex: 1;
+          .image{
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+          }
+        }
+        .right{
+          .title{
+            font-weight: bold;
+          }
+          .intro{
+            color: #888;
+            font-size: 12px;
+          }
         }
 
         .cu-btn.text {

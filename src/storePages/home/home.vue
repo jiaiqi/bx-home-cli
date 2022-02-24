@@ -10,7 +10,7 @@
 
     <template v-if="pageItemList&&pageItemList.length>0">
       <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
-        :pageItem="pageItem" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo"
+        :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo"
         ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult" @bindStore="bindStore"
         @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode" :before-click="clickStoreItem">
       </store-item>
@@ -297,27 +297,27 @@
           });
         }
       },
-      // getConfig(pageItem) {
-      //   if (pageItem && pageItem.type) {
-      //     let type = pageItem.type;
-      //     let keys = Object.keys(pageItem);
-      //     let config = {};
-      //     if (Array.isArray(keys) && keys.length > 0) {
-      //       keys.forEach(key => {
-      //         if (key === 'more_config' && pageItem[key] && typeof pageItem[key] === 'string') {
-      //           try {
-      //             pageItem[key] = JSON.parse(pageItem[key]);
-      //           } catch (e) {
-      //             //TODO handle the exception
-      //           }
-      //         }
-      //         config[key] = pageItem[key];
-      //       });
-      //       config.type = pageItem['type'];
-      //       return config;
-      //     }
-      //   }
-      // },
+      getConfig(pageItem) {
+        if (pageItem && pageItem.type) {
+          let type = pageItem.type;
+          let keys = Object.keys(pageItem);
+          let config = {};
+          if (Array.isArray(keys) && keys.length > 0) {
+            keys.forEach(key => {
+              if (key === 'more_config' && pageItem[key] && typeof pageItem[key] === 'string') {
+                try {
+                  pageItem[key] = JSON.parse(pageItem[key]);
+                } catch (e) {
+                  //TODO handle the exception
+                }
+              }
+              config[key] = pageItem[key];
+            });
+            config.type = pageItem['type'];
+            return config;
+          }
+        }
+      },
       async getPageItem() {
         let req = {
           condition: [{
@@ -339,6 +339,13 @@
           this.pageItemList = res.data
             .filter(item => item.display !== '否' && item.button_usage !== '管理人员')
             .map(item => {
+              try{
+                if(item.more_config&&typeof item.more_config==='string'){
+                  item.more_config = JSON.parse(item.more_config)
+                }
+              }catch(e){
+                //TODO handle the exception
+              }
               if (!setFirstSwiper && item.type === '轮播图') {
                 item.isFirstSwiper = true;
                 setFirstSwiper = true;
@@ -559,7 +566,7 @@
           this.pageItemList = this.pageItemList.map(item => {
             let obj = pageItemList.find(a => a.component_no === item.component_no);
             if (obj) {
-              // item.listdata = obj.listdata
+              item.listdata = obj.listdata
               this.$set(item, 'listdata', obj.listdata);
             }
             return item;

@@ -17,7 +17,7 @@
       @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
       @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
-      @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" ref="buttonGroup"></button-list>
+      @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" :button-list="pageItem.listdata" ref="buttonGroup"></button-list>
     <goods-list v-else-if="pageItem.type === '商品列表'" :storeNo="storeNo" :page-item="pageItem" :storeInfo="storeInfo"
       image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList" :beforeClick="beforeClick"></goods-list>
     <vaccine-list :storeInfo="storeInfo" :pageItem="pageItem" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList">
