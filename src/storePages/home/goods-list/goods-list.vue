@@ -15,10 +15,19 @@
         <view class="goods-info">
           <view class="goods-name">{{ item[name] }}</view>
           <view class="desc">{{ item[desc] }}</view>
-          <view class="price text-cyan">
-            <text class="symbol">￥</text>
-            <text class="number">{{ item[price] }}</text>
+          <view class="price margin-top-xs">
+            <view class="" v-if="item[originPrice]">
+              <text class=" symbol" :class="{'text-red':!item[originPrice],'text-gray':item[originPrice]}">￥</text>
+              <text class="number "
+                :class="{'line-through text-gray':item[originPrice],'text-red':!item[originPrice]}">{{ item[originPrice] }}</text>
+            </view>
+            <view class="text-orange ">
+              <text style="font-size: 14px;" v-if="item[originPrice]">优惠价</text>
+              <text class="symbol">￥</text>
+              <text class="number" style="font-size: 20px;">{{ item[price] }}</text>
+            </view>
           </view>
+
         </view>
       </view>
     </view>
@@ -67,9 +76,20 @@
         total: 0
       };
     },
-    mounted() {
-      if (this.storeNo) {
-        this.getGoodsListData()
+    // mounted() {
+    //   if (this.storeNo) {
+    //     this.getGoodsListData()
+    //   }
+    // },
+    watch: {
+      storeNo: {
+        immediate: true,
+        handler(newValue, oldValue) {
+          if (newValue) {
+            this.goodsList = []
+            this.getGoodsListData()
+          }
+        }
       }
     },
     methods: {
@@ -161,9 +181,9 @@
         return content;
       },
       toGoodsDetail(e) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -209,6 +229,10 @@
       price: {
         type: String,
         default: 'price'
+      },
+      originPrice: { //原价
+        type: String,
+        default: 'origin_price'
       },
       pageItem: {
         type: Object
@@ -304,7 +328,9 @@
     }
 
     .price {
-      margin-top: 20rpx;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
 
       .symbol {
         font-size: 12px;
@@ -312,9 +338,18 @@
 
       .number {
         font-size: 20px;
+
+        &.line-through {
+          text-decoration: line-through;
+          margin-right: 5px;
+        }
       }
+
+
     }
   }
+
+
 
   .goods-name {
     text-align: left;

@@ -19,7 +19,7 @@
         </view>
       </view>
     </view>
-    <view class="menu-list-box" v-if="pageItem.button_style === 'info-list'">
+    <view class="menu-list-box" v-else-if="pageItem.button_style === 'info-list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">
           <image class="image" :src="getImagePath(item.icon,true)" mode="aspectFit">

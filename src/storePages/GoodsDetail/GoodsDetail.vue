@@ -14,12 +14,21 @@
     <view class="goods-info">
       <view class="goods-name">{{ goodsInfo.goods_name || '' }}</view>
       <view class="handler-bar margin-top-xs">
-        <view class="price text-red  margin-right" v-if="showPrice && fill2Digit(goodsInfo.price)">
-          <text class="symbol">￥</text>
-          <text class="number" v-if="fill2Digit(goodsInfo.price)">
-            <text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
-            <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
-          </text>
+        <view class="" style="display: flex;">
+          <view class="price text-red  margin-right" v-if="showPrice && fill2Digit(goodsInfo.price)">
+            <!-- <text v-if="goodsInfo.origin_price" class="symbol">优惠价</text> -->
+            <text class="symbol">￥</text>
+            <text class="number" v-if="fill2Digit(goodsInfo.price)">
+              <text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
+              <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
+            </text>
+          </view>
+          <view class="price text-red  margin-right " style="align-items: flex-end;" v-if="goodsInfo.origin_price&&showPrice && fill2Digit(goodsInfo.origin_price)">
+            <text class="number line-through" v-if="fill2Digit(goodsInfo.origin_price)">
+              <text class="int"><text class="symbol">￥</text>{{ fill2Digit(goodsInfo.origin_price)[0] }}.</text>
+              <text class="float">{{ fill2Digit(goodsInfo.origin_price)[1] }}</text>
+            </text>
+          </view>
         </view>
         <view class="number-box" v-if="inCartGoodsInfo && inCartGoodsInfo.goods_amount">
           <view class="cu-btn sm radius cart-handler" @click.stop="del">-</view>
@@ -657,7 +666,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-
       .number-box {
         display: flex;
         align-items: center;
@@ -777,16 +785,36 @@
   }
 
   .price {
+    display: flex;
+    align-items: flex-end;
     .symbol {
       font-size: 12px;
     }
 
     .number {
       font-size: 30px;
-      margin: 0 5px;
-
+      position: relative;
+      top: 5px;
       .float {
         font-size: 14px;
+      }
+    }
+    
+    .line-through{
+      position: relative;
+      color: #666;
+      font-size: 18px;
+      .number{
+        font-size: 18px;
+      }
+      &::after{
+        content: '';
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        background-color: #666;
+        position: absolute;
+        left: 0;
       }
     }
   }

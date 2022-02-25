@@ -13,7 +13,7 @@
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
-      v-else-if="pageItem.type === '店铺信息' || pageItem.type === '店铺信息2'" :isBind="isBind" :pageItem="pageItem"
+      v-else-if="['店铺信息','店铺信息','简洁店铺信息'].includes(pageItem.type)" :isBind="isBind" :pageItem="pageItem"
       @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
       @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
@@ -63,7 +63,7 @@
     <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
     </vip-card>
 
-    <avatar-list :storeNo="storeNo" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
+    <avatar-list :storeNo="storeNo" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
       :beforeClick="beforeClick"></avatar-list>
     <!-- 公众号关注组件 -->
     <view class="official-account " v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'">

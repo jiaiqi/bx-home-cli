@@ -24,7 +24,7 @@
         </view>
       </view>
     </view>
-    <view class="store-info simple-layout" v-else-if="layout === 'simple'">
+    <view class="store-info simple-layout" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
       <image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
       <view class="logo" v-else-if="storeInfo.name">{{ storeInfo.name.slice(0, 1) }}</view>
       <view class="content-center">
@@ -32,11 +32,14 @@
           <text class="cuIcon-qrcode margin-right-xs"
             @click.stop="showModal('showQrCode')"></text>{{ storeInfo.name || '' }}
         </view>
-        <view class="store-address" @click.stop="getCurrentLocation">
+        <view class="store-address text-gray" @click.stop="getCurrentLocation">
           <text class="content" v-if="storeInfo.address">
             <text class="cuIcon-locationfill"></text>
             {{ storeInfo.address || '' }}
           </text>
+        </view>
+        <view class="store-address text-gray" @click="showModal" v-if="storeInfo.introduction&&!storeInfo.address">
+          <view v-html="storeInfo.introduction" class="introduce-content"></view>
         </view>
       </view>
       <view class="store-button">
@@ -59,19 +62,6 @@
             <button class="image-btn" @click="showShareDialog">
               <image class="image" :src="require('./share2.png')" mode=""></image>
             </button>
-            <!--    <button class="cu-btn border round" @click.stop="toManage" v-if="isManager&&showBtn.manage">
-              <text class="cuIcon-settingsfill margin-right-xs"></text>
-              <text class="text-black">管理</text>
-              <text class=" badge" v-if="storeInfo&&storeInfo.kefu_unread_msg"><text
-                  class="unread bg-red round">{{storeInfo.kefu_unread_msg}}</text></text>
-            </button> -->
-            <!--          <button class="cu-btn border  round" @click.stop="toSetting" v-if="showBtn.person">
-              <text class="cuIcon-peoplefill"></text>
-            </button> -->
-            <!--  <button class="cu-btn border round" @click.stop="toAttention" v-if="!isAttention">
-              <text class="cuIcon-notice_forbid_fill "></text>
-              <text class="cu-tag badge">待设置</text>
-            </button> -->
           </view>
           <view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
               class="bg-blue cu-btn round shadow-blur">加入</button></view>
@@ -126,7 +116,7 @@
           <view class="store-name">{{ storeInfo.name || '' }}</view>
         </view>
         <view class="button-box"><button @click.stop="hideModal()" class="cu-btn">关闭</button></view>
-        <view class="qrcodeCanvas-box">
+        <view class="qrcodeCanvas-box" v-if="modalName === 'showQrCode' && qrCodeText">
           <uni-qrcode cid="qrcodeCanvas" style="width: 100px;height: 100px;" :text="qrCodeText" :size="codeSize"
             class="qrcode-canvas" foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete"
             ref="qrcodeCanvas">
@@ -528,7 +518,7 @@
             font-size: 12px;
             font-family: 苹方-简;
             font-weight: normal;
-            color: #b8bac0;
+            // color: #b8bac0;
             margin-top: 10rpx;
 
             &.can-wrap {
@@ -646,7 +636,7 @@
     .logo {
       width: 50px;
       height: 50px;
-      border-radius: 50%;
+      // border-radius: 50%;
     }
 
     .content-center {
@@ -654,7 +644,7 @@
       padding-left: 10px;
 
       .store-address {
-        color: #888;
+        // color: #888;
         font-size: 14px;
         padding-top: 3px;
       }
