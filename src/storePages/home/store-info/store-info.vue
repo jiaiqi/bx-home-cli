@@ -17,7 +17,7 @@
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
               <image class="image" :src="require('./setting.png')" mode=""></image>
             </button>
-            <button class="image-btn margin-right" open-type="share">
+            <button class="image-btn margin-right" @click="showShareDialog">
               <image class="image" :src="require('./share.png')" mode=""></image>
             </button>
           </view>
@@ -25,13 +25,26 @@
       </view>
     </view>
     <view class="store-info simple-layout" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
+      <view class="store-name">
+        <!--        <text class="cuIcon-qrcode margin-right-xs"
+          @click.stop="showModal('showQrCode')"></text> -->
+
+        <text>{{ storeInfo.name || '' }}</text>
+        <view class="store-button">
+          <button class="image-btn margin-left-xs" @click.stop="showModal('showQrCode')">
+            <image class="image" :src="require('./qrcode1.png')" mode=""></image>
+          </button>
+          <button class="image-btn margin-left-xs" @click.stop="toManage" v-if="isManager && showBtn.manage">
+            <image class="image" :src="require('./setting.png')" mode=""></image>
+          </button>
+          <button class="image-btn margin-left-xs" @click="showShareDialog">
+            <image class="image" :src="require('./share.png')" mode=""></image>
+          </button>
+        </view>
+      </view>
       <image class="logo" mode="aspectFit" :src="getImagePath(storeInfo.logo)" v-if="storeInfo.logo"></image>
       <view class="logo" v-else-if="storeInfo.name">{{ storeInfo.name.slice(0, 1) }}</view>
       <view class="content-center">
-        <view class="store-name">
-          <text class="cuIcon-qrcode margin-right-xs"
-            @click.stop="showModal('showQrCode')"></text>{{ storeInfo.name || '' }}
-        </view>
         <view class="store-address text-gray" @click.stop="getCurrentLocation">
           <text class="content" v-if="storeInfo.address">
             <text class="cuIcon-locationfill"></text>
@@ -42,14 +55,14 @@
           <view v-html="storeInfo.introduction" class="introduce-content"></view>
         </view>
       </view>
-      <view class="store-button">
+      <!--  <view class="store-button">
         <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
           <image class="image" :src="require('./setting.png')" mode=""></image>
         </button>
-        <button class="image-btn margin-right" open-type="share">
+        <button class="image-btn margin-right" @click="showShareDialog">
           <image class="image" :src="require('./share.png')" mode=""></image>
         </button>
-      </view>
+      </view> -->
     </view>
     <view class="store-info layout-1" :style="[calcStyle]" v-else>
       <view class="store-top">
@@ -553,6 +566,18 @@
         margin-right: 20rpx;
       }
 
+      &.margin-left {
+        margin-left: 20rpx;
+      }
+
+      &.margin-right-xs {
+        margin-right: 10rpx;
+      }
+
+      &.margin-left-xs {
+        margin-left: 10rpx;
+      }
+
       &::after {
         border: none;
       }
@@ -566,16 +591,29 @@
 
   .layout-1,
   .simple-layout {
+    flex-wrap: wrap;
+
+    .store-name {
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      // align-items: center;
+    }
+
     .store-button {
       position: relative;
+      display: flex;
+      align-items: flex-end;
 
       .image-btn {
-        width: 80rpx;
-        height: 80rpx;
+        width: 70rpx;
+        height: 70rpx;
 
         .image {
-          width: 80rpx;
-          height: 80rpx;
+          width: 70rpx;
+          height: 70rpx;
         }
       }
     }
@@ -646,7 +684,7 @@
       .store-address {
         // color: #888;
         font-size: 14px;
-        padding-top: 3px;
+        margin-top: 3px;
       }
 
     }
@@ -917,5 +955,8 @@
       padding: 10px;
       border-radius: 20rpx;
     }
+  }
+  .cu-modal.bottom-modal{
+    z-index: 9999;
   }
 </style>

@@ -222,7 +222,6 @@
         immediate: true,
         handler(newValue, oldValue) {
           if (newValue && Array.isArray(newValue.listdata)) {
-            debugger
             // this.buttons = newValue.listdata.map(item => {
             //   item.url = item.dest_page
             //   if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {

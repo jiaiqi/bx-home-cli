@@ -17,7 +17,8 @@
       @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
       @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
-      @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" :button-list="pageItem.listdata" ref="buttonGroup"></button-list>
+      @addToStore="addToStore" v-else-if="pageItem.type === '按钮组'" :button-list="pageItem.listdata" ref="buttonGroup">
+    </button-list>
     <goods-list v-else-if="pageItem.type === '商品列表'" :storeNo="storeNo" :page-item="pageItem" :storeInfo="storeInfo"
       image="goods_img" name="goods_name" desc="goods_desc" ref="goodsList" :beforeClick="beforeClick"></goods-list>
     <vaccine-list :storeInfo="storeInfo" :pageItem="pageItem" v-else-if="pageItem.type === '疫苗列表'" ref="vaccineList">
@@ -67,9 +68,12 @@
       :beforeClick="beforeClick"></avatar-list>
     <!-- 公众号关注组件 -->
     <view class="official-account " v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'">
-      <text class="text" v-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
+      <text class="text" v-if="pageItem&&pageItem.tip_text">{{pageItem.tip_text}}</text>
+      <text class="text" v-else-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
       <text class="text" v-else> 关注xxx公众号，重要消息不再错过~</text>
-      <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()">立即关注</button>
+      <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()"
+        v-if="pageItem.right_btn_name">{{pageItem.right_btn_name}}</button>
+      <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()" v-else>立即关注</button>
     </view>
   </view>
 </template>
@@ -203,20 +207,25 @@
         }
         // 跳转到关注公众号页面
         const frontEndAddress = this.$api.frontEndAddress
-        let webUrl =
-          `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
-
+        let mp_no = this.pageItem?.mp_no || this.moreConfig?.mp_no
+        if (mp_no) {
+          let webUrl =
+            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
+          let url =
+            `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+          uni.navigateTo({
+            url
+          })
+        } else {
+          uni.showToast({
+            title: '请配置目标应用编号',
+            icon: 'none'
+          })
+        }
         // if (toSub === true) {
         //   webUrl =
         //     `https://srvms.100xsys.cn/health/remote/getPage?address=${encodeURIComponent('https://mp.weixin.qq.com/mp/getmasssendmsg?__biz=MzI1NjE2NzE1OA==#wechat_webview_type=1&wechat_redirect')}`
         // }
-
-        let url =
-          `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-
-        uni.navigateTo({
-          url
-        })
       },
       getUserList() {
         let serviceName = 'srvhealth_store_user_visitor_select';

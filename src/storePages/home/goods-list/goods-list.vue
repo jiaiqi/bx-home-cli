@@ -16,15 +16,15 @@
           <view class="goods-name">{{ item[name] }}</view>
           <view class="desc">{{ item[desc] }}</view>
           <view class="price margin-top-xs">
-            <view class="" v-if="item[originPrice]">
-              <text class=" symbol" :class="{'text-red':!item[originPrice],'text-gray':item[originPrice]}">￥</text>
-              <text class="number "
-                :class="{'line-through text-gray':item[originPrice],'text-red':!item[originPrice]}">{{ item[originPrice] }}</text>
-            </view>
-            <view class="text-orange ">
-              <text style="font-size: 14px;" v-if="item[originPrice]">优惠价</text>
+            <view class="text-red ">
+              <!-- <text style="font-size: 14px;" v-if="item[originPrice]">优惠价</text> -->
               <text class="symbol">￥</text>
               <text class="number" style="font-size: 20px;">{{ item[price] }}</text>
+            </view>
+            <view class="line-through" v-if="item[originPrice]">
+              <text class=" symbol" :class="{'text-red':!item[originPrice],'text-gray':item[originPrice]}">￥</text>
+              <text class="number "
+                :class="{' text-gray':item[originPrice],'text-red':!item[originPrice]}">{{ item[originPrice] }}</text>
             </view>
           </view>
 
@@ -338,10 +338,25 @@
 
       .number {
         font-size: 20px;
+      }
 
-        &.line-through {
-          text-decoration: line-through;
-          margin-right: 5px;
+      .line-through {
+        position: relative;
+        color: #666;
+        font-size: 18px;
+
+        .number {
+          font-size: 18px;
+        }
+
+        &::after {
+          content: '';
+          width: 100%;
+          height: 2px;
+          top: 50%;
+          background-color: #666;
+          position: absolute;
+          left: 0;
         }
       }
 
