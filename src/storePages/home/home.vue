@@ -1,10 +1,10 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
   <view class="page-wrap" v-if="(!showAuthBox || client_env === 'web')" :class="['theme-' + theme]">
-    <cu-custom-navbar :isBack="showBackHome" :back-home="showBackHome">
+    <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">{{ StoreInfo.name || '首页' }}</text>
-        <text class="cuIcon-unfold margin-left-xs"></text>
+        <text class="cuIcon-unfold margin-left-xs" v-if="!singleStore"></text>
       </view>
     </cu-custom-navbar>
 
@@ -72,6 +72,9 @@
       };
     },
     computed: {
+      singleStore() {
+        return this.$api.singleStore && this.$api.storeNo
+      },
       currentTab() {
         if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0) {
           return this.tabbarList.findIndex(item => item.link_pd_no === this.pdNo);
@@ -1485,16 +1488,21 @@
         }
       }
       this.checkOptionParams(option);
+
       if (option.invite_user_no) {
         this.invite_user_no = option.invite_user_no;
       }
+
       await this.toAddPage();
+
       if (option.pt_no) {
         this.pt_no = option.pt_no;
       }
 
       if (!option.store_no) {
-        if (this.userInfo && this.userInfo.home_store_no) {
+        if (this.$api && this.$api.singleStore && this.$api.storeNo) {
+          option.store_no = this.$api.storeNo
+        } else if (this.userInfo && this.userInfo.home_store_no) {
           option.store_no = this.userInfo.home_store_no;
         } else {}
       }
@@ -1502,8 +1510,7 @@
       if (option.store_no || option.storeNo) {
         this.storeNo = option.store_no || option.storeNo;
       } else {
-        console.log(this.$api,this.$api.storeNo)
-        debugger
+        console.log(this.$api, this.$api.storeNo)
         this.storeNo = this.$api.storeNo
       }
       // if (this.hasNotRegInfo) {

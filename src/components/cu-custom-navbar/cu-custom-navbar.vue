@@ -90,9 +90,13 @@
       BackPage() {
         this.$emit('onBack')
         if (this.isFirstPage || this.backHome) {
+          let store_no = 'S0000000000'
+          if (this.$api?.singleStore && this.$api?.storeNo) {
+            store_no = this.$api?.storeNo
+          }
           uni.reLaunch({
             // url: '/pages/index/index',
-            url: "/storePages/home/home?store_no=S0000000000"
+            url: `/storePages/home/home?store_no=${store_no}`
           })
         } else {
           uni.navigateBack({

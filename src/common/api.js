@@ -35,7 +35,7 @@ let conf = {
   "custom": {
     // 陕西省软件行业协会
     serviceAddress: "https://srvms.100xsys.cn",
-    appNo: "APPNO20220302114205",
+    appNo: "APPNO20220302164231",
     appId: "wx0c82edeb3cdd554e",
     ws: "wss://srvms.100xsys.cn:8081",
     file: "https://file.100xsys.cn",

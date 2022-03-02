@@ -142,7 +142,7 @@
         isLogin: state => state.app.isLogin,
         // hasNotRegInfo: state => state.app.hasNotRegInfo,
         userInfo: state => state.user.userInfo,
-        storeInfo:state=>state.app.storeInfo,
+        storeInfo: state => state.app.storeInfo,
         loginUserInfo: state => state.user.loginUserInfo,
         hasIntoHospital: state => state.app.hasIntoHospital
       })
@@ -285,7 +285,7 @@
         if (Array.isArray(cond)) {
           req.condition = [...req.condition, ...cond]
         }
-        if(this.storeInfo?.audit_status==='双向隔离'  && this.storeInfo?.store_no){
+        if (this.storeInfo?.audit_status === '双向隔离' && this.storeInfo?.store_no) {
           req.condition[0].value = this.storeInfo?.store_no
           req.condition[0].colName = 'store_no'
         }
@@ -336,6 +336,15 @@
           }
           // 自动更新头像昵称
           this.$store.commit('SET_REGIST_STATUS', false)
+          if (this.$api && this.$api.singleStore && this.$api.storeNo) {
+            uni.redirectTo({
+              url: '/storePages/home/home?store_no=' + this.$api.storeNo,
+              success: () => {
+                this.$store.commit('SET_INTO_HOSPITAL_STATUS', true)
+              }
+            })
+            return
+          }
           if (!this.$store.state.app.hasIntoHospital && data.home_store_no) {
             uni.redirectTo({
               url: '/storePages/home/home?store_no=' + data.home_store_no,
@@ -411,8 +420,8 @@
             user_role: '用户',
           }]
         }];
-        if(this.userInfo?.user_image){
-          if(this.userInfo?.user_image.indexOf('http')==-1){
+        if (this.userInfo?.user_image) {
+          if (this.userInfo?.user_image.indexOf('http') == -1) {
             req[0].data[0].user_image = this.userInfo?.user_image
           }
         }

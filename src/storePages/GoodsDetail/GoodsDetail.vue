@@ -53,7 +53,7 @@
     <view class="detail">
       <view class="title">图文详情</view>
       <view class="image-box">
-        <image :lazy-load="true" :src="item.url" mode="aspectFill" :style="{
+        <image :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
 					}" v-for="item in goodsDetailImage" :key="item.url" @click="toPreviewImage(item.url)"></image>
@@ -728,8 +728,8 @@
 
     .image-box {
       width: 100%;
-
-      image {
+      .detail-img{
+        display: block;
         width: 100%;
       }
     }

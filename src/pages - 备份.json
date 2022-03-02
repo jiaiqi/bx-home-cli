@@ -1,15 +1,5 @@
 {
   "pages": [
-    // {
-    //   "path": "pages/index/index",
-    //   "style": {
-    //     "navigationBarTitleText": "",
-    //     "navigationBarBackgroundColor": "#fff",
-    //     "navigationBarTextStyle": "black",
-    //     "navigationStyle": "custom",
-    //     "enablePullDownRefresh": true
-    //   }
-    // },
     {
       "path": "pages/home/home",
       "style": {

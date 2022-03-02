@@ -697,7 +697,8 @@
       },
 
       toPages(e) {
-        if (this.hasNotRegInfo) {
+        if (this.hasNotRegInfo && navType !== "takePhone") {
+          // 除了打电话外 其他操作必须先授权访问用户信息
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'
           })
@@ -743,7 +744,6 @@
 
             }
           } else if (e?.url.indexOf('getPhoneNumber') !== -1) {
-
             return
           }
 
@@ -998,20 +998,23 @@
         display: flex;
         justify-content: space-between;
         padding: 10px 0;
-        
+
         .left {
           flex: 1;
-          .image{
+
+          .image {
             width: 50px;
             height: 50px;
             margin-right: 10px;
           }
         }
-        .right{
-          .title{
+
+        .right {
+          .title {
             font-weight: bold;
           }
-          .intro{
+
+          .intro {
             color: #888;
             font-size: 12px;
           }

@@ -1761,10 +1761,12 @@ export default {
                   'publicPages/gropDetail/gropDetail') == -1)) && pageStack.length ===
             1) {
             // 通过分享医院主页加入的用户
+            let home_store_no = userInfo.home_store_no
+            if (api && api.singleStore && api.storeNo) {
+              home_store_no = api.storeNo
+            }
             uni.redirectTo({
-              url: 'pages/home/home?store_no=' + store
-                .state
-                .user.userInfo.home_store_no,
+              url: `pages/home/home?store_no=${home_store_no}`,
               success() {
                 // 标记 已进入过医院主页
                 store.commit('SET_INTO_HOSPITAL_STATUS', true)
@@ -1851,11 +1853,13 @@ export default {
                 '/publicPages/chat/chat') == -1 && currentPage.indexOf(
                 'publicPages/gropDetail/gropDetail') == -1)) && pageStack.length ===
             1) {
+            let home_store_no = res.data.data[0].home_store_no
+            if (api && api.singleStore && api.storeNo) {
+              home_store_no = api.storeNo
+            }
             // 通过分享医院主页加入的用户
             uni.redirectTo({
-              url: 'pages/home/home?store_no=' + res
-                .data
-                .data[0].home_store_no,
+              url: `pages/home/home?store_no=${home_store_no}`,
               success() {
                 // 标记 已进入过医院主页
                 store.commit('SET_INTO_HOSPITAL_STATUS', true)
@@ -2127,6 +2131,12 @@ export default {
         } catch (e) {}
         if (store.state.user.userInfo && store.state.user.userInfo.no) {
           return store.state.user.userInfo
+        }
+
+        if (api && api.singleApp && api.storeNo) {
+          // 单店铺模式
+          req[0].data[0].add_store_no = api.storeNo
+          req[0].data[0].home_store_no = api.storeNo
         }
         store.commit('SET_REGIST_STATUS', true)
         let res = await _http.post(url, req)

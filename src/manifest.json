@@ -61,7 +61,7 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         "usingComponents" : true,
-        "appid" : "wxa3c50c8177ef6739",
+        "appid" : "wx0c82edeb3cdd554e",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
             "urlCheck" : true,

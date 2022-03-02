@@ -34,7 +34,7 @@
 								微信
 							</view>
 						</view>
-						<view class="share-item" @click="makePoster">
+						<view class="share-item" @click="makePoster" v-if="posterNo">
 							<button class="cu-btn bg-transparent">
 								<view class="share-icon bg-orange">
 									<text class="cuIcon-picfill"></text>
