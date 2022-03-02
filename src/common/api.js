@@ -5,6 +5,8 @@ let env = 'prod'
 
 // env = 'test'
 
+env = 'custom'
+
 
 // if (process?.env?.APP_ENV) {
 //   env = process.env.APP_ENV
@@ -29,9 +31,20 @@ let conf = {
     file: "https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
     frontPath: "https://wx2.100xsys.cn/health/#/",
+  },
+  "custom": {
+    // 陕西省软件行业协会
+    serviceAddress: "https://srvms.100xsys.cn",
+    appNo: "APPNO20220302114205",
+    appId: "wx0c82edeb3cdd554e",
+    ws: "wss://srvms.100xsys.cn:8081",
+    file: "https://file.100xsys.cn",
+    // serviceAddress: "http://192.168.0.241:8080", // 内网
+    frontPath: "https://wx2.100xsys.cn/health/#/",
+    singleStore:true,
+    storeNo:'S20210517043'
   }
 }
-
 
 let remoteAddress = {
   ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
@@ -87,6 +100,8 @@ let ENV = {
   isThirdParty: remoteAddress.isThirdParty,
   homePath: remoteAddress.homePath, // 应用业务的入口页面 首页。
   singleApp: remoteAddress.singleApp, // 是否单应用
+  singleStore:  conf[env]['singleStore'], //单店铺
+  storeNo:  conf[env]['singleStore']?conf[env]['storeNo']:'S0000000000', //单店铺的话需要配置店铺编号
   appName: remoteAddress.appName, // 服务 app
   getAuthorization: { //获取公众号授权
     url: remoteAddress.serviceAddress + '/wx/operate/srvwx_public_page_authorization',

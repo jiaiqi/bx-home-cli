@@ -29,7 +29,7 @@
               <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
             </view>
           </view>
-    
+
           <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
             <label
               style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
@@ -37,14 +37,14 @@
               <text>记住密码</text>
             </label>
           </checkbox-group>
-    
+
           <debounce-view @onTap="userLogined">
             <button class="confirm-btn bg-blue text-green">
               {{ isBindUser ? '提交绑定' : '登录' }}
             </button>
           </debounce-view>
           <!-- #endif -->
-    
+
           <!--      <button class="confirm-btn bg-blue text-green" @click="userLogined">
             {{ isBindUser ? '提交绑定' : '登录' }}
           </button> -->
@@ -78,11 +78,11 @@
         </view>
         <!-- #endif -->
       </view>
-    
+
     </view>
     <!-- #endif -->
     <!-- #ifdef MP-WEIXIN -->
-    <bx-auth  @auth-complete="initPage"></bx-auth>
+    <bx-auth @auth-complete="initPage"></bx-auth>
     <!-- #endif -->
   </view>
 </template>
@@ -198,7 +198,7 @@
       // #endif
     },
     methods: {
-      initPage(e){
+      initPage(e) {
         this.selectBasicUserList()
         uni.navigateBack()
       },
@@ -767,6 +767,7 @@
             if (res.login_user_info.user_no) {
               uni.setStorageSync('login_user_info', res.login_user_info);
               console.log('res.login_user_info', res.login_user_info);
+              this.$store.commit('SET_LOGIN_USER', res.login_user_info)
             }
 
             if (res.login_user_info.data) {

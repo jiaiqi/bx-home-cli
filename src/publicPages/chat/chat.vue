@@ -300,35 +300,12 @@
       },
       async getStore() {
         // 查找店铺信息
-        // let req = {
-        //   "condition": [{
-        //     "colName": "store_no",
-        //     "ruleType": "eq",
-        //     "value": this.storeNo
-        //   }],
-        //   "page": {
-        //     "pageNo": 1,
-        //     "rownumber": 1
-        //   }
-        // }
-        // let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
-        // if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        //   this.storeInfo = res.data[0]
-        //   if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
-        //     const pageTitle =
-        //       `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
-        //     uni.setNavigationBarTitle({
-        //       title: pageTitle
-        //     })
-        //   }
-        //   return this.storeInfo
-        // }
         if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
           const pageTitle =
             `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
-          uni.setNavigationBarTitle({
-            title: pageTitle
-          })
+          // uni.setNavigationBarTitle({
+          //   title: pageTitle
+          // })
         }
       },
       async getGroup() {
@@ -384,9 +361,9 @@
                 this.pageTitle = this.storeInfo.name + `(${this.storeInfo.user_count})`
               }
               if (this.pageTitle) {
-                uni.setNavigationBarTitle({
-                  title: this.pageTitle
-                })
+                // uni.setNavigationBarTitle({
+                //   title: this.pageTitle
+                // })
               }
             }
           }
@@ -591,6 +568,7 @@
             break;
         }
         let cond = []
+        debugger
         if (data.store_user_no) {
           cond = [{
             "colName": "store_user_no",

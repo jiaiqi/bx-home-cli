@@ -226,8 +226,10 @@
         }
       },
       async getStoreInfo(store_no) {
+        let serviceName = 'srvhealth_store_cus_niming_detail_select'
+        // serviceName = 'srvhealth_store_list_select'
         let req = {
-          "serviceName": "srvhealth_store_list_select",
+          "serviceName": serviceName,
           "colNames": ["*"],
           "condition": [{
             colName: "store_no",
@@ -239,7 +241,7 @@
             "rownumber": 1
           },
         }
-        let res = await this.$fetch('select', 'srvhealth_store_list_select', req, 'health')
+        let res = await this.$fetch('select', serviceName, req, 'health')
         if (res.success && res.data.length > 0) {
           // this.storeInfo = res.data[0]
           if (this.storeInfo.name) {

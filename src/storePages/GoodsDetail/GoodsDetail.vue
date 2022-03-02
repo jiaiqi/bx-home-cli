@@ -23,7 +23,8 @@
               <text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
             </text>
           </view>
-          <view class="price text-red  margin-right " style="align-items: flex-end;" v-if="goodsInfo.origin_price&&showPrice && fill2Digit(goodsInfo.origin_price)">
+          <view class="price text-red  margin-right " style="align-items: flex-end;"
+            v-if="goodsInfo.origin_price&&showPrice && fill2Digit(goodsInfo.origin_price)">
             <text class="number line-through" v-if="fill2Digit(goodsInfo.origin_price)">
               <text class="int"><text class="symbol">￥</text>{{ fill2Digit(goodsInfo.origin_price)[0] }}.</text>
               <text class="float">{{ fill2Digit(goodsInfo.origin_price)[1] }}</text>
@@ -224,6 +225,7 @@
           }
         };
         let service = 'srvhealth_store_list_select';
+        service = 'srvhealth_store_cus_niming_detail_select'
         let app = 'health';
         let res = await this.$fetch('select', service, req, app);
         if (Array.isArray(res.data) && res.data.length > 0) {
@@ -666,6 +668,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+
       .number-box {
         display: flex;
         align-items: center;
@@ -787,6 +790,7 @@
   .price {
     display: flex;
     align-items: flex-end;
+
     .symbol {
       font-size: 12px;
     }
@@ -795,19 +799,22 @@
       font-size: 30px;
       position: relative;
       top: 5px;
+
       .float {
         font-size: 14px;
       }
     }
-    
-    .line-through{
+
+    .line-through {
       position: relative;
       color: #666;
       font-size: 18px;
-      .number{
+
+      .number {
         font-size: 18px;
       }
-      &::after{
+
+      &::after {
         content: '';
         width: 100%;
         height: 2px;

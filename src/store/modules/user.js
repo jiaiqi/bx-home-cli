@@ -24,6 +24,7 @@ const mutations = {
   },
   SET_LOGIN_USER: (state, loginUserInfo) => {
     state.loginUserInfo = loginUserInfo
+    debugger
     setItem('loginUserInfo', loginUserInfo)
   },
   SET_USERINFO: (state, userInfo) => {

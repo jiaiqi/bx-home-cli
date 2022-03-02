@@ -70,7 +70,6 @@ const wxVerifyLogin =  (userInfo) => {
 							}
 							if (resData && resData.bx_open_code) {
 								// 后端未获取到unionid 需要通过开放登录接口给后端发送wx.getUserInfo获取到的数据
-                debugger
 								resolve(wxOpenLogin(resData.bx_open_code))
 							}
 							uni.setStorageSync('isLogin', true);

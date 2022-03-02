@@ -10,9 +10,10 @@
 
     <template v-if="pageItemList&&pageItemList.length>0">
       <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
-        :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo"
-        ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult" @bindStore="bindStore"
-        @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode" :before-click="clickStoreItem">
+        :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
+        :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
+        @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode"
+        :before-click="clickStoreItem">
       </store-item>
     </template>
 
@@ -339,11 +340,11 @@
           this.pageItemList = res.data
             .filter(item => item.display !== '否' && item.button_usage !== '管理人员')
             .map(item => {
-              try{
-                if(item.more_config&&typeof item.more_config==='string'){
+              try {
+                if (item.more_config && typeof item.more_config === 'string') {
                   item.more_config = JSON.parse(item.more_config)
                 }
-              }catch(e){
+              } catch (e) {
                 //TODO handle the exception
               }
               if (!setFirstSwiper && item.type === '轮播图') {
@@ -681,22 +682,7 @@
           return res.data.data[0];
         }
       },
-      // getGoodsListData() {
-      // 	let req = {
-      // 		condition: [
-      // 			{
-      // 				colName: 'store_no',
-      // 				ruleType: 'eq',
-      // 				value: this.storeNo
-      // 			}
-      // 		]
-      // 	};
-      // 	this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
-      // 		if (Array.isArray(res.data)) {
-      // 			this.goodsListData = res.data;
-      // 		}
-      // 	});
-      // },
+
       async selectStoreInfo(times = 0) {
         let req = {
           condition: [{
@@ -711,6 +697,7 @@
         };
         let serviceName = 'srvhealth_store_list_select';
         // serviceName = 'srvhealth_store_mgmt_select'
+        serviceName = 'srvhealth_store_cus_niming_detail_select'
         let res = await this.$fetch('select', serviceName, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
           let theme = 'blue';
@@ -1016,6 +1003,7 @@
         }
       },
       async initSocket() {
+        let self = this
         if (!socketOpen) {
           uni.closeSocket();
           socketTask = uni.connectSocket({
@@ -1124,9 +1112,9 @@
             }
           }
           if (!this.vstoreUser?.id) {
-             await this.bindStore();
+            await this.bindStore();
           }
-          
+
           this.getQuery();
           this.initSocket()
         } else {
@@ -1514,7 +1502,9 @@
       if (option.store_no || option.storeNo) {
         this.storeNo = option.store_no || option.storeNo;
       } else {
-        this.storeNo = 'S0000000000'
+        console.log(this.$api,this.$api.storeNo)
+        debugger
+        this.storeNo = this.$api.storeNo
       }
       // if (this.hasNotRegInfo) {
       // 	return; //未授权
