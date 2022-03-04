@@ -21,7 +21,7 @@
           <view class="text text-gray">
             <text v-if="clockInInfo&&clockInInfo.upOfficeTime">
               <text class="cuIcon-roundcheckfill text-blue"></text>
-              <text> {{clockInInfo.upOfficeTime.slice(0,5)}}</text>
+              <text v-if="clockInInfo.upOfficeTime"> {{clockInInfo.upOfficeTime.slice(0,5)}}</text>
               <text>已打卡</text>
             </text>
             <text v-else> 未打卡</text>
@@ -202,6 +202,14 @@
         let clockLng = this.clockLocation?.location_longitude
         let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
         let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
+
+        if (!this.distanceClockIn) {
+          this.locationTip = '打卡点范围设置错误，无法进行打卡'
+          this.disableClockIn = true
+          return
+        }
+
+
         if (!this.distanceClockIn) {
           this.locationTip = '打卡点范围设置错误，无法进行打卡'
           this.disableClockIn = true
@@ -356,6 +364,13 @@
         if (!this.isAuthLocation) {
           return
         }
+        if (!this.distanceClockIn) {
+          uni.showToast({
+            title: "未查到账号所在部门的打卡点，请联系管理员设置",
+            icon: 'none'
+          })
+          return
+        }
         // if(this.disableClockIn){
         //   uni.showToast({
         //     title:'当前无法打卡',
@@ -363,7 +378,7 @@
         //   })
         //   return
         // }
-        
+
         let latestTime = this.shiftInfo?.shift_latest_punch_time;
         if (this.curType === '上下班打卡') {
           if (this.distance && this.clockLocation?.clock_in_scope) {
@@ -399,7 +414,7 @@
             }
           }
         }
-        
+
         if (!this.punch_card_type) {
           this.punch_card_type = await new Promise(resolve => {
             uni.showModal({
@@ -418,11 +433,11 @@
             })
           })
         }
-        
-        
+
+
         debugger
         let punch_card_type = this.punch_card_type
-        
+
         this.areClocking = true
         let req = [{
           "serviceName": "srvcorp_attend_clock_in_log_add",
@@ -540,13 +555,26 @@
         let isClocked = null
         let isTimeout = null
         let shiftInfo = null //班次信息
-        debugger
         if (isNeedClockIN?.isPunchCard == 1) {
           // 班次显示查询 srvcorp_attend_shift_setting_show_name_select
-          shiftInfo = await this.normalSelect('srvcorp_attend_shift_setting_show_name_select')
+          let cond2 = [{
+            colName: 'dept_no',
+            ruleType: "eq",
+            value: this.vloginUser?.dept_no
+          }]
+          shiftInfo = await this.normalSelect('srvcorp_attend_shift_setting_select', {
+            condition: cond2
+          })
           this.shiftInfo = shiftInfo
           // 当天上下班是否打卡查询 srvcorp_attend_currentday_select
-          isClocked = await this.normalSelect('srvcorp_attend_currentday_select')
+          let cond1 = [{
+            colName: 'user_no',
+            ruleType: "eq",
+            value: this.vloginUser?.user_no
+          }]
+          isClocked = await this.normalSelect('srvcorp_attend_currentday_select', {
+            condition: cond1
+          })
           // if (isClocked) {
           this.clockInInfo = isClocked
           // 当天打卡时间是否已过 srvcorp_attend_isouttime_select
@@ -580,6 +608,7 @@
         } else {
 
         }
+        return
         // await this.getLocation()
       },
       async checkLocationAuth() {
@@ -616,6 +645,12 @@
           })
         })
       },
+    },
+    onPullDownRefresh() {
+      this.initPageData()
+      setTimeout(() => {
+        uni.stopPullDownRefresh()
+      }, 1000)
     },
     async onLoad(option) {
       let isAuthLocation = await this.checkLocationAuth()
@@ -716,6 +751,11 @@
           border-radius: 10px;
           color: #474849;
           flex: 1;
+          border: 1px solid transparent;
+
+          &.active {
+            border-color: #007AFF;
+          }
 
           &:last-child {
             margin-right: 0;
