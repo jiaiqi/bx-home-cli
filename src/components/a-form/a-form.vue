@@ -178,7 +178,7 @@
 					let model = {};
 					if (this.formType === 'add') {
 						model = this.allField.reduce((res, cur) => {
-							if (cur.value !== null && cur.value !== undefined) {
+							if (cur.value !== undefined) {
 								res[cur.columns] = cur.value
 							}
 							return res

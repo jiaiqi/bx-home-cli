@@ -2,13 +2,29 @@
   <view class="page-wrap" :style="{
       '--global-text-font-size': globalTextFontSize + 'px',
     }">
-    <view class="to-history" v-if="configCols && configCols.length > 0" @click="toHistory">点击查看历史提交</view>
-    <view class="content" style="padding: 30upx 30upx 0" v-if="formData.remark">
+    <view class="to-history" v-if="configCols && configCols.length > 0 &&formData&&formData.answer_times==='多次'"
+      @click="toHistory">点击查看历史提交</view>
+    <view class="content" style="padding: 10px" v-if="formData.remark">
+      <view class="desc" style="text-align: justify">
+        <view class="text-content-text1 text-black">
+          <view v-html="
+              JSON.parse(
+                JSON.stringify(formData.remark).replace(
+                  /\<img/gi,
+                  '<img width=100%  '
+                )
+              )
+            ">
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="content" style="padding:0 10px 10px" v-if="formData.start_remark">
       <view class="desc" style="text-align: justify">
         <view class="text-content-text text-black">
           <view v-html="
               JSON.parse(
-                JSON.stringify(formData.remark).replace(
+                JSON.stringify(formData.start_remark).replace(
                   /\<img/gi,
                   '<img width=100%  '
                 )
@@ -22,7 +38,7 @@
       <bxform ref="bxform" :fields="configCols" label-position="top" option-mode="normal" pageType="add"
         @value-blur="saveValue"></bxform>
     </view>
-    <view class="content" style="padding: 30upx" v-if="formData.end_remark">
+    <view class="content" style="padding: 10px" v-if="formData.end_remark">
       <view class="desc">
         <view class="text-content-text">
           <view v-html="
@@ -318,7 +334,7 @@
             if (score >= 5) {
               return '评测分数大于等于5，您的呼吸问题可能是慢性阻塞性肺疾病(COPD)导致。'
             }
-          }else{
+          } else {
             return '健康状况良好'
           }
         }
@@ -359,7 +375,6 @@
             //TODO handle the exception
           }
           params.to = this.renderStr(params.to, obj)
-          debugger
           params.to += `&fill_batch_no=${this.params.fill_batch_no}`
         }
 
@@ -833,7 +848,7 @@
             serviceName: 'srvdaq_activity_result_submit',
             appNo: this.appName ? this.appName : 'daq'
           },
-          value: e.value,
+          value: e.value || '',
           type: e.item_type,
           isRequire: e.is_require === '是' ? true : false,
           isShowExp: [],
@@ -970,7 +985,7 @@
       let title = this.formData.title
       title = this.renderEmoji(title)
       return {
-        title ,
+        title,
         path: path,
         imageUrl: imageUrl,
       };
@@ -1141,7 +1156,11 @@
       border-bottom: 1px solid #0bc99d;
     }
   }
-
+  .text-content-text1{
+    background-color: #f8f8f8;
+    padding: 20rpx;
+    border-radius: 5px;
+  }
   .text-content-text {
     color: #666;
     width: 100%;

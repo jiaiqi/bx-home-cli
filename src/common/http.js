@@ -46,6 +46,7 @@ let ignoreServiceName = (url) => {
     "srvhealth_consultation_chat_record_select",
     "srvwx_app_data_decrypt",
     "srvportal_walking_step_count_rcd_select",
+    "srvcorp_attend_clock_in_log_add", //上班打卡
     // "srvwx_app_user_select" //检测是否关注公众号
   ]
   let result = true

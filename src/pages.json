@@ -1,15 +1,13 @@
 {
-  "pages": [
-    {
-      "path": "pages/home/home",
-      "style": {
-        "navigationBarTitleText": "",
-        "navigationBarTextStyle": "black",
-        "navigationStyle": "custom",
-        "enablePullDownRefresh": true
-      }
+  "pages": [{
+    "path": "pages/home/home",
+    "style": {
+      "navigationBarTitleText": "",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "enablePullDownRefresh": true
     }
-  ],
+  }],
   "subPackages": [{
       "root": "publicPages",
       "pages": [{
@@ -20,68 +18,11 @@
             "navigationBarTextStyle": "black"
           }
         },
-        {
-          "path": "list/list"
-        },
-        {
-          "path": "form/form"
-        },
-        {
-          "path": "gropDetail/gropDetail"
-        },
-        {
-          "path": "chat/chat",
-          "navigationBarBackgroundColor": "#fff",
-          "navigationBarTextStyle": "black"
-        },
-        {
-          "path": "article/article"
-        },
-        {
-          "path": "articleList/articleList",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "articleSelect/articleSelect"
-        },
+
         {
           "path": "webviewPage/webviewPage"
         },
         {
-          "path": "MessageCenter/MessageCenter",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "groupAC/groupAC",
-          "style": {
-            "navigationStyle": "custom",
-            "navigationBarTitleText": "群公告"
-          }
-        },
-        {
-          "path": "detail/detail",
-          "style": {
-            "navigationBarTitleText": "详情",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "formPage/formPage",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "table/table",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": true
-          }
-        }, {
           "path": "list2/list2",
           "style": {
             "navigationBarTitleText": "列表",
@@ -92,34 +33,6 @@
             "leftWindow": false, // 当前页面不显示 leftWindow
             "rightWindow": false // 当前页面不显示 rightWindow
           }
-        }, {
-          "path": "treeList/treeList",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": true
-          }
-        }, {
-          "path": "formPage/singleChild",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "mixForm/mixForm",
-          "style": {
-            "navigationBarTitleText": "表单-列表混合页面",
-            "enablePullDownRefresh": false,
-            "navigationBarBackgroundColor": "#F8F8FA",
-            "navigationBarTextStyle": "black"
-          }
-        }
-        , {
-          "path": "dateTimeSelector/dateTimeSelector",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
         }
       ]
     },
@@ -135,121 +48,6 @@
             "enablePullDownRefresh": true
           }
         },
-        {
-          "path": "VaccineOrder/VaccineOrder",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "StoreManager/StoreManager"
-        },
-        {
-          "path": "GoodsDetail/GoodsDetail",
-          "style": {
-            "navigationBarBackgroundColor": "#fff",
-            "navigationBarTextStyle": "black"
-            // "navigationStyle":"custom"
-          }
-        },
-        {
-          "path": "payOrder/payOrder"
-        },
-        {
-          "path": "successPay/successPay"
-        },
-        {
-          "path": "VaccineList/VaccineList",
-          "style": {
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "DoctorIntro/DoctorIntro"
-        },
-        {
-          "path": "articleManager/articleManager",
-          "style": {
-            "navigationBarTitleText": "文章管理",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "DeviceManager/DeviceManager",
-          "style": {
-            "navigationBarTitleText": "设备管理",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "DeviceManager/family/family",
-          "style": {
-            "navigationBarTitleText": "我的亲友"
-          }
-        },
-        {
-          "path": "DeviceManager/manage/manage",
-          "style": {
-            "navigationBarTitleText": "授权管理"
-          }
-        },
-        {
-          "path": "DeviceData/DeviceData",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
-        {
-          "path": "queue/queue",
-          "style": {
-            "navigationBarTitleText": "排队",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "queue/list",
-          "style": {
-            "navigationBarTitleText": "排队列表",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "queueManage/queueManage",
-          "style": {
-            "navigationBarTitleText": "排队管理",
-            "enablePullDownRefresh": true
-          }
-        }, {
-          "path": "wifiManage/wifiManage",
-          "style": {
-            "navigationBarTitleText": "WiFi管理",
-            "enablePullDownRefresh": true,
-            "navigationBarBackgroundColor": "#fff",
-            "navigationBarTextStyle": "black"
-          }
-        }, {
-          "path": "vaccineAppointment/vaccineAppointment",
-          "style": {
-            "navigationBarTitleText": "",
-            "navigationBarBackgroundColor": "#3ACBC6",
-            "enablePullDownRefresh": true
-          }
-        }, {
-          "path": "appointmentCheckIn/appointmentCheckIn",
-          "style": {
-            "navigationBarTitleText": "预约管理",
-            "navigationBarBackgroundColor": "#fff",
-            "navigationBarTextStyle": "black",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "linkwifi/linkwifi",
-          "style": {
-            "navigationBarTitleText": "连接WiFi",
-            "enablePullDownRefresh": true
-          }
-        },
-
         // #ifdef H5
         {
           "path": "PrintTicket/PrintTicket",
@@ -259,235 +57,20 @@
           }
         },
         // #endif
+      
         {
-          "path": "ProductItem/ProductItem",
+          "path": "clockIn/clockIn",
           "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "appointment/appointment",
-          "style": {
-            "navigationBarTitleText": "预约",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "switchHome/switchHome",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "cart/cart",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "coupon/coupon",
-          "style": {
-            "navigationBarTitleText": "卡券",
+            "navigationBarTitleText": "打卡",
             "enablePullDownRefresh": true
-          }
-
-        }, {
-          "path": "coupon/detail",
-          "style": {
-            "navigationBarTitleText": "卡券详情",
-            "enablePullDownRefresh": true
-          }
-
-        }, {
-          "path": "verification/verification",
-          "style": {
-            "navigationBarTitleText": "核销",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "officialIntro/officialIntro",
-          "style": {
-            "navigationBarTitleText": "关注公众号",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "tg/tg",
-          "style": {
-            "navigationBarTitleText": "团购详情",
-            "enablePullDownRefresh": false
-          }
-        }
-      ]
-    },
-    {
-      "root": "questionnaire",
-      "pages": [{
-          "path": "index/index",
-          "style": {
-            "navigationBarTitleText": "问卷",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "history/history",
-          "style": {
-            "navigationBarBackgroundColor": "#5494ff",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "assessmentResult/assessmentResult",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "couple/couple",
-          "style": {}
-        },
-        {
-          "path": "list/list",
-          "style": {
-            "navigationBarTitleText": "问卷列表",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "storeQuest/storeQuest",
-          "style": {
-            "navigationBarTitleText": "信息采集",
-            "enablePullDownRefresh": true
-          }
-        },
-        {
-          "path": "storeQuest/list",
-          "style": {
-            "navigationBarTitleText": "填写记录",
-            "enablePullDownRefresh": true
-          }
-        }
-      ]
-    },
-    {
-      "root": "personalPages",
-      "pages": [{
-          "path": "ArchiveHistory/ArchiveHistory",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
-        {
-          "path": "switchAccount/switchAccount",
-          "style": {
-            "navigationBarTitleText": "切换账号",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "resetPwd/resetPwd",
-          "style": {
-            "navigationBarTitleText": "修改密码",
-            "enablePullDownRefresh": false
-          }
-
-        }
-      ]
-    },
-    {
-      "root": "otherPages",
-      "pages": [
-        // {
-        // 	"path": "activity/activity",
-        // 	"style": {
-        // 		// "navigationStyle": "custom",
-        // 		"navigationBarBackgroundColor": "#8a1b1f"
-        // 		// ,
-        // 		// "navigationBarTitleText": "建党100周年祝福接力"
-        // 	}
-        // },
-        // {
-        //   "path": "publish/publish",
-        //   "style": {
-        //     "navigationBarTitleText": "发表文字"
-        //   }
-        // },
-        // {
-        //   "path": "timeline/timeline",
-        //   "style": {
-        //     "navigationBarTitleText": "朋友圈"
-        //   }
-        // },
-        {
-          "path": "dashboard/dashboard",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        {
-          "path": "schedule/schedule",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "scheduleB/scheduleB",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
-        // {
-        //   "path": "wall/wall",
-        //   "style": {
-        //     "navigationBarTitleText": "",
-        //     "enablePullDownRefresh": false
-        //   }
-        // }, 
-        // {
-        //   "path": "groupRanking/groupRanking",
-        //   "style": {
-        //     "navigationBarTitleText": "",
-        //     "enablePullDownRefresh": false
-        //   }
-        // }, 
-        {
-          "path": "scanWifi/scanWifi",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "wifiConfig/wifiConfig",
-          "style": {
-            "navigationBarTitleText": "wifi配置",
-            "enablePullDownRefresh": false
-          }
-        }, {
-          "path": "map/map",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
           }
 
         }
       ]
     }
+
   ],
-  // "leftWindow": {
-  //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件
-  //   "style": {
-  //     "width": "200px"
-  //   },
-  //   "matchMedia": {
-  //     "minWidth": 800 //生效条件，当窗口宽度大于800px时显示
-  //   }
-  // },
+
   "easycom": {
     "^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
   },
@@ -504,10 +87,9 @@
   "condition": {
     // "current": 0,
     "list": [{
-        "name": "聊天页面",
-        "path": "publicPages/chat/chat",
-        "query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"
-      }
-    ]
+      "name": "聊天页面",
+      "path": "publicPages/chat/chat",
+      "query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"
+    }]
   }
 }
