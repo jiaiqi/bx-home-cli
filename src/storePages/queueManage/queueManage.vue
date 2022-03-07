@@ -1,28 +1,5 @@
 <template>
   <div class="queue-manage">
-    <!-- <view class="cur-que-no" v-if="todayQue && todayQue.cur_no">
-      <text
-        >当前叫号：<text class="text-blue">{{ todayQue.cur_no }}</text></text
-      >
-      <view v-if="handlerStatus && currentTab === 0">
-        <button
-          type="primary"
-          class="cu-btn round bg-green margin-right"
-          @click="multiChangeStatus(handlerStatus)"
-        >
-          {{ handlerStatus }}
-        </button>
-        <button class="cu-btn round bg-gray" @click="multiHandler(null)">
-          取消
-        </button>
-      </view>
-      <text v-else></text>
-      <button
-        class="cu-btn round cuIcon-add"
-        @click="showHandler"
-        v-else-if="currentTab === 0"
-      ></button>
-    </view> -->
 
     <view class="button-box top padding-tb-sm" v-if="currentTab === 0">
       <view class="button-group">
@@ -102,13 +79,6 @@
         :class="{'current-number':item.checked}"
         @click="changeCheckStatus(item)"
       >
-        <!-- <view class="multi-select" v-if="isShowCheck(item.status)">
-          <checkbox
-            :value="item.id"
-            :checked="item.checked"
-            @click="changeCheckStatus(item)"
-          />
-        </view> -->
         <view>
           <text class="num margin-right" style="font-size:20px;">{{ item.seq }}</text>
         </view>
@@ -163,106 +133,7 @@
               <text class=" cuIcon-add"></text>
               </button>
             </view>
-             <!-- <view class="button-box" v-if="currentTab !== 1">
-            <button
-              class="cu-btn bg-cyan"
-              @click="changeStatus(item, '叫号中')"
-              v-if="
-                currentTab !== 1 &&
-                (item.status === '排队中' || item.status === '已过号')
-              "
-            >
-              叫号
-            </button>
-            <button
-              class="cu-btn bg-blue"
-              @click="changeStatus(item, '完成')"
-              v-if="currentTab !== 2 && item.status === '叫号中'"
-            >
-              完成
-            </button>
-            <button
-              class="cu-btn bg-orange"
-              v-if="
-                currentTab !== 2 && currentTab !== 1 && item.status === '叫号中'
-              "
-              @click="changeStatus(item, '已过号')"
-            >
-              过号
-            </button>
-            <button
-              class="cu-btn bg-orange"
-              v-if="currentTab !== 0 && currentTab !== 1"
-              @click="changeStatus(item, '排队中')"
-            >
-              排队
-            </button>
-          </view> -->
-        <!-- <view style="flex: 1; overflow: hidden">
-          <view class="top" @click="showInfo(item)">
-            <view
-              style="
-                flex: 1;
-                margin-right: 20rpx;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              "
-              ><text class="title">
-                {{ item.person_name || item.nick_name || "" }}</text
-              >
-              <text class="" v-if="item.sex">（{{ item.sex || "" }}）</text>
-            </view>
-            <view v-if="item.remark">
-              <text
-                style="font-size: 20px"
-                @click="toQrcodeDetail(item)"
-                v-if="
-                  item.remark && item.remark.indexOf('工作人员帮忙抽号') !== -1
-                "
-                class="cuIcon-qrcode"
-              ></text>
-            </view>
-          </view>
-          <view class="button-box" v-if="currentTab !== 1">
-            <view class="queue-status text-blue">{{ item.status }}</view>
-            <button
-              class="cu-btn bg-cyan"
-              @click="changeStatus(item, '叫号中')"
-              v-if="
-                currentTab !== 1 &&
-                (item.status === '排队中' || item.status === '已过号')
-              "
-            >
-              叫号
-            </button>
-            <button
-              class="cu-btn bg-blue"
-              @click="changeStatus(item, '完成')"
-              v-if="currentTab !== 2 && item.status === '叫号中'"
-            >
-              完成
-            </button>
-            <button
-              class="cu-btn bg-orange"
-              v-if="
-                currentTab !== 2 && currentTab !== 1 && item.status === '叫号中'
-              "
-              @click="changeStatus(item, '已过号')"
-            >
-              过号
-            </button>
-            <button
-              class="cu-btn bg-orange"
-              v-if="currentTab !== 0 && currentTab !== 1"
-              @click="changeStatus(item, '排队中')"
-            >
-              排队
-            </button>
-          </view>
-          <view class="button-box" v-if="currentTab == 1">
-            <view class="queue-status text-blue">{{ item.status }}</view>
-          </view> -->
+           
         </view>
       </view>
       <uni-load-more

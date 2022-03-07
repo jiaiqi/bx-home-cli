@@ -37,28 +37,6 @@ export default {
 				let resData = res.data.data[0];
 				this.cfg = resData;
 				this.initMap()
-				// let reqData = resData.service_json;
-				// try {
-				// 	reqData = JSON.parse(reqData);
-				// } catch (e) {
-				// 	//TODO handle the exception
-				// }
-				// if (typeof reqData === 'object') {
-				// 	if (Array.isArray(reqData.condition) && reqData.condition.length > 0) {
-				// 		let rangeData = await this.getRange();
-				// 		if (rangeData.success) {
-				// 			reqData.condition.forEach(cond => {
-				// 				cond.value = this.renderStr(cond.value, { range: rangeData.data });
-				// 			});
-				// 			let obj = {
-				// 				serviceName: resData.service,
-				// 				app: resData.app,
-				// 				req: reqData
-				// 			};
-				// 			this.getData(obj);
-				// 		}
-				// 	}
-				// }
 			}
 		},
 		regionchange(e) {

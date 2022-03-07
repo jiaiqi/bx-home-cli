@@ -1,15 +1,13 @@
 {
-  "pages": [
-    {
-      "path": "pages/home/home",
-      "style": {
-        "navigationBarTitleText": "",
-        "navigationBarTextStyle": "black",
-        "navigationStyle": "custom",
-        "enablePullDownRefresh": true
-      }
+  "pages": [{
+    "path": "pages/home/home",
+    "style": {
+      "navigationBarTitleText": "",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "enablePullDownRefresh": true
     }
-  ],
+  }],
   "subPackages": [{
       "root": "publicPages",
       "pages": [{
@@ -112,8 +110,7 @@
             "navigationBarBackgroundColor": "#F8F8FA",
             "navigationBarTextStyle": "black"
           }
-        }
-        , {
+        }, {
           "path": "dateTimeSelector/dateTimeSelector",
           "style": {
             "navigationBarTitleText": "",
@@ -274,13 +271,6 @@
           }
 
         }, {
-          "path": "switchHome/switchHome",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
           "path": "cart/cart",
           "style": {
             "navigationBarTitleText": "",
@@ -314,7 +304,6 @@
             "navigationBarTitleText": "关注公众号",
             "enablePullDownRefresh": false
           }
-
         }, {
           "path": "tg/tg",
           "style": {
@@ -322,16 +311,7 @@
             "enablePullDownRefresh": false
           }
         }
-          ,{
-                    "path" : "clockIn/clockIn",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "打卡",
-                    "enablePullDownRefresh": true
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",
@@ -385,12 +365,13 @@
     },
     {
       "root": "personalPages",
-      "pages": [{
-          "path": "ArchiveHistory/ArchiveHistory",
-          "style": {
-            "navigationBarTitleText": ""
-          }
-        },
+      "pages": [
+        // {
+        //   "path": "ArchiveHistory/ArchiveHistory",
+        //   "style": {
+        //     "navigationBarTitleText": ""
+        //   }
+        // },
         {
           "path": "switchAccount/switchAccount",
           "style": {
@@ -410,6 +391,13 @@
     {
       "root": "otherPages",
       "pages": [
+        {
+          "path": "clockIn/clockIn",
+          "style": {
+            "navigationBarTitleText": "打卡",
+            "enablePullDownRefresh": true
+          }
+        },
         // {
         // 	"path": "activity/activity",
         // 	"style": {
@@ -513,10 +501,9 @@
   "condition": {
     // "current": 0,
     "list": [{
-        "name": "聊天页面",
-        "path": "publicPages/chat/chat",
-        "query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"
-      }
-    ]
+      "name": "聊天页面",
+      "path": "publicPages/chat/chat",
+      "query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"
+    }]
   }
 }

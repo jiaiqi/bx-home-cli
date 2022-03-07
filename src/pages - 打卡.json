@@ -37,6 +37,21 @@
       ]
     },
     {
+      "root": "otherPages",
+      "pages": [{
+          "path": "clockIn/clockIn",
+          "style": {
+            "navigationBarTitleText": "",
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": true
+          }
+        }
+      
+      ]
+    },
+    {
       "root": "storePages",
       "pages": [{
           "path": "home/home",
@@ -47,25 +62,8 @@
             "navigationStyle": "custom",
             "enablePullDownRefresh": true
           }
-        },
-        // #ifdef H5
-        {
-          "path": "PrintTicket/PrintTicket",
-          "style": {
-            "navigationBarTitleText": "打印单",
-            "enablePullDownRefresh": false
-          }
-        },
-        // #endif
-      
-        {
-          "path": "clockIn/clockIn",
-          "style": {
-            "navigationBarTitleText": "打卡",
-            "enablePullDownRefresh": true
-          }
-
         }
+      
       ]
     }
 

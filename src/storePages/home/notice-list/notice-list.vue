@@ -13,7 +13,7 @@
       }">
       <image :src="getImagePath(item.icon)" mode="aspectFill" class="icon" v-if="item.icon"></image>
       <text class="cuIcon-notice icon text-orange" v-else></text>
-      <text> {{ item.label }}</text>
+      <text class="label"> {{ item.label }}</text>
     </view>
   </view>
 
@@ -183,7 +183,9 @@
     padding: 20rpx 40rpx;
     display: flex;
     align-items: center;
-
+    .label{
+      flex: 1;
+    }
   }
 
   .notice-item:last-child {
@@ -198,4 +200,5 @@
     line-height: 50rpx;
     margin-right: 20rpx;
   }
+  
 </style>

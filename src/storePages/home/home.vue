@@ -578,18 +578,6 @@
           uni.$emit('updateStoreItemData');
         }
       },
-      toDeptDetail(e) {
-        // 跳转到科室详情
-        uni.navigateTo({
-          url: '/pediaPages/department/department?dept_no=' + e.no
-        });
-      },
-      toDocotrDetail(e) {
-        // 跳转到医生主页
-        uni.navigateTo({
-          url: `/storePages/Registration/RegistrationDetail?storeNo=${e.store_no}&doctorNo=${e.person_no}`
-        });
-      },
       setPicHeight(content) {
         let maxW = uni.upx2px(350);
         content.h = (maxW * content.h) / content.w;

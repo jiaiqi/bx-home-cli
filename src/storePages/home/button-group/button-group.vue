@@ -802,7 +802,6 @@
               '/otherPages/dietSelect/dietSelect?condType={"type":"food","serviceName":"srvhealth_diet_contents_select","colName":"name","imgCol":"image","wordKey":{"title":"name","unit":"unit","energy":"unit_energy"},"pagetType":"detail"}';
             break;
           case 1: // 就诊登记
-            // url = '/storePages/Registration/Registration?storeNo=' + this.storeNo
             let fieldsCond = [{
                 column: "user_info_no",
                 display: false,

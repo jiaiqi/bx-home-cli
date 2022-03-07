@@ -14,6 +14,9 @@
             </view>
           </view>
           <view class="store-button">
+            <button class="image-btn margin-right bg-white" style="border-radius: 50%;background-color: #fff;" @click.stop="showModal('showQrCode')">
+              <image class="image" :src="require('./qrcode1.png')" mode=""></image>
+            </button>
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
               <image class="image" :src="require('./setting.png')" mode=""></image>
             </button>

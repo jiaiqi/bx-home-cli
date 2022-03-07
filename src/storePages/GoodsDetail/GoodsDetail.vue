@@ -61,21 +61,37 @@
     </view>
     <view class="cu-bar foot bottom bg-white tabbar border shop" v-if="scene !== 1154">
       <view class="right-btn " v-if="moreConfig && moreConfig.button_list">
-        <button class="cu-btn  shadow-blur round"
+        <button class="cu-btn shadow-blur round"
           :class="{'bg-orange':!item.target_url||item.target_url==='place_order','bg-red':item.target_url==='add_to_cart'||item.type==='add_to_cart',}"
           @click="payOrder(item)" v-for="(item,index) in moreConfig.button_list" :key="index">
           <text>{{ item.button_name }}</text>
         </button>
       </view>
-      <view class="right-btn " v-else-if="buttonCfg&&buttonCfg.length>0&&!hideButton">
-        <button class="cu-btn  shadow-blur round"
-          :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart','bg-white left':item.type==='message'}"
+      <view class="right-btn" v-else-if="buttonCfg&&(buttonCfg.left||buttonCfg.right)&&!hideButton">
+        <view class="button-left" v-if="buttonCfg.left&&buttonCfg.left.length>0">
+          <button class="cu-btn bg-white left  round" v-for="(item,index) in buttonCfg.left" :key="index"
+            @click="payOrder(item)">
+            <text class="icon" :class="{
+              'cuIcon-mark':item.type=='message',
+              'cuIcon-cart':item.type=='cart'
+            }"></text>
+            <text class="label">{{ item.button_name }}</text>
+          </button>
+        </view>
+        <view class="button-right" v-if="buttonCfg.right&&buttonCfg.right.length>0">
+          <button class="cu-btn shadow-blur round" v-for="(item,index) in buttonCfg.right"
+            :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart'}" :key="index"
+            @click="payOrder(item)">{{ item.button_name }}</button>
+        </view>
+        <!--  <button class="cu-btn shadow-blur round"
+          :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart','bg-white left':['message','cart'].includes(item.type)}"
           @click="payOrder(item)" v-for="(item,index) in buttonCfg" :key="index">
           <text class="cuIcon-mark icon margin-right-xs" v-if="item.type=='message'"></text>
+          <text class="cuIcon-cart icon margin-right-xs" v-if="item.type=='cart'"></text>
           <text>{{ item.button_name }}</text>
-        </button>
+        </button> -->
       </view>
-      <view class="right-btn " v-else-if="!hideButton">
+      <view class="right-btn" v-else-if="!hideButton">
         <button class="cu-btn  shadow-blur round bg-orange" @click="payOrder">
           <text v-if="moreConfig && moreConfig.button_name">{{ moreConfig.button_name }}</text>
           <text v-else>立即购买</text>
@@ -116,13 +132,7 @@
       buttonCfg() {
         if (this.goodsInfo?.button_cfg) {
           let btns = this.goodsInfo?.button_cfg.split(',')
-          let buttons = [{
-              name: '客服咨询',
-              button_name: '客服',
-              type: 'message',
-              target_url: `/publicPages/chat/chat?type=机构用户客服&identity=客户&storeNo=${this.storeNo||this.storeInfo?.store_no}&store_user_no=${this.vstoreUser?.store_user_no}&goods_no=${this.goodsInfo.goods_no}`
-            },
-            {
+          let right = [{
               name: '加购物车',
               button_name: '加入购物车',
               target_url: "add_to_cart",
@@ -134,7 +144,25 @@
               type: "place_order"
             }
           ]
-          return buttons.filter(item => btns.includes(item.name))
+          let left = [{
+              name: '客服咨询',
+              button_name: '客服',
+              type: 'message',
+              target_url: `/publicPages/chat/chat?type=机构用户客服&identity=客户&storeNo=${this.storeNo||this.storeInfo?.store_no}&store_user_no=${this.vstoreUser?.store_user_no}&goods_no=${this.goodsInfo.goods_no}`
+            },
+            {
+              name: '购物车',
+              button_name: '购物车',
+              type: 'cart',
+              target_url: `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeNo}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser.store_user_no}"}]&detailType=custom&customDetailUrl=%252FstorePages%252FGoodsDetail%252FGoodsDetail%253Fgoods_no%253D%2524%257Bdata.goods_no%257D%2526storeNo%253D%2524%257BstoreInfo.store_no%257D&listType=cartList`
+            }
+          ]
+          let obj = {
+            left: left.filter(item => btns.includes(item.name)),
+            right: right.filter(item => btns.includes(item.name))
+          }
+          return obj
+          // buttons.filter(item => btns.includes(item.name))
         }
       },
       inCartGoodsInfo() {
@@ -728,7 +756,8 @@
 
     .image-box {
       width: 100%;
-      .detail-img{
+
+      .detail-img {
         display: block;
         width: 100%;
       }
@@ -758,6 +787,31 @@
     // background-color: #1cbbb4;
     height: 100%;
 
+    .button-left {
+      flex: 1;
+      padding: 0 10px;
+      display: flex;
+
+      // justify-content: flex-start;
+      // align-items: center;
+      .cu-btn.left {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        padding: 0;
+        margin-right: 20px;
+
+        .icon {
+          margin-bottom: 4px;
+          font-size: 22px;
+        }
+
+        .label {
+          font-size: 10px;
+        }
+      }
+    }
+
     .cu-btn {
       // border-radius: 0;
       text-align: center;
@@ -769,17 +823,17 @@
         border-left: none;
       }
 
-      &.left {
-        flex: 1;
-        text-align: left;
-        align-items: flex-start;
-        justify-content: flex-start;
-        flex-direction: column;
+      // &.left {
+      //   flex: 1;
+      //   text-align: left;
+      //   align-items: flex-start;
+      //   justify-content: flex-start;
+      //   flex-direction: column;
 
-        .icon {
-          margin-bottom: 2px;
-        }
-      }
+      //   .icon {
+      //     margin-bottom: 2px;
+      //   }
+      // }
 
       .icon {
         font-size: 20px;

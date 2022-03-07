@@ -22,25 +22,7 @@
 				</text>{{ storeUserInfo.staff_introduction||'暂无简介' }}
 			</view>
 		</view>
-		<!-- 	<view class="introduction">
-			<view class="title">
-				<text class="cuIcon-titles text-blue"></text>
-				<text class="">出诊表</text>
-			</view>
-			<uni-calendar :selected="calenderSelected" :insert="true" :lunar="true" :start-date="'2019-3-2'"
-				:end-date="'2019-5-20'"></uni-calendar>
-		</view> -->
-
-		<!-- <view class="button-area"> -->
-		<!-- 			<view class="button-item" @click="toPages('seeDoctor')">
-				<button class="cu-btn bg-cyan"><text class="cuIcon-edit"></text></button>
-				<view class="button-label">就诊登记</view>
-			</view> -->
-		<!-- <view class="button-item" @click="toPages('toContant')">
-				<button class="cu-btn bg-blue"><text class="cuIcon-comment"></text></button>
-				<view class="button-label">信息咨询</view>
-			</view> -->
-		<!-- </view> -->
+    
 		<view class="cu-modal" :class="{ show: modalName === 'sotre-list' }">
 			<view class="cu-dialog">
 				<view class="sotre-list">

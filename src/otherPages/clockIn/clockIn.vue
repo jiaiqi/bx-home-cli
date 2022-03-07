@@ -60,9 +60,9 @@
             <view class="rotate-line" :class="{active:areClocking}"></view>
             <view class="text padding-tb-xs">
               <text v-if="isAuthLocation==false">无法</text>
-              <text v-else-if="clockInInfo&&!clockInInfo.upOfficeTime">上班</text>
-              <text v-else-if="clockInInfo&&!clockInInfo.downOfficeTime">下班</text>
-              <text v-else-if="clockInInfo&&clockInInfo.downOfficeTime&&clockInInfo.upOfficeTime">更新</text>
+              <!--      <text v-else-if="clockInInfo&&!clockInInfo.upOfficeTime">上班</text>
+              <text v-else-if="clockInInfo&&!clockInInfo.downOfficeTime">下班</text> -->
+              <text v-if="clockInInfo&&clockInInfo.downOfficeTime&&clockInInfo.upOfficeTime">更新</text>
               <!-- <text v-else>无需</text> -->
               打卡
             </view>
@@ -115,7 +115,7 @@
           <view class="cu-item text-blue" v-for="item in clockInRecord">
             <view class="content bg-white shadow-blur">
               <view class="text-lg text-bold">
-                {{item.punch_card_type||''}} 打卡时间 :{{item.punch_card_time||''}}
+                {{item.punch_card_type||''}} 打卡时间 :{{item.punch_card_time?item.punch_card_time.slice(0,5):''}}
               </view>
               <view class="text-gray" v-if="item.location_name">
                 <text class="cuIcon-locationfill margin-right-xs"></text>
@@ -203,37 +203,39 @@
         let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
         let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
 
-        if (!this.distanceClockIn) {
-          this.locationTip = '打卡点范围设置错误，无法进行打卡'
-          this.disableClockIn = true
-          return
-        }
+        // if (!this.distanceClockIn) {
+        //   this.locationTip = '打卡点范围设置错误，无法进行打卡'
+        //   this.disableClockIn = true
+        //   return
+        // }
 
 
-        if (!this.distanceClockIn) {
-          this.locationTip = '打卡点范围设置错误，无法进行打卡'
-          this.disableClockIn = true
-          return
-        }
-        if (!clockLat || !clockLng) {
-          this.locationTip = '打卡点经纬度设置错误，无法进行打卡'
-          this.disableClockIn = true
-          return
-        }
+        // if (!this.distanceClockIn) {
+        //   this.locationTip = '打卡点范围设置错误，无法进行打卡'
+        //   this.disableClockIn = true
+        //   return
+        // }
+
+        // if (!clockLat || !clockLng) {
+        //   this.locationTip = '打卡点经纬度设置错误，无法进行打卡'
+        //   this.disableClockIn = true
+        //   return
+        // }
+
         if (!userLat || !userLng) {
           this.locationTip = '用户位置信息错误'
           this.disableClockIn = true
           return
         }
         this.distance = this.getDistance(userLat, userLng, clockLat, clockLng)
-        if (this.distance <= this.distanceClockIn) {
-          this.locationTip = '您已在打卡范围内'
-          this.disableClockIn = false
-        }
-        if (this.distance > this.distanceClockIn) {
-          this.locationTip = '您不在打卡范围内'
-          this.disableClockIn = true
-        }
+        // if (this.distance <= this.distanceClockIn) {
+        //   this.locationTip = '您已在打卡范围内'
+        //   this.disableClockIn = false
+        // }
+        // if (this.distance > this.distanceClockIn) {
+        //   this.locationTip = '您不在打卡范围内'
+        //   this.disableClockIn = true
+        // }
       },
       //计算距离，参数分别为第一点的纬度，经度；第二点的纬度，经度
       getDistance(lat1, lng1, lat2, lng2) {
@@ -253,10 +255,10 @@
         // // 输出为米
         s = Math.round(s * 1000);
         s = s.toFixed(4);
-        uni.showToast({
-          title: `距离打卡点:${Number(s)}米`,
-          icon: 'none'
-        })
+        // uni.showToast({
+        //   title: `距离打卡点:${Number(s)}米`,
+        //   icon: 'none'
+        // })
         return s;
       },
 
@@ -364,13 +366,20 @@
         if (!this.isAuthLocation) {
           return
         }
-        if (!this.distanceClockIn) {
-          uni.showToast({
-            title: "未查到账号所在部门的打卡点，请联系管理员设置",
-            icon: 'none'
-          })
-          return
-        }
+        // if (!this.distanceClockIn) {
+        //   uni.showToast({
+        //     title: "未查到账号所在部门的打卡点，请联系管理员设置",
+        //     icon: 'none'
+        //   })
+        //   return
+        // }
+        let conds = [{
+          colName: 'user_no',
+          ruleType: 'eq',
+          value: this.vloginUser?.user_no
+        }]
+
+        debugger
         // if(this.disableClockIn){
         //   uni.showToast({
         //     title:'当前无法打卡',
@@ -381,28 +390,77 @@
 
         let latestTime = this.shiftInfo?.shift_latest_punch_time;
         if (this.curType === '上下班打卡') {
-          if (this.distance && this.clockLocation?.clock_in_scope) {
-            if (this.clockLocation.clock_in_scope - this.distance < 0) {
-              let result = await new Promise((resolve) => {
-                uni.showModal({
-                  title: "提示",
-                  content: "当前不在打卡范围内,是否进行外出打卡",
-                  success: (res) => {
-                    if (res.confirm) {
-                      resolve(true)
-                    } else {
-                      resolve(false)
-                    }
-                  }
-                })
-              })
-              if (result === true) {
-                this.curType = '外出打卡'
-              } else {
-                return
+          let distance = ''
+          let canClock = false
+          let hasClockAddress = await this.normalSelect('srvcorp_attend_punch_location_select', {
+            condition: conds
+          })
+          if (Array.isArray(hasClockAddress) && hasClockAddress.length > 0) {
+            hasClockAddress.forEach(item => {
+              let clockLat = item?.location_latitude
+              let clockLng = item?.location_longitude
+              let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
+              let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
+              let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
+              if (item.clock_in_scope - distance >= 0) {
+                canClock = true
               }
+            })
+          } else if (typeof hasClockAddress === 'object' && hasClockAddress?.location_no) {
+            let clockLat = hasClockAddress?.location_latitude
+            let clockLng = hasClockAddress?.location_longitude
+            let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
+            let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
+            let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
+            if (hasClockAddress.clock_in_scope - distance >= 0) {
+              canClock = true
             }
           }
+          if (canClock === false) {
+            this.locationTip = '您不在打卡范围内'
+            // if (this.clockLocation.clock_in_scope - this.distance < 0) {
+            let result = await new Promise((resolve) => {
+              uni.showModal({
+                title: "提示",
+                content: "当前不在打卡范围内,是否进行外出打卡",
+                success: (res) => {
+                  if (res.confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+            if (result === true) {
+              this.curType = '外出打卡'
+            } else {
+              return
+            }
+            // }
+          } else {}
+          // if (this.distance && this.clockLocation?.clock_in_scope) {
+          //   if (this.clockLocation.clock_in_scope - this.distance < 0) {
+          //     let result = await new Promise((resolve) => {
+          //       uni.showModal({
+          //         title: "提示",
+          //         content: "当前不在打卡范围内,是否进行外出打卡",
+          //         success: (res) => {
+          //           if (res.confirm) {
+          //             resolve(true)
+          //           } else {
+          //             resolve(false)
+          //           }
+          //         }
+          //       })
+          //     })
+          //     if (result === true) {
+          //       this.curType = '外出打卡'
+          //     } else {
+          //       return
+          //     }
+          //   }
+          // }
           if (latestTime) {
             latestTime = new Date(`${dayjs().format('YYYY-MM-DD')} ${latestTime}`)
             if (new Date() - new Date(latestTime) > 0) {
@@ -419,7 +477,7 @@
           this.punch_card_type = await new Promise(resolve => {
             uni.showModal({
               title: '提示',
-              content: '请选择打卡类型',
+              content: '请选择打卡类型后再进行打卡',
               confirmText: '上班打卡',
               cancelText: '下班打卡',
               cancelColor: "#0081FF",
@@ -432,10 +490,9 @@
               }
             })
           })
+          return
         }
 
-
-        debugger
         let punch_card_type = this.punch_card_type
 
         this.areClocking = true
@@ -481,6 +538,7 @@
               innerAudioContext.play()
             }
           })
+          this.punch_card_type = null
           uni.showToast({
             title: `${clockInType||''}打卡成功`,
             icon: 'none'
@@ -536,6 +594,9 @@
         const res = await this.$http.post(url, req)
         if (res.data.state === 'SUCCESS') {
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            if (res.data.data.length > 1) {
+              return res.data.data
+            }
             return res.data.data[0]
           }
         }
@@ -552,17 +613,17 @@
         let isNeedClockIN = await this.normalSelect('srvcorp_attend_ispunchcard_select', {
           condition: cond
         })
-        let isClocked = null
+        let clockRecord = null
         let isTimeout = null
         let shiftInfo = null //班次信息
         if (isNeedClockIN?.isPunchCard == 1) {
           // 班次显示查询 srvcorp_attend_shift_setting_show_name_select
           let cond2 = [{
-            colName: 'dept_no',
+            colName: 'user_no',
             ruleType: "eq",
-            value: this.vloginUser?.dept_no
+            value: this.vloginUser?.user_no
           }]
-          shiftInfo = await this.normalSelect('srvcorp_attend_shift_setting_select', {
+          shiftInfo = await this.normalSelect('srvcorp_attend_shift_user_select', {
             condition: cond2
           })
           this.shiftInfo = shiftInfo
@@ -572,11 +633,23 @@
             ruleType: "eq",
             value: this.vloginUser?.user_no
           }]
-          isClocked = await this.normalSelect('srvcorp_attend_currentday_select', {
+          clockRecord = await this.normalSelect('srvcorp_attend_currentday_select', {
             condition: cond1
           })
-          // if (isClocked) {
-          this.clockInInfo = isClocked
+          // if (clockRecord) {
+          if (Array.isArray(clockRecord) && clockRecord.length > 1) {
+            this.clockInInfo = {
+              user_no: clockRecord[0].user_no || clockRecord[1].user_no,
+              downOfficeTime: clockRecord[0].downOfficeTime || clockRecord[1].downOfficeTime,
+              upOfficeTime: clockRecord[0].upOfficeTime || clockRecord[1].upOfficeTime,
+              punch_card_date: clockRecord[0].punch_card_date || clockRecord[1].punch_card_date
+            }
+          } else if (Array.isArray(clockRecord) && clockRecord.length > 0) {
+            this.clockInInfo = clockRecord[0]
+          } else if (typeof clockRecord === 'object' && clockRecord?.user_no) {
+            // 
+            this.clockInInfo = clockRecord
+          }
           // 当天打卡时间是否已过 srvcorp_attend_isouttime_select
           isTimeout = await this.normalSelect('srvcorp_attend_isouttime_select')
           if (isTimeout?.isouttime > 0) {
@@ -604,7 +677,7 @@
         if (this.curType === '上下班打卡') {
           // 需要在打卡范围内
           // 计算定位坐标离打卡点距离，判断是否可以打卡
-          await this.countDistance()
+          // await this.countDistance()
         } else {
 
         }
