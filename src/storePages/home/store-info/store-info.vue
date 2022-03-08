@@ -546,8 +546,8 @@
     display: flex;
 
     .image-btn {
-      width: 90rpx;
-      height: 90rpx;
+      width:40px;
+      height:40px;
       outline: none;
       border: none;
       background-color: transparent;
@@ -601,8 +601,10 @@
       align-items: flex-end;
 
       .image-btn {
-        width: 25px;
-        height: 25px;
+        &.sm{
+          width: 25px;
+          height: 25px;
+        }
         font-size: inherit;
         .image {
           width: 100%;
