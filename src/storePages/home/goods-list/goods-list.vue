@@ -14,7 +14,7 @@
         <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
         <view class="goods-info">
           <view class="goods-name">{{ item[name] }}</view>
-          <view class="desc">{{ item[desc] }}</view>
+          <view class="desc" v-if="item[desc]">{{ item[desc]||'' }}</view>
           <view class="price margin-top-xs">
             <view class="text-red ">
               <!-- <text style="font-size: 14px;" v-if="item[originPrice]">优惠价</text> -->

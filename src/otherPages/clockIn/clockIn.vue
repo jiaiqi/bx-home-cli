@@ -49,27 +49,29 @@
       </view>
       <view class="clock-card" v-if="curType === '上下班打卡'">
         <image :src="require('../static/org_icon.png')" mode="" class="store-icon "></image>
-        <view class="text-bold padding-bottom-xs">
+        <!--     <view class="text-bold padding-bottom-xs">
           {{locationTip||''}}
-        </view>
+        </view> -->
         <view class="store-name text-light">
           {{storeInfo.name||''}}
         </view>
         <view class="clock-button-box">
-          <view class="clock-button" @click="addclockInInfo">
-            <view class="rotate-line" :class="{active:areClocking}"></view>
-            <view class="text padding-tb-xs">
-              <text v-if="isAuthLocation==false">无法</text>
-              <!--      <text v-else-if="clockInInfo&&!clockInInfo.upOfficeTime">上班</text>
+          <debounce-view @onTap="addclockInInfo">
+            <view class="clock-button">
+              <view class="rotate-line" :class="{active:areClocking}"></view>
+              <view class="text padding-tb-xs">
+                <text v-if="isAuthLocation==false">无法</text>
+                <!--      <text v-else-if="clockInInfo&&!clockInInfo.upOfficeTime">上班</text>
               <text v-else-if="clockInInfo&&!clockInInfo.downOfficeTime">下班</text> -->
-              <text v-if="clockInInfo&&clockInInfo.downOfficeTime&&clockInInfo.upOfficeTime">更新</text>
-              <!-- <text v-else>无需</text> -->
-              打卡
+                <text v-if="clockInInfo&&clockInInfo.downOfficeTime&&clockInInfo.upOfficeTime">更新</text>
+                <!-- <text v-else>无需</text> -->
+                打卡
+              </view>
+              <view class="text-lg">
+                {{curTime||''}}
+              </view>
             </view>
-            <view class="text-lg">
-              {{curTime||''}}
-            </view>
-          </view>
+          </debounce-view>
         </view>
         <view class="text-light" v-if="shiftInfo&&shiftInfo.shift_getoff_work_time">
           请在{{shiftInfo.shift_getoff_work_time.slice(0,5)}}之后进行打卡
@@ -92,17 +94,19 @@
           </view>
 
           <view class="clock-button-box green wrap">
-            <view class="clock-button" @click="addclockInInfo">
-              <view class="rotate-line" :class="{active:areClocking}"></view>
-              <view class="text padding-tb-xs">
-                <text v-if="isAuthLocation==false">无法</text>
-                <text v-else>外出</text>
-                打卡
+            <debounce-view @onTap="addclockInInfo">
+              <view class="clock-button">
+                <view class="rotate-line" :class="{active:areClocking}"></view>
+                <view class="text padding-tb-xs">
+                  <text v-if="isAuthLocation==false">无法</text>
+                  <text v-else>外出</text>
+                  打卡
+                </view>
+                <view class="text-lg">
+                  {{curTime||''}}
+                </view>
               </view>
-              <view class="text-lg">
-                {{curTime||''}}
-              </view>
-            </view>
+            </debounce-view>
           </view>
           <view class="text-light-light " v-if="shiftInfo&&shiftInfo.shift_getoff_work_time">
             请在{{shiftInfo.shift_getoff_work_time.slice(0,5)}}之后进行打卡
@@ -346,7 +350,7 @@
               // });
               _this.addressInfo = result
               _this.locationInfo = {
-                longitude: result.location?.lng,
+                longitude: result?.location?.lng,
                 latitude: result?.location?.lat
               }
               resolve(result)
@@ -366,42 +370,65 @@
         if (!this.isAuthLocation) {
           return
         }
-        // if (!this.distanceClockIn) {
-        //   uni.showToast({
-        //     title: "未查到账号所在部门的打卡点，请联系管理员设置",
-        //     icon: 'none'
-        //   })
-        //   return
-        // }
+    
         let conds = [{
           colName: 'user_no',
           ruleType: 'eq',
           value: this.vloginUser?.user_no
         }]
 
-        debugger
-        // if(this.disableClockIn){
-        //   uni.showToast({
-        //     title:'当前无法打卡',
-        //     icon:'none'
-        //   })
-        //   return
-        // }
-
+     
         let latestTime = this.shiftInfo?.shift_latest_punch_time;
         if (this.curType === '上下班打卡') {
+          uni.showLoading({
+            mask: true,
+          })
+          // let result = await this.reverseGeocoder()
+          uni.hideLoading()
+          let userLat = ''
+          let userLng = ''
+          if(this.locationInfo?.longitude&&this.locationInfo?.latitude){
+            userLat = this.locationInfo?.latitude
+            userLng = this.locationInfo?.longitude
+          }else {
+            let result  = await new Promise(resolve=>{
+              wx.getLocation({
+               type: 'gcj02',
+               success (res) {
+                 resolve(res)
+               }
+              })
+            })
+            if(result?.latitude&&result?.longitude){
+              userLat = result?.latitude
+              userLng = result?.longitude
+            }
+          }
           let distance = ''
           let canClock = false
           let hasClockAddress = await this.normalSelect('srvcorp_attend_punch_location_select', {
             condition: conds
           })
+          if (!userLat || !userLng) {
+            //
+            uni.showModal({
+              title: '提示',
+              content: '地理位置信息获取失败，请检查是否授权获取位置信息，或重新进入小程序后再次尝试打卡',
+              showCancel: false
+              // success:res=>{
+              //   if(res)
+              // }
+            })
+            return
+          }
           if (Array.isArray(hasClockAddress) && hasClockAddress.length > 0) {
             hasClockAddress.forEach(item => {
               let clockLat = item?.location_latitude
               let clockLng = item?.location_longitude
-              let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
-              let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
+              // let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
+              // let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
               let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
+              this.distance = distance
               if (item.clock_in_scope - distance >= 0) {
                 canClock = true
               }
@@ -409,15 +436,16 @@
           } else if (typeof hasClockAddress === 'object' && hasClockAddress?.location_no) {
             let clockLat = hasClockAddress?.location_latitude
             let clockLng = hasClockAddress?.location_longitude
-            let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
-            let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
+            // let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
+            // let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
             let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
+            this.distance = distance
             if (hasClockAddress.clock_in_scope - distance >= 0) {
               canClock = true
             }
           }
           if (canClock === false) {
-            this.locationTip = '您不在打卡范围内'
+            // this.locationTip = '您不在打卡范围内'
             // if (this.clockLocation.clock_in_scope - this.distance < 0) {
             let result = await new Promise((resolve) => {
               uni.showModal({
@@ -439,28 +467,7 @@
             }
             // }
           } else {}
-          // if (this.distance && this.clockLocation?.clock_in_scope) {
-          //   if (this.clockLocation.clock_in_scope - this.distance < 0) {
-          //     let result = await new Promise((resolve) => {
-          //       uni.showModal({
-          //         title: "提示",
-          //         content: "当前不在打卡范围内,是否进行外出打卡",
-          //         success: (res) => {
-          //           if (res.confirm) {
-          //             resolve(true)
-          //           } else {
-          //             resolve(false)
-          //           }
-          //         }
-          //       })
-          //     })
-          //     if (result === true) {
-          //       this.curType = '外出打卡'
-          //     } else {
-          //       return
-          //     }
-          //   }
-          // }
+          
           if (latestTime) {
             latestTime = new Date(`${dayjs().format('YYYY-MM-DD')} ${latestTime}`)
             if (new Date() - new Date(latestTime) > 0) {
@@ -474,20 +481,23 @@
         }
 
         if (!this.punch_card_type) {
-          this.punch_card_type = await new Promise(resolve => {
+          // this.punch_card_type = 
+          await new Promise(resolve => {
             uni.showModal({
               title: '提示',
-              content: '请选择打卡类型后再进行打卡',
-              confirmText: '上班打卡',
-              cancelText: '下班打卡',
-              cancelColor: "#0081FF",
-              success: (res) => {
-                if (res.confirm) {
-                  resolve('上班')
-                } else {
-                  resolve('下班')
-                }
-              }
+              content: '请在上方选择打卡类型后再进行打卡',
+              // confirmText: '上班打卡',
+              // cancelText: '下班打卡',
+              confirmText:'知道了',
+              
+              // cancelColor: "#0081FF",
+              // success: (res) => {
+              //   if (res.confirm) {
+              //     resolve('上班')
+              //   } else {
+              //     resolve('下班')
+              //   }
+              // }
             })
           })
           return
@@ -741,6 +751,15 @@
         this.locationNo = option.locationNo
       }
       await this.initPageData()
+      wx.onLocationChange((res) => {
+        console.log('location change', res)
+        if (res?.latitude) {
+          this.locationInfo.latitude = res.latitude
+        }
+        if (res?.longitude) {
+          this.locationInfo.longitude = res.longitude
+        }
+      })
       interVal = setInterval(() => {
         this.curTime = dayjs().format("HH:mm")
       }, 1000)

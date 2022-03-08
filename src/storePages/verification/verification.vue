@@ -18,7 +18,7 @@
 								剩余次数:{{item.last_num||'0'}}
 							</view>
 							<view class="">
-								<u-number-box :value="item.selectNum" :min="1" :max="item.last_num||1"></u-number-box>
+								<u-number-box v-model="item.selectNum" :min="1" :max="item.last_num||1"></u-number-box>
 							</view>
 						</view>
 					</view>

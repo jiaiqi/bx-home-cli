@@ -287,7 +287,7 @@
           return this.orderInfo.goodsList.reduce((pre, cur) => {
             if (cur.goods_amount) {
               pre += cur.goods_amount;
-            }else if (cur.car_num) {
+            } else if (cur.car_num) {
               pre += cur.car_num;
             }
             return pre;
@@ -326,7 +326,8 @@
             "order_no": order_no,
             "goods_no": item.goods_no,
             "goods_name": item.goods_name,
-            "approval_num": item.car_num || item.goods_amount
+            "approval_num": item.car_num || item.goods_amount,
+            "store_no": this.store_no || this.storeInfo?.store_no
           }
           return obj
         })
@@ -846,7 +847,7 @@
           this.curDelivery = 3
           req[0].data[0].delivery_type = '当面交易'
         }
-        
+
         if (this.tgNo) {
           // 团长开团编号
           req[0].data[0].regimental_dumpling_no = this.tgNo
@@ -857,7 +858,7 @@
             req[0].data[0].delivery_type = '自提'
           }
         }
-        
+
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);

@@ -17,11 +17,28 @@
       </store-item>
     </template>
 
+    <view class="copyright-box">
+      <view class="row">
+        声明：图文信息均来源合作方，如有侵权请联系我们删除
+      </view>
+      <view class="row">
+        由 百想科技 提供技术支持
+      </view>
+    </view>
+
+
+
+
+
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
-    <public-module></public-module>
+
+
+
+    <!-- <public-module></public-module> -->
     <u-tabbar :value="currentTab" :list="tabbarList" :mid-button="false"
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
+
   </view>
   <bx-auth v-else @auth-complete="initPage"></bx-auth>
 
@@ -1596,5 +1613,23 @@
       text-overflow: ellipsis;
     }
 
+  }
+
+  .copyright-box {
+    padding: 20px;
+    text-align: center;
+
+    .row {
+      width: 600rpx;
+      margin: 0 auto;
+      height: 17px;
+      font-size: 12px;
+      font-family: 苹方-简;
+      font-weight: normal;
+      line-height: 22px;
+      color: #D8D9DF;
+      opacity: 1;
+      margin-bottom: 5px;
+    }
   }
 </style>

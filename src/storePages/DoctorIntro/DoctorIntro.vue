@@ -23,7 +23,7 @@
 			</view>
 		</view>
     
-		<view class="cu-modal" :class="{ show: modalName === 'sotre-list' }">
+<!-- 		<view class="cu-modal" :class="{ show: modalName === 'sotre-list' }">
 			<view class="cu-dialog">
 				<view class="sotre-list">
 					<view class="cu-bar bg-white justify-end">
@@ -40,7 +40,7 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 	</view>
 </template>
 
@@ -57,27 +57,6 @@
 				storeNo: '',
 				relationInfo: {},
 				// storeInfo: {},
-				calenderSelected: [{
-						date: '2021-01-22',
-						info: '出诊',
-						status: 'primary'
-					},
-					{
-						date: '2021-01-18',
-						info: '出诊',
-						status: 'primary'
-					},
-					{
-						date: '2021-01-21',
-						info: '出诊',
-						status: 'primary'
-					},
-					{
-						date: '2021-01-20',
-						info: '出诊',
-						status: 'primary'
-					}
-				],
 				doctorStoreList: [],
 				modalName: ''
 			};
@@ -108,88 +87,88 @@
 					phoneNumber: this.doctorInfo.phone || this.doctorInfo.phone_xcx
 				});
 			},
-			hideModal() {
-				this.modalName = '';
-			},
-			toPages(type, data) {
-				let url = '';
-				switch (type) {
-					case 'seeDoctor':
-						let filedsCond = [{
-								column: 'user_info_no',
-								display: false
-							},
-							{
-								column: 'name',
-								value: this.userInfo.name || this.userInfo.nick_name
-							},
-							{
-								column: 'time',
-								value: this.formateDate()
-							},
-							{
-								column: 'user_no',
-								display: false
-							},
-							{
-								column: 'doctor_no',
-								display: false,
-								value: this.doctorInfo.no
-							},
-							{
-								column: 'doctor_name',
-								display: false,
-								value: this.doctorInfo.name
-							}
-						];
-						if (this.doctorStoreList.length > 1) {
-							// 医生所在诊所数量>1 先选择诊所
-							this.modalName = 'sotre-list';
-							if (data) {
-								filedsCond.push({
-									column: 'store_no',
-									display: false,
-									value: data.store_no
-								});
-								url =
-									'/publicPages/form/form?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
-									decodeURIComponent(JSON.stringify(filedsCond));
-							}
-						} else {
-							if (this.doctorStoreList.length === 1) {
-								filedsCond.push({
-									column: 'store_no',
-									display: false,
-									value: this.doctorStoreList[0].store_no
-								});
-							} else if (this.doctorStoreList.length === 0) {
-								filedsCond.push({
-									column: 'store_no',
-									display: false
-								});
-							}
-							url =
-								'/publicPages/form/form?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
-								JSON.stringify(filedsCond);
-						}
-						break;
-					case 'toContant':
-						if (this.doctorInfo && this.doctorInfo.no) {
-							url =
-								`/publicPages/chat/chat?type=机构用户客服&receiver_person_no=${this.doctorInfo.no}&identity=客户&storeNo=${this.storeNo}`
-							// `/publicPages/chat/chat?type=机构用户客服&receiver_person_no=${this.doctorInfo.no}&identity=客户&storeNo=${this.storeNo}&store_user_no=${this.store_user_no}`
-						}
-						// url =
-						// 	`/personalPages/myDoctor/doctorChat?no=${this.doctorInfo.no}&doctor=${encodeURIComponent(JSON.stringify(this.relationInfo))}`;
-						break;
-				}
-				if (url) {
-					this.hideModal();
-					uni.navigateTo({
-						url: url
-					});
-				}
-			},
+			// hideModal() {
+			// 	this.modalName = '';
+			// },
+			// toPages(type, data) {
+			// 	let url = '';
+			// 	switch (type) {
+			// 		case 'seeDoctor':
+			// 			let filedsCond = [{
+			// 					column: 'user_info_no',
+			// 					display: false
+			// 				},
+			// 				{
+			// 					column: 'name',
+			// 					value: this.userInfo.name || this.userInfo.nick_name
+			// 				},
+			// 				{
+			// 					column: 'time',
+			// 					value: this.formateDate()
+			// 				},
+			// 				{
+			// 					column: 'user_no',
+			// 					display: false
+			// 				},
+			// 				{
+			// 					column: 'doctor_no',
+			// 					display: false,
+			// 					value: this.doctorInfo.no
+			// 				},
+			// 				{
+			// 					column: 'doctor_name',
+			// 					display: false,
+			// 					value: this.doctorInfo.name
+			// 				}
+			// 			];
+			// 			if (this.doctorStoreList.length > 1) {
+			// 				// 医生所在诊所数量>1 先选择诊所
+			// 				this.modalName = 'sotre-list';
+			// 				if (data) {
+			// 					filedsCond.push({
+			// 						column: 'store_no',
+			// 						display: false,
+			// 						value: data.store_no
+			// 					});
+			// 					url =
+			// 						'/publicPages/form/form?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
+			// 						decodeURIComponent(JSON.stringify(filedsCond));
+			// 				}
+			// 			} else {
+			// 				if (this.doctorStoreList.length === 1) {
+			// 					filedsCond.push({
+			// 						column: 'store_no',
+			// 						display: false,
+			// 						value: this.doctorStoreList[0].store_no
+			// 					});
+			// 				} else if (this.doctorStoreList.length === 0) {
+			// 					filedsCond.push({
+			// 						column: 'store_no',
+			// 						display: false
+			// 					});
+			// 				}
+			// 				url =
+			// 					'/publicPages/form/form?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
+			// 					JSON.stringify(filedsCond);
+			// 			}
+			// 			break;
+			// 		case 'toContant':
+			// 			if (this.doctorInfo && this.doctorInfo.no) {
+			// 				url =
+			// 					`/publicPages/chat/chat?type=机构用户客服&receiver_person_no=${this.doctorInfo.no}&identity=客户&storeNo=${this.storeNo}`
+			// 				// `/publicPages/chat/chat?type=机构用户客服&receiver_person_no=${this.doctorInfo.no}&identity=客户&storeNo=${this.storeNo}&store_user_no=${this.store_user_no}`
+			// 			}
+			// 			// url =
+			// 			// 	`/personalPages/myDoctor/doctorChat?no=${this.doctorInfo.no}&doctor=${encodeURIComponent(JSON.stringify(this.relationInfo))}`;
+			// 			break;
+			// 	}
+			// 	if (url) {
+			// 		this.hideModal();
+			// 		uni.navigateTo({
+			// 			url: url
+			// 		});
+			// 	}
+			// },
 			async getStoreUserInfo(no) {
 				let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
 				let req = {
@@ -214,24 +193,24 @@
 					return res.data.data;
 				}
 			},
-			async getDoctorInfo(no) {
-				let url = this.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
-				let req = {
-					serviceName: 'srvhealth_person_info_select',
-					colNames: ['*'],
-					condition: [{
-						colName: 'no',
-						ruleType: 'eq',
-						value: no
-					}]
-				};
-				let res = await this.$http.post(url, req);
-				if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-					this.doctorInfo = res.data.data[0];
-					this.getStoreUserInfo();
-					return res.data.data;
-				}
-			}
+			// async getDoctorInfo(no) {
+			// 	let url = this.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
+			// 	let req = {
+			// 		serviceName: 'srvhealth_person_info_select',
+			// 		colNames: ['*'],
+			// 		condition: [{
+			// 			colName: 'no',
+			// 			ruleType: 'eq',
+			// 			value: no
+			// 		}]
+			// 	};
+			// 	let res = await this.$http.post(url, req);
+			// 	if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+			// 		this.doctorInfo = res.data.data[0];
+			// 		this.getStoreUserInfo();
+			// 		return res.data.data;
+			// 	}
+			// }
 		},
 		async onLoad(option) {
 			this.checkOptionParams(option);

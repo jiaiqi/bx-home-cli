@@ -1,6 +1,6 @@
 <template>
   <view>
-    <bx-login></bx-login>
+    <!-- <bx-login></bx-login> -->
   </view>
 </template>
 

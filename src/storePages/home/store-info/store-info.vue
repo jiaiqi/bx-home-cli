@@ -14,14 +14,15 @@
             </view>
           </view>
           <view class="store-button">
-            <button class="image-btn margin-right bg-white" style="border-radius: 50%;background-color: #fff;" @click.stop="showModal('showQrCode')">
-              <image class="image" :src="require('./qrcode1.png')" mode=""></image>
+            <button class="image-btn margin-right bg-white" style="border-radius: 50%;background-color: #fff;"
+              @click.stop="showModal('showQrCode')">
+              <image class="image" :src="require('../../static/qrcode1.png')" mode=""></image>
             </button>
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
-              <image class="image" :src="require('./setting.png')" mode=""></image>
+              <image class="image" :src="require('../../static/setting1.png')" mode=""></image>
             </button>
             <button class="image-btn margin-right" @click="showShareDialog">
-              <image class="image" :src="require('./share.png')" mode=""></image>
+              <image class="image" :src="require('../../static/share1.png')" mode=""></image>
             </button>
           </view>
         </view>
@@ -29,19 +30,16 @@
     </view>
     <view class="store-info simple-layout" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
       <view class="store-name">
-        <!--        <text class="cuIcon-qrcode margin-right-xs"
-          @click.stop="showModal('showQrCode')"></text> -->
-
         <text>{{ storeInfo.name || '' }}</text>
         <view class="store-button">
-          <button class="image-btn margin-left-xs" @click.stop="showModal('showQrCode')">
-            <image class="image" :src="require('./qrcode1.png')" mode=""></image>
+          <button class="image-btn sm margin-left" @click.stop="showModal('showQrCode')">
+            <image class="image" :src="require('../../static/qrcode.png')" mode=""></image>
           </button>
-          <button class="image-btn margin-left-xs" @click.stop="toManage" v-if="isManager && showBtn.manage">
-            <image class="image" :src="require('./setting.png')" mode=""></image>
+          <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage">
+            <image class="image" :src="require('../../static/setting.png')" mode=""></image>
           </button>
-          <button class="image-btn margin-left-xs" @click="showShareDialog">
-            <image class="image" :src="require('./share.png')" mode=""></image>
+          <button class="image-btn sm margin-left" @click="showShareDialog">
+            <image class="image" :src="require('../../static/share.png')" mode=""></image>
           </button>
         </view>
       </view>
@@ -58,14 +56,6 @@
           <view v-html="storeInfo.introduction" class="introduce-content"></view>
         </view>
       </view>
-      <!--  <view class="store-button">
-        <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
-          <image class="image" :src="require('./setting.png')" mode=""></image>
-        </button>
-        <button class="image-btn margin-right" @click="showShareDialog">
-          <image class="image" :src="require('./share.png')" mode=""></image>
-        </button>
-      </view> -->
     </view>
     <view class="store-info layout-1" :style="[calcStyle]" v-else>
       <view class="store-top">
@@ -73,10 +63,10 @@
           <view class="name">{{ storeInfo.name || '机构名称' }}</view>
           <view class="bind store-button" v-if="isBind === true">
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
-              <image class="image" :src="require('./setting2.png')" mode=""></image>
+              <image class="image" :src="require('../../static/setting1.png')" mode=""></image>
             </button>
             <button class="image-btn" @click="showShareDialog">
-              <image class="image" :src="require('./share2.png')" mode=""></image>
+              <image class="image" :src="require('../../static/share1.png')" mode=""></image>
             </button>
           </view>
           <view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
@@ -611,12 +601,12 @@
       align-items: flex-end;
 
       .image-btn {
-        width: 70rpx;
-        height: 70rpx;
-
+        width: 25px;
+        height: 25px;
+        font-size: inherit;
         .image {
-          width: 70rpx;
-          height: 70rpx;
+          width: 100%;
+          height: 100%;
         }
       }
     }
@@ -959,7 +949,8 @@
       border-radius: 20rpx;
     }
   }
-  .cu-modal.bottom-modal{
+
+  .cu-modal.bottom-modal {
     z-index: 9999;
   }
 </style>
