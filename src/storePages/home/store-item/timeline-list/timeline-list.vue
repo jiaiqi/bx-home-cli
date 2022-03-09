@@ -88,7 +88,7 @@
 
 <script>
 // 留言板
-// import dayjs from '@/static/js/dayjs.min.js'
+
 	const dayjs = require('dayjs');
 import { mapState } from 'vuex'
 export default {

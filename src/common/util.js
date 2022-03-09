@@ -2,7 +2,7 @@ import store from '@/store'
 import api from '@/common/api.js'
 import _http from '@/common/http.js'
 const mpAppNo = api.appNo.wxmp
-// import dayjs from '@/static/js/dayjs.min.js'
+
 const dayjs = require('dayjs');
 import uDebounce from '@/common/utils/debounce.js'
 import {

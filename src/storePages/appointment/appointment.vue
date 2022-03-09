@@ -121,121 +121,6 @@
       </view>
 
 
-      <!-- 
-      <view class="content">
-        <view class="sub-title" v-if="vaccineInfo.usage||(vaccineInfo.remark_pic&&isArray(imagesUrl))">
-          <view class="text-cyan">
-            <text>用法</text>
-            <text class="cu-btn sm round" v-if="vaccineInfo.usage">
-              <text>{{vaccineInfo.usage||''}}</text>
-            </text>
-          </view>
-          <view class="right" v-if="vaccineInfo.remark_pic&&isArray(imagesUrl)">
-            <text class="cuIcon-pic"></text>
-            <text class="text" @tap="toPreviewImage(imagesUrl.map(e=>e.originUrl))">
-              图片说明
-            </text>
-          </view>
-        </view>
-        <view class="description" v-if="vaccineInfo.remark">
-          {{vaccineInfo.remark||''}}
-        </view>
-        <view class="sub-title">
-          <text class="text-cyan">{{vaccineTip||''}}</text>
-        </view>
-        <view class="time-range-box">
-          <view class="date-area" v-if="isArray(getRange)&&getRange.length>0">
-            <view class="date-time-box margin-bottom-xs" v-for="(item,index) in getRange" :key="index">
-              <view class="title">
-                <text class="" v-if="item._date">{{dayjs(item._date).format("MM-DD")}} {{getDayOfWeek(item._date)}}
-                </text>
-                <text class="" v-else>{{dayjs(item.app_date).format("MM-DD")}} {{getDayOfWeek(item.app_date)}} </text>
-                <text class="">（ 已约{{item.app_amount||'0'}}人,最多可约{{item.app_count_limit||'0'}}人）</text>
-              </view>
-              <view class="date-area ">
-                <view class="date-item" :class="{
-                    'line-cyan':(selectedVaccine.sa_no===radio.sa_no)&&selectedVaccine.app_date===radio.app_date&&selectedVaccine.timeStart===radio.timeStart&&selectedVaccine.timeEnd===radio.timeEnd,
-                    disabled:disabledTime(radio,item)}" v-for="(radio,rIndex) in item.list" :key="rIndex"
-                  @click="selectItem(radio,item)">
-                  <view v-if="radio.app_date">
-                    {{radio.timeStart||radio.app_time_start||''}} - {{radio.timeEnd||radio.app_time_end||''}}
-                  </view>
-                  <text
-                    class="vaccine_app_count ">已约:{{radio.app_amount||'0'}}人,可约{{radio.time_range_appointment_limit||'0'}}人</text>
-                </view>
-              </view>
-            </view>
-          </view>
-          <view class="date-area" v-else-if="isArray(timeArr)&&timeArr.length>0">
-            <view class="date-item"
-              :class="{'line-cyan':(selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
-              v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
-              v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
-              <view class="date">
-                {{dayjs(radio.app_date).format('MM-DD')}}-{{
-            				getDayOfWeek(radio.app_date)
-            			}}
-              </view>
-              <view class="order-info">
-                <view v-if="radio.app_date">
-                  {{radio.app_time_start?radio.app_time_start.slice(0,5):''}}
-                  -
-                  {{radio.app_time_end?radio.app_time_end.slice(0,5):''}}
-                </view>
-                <view v-if="radio.app_count" class="vaccine_app_count">
-                  <text class="text-yellow" v-if="radio.app_count_limit<=radio.app_count"> 已约满</text>
-                  <text v-else> 已约:{{radio.app_count||'0'}}人,可约{{radio.app_count_limit||'0'}}人</text>
-                </view>
-              </view>
-            </view>
-          </view>
-          <view class="date-area" v-if="!notEmpty">
-            <view class="date-time-box">
-              预约人数已满或无可预约 <text v-if="app_type&&app_type==='其它'">项目</text><text v-else>疫苗</text>
-            </view>
-          </view>
-        </view>
-        <view class="sub-title">
-          <text class="text-cyan">填写接种人相关信息</text>
-        </view>
-        <view class="person-info-form">
-          <view class="bx-form-group">
-            <text class="text-red">*</text>
-            <view class="title">姓名</view>
-            <input placeholder="姓名" class="input" name="input" placeholder-class="place-holder"
-              v-model="formModel.customer_name"></input>
-          </view>
-          <view class="bx-form-group">
-            <view class="title">出生日期</view>
-            <picker mode="date" v-model="formModel.customer_birth_day" start="1900-09-01" end="2022-09-01"
-              @change="DateChange">
-              <view class="picker input">
-                <text class="place-holder" v-if="!formModel.customer_birth_day">请选择</text>
-                <text v-else> {{formModel.customer_birth_day||''}}</text>
-                <text class="cuIcon-calendar  margin-left-xs" v-if="!formModel.customer_birth_day"></text>
-                <text class="cuIcon-calendar text-cyan margin-left-xs" v-else></text>
-              </view>
-            </picker>
-          </view>
-          <view class="bx-form-group">
-            <view class="title">手机号码</view>
-            <input placeholder="手机号码" name="input" placeholder-class="place-holder" class="input"
-              v-model="formModel.customer_phone"></input>
-          </view>
-        </view>
-        <view class="person-info-form">
-          <view class="form-item">
-            <textarea v-model="formModel.appoint_remark" placeholder="预约说明" placeholder-class="place-holder text-area"
-              class="value textarea" :adjust-position="false" :fixed="true" :show-confirm-bar="false" />
-          </view>
-        </view>
-      </view> -->
-      <!-- <view class="footer">
-        <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
-        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitNotify"
-          v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)">提交</button>
-        <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}" @click="submitOrder" v-else>提交预约</button>
-      </view> -->
     </view>
   </view>
 </template>
@@ -244,7 +129,8 @@
   import {
     mapState
   } from 'vuex'
-  import dayjs from '@/static/js/dayjs.min.js'
+  
+  const dayjs = require('dayjs');
   export default {
     data() {
       return {

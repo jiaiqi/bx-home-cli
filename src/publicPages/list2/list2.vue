@@ -1451,11 +1451,18 @@
                       // 支付成功
                       self.updateOrderState('待发货', '已支付', result.prepay_id, rowData
                         .order_no);
+                      let webUrl = 'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' + rowData.order_no +
+                        '&totalMoney=' + rowData.order_amount
+                      let url =
+                        `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
                       uni.redirectTo({
-                        url: '/storePages/successPay/successPay?order_no=' +
-                          rowData
-                          .order_no + '&totalMoney=' + rowData.order_amount
+                        url
                       });
+                      // uni.redirectTo({
+                      //   url: '/storePages/successPay/successPay?order_no=' +
+                      //     rowData
+                      //     .order_no + '&totalMoney=' + rowData.order_amount
+                      // });
                     },
                     fail(res) {
                       // 支付失败/取消支付
@@ -1708,8 +1715,8 @@
                 url += `&appName=${this.appName}`
               }
               targetUrl = url
-              if(targetUrl&&targetUrl.indexOf(('/pages/home/home')==0)){
-                targetUrl = targetUrl.replace('/pages/home/home','/storePages/home/home')
+              if (targetUrl && targetUrl.indexOf(('/pages/home/home') == 0)) {
+                targetUrl = targetUrl.replace('/pages/home/home', '/storePages/home/home')
               }
             }
 

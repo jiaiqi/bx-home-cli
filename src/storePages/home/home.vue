@@ -25,21 +25,13 @@
         由 百想科技 提供技术支持
       </view>
     </view>
-
-
-
-
-
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
-
-
-
     <!-- <public-module></public-module> -->
     <u-tabbar :value="currentTab" :list="tabbarList" :mid-button="false"
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
-
   </view>
+  
   <bx-auth v-else @auth-complete="initPage"></bx-auth>
 
 </template>

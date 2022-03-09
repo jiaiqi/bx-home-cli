@@ -329,7 +329,6 @@ const checkWifiErr = (code, msg) => {
     })
   }
 }
-
 export default {
   checkPlatform, // 检测平台是否支持
   startConnectWifi, // 开始连接已知网络

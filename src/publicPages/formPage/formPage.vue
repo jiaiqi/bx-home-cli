@@ -48,7 +48,7 @@
 </template>
 
 <script>
-	// import dayjs from '@/static/js/dayjs.min.js'
+  
 	const dayjs = require('dayjs');
 	import ChildList from '@/publicPages/components/child-list/child-list.vue'
 	let _childData = {}

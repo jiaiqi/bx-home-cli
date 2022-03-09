@@ -46,7 +46,6 @@
                 ? dayjs(item.create_time).format("YYYY-MM-DD HH:mm:ss")
                 : ""
             }}
-            <!-- {{showSendTime(item, index)? formateDate(item.create_time, 'normal'):'' }} -->
           </view>
           <view v-if="
               item.sender_account != currentUserInfo.userno ||
@@ -115,10 +114,6 @@
                   <image v-else class="image" :src="'../../static/news.png'" mode="scaleToFill" />
                 </view>
               </view>
-              <!-- <text class="border-bottom"
-                >{{ item.msg_content }}
-                <text class="cuIcon-text margin-right-xs"></text
-              ></text> -->
             </view>
             <view class="person-chat-item-right goods-card" v-else-if="item.msg_content_type === '商品'&&item.attribute"
               @click="toGoods(item)">
@@ -144,20 +139,7 @@
                   ">
                   @{{ item.attribute.name }}
                 </text>
-                <!-- <rich-text
-                  :nodes="getText(item.msg_content)"
-                  class="value rich-text"
-                  :selectable="true"
-                  space="nbsp"
-                  v-if="
-                    item.msg_content && item.msg_content.indexOf('</') !== -1
-                  "
-                ></rich-text> -->
-                <u-parse :content="item.msg_content" />
-                <!-- <u-parse :content="renderEmoji(item.msg_content)" /> -->
-                <!-- <text user-select selectable space="nbsp" v-else>{{
-                  item.msg_content
-                }}</text> -->
+                <uHtmlParse :content="item.msg_content" />
               </view>
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
@@ -337,8 +319,8 @@
                   item.attribute.type &&
                   item.attribute.type === 'remindPerson'
                 ">@{{ item.attribute.name }}</text>
-              <u-parse :content="item.msg_content" />
-              <!-- <u-parse :content="renderEmoji(item.msg_content)" /> -->
+              <uHtmlParse :content="item.msg_content" />
+              <!-- <uHtmlParse :content="renderEmoji(item.msg_content)" /> -->
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
               class="person-chat-item-right" :class="item.msg_link ? 'person-chat-item-right-link' : ''">
@@ -575,14 +557,14 @@
   import {
     mapState
   } from 'vuex';
-  import parseHtml from '@/static/js/html-parser.js'
+  import parseHtml from '@/publicPages/static/js/html-parser.js'
   import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
-  import uParse from '@/publicPages/components/html-parse/parse.vue'
+  import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
   export default {
     name: 'personchat',
     components: {
       robbyImageUpload,
-      uParse
+      uHtmlParse
     },
     props: {
       showGoodsCard: {

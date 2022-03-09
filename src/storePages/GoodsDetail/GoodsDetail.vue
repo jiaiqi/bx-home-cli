@@ -41,7 +41,17 @@
       </view>
     </view>
     <view class="desc" v-if="goodsInfo.goods_desc">
-      <view class="title">商品详情</view>
+      <view class="title">
+        <text>商品详情</text>
+        <view class="data-display">
+          <view class="disp-item" v-if="goodsInfo['sales_volume']">
+            销量：{{goodsInfo['sales_volume']||''}}
+          </view>
+          <view class="disp-item" v-if="goodsInfo['viewing_count']">
+            浏览量：{{goodsInfo['viewing_count']||''}}
+          </view>
+        </view>
+      </view>
       <view class="">{{ goodsInfo.goods_desc || '' }}</view>
     </view>
     <view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
@@ -72,14 +82,14 @@
           <button class="cu-btn bg-white left  round" v-for="(item,index) in buttonCfg.left" :key="index"
             @click="payOrder(item)">
             <text class="icon" :class="{
-              'cuIcon-mark':item.type=='message',
+              'cuIcon-service':item.type=='message',
               'cuIcon-cart':item.type=='cart'
             }"></text>
             <text class="label">{{ item.button_name }}</text>
           </button>
         </view>
         <view class="button-right" v-if="buttonCfg.right&&buttonCfg.right.length>0">
-          <button class="cu-btn shadow-blur round" v-for="(item,index) in buttonCfg.right"
+          <button class="cu-btn  shadow-blur round" v-for="(item,index) in buttonCfg.right"
             :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart'}" :key="index"
             @click="payOrder(item)">{{ item.button_name }}</button>
         </view>
@@ -92,7 +102,7 @@
         </button> -->
       </view>
       <view class="right-btn" v-else-if="!hideButton">
-        <button class="cu-btn  shadow-blur round bg-orange" @click="payOrder">
+        <button class="full bg-orange" @click="payOrder">
           <text v-if="moreConfig && moreConfig.button_name">{{ moreConfig.button_name }}</text>
           <text v-else>立即购买</text>
         </button>
@@ -148,6 +158,7 @@
               name: '客服咨询',
               button_name: '客服',
               type: 'message',
+              icon: 'service',
               target_url: `/publicPages/chat/chat?type=机构用户客服&identity=客户&storeNo=${this.storeNo||this.storeInfo?.store_no}&store_user_no=${this.vstoreUser?.store_user_no}&goods_no=${this.goodsInfo.goods_no}`
             },
             {
@@ -478,6 +489,7 @@
             src: firstImage,
             success: function(image) {
               let windowWidth = uni.getSystemInfoSync().windowWidth;
+              debugger
               self.imgHeight = (windowWidth * image.height) / image.width;
               // console.log(image.width);
               // console.log(image.height);
@@ -742,6 +754,18 @@
       padding: 10rpx 0;
       border-bottom: 1rpx solid #f1f1f1;
       margin-bottom: 10rpx;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .data-display{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        .disp-item{
+          margin-left: 20px;
+        }
+      }
     }
   }
 
@@ -787,9 +811,15 @@
     // background-color: #1cbbb4;
     height: 100%;
 
+    .full {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+
     .button-left {
       flex: 1;
-      padding: 0 10px;
+      padding: 0 15px;
       display: flex;
 
       // justify-content: flex-start;
@@ -809,6 +839,13 @@
         .label {
           font-size: 10px;
         }
+      }
+    }
+
+    .button-right {
+      .cu-btn {
+        height: 40px;
+        padding: 0 20px;
       }
     }
 

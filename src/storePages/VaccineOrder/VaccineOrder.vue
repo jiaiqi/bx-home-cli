@@ -85,7 +85,7 @@
 					<view class="button-box">
 						<button class="cu-btn bg-red margin-right" @click="cancel(item)"><text
 								class="cuIcon-delete margin-right-xs"></text> 取消预约</button>
-						<button type="primary" class="cu-btn bg-blue " @click="edit(item)"><text
+						<button type="primary" class="cu-btn bg-blue" @click="edit(item)"><text
 								class="cuIcon-edit margin-right-xs"></text>修改信息</button>
 					</view>
 				</view>

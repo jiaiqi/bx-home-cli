@@ -25,7 +25,6 @@
     methods: {
       onMessage(e) {
         console.log(e)
-        debugger
       }
     },
     onUnload() {
@@ -42,6 +41,7 @@
     onLoad(option) {
       if (option.webUrl) {
         let url = decodeURIComponent(option.webUrl)
+        url = this.renderStr(url,this)
         if (url && url.indexOf('100xsys.cn') > -1) {
           if (url.indexOf('?') == -1) {
             url += `?bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
@@ -53,7 +53,6 @@
         if(login_user_info?.user_no){
           url+=`&login_user_info=${encodeURIComponent(JSON.stringify(login_user_info))}`
         }
-        debugger
         this.webUrl = url
       } else {
         uni.showModal({

@@ -120,13 +120,6 @@
             "navigationBarTextStyle": "black"
           }
         }
-        // , {
-        //   "path": "login/login",
-        //   "style": {
-        //     "navigationBarTitleText": "",
-        //     "enablePullDownRefresh": false
-        //   }
-        // }
         , {
           "path": "dateTimeSelector/dateTimeSelector",
           "style": {

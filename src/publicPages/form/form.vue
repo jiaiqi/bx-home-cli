@@ -22,11 +22,7 @@
   import {
     mapState
   } from 'vuex';
-  import ChildTable from './child-table.vue';
   export default {
-    components: {
-      ChildTable
-    },
     data() {
       return {
         appName: '',

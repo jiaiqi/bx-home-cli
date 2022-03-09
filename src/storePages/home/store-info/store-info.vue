@@ -136,7 +136,11 @@
 </template>
 
 <script>
+  import shareDialog from '@/storePages/components/share-dialog/share-dialog.vue'
   export default {
+    components: {
+      shareDialog
+    },
     props: {
       pageItem: {
         type: Object
@@ -546,8 +550,8 @@
     display: flex;
 
     .image-btn {
-      width:40px;
-      height:40px;
+      width: 40px;
+      height: 40px;
       outline: none;
       border: none;
       background-color: transparent;
@@ -576,9 +580,14 @@
       }
 
       .image {
-        width: 90rpx;
-        height: 90rpx;
+        width: 100%;
+        height: 100%;
       }
+
+      // .image {
+      //   width: 90rpx;
+      //   height: 90rpx;
+      // }
     }
   }
 
@@ -601,11 +610,13 @@
       align-items: flex-end;
 
       .image-btn {
-        &.sm{
+        &.sm {
           width: 25px;
           height: 25px;
         }
+
         font-size: inherit;
+
         .image {
           width: 100%;
           height: 100%;

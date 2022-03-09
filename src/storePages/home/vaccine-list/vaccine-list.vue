@@ -188,7 +188,7 @@
   import {
     mapState
   } from 'vuex'
-  // import dayjs from '@/static/js/dayjs.min.js'
+  
   const dayjs = require('dayjs');
   export default {
     name: "VaccineList", //疫苗预约列表

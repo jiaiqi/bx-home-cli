@@ -110,7 +110,6 @@
   import {
     mapState
   } from 'vuex'
-  // import dayjs from '@/static/js/dayjs.min.js'
   const dayjs = require('dayjs');
   import {
     version

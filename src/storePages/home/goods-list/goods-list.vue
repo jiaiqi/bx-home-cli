@@ -17,7 +17,6 @@
           <view class="desc" v-if="item[desc]">{{ item[desc]||'' }}</view>
           <view class="price margin-top-xs">
             <view class="text-red ">
-              <!-- <text style="font-size: 14px;" v-if="item[originPrice]">优惠价</text> -->
               <text class="symbol">￥</text>
               <text class="number" style="font-size: 20px;">{{ item[price] }}</text>
             </view>
@@ -27,7 +26,17 @@
                 :class="{' text-gray':item[originPrice],'text-red':!item[originPrice]}">{{ item[originPrice] }}</text>
             </view>
           </view>
-
+          <view class="data-display">
+            <view class="disp-item" v-if="item[salesVolume]">
+              销量：{{item[salesVolume]||''}}
+            </view>
+            <view class="disp-item" v-else>
+              
+            </view>
+           <view class="disp-item" v-if="item[viewingCount]">
+              浏览量：{{item[viewingCount]||''}}
+            </view>
+          </view>
         </view>
       </view>
     </view>
@@ -76,11 +85,7 @@
         total: 0
       };
     },
-    // mounted() {
-    //   if (this.storeNo) {
-    //     this.getGoodsListData()
-    //   }
-    // },
+
     watch: {
       storeNo: {
         immediate: true,
@@ -168,7 +173,6 @@
                 pre.push(cur)
                 return pre
               }, []);
-              // this.goodsList = [ ...this.goodsList, ...this.goodsList ]
               console.log(this.goodsList)
             }
           }
@@ -234,6 +238,16 @@
         type: String,
         default: 'origin_price'
       },
+      salesVolume: {
+        // 销量
+        type: String,
+        default: 'sales_volume'
+      },
+      viewingCount: {
+        // 浏览数
+        type: String,
+        default: 'viewing_count'
+      },
       pageItem: {
         type: Object
       }
@@ -262,8 +276,6 @@
   .goods-list {
     display: flex;
     flex-wrap: wrap;
-    // column-count: 2;
-    // column-gap: 10px;
     padding: 0 0px 0px;
     min-width: 300px;
     justify-content: space-between;
@@ -292,7 +304,6 @@
       margin-top: 0;
     }
 
-    // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
     &:nth-child(2n) {
       margin-right: 0;
     }
@@ -361,6 +372,14 @@
       }
 
 
+    }
+    .data-display{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #999;
+      padding: 5px;
     }
   }
 

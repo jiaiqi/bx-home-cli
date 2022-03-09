@@ -10,7 +10,7 @@
         <view class="icon"><text class="cuIcon-notice"></text></view>
         <text class="label">群公告</text>
       </view>
- <!--     <view class="util-item" @click="toPages('group-util')"
+      <!--     <view class="util-item" @click="toPages('group-util')"
         v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
         <view class="icon"><text class="cuIcon-repair"></text></view>
         <text class="label">小工具</text>
@@ -19,13 +19,14 @@
         <view class="icon"><text class="cuIcon-people"></text></view>
         <text class="label">详细资料</text>
       </view>
-   <!--   <view class="util-item" @click="toPages('group-detail')"
+      <!--   <view class="util-item" @click="toPages('group-detail')"
         v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
         <view class="icon"><text class="cuIcon-settings"></text></view>
       </view> -->
     </view>
     <view class="util-bar absolute" v-if="top_buttons&&top_buttons.length>0">
-      <button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)" v-for="(btn,index) in top_buttons" :key="index">
+      <button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)"
+        v-for="(btn,index) in top_buttons" :key="index">
         <!-- <view class="icon"><text class="cuIcon-notice"></text></view> -->
         <text class="label">{{btn.name||''}}</text>
       </button>
@@ -162,9 +163,9 @@
       }
     },
     methods: {
-      getBtnClassName(btn){
+      getBtnClassName(btn) {
         let className = ''
-        if(btn?.bg){
+        if (btn?.bg) {
           className += `bg-${btn.bg}`
         }
         return className
@@ -243,8 +244,15 @@
           if (type === 'doctor-info') {
             // if (this.receiver_person_no && this.storeNo) {
             if (this.receiver_person_no && this.storeNo && this.store_user_no) {
-              url =
-                `/storePages/DoctorIntro/DoctorIntro?nouseRelation=true&person_no=${this.receiver_person_no}&store_no=${this.storeNo}&store_user_no=${this.store_user_no}`
+              let webUrl =
+                `https://login.100xsys.cn/health/#/storePages/DoctorIntro/DoctorIntro?nouseRelation=true&person_no=${this.receiver_person_no}&store_no=${this.storeNo}&store_user_no=${this.store_user_no}`
+              let url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+              uni.redirectTo({
+                url
+              });
+              return
+              // url =
+              //   `/storePages/DoctorIntro/DoctorIntro?nouseRelation=true&person_no=${this.receiver_person_no}&store_no=${this.storeNo}&store_user_no=${this.store_user_no}`
               // url =
               // `/storePages/DoctorIntro/DoctorIntro?nouseRelation=true&person_no=${this.receiver_person_no}&store_no=${this.storeNo}`
             }
@@ -300,12 +308,35 @@
       },
       async getStore() {
         // 查找店铺信息
+        // let req = {
+        //   "condition": [{
+        //     "colName": "store_no",
+        //     "ruleType": "eq",
+        //     "value": this.storeNo
+        //   }],
+        //   "page": {
+        //     "pageNo": 1,
+        //     "rownumber": 1
+        //   }
+        // }
+        // let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
+        // if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        //   this.storeInfo = res.data[0]
+        //   if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
+        //     const pageTitle =
+        //       `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
+        //     uni.setNavigationBarTitle({
+        //       title: pageTitle
+        //     })
+        //   }
+        //   return this.storeInfo
+        // }
         if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
           const pageTitle =
             `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
-          // uni.setNavigationBarTitle({
-          //   title: pageTitle
-          // })
+          uni.setNavigationBarTitle({
+            title: pageTitle
+          })
         }
       },
       async getGroup() {
@@ -361,9 +392,9 @@
                 this.pageTitle = this.storeInfo.name + `(${this.storeInfo.user_count})`
               }
               if (this.pageTitle) {
-                // uni.setNavigationBarTitle({
-                //   title: this.pageTitle
-                // })
+                uni.setNavigationBarTitle({
+                  title: this.pageTitle
+                })
               }
             }
           }
@@ -568,7 +599,6 @@
             break;
         }
         let cond = []
-        debugger
         if (data.store_user_no) {
           cond = [{
             "colName": "store_user_no",

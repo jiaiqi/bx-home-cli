@@ -152,7 +152,7 @@
 		margin: 0 10px;
 
 		.card-info {
-			background-image: url(vip-bg.png);
+			background-image: url(vip-bg.jpg);
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
 			height: 250rpx;

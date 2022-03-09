@@ -1,4 +1,4 @@
-import moment from "../static/js/dayjs.min.js";
+const moment = require('dayjs');
 
 /**
  * 获取本周、本季度、本月、上月的开始日期、结束日期

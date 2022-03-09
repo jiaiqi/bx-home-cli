@@ -22,25 +22,6 @@
 				</text>{{ storeUserInfo.staff_introduction||'暂无简介' }}
 			</view>
 		</view>
-    
-<!-- 		<view class="cu-modal" :class="{ show: modalName === 'sotre-list' }">
-			<view class="cu-dialog">
-				<view class="sotre-list">
-					<view class="cu-bar bg-white justify-end">
-						<view class="content">请选择就诊诊所</view>
-						<view class="action" @tap="hideModal"><text class="cuIcon-close text-red"></text></view>
-					</view>
-					<view class="padding-xl">
-						<button class="cu-btn store-item bg-cyan" :key="index" v-for="(item,index) in doctorStoreList"
-							@tap="toPages('seeDoctor', item)">{{ item.name }}</button>
-					</view>
-					<view class="cu-bar bg-white justify-center">
-						<view class="action"><button class="cu-btn line-blue text-blue" @tap="hideModal">取消</button>
-						</view>
-					</view>
-				</view>
-			</view>
-		</view> -->
 	</view>
 </template>
 

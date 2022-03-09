@@ -1,9 +1,9 @@
 <template>
   <view class="staff-manage" :style="[calcStyle]">
-    <view class="title">
+<!--    <view class="title">
       <text class="cuIcon-titles text-blue"></text>
       <text class="">{{ pageItem.component_label || "咨询" }}</text>
-    </view>
+    </view> -->
     <view class="content">
       <view class="professor-box">
         <view class="professor-item" v-for="(staff, index) in staffList" :key="index" @click="toDetail(staff)">

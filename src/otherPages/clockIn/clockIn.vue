@@ -142,8 +142,8 @@
 
 <script>
   let interVal = null
-  let dayjs = require('@/static/js/dayjs.min.js')
-  let QQMapWX = require('@/static/js/qqmap-wx-jssdk.min.js');
+  const dayjs = require('dayjs');
+  let QQMapWX = require('@/otherPages/static/js/qqmap-wx-jssdk.min.js');
   let qqmapsdk;
   // 引入腾讯地图SDK核心类
 

@@ -994,10 +994,18 @@
               self.orderInfo.order_state = '待发货';
               self.updateOrderState('待发货', '已支付', result.prepay_id);
               self.orderInfo.pay_state = '已支付';
+              let webUrl = 'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' + orderData
+                .order_no + '&totalMoney=' + self.totalMoney
+              let url =
+                `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
               uni.redirectTo({
-                url: '/storePages/successPay/successPay?order_no=' + orderData
-                  .order_no + '&totalMoney=' + self.totalMoney
+                url
               });
+              // uni.redirectTo({
+              //   url: '/storePages/successPay/successPay?order_no=' + orderData
+              //     .order_no + '&totalMoney=' + self.totalMoney
+              // });
+
             },
             fail(res) {
               // 支付失败/取消支付

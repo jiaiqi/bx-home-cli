@@ -21,17 +21,7 @@ export default {
 	},
 	methods: {
 		toHome() {
-			uni.navigateBack({
-				
-			})
-			// uni.switchTab({
-			// 	url: '/pages/pedia/pedia',
-			// 	fail() {
-			// 		uni.redirectTo({
-			// 			url: '/pages/pedia/pedia'
-			// 		})
-			// 	}
-			// });
+			uni.navigateBack({})
 		},
 		toDetail() {
 			uni.redirectTo({

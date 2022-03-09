@@ -107,7 +107,7 @@
 </template>
 
 <script>
-  // import dayjs from '@/static/js/dayjs.min.js'
+  
   const dayjs = require('dayjs');
   import batchAdd from '@/publicPages/components/batch-add/batch-add.vue'
   export default {

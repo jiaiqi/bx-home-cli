@@ -135,7 +135,8 @@
   import {
     mapState
   } from 'vuex'
-  import dayjs from '@/static/js/dayjs.min.js'
+  const dayjs = require('dayjs');
+  
   export default {
     data() {
       return {
@@ -775,7 +776,7 @@
       }, 1000)
     },
     async onLoad(option) {
-
+      
       if (option.app_type) {
         this.app_type = option.app_type
       }

@@ -44,16 +44,10 @@
 
 <script>
 	import listItem from './tree-list-item.vue';
-	// import bxform from '@/components/bx-form/bx-form.vue';
-	import uniPopup from '@/components/uni-popup/uni-popup.vue';
-	// import sPullScroll from '@/components/s-pull-scroll';
 	export default {
 		name: 'List',
 		components: {
 			listItem,
-			// sPullScroll,
-			// bxform,
-			uniPopup,
 		},
 		data() {
 			return {

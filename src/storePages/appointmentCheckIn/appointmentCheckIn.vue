@@ -81,7 +81,7 @@
 </template>
 
 <script>
-  // import dayjs from '@/static/js/dayjs.min.js'
+  
   const dayjs = require('dayjs');
   let today = dayjs().format("YYYY-MM-DD")
   export default {

@@ -83,7 +83,6 @@
 
 <script>
 	import listBar from '@/publicPages/components/list-bar/list-bar.vue'
-	// import dayjs from '@/static/js/dayjs.min.js'
 	const dayjs = require('dayjs');
 	export default {
 		components: {

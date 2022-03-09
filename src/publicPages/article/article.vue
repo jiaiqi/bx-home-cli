@@ -2,8 +2,8 @@
   <view class="article-wrap">
     <view class="top">
       <view class="head-image" v-if="
-			    articleData.icon_image && articleData.cover_pic_style === '下一'
-			  ">
+  		    articleData.icon_image && articleData.cover_pic_style === '下一'
+  		  ">
         <image class="image" :src="getImagePath(articleData.icon_image, true)" mode="aspectFill"></image>
       </view>
       <view class="left">
@@ -35,23 +35,26 @@
 
     <view class="footer">
       <!-- #ifdef MP-WEIXIN -->
-      <ad unit-id="adunit-7318fe2284dd9c26" ad-type="video" ad-theme="white"></ad>
+      <!-- <ad unit-id="adunit-7318fe2284dd9c26" ad-type="video" ad-theme="white"></ad> -->
       <!-- #endif -->
-
     </view>
   </view>
+
 </template>
 
 <script>
   import {
     mapState
   } from 'vuex'
-  import parseHtml from '@/static/js/html-parser.js'
+  import parseHtml from '@/publicPages/static/js/html-parser.js'
   export default {
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo
       }),
+      clientEnv() {
+        return uni.getStorageSync('client_env')
+      },
       richTextNodes() {
         if (this.articleData) {
           if (this.articleData.content && typeof this.articleData.content === 'string') {
