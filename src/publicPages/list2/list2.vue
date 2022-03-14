@@ -1678,6 +1678,7 @@
           }
         } else {
           if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
+            debugger
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo
             let targetUrl = this.customDetailUrl

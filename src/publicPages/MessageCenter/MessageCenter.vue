@@ -2,7 +2,6 @@
   <view class="list-wrap">
     <view class="cu-list">
       <view class="cu-item" v-for="(item,index) in sessionList" :key="item.session_no" @click="toChat(item)">
-
         <view class="cu-avatar  lg" v-if="item.store_user_profile"
           :style="[{backgroundImage:'url('+getImagePath(item.store_user_profile,true)+')'}]">
           <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
@@ -21,7 +20,6 @@
             {{item.kefu_kefu_unack_msg}}
           </view>
         </view>
-
         <view class="cu-avatar lg" v-else>
           <text class="cuIcon-profilefill"></text>
           <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
@@ -31,8 +29,6 @@
             {{item.kefu_kefu_unack_msg}}
           </view>
         </view>
-
-
         <view class="content">
           <view class="top">
             <view class="text-black user-name">{{item.store_user_name||''}}</view>
@@ -58,6 +54,8 @@
     data() {
       return {
         storeNo: '',
+        session_type: "",
+        groupNo: "", //专题咨询编码
         sessionList: [],
         page: {
           pageNo: 1,
@@ -68,11 +66,11 @@
       };
     },
     methods: {
-      formatMsg(item){
+      formatMsg(item) {
         let res = '';
-        if(['文本'].includes(item.last_msg_content_type)){
-          res = item.last_msg_content||''
-        }else if(item.last_msg_content_type){
+        if (['文本'].includes(item.last_msg_content_type)) {
+          res = item.last_msg_content || ''
+        } else if (item.last_msg_content_type) {
           res = `[${item.last_msg_content_type}]`
         }
         return res
@@ -96,9 +94,22 @@
       toChat(e) {
         this.page.pageNo = 1
         // 跳转到聊天页面
+        let url = `/publicPages/chat/chat?identity=客服&storeNo=${this.storeNo}&session_no=${e.session_no}`;
+        if(this.groupNo){
+          url += `&groupNo=${this.groupNo}`
+        }
+        if(this.session_type){
+          url += `&type=${this.session_type}&store_user_no=${e.store_user_no}`
+        }else{
+          url += `&type=${this.session_type}`
+        }
+        
         uni.navigateTo({
-          url: `/publicPages/chat/chat?type=机构用户客服&identity=客服&storeNo=${this.storeNo}&session_no=${e.session_no}`
+          url
         })
+      },
+      getGroup(){
+        // 查找专题咨询信息
       },
       getStoreSession(isMore) {
         // 查找此店铺的客服会话列表
@@ -106,7 +117,7 @@
           "condition": [{
             "colName": "session_type",
             "ruleType": "in",
-            "value": "机构用户客服"
+            "value": this.session_type || "机构用户客服"
           }, {
             "colName": "store_no",
             "ruleType": "eq",
@@ -152,6 +163,13 @@
             "rownumber": this.page.rownumber
           }
         }
+        if (this.groupNo) {
+          req.condition.push({
+            colName: 'group_no',
+            ruleType: 'eq',
+            value: this.groupNo
+          })
+        }
         this.$fetch('select', 'srvhealth_dialogue_session_select', req, 'health').then(res => {
           if (res.success) {
             if (isMore) {
@@ -176,12 +194,23 @@
       uni.$on('updateKefuSessionLastLookTime', () => {
         this.getStoreSession()
       })
+
+      if (option.session_type && option.groupNo) {
+        this.session_type = option.session_type
+        this.groupNo = option.groupNo
+      }
+
       if (option.storeNo) {
+
         this.storeNo = option.storeNo
         this.getStoreSession()
-        uni.setNavigationBarTitle({
-          title: '用户咨询记录'
-        })
+
+
+        // if(!this.session_type){
+        //   uni.setNavigationBarTitle({
+        //     title: '用户咨询记录'
+        //   })
+        // }
       }
     },
     onPullDownRefresh() {

@@ -50,7 +50,8 @@
         {
           "path": "MessageCenter/MessageCenter",
           "style": {
-            "enablePullDownRefresh": true
+            "enablePullDownRefresh": true,
+            "navigationBarTitleText":"咨询记录"
           }
         },
         {

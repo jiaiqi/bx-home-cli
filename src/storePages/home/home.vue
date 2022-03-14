@@ -31,7 +31,7 @@
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
-  
+
   <bx-auth v-else @auth-complete="initPage"></bx-auth>
 
 </template>
@@ -180,7 +180,6 @@
           await this.getPageDefine(this.pdNo);
           await this.getTabbar(this.pdNo);
           await this.getPageComponent(this.pdNo);
-
           this.initPage();
         } else if (curTab.link_pd_json) {
           try {
@@ -1294,7 +1293,11 @@
       },
     },
     onPullDownRefresh() {
-      this.initPage();
+      if (this.pageDefine && this.tabbarList && this.tabbarList.length > 0) {
+        this.changeTab(this.currentTab)
+      } else {
+        // this.initPage();
+      }
       setTimeout(() => {
         uni.stopPullDownRefresh();
       }, 1000);

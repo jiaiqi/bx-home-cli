@@ -121,7 +121,6 @@
       },
       ...mapState({
         systemInfo: state => state.app.systemInfo,
-        // userInfo: state => state.user.userInfo,
         storeUser: state => state.user.storeUserInfo
       }),
       topHeight() {
@@ -277,7 +276,7 @@
           this.updateLastLookTime(this.lastMessage);
         }
       },
-      getRow() {
+      async getRow() {
         // 一对一 
         let req = {
           "serviceName": "srvhealth_person_relation_select",
@@ -292,19 +291,20 @@
             "rownumber": 1
           },
         }
-        this.$fetch('select', 'srvhealth_person_relation_select', req, 'health').then(res => {
-          if (Array.isArray(res.data) && res.data.length > 0) {
-            this.rowInfo = res.data[0]
-            if (res.data[0].usera_person_no === this.userInfo.no) {
-              this.pageTitle = res.data[0].userb_name
-            } else {
-              this.pageTitle = res.data[0].usera_name
-            }
-            uni.setNavigationBarTitle({
-              title: this.pageTitle
-            })
+        let res = await this.$fetch('select', 'srvhealth_person_relation_select', req, 'health')
+        // .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          this.rowInfo = res.data[0]
+          if (res.data[0].usera_person_no === this.userInfo.no) {
+            this.pageTitle = res.data[0].userb_name
+          } else {
+            this.pageTitle = res.data[0].usera_name
           }
-        })
+          uni.setNavigationBarTitle({
+            title: this.pageTitle
+          })
+        }
+        // })
       },
       async getStore() {
         // 查找店铺信息
@@ -399,6 +399,50 @@
             }
           }
         })
+      },
+      async getZtSession() {
+        // 专题咨询会话查询
+        let req = {
+          "serviceName": "srvhealth_dialogue_session_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "session_type",
+              "ruleType": "eq",
+              "value": '专题咨询'
+            },
+            {
+              "colName": "group_no",
+              "ruleType": "eq",
+              "value": this.groupNo
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.vstoreUser?.store_no
+            },
+            {
+              "colName": "store_user_no",
+              "ruleType": "eq",
+              "value": this.store_user_no || this.vstoreUser?.store_user_no
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_dialogue_session_select', req, 'health')
+        if (res.success) {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            this.sessionInfo = res.data[0]
+            this.session_no = res.data[0].session_no
+            // this.getGroup()
+            return res.data[0]
+          } else {
+            await this.createSession()
+          }
+
+        }
       },
       async getSession(condition) {
         // 查找会话信息
@@ -583,6 +627,15 @@
           case '群组圈子':
             data.group_no = this.groupNo
             break;
+          case '专题咨询':
+            data.group_no = this.groupNo
+            data.store_no = this.storeNo || this.storeInfo?.store_no
+            data.store_user_no = this.store_user_no || this.storeUser?.store_user_no
+            data.store_user_image = this.storeUser?.profile_url
+            data.store_person_no = this.userInfo.no
+            data.store_user_name = this.userInfo.name
+            debugger
+            break;
           case '机构用户客服':
             data.person_image_a = this.userInfo.user_image ? this.userInfo.user_image : this.userInfo
               .profile_url
@@ -609,15 +662,6 @@
             "ruleType": "eq",
             "value": this.storeNo
           }]
-          // cond = [{
-          // 	"colName": "person_no",
-          // 	"ruleType": "eq",
-          // 	"value": this.userInfo.no
-          // }, {
-          // 	"colName": "store_no",
-          // 	"ruleType": "eq",
-          // 	"value": this.storeNo
-          // }]
         }
         if (data.person_relation_no) {
           cond = [{
@@ -627,6 +671,7 @@
           }]
 
         }
+
         if (data.group_no) {
           cond = [{
             "colName": "group_no",
@@ -634,25 +679,40 @@
             "value": this.groupNo
           }]
         }
+
+        if (data?.session_type === '专题咨询') {
+          if (data.store_user_no && data.store_no && data.group_no) {
+            cond = [{
+                "colName": "group_no",
+                "ruleType": "eq",
+                "value": data.group_no
+              },
+              {
+                "colName": "session_type",
+                "ruleType": "eq",
+                "value": data.session_type
+              },
+              {
+                "colName": "store_user_no",
+                "ruleType": "eq",
+                "value": data.store_user_no
+              },
+              {
+                "colName": "store_no",
+                "ruleType": "eq",
+                "value": data.store_no
+              }
+            ]
+          } else {
+            return
+          }
+        }
         if (cond.length > 0) {
           let sessionInfo = await this.getSession(cond)
           if (sessionInfo && sessionInfo.session_no) {
             this.updateSessionNo()
             return
           }
-          // if (sessionInfo === false) {
-          // 	uni.showModal({
-          // 		title: '提示',
-          // 		content: '系统错误,即将返回上一页面',
-          // 		showCancel: false,
-          // 		success() {
-          // 			uni.navigateBack({
-
-          // 			})
-          // 		}
-          // 	})
-          // 	return
-          // }
         }
         let req = [{
           "serviceName": "srvhealth_dialogue_session_add",
@@ -863,6 +923,8 @@
         this.goods_no = option.goods_no
         this.getGoodsInfo()
       }
+      
+      
       if (Array.isArray(this.articleList) && this.articleList.length > 0) {
         uni.showModal({
           title: '发送文章',
@@ -897,19 +959,31 @@
       if (option.storeNo) {
         this.storeNo = option.storeNo
         await this.getStore()
-        await this.getStoreUser(option.storeNo)
+        if (option.type !== '专题咨询') {
+          await this.getStoreUser(option.storeNo)
+        }
       }
+      
+      if (option.store_user_no) {
+        this.store_user_no = option.store_user_no
+      }
+      
+      if (option.type === '专题咨询' && option.groupNo) {
+        // 专题咨询模式 1（用户）对多（客服、管理人员）
+        this.getZtSession()
+        return
+      }
+
+
       if (this.session_no) {
         // 已有会话编号 查找会话信息
         await this.getSession()
       } else {
         // 没有会话编号 创建
         if (option.row_no) {
+          // 一对一会话
           this.row_no = option.row_no
           this.getRow()
-        }
-        if (option.store_user_no) {
-          this.store_user_no = option.store_user_no
         }
         this.createSession()
       }

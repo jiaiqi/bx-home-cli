@@ -28,13 +28,13 @@
           </view>
           <view class="data-display">
             <view class="disp-item" v-if="item[salesVolume]">
-              销量：{{item[salesVolume]||''}}
+              销量：{{ getNumber(item[salesVolume])||''}}
             </view>
             <view class="disp-item" v-else>
-              
+
             </view>
-           <view class="disp-item" v-if="item[viewingCount]">
-              浏览量：{{item[viewingCount]||''}}
+            <view class="disp-item" v-if="item[viewingCount]">
+              浏览量：{{ getNumber(item[viewingCount])||''}}
             </view>
           </view>
         </view>
@@ -98,6 +98,23 @@
       }
     },
     methods: {
+      getNumber(num) {
+        let amount = ''
+        num = Number(num)
+        if (typeof num === 'number' && !isNaN(num) && num > 0) {
+          if (num > 10000) {
+            return `1万+`
+          } else if (num > 1000) {
+            return `${parseInt(num/1000)*1000}+`
+          } else if (num > 100) {
+            return `${parseInt(num/100)*100}+`
+          } else{
+            return num
+          }
+        }else {
+          return 0
+        }
+      },
       toMore() {
         let url = `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health`
         let cond = [{
@@ -373,7 +390,8 @@
 
 
     }
-    .data-display{
+
+    .data-display {
       display: flex;
       justify-content: space-between;
       align-items: center;

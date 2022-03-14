@@ -49,8 +49,8 @@
           </view>
           <view v-if="
               item.sender_account != currentUserInfo.userno ||
-              (identity === '客服' && item.identity === '客户') ||
-              (identity === '客户' && item.identity === '客服')
+              (identity === '客服' && (item.identity === '客户'||!identity)) ||
+              ((identity === '客户' || !identity) && item.identity === '客服')
             " class="person-chat-item-accept" @longpress.stop="longPress(item)">
             <view class="record-popover" :class="{ show: item.showRecall === true }" @click.stop="">
               <view class="pop-btn" @click="deleteRecord(item)">
@@ -1474,9 +1474,9 @@
       getSenderProfile(item) {
         // 查找发送者头像
         if (item.sender_user_image) {
-          return this.getImagePath(item.sender_user_image);
+          return this.getImagePath(item.sender_user_image, true);
         } else if (item.sender_profile_url) {
-          return this.getImagePath(item.sender_profile_url);
+          return this.getImagePath(item.sender_profile_url, true);
         }
       },
       confirmPoup() {
@@ -1610,7 +1610,6 @@
       },
       sendMessage() {
         // 点击发送按钮 组装消息并发送
-        // this.focusInput = false
         if (!this.chatText) {
           uni.showToast({
             title: '消息不能为空',
@@ -1618,13 +1617,9 @@
           })
           return
         }
-        // this.focusInput = true
         this.sendMessageInfo();
         this.chatText = '';
         this.isSendLink = false;
-        // setTimeout(() => {
-        //   this.toBottom()
-        // }, 200)
       },
       changeVoice(type) {
         console.log('----------', type);
@@ -1750,6 +1745,11 @@
             }
             if (this.receiverInfo.user_account) {
               req[0].data[0].receiver_account = this.receiverInfo.user_account;
+            }
+          }
+          if (this.sessionType === '专题咨询') {
+            if (!this.identity) {
+              this.identity = '客户'
             }
           }
           if (this.groupNo) {
@@ -1937,7 +1937,13 @@
             msg_content_type: !this.isSendLink ? '文本' : '链接',
             session_no: this.sessionNo
           };
+          if (this.sessionType === '专题咨询') {
+            if (!this.identity) {
+              this.identity = '客户'
+            }
+          }
           if (this.rowInfo && this.rowInfo.row_no) {
+            // 一对一
             let targetUserinfo = {}
             if (this.identity === '患者') {
               targetUserinfo = {
@@ -2144,6 +2150,7 @@
             //   } ]
             // } ];
             if (this.groupNo) {
+
               conditionData = [{
                 relation: 'OR',
                 data: [{
@@ -2158,6 +2165,9 @@
                   }
                 ]
               }];
+              if (this.sessionType === '专题咨询') {
+                conditionData[0].relation = 'AND'
+              }
             } else {
               req.condition = [{
                 colName: 'session_no', // 会话编码
@@ -2417,6 +2427,7 @@
       },
       setRefreshMessageTimer(second = 2 * 1000) {
         // 设置定时刷新消息的定时器
+        return
         clearInterval(this.refreshMessageTimer)
         this.refreshMessageTimer = setInterval(() => {
           const dontEmit = true
@@ -2688,7 +2699,7 @@
       let socketData = {
         "srv": "ws_chat_session_login",
         "value": {
-          "session_no":this.sessionNo,
+          "session_no": this.sessionNo,
           "bx_auth_ticket": uni.getStorageSync('bx_auth_ticket')
         }
       }
@@ -2699,7 +2710,7 @@
       //     debugger
       //   }
       // });
-      
+
       // uni.onSocketMessage(function(res) {
       //   console.log('收到服务器内容：' + res.data);
       //   let data = JSON.parse(res.data)

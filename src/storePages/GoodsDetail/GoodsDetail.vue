@@ -93,13 +93,6 @@
             :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart'}" :key="index"
             @click="payOrder(item)">{{ item.button_name }}</button>
         </view>
-        <!--  <button class="cu-btn shadow-blur round"
-          :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart','bg-white left':['message','cart'].includes(item.type)}"
-          @click="payOrder(item)" v-for="(item,index) in buttonCfg" :key="index">
-          <text class="cuIcon-mark icon margin-right-xs" v-if="item.type=='message'"></text>
-          <text class="cuIcon-cart icon margin-right-xs" v-if="item.type=='cart'"></text>
-          <text>{{ item.button_name }}</text>
-        </button> -->
       </view>
       <view class="right-btn" v-else-if="!hideButton">
         <button class="full bg-orange" @click="payOrder">
