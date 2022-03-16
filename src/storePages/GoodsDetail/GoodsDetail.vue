@@ -107,10 +107,9 @@
 		<view class="cu-modal bottom-modal" :class="{show:modalName==='option-selector'}" @click="changeModal()">
 			<view class="cu-dialog" @click.stop="">
 				<view class="modal-content" v-if="optionsType==='商品属性'">
-					<view class="selected-sku"
-						v-if="selectSku&&selectSku.sku_no">
-						<image :src="getImagePath(selectSku.goods_icon)" mode="aspectFit"
-							class="goods-icon" v-if="selectSku.goods_icon"></image>
+					<view class="selected-sku" v-if="selectSku&&selectSku.sku_no">
+						<image :src="getImagePath(selectSku.goods_icon)" mode="aspectFit" class="goods-icon"
+							v-if="selectSku.goods_icon"></image>
 						<view class="selected-sku-attr">
 							<view class="goods-name" v-if="selectSku.goods_name">
 								{{selectSku.goods_name}}
@@ -141,6 +140,20 @@
 					<view class="number-box">
 						<text>数量</text>
 						<u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
+					</view>
+					<view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
+						<view class="title">
+							相关商品
+						</view>
+						<view class="goods-item" v-for="goods in relationGoods">
+							<image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
+								
+							</image>
+							<view class="goods-name">
+								{{goods.goods_name||""}}
+							</view>
+								<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
+						</view>
 					</view>
 					<view class="button-box">
 						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart">确定</button>
@@ -197,6 +210,20 @@
 						<text>数量</text>
 						<u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
 					</view>
+					<view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
+						<view class="title">
+							相关商品
+						</view>
+						<view class="goods-item" v-for="goods in relationGoods">
+							<image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
+								
+							</image>
+							<view class="goods-name">
+								{{goods.goods_name||""}}
+							</view>
+								<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
+						</view>
+					</view>
 					<view class="button-box">
 						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart">确定</button>
 					</view>
@@ -236,7 +263,8 @@
 				goodsAttrList: [],
 				selectedAttrs: {},
 				modalConfirmType: "", // 确认类型  toOrder,addToCart
-				selectSku:null
+				selectSku: null,
+				relationGoods:[],//相关商品
 			};
 		},
 		// watch:{
@@ -480,7 +508,7 @@
 								})
 							let res = await this.getRealGoodsByAttr(selectOptions, false)
 							this.selectedAttrs.selectSku = res || false
-							this.selectSku = res||false
+							this.selectSku = res || false
 						}
 					}
 				}
@@ -537,6 +565,25 @@
 					childService = 'srvhealth_store_order_goods_attr_value_add'
 					depend_key = 'order_goods_rec_no'
 				}
+				let otherGoods = this.relationGoods.filter(item=>item.goods_amount>0)
+				if(Array.isArray(otherGoods) && otherGoods.length>0){
+					otherGoods = otherGoods.map(item=>{
+						let obj = {
+							store_no: this.storeNo,
+							unit_price: item.price,
+							goods_amount: item?.goods_amount || 1,
+							goods_no: item.goods_no,
+							sum_price: item.price*item.goods_amount,
+							goods_desc: item.goods_desc,
+							goods_image: item.goods_img,
+							goods_name: item.goods_name,
+							store_user_no:this.vstoreUser?.store_user_no,
+							name :item.goods_name,
+							car_num :item?.goods_amount || 1
+						}
+						return obj
+					})
+				}
 				if (goods?.goods_no) {
 					let data = {
 						store_user_no: this.vstoreUser?.store_user_no,
@@ -571,14 +618,19 @@
 						this.$store.commit('SET_STORE_CART', {
 							storeInfo: this.storeInfo,
 							store_no: this.storeInfo.store_no,
-							list: [goodsInfo]
+							list: [goodsInfo,...otherGoods]
 						});
 
 						let url =
-							`/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
+							`/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}`;
 
 						if (this.wxMchId) {
 							url += `&wxMchId=${this.wxMchId}`;
+						}
+						if(Array.isArray(otherGoods)&&otherGoods.length>0){
+							url+=`&otherGoods=${encodeURIComponent(JSON.stringify(otherGoods))}`
+						}else{
+							url += `&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`
 						}
 						uni.navigateTo({
 							url,
@@ -590,7 +642,7 @@
 						let req = [{
 							serviceName: service,
 							condition: [],
-							data: [data]
+							data: [data,...otherGoods]
 						}];
 						let res = await this.$fetch('operate', service, req, 'health');
 						if (res.success) {
@@ -867,6 +919,33 @@
 				content.w = maxW;
 				return content;
 			},
+			async getRelationGoods() {
+				// 查找相关商品
+				const serviceName = 'srvhealth_store_package_goods_select'
+				let req = {
+					"serviceName": serviceName,
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "superior_goods_no",
+						"ruleType": "eq",
+						"value": this.goodsInfo?.goods_no
+					}, {
+						"colName": "online_state",
+						"ruleType": "eq",
+						"value": "上线"
+					}]
+				}
+				let app = this.destApp || 'health';
+				let res = await this.$fetch('select', serviceName, req, app)
+				if (Array.isArray(res.data) && res.data.length > 0) {
+					this.relationGoods = res.data.map(item=>{
+						item.goods_amount = 0;
+						return item
+					})
+				}else{
+					this.relationGoods = []
+				}
+			},
 			async getGoodsSkuInfo() {
 				const serviceName = 'srvhealth_store_goods_sku_guest_select'
 				let req = {
@@ -1001,6 +1080,7 @@
 					let enable_sku = this.goodsInfo?.enable_sku;
 					let options_type = this.goodsInfo?.options_type
 					if (enable_sku === '是') {
+						this.getRelationGoods()
 						if (options_type == 'SKU商品') {
 							await this.getGoodsSkuInfo()
 						} else if (options_type == '商品属性') {
@@ -1377,7 +1457,8 @@
 
 		.selected-sku {
 			display: flex;
-			padding:0 10px;
+			padding: 0 10px;
+
 			.goods-icon {
 				width: 80px;
 				height: 80px;
@@ -1404,8 +1485,9 @@
 			.label {
 				text-align: left;
 			}
-			.option-list{
-				margin-bottom:10px;
+
+			.option-list {
+				margin-bottom: 10px;
 			}
 		}
 
@@ -1415,7 +1497,28 @@
 			align-items: center;
 			padding: 0 10px;
 		}
-
+		.relation-goods{
+			padding: 10px;
+			.title{
+				text-align: left;
+			}
+			.goods-item{
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-top: 5px;
+				.goods-icon{
+					width: 50px;
+					height: 50px;
+					border-radius: 5px;
+				}
+				.goods-name{
+					flex: 1;
+					padding: 0 10px;
+					text-align: left;
+				}
+			}
+		}
 		.button-box {
 			text-align: center;
 			padding: 10px;
