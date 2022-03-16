@@ -61,7 +61,7 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         "usingComponents" : true,
-        "appid" : "wxa3c50c8177ef6739",
+        "appid" : "wx08876efb5760ca75",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
             "urlCheck" : true,
@@ -79,10 +79,6 @@
             "WechatSI" : {
                 "version" : "0.3.5",
                 "provider" : "wx069ba97219f66d99"
-            },
-            "live-player-plugin" : {
-                "version" : "1.3.2",
-                "provider" : "wx2b03c6e691cd7370"
             }
         }
     },

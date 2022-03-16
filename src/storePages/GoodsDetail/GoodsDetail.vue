@@ -107,6 +107,20 @@
 		<view class="cu-modal bottom-modal" :class="{show:modalName==='option-selector'}" @click="changeModal()">
 			<view class="cu-dialog" @click.stop="">
 				<view class="modal-content" v-if="optionsType==='商品属性'">
+					<view class="selected-sku"
+						v-if="selectSku&&selectSku.sku_no">
+						<image :src="getImagePath(selectSku.goods_icon)" mode="aspectFit"
+							class="goods-icon" v-if="selectSku.goods_icon"></image>
+						<view class="selected-sku-attr">
+							<view class="goods-name" v-if="selectSku.goods_name">
+								{{selectSku.goods_name}}
+							</view>
+							<view class="text-red" v-if="selectSku.price">
+								<text class="text-sm">￥</text> <text class="text-lg">
+									{{selectSku.price}}</text>
+							</view>
+						</view>
+					</view>
 					<view class="sku-goods-datas" v-if="goodsAttrList&&goodsAttrList.length>0">
 						<view class="sku-goods-attr-list" v-for="(item,index) in goodsAttrList">
 							<view class="label">
@@ -114,7 +128,7 @@
 							</view>
 							<view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
 								<bx-radio-group class="form-item-content_value radio-group" mode="button"
-									:disabled="false" v-model="item.radioSelected" @change="radioChange">
+									:disabled="false" v-model="item.radioSelected" @change="radioChange($event,item)">
 									<bx-radio class="radio" color="#2979ff"
 										v-for="(option,opIndex) in item.goods_attr_values" :key="opIndex"
 										:disabled="false" :name="option.good_attr_value_no">
@@ -133,6 +147,19 @@
 					</view>
 				</view>
 				<view class="modal-content" v-else-if="optionsType==='SKU商品'">
+					<view class="selected-sku" v-if="selectedAttrs&&selectedAttrs.selectSku">
+						<image :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit"
+							class="goods-icon"></image>
+						<view class="selected-sku-attr">
+							<view class="goods-name">
+								{{selectedAttrs.selectSku.goods_name}}
+							</view>
+							<view class="text-red">
+								<text class="text-sm">￥</text> <text class="text-lg">
+									{{selectedAttrs.selectSku.price}}</text>
+							</view>
+						</view>
+					</view>
 					<view class="sku-goods-datas"
 						v-if="goodsSkuInfo.skuGoodsDatas&&goodsSkuInfo.skuGoodsDatas.length>0">
 						<view class="label">
@@ -140,7 +167,7 @@
 						</view>
 						<view class="option-list">
 							<bx-radio-group class="form-item-content_value radio-group" mode="button" :disabled="false"
-								v-model="goodsSkuInfo.radioSelected" @change="radioChange">
+								v-model="goodsSkuInfo.radioSelected" @change="radioChange($event,goodsSkuInfo)">
 								<bx-radio class="radio" color="#2979ff"
 									v-for="(option,opIndex) in goodsSkuInfo.skuGoodsDatas" :key="opIndex"
 									:disabled="false" :name="option.sku_no">
@@ -156,7 +183,7 @@
 							</view>
 							<view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
 								<bx-radio-group class="form-item-content_value radio-group" mode="button"
-									:disabled="false" v-model="item.radioSelected" @change="radioChange">
+									:disabled="false" v-model="item.radioSelected">
 									<bx-radio class="radio" color="#2979ff"
 										v-for="(option,opIndex) in item.goods_attr_values" :key="opIndex"
 										:disabled="false" :name="option.good_attr_value_no">
@@ -207,10 +234,21 @@
 				selectOptions: [],
 				goodsSkuInfo: {},
 				goodsAttrList: [],
-
+				selectedAttrs: {},
 				modalConfirmType: "", // 确认类型  toOrder,addToCart
+				selectSku:null
 			};
 		},
+		// watch:{
+		// 	selectedAttrs:{
+		// 		deep:true,
+		// 		immediate:true,
+		// 		handler(newVal){
+		// 			debugger
+		// 			this.selectSku = newVal.selectSku||false
+		// 		}
+		// 	}
+		// },
 		computed: {
 			enableSku() {
 				return this.goodsInfo?.enable_sku
@@ -412,6 +450,41 @@
 					return res.data;
 				}
 			},
+			async radioChange(selected = '', item = {}) {
+				if (this.optionsType === '商品属性' && item.effect_stock !== '是' && item.effect_price !== '是') {
+					return
+				}
+				if (!selected) {
+					return
+				}
+				if (this.optionsType === 'SKU商品') {
+					if (Array.isArray(item.skuGoodsDatas) && item.skuGoodsDatas.length > 0) {
+						let selectAttr = item.skuGoodsDatas.find(o => o.sku_no === selected)
+						if (selectAttr?.sku_no) {
+							this.selectedAttrs.selectSku = selectAttr
+							this.selectSku = selectAttr
+						}
+					}
+				} else if (this.optionsType === '商品属性') {
+					if (Array.isArray(item.goods_attr_values) && item.goods_attr_values.length > 0) {
+						let selectAttr = item.goods_attr_values.find(o => o.good_attr_value_no === selected)
+						if (selectAttr?.good_attr_value_no) {
+							this.selectedAttrs[item.good_attr_no] = {
+								info: item,
+								attr: selectAttr
+							}
+							let selectOptions = Object.keys(this.selectedAttrs).filter(key => key !== 'selectSku').map(
+								key => {
+									let obj = this.selectedAttrs[key].attr
+									return obj
+								})
+							let res = await this.getRealGoodsByAttr(selectOptions, false)
+							this.selectedAttrs.selectSku = res || false
+							this.selectSku = res||false
+						}
+					}
+				}
+			},
 			async confirmAdd2Cart() {
 				let goods = {}
 				let skuAttrList = []
@@ -455,7 +528,6 @@
 
 					})
 				}
-
 
 				let service = 'srvhealth_store_shopping_cart_goods_detail_add';
 				let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
@@ -514,7 +586,6 @@
 								this.changeModal()
 							}
 						});
-						return
 					} else if (this.modalConfirmType === 'addToCart') {
 						let req = [{
 							serviceName: service,
@@ -530,6 +601,9 @@
 							});
 						}
 					}
+					this.selectedAttrs = {}
+					this.goodsInfo.goods_amount = 1
+					this.getGoodsInfo(this.goodsInfo?.goods_no)
 				}
 
 
@@ -597,7 +671,6 @@
 				if (this.onHandler === true) {
 					return;
 				}
-				debugger
 				this.onHandler = true;
 
 				let target_url = e?.target_url || this.moreConfig?.target_url;
@@ -723,7 +796,6 @@
 						src: firstImage,
 						success: function(image) {
 							let windowWidth = uni.getSystemInfoSync().windowWidth;
-							debugger
 							self.imgHeight = (windowWidth * image.height) / image.width;
 							// console.log(image.width);
 							// console.log(image.height);
@@ -825,6 +897,7 @@
 					}
 					if (Array.isArray(data?.skuGoodsDatas) && data.skuGoodsDatas.length > 0) {
 						data.radioSelected = data.skuGoodsDatas[0].sku_no
+						this.selectedAttrs.selectSku = data.skuGoodsDatas[0]
 					}
 					data.goods_amount = 1
 					this.goodsSkuInfo = data
@@ -833,7 +906,8 @@
 				}
 				// });
 			},
-			async getRealGoodsByAttr() {
+			async getRealGoodsByAttr(selectOptions, showXhrMsg = true) {
+				selectOptions = selectOptions || this.selectOptions
 				const serviceName = 'srvhealth_store_sku_goods_byattr_guest_select'
 				const req = {
 					"serviceName": serviceName,
@@ -846,8 +920,8 @@
 						"value": this.goodsInfo?.goods_no
 					}]
 				}
-				if (Array.isArray(this.selectOptions) && this.selectOptions.length > 0) {
-					let conds = this.selectOptions.map(item => {
+				if (Array.isArray(selectOptions) && selectOptions.length > 0) {
+					let conds = selectOptions.map(item => {
 						let obj = {
 							"colName": item.good_attr_no,
 							"ruleType": "eq",
@@ -861,14 +935,14 @@
 				}
 				let app = this.destApp || 'health';
 				let res = await this.$fetch('select', serviceName, req, app)
-				debugger
 				if (Array.isArray(res.data) && res.data.length > 0) {
 					return res.data[0]
-				} else if (res.msg) {
+				} else if (res.msg && showXhrMsg) {
 					uni.showToast({
-						title: item.msg,
+						title: res.msg,
 						icon: 'none'
 					})
+					return
 				}
 			},
 			async getGoodsAttr() {
@@ -896,6 +970,15 @@
 						}
 						return item
 					})
+					let selectOptions = this.goodsAttrList.filter(item => item.effect_price === '是' || item
+						.effect_stock == '是').map(item => {
+						let selectItem = item.goods_attr_values.find(option => option.good_attr_value_no ===
+							item.radioSelected)
+						item.good_attr_value_no = selectItem?.good_attr_value_no
+						item.good_attr_value = selectItem?.good_attr_value
+						return item
+					})
+					this.selectedAttrs.selectSku = await this.getRealGoodsByAttr(selectOptions, false) || {}
 				} else {
 					this.goodsAttrList = []
 				}
@@ -1292,11 +1375,37 @@
 		padding: 10px;
 		background-color: #fff;
 
+		.selected-sku {
+			display: flex;
+			padding:0 10px;
+			.goods-icon {
+				width: 80px;
+				height: 80px;
+				border-radius: 5px;
+			}
+
+			.selected-sku-attr {
+				padding: 0 10px;
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				align-items: flex-start;
+
+				.goods-name {
+					font-size: 16px;
+				}
+			}
+		}
+
 		.sku-goods-datas {
 			padding: 10px;
 
 			.label {
 				text-align: left;
+			}
+			.option-list{
+				margin-bottom:10px;
 			}
 		}
 
