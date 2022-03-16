@@ -1377,7 +1377,7 @@
           }
         }, 2000);
       });
-
+	debugger
       if (option.q) {
         let text = this.getDecodeUrl(option.q);
         if (text && text.indexOf('https://wx2.100xsys.cn/home/') !== -1) {
@@ -1487,6 +1487,7 @@
           }
         }
       }
+	  debugger
       this.checkOptionParams(option);
 
       if (option.invite_user_no) {
