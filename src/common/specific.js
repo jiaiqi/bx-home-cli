@@ -96,6 +96,9 @@ export default {
 
     Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id) => {
       // 统一下单
+	  if(total_fee){
+		  total_fee = Number(total_fee.toFixed(2))
+	  }
       let url = Vue.prototype.getServiceUrl('wx', 'srvwx_order', 'operate');
       let req = [{
         "serviceName": "srvwx_order",

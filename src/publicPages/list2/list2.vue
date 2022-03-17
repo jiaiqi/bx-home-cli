@@ -479,6 +479,7 @@
         }
       },
       toOrderPage() {
+		  debugger
         let list = this.list.filter(item => item.checked === true && item.goods_amount);
         list = this.deepClone(list)
         if (list.length > 0) {

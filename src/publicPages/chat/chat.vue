@@ -679,7 +679,6 @@
             "value": this.groupNo
           }]
         }
-		debugger
         if (data?.session_type === '专题咨询') {
           if (data.store_user_no && data.store_no && data.group_no) {
             cond = [{

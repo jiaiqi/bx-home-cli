@@ -1695,7 +1695,7 @@
             receiver_account: this.groupInfo.gc_no,
             receiver_person_no: this.groupInfo.gc_no,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             msg_content_type: type,
             identity: this.groupInfo.group_role
@@ -1710,7 +1710,7 @@
             sender_account: this.currentUserInfo.userno,
             sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             sender_profile_url: this.currentUserInfo.profile_url,
             sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
@@ -1792,7 +1792,7 @@
             receiver_person_no: this.doctor_info.usera_person_no ? this.doctor_info.usera_person_no : this.userInfo
               .no,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             msg_content_type: type,
             identity: this.pageType ? '患者' : '医生'
@@ -1924,7 +1924,7 @@
             // receiver_account: this.groupInfo.gc_no,
             // receiver_person_no: this.groupInfo.gc_no,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             msg_content_type: !this.isSendLink ? '文本' : '链接',
             identity: this.groupInfo.group_role
@@ -1939,7 +1939,7 @@
             sender_account: this.currentUserInfo.userno,
             sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             sender_profile_url: this.currentUserInfo.profile_url,
             sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
@@ -2030,7 +2030,7 @@
             receiver_person_no: this.doctor_info.usera_person_no ? this.doctor_info.usera_person_no : this.userInfo
               .no,
             sender_person_no: this.currentUserInfo.no,
-			// sender_store_user_no:this.storeUserInfo?.store_user_no,
+			sender_store_user_no:this.storeUserInfo?.store_user_no,
 			// member_code:"BX202203161825190101",
             msg_content_type: !this.isSendLink ? '文本' : '链接',
             identity: this.pageType ? '患者' : '医生'
@@ -2543,7 +2543,7 @@
               receiver_account: this.groupInfo.gc_no,
               receiver_person_no: this.groupInfo.gc_no,
               sender_person_no: this.currentUserInfo.no,
-			  // sender_store_user_no:this.storeUserInfo?.store_user_no,
+			  sender_store_user_no:this.storeUserInfo?.store_user_no,
 			  // member_code:"BX202203161825190101",
               msg_content_type: type,
               identity: this.groupInfo.group_role
@@ -2558,7 +2558,7 @@
               sender_account: this.currentUserInfo.userno,
               sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
               sender_person_no: this.currentUserInfo.no,
-			  // sender_store_user_no:this.storeUserInfo?.store_user_no,
+			  sender_store_user_no:this.storeUserInfo?.store_user_no,
 			  // member_code:"BX202203161825190101",
               sender_profile_url: this.currentUserInfo.profile_url,
               sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo
@@ -2638,7 +2638,7 @@
                 .usera_person_no : this
                 .userInfo.no,
               sender_person_no: this.currentUserInfo.no,
-			  // sender_store_user_no:this.storeUserInfo?.store_user_no,
+			  sender_store_user_no:this.storeUserInfo?.store_user_no,
 			  // member_code:"BX202203161825190101",
               msg_content_type: type,
               identity: this.pageType ? '患者' : '医生'

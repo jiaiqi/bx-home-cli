@@ -2296,12 +2296,22 @@ export default {
 
 		Vue.prototype.evalConditions = (conditions, mainData) => {
 			conditions = conditions.map(op => {
+				
 				let regVar = /\$\{(.*?)\}/
+				
 				if (op.value.indexOf('data.hotel_no') !== -1) {
 					if (mainData?.store_no && !mainData?.hotel_no) {
 						op.value = 'data.store_no'
 					}
 				}
+				
+				if (op.value && op.value.indexOf("'") === 0 && op.value
+					.lastIndexOf(
+						"'") === op.value
+					.length - 1) {
+					op.value = op.value.replace(/\'/gi, '');
+				}
+				
 				if (op.value && regVar.test(op.value)) {
 					if (op.value === '${today}') {
 						op.value = dayjs().format("YYYY-MM-DD")
@@ -2325,11 +2335,6 @@ export default {
 				} else if (op.value && op.value.indexOf('top.user.user_no') !== -1) {
 					let login_user_info = uni.getStorageSync('login_user_info')
 					op.value = login_user_info?.user_no || '';
-				} else if (op.value && op.value.indexOf("'") === 0 && op.value
-					.lastIndexOf(
-						"'") === op.value
-					.length - 1) {
-					op.value = op.value.replace(/\'/gi, '');
 				}
 				if (op.value_exp) {
 					delete op.value_exp;

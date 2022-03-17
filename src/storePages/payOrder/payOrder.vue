@@ -751,7 +751,6 @@
 					})
 					return
 				}
-				debugger
 				let req = [{
 					serviceName: 'srvhealth_store_order_add',
 					condition: [],
@@ -795,11 +794,15 @@
 									unit_price: Number(item.price || item
 										.unit_price)
 								};
+								// debugger
 								if (item.child_data_list) {
 									obj.child_data_list = item.child_data_list
 								}
 								if (item.goods_source) {
 									obj.goods_source = item.goods_source
+									// if (item.goods_source === '店铺SKU') {
+									// 	obj.goods_no = item.sku_no
+									// }
 								}
 								if (item.image) {
 									obj.goods_image = item.image;
@@ -821,6 +824,7 @@
 						}]
 					}]
 				}];
+				debugger
 				if (this.needIdNum && this.idNum) {
 					req[0].data[0].id_num = this.idNum
 				}

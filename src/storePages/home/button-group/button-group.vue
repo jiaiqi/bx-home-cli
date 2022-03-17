@@ -1,5 +1,5 @@
 <template>
-  <view class="menu-list" :style="[calcStyle]">
+  <view class="menu-list" :style="[calcStyle]" v-if="buttons&&buttons.length>0">
     <view class="menu-list-box" v-if="pageItem.button_style === 'list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">

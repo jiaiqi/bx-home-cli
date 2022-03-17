@@ -1147,6 +1147,7 @@
         if (this.fieldData.disabled) {
           return
         }
+		debugger
         if (this.fieldData.type === 'Selector' && this.fieldData?.moreConfig?.editor_type ===
           'selectorList') {
           let option_list_v2 = this.fieldData.option_list_v2;
