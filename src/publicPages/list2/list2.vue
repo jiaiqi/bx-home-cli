@@ -539,7 +539,9 @@
         if (count_config && Array.isArray(count_config.condition) && count_config.condition.length > 0) {
           let data = {
             storeInfo: this.storeInfo,
-            userInfo: this.userInfo
+            userInfo: this.userInfo,
+			storeUser:this.vstoreUser,
+			bindUserInfo:this.vstoreUser
           }
           count_config.condition = count_config.condition.map(item => {
             if (item.value && item.value.indexOf('${') !== -1) {
@@ -1679,7 +1681,6 @@
           }
         } else {
           if (buttonInfo.button_type === 'detail' && this.customDetailUrl) {
-            debugger
             let storeInfo = this.$store?.state?.app?.storeInfo
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo
             let targetUrl = this.customDetailUrl

@@ -18,7 +18,12 @@
 					<view class="price text-red  margin-right" v-if="showPrice && fill2Digit(goodsInfo.price)">
 						<!-- <text v-if="goodsInfo.origin_price" class="symbol">优惠价</text> -->
 						<text class="symbol">￥</text>
-						<text class="number" v-if="fill2Digit(goodsInfo.price)">
+						<text v-if="goodsInfo.min_sku_price&&goodsInfo.price_interval">
+							<text>{{goodsInfo.min_sku_price}}</text>
+							<text>-</text>
+							<text>{{goodsInfo.price_interval}}</text>
+						</text>
+						<text class="number" v-else-if="fill2Digit(goodsInfo.price)">
 							<text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
 							<text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
 						</text>
@@ -49,7 +54,7 @@
 			</view>
 			<view class="content" v-if="selectSku">
 				{{selectSku.goods_name||''}}
-				<text v-if="goodsInfo&&goodsInfo.goods_amount">{{goodsInfo.goods_amount}}件</text>
+				<text v-if="goodsInfo&&goodsInfo.goods_amount">,{{goodsInfo.goods_amount}}件</text>
 			</view>
 			<view class="icon">
 				<text class="cuIcon-more"></text>
@@ -70,12 +75,15 @@
 			<view class="">{{ goodsInfo.goods_desc || '' }}</view>
 		</view>
 		<view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
-			<image :src="getImagePath(storeInfo.logo, true)" class="store-icon"></image>
+			<image :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
+			<view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
+				{{storeInfo.name.slice(0,1)}}
+			</view>
 			<view class="store-name">{{ storeInfo.name || '' }}</view>
 			<view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
 			</view>
 		</view>
-		<view class="detail">
+		<view class="detail" v-if="goodsDetailImage&&goodsDetailImage.length>0">
 			<view class="title">图文详情</view>
 			<view class="image-box">
 				<image :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
@@ -308,7 +316,7 @@
 		// },
 		computed: {
 			enableSku() {
-				return this.goodsInfo?.enable_sku
+				return this.goodsInfo?.enable_sku === '是' ? true : false
 			},
 			optionsType() {
 				return this.goodsInfo?.options_type
@@ -533,16 +541,17 @@
 								info: item,
 								attr: selectAttr
 							}
-							let selectOptions = Object.keys(this.selectedAttrs).filter(key => key !== 'selectSku').filter(key=>{
-								let item = this.selectedAttrs[key]
-								if(item.info?.effect_price === '是' || item.info?.effect_stock == '是'){
-									return true
-								}
-							}).map(
-								key => {
-									let obj = this.selectedAttrs[key].attr
-									return obj
-								})
+							let selectOptions = Object.keys(this.selectedAttrs).filter(key => key !== 'selectSku')
+								.filter(key => {
+									let item = this.selectedAttrs[key]
+									if (item.info?.effect_price === '是' || item.info?.effect_stock == '是') {
+										return true
+									}
+								}).map(
+									key => {
+										let obj = this.selectedAttrs[key].attr
+										return obj
+									})
 							let res = await this.getRealGoodsByAttr(selectOptions, false)
 							this.selectedAttrs.selectSku = res || false
 							this.selectSku = res || false
@@ -662,7 +671,7 @@
 						goods_desc: goods.goods_desc,
 						goods_image: goods.goods_img,
 						goods_name: goods.goods_name,
-						goods_source: this.enableSku === '是' ? '店铺SKU' : '店铺商品',
+						goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
 						// sku_no:goods.sku_no,
 						child_data_list: [{
 							"serviceName": childService,
@@ -675,7 +684,7 @@
 							"data": skuAttrList
 						}]
 					}
-					if (this.enableSku === '是') {
+					if (this.enableSku) {
 						data.goods_no = goods.sku_no
 					}
 					if (modalConfirmType === 'toOrder') {
@@ -850,6 +859,27 @@
 					}
 
 				}
+				if (goodsInfo?.goods_type === '想豆卡') {
+					await this.getVipCard(this.vstoreUser?.store_user_no)
+					if (!this.hasVipCard) {
+						uni.showModal({
+							title: '提示',
+							content: '此商品必须开通会员卡后才能购买,是否跳转到会员卡开通页面?',
+							success: (res) => {
+								if (res.confirm) {
+									const url =
+										`/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"},{"column":"useing_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"}]`
+									uni.navigateTo({
+										url
+									})
+								}
+							}
+						})
+						this.onHandler = false;
+						return
+					}
+
+				}
 				if (target_url === 'add_to_cart') {
 					// 添加到购物车表
 					this.addToCart(goodsInfo).then(_ => {
@@ -877,6 +907,32 @@
 
 				this.onHandler = false;
 			},
+			// async getVipCard(no) {
+			// 	let service = 'srvhealth_store_card_case_select'
+			// 	const req = {
+			// 		"serviceName": service,
+			// 		"colNames": ["*"],
+			// 		"condition": [{
+			// 			"colName": "attr_store_user_no",
+			// 			"ruleType": "eq",
+			// 			"value": no
+			// 		}, {
+			// 			"colName": "card_type",
+			// 			"ruleType": "eq",
+			// 			"value": "充值卡"
+			// 		}],
+			// 		"page": {
+			// 			"pageNo": 1,
+			// 			"rownumber": 1
+			// 		}
+			// 	}
+			// 	let url = this.getServiceUrl('health', service, 'select');
+			// 	let res = await this.$http.post(url, req);
+			// 	if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+			// 		this.$store.commit('SET_VIP_CARD', res.data.data[0])
+			// 	}
+			// 	return
+			// },
 			async getSwiperList(e) {
 				let self = this;
 				if (e?.banner_video_config === '子表') {
@@ -1182,7 +1238,7 @@
 				}
 			},
 			del() {
-				if (this.enableSku === '是') {
+				if (this.enableSku) {
 					uni.showToast({
 						title: '不同规格的商品需要在购物车进行减购',
 						icon: 'none'
@@ -1195,7 +1251,7 @@
 				}
 			},
 			add(e) {
-				if (this.enableSku === '是') {
+				if (this.enableSku) {
 					this.changeModal('option-selector')
 					return
 					if (this.optionsType === 'SKU商品') {
@@ -1350,9 +1406,16 @@
 		}
 
 		.store-icon {
-			width: 100rpx;
-			height: 100rpx;
+			width: 50px;
+			height: 50px;
 			border-radius: 50%;
+			line-height: 50px;
+			text-align: center;
+
+			&.text {
+				border: 1px solid #f1f1f1;
+				font-size: 20px;
+			}
 		}
 
 		.phoneCall {

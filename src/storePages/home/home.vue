@@ -880,6 +880,7 @@
 				if (Array.isArray(res.data.data) && res.data.data.length > 0) {
 					this.bindUserInfo = res.data.data[0]
 					this.$store.commit('SET_STORE_USER', res.data.data[0]);
+					
 					return res.data.data;
 				}
 			},
@@ -1083,6 +1084,9 @@
 
 					this.getQuery();
 					this.initSocket()
+					if (this.bindUserInfo?.store_user_no) {
+						await this.getVipCard(this.bindUserInfo?.store_user_no)
+					}
 				} else {
 					// uni.showToast({
 					// 	title: '未发现store_no',
@@ -1452,7 +1456,7 @@
 					}
 				}
 			}
-			debugger
+
 			this.checkOptionParams(option);
 
 			if (option.invite_user_no) {

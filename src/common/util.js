@@ -32,16 +32,46 @@ export default {
 					vloginUser: state => state.user.loginUserInfo,
 					scene: state => state.app.scene,
 					hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
-					isLogin: state => state.app.isLogin
+					isLogin: state => state.app.isLogin,
+					vvipCard:state=>state.user.vipCard //用户会员卡信息（充值卡）
 				}),
 				$api() {
 					return api
 				},
+				hasVipCard(){
+					return !!this.vvipCard?.card_no
+				}
 			},
 			methods: {
 				getwxMchId() {
 					// 获取商户号
 					return this.storeInfo?.wx_mch_id || '1485038452'
+				},
+				async getVipCard(no) {
+					let service = 'srvhealth_store_card_case_select'
+					const req = {
+						"serviceName": service,
+						"colNames": ["*"],
+						"condition": [{
+							"colName": "attr_store_user_no",
+							"ruleType": "eq",
+							"value": no
+						}, {
+							"colName": "card_type",
+							"ruleType": "eq",
+							"value": "充值卡"
+						}],
+						"page": {
+							"pageNo": 1,
+							"rownumber": 1
+						}
+					}
+					let url = this.getServiceUrl('health', service, 'select');
+					let res = await this.$http.post(url, req);
+					if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+						this.$store.commit('SET_VIP_CARD', res.data.data[0])
+					}
+					return
 				},
 			}
 		})
@@ -1998,7 +2028,6 @@ export default {
 			// #endif
 		}
 		Vue.prototype.toAddPage = async (rawData) => {
-			debugger
 			let isLogin = store.state.app.isLogin
 			if (!isLogin) {
 				isLogin = await wxVerifyLogin()
