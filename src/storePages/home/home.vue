@@ -666,6 +666,7 @@
 				serviceName = 'srvhealth_store_cus_niming_detail_select'
 				let res = await this.$fetch('select', serviceName, req, 'health');
 				if (Array.isArray(res.data) && res.data.length > 0) {
+					this.$store.commit('SET_STORE_INFO', res.data[0]);
 					let theme = 'blue';
 					if (res.data[0].para_cfg) {
 						try {
@@ -687,7 +688,6 @@
 						await this.getTabbar(this.StoreInfo.home_page_no);
 						await this.getPageComponent(this.StoreInfo.home_page_no);
 					}
-					this.$store.commit('SET_STORE_INFO', res.data[0]);
 					// if (this.StoreInfo.type === '健康服务') {
 					// 	this.getGoodsListData();
 					// }

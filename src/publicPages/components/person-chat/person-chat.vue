@@ -463,9 +463,13 @@
 			</view>
 		</view>
 		<view class="person-chat-bot"
-			:class="{ showLayer: !isFeed && isSendLink, 'ban-send': banSend&&(bandPost!=='否'||(sessionType==='专题咨询'&&payConsultStatus==='stop')) }">
-			<view class="band-tip" v-if="sessionType==='专题咨询'&&payConsultStatus==='stop'">
-				您已关闭咨询,请先点击右上方开启按钮开启咨询
+			:class="{ showLayer: !isFeed && isSendLink, 'ban-send': banSend&&(bandPost!=='否'||(sessionType==='专题咨询'&&identity==='客户'&&(payConsultStatus==='stop'||isNSF))) }">
+			<view class="band-tip text-red" v-if="isNSF">
+				想豆余额不足,请前往充值
+			</view>
+			<view class="band-tip text-blue"
+				v-else-if="sessionType==='专题咨询'&&identity==='客户'&&payConsultStatus==='stop'">
+				已关闭咨询,请先点击右上方按钮开启咨询
 			</view>
 			<view class="band-tip" v-else-if="banSend&&bandPost!=='否'">
 				全员禁言中
@@ -659,6 +663,11 @@
 				currentUserInfo: state => state.user.userInfo,
 				theme: state => state.app.theme
 			}),
+			isNSF() { //是否想豆余额不足
+				return !isNaN(Number(this.vvipCard?.card_last_bean)) && Number(this.vvipCard?.card_last_bean) === 0 &&
+					this.identity == '客户'
+				return false
+			},
 			chartHeight() {
 				if (this.topHeight) {
 					return `calc(100vh - ${this.topHeight}px - var(--window-top) - var(--window-bottom))`;
@@ -1720,7 +1729,6 @@
 						receiver_person_no: this.groupInfo.gc_no,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						msg_content_type: type,
 						identity: this.groupInfo.group_role
 					};
@@ -1735,7 +1743,6 @@
 						sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						sender_profile_url: this.currentUserInfo.profile_url,
 						sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
 							.currentUserInfo.profile_url,
@@ -1779,6 +1786,7 @@
 						if (!this.identity) {
 							this.identity = '客户'
 						}
+						req[0].data[0].sender_group_role = this.identity
 					}
 					if (this.groupNo) {
 						req[0].data[0].rcv_group_no = this.groupNo
@@ -1818,7 +1826,6 @@
 							.no,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						msg_content_type: type,
 						identity: this.pageType ? '患者' : '医生'
 					}
@@ -1869,9 +1876,9 @@
 				} else if (type === '文章') {
 					req[0].data[0].attribute = JSON.stringify(data)
 				}
-				if (this.sessionType === '专题咨询' && this.vvipCard?.card_no) {
-					req[0].data[0].member_code = this.vvipCard?.card_no
+				if (this.sessionType === '专题咨询' && this.vvipCard?.card_no && this.identity === '客户') {
 					if (this.groupInfo?.unit_price) {
+						req[0].data[0].member_code = this.vvipCard?.card_no
 						req[0].data[0].unit_price = this.groupInfo?.unit_price
 					}
 				}
@@ -1932,7 +1939,7 @@
 			},
 			async sendMessageInfo(obj) {
 				// 发送消息
-				debugger
+				let self = this
 				let serviceName = 'srvhealth_consultation_chat_record_add'
 				if (this.sessionType === '机构用户客服') {
 					if (this.identity === '客户') {
@@ -1960,7 +1967,6 @@
 						// receiver_person_no: this.groupInfo.gc_no,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						msg_content_type: !this.isSendLink ? '文本' : '链接',
 						identity: this.groupInfo.group_role
 					};
@@ -1975,7 +1981,6 @@
 						sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						sender_profile_url: this.currentUserInfo.profile_url,
 						sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
 							.currentUserInfo.profile_url,
@@ -2067,12 +2072,17 @@
 							.no,
 						sender_person_no: this.currentUserInfo.no,
 						sender_store_user_no: this.storeUserInfo?.store_user_no,
-						// member_code:"BX202203161825190101",
 						msg_content_type: !this.isSendLink ? '文本' : '链接',
 						identity: this.pageType ? '患者' : '医生'
 					}
 				}
-				if (!this.isSendLink) {
+				if (self.sessionType === '专题咨询' && self.vvipCard?.card_no && self.identity === '客户') {
+					if (self.groupInfo?.unit_price) {
+						req[0].data[0].member_code = self.vvipCard?.card_no
+						req[0].data[0].unit_price = self.groupInfo?.unit_price
+					}
+				}
+				if (!self.isSendLink) {
 					this.chatText = this.chatText.replace(this.remindText, '').trim()
 					req[0].data[0].msg_content = this.chatText;
 					if (!this.chatText) {
@@ -2084,12 +2094,6 @@
 					}
 				} else {
 					req[0].data[0].msg_link = this.chooseRecod;
-				}
-				if (this.sessionType === '专题咨询' && this.vvipCard?.card_no) {
-					req[0].data[0].member_code = this.vvipCard?.card_no
-					if (this.groupInfo?.unit_price) {
-						req[0].data[0].unit_price = this.groupInfo?.unit_price
-					}
 				}
 				this.recordList.push(req[0].data[0])
 				if (serviceName === 'srvhealth_consultation_chat_record_add') {
@@ -2483,7 +2487,7 @@
 			},
 			setRefreshMessageTimer(second = 2 * 1000, enableSet = false) {
 				// 设置定时刷新消息的定时器
-				if (this.sessionType === '专题咨询' && !enableSet) {
+				if (this.sessionType === '专题咨询' && !enableSet && this.identity === '客户') {
 					return
 				}
 				clearInterval(this.refreshMessageTimer)
@@ -2591,7 +2595,6 @@
 							receiver_person_no: this.groupInfo.gc_no,
 							sender_person_no: this.currentUserInfo.no,
 							sender_store_user_no: this.storeUserInfo?.store_user_no,
-							// member_code:"BX202203161825190101",
 							msg_content_type: type,
 							identity: this.groupInfo.group_role
 						};
@@ -2606,7 +2609,6 @@
 							sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
 							sender_person_no: this.currentUserInfo.no,
 							sender_store_user_no: this.storeUserInfo?.store_user_no,
-							// member_code:"BX202203161825190101",
 							sender_profile_url: this.currentUserInfo.profile_url,
 							sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo
 								.user_image : this
@@ -2686,7 +2688,6 @@
 								.userInfo.no,
 							sender_person_no: this.currentUserInfo.no,
 							sender_store_user_no: this.storeUserInfo?.store_user_no,
-							// member_code:"BX202203161825190101",
 							msg_content_type: type,
 							identity: this.pageType ? '患者' : '医生'
 						}

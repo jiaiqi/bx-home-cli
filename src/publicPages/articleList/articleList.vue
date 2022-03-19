@@ -27,12 +27,6 @@
           }}</text>
 				</view>
 			</view>
-			<!-- <view class="news-item" v-if="articleList && articleList.length > 0">
-        <ad-custom
-          unit-id="adunit-5816ffb522d52580"
-          style="width: 100%"
-        ></ad-custom>
-      </view> -->
 		</view>
 		<u-empty text="数据为空" mode="list" style="margin-top: 30vh"
 			v-if="loadStatus === 'noMore' && articleList.length === 0">

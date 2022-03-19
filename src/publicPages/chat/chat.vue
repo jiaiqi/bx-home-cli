@@ -1,7 +1,7 @@
 <template>
 	<view class="page-wrap" :class="['theme-'+theme]">
 		<view class="util-bar" v-if="
-        (groupInfo && groupInfo.gc_no) ||
+        (groupInfo && groupInfo.gc_no&&sessionType!=='专题咨询') ||
         sessionType === '店铺机构全员' ||
         receiver_person_no
       ">
@@ -14,17 +14,12 @@
 				<view class="icon"><text class="cuIcon-people"></text></view>
 				<text class="label">详细资料</text>
 			</view>
-			<!--   <view class="util-item" @click="toPages('group-detail')"
-        v-if="(groupInfo && groupInfo.gc_no) || sessionType === '店铺机构全员'">
-        <view class="icon"><text class="cuIcon-settings"></text></view>
-      </view> -->
 		</view>
 		<view class="util-bar absolute" v-if="top_buttons&&top_buttons.length>0">
 			<button class="util-item round cu-btn bg-blue" :class="[getBtnClassName(btn)]" @click="onButton(btn)"
 				v-for="(btn,index) in top_buttons" :key="index">
 				<text class="label">{{btn.name||''}}</text>
 			</button>
-
 		</view>
 
 		<view class="goods-card" v-if="showGoodsCard&&goodsInfo">
@@ -58,7 +53,7 @@
 					<text class="margin-left-xl">使用想豆 {{consultFeeSum||'0'}}</text>
 				</view>
 			</view>
-			<view class="right">
+			<view class="right" v-if="identity==='客户'">
 				<view class="right-item" @click="startPaidConsult" v-if="payConsultInfo.status==='stop'">
 					<text class="cuIcon-roundcheck icon"></text>
 					<text class="text-sm">开启</text>
@@ -102,7 +97,7 @@
 				return this.payConsultInfo.status
 			},
 			stopConsult() {
-				return this.sessionType === '专题咨询' && this.payConsultInfo?.status === 'stop'
+				return this.sessionType === '专题咨询' && this.identity === '客户' && this.payConsultInfo?.status === 'stop'
 			},
 			theme() {
 				return this.$store?.state?.app?.theme
@@ -298,8 +293,31 @@
 				}
 
 			},
-			startPaidConsult() {
+			async updateBandConsult(band_post = '') {
+				let req = [{
+					"serviceName": "srvhealth_dialogue_session_update",
+					"data": [{
+						"band_post": band_post
+					}],
+					"srvApp": "health",
+					"condition": [{
+						"colName": "session_no",
+						"ruleType": "eq",
+						"value": this.session_no
+					}]
+				}]
+				if (band_post && this.session_no) {
+					let res = await this.$fetch('operate', 'srvhealth_dialogue_session_update', req, 'health')
+					if(res.success){
+						await this.getZtSession()
+					}
+					return res
+				}
+
+			},
+			async startPaidConsult() {
 				// 开启付费咨询
+				await this.updateBandConsult('否')
 				this.payConsultInfo.status = 'open'
 				this.$refs?.chatInstance?.initMessageList?.('refresh').then(_ => {
 					this.$refs?.chatInstance?.setRefreshMessageTimer?.(2 * 1000, true)
@@ -316,13 +334,14 @@
 				// 	}
 				// })
 			},
-			stopPaidConsult() {
+			async stopPaidConsult() {
 				//关闭付费咨询 停止接收消息
 				uni.showModal({
 					title: '结束咨询',
 					content: '咨询关闭，将不再接收信息，如想继续可重新开启',
-					success: (res) => {
+					success: async (res) => {
 						if (res.confirm) {
+							await this.updateBandConsult('全员禁言')
 							this.payConsultInfo.status = 'stop'
 							this.$refs?.chatInstance?.stopRefreshMsgTimer?.()
 						} else {

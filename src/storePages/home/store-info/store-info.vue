@@ -8,7 +8,8 @@
 					</view>
 					<view class="store-intro">
 						<view class="store-name">{{ setStoreInfo.name || '' }}</view>
-						<view class="store-address can-wrap" @click.stop="getCurrentLocation" v-if="setStoreInfo.address">
+						<view class="store-address can-wrap" @click.stop="getCurrentLocation"
+							v-if="setStoreInfo.address">
 							<text class="cuIcon-locationfill margin-right-xs"></text>
 							{{ setStoreInfo.address || '' }}
 						</view>
@@ -44,7 +45,8 @@
 					</button>
 				</view>
 			</view>
-			<image class="logo" mode="aspectFit" :src="getImagePath(setStoreInfo.logo)" v-if="setStoreInfo.logo"></image>
+			<image class="logo" mode="aspectFit" :src="getImagePath(setStoreInfo.logo)" v-if="setStoreInfo.logo">
+			</image>
 			<view class="logo" v-else-if="setStoreInfo.name">{{ setStoreInfo.name.slice(0, 1) }}</view>
 			<view class="content-center">
 				<view class="store-address text-gray" @click.stop="getCurrentLocation">
@@ -75,7 +77,8 @@
 					<view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
 							class="bg-blue cu-btn round shadow-blur">加入</button></view>
 				</view>
-				<image class="logo" mode="aspectFit" :src="getImagePath(setStoreInfo.logo)" v-if="setStoreInfo.logo"></image>
+				<image class="logo" mode="aspectFit" :src="getImagePath(setStoreInfo.logo)" v-if="setStoreInfo.logo">
+				</image>
 				<view class="logo" v-else-if="setStoreInfo.name">{{ setStoreInfo.name.slice(0, 1) }}</view>
 				<view class="left" @click="toPages('instroduce')">
 					<view class="bottom" v-if="setStoreInfo.address">
@@ -177,14 +180,15 @@
 						}
 					});
 					if (this.userInfo && this.userInfo.userno && this.setStoreInfo && this.setStoreInfo.store_no) {
-						result = `https://wx2.100xsys.cn/shareClinic/${this.setStoreInfo.store_no}/${this.userInfo.userno}`;
+						result =
+						`https://wx2.100xsys.cn/shareClinic/${this.setStoreInfo.store_no}/${this.userInfo.userno}`;
 					} else {
 						result = `https://wx2.100xsys.cn/shareClinic/${this.setStoreInfo.store_no}`;
 					}
 					this.qrCodeText = result;
-					this.$nextTick(()=>{
-						this.setStoreInfo = newValue || false
-					})
+					// this.$nextTick(()=>{
+					this.setStoreInfo = newValue || false
+					// })
 				}
 			}
 		},
@@ -402,7 +406,8 @@
 					return
 				}
 				uni.makePhoneCall({
-					phoneNumber: this.setStoreInfo && this.setStoreInfo.telephone ? this.setStoreInfo.telephone : '10086'
+					phoneNumber: this.setStoreInfo && this.setStoreInfo.telephone ? this.setStoreInfo.telephone :
+						'10086'
 				});
 			},
 			getCurrentLocation() {

@@ -101,7 +101,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付')">
+			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&& orderInfo.order_state==='待支付')">
 				<radio-group @change="payModeChange" style="width: 100%;">
 					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
 						<view class="">
@@ -478,7 +478,9 @@
 				}
 				const app = this.detailCfg?.app || uni.getStorageSync('activeApp')
 				const url = this.getServiceUrl(app, serviceName, 'select');
-
+				if(!this.totalMoney){
+					return
+				}
 				this.$http.post(url, req).then(res => {
 					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
 						this.couponList = res.data.data
