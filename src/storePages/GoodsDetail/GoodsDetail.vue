@@ -18,7 +18,12 @@
 					<view class="price text-red  margin-right" v-if="showPrice && fill2Digit(goodsInfo.price)">
 						<!-- <text v-if="goodsInfo.origin_price" class="symbol">优惠价</text> -->
 						<text class="symbol">￥</text>
-						<text class="number" v-if="fill2Digit(goodsInfo.price)">
+						<text v-if="goodsInfo.min_sku_price&&goodsInfo.price_interval">
+							<text>{{goodsInfo.min_sku_price}}</text>
+							<text>-</text>
+							<text>{{goodsInfo.price_interval}}</text>
+						</text>
+						<text class="number" v-else-if="fill2Digit(goodsInfo.price)">
 							<text class="int">{{ fill2Digit(goodsInfo.price)[0] }}.</text>
 							<text class="float">{{ fill2Digit(goodsInfo.price)[1] }}</text>
 						</text>
@@ -32,7 +37,7 @@
 						</text>
 					</view>
 				</view>
-				<view class="number-box" v-if="inCartGoodsInfo && inCartGoodsInfo.goods_amount">
+				<view class="number-box" v-if="inCartGoodsInfo && inCartGoodsInfo.goods_amount&&!enableSku">
 					<view class="cu-btn sm radius cart-handler" @click.stop="del">-</view>
 					<view class="goods-amount flex-1 text-center"
 						style="width: 50px;text-align: center;font-size: 16px;">
@@ -40,6 +45,19 @@
 					</view>
 					<view class=" cu-btn sm radius cart-handler" @click.stop="add">+</view>
 				</view>
+			</view>
+		</view>
+		<view class="selected-sku-info" v-if="enableSku" @click="changeModalConfirmType('option-selector')">
+			<view class="label margin-right-xl">
+				<text v-if="selectSku&&selectSku.sku_no">已选:</text>
+				<text v-else>请选择</text>
+			</view>
+			<view class="content" v-if="selectSku">
+				{{selectSku.goods_name||''}}
+				<text v-if="goodsInfo&&goodsInfo.goods_amount">,{{goodsInfo.goods_amount}}件</text>
+			</view>
+			<view class="icon">
+				<text class="cuIcon-more"></text>
 			</view>
 		</view>
 		<view class="desc" v-if="goodsInfo.goods_desc">
@@ -57,12 +75,15 @@
 			<view class="">{{ goodsInfo.goods_desc || '' }}</view>
 		</view>
 		<view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
-			<image :src="getImagePath(storeInfo.logo, true)" class="store-icon"></image>
+			<image :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
+			<view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
+				{{storeInfo.name.slice(0,1)}}
+			</view>
 			<view class="store-name">{{ storeInfo.name || '' }}</view>
 			<view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
 			</view>
 		</view>
-		<view class="detail">
+		<view class="detail" v-if="goodsDetailImage&&goodsDetailImage.length>0">
 			<view class="title">图文详情</view>
 			<view class="image-box">
 				<image :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
@@ -124,6 +145,7 @@
 						<view class="sku-goods-attr-list" v-for="(item,index) in goodsAttrList">
 							<view class="label">
 								{{item.good_attr_name||''}}
+								<text v-if="item.is_required==='是'" class="text-red text-sm margin-left-xs">(必选)</text>
 							</view>
 							<view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
 								<bx-radio-group class="form-item-content_value radio-group" mode="button"
@@ -147,16 +169,23 @@
 						</view>
 						<view class="goods-item" v-for="goods in relationGoods">
 							<image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
-								
+
 							</image>
 							<view class="goods-name">
 								{{goods.goods_name||""}}
+								<text class="margin-lr-xs text-red text-sm">￥{{goods.price||''}}</text>
 							</view>
-								<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
+							<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
 						</view>
 					</view>
-					<view class="button-box">
-						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart">确定</button>
+					<view class="button-box" v-if="modalConfirmType==='all'">
+						<button class="cu-btn round lg bg-red flex-1 margin-right-xs"
+							@click="confirmAdd2Cart('addToCart')">加入购物车</button>
+						<button class="cu-btn round lg bg-orange flex-1"
+							@click="confirmAdd2Cart('toOrder')">立即购买</button>
+					</view>
+					<view class="button-box" v-else>
+						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart()">确定</button>
 					</view>
 				</view>
 				<view class="modal-content" v-else-if="optionsType==='SKU商品'">
@@ -193,6 +222,7 @@
 						<view class="sku-goods-attr-list" v-for="(item,index) in goodsSkuInfo.skuGoodsAttr">
 							<view class="label">
 								{{item.good_attr_name||''}}
+								<text v-if="item.is_required==='是'" class="text-red text-sm margin-left-xs">(必选)</text>
 							</view>
 							<view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
 								<bx-radio-group class="form-item-content_value radio-group" mode="button"
@@ -216,16 +246,23 @@
 						</view>
 						<view class="goods-item" v-for="goods in relationGoods">
 							<image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
-								
+
 							</image>
 							<view class="goods-name">
 								{{goods.goods_name||""}}
+								<text class="margin-lr-xs text-red text-sm">￥{{goods.price||''}}</text>
 							</view>
-								<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
+							<u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
 						</view>
 					</view>
-					<view class="button-box">
-						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart">确定</button>
+					<view class="button-box" v-if="modalConfirmType==='all'">
+						<button class="cu-btn round lg bg-red flex-1"
+							@click="confirmAdd2Cart('addToCart')">加入购物车</button>
+						<button class="cu-btn round lg bg-orange flex-1"
+							@click="confirmAdd2Cart('toOrder')">立即购买</button>
+					</view>
+					<view class="button-box" v-else>
+						<button class="cu-btn round lg bg-red" @click="confirmAdd2Cart()">确定</button>
 					</view>
 				</view>
 			</view>
@@ -262,9 +299,9 @@
 				goodsSkuInfo: {},
 				goodsAttrList: [],
 				selectedAttrs: {},
-				modalConfirmType: "", // 确认类型  toOrder,addToCart
+				modalConfirmType: "", // 确认类型  toOrder,addToCart,all
 				selectSku: null,
-				relationGoods:[],//相关商品
+				relationGoods: [], //相关商品
 			};
 		},
 		// watch:{
@@ -279,7 +316,7 @@
 		// },
 		computed: {
 			enableSku() {
-				return this.goodsInfo?.enable_sku
+				return this.goodsInfo?.enable_sku === '是' ? true : false
 			},
 			optionsType() {
 				return this.goodsInfo?.options_type
@@ -359,7 +396,10 @@
 			})
 		},
 		methods: {
-
+			changeModalConfirmType(e) {
+				this.modalConfirmType = 'all'
+				this.modalName = e
+			},
 			changeModal(e = '') {
 				this.modalName = e
 			},
@@ -501,11 +541,17 @@
 								info: item,
 								attr: selectAttr
 							}
-							let selectOptions = Object.keys(this.selectedAttrs).filter(key => key !== 'selectSku').map(
-								key => {
-									let obj = this.selectedAttrs[key].attr
-									return obj
-								})
+							let selectOptions = Object.keys(this.selectedAttrs).filter(key => key !== 'selectSku')
+								.filter(key => {
+									let item = this.selectedAttrs[key]
+									if (item.info?.effect_price === '是' || item.info?.effect_stock == '是') {
+										return true
+									}
+								}).map(
+									key => {
+										let obj = this.selectedAttrs[key].attr
+										return obj
+									})
 							let res = await this.getRealGoodsByAttr(selectOptions, false)
 							this.selectedAttrs.selectSku = res || false
 							this.selectSku = res || false
@@ -513,10 +559,21 @@
 					}
 				}
 			},
-			async confirmAdd2Cart() {
+			async confirmAdd2Cart(modalConfirmType = '') {
+				debugger
+				modalConfirmType = modalConfirmType || this.modalConfirmType
 				let goods = {}
 				let skuAttrList = []
 				if (this.optionsType === '商品属性') {
+					let unSelectRequired = this.goodsAttrList.find(item => !item.radioSelected && item.is_required ===
+						'是')
+					if (unSelectRequired?.good_attr_name) {
+						uni.showToast({
+							title: `请选择${unSelectRequired?.good_attr_name}`,
+							icon: 'none'
+						})
+						return
+					}
 					this.selectOptions = this.goodsAttrList.filter(item => item.effect_price === '是' || item
 						.effect_stock == '是').map(item => {
 						let selectItem = item.goods_attr_values.find(option => option.good_attr_value_no ===
@@ -542,6 +599,25 @@
 				} else {
 					goods = this.goodsSkuInfo.skuGoodsDatas.find(item => item.sku_no === this.goodsSkuInfo
 						.radioSelected)
+					if (!goods) {
+						// 未选择商品规格
+						uni.showToast({
+							title: `请选择商品规格`,
+							icon: 'none'
+						})
+					}
+
+					let unSelectRequired = this.goodsSkuInfo.skuGoodsAttr.find(item => !item.radioSelected && item
+						.is_required === '是')
+					if (unSelectRequired?.good_attr_name) {
+						// 未选择属性
+						uni.showToast({
+							title: `请选择${unSelectRequired?.good_attr_name}`,
+							icon: 'none'
+						})
+						return
+					}
+
 					skuAttrList = this.goodsSkuInfo.skuGoodsAttr.filter(item => item.radioSelected).map(item => {
 						let good_attr = item.goods_attr_values.find(option => option.good_attr_value_no ===
 							item
@@ -560,26 +636,26 @@
 				let service = 'srvhealth_store_shopping_cart_goods_detail_add';
 				let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
 				let depend_key = 'cart_goods_rec_no'
-				if (this.modalConfirmType === 'toOrder') {
+				if (modalConfirmType === 'toOrder') {
 					service = 'srvhealth_store_order_add'
 					childService = 'srvhealth_store_order_goods_attr_value_add'
 					depend_key = 'order_goods_rec_no'
 				}
-				let otherGoods = this.relationGoods.filter(item=>item.goods_amount>0)
-				if(Array.isArray(otherGoods) && otherGoods.length>0){
-					otherGoods = otherGoods.map(item=>{
+				let otherGoods = this.relationGoods.filter(item => item.goods_amount > 0)
+				if (Array.isArray(otherGoods) && otherGoods.length > 0) {
+					otherGoods = otherGoods.map(item => {
 						let obj = {
 							store_no: this.storeNo,
 							unit_price: item.price,
 							goods_amount: item?.goods_amount || 1,
 							goods_no: item.goods_no,
-							sum_price: item.price*item.goods_amount,
+							sum_price: item.price * item.goods_amount,
 							goods_desc: item.goods_desc,
 							goods_image: item.goods_img,
 							goods_name: item.goods_name,
-							store_user_no:this.vstoreUser?.store_user_no,
-							name :item.goods_name,
-							car_num :item?.goods_amount || 1
+							store_user_no: this.vstoreUser?.store_user_no,
+							// name :item.goods_name,
+							// car_num :item?.goods_amount || 1
 						}
 						return obj
 					})
@@ -595,7 +671,8 @@
 						goods_desc: goods.goods_desc,
 						goods_image: goods.goods_img,
 						goods_name: goods.goods_name,
-						goods_source: this.enableSku === '是' ? '店铺SKU' : '店铺商品',
+						goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
+						// sku_no:goods.sku_no,
 						child_data_list: [{
 							"serviceName": childService,
 							"condition": [],
@@ -607,7 +684,10 @@
 							"data": skuAttrList
 						}]
 					}
-					if (this.modalConfirmType === 'toOrder') {
+					if (this.enableSku) {
+						data.goods_no = goods.sku_no
+					}
+					if (modalConfirmType === 'toOrder') {
 						let goodsInfo = this.deepClone(data);
 						goodsInfo.name = this.storeInfo?.goods_name;
 						goodsInfo.image = this.storeInfo?.store_image;
@@ -618,7 +698,7 @@
 						this.$store.commit('SET_STORE_CART', {
 							storeInfo: this.storeInfo,
 							store_no: this.storeInfo.store_no,
-							list: [goodsInfo,...otherGoods]
+							list: [goodsInfo, ...otherGoods]
 						});
 
 						let url =
@@ -627,9 +707,9 @@
 						if (this.wxMchId) {
 							url += `&wxMchId=${this.wxMchId}`;
 						}
-						if(Array.isArray(otherGoods)&&otherGoods.length>0){
-							url+=`&otherGoods=${encodeURIComponent(JSON.stringify(otherGoods))}`
-						}else{
+						if (Array.isArray(otherGoods) && otherGoods.length > 0) {
+							url += `&otherGoods=${encodeURIComponent(JSON.stringify(otherGoods))}`
+						} else {
 							url += `&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`
 						}
 						uni.navigateTo({
@@ -638,11 +718,12 @@
 								this.changeModal()
 							}
 						});
-					} else if (this.modalConfirmType === 'addToCart') {
+					} else if (modalConfirmType === 'addToCart') {
+						debugger
 						let req = [{
 							serviceName: service,
 							condition: [],
-							data: [data,...otherGoods]
+							data: [data, ...otherGoods]
 						}];
 						let res = await this.$fetch('operate', service, req, 'health');
 						if (res.success) {
@@ -651,6 +732,8 @@
 							uni.showToast({
 								title: '添加成功'
 							});
+						} else {
+							return
 						}
 					}
 					this.selectedAttrs = {}
@@ -776,6 +859,27 @@
 					}
 
 				}
+				if (goodsInfo?.goods_type === '想豆卡') {
+					await this.getVipCard(this.vstoreUser?.store_user_no)
+					if (!this.hasVipCard) {
+						uni.showModal({
+							title: '提示',
+							content: '此商品必须开通会员卡后才能购买,是否跳转到会员卡开通页面?',
+							success: (res) => {
+								if (res.confirm) {
+									const url =
+										`/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"},{"column":"useing_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"}]`
+									uni.navigateTo({
+										url
+									})
+								}
+							}
+						})
+						this.onHandler = false;
+						return
+					}
+
+				}
 				if (target_url === 'add_to_cart') {
 					// 添加到购物车表
 					this.addToCart(goodsInfo).then(_ => {
@@ -803,6 +907,32 @@
 
 				this.onHandler = false;
 			},
+			// async getVipCard(no) {
+			// 	let service = 'srvhealth_store_card_case_select'
+			// 	const req = {
+			// 		"serviceName": service,
+			// 		"colNames": ["*"],
+			// 		"condition": [{
+			// 			"colName": "attr_store_user_no",
+			// 			"ruleType": "eq",
+			// 			"value": no
+			// 		}, {
+			// 			"colName": "card_type",
+			// 			"ruleType": "eq",
+			// 			"value": "充值卡"
+			// 		}],
+			// 		"page": {
+			// 			"pageNo": 1,
+			// 			"rownumber": 1
+			// 		}
+			// 	}
+			// 	let url = this.getServiceUrl('health', service, 'select');
+			// 	let res = await this.$http.post(url, req);
+			// 	if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+			// 		this.$store.commit('SET_VIP_CARD', res.data.data[0])
+			// 	}
+			// 	return
+			// },
 			async getSwiperList(e) {
 				let self = this;
 				if (e?.banner_video_config === '子表') {
@@ -938,11 +1068,11 @@
 				let app = this.destApp || 'health';
 				let res = await this.$fetch('select', serviceName, req, app)
 				if (Array.isArray(res.data) && res.data.length > 0) {
-					this.relationGoods = res.data.map(item=>{
+					this.relationGoods = res.data.map(item => {
 						item.goods_amount = 0;
 						return item
 					})
-				}else{
+				} else {
 					this.relationGoods = []
 				}
 			},
@@ -970,13 +1100,19 @@
 							if (item.is_required === '是' && Array.isArray(item.goods_attr_values) && item
 								.goods_attr_values.length > 0) {
 								item.radioSelected = item.goods_attr_values[0].good_attr_value_no
+								this.selectedAttrs[item.good_attr_no] = {
+									info: item,
+									attr: item.goods_attr_values[0]
+								}
 							}
+
 							return item
 						})
 					}
 					if (Array.isArray(data?.skuGoodsDatas) && data.skuGoodsDatas.length > 0) {
 						data.radioSelected = data.skuGoodsDatas[0].sku_no
 						this.selectedAttrs.selectSku = data.skuGoodsDatas[0]
+						this.selectSku = data.skuGoodsDatas[0]
 					}
 					data.goods_amount = 1
 					this.goodsSkuInfo = data
@@ -1000,13 +1136,14 @@
 					}]
 				}
 				if (Array.isArray(selectOptions) && selectOptions.length > 0) {
-					let conds = selectOptions.map(item => {
+					let conds = []
+					selectOptions.forEach(item => {
 						let obj = {
 							"colName": item.good_attr_no,
 							"ruleType": "eq",
 							"value": item.good_attr_value
 						}
-						return obj
+						conds.push(obj)
 					})
 					req.condition = [...req.condition, ...conds]
 				} else {
@@ -1046,6 +1183,12 @@
 						if (item.is_required === '是' && Array.isArray(item.goods_attr_values) && item
 							.goods_attr_values.length > 0) {
 							item.radioSelected = item.goods_attr_values[0].good_attr_value_no
+							// if (item.effect_price === '是' || item.effect_stock == '是') {
+							this.selectedAttrs[item.good_attr_no] = {
+								info: item,
+								attr: item.goods_attr_values[0]
+							}
+							// }
 						}
 						return item
 					})
@@ -1055,9 +1198,11 @@
 							item.radioSelected)
 						item.good_attr_value_no = selectItem?.good_attr_value_no
 						item.good_attr_value = selectItem?.good_attr_value
+
 						return item
 					})
 					this.selectedAttrs.selectSku = await this.getRealGoodsByAttr(selectOptions, false) || {}
+					this.selectSku = this.selectedAttrs.selectSku
 				} else {
 					this.goodsAttrList = []
 				}
@@ -1093,7 +1238,7 @@
 				}
 			},
 			del() {
-				if (this.enableSku === '是') {
+				if (this.enableSku) {
 					uni.showToast({
 						title: '不同规格的商品需要在购物车进行减购',
 						icon: 'none'
@@ -1106,7 +1251,7 @@
 				}
 			},
 			add(e) {
-				if (this.enableSku === '是') {
+				if (this.enableSku) {
 					this.changeModal('option-selector')
 					return
 					if (this.optionsType === 'SKU商品') {
@@ -1261,9 +1406,16 @@
 		}
 
 		.store-icon {
-			width: 100rpx;
-			height: 100rpx;
+			width: 50px;
+			height: 50px;
 			border-radius: 50%;
+			line-height: 50px;
+			text-align: center;
+
+			&.text {
+				border: 1px solid #f1f1f1;
+				font-size: 20px;
+			}
 		}
 
 		.phoneCall {
@@ -1297,6 +1449,24 @@
 				}
 			}
 		}
+	}
+
+	.selected-sku-info {
+		display: flex;
+		background-color: #fff;
+		padding: 10px;
+		margin: 10px 0;
+
+		.icon {
+			flex: 1;
+			text-align: right;
+		}
+
+		.label {}
+	}
+
+	.cu-modal {
+		display: block !important;
 	}
 
 	.detail {
@@ -1497,28 +1667,34 @@
 			align-items: center;
 			padding: 0 10px;
 		}
-		.relation-goods{
+
+		.relation-goods {
 			padding: 10px;
-			.title{
+
+			.title {
 				text-align: left;
 			}
-			.goods-item{
+
+			.goods-item {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
 				margin-top: 5px;
-				.goods-icon{
+
+				.goods-icon {
 					width: 50px;
 					height: 50px;
 					border-radius: 5px;
 				}
-				.goods-name{
+
+				.goods-name {
 					flex: 1;
 					padding: 0 10px;
 					text-align: left;
 				}
 			}
 		}
+
 		.button-box {
 			text-align: center;
 			padding: 10px;
@@ -1526,6 +1702,10 @@
 
 			.cu-btn {
 				width: 90%;
+
+				&.flex-1 {
+					width: 45%;
+				}
 			}
 		}
 

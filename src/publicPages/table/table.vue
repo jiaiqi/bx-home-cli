@@ -43,7 +43,7 @@
 							<text v-else> {{item[col.columns]||''}}</text>
 						</view>
 					</view>
-					<view class="list-item">
+					<view class="list-item hint">
 						<view class="col-item" v-if="list.length===0&&loadStatus==='noMore'">
 							暂无数据
 						</view>
@@ -56,7 +56,6 @@
 					</view>
 				</view>
 			</checkbox-group>
-			<!-- </bx-checkbox-group> -->
 		</scroll-view>
 
 		<view class="float-button-box" v-if="custom_btn&&custom_btn.handler_buttons">
@@ -1177,9 +1176,10 @@
 </script>
 
 <style lang="scss" scoped>
-	// .page-wrap {
-	// 	overflow: hidden;
-	// }
+	.page-wrap {
+		// overflow: hidden;
+		background-color: #fff;
+	}
 
 	.fixed {
 		position: fixed;
@@ -1204,7 +1204,9 @@
 			&:nth-child(2n+1) {
 				background-color: #F9f9f9;
 			}
-
+			&.hint{
+				color: #D8D9DF;
+			}
 			&.table-head {
 				font-size: 24rpx;
 				color: #000;

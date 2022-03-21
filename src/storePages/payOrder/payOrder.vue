@@ -101,7 +101,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付')">
+			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&& orderInfo.order_state==='待支付')">
 				<radio-group @change="payModeChange" style="width: 100%;">
 					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
 						<view class="">
@@ -478,7 +478,9 @@
 				}
 				const app = this.detailCfg?.app || uni.getStorageSync('activeApp')
 				const url = this.getServiceUrl(app, serviceName, 'select');
-
+				if(!this.totalMoney){
+					return
+				}
 				this.$http.post(url, req).then(res => {
 					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
 						this.couponList = res.data.data
@@ -751,7 +753,6 @@
 					})
 					return
 				}
-				debugger
 				let req = [{
 					serviceName: 'srvhealth_store_order_add',
 					condition: [],
@@ -795,11 +796,15 @@
 									unit_price: Number(item.price || item
 										.unit_price)
 								};
+								// debugger
 								if (item.child_data_list) {
 									obj.child_data_list = item.child_data_list
 								}
 								if (item.goods_source) {
 									obj.goods_source = item.goods_source
+									// if (item.goods_source === '店铺SKU') {
+									// 	obj.goods_no = item.sku_no
+									// }
 								}
 								if (item.image) {
 									obj.goods_image = item.image;
@@ -821,6 +826,7 @@
 						}]
 					}]
 				}];
+				debugger
 				if (this.needIdNum && this.idNum) {
 					req[0].data[0].id_num = this.idNum
 				}

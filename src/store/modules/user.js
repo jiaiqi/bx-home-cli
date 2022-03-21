@@ -14,7 +14,8 @@ const state = {
   hasSaveUserInfo: false,
   storeUserInfo: getItem('storeUserInfo') ? getItem('storeUserInfo') : {},
   wxAuthUserInfo: getItem('wxAuthUserInfo') ? getItem('wxAuthUserInfo') : null, //授权用户信息后获取到的数据
-  deviceList: []
+  deviceList: [],
+  vipCard:{},
 }
 
 const mutations = {
@@ -55,6 +56,9 @@ const mutations = {
   },
   SET_DEVICE_LIST: (state, list) => {
     state.deviceList = list
+  },
+  SET_VIP_CARD: (state, info) => {
+    state.vipCard = info
   }
 }
 

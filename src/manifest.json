@@ -71,7 +71,7 @@
         },
         "permission" : {
             "scope.userLocation" : {
-                "desc" : "搜索周边WiFi，定位到用户位置"
+                "desc" : "导航、定位、搜索周边WiFi等功能需要获取位置信息"
             }
         },
         "requiredBackgroundModes" : [ "audio" ],
@@ -83,7 +83,7 @@
         }
     },
     // "live-player-plugin" : {
-    //     "version" : "1.3.2",
+    //     "version" : "1.3.4",
     //     "provider" : "wx2b03c6e691cd7370"
     // }
     "h5" : {

@@ -6,8 +6,11 @@
 					我的余额(元)
 				</view>
 				<view class="amount">
-					￥{{vipCardInfo[amountCol]||'0.00'}}
+					<text>￥{{vipCardInfo[amountCol]||'0.00'}}</text>
+					<text class="text-sm margin-left"
+						v-if="vipCardInfo.card_last_bean">剩余想豆：{{vipCardInfo.card_last_bean||''}} <text class="cuIcon-moneybag margin-left-xs"></text> </text>
 				</view>
+
 			</view>
 			<view class="right-banner" v-if="rightBtn&&rightBtn.url" @click.stop="onRightBtn">
 				{{rightBtn.text||""}}
@@ -67,12 +70,12 @@
 		},
 		methods: {
 			toDetail() {
-        if(this.hasNotRegInfo){
-          uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+				if (this.hasNotRegInfo) {
+					uni.navigateTo({
+						url: '/publicPages/accountExec/accountExec'
+					})
+					return
+				}
 				let url = this.moreConfig?.detailUrl
 				if (url) {
 					url = this.renderStr(url, this)
@@ -82,12 +85,12 @@
 				}
 			},
 			onRightBtn() {
-        if(this.hasNotRegInfo){
-          uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+				if (this.hasNotRegInfo) {
+					uni.navigateTo({
+						url: '/publicPages/accountExec/accountExec'
+					})
+					return
+				}
 				let url = this.rightBtn?.url
 				if (url) {
 					url = this.renderStr(url, this)
@@ -126,12 +129,12 @@
 				})
 			},
 			toOpenVip() {
-        if(this.hasNotRegInfo){
-          uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+				if (this.hasNotRegInfo) {
+					uni.navigateTo({
+						url: '/publicPages/accountExec/accountExec'
+					})
+					return
+				}
 				let url = this.moreConfig?.open_url
 				if (url) {
 					url = this.renderStr(url, this)
