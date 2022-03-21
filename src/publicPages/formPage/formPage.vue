@@ -1,1505 +1,1506 @@
 <template>
-	<view class="form-wrap" :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title}]">
-		<view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}" v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
-			<view class="icon">
-				<text class="cuIcon-check text-blue" :style="{'color':view_cfg.bg}"></text>
-			</view>
-			<view class="content">
-				<view class="title">
-					{{view_cfg.title}}
-				</view>
-				<view class="tip">
-					{{view_cfg.tip||''}}
-				</view>
-			</view>
-		</view>
-		<view class="form-content">
-			<view class="main-form-edit">
-				<a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0" :fields="fields"
-					:moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm" :mainData="mainData"
-					@value-blur="valueChange" @setColData="setColData">
-				</a-form>
-			</view>
+  <view class="form-wrap" :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title}]">
+    <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
+      v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
+      <view class="icon">
+        <text class="cuIcon-check text-blue" :style="{'color':view_cfg.bg}"></text>
+      </view>
+      <view class="content">
+        <view class="title">
+          {{view_cfg.title}}
+        </view>
+        <view class="tip">
+          {{view_cfg.tip||''}}
+        </view>
+      </view>
+    </view>
+    <view class="form-content">
+      <view class="main-form-edit">
+        <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0"
+          :fields="fields" :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type"
+          ref="bxForm" :mainData="mainData" @value-blur="valueChange" @setColData="setColData">
+        </a-form>
+      </view>
 
-			<view class="child-service-box" :class="{'pc-model':model==='PC'}"
-				v-if="colsV2Data && isArray(fields)&&fields.length>0">
-				<view class="child-service" v-for="(item,index) in childService" :key="index">
-					<child-list :config="item" :childListData="childListData"
-						:disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
-						:fkInitVal="fkInitVal[item.constraint_name]" :fkCondition="fkCondition[item.constraint_name]"
-						ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
-					</child-list>
-				</view>
-			</view>
-		</view>
-		<view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
-			<button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
-				:key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
-				{{ btn.button_name}}
-			</button>
-		</view>
-		<view class="button-box" v-else-if="colsV2Data&&!disabled">
-			<button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
-				v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
-				{{ btn.button_name }}
-			</button>
-		</view>
-	</view>
+      <view class="child-service-box" :class="{'pc-model':model==='PC'}"
+        v-if="colsV2Data && isArray(fields)&&fields.length>0">
+        <view class="child-service" v-for="(item,index) in childService" :key="index">
+          <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
+            :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
+            :fkCondition="fkCondition[item.constraint_name]" ref="childList" @onButton="onChildButton"
+            @child-list-change="childListChange">
+          </child-list>
+        </view>
+      </view>
+    </view>
+    <view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
+      <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
+        :key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
+        {{ btn.button_name}}
+      </button>
+    </view>
+    <view class="button-box" v-else-if="colsV2Data&&!disabled">
+      <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
+        v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
+        {{ btn.button_name }}
+      </button>
+    </view>
+  </view>
 </template>
 
 <script>
-  
-	const dayjs = require('dayjs');
-	import ChildList from '@/publicPages/components/child-list/child-list.vue'
-	let _childData = {}
-	export default {
-		components: {
-			ChildList
-		},
-		data() {
-			return {
-				appName: null,
-				service: "",
-				serviceName: null,
-				srvType: 'add', // 表单信息 add | update  | select |list | detail
-				use_type: 'add', // detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
-				condition: [],
-				addV2: null,
-				updateV2: null,
-				detailV2: null,
-				fields: null,
-				mainData: null,
-				hideColumn: [], //不显示的字段
-				fieldsCond: [],
-				modalName: null, //operateModal
-				orderCols: [],
-				currentFormV2: null, //子表v2
-				currentFormFields: [], //子表字段
-				currentFormFk: null,
-				isOnButton: false,
-				disabled: false,
-				childListData: {},
-				disabledChildButton: false, // 禁用子表
-				disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
-				afterSubmit: "",
-				params: {},
-				view_cfg: null
-			}
-		},
-		computed: {
-			theme() {
-				return this.$store?.state?.app?.theme
-			},
-			model() {
-				return getApp()?.globalData?.systemInfo?.model
-			},
-			// storeInfo() {
-			//   return this.$store?.state?.app?.storeInfo
-			// },
-			formButtons() {
-				let buttons = []
-				if (Array.isArray(this.colsV2Data?._formButtons)) {
-					buttons = this.colsV2Data?._formButtons
-					if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
-						buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
-					}
-					return buttons
-				}
-			},
-			appTempColMap() {
-				// 字段关系映射
-				if (this.moreConfig?.appTempColMa) {
-					return this.moreConfig?.appTempColMap
-				}
-				if (Array.isArray())
-					return {}
-			},
-			labelMap() {
-				// 字段对应的label
-				if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
-					return this.orderCols.reduce((res, cur) => {
-						res[cur.columns] = cur.label
-						return res
-					}, {})
-				} else {
-					return {}
-				}
-			},
-			fkInitVal() {
-				return this.moreConfig?.fk_init_val || {}
-			},
-			fkCondition() {
-				let fk_condition = this.moreConfig?.fk_condition || {}
-				return fk_condition
-			},
-			moreConfig() {
-				return this.colsV2Data?.moreConfig
-			},
-			colsV2Data() {
-				if (this.srvType) {
-					return this[`${this.srvType}V2`]
-				}
-				return {}
-			},
-			childService: {
-				get() {
-					let result = []
-					if (['update', 'add'].includes(this.srvType)) {
-						result = this.operateChildService
-					} else {
-						result = this.detailChildService
-					}
-					if (Array.isArray(result)) {
-						return result.map(item => {
-							if (item?.foreign_key?.constraint_name) {
-								item.constraint_name = item?.foreign_key?.constraint_name
-							}
-							if (item?.foreign_key?.section_name) {
-								item.label = item.foreign_key.section_name
-							}
-							if (item?.foreign_key?.more_config) {
-								try {
-									item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
-								} catch (e) {
-
-								}
-							}
-							return item
-						}).filter((item, index) => {
-							if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
-								._child_tables.length) {
-								if (this.mainData._child_tables[index] === 0) {
-									return false
-								}
-							}
-							return true
-						})
-					}
-					return result
-				}
-			},
-			operateChildService() {
-				return this.detailV2?.child_service.filter(item => {
-					if (item.foreign_key?.foreign_key_type === '主子表') {
-						if (this.use_type === 'update') {
-							item.use_type = 'updatechildlist'
-						} else if (this.use_type === 'add') {
-							item.use_type = 'addchildlist'
-						}
-						return true
-					}
-				})
-			},
-			detailChildService() {
-				return this.detailV2?.child_service.filter(item => {
-					// return item.foreign_key?.foreign_key_type === '字段引用'
-					return item.foreign_key?.foreign_key_type !== '主子表'
-				})
-			},
-
-		},
-		methods: {
-			getChildListData() {
-				return this.childListData
-			},
-			childListChange(e) {
-				let self = this
-				// let _childData = {}
-				if (e?.key && e?.data) {
-					if (_childData) {
-						_childData[e.key] = e.data
-						if (Array.isArray(e?.calcRelations) && e.calcRelations.length > 0) {
-							e.calcRelations.forEach(relation => {
-								let table_col = relation.table_col; // 存储字段
-								let relation_table_col = relation.relation_table_col //源字段
-
-								if (_childData && _childData[relation.constraint_name]) {
-									let result = _childData[relation.constraint_name].map(item => item[
-										relation_table_col]).reduce((
-										res, cur) => {
-										if (cur) {
-											res = (res * 1000 + cur * 1000) / 1000;
-										}
-										return res
-									}, 0)
-									this.fields = this.fields.map(item => {
-										if (item.column === table_col) {
-											item.value = result || 0
-										}
-										return item
-									})
-								}
-							})
-						}
-						this.childListData = _childData
-					}
-				}
-			},
-			setColData(e) {
-				if (this.mainData) {
-					if (!this.mainData?.colData) {
-						this.mainData.colData = {}
-					}
-					this.mainData.colData[e.column] = e.colData
-				}
-			},
-			onChildButton(e) {
-				if (e?.btn?.button_type === 'add') {
-					// 添加子表数据
-					this.currentFormFk = e?.foreignKey
-					if (e?.v2Data?.service_name) {
-						this.currentFormV2 = e?.v2Data
-						if (Array.isArray(e.v2Data?._fieldInfo)) {
-							this.currentFormFields = e.v2Data._fieldInfo.map(item => {
-								if (item.defaultValue) {
-									item.value = item.defaultValue
-								}
-								if (item.in_add === 1) {
-									item.display = true
-								}
-								if (item.columns === this.currentFormFk?.referenced_column_name) {
-									item.display = false
-								}
-								return item
-							})
-						}
-						this.modalName = 'addChildData'
-					}
-				}
-			},
-			async onButton(e) {
-				if (!e) {
-					return;
-				}
-				const self = this
-				if (e.type === 'navToList') {
-					const globalData = {
-						// data: effect_data || {},
-						storeInfo: self.storeInfo,
-						userInfo: self.userInfo,
-						storeUser: self.vstoreUser
-					}
-					let url =
-						`/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
-					if (e.cond) {
-						const cond = e.cond.map(item => {
-							item.value = this.renderStr(item.value, globalData)
-							return item
-						})
-						url += `&cond=${JSON.stringify(cond)}`
-					}
-          if(e.disabled){
-            url+=`&disabled=true`
+  const dayjs = require('dayjs');
+  import ChildList from '@/publicPages/components/child-list/child-list.vue'
+  let _childData = {}
+  export default {
+    components: {
+      ChildList
+    },
+    data() {
+      return {
+        appName: null,
+        service: "",
+        serviceName: null,
+        srvType: 'add', // 表单信息 add | update  | select |list | detail
+        use_type: 'add', // detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
+        condition: [],
+        addV2: null,
+        updateV2: null,
+        detailV2: null,
+        fields: null,
+        mainData: null,
+        hideColumn: [], //不显示的字段
+        fieldsCond: [],
+        modalName: null, //operateModal
+        orderCols: [],
+        currentFormV2: null, //子表v2
+        currentFormFields: [], //子表字段
+        currentFormFk: null,
+        isOnButton: false,
+        disabled: false,
+        childListData: {},
+        disabledChildButton: false, // 禁用子表
+        disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
+        afterSubmit: "",
+        params: {},
+        view_cfg: null
+      }
+    },
+    computed: {
+      theme() {
+        return this.$store?.state?.app?.theme
+      },
+      model() {
+        return getApp()?.globalData?.systemInfo?.model
+      },
+      // storeInfo() {
+      //   return this.$store?.state?.app?.storeInfo
+      // },
+      formButtons() {
+        let buttons = []
+        if (Array.isArray(this.colsV2Data?._formButtons)) {
+          buttons = this.colsV2Data?._formButtons
+          if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
+            buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
           }
-					uni.navigateTo({
-						url
-					})
-					return
-				}
-				let req = this.$refs.bxForm.getFieldModel();
-				for (let key in req) {
-					if (Array.isArray(req[key])) {
-						req[key] = req[key].toString();
-					}
-				}
-				switch (e.button_type) {
-					case 'edit':
-						if (e.page_type === '详情' && this.use_type === 'detail') {
-							this.toPages('update', e);
-							this.isOnButton = false;
-						} else {
-							let data = this.deepClone(req);
-							data.child_data_list = []
-							console.log(this.childService)
-							if (Array.isArray(this.childService) && this.childService.length > 0) {
-								this.childService.forEach((item, index) => {
-									let child_data = this.$refs.childList[index].getChildDataList()
+          return buttons
+        }
+      },
+      appTempColMap() {
+        // 字段关系映射
+        if (this.moreConfig?.appTempColMa) {
+          return this.moreConfig?.appTempColMap
+        }
+        if (Array.isArray())
+          return {}
+      },
+      labelMap() {
+        // 字段对应的label
+        if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
+          return this.orderCols.reduce((res, cur) => {
+            res[cur.columns] = cur.label
+            return res
+          }, {})
+        } else {
+          return {}
+        }
+      },
+      fkInitVal() {
+        return this.moreConfig?.fk_init_val || {}
+      },
+      fkCondition() {
+        let fk_condition = this.moreConfig?.fk_condition || {}
+        return fk_condition
+      },
+      moreConfig() {
+        return this.colsV2Data?.moreConfig
+      },
+      colsV2Data() {
+        if (this.srvType) {
+          return this[`${this.srvType}V2`]
+        }
+        return {}
+      },
+      childService: {
+        get() {
+          let result = []
+          if (['update', 'add'].includes(this.srvType)) {
+            result = this.operateChildService
+          } else {
+            result = this.detailChildService
+          }
+          if (Array.isArray(result)) {
+            return result.map(item => {
+              if (item?.foreign_key?.constraint_name) {
+                item.constraint_name = item?.foreign_key?.constraint_name
+              }
+              if (item?.foreign_key?.section_name) {
+                item.label = item.foreign_key.section_name
+              }
+              if (item?.foreign_key?.more_config) {
+                try {
+                  item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
+                } catch (e) {
+
+                }
+              }
+              return item
+            }).filter((item, index) => {
+              if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
+                ._child_tables.length) {
+                if (this.mainData._child_tables[index] === 0) {
+                  return false
+                }
+              }
+              return true
+            })
+          }
+          return result
+        }
+      },
+      operateChildService() {
+        return this.detailV2?.child_service.filter(item => {
+          if (item.foreign_key?.foreign_key_type === '主子表') {
+            if (this.use_type === 'update') {
+              item.use_type = 'updatechildlist'
+            } else if (this.use_type === 'add') {
+              item.use_type = 'addchildlist'
+            }
+            return true
+          }
+        })
+      },
+      detailChildService() {
+        return this.detailV2?.child_service.filter(item => {
+          // return item.foreign_key?.foreign_key_type === '字段引用'
+          return item.foreign_key?.foreign_key_type !== '主子表'
+        })
+      },
+
+    },
+    methods: {
+      getChildListData() {
+        return this.childListData
+      },
+      childListChange(e) {
+        let self = this
+        // let _childData = {}
+        if (e?.key && e?.data) {
+          if (_childData) {
+            _childData[e.key] = e.data
+            if (Array.isArray(e?.calcRelations) && e.calcRelations.length > 0) {
+              e.calcRelations.forEach(relation => {
+                let table_col = relation.table_col; // 存储字段
+                let relation_table_col = relation.relation_table_col //源字段
+
+                if (_childData && _childData[relation.constraint_name]) {
+                  let result = _childData[relation.constraint_name].map(item => item[
+                    relation_table_col]).reduce((
+                    res, cur) => {
+                    if (cur) {
+                      res = (res * 1000 + cur * 1000) / 1000;
+                    }
+                    return res
+                  }, 0)
+                  this.fields = this.fields.map(item => {
+                    if (item.column === table_col) {
+                      item.value = result || 0
+                    }
+                    return item
+                  })
+                }
+              })
+            }
+            this.childListData = _childData
+          }
+        }
+      },
+      setColData(e) {
+        if (this.mainData) {
+          if (!this.mainData?.colData) {
+            this.mainData.colData = {}
+          }
+          this.mainData.colData[e.column] = e.colData
+        }
+      },
+      onChildButton(e) {
+        if (e?.btn?.button_type === 'add') {
+          // 添加子表数据
+          this.currentFormFk = e?.foreignKey
+          if (e?.v2Data?.service_name) {
+            this.currentFormV2 = e?.v2Data
+            if (Array.isArray(e.v2Data?._fieldInfo)) {
+              this.currentFormFields = e.v2Data._fieldInfo.map(item => {
+                if (item.defaultValue) {
+                  item.value = item.defaultValue
+                }
+                if (item.in_add === 1) {
+                  item.display = true
+                }
+                if (item.columns === this.currentFormFk?.referenced_column_name) {
+                  item.display = false
+                }
+                return item
+              })
+            }
+            this.modalName = 'addChildData'
+          }
+        }
+      },
+      async onButton(e) {
+        if (!e) {
+          return;
+        }
+        const self = this
+        if (e.type === 'navToList') {
+          const globalData = {
+            // data: effect_data || {},
+            storeInfo: self.storeInfo,
+            userInfo: self.userInfo,
+            storeUser: self.vstoreUser
+          }
+          let url =
+            `/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
+          if (e.cond) {
+            const cond = e.cond.map(item => {
+              item.value = this.renderStr(item.value, globalData)
+              return item
+            })
+            url += `&cond=${JSON.stringify(cond)}`
+          }
+          if (e.disabled) {
+            url += `&disabled=true`
+          }
+          uni.navigateTo({
+            url
+          })
+          return
+        }
+        let req = this.$refs.bxForm.getFieldModel();
+        for (let key in req) {
+          if (Array.isArray(req[key])) {
+            req[key] = req[key].toString();
+          }
+        }
+        switch (e.button_type) {
+          case 'edit':
+            if (e.page_type === '详情' && this.use_type === 'detail') {
+              this.toPages('update', e);
+              this.isOnButton = false;
+            } else {
+              let data = this.deepClone(req);
+              data.child_data_list = []
+              console.log(this.childService)
+              if (Array.isArray(this.childService) && this.childService.length > 0) {
+                this.childService.forEach((item, index) => {
+                  let child_data = this.$refs.childList[index].getChildDataList()
                   debugger
-									data.child_data_list.push(...child_data)
-									// data.child_data_list.push(this.$refs.childList[index].getChildDataList())
-								})
-							}
-							if (req) {
-								let reqData = [{
-									serviceName: e.service_name,
-									data: [data],
-									condition: this.condition
-								}];
-								if (self?.params?.defaultVal?.id) {
-									reqData[0].condition = [{
-										colName: 'id',
-										ruleType: 'eq',
-										value: self.params.defaultVal.id
-									}];
-								} else if (self?.mainData?.id) {
-									reqData[0].condition = [{
-										colName: 'id',
-										ruleType: 'eq',
-										value: self.mainData.id
-									}];
-								}
-								let app = self.appName || uni.getStorageSync('activeApp');
-								let url = self.getServiceUrl(app, e.service_name, 'add');
-								if (!Array.isArray(reqData[0].condition) || reqData[0].condition.length === 0) {
-									uni.showToast({
-										title: '参数错误，请刷新重试',
-										icon: 'none'
-									});
-									return;
-								}
-								let res = await this.onRequest('update', e.service_name, reqData, app);
-								let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
-								if (res.data.state === 'SUCCESS') {
-									uni.$emit('dataChange', e.service_name)
-									if (
-										Array.isArray(res.data.response) &&
-										res.data.response.length > 0 &&
-										res.data.response[0].response &&
-										Array.isArray(res.data.response[0].response.effect_data) &&
-										res.data.response[0].response.effect_data.length > 0
-									) {
-										this.params.submitData = res.data.response[0].response.effect_data[0];
-										// if (e.service_name === 'srvhealth_person_info_update') {
-										//   this.$store.commit('SET_USERINFO', this.params.submitData);
-										//   uni.setStorageSync('cur_user_no', this.params.submitData.no)
-										// }
-									}
-									let resData = res.data
-									uni.showModal({
-										title: '提示',
-										content: `${res.data.resultMessage}`,
-										showCancel: false,
-										success(res) {
-											let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-											if (self.afterSubmit === 'home') {
-												getApp().globalData.beforeRedirectUrl = null
-												let store_no = this.$store?.state?.app?.storeInfo?.store_no
-												uni.reLaunch({
-													url: `/storePages/home/home?store_no=${store_no}`
-												})
-												return
-											} else if (self.afterSubmit === 'detail') {
-												self.toPages('detail');
-												return
-											} else if (beforeRedirectUrl) {
-												uni.redirectTo({
-													url: beforeRedirectUrl
-												})
-												getApp().globalData.beforeRedirectUrl = null
-												return
-											}
-											if (self.shareType && self.shareType === 'seeDoctor') {
-												// 通过邀请就诊登记链接进入 跳转到就诊信息登记页面
-												let fieldsCond = [{
-													column: 'user_info_no',
-													display: false
-												}, {
-													column: 'user_no',
-													display: false
-												}];
-												if (self.doctorInfo && self.doctorInfo.no) {
-													fieldsCond.push({
-														column: 'doctor_no',
-														display: false,
-														value: self.doctorInfo.no
-													}, {
-														column: 'doctor_name',
-														display: false,
-														value: self.doctorInfo.name
-													});
-													if (self.doctorInfo.store_no) {
-														fieldsCond.push({
-															column: 'store_no',
-															display: false,
-															value: self.doctorInfo.store_no
-														});
-													}
-												}
-												let path =
-													'/publicPages/form/form?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
-													encodeURIComponent(JSON.stringify(fieldsCond));
-												uni.redirectTo({
-													url: path
-												});
-											} else if (self.afterSubmit === 'back') {
-												if (self.submitAction) {
-													uni.$emit(self.submitAction)
-												}
-												uni.navigateBack()
-											} else if (self.afterSubmit === 'close') {
-												// getApp().globalData.beforeRedirectUrl = null
-												// let store_no = this.$store?.state?.app?.storeInfo?.store_no
-												// uni.reLaunch({
-												//   url: `/storePages/home/home?store_no=${store_no}`
-												// })
-												if (top.window?.tab?.closeCurrentTab && top?.window?.tab
-													?.getCurrentTab) {
-													let curTab = top.window?.tab.getCurrentTab();
-													console.log(curTab, '：-----》curTab')
-													if (curTab) {
-														top.window?.tab.closeCurrentTab(curTab)
-														return
-													}
-												}
-											} else if (self.afterSubmit === 'detail') {
-												self.toPages('detail');
-												return
-											} else if (self.afterSubmit === 'home') {
-												let store_no = this.$store?.state?.app?.storeInfo?.store_no
-												uni.reLaunch({
-													url: `/storePages/home/home?store_no=${store_no}`
-												})
-											} else {
+                  data.child_data_list.push(...child_data)
+                  // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
+                })
+              }
+              if (req) {
+                let reqData = [{
+                  serviceName: e.service_name,
+                  data: [data],
+                  condition: this.condition
+                }];
+                if (self?.params?.defaultVal?.id) {
+                  reqData[0].condition = [{
+                    colName: 'id',
+                    ruleType: 'eq',
+                    value: self.params.defaultVal.id
+                  }];
+                } else if (self?.mainData?.id) {
+                  reqData[0].condition = [{
+                    colName: 'id',
+                    ruleType: 'eq',
+                    value: self.mainData.id
+                  }];
+                }
+                let app = self.appName || uni.getStorageSync('activeApp');
+                let url = self.getServiceUrl(app, e.service_name, 'add');
+                if (!Array.isArray(reqData[0].condition) || reqData[0].condition.length === 0) {
+                  uni.showToast({
+                    title: '参数错误，请刷新重试',
+                    icon: 'none'
+                  });
+                  return;
+                }
+                let res = await this.onRequest('update', e.service_name, reqData, app);
+                let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
+                if (res.data.state === 'SUCCESS') {
+                  uni.$emit('dataChange', e.service_name)
+                  if (
+                    Array.isArray(res.data.response) &&
+                    res.data.response.length > 0 &&
+                    res.data.response[0].response &&
+                    Array.isArray(res.data.response[0].response.effect_data) &&
+                    res.data.response[0].response.effect_data.length > 0
+                  ) {
+                    this.params.submitData = res.data.response[0].response.effect_data[0];
+                    // if (e.service_name === 'srvhealth_person_info_update') {
+                    //   this.$store.commit('SET_USERINFO', this.params.submitData);
+                    //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
+                    // }
+                  }
+                  let resData = res.data
+                  uni.showModal({
+                    title: '提示',
+                    content: `${res.data.resultMessage}`,
+                    showCancel: false,
+                    success(res) {
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                      if (self.afterSubmit === 'home') {
+                        getApp().globalData.beforeRedirectUrl = null
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                        return
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
+                      } else if (beforeRedirectUrl) {
+                        uni.redirectTo({
+                          url: beforeRedirectUrl
+                        })
+                        getApp().globalData.beforeRedirectUrl = null
+                        return
+                      }
+                      if (self.shareType && self.shareType === 'seeDoctor') {
+                        // 通过邀请就诊登记链接进入 跳转到就诊信息登记页面
+                        let fieldsCond = [{
+                          column: 'user_info_no',
+                          display: false
+                        }, {
+                          column: 'user_no',
+                          display: false
+                        }];
+                        if (self.doctorInfo && self.doctorInfo.no) {
+                          fieldsCond.push({
+                            column: 'doctor_no',
+                            display: false,
+                            value: self.doctorInfo.no
+                          }, {
+                            column: 'doctor_name',
+                            display: false,
+                            value: self.doctorInfo.name
+                          });
+                          if (self.doctorInfo.store_no) {
+                            fieldsCond.push({
+                              column: 'store_no',
+                              display: false,
+                              value: self.doctorInfo.store_no
+                            });
+                          }
+                        }
+                        let path =
+                          '/publicPages/form/form?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
+                          encodeURIComponent(JSON.stringify(fieldsCond));
+                        uni.redirectTo({
+                          url: path
+                        });
+                      } else if (self.afterSubmit === 'back') {
+                        if (self.submitAction) {
+                          uni.$emit(self.submitAction)
+                        }
+                        uni.navigateBack()
+                      } else if (self.afterSubmit === 'close') {
+                        // getApp().globalData.beforeRedirectUrl = null
+                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        // uni.reLaunch({
+                        //   url: `/storePages/home/home?store_no=${store_no}`
+                        // })
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab
+                          ?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab, '：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
+                      } else if (self.afterSubmit === 'home') {
+                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                      } else {
 
-												let pages = getCurrentPages();
-												if (pages.length > 1) {
-													uni.navigateBack()
-												} else {
-													let data = resData.response[0]?.response.effect_data[0]
-													uni.redirectTo({
-														url: `/publicPages/detail/detail?serviceName=${this.addV2?.select_service_name||this.detailV2?.service_name}&destApp=${this.select_}&id=${data.id}`
-													})
-												}
-											}
-										}
-									});
-								} else {
-									uni.showToast({
-										title: res.data.resultMessage,
-										mask: false,
-										icon: 'none'
-									});
-								}
-								this.isOnButton = false;
-							}
-						}
-						break;
-					case 'submit':
-						if (req) {
-							let data = this.deepClone(req);
-							data.child_data_list = []
-							console.log(this.childService)
-							if (Array.isArray(this.childService) && this.childService.length > 0) {
-								this.childService.forEach((item, index) => {
-									let child_data = this.$refs.childList[index].getChildDataList()
-                  
-									data.child_data_list.push(...child_data)
-									// data.child_data_list.push(this.$refs.childList[index].getChildDataList())
-								})
-							}
-							if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
-								let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
-								if (Array.isArray(submit_validate) && submit_validate.length > 0) {
-									let num = 0;
-									for(let i =0;i<submit_validate.length;i++){
-										const item = submit_validate[i]
-										
-											if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item
-													.relation)) {
-												let left_key = item.left_child.no;
-												let right_key = item.right_child.no;
-												let left_data = this.childListData[left_key]
-												let right_data = this.childListData[right_key]
-												if (item.right_child.condition && Array.isArray(item.right_child
-														.condition) && item
-													.right_child.condition.length > 0 && Array.isArray(right_data)
-												) {
-													right_data = right_data.filter(rd => {
-														let valid = 0;
-														item.right_child.condition.forEach(cond => {
-															if (cond.ruleType == 'eq') {
-																if (cond.value === rd[cond
-																		.colName]) {
-																	valid += 1
-																}
-															}
-														})
-														if (valid === item.right_child.condition.length) {
-															return true
-														}
-													})
-												}
-												let leftCol = item.left_child.col
-												let rightCol = item.right_child.col
-												let leftVal = left_data.reduce((pre, cur) => {
-													if (cur[leftCol]) {
-														pre += cur[leftCol]
-													}
-													return pre
-												}, 0)
-										
-												let rightVal = right_data.reduce((pre, cur) => {
-													if (cur[rightCol]) {
-														pre += cur[rightCol]
-													}
-													return pre
-												}, 0)
-										
-												switch (item.relation) {
-													case 'lt':
-														if (leftVal >= rightVal) {
-															num++
-															uni.showToast({
-																title: item.tip,
-																icon: "none",
-																duration: 3000
-															})
-														}
-														break;
-													case 'le':
-														if (leftVal > rightVal) {
-															num++
-															uni.showToast({
-																title: item.tip,
-																icon: "none",
-																duration: 3000
-															})
-														}
-														break;
-													case 'ge':
-														if (leftVal < rightVal) {
-															num++
-															uni.showToast({
-																title: item.tip,
-																icon: "none",
-																duration: 3000
-															})
-														}
-														break;
-													case 'gt':
-														if (leftVal <= rightVal) {
-															num++
-															uni.showToast({
-																title: item.tip,
-																icon: "none",
-																duration: 3000
-															})
-														}
-														break;
-													case 'eq':
-														if (leftVal !== rightVal) {
-															num++
-															uni.showToast({
-																title: item.tip,
-																icon: "none",
-																duration: 3000
-															})
-														}
-														break;
-												}
-											} else if (item.type === 'no-repeat') {
-												const service = item.service
-												let condition = []
-												if (Array.isArray(item.condition)) {
-													condition = item.condition.map(cond => {
-														let obj = {
-															colName: cond.colName,
-															ruleType: cond.ruleType,
-															value: ''
-														}
-														if (cond?.value?.value_type === 'rowData') {
-															obj.value = data[cond?.value?.value_key]
-														}else if (cond?.value?.value_type === 'constant'){
-															obj.value = cond?.value?.value
-														}
-														return obj
-													})
-												}
-												let url = this.getServiceUrl(item?.app || this.appName || uni
-													.getStorageSync('activeApp'), service, 'select');
-												let req = {
-													"serviceName": service,
-													"condition": condition,
-													colNames: ['*'],
-													page: {
-														pageNo: 1,
-														rownumber: 1
-													}
-												}
-												let res = await this.$http.post(url, req)
-												if (res.data.state === 'SUCCESS'&&Array.isArray(res.data.data)&&res.data.data.length>0) {
-													num++
-													if(item.fail_tip){
-														uni.showToast({
-															title:item.fail_tip,
-															icon:'none'
-														})
-													}
-												}
-											}
-										
-									}
-									// submit_validate.forEach( async item => {})
-									if (num > 0) {
-										return
-									}
-								}
-							}
+                        let pages = getCurrentPages();
+                        if (pages.length > 1) {
+                          uni.navigateBack()
+                        } else {
+                          let data = resData.response[0]?.response.effect_data[0]
+                          uni.redirectTo({
+                            url: `/publicPages/detail/detail?serviceName=${this.addV2?.select_service_name||this.detailV2?.service_name}&destApp=${this.select_}&id=${data.id}`
+                          })
+                        }
+                      }
+                    }
+                  });
+                } else {
+                  uni.showToast({
+                    title: res.data.resultMessage,
+                    mask: false,
+                    icon: 'none'
+                  });
+                }
+                this.isOnButton = false;
+              }
+            }
+            break;
+          case 'submit':
+            if (req) {
+              let data = this.deepClone(req);
+              data.child_data_list = []
+              console.log(this.childService)
+              if (Array.isArray(this.childService) && this.childService.length > 0) {
+                this.childService.forEach((item, index) => {
+                  let child_data = this.$refs.childList[index].getChildDataList()
 
-							let reqData = [{
-								serviceName: e.service_name,
-								condition: [],
-								data: [data]
-							}];
-							let app = this.appName || uni.getStorageSync('activeApp');
-							let type = "add"
-							if (e.button_type === 'edit') {
-								type = 'update'
-								reqData[0].condition = [{
-									colName: 'id',
-									ruleType: 'eq',
-									value: this.mainData?.id
-								}]
-								if (!this.mainData?.id) {
-									return false
-								}
-							}
-							let url = this.getServiceUrl(app, e.service_name, 'operate');
-							let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
-							let res = await this.$http.post(url, reqData);
-							if (res.data.state === 'SUCCESS') {
-								uni.$emit('dataChange', service)
-								let effect_data = null
-								if (
-									Array.isArray(res.data.response) &&
-									res.data.response.length > 0 &&
-									res.data.response[0].response &&
-									Array.isArray(res.data.response[0].response.effect_data) &&
-									res.data.response[0].response.effect_data.length > 0
-								) {
-									this.params.submitData = res.data.response[0].response.effect_data[0];
-									// if (e.service_name === 'srvhealth_person_info_update') {
-									//   this.$store.commit('SET_USERINFO', this.params.submitData);
-									//   uni.setStorageSync('cur_user_no', this.params.submitData.no)
-									// }
-									effect_data = res.data.response[0].response.effect_data[0];
-								}
-								let afterSubmit = self.moreConfig?.after_submit;
-								if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
-									const globalData = {
-										data: effect_data || {},
-										storeInfo: self.storeInfo,
-										userInfo: self.userInfo,
-										storeUser: self.vstoreUser
-									}
-									const actionResult = new Array(afterSubmit.length)
-									for (let i = 0; i < afterSubmit.length; i++) {
-										let item = afterSubmit[i];
-										if ((i > 0 && actionResult[i - 1]) || i == 0) {
-											if (item.type === 'wx_pay') {
-												if (item.money_col && item.order_no_col && effect_data && effect_data[
-														item.order_no_col]) {
-													const wxMchId = this.storeInfo?.wx_mch_id
-													const totalMoney = effect_data[item.money_col] || 0
-													const orderData = {
-														order_no: effect_data[item.order_no_col]
-													}
-													const result = await this.toPlaceOrder(totalMoney * 100, '',
-														orderData, wxMchId);
-													if (result && result.prepay_id) {
-														let res = await this.getPayParams(result.prepay_id, wxMchId);
-														const resData = await new Promise((resolve) => {
-															wx.requestPayment({
-																timeStamp: res.timeStamp.toString(),
-																nonceStr: res.nonceStr,
-																package: res.package,
-																signType: 'MD5',
-																paySign: res.paySign,
-																success(res) {
-																	// 支付成功
-																	resolve(true)
-																},
-																fail(res) {
-																	// 支付失败/取消支付
-																	resolve('支付失败/取消支付')
-																}
-															});
-														})
-														actionResult[i] = resData
-													}
-												}
-											} else if (item.type === 'update_call_back') {
-												if (item.service && item.app && Array.isArray(item.data) && item
-													.cond) {
+                  data.child_data_list.push(...child_data)
+                  // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
+                })
+              }
+              if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
+                let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
+                if (Array.isArray(submit_validate) && submit_validate.length > 0) {
+                  let num = 0;
+                  for (let i = 0; i < submit_validate.length; i++) {
+                    const item = submit_validate[i]
 
-													let url = this.getServiceUrl(item.app, item.service, 'operate');
-													let req = [{
-														serviceName: item.service,
-														condition: [],
-														data: item.data
-													}]
-													if (Array.isArray(item.cond)) {
-														req[0].condition = item.cond.map(c => {
-															c.value = self.renderStr(c.value, globalData)
-															return c
-														})
-													}
-													const res = await self.$http.post(url, req);
-													if (res.data.state == 'SUCCESS') {
-														actionResult[i] = true
-													} else {
-														actionResult[i] = res.data.resultMessage
-													}
-												}
-											} else if (item.type === 'toDetail') {
-												this.srvType = 'detail'
-												let serviceName = this.addV2?.select_service_name || this
-													.getServiceName(this.serviceName)
-												let fieldsCond = [{
-													column: 'id',
-													value: effect_data.id,
-													display: false
-												}]
-												let url =
-													`/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
-												if (this.appName) {
-													url += `&appName=${this.appName}`
-												}
-												if (item.custom_url) {
-													url = this.renderStr(item.custom_url, globalData);
-												}
-												if (item.view_cfg) {
-													url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
-												}
+                    if (item.relation && ['lt', 'le', 'gt', 'ge', 'eq'].includes(item
+                        .relation)) {
+                      let left_key = item.left_child.no;
+                      let right_key = item.right_child.no;
+                      let left_data = this.childListData[left_key]
+                      let right_data = this.childListData[right_key]
+                      if (item.right_child.condition && Array.isArray(item.right_child
+                          .condition) && item
+                        .right_child.condition.length > 0 && Array.isArray(right_data)
+                      ) {
+                        right_data = right_data.filter(rd => {
+                          let valid = 0;
+                          item.right_child.condition.forEach(cond => {
+                            if (cond.ruleType == 'eq') {
+                              if (cond.value === rd[cond
+                                  .colName]) {
+                                valid += 1
+                              }
+                            }
+                          })
+                          if (valid === item.right_child.condition.length) {
+                            return true
+                          }
+                        })
+                      }
+                      let leftCol = item.left_child.col
+                      let rightCol = item.right_child.col
+                      let leftVal = left_data.reduce((pre, cur) => {
+                        if (cur[leftCol]) {
+                          pre += cur[leftCol]
+                        }
+                        return pre
+                      }, 0)
 
-												uni.redirectTo({
-													url
-												})
-											}
-										}
+                      let rightVal = right_data.reduce((pre, cur) => {
+                        if (cur[rightCol]) {
+                          pre += cur[rightCol]
+                        }
+                        return pre
+                      }, 0)
 
+                      switch (item.relation) {
+                        case 'lt':
+                          if (leftVal >= rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'le':
+                          if (leftVal > rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'ge':
+                          if (leftVal < rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'gt':
+                          if (leftVal <= rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                        case 'eq':
+                          if (leftVal !== rightVal) {
+                            num++
+                            uni.showToast({
+                              title: item.tip,
+                              icon: "none",
+                              duration: 3000
+                            })
+                          }
+                          break;
+                      }
+                    } else if (item.type === 'no-repeat') {
+                      const service = item.service
+                      let condition = []
+                      if (Array.isArray(item.condition)) {
+                        condition = item.condition.map(cond => {
+                          let obj = {
+                            colName: cond.colName,
+                            ruleType: cond.ruleType,
+                            value: ''
+                          }
+                          if (cond?.value?.value_type === 'rowData') {
+                            obj.value = data[cond?.value?.value_key]
+                          } else if (cond?.value?.value_type === 'constant') {
+                            obj.value = cond?.value?.value
+                          }
+                          return obj
+                        })
+                      }
+                      let url = this.getServiceUrl(item?.app || this.appName || uni
+                        .getStorageSync('activeApp'), service, 'select');
+                      let req = {
+                        "serviceName": service,
+                        "condition": condition,
+                        colNames: ['*'],
+                        page: {
+                          pageNo: 1,
+                          rownumber: 1
+                        }
+                      }
+                      let res = await this.$http.post(url, req)
+                      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+                        num++
+                        if (item.fail_tip) {
+                          uni.showToast({
+                            title: item.fail_tip,
+                            icon: 'none'
+                          })
+                        }
+                      }
+                    }
 
-									}
-									if (actionResult.length === afterSubmit.length && !actionResult.every(item =>
-											item == true)) {
-										self.srvType === 'detail'
-										self.srvType === 'use_type'
-										self.formButtons = []
-									} else {
-										actionResult.forEach(item => {
-											if (item && typeof item === 'string') {
-												uni.showModal({
-													title: "提示",
-													content: item,
-													showCancel: false
-												})
-											}
-										})
-									}
-									return
-								}
-								uni.showModal({
-									title: '提示',
-									content: res.data.resultMessage,
-									showCancel: false,
-									success: (res) => {
-										if (res.confirm) {
-											let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
-											if (self.afterSubmit === 'home') {
-												getApp().globalData.beforeRedirectUrl = null
-												let store_no = self.$store?.state?.app?.storeInfo?.store_no
-												uni.reLaunch({
-													url: `/storePages/home/home?store_no=${store_no}`
-												})
-												return
-											} else if (self.afterSubmit === 'close') {
-												if (top.window?.tab?.closeCurrentTab && top?.window?.tab
-													?.getCurrentTab) {
-													let curTab = top.window?.tab.getCurrentTab();
-													console.log(curTab, '：-----》curTab')
-													if (curTab) {
-														top.window?.tab.closeCurrentTab(curTab)
-														return
-													}
-												}
-											} else if (self.afterSubmit === 'detail') {
-												self.toPages('detail');
-												return
-											} else if (beforeRedirectUrl) {
-												uni.redirectTo({
-													url: beforeRedirectUrl
-												})
-												getApp().globalData.beforeRedirectUrl = null
-												return
-											} else {
-												uni.navigateBack({})
-											}
-										}
-									}
-								})
-							} else {
-								uni.showToast({
-									title: res.data.resultMessage || res.data.resultCode,
-									mask: false,
-									icon: 'none'
-								});
-							}
-						}
-						break;
-					case 'customize':
-						if (e.operate_type === '删除') {
-							let data = {
-								button: e,
-								row: this.mainData
-							}
+                  }
+                  // submit_validate.forEach( async item => {})
+                  if (num > 0) {
+                    return
+                  }
+                }
+              }
 
-							this.onButtonToUrl(data, this.appName).then(res => {
-								if (res.state === 'SUCCESS') {
-									uni.$emit('dataChange')
-									uni.showModal({
-										title: '提示',
-										content: "操作成功",
-										showCancel: false,
-										success: (res) => {
-											if (res.confirm) {
-												uni.navigateBack()
-											}
-										}
-									})
-								}
-							})
+              let reqData = [{
+                serviceName: e.service_name,
+                condition: [],
+                data: [data]
+              }];
+              let app = this.appName || uni.getStorageSync('activeApp');
+              let type = "add"
+              if (e.button_type === 'edit') {
+                type = 'update'
+                reqData[0].condition = [{
+                  colName: 'id',
+                  ruleType: 'eq',
+                  value: this.mainData?.id
+                }]
+                if (!this.mainData?.id) {
+                  return false
+                }
+              }
+              let url = this.getServiceUrl(app, e.service_name, 'operate');
+              let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
+              let res = await this.$http.post(url, reqData);
+              if (res.data.state === 'SUCCESS') {
+                uni.$emit('dataChange', service)
+                let effect_data = null
+                if (
+                  Array.isArray(res.data.response) &&
+                  res.data.response.length > 0 &&
+                  res.data.response[0].response &&
+                  Array.isArray(res.data.response[0].response.effect_data) &&
+                  res.data.response[0].response.effect_data.length > 0
+                ) {
+                  this.params.submitData = res.data.response[0].response.effect_data[0];
+                  // if (e.service_name === 'srvhealth_person_info_update') {
+                  //   this.$store.commit('SET_USERINFO', this.params.submitData);
+                  //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
+                  // }
+                  effect_data = res.data.response[0].response.effect_data[0];
+                }
+                let afterSubmit = self.moreConfig?.after_submit;
+                if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+                  const globalData = {
+                    data: effect_data || {},
+                    storeInfo: self.storeInfo,
+                    userInfo: self.userInfo,
+                    storeUser: self.vstoreUser
+                  }
+                  const actionResult = new Array(afterSubmit.length)
+                  for (let i = 0; i < afterSubmit.length; i++) {
+                    let item = afterSubmit[i];
+                    if ((i > 0 && actionResult[i - 1]) || i == 0) {
+                      if (item.type === 'wx_pay') {
+                        if (item.money_col && item.order_no_col && effect_data && effect_data[
+                            item.order_no_col]) {
+                          const wxMchId = this.storeInfo?.wx_mch_id
+                          const totalMoney = effect_data[item.money_col] || 0
+                          const orderData = {
+                            order_no: effect_data[item.order_no_col]
+                          }
+                          const result = await this.toPlaceOrder(totalMoney * 100, '',
+                            orderData, wxMchId);
+                          if (result && result.prepay_id) {
+                            let res = await this.getPayParams(result.prepay_id, wxMchId);
+                            const resData = await new Promise((resolve) => {
+                              wx.requestPayment({
+                                timeStamp: res.timeStamp.toString(),
+                                nonceStr: res.nonceStr,
+                                package: res.package,
+                                signType: 'MD5',
+                                paySign: res.paySign,
+                                success(res) {
+                                  // 支付成功
+                                  resolve(true)
+                                },
+                                fail(res) {
+                                  // 支付失败/取消支付
+                                  resolve('支付失败/取消支付')
+                                }
+                              });
+                            })
+                            actionResult[i] = resData
+                          }
+                        }
+                      } else if (item.type === 'update_call_back') {
+                        if (item.service && item.app && Array.isArray(item.data) && item
+                          .cond) {
 
-						}
-						break;
-				}
+                          let url = this.getServiceUrl(item.app, item.service, 'operate');
+                          let req = [{
+                            serviceName: item.service,
+                            condition: [],
+                            data: item.data
+                          }]
+                          if (Array.isArray(item.cond)) {
+                            req[0].condition = item.cond.map(c => {
+                              c.value = self.renderStr(c.value, globalData)
+                              return c
+                            })
+                          }
+                          const res = await self.$http.post(url, req);
+                          if (res.data.state == 'SUCCESS') {
+                            actionResult[i] = true
+                          } else {
+                            actionResult[i] = res.data.resultMessage
+                          }
+                        }
+                      } else if (item.type === 'toDetail') {
+                        this.srvType = 'detail'
+                        let serviceName = this.addV2?.select_service_name || this
+                          .getServiceName(this.serviceName)
+                        let fieldsCond = [{
+                          column: 'id',
+                          value: effect_data.id,
+                          display: false
+                        }]
+                        let url =
+                          `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+                        if (this.appName) {
+                          url += `&appName=${this.appName}`
+                        }
+                        if (item.custom_url) {
+                          url = this.renderStr(item.custom_url, globalData);
+                        }
+                        if (item.view_cfg) {
+                          url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
+                        }
 
-			},
-			async valueChange(e, triggerField) {
-				const column = triggerField.column
-				if (this.mainData && typeof this.mainData === 'object') {
-					this.mainData[column] = triggerField.value
-				}
-				let fieldModel = e
-				let xIfCols = this.colsV2Data._fieldInfo.filter(item => item.x_if && Array.isArray(item
-					.xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
-
-				const table_name = this.colsV2Data.main_table
-				let xIfResult = null
-
-				if (Array.isArray(xIfCols) && xIfCols.length > 0) {
-					xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
-				}
-				let calcResult = {}
-				let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-						.calc_trigger_col) && item.calc_trigger_col.includes(column) && item.value !== item
-					.old_value).map(item =>
-					item.column)
-				if (Array.isArray(calcCols) && calcCols.length > 0) {
-					calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
-				}
-				for (let i = 0; i < this.fields.length; i++) {
-					const item = this.fields[i]
-
-					item.old_value = item.value
-					if (e.column && e.column === item.column) {
-						item = this.deepClone(e)
-					}
-					if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
-							.column] == 0)) {
-
-						if (item.redundant?.trigger === 'always' || !item.value) {
-							item.value = calcResult?.response[item.column] || item.value
-							fieldModel[item.column] = item.value
-							this.mainData[item.column] = item.value
-						}
-
-					}
-
-					if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
-						if (item.table_name !== table_name) {
-							xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-						}
-						if (xIfResult?.response && xIfResult.response[item.column]) {
-							item.display = true
-						} else if (xIfResult === true) {
-							item.display = true
-						} else {
-							item.display = false
-						}
-					}
-					if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
-						item.value = e[item.column];
-						fieldModel[item.column] = item.value
-					}
-					this.$set(this.fields, i, item)
-				}
-				if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
-					let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
-				}
-				if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
-						.childService)) {
-					let fkInitData = triggerField.moreConfig.fkInitData
-					if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
-						Object.keys(fkInitData).forEach(key => {
-							if (Array.isArray(fkInitData[key]) && fkInitData[key].length > 0) {
-								let childIndex = this.childService.findIndex(item => item.foreign_key
-									?.constraint_name === key)
-								if (childIndex > -1) {
-									let arr = []
-									arr = fkInitData[key].map(item => {
-										let strItem = JSON.stringify(item);
-										let data = {
-											mainData: this.mainData
-										}
-										strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
-											"YYYY-MM-DD"))
-										strItem = this.renderStr(strItem, data)
-										item = JSON.parse(strItem)
-										debugger
-										if (this.fkInitVal && this.fkInitVal[key]) {
-											let fkInitVal = this.fkInitVal[key]
-											Object.keys(fkInitVal).forEach(initKey => {
-												if (!item[initKey] && fkInitVal[initKey] &&
-													typeof fkInitVal[initKey] ===
-													'string') {
-													item[initKey] = this.renderStr(fkInitVal[
-														initKey], data) || item[initKey]
-												}
-											})
-										}
-										debugger
-										item._type = 'initData'
-										return item
-									})
-									if (arr.length > 0) {
-										this.$refs.childList[childIndex].setInitData(arr)
-									}
-								}
-							}
-						})
-					}
-				}
-			},
-			getServiceName(srv) {
-				let len = srv.lastIndexOf('_');
-				let serviceName = srv.slice(0, len) + '_';
-				if (this.srvType === 'list' || this.srvType === 'detail') {
-					serviceName += 'select';
-				} else {
-					serviceName += this.srvType;
-				}
-				return serviceName;
-			},
-			toPages(type, e) {
-				this.srvType = type;
-				if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this
-						.params
-						?.idCol]) {
-					uni.redirectTo({
-						url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
-					});
-				} else {
-					let serviceName = e?.service_name || this.getServiceName(this.serviceName)
-					let url =
-						`/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
-					if (type === 'update' || type == 'detail') {
-						if (this.params?.submitData?.id) {
-							let fieldsCond = [{
-								column: 'id',
-								value: this.params.submitData.id,
-								display: false
-							}]
-							url =
-								`/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
-
-						}
-					}
-
-					if (Array.isArray(this.hideColumn) && this.hideColumn.length > 0) {
-						url += `&hideColumn=${JSON.stringify(this.hideColumn)}`
-					}
-
-					if (this.appName) {
-						url += `&appName=${this.appName}`
-					}
-					uni.redirectTo({
-						url: url
-					});
-				}
-			},
-			async getDefaultVal() {
-				if (this.srvType === 'detail' || this.srvType === 'update') {
-					let serviceName = this.colsV2Data?.select_service_name || this.service || this.serviceName.replace(
-						'_update', '_select').replace(
-						'_add',
-						'_select');
-					let condition = this.fieldsCond
-						.filter(item => item.value)
-						.map(item => {
-							return {
-								colName: item.column,
-								ruleType: item.column === 'id' ? "eq" : 'like',
-								value: item.value
-							};
-						});
-					if (condition.find(item => item.colName === 'id')) {
-						condition = condition.filter(item => item.colName === 'id')
-					}
-
-					let app = this.appName || uni.getStorageSync('activeApp');
-					let url = this.getServiceUrl(app, serviceName, 'select');
-					let req = {
-						serviceName: serviceName,
-						colNames: ['*'],
-						condition: condition,
-						page: {
-							pageNo: 1,
-							rownumber: 1
-						}
-					};
-					if (this.colsV2Data?.vpage_no) {
-						req['vpage_no'] = this.colsV2Data.vpage_no
-					}
-					let res = await this.$http.post(url, req);
-					if (res.data.state === 'SUCCESS') {
-						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-							this.mainData = res.data.data[0];
-							return res.data.data[0];
-						}
-					}
-				}
-			},
-			async getDetailV2(srv) {
-				const app = this.appName || uni.getStorageSync('activeApp');
-				let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
-
-				this.detailV2 = colVs
-				return colVs
-			},
-			async getFieldsV2() {
-
-				const app = this.appName || uni.getStorageSync('activeApp');
-
-				let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
-
-				this[`${this.srvType}V2`] = colVs
-
-				if (['update', 'add'].includes(this.srvType)) {
-					await this.getDetailV2(colVs.select_service_name)
-				}
-
-				if (Array.isArray(colVs.srv_cols)) {
-					this.orderCols = colVs.srv_cols.filter(item => {
-						if (item.in_detail === 1) {
-							item.orderType = 'asc'
-							item.selected = false;
-							return true
-						}
-					})
-				}
-
-				colVs = this.deepClone(colVs);
-				if (colVs && colVs.service_view_name) {
-					uni.setNavigationBarTitle({
-						title: colVs.service_view_name
-					});
-				} else {
-					if (!colVs) {
-						return
-					}
-				}
-
-				let defaultVal = null
-				let fields = null
-
-				switch (colVs.use_type) {
-					case 'update':
-					case 'detail':
-						if (this.mainData?.id) {
-							defaultVal = this.mainData
-						} else {
-							defaultVal = await this.getDefaultVal()
-						}
-						fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal);
-						if (!fields) {
-							return;
-						}
-						fields = fields.map(field => {
-							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
-								field.option_list_v2 = field.option_list_v2.map(item => {
-									item.checked = false;
-									return item;
-								});
-							}
-
-							// if (Array.isArray(field.option_list_v2?.conditions)) {
-							// 	field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
-							// 		.conditions,
-							// 		defaultVal)
-							// }
-
-							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
-								this.fieldsCond.forEach(item => {
-									if (item.column === field.column) {
-										if (item.hasOwnProperty('display')) {
-											field.display = item.display;
-										}
-										if (item.hasOwnProperty('value')) {
-											field.value = item.value;
-										}
-										if (field.option_list_v2 && Array.isArray(field
-												.option_list_v2
-												.conditions) && Array.isArray(item
-												.condition)) {
-											field.option_list_v2.conditions = field
-												.option_list_v2
-												.conditions.concat(item.condition);
-										} else if (field.option_list_v2 && !field
-											.option_list_v2
-											.conditions && Array.isArray(item
-												.condition)) {
-											field.option_list_v2.conditions = item
-												.condition;
-										}
-									}
-								});
-							}
-							return field;
-						}).filter(item => !this.hideColumn.includes(item.column))
-						break;
-					case 'add':
-						if (!this.mainData) {
-							this.mainData = {
-								...this.storeInfo
-							}
-						}
-
-						fields = colVs._fieldInfo.map(field => {
-
-							if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
-								field.option_list_v2 = field.option_list_v2.map(item => {
-									item.checked = false;
-									return item;
-								});
-							}
-
-							if (this.defaultCondition && Array.isArray(this
-									.defaultCondition) && colVs
-								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
-								this.defaultCondition.forEach(cond => {
-									colVs._fieldInfo.forEach(field => {
-										if (cond.colName === field.column) {
-											field['value'] = cond['value'];
-										}
-									});
-								});
-							}
-							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
-								this.fieldsCond.forEach(item => {
-									if (item.colName && !item.column) {
-										item.column = item.colName
-									}
-
-									this.mainData[item.column] = item.value
-									if (item.column === field.column) {
-										if (item.hasOwnProperty('display')) {
-											field.display = item.display;
-										}
-										if (item.hasOwnProperty('disabled')) {
-											field.disabled = item.disabled;
-										}
-										if (item.hasOwnProperty('value')) {
-											field.value = item.value;
-											field.defaultValue = item.value;
-										}
-										if (field.option_list_v2 && Array.isArray(field
-												.option_list_v2
-												.conditions) && Array.isArray(item
-												.condition)) {
-											field.option_list_v2.conditions = field
-												.option_list_v2
-												.conditions.concat(item.condition);
-										} else if (field.option_list_v2 && !field
-											.option_list_v2
-											.conditions && Array.isArray(item
-												.condition)) {
-											field.option_list_v2.conditions = item
-												.condition;
-										}
-									}
-								});
-							}
-							return field;
-						}).filter(item => !this.hideColumn.includes(item.column))
-						defaultVal = colVs._fieldInfo.reduce((res, cur) => {
-							if (cur.defaultValue) {
-								res[cur.column] = cur.value || cur.defaultValue
-								cur.value = cur.value || cur.defaultValue
-								this.mainData[cur.column] = cur.value
-							} else if (cur.value) {
-								res[cur.column] = cur.value
-							}
-							return res
-						}, {})
+                        uni.redirectTo({
+                          url
+                        })
+                      }
+                    }
 
 
-						break;
-				}
+                  }
+                  if (actionResult.length === afterSubmit.length && !actionResult.every(item =>
+                      item == true)) {
+                    self.srvType === 'detail'
+                    self.srvType === 'use_type'
+                    self.formButtons = []
+                  } else {
+                    actionResult.forEach(item => {
+                      if (item && typeof item === 'string') {
+                        uni.showModal({
+                          title: "提示",
+                          content: item,
+                          showCancel: false
+                        })
+                      }
+                    })
+                  }
+                  return
+                }
+                uni.showModal({
+                  title: '提示',
+                  content: res.data.resultMessage,
+                  showCancel: false,
+                  success: (res) => {
+                    if (res.confirm) {
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                      if (self.afterSubmit === 'home') {
+                        getApp().globalData.beforeRedirectUrl = null
+                        let store_no = self.$store?.state?.app?.storeInfo?.store_no
+                        uni.reLaunch({
+                          url: `/storePages/home/home?store_no=${store_no}`
+                        })
+                        return
+                      } else if (self.afterSubmit === 'close') {
+                        if (top.window?.tab?.closeCurrentTab && top?.window?.tab
+                          ?.getCurrentTab) {
+                          let curTab = top.window?.tab.getCurrentTab();
+                          console.log(curTab, '：-----》curTab')
+                          if (curTab) {
+                            top.window?.tab.closeCurrentTab(curTab)
+                            return
+                          }
+                        }
+                      } else if (self.afterSubmit === 'detail') {
+                        self.toPages('detail');
+                        return
+                      } else if (beforeRedirectUrl) {
+                        uni.redirectTo({
+                          url: beforeRedirectUrl
+                        })
+                        getApp().globalData.beforeRedirectUrl = null
+                        return
+                      } else {
+                        uni.navigateBack({})
+                      }
+                    }
+                  }
+                })
+              } else {
+                uni.showToast({
+                  title: res.data.resultMessage || res.data.resultCode,
+                  mask: false,
+                  icon: 'none'
+                });
+              }
+            }
+            break;
+          case 'customize':
+            if (e.operate_type === '删除') {
+              let data = {
+                button: e,
+                row: this.mainData
+              }
+
+              this.onButtonToUrl(data, this.appName).then(res => {
+                if (res.state === 'SUCCESS') {
+                  uni.$emit('dataChange')
+                  uni.showModal({
+                    title: '提示',
+                    content: "操作成功",
+                    showCancel: false,
+                    success: (res) => {
+                      if (res.confirm) {
+                        uni.navigateBack()
+                      }
+                    }
+                  })
+                }
+              })
+
+            }
+            break;
+        }
+
+      },
+      async valueChange(e, triggerField) {
+        const column = triggerField.column
+        if (this.mainData && typeof this.mainData === 'object') {
+          this.mainData[column] = triggerField.value
+        }
+        let fieldModel = e
+        let xIfCols = this.colsV2Data._fieldInfo.filter(item => item.x_if && Array.isArray(item
+          .xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
+
+        const table_name = this.colsV2Data.main_table
+        let xIfResult = null
+
+        if (Array.isArray(xIfCols) && xIfCols.length > 0) {
+          xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
+        }
+        let calcResult = {}
+        let calcCols = this.colsV2Data._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+            .calc_trigger_col) && item.calc_trigger_col.includes(column) && item.value !== item
+          .old_value).map(item =>
+          item.column)
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+        }
+        for (let i = 0; i < this.fields.length; i++) {
+          const item = this.fields[i]
+
+          item.old_value = item.value
+          if (e.column && e.column === item.column) {
+            item = this.deepClone(e)
+          }
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
+              .column] == 0)) {
+
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column] || item.value
+              fieldModel[item.column] = item.value
+              this.mainData[item.column] = item.value
+            }
+
+          }
+
+          if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
+            if (item.table_name !== table_name) {
+              xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+            }
+            if (xIfResult?.response && xIfResult.response[item.column]) {
+              item.display = true
+            } else if (xIfResult === true) {
+              item.display = true
+            } else {
+              item.display = false
+            }
+          }
+          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            item.value = e[item.column];
+            fieldModel[item.column] = item.value
+          }
+          this.$set(this.fields, i, item)
+        }
+        if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
+          let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
+        }
+        if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
+            .childService)) {
+          let fkInitData = triggerField.moreConfig.fkInitData
+          if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
+            Object.keys(fkInitData).forEach(key => {
+              if (Array.isArray(fkInitData[key]) && fkInitData[key].length > 0) {
+                let childIndex = this.childService.findIndex(item => item.foreign_key
+                  ?.constraint_name === key)
+                if (childIndex > -1) {
+                  let arr = []
+                  arr = fkInitData[key].map(item => {
+                    let strItem = JSON.stringify(item);
+                    let data = {
+                      mainData: this.mainData
+                    }
+                    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
+                      "YYYY-MM-DD"))
+                    strItem = this.renderStr(strItem, data)
+                    item = JSON.parse(strItem)
+                    debugger
+                    if (this.fkInitVal && this.fkInitVal[key]) {
+                      let fkInitVal = this.fkInitVal[key]
+                      Object.keys(fkInitVal).forEach(initKey => {
+                        if (!item[initKey] && fkInitVal[initKey] &&
+                          typeof fkInitVal[initKey] ===
+                          'string') {
+                          item[initKey] = this.renderStr(fkInitVal[
+                            initKey], data) || item[initKey]
+                        }
+                      })
+                    }
+                    debugger
+                    item._type = 'initData'
+                    return item
+                  })
+                  if (arr.length > 0) {
+                    this.$refs.childList[childIndex].setInitData(arr)
+                  }
+                }
+              }
+            })
+          }
+        }
+      },
+      getServiceName(srv) {
+        let len = srv.lastIndexOf('_');
+        let serviceName = srv.slice(0, len) + '_';
+        if (this.srvType === 'list' || this.srvType === 'detail') {
+          serviceName += 'select';
+        } else {
+          serviceName += this.srvType;
+        }
+        return serviceName;
+      },
+      toPages(type, e) {
+        this.srvType = type;
+        if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this
+            .params
+            ?.idCol]) {
+          uni.redirectTo({
+            url: `${this.params.to}?${this.params.idCol}=${this.params.submitData[ this.params.idCol ]}`
+          });
+        } else {
+          let serviceName = e?.service_name || this.getServiceName(this.serviceName)
+          let url =
+            `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+          if (type === 'update' || type == 'detail') {
+            if (this.params?.submitData?.id) {
+              let fieldsCond = [{
+                column: 'id',
+                value: this.params.submitData.id,
+                display: false
+              }]
+              url =
+                `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+
+            }
+          }
+
+          if (Array.isArray(this.hideColumn) && this.hideColumn.length > 0) {
+            url += `&hideColumn=${JSON.stringify(this.hideColumn)}`
+          }
+
+          if (this.appName) {
+            url += `&appName=${this.appName}`
+          }
+          uni.redirectTo({
+            url: url
+          });
+        }
+      },
+      async getDefaultVal() {
+        if (this.srvType === 'detail' || this.srvType === 'update') {
+          let serviceName = this.colsV2Data?.select_service_name || this.service || this.serviceName.replace(
+            '_update', '_select').replace(
+            '_add',
+            '_select');
+          let condition = this.fieldsCond
+            .filter(item => item.value)
+            .map(item => {
+              return {
+                colName: item.column,
+                ruleType: item.column === 'id' ? "eq" : 'like',
+                value: item.value
+              };
+            });
+          if (condition.find(item => item.colName === 'id')) {
+            condition = condition.filter(item => item.colName === 'id')
+          }
+
+          let app = this.appName || uni.getStorageSync('activeApp');
+          let url = this.getServiceUrl(app, serviceName, 'select');
+          let req = {
+            serviceName: serviceName,
+            colNames: ['*'],
+            condition: condition,
+            page: {
+              pageNo: 1,
+              rownumber: 1
+            }
+          };
+          if (this.colsV2Data?.vpage_no) {
+            req['vpage_no'] = this.colsV2Data.vpage_no
+          }
+          let res = await this.$http.post(url, req);
+          if (res.data.state === 'SUCCESS') {
+            if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+              this.mainData = res.data.data[0];
+              return res.data.data[0];
+            }
+          }
+        }
+      },
+      async getDetailV2(srv) {
+        const app = this.appName || uni.getStorageSync('activeApp');
+        let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
+
+        this.detailV2 = colVs
+        return colVs
+      },
+      async getFieldsV2() {
+
+        const app = this.appName || uni.getStorageSync('activeApp');
+
+        let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
+
+        this[`${this.srvType}V2`] = colVs
+
+        if (['update', 'add'].includes(this.srvType)) {
+          await this.getDetailV2(colVs.select_service_name)
+        }
+
+        if (Array.isArray(colVs.srv_cols)) {
+          this.orderCols = colVs.srv_cols.filter(item => {
+            if (item.in_detail === 1) {
+              item.orderType = 'asc'
+              item.selected = false;
+              return true
+            }
+          })
+        }
+
+        colVs = this.deepClone(colVs);
+        if (colVs && colVs.service_view_name) {
+          uni.setNavigationBarTitle({
+            title: colVs.service_view_name
+          });
+        } else {
+          if (!colVs) {
+            return
+          }
+        }
+
+        let defaultVal = null
+        let fields = null
+
+        switch (colVs.use_type) {
+          case 'update':
+          case 'detail':
+            if (this.mainData?.id) {
+              defaultVal = this.mainData
+            } else {
+              defaultVal = await this.getDefaultVal()
+            }
+            fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal);
+            if (!fields) {
+              return;
+            }
+            fields = fields.map(field => {
+              if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+                field.option_list_v2 = field.option_list_v2.map(item => {
+                  item.checked = false;
+                  return item;
+                });
+              }
+
+              // if (Array.isArray(field.option_list_v2?.conditions)) {
+              // 	field.option_list_v2.conditions = this.evalConditions(field.option_list_v2
+              // 		.conditions,
+              // 		defaultVal)
+              // }
+
+              if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+                this.fieldsCond.forEach(item => {
+                  if (item.column === field.column) {
+                    if (item.hasOwnProperty('display')) {
+                      field.display = item.display;
+                    }
+                    if (item.hasOwnProperty('value')) {
+                      field.value = item.value;
+                    }
+                    if (field.option_list_v2 && Array.isArray(field
+                        .option_list_v2
+                        .conditions) && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = field
+                        .option_list_v2
+                        .conditions.concat(item.condition);
+                    } else if (field.option_list_v2 && !field
+                      .option_list_v2
+                      .conditions && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = item
+                        .condition;
+                    }
+                  }
+                });
+              }
+              return field;
+            }).filter(item => !this.hideColumn.includes(item.column))
+            break;
+          case 'add':
+            if (!this.mainData) {
+              this.mainData = {
+                ...this.storeInfo
+              }
+            }
+
+            fields = colVs._fieldInfo.map(field => {
+
+              if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+                field.option_list_v2 = field.option_list_v2.map(item => {
+                  item.checked = false;
+                  return item;
+                });
+              }
+
+              if (this.defaultCondition && Array.isArray(this
+                  .defaultCondition) && colVs
+                ._fieldInfo && Array.isArray(colVs._fieldInfo)) {
+                this.defaultCondition.forEach(cond => {
+                  colVs._fieldInfo.forEach(field => {
+                    if (cond.colName === field.column) {
+                      field['value'] = cond['value'];
+                    }
+                  });
+                });
+              }
+              if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+                this.fieldsCond.forEach(item => {
+                  if (item.colName && !item.column) {
+                    item.column = item.colName
+                  }
+
+                  this.mainData[item.column] = item.value
+                  if (item.column === field.column) {
+                    if (item.hasOwnProperty('display')) {
+                      field.display = item.display;
+                    }
+                    if (item.hasOwnProperty('disabled')) {
+                      field.disabled = item.disabled;
+                    }
+                    if (item.hasOwnProperty('value')) {
+                      field.value = item.value;
+                      field.defaultValue = item.value;
+                    }
+                    if (field.option_list_v2 && Array.isArray(field
+                        .option_list_v2
+                        .conditions) && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = field
+                        .option_list_v2
+                        .conditions.concat(item.condition);
+                    } else if (field.option_list_v2 && !field
+                      .option_list_v2
+                      .conditions && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = item
+                        .condition;
+                    }
+                  }
+                });
+              }
+              return field;
+            }).filter(item => !this.hideColumn.includes(item.column))
+            defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+              if (cur.defaultValue) {
+                res[cur.column] = cur.value || cur.defaultValue
+                cur.value = cur.value || cur.defaultValue
+                this.mainData[cur.column] = cur.value
+              } else if (cur.value) {
+                res[cur.column] = cur.value
+              }
+              return res
+            }, {})
 
 
-				const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
-				const table_name = colVs.main_table
-				let result = null
-				if (Array.isArray(cols) && cols.length > 0) {
-					result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
-				}
+            break;
+        }
 
-				let calcResult = {}
-				let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-					.calc_trigger_col)).map(item => item.column)
 
-				if (Array.isArray(calcCols) && calcCols.length > 0) {
-					calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
-				}
+        const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+        const table_name = colVs.main_table
+        let result = null
+        if (Array.isArray(cols) && cols.length > 0) {
+          result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+        }
 
-				for (let i = 0; i < colVs._fieldInfo.length; i++) {
-					const item = colVs._fieldInfo[i]
-					if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
-							.column] == 0)) {
+        let calcResult = {}
+        let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+          .calc_trigger_col)).map(item => item.column)
 
-						if (item.redundant?.trigger === 'always' || !item.value) {
-							item.value = calcResult?.response[item.column]
-							defaultVal[item.column] = item.value
-							this.mainData[item.column] = item.value
-						}
-					}
-					if (item.x_if) {
-						if (Array.isArray(item.xif_trigger_col)) {
-							if (item.table_name !== table_name) {
-								result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
-							}
-							if (result?.response && result.response[item.column]) {
-								item.display = true
-							} else if (result === true) {
-								item.display = true
-							} else {
-								item.display = false
-							}
-						}
-					}
-				}
-				this.fields = fields
-			},
-			hideModal() {
-				this.modalName = null
-			},
-			changeValue(e) {
-				if (e?.col && e?.service && e?.data) {
-					this.fields = this.fields.map(item => {
-						if (item.column === e.col) {
-							item.value = e.data[item.option_list_v2?.refed_col];
-							item.colData = e.data
-						}
-						return item
-					})
-				}
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
+        }
 
-			},
-		},
-		async onLoad(option) {
-			// uni.$on('confirmSelect', e => {
-			// 	this.changeValue(e)
-			// })
-			if (option.view_cfg) {
-				// 详情页面自定义展示效果
-				try {
-					this.view_cfg = JSON.parse(option.view_cfg)
-					if (this.view_cfg.hideColumn) {
-						this.hideColumn = this.view_cfg.hideColumn
-					}
-				} catch (e) {
-					//TODO handle the exception
-				}
-			}
-			if (option.disabled) {
-				this.disabled = true
-			}
-			if (option.afterSubmit) {
-				this.afterSubmit = option.afterSubmit
-			}
-			if (option.disabledChildButton) {
-				this.disabledChildButton = true
-			}
-			await this.toAddPage()
-			if (option.destApp) {
-				this.appName = option.destApp
-			}
-			if (option.main_data) {
-				try {
-					this.mainData = JSON.parse(option.main_data)
-				} catch (e) {
-					//TODO handle the exception
-				}
-			}
-			if (option.appName) {
-				this.appName = option.appName
-			}
-			if (option.type) {
-				if (option.type.indexOf(',') !== -1) {
-					option.type = option.type.split(',')[0];
-				}
-				if (option.type === 'form') {
-					option.type = 'add';
-				}
-				this.srvType = option.type;
-				this.use_type = option.type;
-			}
+        for (let i = 0; i < colVs._fieldInfo.length; i++) {
+          const item = colVs._fieldInfo[i]
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
+              .column] == 0)) {
 
-			if (option.fieldsCond) {
-				try {
-					let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
-					this.fieldsCond = fieldsCond
-				} catch (e) {
-					//TODO handle the exception
-				}
-			}
-			if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
-					.length ===
-					0)) && option.id) {
-				this.fieldsCond = [{
-					column: 'id',
-					ruleType: 'eq',
-					value: option.id
-				}]
-			}
-			if (option.serviceName) {
-				this.serviceName = option.serviceName;
-				this.getFieldsV2();
-			}
-		}
-	}
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column]
+              defaultVal[item.column] = item.value
+              this.mainData[item.column] = item.value
+            }
+          }
+          if (item.x_if) {
+            if (Array.isArray(item.xif_trigger_col)) {
+              if (item.table_name !== table_name) {
+                result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
+              }
+              if (result?.response && result.response[item.column]) {
+                item.display = true
+              } else if (result === true) {
+                item.display = true
+              } else {
+                item.display = false
+              }
+            }
+          }
+        }
+        this.fields = fields
+      },
+      hideModal() {
+        this.modalName = null
+      },
+      changeValue(e) {
+        if (e?.col && e?.service && e?.data) {
+          this.fields = this.fields.map(item => {
+            if (item.column === e.col) {
+              item.value = e.data[item.option_list_v2?.refed_col];
+              item.colData = e.data
+            }
+            return item
+          })
+        }
+
+      },
+    },
+    async onLoad(option) {
+      // uni.$on('confirmSelect', e => {
+      // 	this.changeValue(e)
+      // })
+      if (option.view_cfg) {
+        // 详情页面自定义展示效果
+        try {
+          this.view_cfg = JSON.parse(option.view_cfg)
+          if (this.view_cfg.hideColumn) {
+            this.hideColumn = this.view_cfg.hideColumn
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.disabled) {
+        this.disabled = true
+      }
+      if (option.afterSubmit) {
+        this.afterSubmit = option.afterSubmit
+      }
+      if (option.disabledChildButton) {
+        this.disabledChildButton = true
+      }
+      await this.toAddPage()
+      if (option.destApp) {
+        this.appName = option.destApp
+      }
+      if (option.main_data) {
+        try {
+          this.mainData = JSON.parse(option.main_data)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.appName) {
+        this.appName = option.appName
+      }
+      if (option.type) {
+        if (option.type.indexOf(',') !== -1) {
+          option.type = option.type.split(',')[0];
+        }
+        if (option.type === 'form') {
+          option.type = 'add';
+        }
+        this.srvType = option.type;
+        this.use_type = option.type;
+      }
+
+      if (option.fieldsCond) {
+        try {
+          let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+          this.fieldsCond = fieldsCond
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
+          .length ===
+          0)) && option.id) {
+        this.fieldsCond = [{
+          column: 'id',
+          ruleType: 'eq',
+          value: option.id
+        }]
+      }
+      if (option.serviceName) {
+        this.serviceName = option.serviceName;
+        this.getFieldsV2();
+      }
+    }
+  }
 </script>
 
 <style lang="scss" scoped>
-	@import '../common/top-card';
+  @import '../common/top-card';
 
-	.form-wrap {
-		min-height: 100vh;
-		background-color: #F1F1F1;
-		padding: 20rpx;
-		display: flex;
-		flex-direction: column;
-		margin: 0 auto;
+  .form-wrap {
+    min-height: 100vh;
+    background-color: #F1F1F1;
+    padding: 20rpx;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
 
-		&.no-padding {
-			padding: 0;
+    &.no-padding {
+      padding: 0;
 
-			.form-content {
-				// background-color: #fff;
-			}
+      .form-content {
+        // background-color: #fff;
+      }
 
-			.main-form-edit {
-				background-color: #fff;
-				border-radius: 0;
-			}
-		}
+      .main-form-edit {
+        background-color: #fff;
+        border-radius: 0;
+      }
+    }
 
-		.form-content {
-			flex: 1;
-			margin-bottom: 20rpx;
-		}
+    .form-content {
+      flex: 1;
+      margin-bottom: 20rpx;
+    }
 
-		.custom-view {
-			margin-bottom: 10px;
-			padding:20px;
-			display: flex;
-			align-items: center;
+    .custom-view {
+      margin-bottom: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
 
-			.icon {
-				font-size: 40px;
+      .icon {
+        font-size: 40px;
         font-weight: bold;
-				background-color: #fff;
-				width: 50px;
-				height: 50px;
-				line-height: 50px;
-				text-align: center;
-				border-radius: 50%;
-				margin: 0 10px;
-			}
+        background-color: #fff;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        border-radius: 50%;
+        margin: 0 10px;
+      }
 
-			.content {
-				.title {
-					font-size: 18px;
-					line-height: 30px;
-				}
+      .content {
+        .title {
+          font-size: 18px;
+          line-height: 30px;
+        }
 
-				.tip {
-					font-size: 12px;
-				}
-			}
-		}
-	}
+        .tip {
+          font-size: 12px;
+        }
+      }
+    }
+  }
 
-	.main-form-edit {
-		// background-color: #fff;
-		border-radius: 20rpx;
-		margin-bottom: 20rpx;
-		overflow: hidden;
+  .main-form-edit {
+    // background-color: #fff;
+    border-radius: 20rpx;
+    margin-bottom: 20rpx;
+    overflow: hidden;
 
-		.pc-model {
-			display: flex;
-			flex-wrap: wrap;
-			padding-top: 10px;
-			padding-left: 10px;
+    .pc-model {
+      display: flex;
+      flex-wrap: wrap;
+      padding-top: 10px;
+      padding-left: 10px;
 
-			::v-deep .form-item::after {
-				border-bottom: none !important;
-			}
-		}
-	}
+      ::v-deep .form-item::after {
+        border-bottom: none !important;
+      }
+    }
+  }
 
-	.child-form-wrap {
-		max-height: 60vh;
-		overflow-y: scroll;
+  .child-form-wrap {
+    max-height: 60vh;
+    overflow-y: scroll;
 
-	}
+  }
 
-	.child-service-box {
-		&.pc-model {
+  .child-service-box {
+    &.pc-model {
 
-			@media screen and (min-width:800px) {
-				display: flex;
-				flex-wrap: wrap;
+      @media screen and (min-width:800px) {
+        display: flex;
+        flex-wrap: wrap;
 
-				.child-service {
-					width: calc(50% - 5px);
-					margin-right: 10px;
+        .child-service {
+          width: calc(50% - 5px);
+          margin-right: 10px;
 
-					&:nth-child(2n) {
-						margin-right: 0;
-					}
-				}
-			}
+          &:nth-child(2n) {
+            margin-right: 0;
+          }
+        }
+      }
 
-			@media screen and (min-width:1600px) {
-				display: flex;
-				flex-wrap: wrap;
+      @media screen and (min-width:1600px) {
+        display: flex;
+        flex-wrap: wrap;
 
-				.child-service {
-					width: calc(33.33% - 8px);
-					margin-right: 10px;
+        .child-service {
+          width: calc(33.33% - 8px);
+          margin-right: 10px;
 
-					&:nth-child(2n) {
-						margin-right: 10px;
-					}
+          &:nth-child(2n) {
+            margin-right: 10px;
+          }
 
-					&:nth-child(3n) {
-						margin-right: 0;
-					}
-				}
-			}
+          &:nth-child(3n) {
+            margin-right: 0;
+          }
+        }
+      }
 
-		}
-	}
+    }
+  }
 
-	.button-box {
-		padding: 40rpx 20rpx;
-		min-width: 300px;
-		max-width: 800px;
-		margin: 10px auto 20px;
+  .button-box {
+    padding: 40rpx 20rpx;
+    min-width: 300px;
+    max-width: 800px;
+    margin: 10px auto 20px;
     flex-wrap: wrap;
-		.cu-btn {
-			min-width: 65%;
-		}
-	}
+
+    .cu-btn {
+      min-width: 65%;
+    }
+  }
 </style>

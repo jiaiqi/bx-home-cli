@@ -101,7 +101,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&& orderInfo.order_state==='待支付')">
+			<view class="pay-mode" v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&&( orderInfo.order_state==='待支付'|| orderInfo.order_state==='待提交'))">
 				<radio-group @change="payModeChange" style="width: 100%;">
 					<view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
 						<view class="">

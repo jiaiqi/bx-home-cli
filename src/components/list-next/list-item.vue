@@ -7,7 +7,7 @@
         <image class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
         </image>
       </view>
-      <view class="list-item-content" :style="{ width: setListView.listContentWidth }"
+      <view class="list-item-content" :style="{ maxWidth: setListView.listContentMaxWidth }"
         v-if="setListView && setListView.cols">
         <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
           :class="[item.class]">
@@ -354,6 +354,7 @@
             'border-radius': imgCfg.radius,
             width: imgCfg.width
           };
+          result.listContentMaxWidth = imgCfg.width ? `calc(100% - ${imgCfg.width})` : `calc(100% - 50px)`
           result.imgMode = imgCfg?.mode || 'aspectFill';
           if (result.imgStyle.width) {
             // result.listContentWidth = `calc(100% - ${result.imgStyle.width})`
@@ -377,6 +378,7 @@
                 height: cfg?.height,
                 'min-width': cfg?.min_width,
                 padding: cfg?.padding,
+                margin: cfg?.margin,
                 'font-size': cfg?.font_size,
                 'font-weight': cfg?.font_weight,
                 'text-align': cfg?.align,
@@ -679,8 +681,8 @@
       }
 
       .main-image {
-        width: 100rpx;
-        min-height: 100rpx;
+        width: 50px;
+        min-height: 50px;
         margin-right: 20rpx;
         display: flex;
         align-items: center;
@@ -801,6 +803,7 @@
             text-overflow: ellipsis;
             // white-space: nowrap;
             max-width: 100%;
+            flex: 1;
           }
         }
       }

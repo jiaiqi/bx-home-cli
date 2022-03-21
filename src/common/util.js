@@ -308,7 +308,7 @@ export default {
 				fieldInfo.section = item.section
 				fieldInfo.validators = item.validators
 				// col_type 转换 表单组件 type 
-				if (item.col_type === "String" || item.col_type === "TelNo") {
+				if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type==='Email') {
 					fieldInfo.type = "text"
 				} else if (item.col_type === "DateTime") {
 					fieldInfo.type = "dateTime"
@@ -339,11 +339,13 @@ export default {
 				} else if (item.col_type === "Image") {
 					// } else if (item.col_type === "Image" || item.col_type === "FileList") {
 					fieldInfo.type = "images"
-					fieldInfo.srvInfo = {
-						tableName: item.table_name,
-						appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
-							.table_name.indexOf("_"))
-					}
+          if(item.table_name){
+            fieldInfo.srvInfo = {
+            	tableName: item.table_name,
+            	appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
+            		.table_name.indexOf("_"))
+            }
+          }
 				} else if (item.col_type === "Set") {
 					// fieldInfo.type = "radioFk"
 					fieldInfo.type = "Set"

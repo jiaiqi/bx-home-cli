@@ -201,6 +201,7 @@
 
       .list-item-wrap {
         flex: 1;
+        max-width: 100%;
       }
     }
 

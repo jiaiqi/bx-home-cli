@@ -93,15 +93,24 @@
         // this.pauseVideo()
       },
       toDetail(item) {
+        
         if(this.hasNotRegInfo){
           uni.navigateTo({
             url:'/publicPages/accountExec/accountExec'
           })
           return
         }
+        
         if (item.mini_program_url) {
+          let url = item.mini_program_url
+          let data = {
+            userInfo:this.userInfo,
+            storeInfo:this.storeInfo,
+            bindUserInfo:this.vstoreUser
+          }
+          url = this.renderStr(url,data)
           uni.navigateTo({
-            url: item.mini_program_url
+            url: url
           })
         } else if (item.content_no) {
           uni.navigateTo({

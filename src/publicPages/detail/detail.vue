@@ -631,7 +631,6 @@
             req[key] = req[key].toString();
           }
         }
-        debugger
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情') {
@@ -660,6 +659,7 @@
             this.isOnButton = false;
             break;
           case 'customize':
+          debugger
             console.log(this.deepClone(e))
             let buttonInfo = this.deepClone(e)
             if (Array.isArray(buttonInfo.operate_params.condition) && buttonInfo.operate_params
@@ -740,7 +740,6 @@
                     }
                   })
                 }
-
                 let url =
                   `/publicPages/form/form?params=${JSON.stringify(params)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
@@ -758,9 +757,20 @@
                   condition: buttonInfo.operate_params.condition,
                   defaultVal: buttonInfo.operate_params.data,
                 };
-                let condition = buttonInfo.operate_params.condition
                 let fieldsCond = []
-
+                let condition = buttonInfo?.operate_params?.condition
+                let defaultVal = buttonInfo?.operate_params?.data
+                if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+                	let obj = defaultVal[0]
+                	if (this.iObject(obj)) {
+                		Object.keys(obj).forEach(key => {
+                			fieldsCond.push({
+                				column: key,
+                				value: obj[key]
+                			})
+                		})
+                	}
+                }
                 let url =
                   `/publicPages/form/form?params=${JSON.stringify(params)}&condition=${JSON.stringify(condition)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
