@@ -41,8 +41,10 @@ let conf = {
     file: "https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
     frontPath: "https://wx2.100xsys.cn/health/#/",
-    singleStore:true,
-    storeNo:'S20210517043'
+    singleStore: true,
+    storeNo: 'S20210517043',
+    customQrcodeFolder: 'rjxh',
+    miniProgramName: "陕西省软件行业协会",
   }
 }
 
@@ -100,8 +102,10 @@ let ENV = {
   isThirdParty: remoteAddress.isThirdParty,
   homePath: remoteAddress.homePath, // 应用业务的入口页面 首页。
   singleApp: remoteAddress.singleApp, // 是否单应用
-  singleStore:  conf[env]['singleStore'], //单店铺
-  storeNo:  conf[env]['singleStore']?conf[env]['storeNo']:'S0000000000', //单店铺的话需要配置店铺编号
+  singleStore: conf[env]['singleStore'], //单店铺
+  customQrcodeFolder: conf[env]['customQrcodeFolder'], //自定义二维码前缀文件夹
+  miniProgramName: conf[env]['miniProgramName'], //小程序名称
+  storeNo: conf[env]['singleStore'] ? conf[env]['storeNo'] : 'S0000000000', //单店铺的话需要配置店铺编号
   appName: remoteAddress.appName, // 服务 app
   getAuthorization: { //获取公众号授权
     url: remoteAddress.serviceAddress + '/wx/operate/srvwx_public_page_authorization',

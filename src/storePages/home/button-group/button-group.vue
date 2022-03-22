@@ -1,6 +1,12 @@
 <template>
   <view class="menu-list" :style="[calcStyle]" v-if="buttons&&buttons.length>0">
-    <view class="menu-list-box" v-if="pageItem.button_style === 'list'">
+    <view class="pictuer-button" v-if="pageItem.button_style==='仅图片'">
+      <image :src="getImagePath(item.icon,true)" mode="aspectFit" :style="{
+						width: item.imgWidth + 'px',
+						height: item.imgHeight + 'px'
+					}" v-for="item in setButtonIconHeight" @click="toPages(item)"></image>
+    </view>
+    <view class="menu-list-box" v-else-if="pageItem.button_style === 'list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">
           <button :open-type="item.openType" v-if="item.openType" @getphonenumber="getPhoneNumber"
@@ -212,7 +218,7 @@
           customer_phone: '',
           appoint_remark: ''
         },
-        // buttons: []
+        setButtonIconHeight: []
       };
     },
 
@@ -230,6 +236,46 @@
             //   return item
             // });
           }
+        }
+      },
+      buttons: {
+        immediate: true,
+        deep: true,
+        handler(newValue, oldValue) {
+
+          let buttons = []
+          if (Array.isArray(this.buttonList)) {
+            this.buttonList.forEach(async item => {
+              item.url = item.dest_page
+              if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
+                item.openType = 'getPhoneNumber'
+              }
+              let picInfo = await this.getImageInfo({
+                url: this.getImagePath(item.icon, true)
+              })
+              if (picInfo && picInfo.w && picInfo.h) {
+                let res = this.setPicHeight(picInfo);
+                if (res.w && res.h) {
+                  this.$set(item, 'imgWidth', res.w);
+                  this.$set(item, 'imgHeight', res.h);
+                }
+              }
+              buttons.push(item)
+              // this.getImageInfo({
+              //   url: this.getImagePath(item.icon, true)
+              // }).then(picInfo => {
+              //   if (picInfo.w && picInfo.h) {
+              //     let res = this.setPicHeight(picInfo);
+              //     if (res.w && res.h) {
+              //       this.$set(item, 'imgWidth', res.w);
+              //       this.$set(item, 'imgHeight', res.h);
+              //     }
+              //   }
+              // });
+              // return item
+            });
+          }
+          this.setButtonIconHeight = buttons
         }
       },
       storeNo: {
@@ -257,6 +303,17 @@
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
             }
+            // this.getImageInfo({
+            //   url: this.getImagePath(item.icon, true)
+            // }).then(picInfo => {
+            //   if (picInfo.w && picInfo.h) {
+            //     let res = this.setPicHeight(picInfo);
+            //     if (res.w && res.h) {
+            //       this.$set(item, 'imgWidth', res.w);
+            //       this.$set(item, 'imgHeight', res.h);
+            //     }
+            //   }
+            // });
             return item
           });
         } else {
@@ -264,14 +321,18 @@
         }
       },
       calcStyle() {
-        if (
-          this.pageItem &&
-          (this.pageItem.margin || this.pageItem.margin == 0)
-        ) {
-          return {
-            margin: this.pageItem.margin,
-          };
+        let style = {
+
         }
+        if (
+          this.pageItem?.margin || this.pageItem?.margin == 0
+        ) {
+          style.margin = this.pageItem.margin
+        }
+        if (this.pageItem?.button_style === '仅图片') {
+          style.borderRadius = '0'
+        }
+        return style
       },
       indicatorDots() {
         if (this.pageItem) {
@@ -353,9 +414,50 @@
             return pre;
           }, []);
         }
-      },
+      }
     },
     methods: {
+      setButtonIconHeight() {
+        let buttons = []
+        if (Array.isArray(this.buttonList)) {
+          this.buttonList.foreEach(async item => {
+            item.url = item.dest_page
+            if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
+              item.openType = 'getPhoneNumber'
+            }
+            let picInfo = await this.getImageInfo({
+              url: this.getImagePath(item.icon, true)
+            })
+            if (picInfo && picInfo.w && picInfo.h) {
+              let res = this.setPicHeight(picInfo);
+              if (res.w && res.h) {
+                this.$set(item, 'imgWidth', res.w);
+                this.$set(item, 'imgHeight', res.h);
+              }
+            }
+            buttons.push(item)
+            // this.getImageInfo({
+            //   url: this.getImagePath(item.icon, true)
+            // }).then(picInfo => {
+            //   if (picInfo.w && picInfo.h) {
+            //     let res = this.setPicHeight(picInfo);
+            //     if (res.w && res.h) {
+            //       this.$set(item, 'imgWidth', res.w);
+            //       this.$set(item, 'imgHeight', res.h);
+            //     }
+            //   }
+            // });
+            // return item
+          });
+        }
+        return buttons
+      },
+      setPicHeight(content) {
+        let maxW = uni.upx2px(750);
+        content.h = (maxW * content.h) / content.w;
+        content.w = maxW;
+        return content;
+      },
       async syncPhone(phone) {
         // 同步手机号到用户表
         let req = [{
@@ -988,6 +1090,15 @@
     // background: #FAFBFC;
     border-radius: 20rpx;
     min-width: 300px;
+
+    .pictuer-button {
+      display: flex;
+      flex-wrap: wrap;
+
+      .image-item {
+        width: 100%;
+      }
+    }
 
     .menu-list-box {
       width: 100%;

@@ -770,12 +770,59 @@
     },
 
     methods: {
+      async refreshZTSession() {
+        // 刷新专题咨询会话状态
+
+        // 专题咨询会话查询
+        let req = {
+          "serviceName": "srvhealth_dialogue_session_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "session_type",
+              "ruleType": "eq",
+              "value": '专题咨询'
+            },
+            {
+              "colName": "group_no",
+              "ruleType": "eq",
+              "value": this.groupNo
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.vstoreUser?.store_no
+            },
+            {
+              "colName": "store_user_no",
+              "ruleType": "eq",
+              "value": this.store_user_no || this.vstoreUser?.store_user_no
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_dialogue_session_select', req, 'health')
+        if (res.success) {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            this.sessionInfo = res.data[0]
+            this.session_no = res.data[0].session_no
+            this.getGroup(false)
+            return res.data[0]
+          } else {
+            await this.createSession()
+          }
+
+        }
+
+      },
       toPages(type) {
         let url = ''
         switch (type) {
           case 'openVip':
             url =
-              `/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"BX2203211724590485"},{"column":"useing_store_user_no","disabled":true,"value":"BX2203211724590485"}]`
+              `/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"},{"column":"useing_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"}]`
             break;
           case 'byBean':
             url = `/storePages/GoodsDetail/GoodsDetail?goods_no=GD2203170067&storeNo=S0000000000`
@@ -2327,14 +2374,14 @@
           delete req.relation_condition
         }
         let res = await this.$http.post(url, req);
-        console.log( this.pageInfo.total)
+        console.log(this.pageInfo.total)
         if (dontEmit !== true) {
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.$emit('load-msg-complete', res.data.data[0], res.data.page, this.pageInfo.total);
           } else {
             this.$emit('load-msg-complete', res.data.data, res.data.page, this.pageInfo.total);
           }
-        }else if (this.pageInfo.total && res.data.page?.total && res.data.page?.total !== this.pageInfo.total) {
+        } else if (this.pageInfo.total && res.data.page?.total && res.data.page?.total !== this.pageInfo.total) {
           this.$emit('load-msg-complete', res.data.data, res.data.page, this.pageInfo.total);
         }
         let resData = res.data.data;

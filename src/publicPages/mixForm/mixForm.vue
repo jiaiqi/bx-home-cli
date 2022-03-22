@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  import listNext from '../components/list-next/list-next.vue';
+  import listNext from '@/components/list-next/list-next.vue';
   let rownumber = 20
   export default {
     components: {

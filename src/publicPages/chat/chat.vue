@@ -87,6 +87,21 @@
       personChat
     },
     computed: {
+      isSelf() {
+        // 专题咨询 自己给自己发消息
+        return this.sessionType == '专题咨询' && this.identity == '客户' && this.vstoreUser?.store_user_no && this.vstoreUser
+          ?.store_user_no === this.groupInfo?.store_user_no
+      },
+      notVip() {
+        if (this.vvipCard?.card_no === undefined && this.sessionType == '专题咨询' && this.identity == '客户') {
+          return true
+        }
+      },
+      isNSF() { //是否想豆余额不足
+        return !isNaN(Number(this.vvipCard?.card_last_bean)) && Number(this.vvipCard?.card_last_bean) === 0 &&
+          this.identity == '客户' && this.sessionType == '专题咨询'
+        return false
+      },
       consultFeeSum() {
         if (this.groupInfo?.unit_price && this.totalMsg) {
           return this.totalMsg * this.groupInfo?.unit_price
@@ -323,6 +338,16 @@
       },
       async startPaidConsult() {
         // 开启付费咨询
+        if (this.isSelf || this.notVip || this.isNSF) {
+          let title = this.notVip ? '请先开通会员！' : this.isSelf ? '不能向自己发起咨询！' : this.isNSF ? '想豆余额不足，请先充值！' : ''
+          if (title) {
+            uni.showToast({
+              title: title,
+              icon: 'none'
+            })
+          }
+          return
+        }
         await this.updateBandConsult('否')
         this.payConsultInfo.status = 'open'
         this.$refs?.chatInstance?.initMessageList?.('refresh').then(_ => {
@@ -366,7 +391,7 @@
           this.totalMsg = page.total
         }
       },
-      loadMsgComplete(e, page,total) {
+      loadMsgComplete(e, page, total) {
         // 消息加载完毕
         this.lastMessage = e
         if (this.sessionType === '机构用户客服') {
@@ -997,6 +1022,9 @@
       },
     },
     beforeDestroy() {
+      if(this.sessionType==='专题咨询' && this.sessionInfo?.band_post==='否'){
+        this.updateBandConsult('全员禁言')
+      }
       if (this.sessionType === '机构用户客服') {
         this.updateKefuSessionLastLookTime(this.lastMessage)
         uni.$emit("updateUnread")
@@ -1007,7 +1035,7 @@
         this.updateLastLookTime(this.lastMessage);
       }
     },
-    onShow(){
+    onShow() {
       if (this.vstoreUser?.store_user_no) {
         this.getVipCard(this.vstoreUser?.store_user_no)
       }

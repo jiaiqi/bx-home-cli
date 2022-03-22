@@ -354,7 +354,9 @@
             'border-radius': imgCfg.radius,
             width: imgCfg.width
           };
-          result.listContentMaxWidth = imgCfg.width ? `calc(100% - ${imgCfg.width})` : `calc(100% - 50px)`
+          if(imgCfg.position!=='top'){
+            result.listContentMaxWidth = imgCfg.width ? `calc(100% - ${imgCfg.width})` : `calc(100% - 50px)`
+          }
           result.imgMode = imgCfg?.mode || 'aspectFill';
           if (result.imgStyle.width) {
             // result.listContentWidth = `calc(100% - ${result.imgStyle.width})`

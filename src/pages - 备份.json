@@ -50,7 +50,8 @@
         {
           "path": "MessageCenter/MessageCenter",
           "style": {
-            "enablePullDownRefresh": true
+            "enablePullDownRefresh": true,
+            "navigationBarTitleText":"咨询记录"
           }
         },
         {
@@ -146,23 +147,24 @@
           "style": {
             "navigationBarBackgroundColor": "#fff",
             "navigationBarTextStyle": "black"
-            // "navigationStyle":"custom"
           }
         },
         {
           "path": "payOrder/payOrder"
         },
+        //#ifdef H5
         {
           "path": "successPay/successPay"
         },
+        {
+          "path": "DoctorIntro/DoctorIntro"
+        },
+        //#endif
         {
           "path": "VaccineList/VaccineList",
           "style": {
             "enablePullDownRefresh": true
           }
-        },
-        {
-          "path": "DoctorIntro/DoctorIntro"
         },
         {
           "path": "articleManager/articleManager",
@@ -232,14 +234,6 @@
             "enablePullDownRefresh": true
           }
         }, {
-          "path": "appointmentCheckIn/appointmentCheckIn",
-          "style": {
-            "navigationBarTitleText": "预约管理",
-            "navigationBarBackgroundColor": "#fff",
-            "navigationBarTextStyle": "black",
-            "enablePullDownRefresh": false
-          }
-        }, {
           "path": "linkwifi/linkwifi",
           "style": {
             "navigationBarTitleText": "连接WiFi",
@@ -249,9 +243,25 @@
 
         // #ifdef H5
         {
+          "path": "appointmentCheckIn/appointmentCheckIn",
+          "style": {
+            "navigationBarTitleText": "预约管理",
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black",
+            "enablePullDownRefresh": false
+          }
+        }, 
+        {
           "path": "PrintTicket/PrintTicket",
           "style": {
             "navigationBarTitleText": "打印单",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "officialIntro/officialIntro",
+          "style": {
+            "navigationBarTitleText": "关注公众号",
             "enablePullDownRefresh": false
           }
         },
@@ -262,8 +272,8 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
-        }, {
+        },
+        {
           "path": "appointment/appointment",
           "style": {
             "navigationBarTitleText": "预约",
@@ -283,28 +293,20 @@
             "navigationBarTitleText": "卡券",
             "enablePullDownRefresh": true
           }
-
         }, {
           "path": "coupon/detail",
           "style": {
             "navigationBarTitleText": "卡券详情",
             "enablePullDownRefresh": true
           }
-
         }, {
           "path": "verification/verification",
           "style": {
             "navigationBarTitleText": "核销",
             "enablePullDownRefresh": false
           }
-
-        }, {
-          "path": "officialIntro/officialIntro",
-          "style": {
-            "navigationBarTitleText": "关注公众号",
-            "enablePullDownRefresh": false
-          }
-        }, {
+        },
+        {
           "path": "tg/tg",
           "style": {
             "navigationBarTitleText": "团购详情",
@@ -390,8 +392,7 @@
     },
     {
       "root": "otherPages",
-      "pages": [
-        {
+      "pages": [{
           "path": "clockIn/clockIn",
           "style": {
             "navigationBarTitleText": "打卡",

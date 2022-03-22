@@ -402,7 +402,8 @@
 				idCol: "",
 				selectorUUID: "",
 				curTabVal: "",
-				curTab: 0
+				curTab: 0,
+        v2Params:""
 			}
 		},
 		methods: {
@@ -878,7 +879,7 @@
 				let self = this;
 				let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ?
 					'proclist' :
-					'list', app);
+					'list', app,this.v2Params);
 				colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
 				if (!this.navigationBarTitle) {
 					let title = ''
@@ -1077,9 +1078,9 @@
 							}
 						}
 					}
-					this.pageNo = res.data.page.pageNo;
-					let page = res.data.page;
-					if (this.listType === 'proc') {
+					this.pageNo = res?.data?.page?.pageNo;
+					let page = res.data?.page;
+					if (this.listType === 'proc'&&page) {
 						for (let i = 0; i < this.tabList.length; i++) {
 							let item = this.tabList[i];
 							if (item.proc_data_type === req.proc_data_type) {
@@ -1097,7 +1098,7 @@
 							proc_data_type: req.proc_data_type
 						};
 						return callBackData;
-					} else {
+					} else if(page) {
 						if (page.rownumber * page.pageNo >= page.total) {
 							this.loadStatus = 'norMore'
 						} else {
@@ -1966,6 +1967,13 @@
 			}
 		},
 		onLoad(option) {
+      if(option.v2Params){
+        try{
+          this.v2Params = JSON.parse(option.v2Params)
+        }catch(e){
+          //TODO handle the exception
+        }
+      }
 			if (this.sysModel === 'PC') {
 				this.rownumber = 100
 			}
