@@ -387,9 +387,14 @@
       },
       label_width() {
         let result = '';
+        
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
+        if(['images','textarea'].includes(this.fieldData.type)){
+          result = '100%'
+        }
+        
         return result;
       },
       pickerMode() {

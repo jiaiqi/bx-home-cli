@@ -5,10 +5,24 @@
       <button class=" cu-btn shadow-blur" v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no">
         <text class="cuIcon-home"></text></button>
     </view>
+    <swiper class="card-swiper square-dot" :indicator-dots="false" :style="calcStyle"  :circular="true" :autoplay="true" interval="5000"
+      duration="500" @change="swiperChange" indicator-color="#8799a3" indicator-active-color="#0081ff"
+      v-if="swiperList.length>1&&swiperStyle==='卡片'">
+      <swiper-item v-for="(item,index) in swiperList" :key="index" :class="current==index?'cur':''">
+        <view class="swiper-item">
+          <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
+            <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
+          </view>
+          <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+            @click.stop="toDetail(item)">
+        </view>
+      </swiper-item>
+    </swiper>
     <swiper class="screen-swiper item-box rectangle-dot" :style="calcStyle" easing-function="linear"
       indicator-active-color="#00aaff" :indicator-dots="true" :circular="true" :autoplay="autoplay" :interval="interval"
-      duration="500" @change="swiperChange" v-if="swiperList.length>1">
-      <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id">
+      duration="500" @change="swiperChange" v-else-if="swiperList.length>1">
+      <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id"
+        :class="current==index?'cur':''">
         <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
           <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
         </view>
@@ -34,6 +48,9 @@
   export default {
     name: 'home-swiper-list',
     computed: {
+      swiperStyle() {
+        return this.pageItem?.swiper_style || '平铺'
+      },
       interval() {
         return this.pageItem?.more_config?.interval || '5000'
       },
@@ -49,6 +66,13 @@
         }
         return `${this.pageItem?.more_config?.swiperHeight || uni.upx2px(300)}px`
       },
+      height2rpx() {
+        if (this.pageItem?.img_ratio) {
+          return 710 * this.pageItem?.img_ratio
+        } else {
+          return this.pageItem?.more_config?.swiperHeight ? this.pageItem?.more_config?.swiperHeight * 2 : 300
+        }
+      },
       calcStyle() {
         let obj = {}
         if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
@@ -58,14 +82,14 @@
           obj.height = this.height
           obj.minHeight = this.height
         }
-        return `height:${obj.height};min-height:${obj.minHeight}`
+        return `height:${obj.height}!important;min-height:${obj.minHeight}`
       },
     },
     props: {
       pageItem: {
         type: Object
       },
-      beforeClick:{
+      beforeClick: {
         type: Function,
         default: null
       }
@@ -76,6 +100,7 @@
         swiperList: [],
         videoContext: {},
         isFirstSwiperList: false
+
       }
     },
     mounted() {
@@ -93,22 +118,22 @@
         // this.pauseVideo()
       },
       toDetail(item) {
-        
-        if(this.hasNotRegInfo){
+
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
-        
+
         if (item.mini_program_url) {
           let url = item.mini_program_url
           let data = {
-            userInfo:this.userInfo,
-            storeInfo:this.storeInfo,
-            bindUserInfo:this.vstoreUser
+            userInfo: this.userInfo,
+            storeInfo: this.storeInfo,
+            bindUserInfo: this.vstoreUser
           }
-          url = this.renderStr(url,data)
+          url = this.renderStr(url, data)
           uni.navigateTo({
             url: url
           })
@@ -223,14 +248,20 @@
 </script>
 
 <style lang="scss" scoped>
+  .card-swiper uni-swiper-item {
+    padding: 10px 0;
+  }
+
   .swiper-list {
-    border-radius: 20rpx;
+    // border-radius: 20rpx;
     overflow: hidden;
     position: relative;
     min-width: 335px;
 
     .swiper-item-box {
-      video,image {
+
+      video,
+      image {
         width: 100%;
         height: 100%;
       }

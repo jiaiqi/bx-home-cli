@@ -1,10 +1,30 @@
 <template>
   <view class="menu-list" :style="[calcStyle]" v-if="buttons&&buttons.length>0">
-    <view class="pictuer-button" v-if="pageItem.button_style==='仅图片'">
-      <image :src="getImagePath(item.icon,true)" mode="aspectFit" :style="{
+    <view class="template-1" v-if="pageItem.button_style==='模板1'&&buttonsIcon.length>=4">
+      <view class="left">
+        <image :src="getImagePath(buttonsIcon[0].icon,true)" mode="aspectFit"></image>
+      </view>
+      <view class="right">
+        <view class="top">
+          <image :src="getImagePath(buttonsIcon[1].icon,true)" mode="aspectFit"></image>
+        </view>
+        <view class="bottom">
+          <view class="bottom-item">
+            <image :src="getImagePath(buttonsIcon[2].icon,true)" mode="aspectFit"></image>
+          </view>
+          <view class="bottom-item">
+            <image :src="getImagePath(buttonsIcon[3].icon,true)" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
+      <view class="picture-item" :style="[getImgButtonStyle(item)]" v-for="item in buttonsIcon" @click="toPages(item)">
+      </view>
+      <!--      <image :src="getImagePath(item.icon,true)" mode="aspectFit" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
-					}" v-for="item in setButtonIconHeight" @click="toPages(item)"></image>
+					}" v-for="item in buttonsIcon" @click="toPages(item)"></image> -->
     </view>
     <view class="menu-list-box" v-else-if="pageItem.button_style === 'list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
@@ -218,7 +238,7 @@
           customer_phone: '',
           appoint_remark: ''
         },
-        setButtonIconHeight: []
+        buttonsIcon: []
       };
     },
 
@@ -242,40 +262,7 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-
-          let buttons = []
-          if (Array.isArray(this.buttonList)) {
-            this.buttonList.forEach(async item => {
-              item.url = item.dest_page
-              if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
-                item.openType = 'getPhoneNumber'
-              }
-              let picInfo = await this.getImageInfo({
-                url: this.getImagePath(item.icon, true)
-              })
-              if (picInfo && picInfo.w && picInfo.h) {
-                let res = this.setPicHeight(picInfo);
-                if (res.w && res.h) {
-                  this.$set(item, 'imgWidth', res.w);
-                  this.$set(item, 'imgHeight', res.h);
-                }
-              }
-              buttons.push(item)
-              // this.getImageInfo({
-              //   url: this.getImagePath(item.icon, true)
-              // }).then(picInfo => {
-              //   if (picInfo.w && picInfo.h) {
-              //     let res = this.setPicHeight(picInfo);
-              //     if (res.w && res.h) {
-              //       this.$set(item, 'imgWidth', res.w);
-              //       this.$set(item, 'imgHeight', res.h);
-              //     }
-              //   }
-              // });
-              // return item
-            });
-          }
-          this.setButtonIconHeight = buttons
+          this.setButtonsIcon()
         }
       },
       storeNo: {
@@ -417,45 +404,64 @@
       }
     },
     methods: {
-      setButtonIconHeight() {
-        let buttons = []
+      getImgButtonStyle(item) {
+        let style = {
+          backgroundImage: `url(${this.getImagePath(item.icon,true)})`,
+          width: item.imgWidth + 'px',
+          height: item.imgHeight + 'px'
+        }
+        return style
+      },
+      async setButtonsIcon() {
+        this.buttonsIcon = []
         if (Array.isArray(this.buttonList)) {
-          this.buttonList.foreEach(async item => {
+          for (let item of this.buttonList) {
             item.url = item.dest_page
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
             }
-            let picInfo = await this.getImageInfo({
-              url: this.getImagePath(item.icon, true)
-            })
-            if (picInfo && picInfo.w && picInfo.h) {
+            if (item.icon_origin_width && item.icon_origin_height && item.icon_origin_width !== '100%' && item
+              .icon_origin_height !== '100%' && false) {
+              let picInfo = {
+                w: item.icon_origin_width,
+                h: item.icon_origin_height
+              }
               let res = this.setPicHeight(picInfo);
               if (res.w && res.h) {
+                if (item.button_width && item.button_width.indexOf('%') !== -1) {
+                  let ratio = item.button_width.replace('%', '') * 0.01
+                  res.w = res.w * ratio
+                  res.h = res.h * ratio
+                }
                 this.$set(item, 'imgWidth', res.w);
                 this.$set(item, 'imgHeight', res.h);
               }
+            } else {
+              this.getImageInfo({
+                url: this.getImagePath(item.icon, true)
+              }).then(picInfo => {
+                if (picInfo && picInfo.w && picInfo.h) {
+                  let res = this.setPicHeight(picInfo);
+                  if (res.w && res.h) {
+                    if (item.button_width && item.button_width.indexOf('%') !== -1) {
+                      let ratio = item.button_width.replace('%', '') * 0.01
+                      res.w = res.w * ratio
+                      res.h = res.h * ratio
+                    }
+                    this.$set(item, 'imgWidth', res.w);
+                    this.$set(item, 'imgHeight', res.h);
+                  }
+                }
+              })
             }
-            buttons.push(item)
-            // this.getImageInfo({
-            //   url: this.getImagePath(item.icon, true)
-            // }).then(picInfo => {
-            //   if (picInfo.w && picInfo.h) {
-            //     let res = this.setPicHeight(picInfo);
-            //     if (res.w && res.h) {
-            //       this.$set(item, 'imgWidth', res.w);
-            //       this.$set(item, 'imgHeight', res.h);
-            //     }
-            //   }
-            // });
-            // return item
-          });
+            this.buttonsIcon.push(item)
+          }
         }
-        return buttons
       },
       setPicHeight(content) {
         let maxW = uni.upx2px(750);
-        content.h = (maxW * content.h) / content.w;
-        content.w = maxW;
+        content.h = ((maxW * content.h) / content.w) * 100 / 100;
+        content.w = maxW * 100 / 100;
         return content;
       },
       async syncPhone(phone) {
@@ -1090,10 +1096,40 @@
     // background: #FAFBFC;
     border-radius: 20rpx;
     min-width: 300px;
-
+    .template-1{
+      display: flex;
+      width: 100%;
+      height: 200px;
+      padding: 20px;
+      image{
+        width: 100%;
+        height: 100%;
+      }
+      .left,.right{
+        flex: 1;
+      }
+      .right{
+        display: flex;
+        flex-direction: column;
+        .top,.bottom{
+          flex: 1;
+        }
+        .bottom{
+          display: flex;
+          
+          .bottom-item{
+            flex: 1;
+          }
+        }
+      }
+    }
     .pictuer-button {
       display: flex;
       flex-wrap: wrap;
+
+      .picture-item {
+        background-size: 100% 100%;
+      }
 
       .image-item {
         width: 100%;

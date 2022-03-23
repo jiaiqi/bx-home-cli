@@ -380,6 +380,7 @@
 										value: '管理人员'
 									}
 								],
+                order: [{colName: "seq", orderType: "asc"}],
 								page: {
 									pageNo: 1,
 									rownumber: 99

@@ -164,13 +164,16 @@
         if (this.pageItem?.component_bg_img) {
           style.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
           style.backgroundRepeat = 'no-repeat'
-          style.backgroundSize = "contain"
+          style.backgroundSize = "100% 100%"
         }
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }
         if (this.pageItem?.margin) {
           style.margin = this.pageItem?.margin
+        }
+        if(this.pageItem?.is_radius==='否'){
+          style.borderRadius = '0'
         }
 
         return style

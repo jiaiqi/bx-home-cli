@@ -1,16 +1,15 @@
 <template>
   <view>
-    <view class="list-wrap" v-if="setViewTemp" :class="{
+    <view class="list-wrap" v-if="setViewTemp" :style="setListStyle" :class="{
 				'grid-layout': setViewTemp && setViewTemp.lp_style === '宫格'
 			}">
-      <!-- <checkbox-group @change="checkboxChange" class="check-box-group"> -->
       <view class="check-box-item " :class="{
 					'check-box_item':listType==='selectorList',
 					grid_span2: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '2' || setViewTemp.grid_span === 2),
 					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
 					grid_span5: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '5' || setViewTemp.grid_span === 5)
-				}" v-for="(item, index) in list" :key="index">
+				}" v-for="(item, index) in list" :key="index" :style="setItemStyle">
         <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
           style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
         <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData"
@@ -20,7 +19,6 @@
         <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
           style="transform:scale(1);margin-right:5px;" @click="checkboxChange(item)" />
       </view>
-      <!-- </checkbox-group> -->
     </view>
   </view>
 </template>
@@ -62,6 +60,13 @@
       idCol: {
         type: String,
         default: 'id'
+      },
+      nowrap: {
+        type: Boolean,
+        default: false
+      },
+      itemWidth: {
+        type: String
       }
     },
     watch: {
@@ -69,14 +74,25 @@
         deep: true,
         immediate: true,
         handler(newValue, oldValue) {
-          if (newValue?.type === 'childData') {
-          } else {
+          if (newValue?.type === 'childData') {} else {
             this.childData = {}
           }
         }
       },
     },
     computed: {
+      setListStyle() {
+        let style = ""
+        if (this.nowrap && this.itemWidth) {
+          style = "flex-wrap:nowrap!important;"
+        }
+        return style
+      },
+      setItemStyle() {
+        if (this.itemWidth) {
+          return `width:${this.itemWidth}!important;margin-right:10px!important;margin-bottom:0!important;flex:none;`
+        }
+      },
       rowButton() {
         return this.colV2?.rowButton.filter(item => item.permission !== false);
       },

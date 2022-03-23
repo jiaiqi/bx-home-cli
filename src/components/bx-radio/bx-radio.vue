@@ -298,7 +298,8 @@
       margin-right: 20rpx;
       margin-top: 10rpx;
       padding: 0;
-
+      min-width: 50px;
+      text-align: center;
       .bx-radio-icon {
         display: none;
       }

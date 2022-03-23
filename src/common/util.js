@@ -24,6 +24,8 @@ export default {
     Vue.mixin({
       computed: {
         ...mapState({
+          globalTextFontSize: state => state.app['globalTextFontSize'],
+          globalLabelFontSize: state => state.app.globalLabelFontSize,
           isAttention: state => state.app.subscsribeStatus, //是否关注公众号
           userInfo: state => state.user.userInfo,
           storeInfo: state => state.app.storeInfo,
@@ -103,7 +105,6 @@ export default {
       // 表单信息 srvType : add | update | list | detail | select
       // use_type: detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
       let self = this
-      debugger
       let appName = app || uni.getStorageSync("activeApp")
       if (srv && srvType && pageType) {
         let len = srv.lastIndexOf('_')
@@ -377,7 +378,7 @@ export default {
           fieldInfo.type = "number"
         } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "Selector"
-          if (item.option_list_v2 && item.option_list_v2.is_tree === true) {
+          if (item.option_list_v2 && (item.option_list_v2.is_tree === true||fieldInfo.column==='location')) {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
@@ -400,6 +401,11 @@ export default {
           // fieldInfo.type = 'location'
         } else if (item.bx_col_type === "string" && item.col_type === "fk") {
           fieldInfo.type = "Selector"
+          if (item.option_list_v2 && (item.option_list_v2.is_tree === true||fieldInfo.column==='location')) {
+            fieldInfo.type = "TreeSelector"
+            fieldInfo.srvInfo = item.option_list_v2
+            fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
+          }
         } else if (item.bx_col_type === "string") {
           fieldInfo.type = "text"
         } else {

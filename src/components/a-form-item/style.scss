@@ -221,10 +221,10 @@
 		&.label-top {
       width: calc(100% - 10px);
       margin-left: 10px;
-      padding: 0;
+      padding: 0 0 5px;
 			// padding: 0 20rpx 10rpx;
       text-align: left;
-      border: 1px solid #F1F1F1;
+      // border: 1px solid #F1F1F1;
       .form-item-content_value{
         justify-content: flex-start;
        
