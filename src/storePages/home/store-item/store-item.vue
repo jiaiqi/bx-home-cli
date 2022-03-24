@@ -1,5 +1,5 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no && pageItem && isShow" :style="itemStyle" :class="{
+  <view class="store-item" v-if="storeInfo && storeInfo.store_no && pageItem && isShow" :style="[itemStyle]" :class="{
 			'is-swiper': pageItem.type === '轮播图',
 			'padding':['疫苗列表'].includes(pageItem.type),
 			'bg-transparent': pageItem && ['关联店铺', '通知横幅', '会员卡片', '通用列表', '商品列表'].includes(pageItem.type),

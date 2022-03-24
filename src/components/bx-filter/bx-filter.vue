@@ -12,8 +12,7 @@
           class="cuIcon-refresh margin-right-xs "></text>重置</button>
       <button class="cu-btn bg-grey light" @click="cancel"><text
           class="cuIcon-close margin-right-xs "></text>取消</button>
-      <button class="cu-btn bg-blue light confirm" :class="{' bx-bg-color':theme}"
-        @click="toFilter">
+      <button class="cu-btn bg-blue light confirm" :class="{' bx-bg-color':theme}" @click="toFilter">
         <text class="cuIcon-search margin-right-xs"></text>确定
       </button>
     </view>
@@ -96,7 +95,8 @@
           let ignoreType = ['images', 'input', 'text', 'number']
           ignoreType = ['images']
           console.log(this.deepClone(filterCols))
-          this.filterCols = filterCols.filter(item => item.in_cond === 1 && item.in_list === 1 && !ignoreType
+          this.filterCols = filterCols.filter(item => (item.in_cond === 1 || item.in_cond_def == 1) && item.in_list ===
+            1 && !ignoreType
             .includes(item.type) && !/^\_.*\_disp$/.test(item.column))
         }
         this.$refs.filterForm.onReset()
@@ -109,6 +109,8 @@
 </script>
 
 <style scoped lang="scss">
+
+
   .bx-filter {
     max-height: calc(100vh - var(--window-bottom) - var(--window-top) - 150rpx);
     overflow-y: hidden;

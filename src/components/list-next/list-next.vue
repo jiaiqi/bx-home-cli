@@ -122,6 +122,7 @@
           margin: this.listConfig?.margin ?? viewTemp?.margin,
           padding: this.listConfig?.padding ?? viewTemp?.padding,
           btn_cfg: {
+         
             show_custom_btn: this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig
               ?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
             show_public_btn: this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig
@@ -136,6 +137,8 @@
             radius: this.listConfig?.btn_cfg?.size || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg
               ?.radius || '10px',
             size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || 'sm',
+            margin: this.listConfig?.btn_cfg?.margin ?? viewTemp?.btn_cfg
+              ?.margin,
             padding: this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
           },
           img: {

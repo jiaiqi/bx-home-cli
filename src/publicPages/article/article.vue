@@ -30,7 +30,9 @@
     </view>
 
     <view class="content">
-      <rich-text :nodes="richTextNodes" space="nbsp"></rich-text>
+      <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
+      <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->
+      <uHtmlParse :content="articleData.content" />
     </view>
 
     <view class="footer">
@@ -46,8 +48,12 @@
   import {
     mapState
   } from 'vuex'
-  import parseHtml from '@/publicPages/static/js/html-parser.js'
+  import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
+  // import parseHtml from '@/publicPages/static/js/html-parser.js'
   export default {
+    components: {
+      uHtmlParse
+    },
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo
@@ -55,15 +61,15 @@
       clientEnv() {
         return uni.getStorageSync('client_env')
       },
-      richTextNodes() {
-        if (this.articleData) {
-          if (this.articleData.content && typeof this.articleData.content === 'string') {
-            return parseHtml(this.articleData.content.replace(/\<img/gi, '<img width=100% height=100%'))
-          } else if (this.articleData.introduce && typeof this.articleData.content === 'introduce') {
-            return parseHtml(this.articleData.introduce.replace(/\<img/gi, '<img width=100% height=100%'))
-          }
-        }
-      }
+      // richTextNodes() {
+      //   if (this.articleData) {
+      //     if (this.articleData.content && typeof this.articleData.content === 'string') {
+      //       return parseHtml(this.articleData.content.replace(/\<img/gi, '<img width=100% height=100%'))
+      //     } else if (this.articleData.introduce && typeof this.articleData.content === 'introduce') {
+      //       return parseHtml(this.articleData.introduce.replace(/\<img/gi, '<img width=100% height=100%'))
+      //     }
+      //   }
+      // }
     },
     data() {
       return {

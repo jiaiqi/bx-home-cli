@@ -46,7 +46,8 @@
     <view class="pay-consult" v-if="sessionType==='专题咨询'&&vvipCard&&identity!=='经验主'">
       <view class="left">
         <view class="" v-if="vvipCard.card_last_bean||vvipCard.card_last_bean===0">
-          当前余额：<text>{{vvipCard.card_last_bean}}</text> <text class="cuIcon-moneybag margin-left-xs"></text>
+          想豆余额：<text>{{vvipCard.card_last_bean}}</text>
+          <text v-if="groupInfo.unit_price" class="margin-left text-sm">{{groupInfo.unit_price}}想豆/条</text>
         </view>
         <view class="text-sm ">
           <text>总消息数 {{totalMsg||'0'}}</text>
@@ -498,6 +499,8 @@
           } else if (this.session_no) {
             this.updateSessionNo()
           }
+
+          return res.data[0]
         }
       },
       getGroupUser() {
@@ -571,7 +574,18 @@
           if (Array.isArray(res.data) && res.data.length > 0) {
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
-            this.getGroup(false)
+            if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
+              uni.setNavigationBarTitle({
+                title: this.sessionInfo?.store_user_name
+              })
+            }
+            this.getGroup(false).then(res => {
+              if (this.identity === '客户' && this.groupInfo?.name) {
+                uni.setNavigationBarTitle({
+                  title: this.groupInfo?.name
+                })
+              }
+            })
             return res.data[0]
           } else {
             await this.createSession()
@@ -1022,7 +1036,7 @@
       },
     },
     beforeDestroy() {
-      if(this.sessionType==='专题咨询' && this.sessionInfo?.band_post==='否'){
+      if (this.sessionType === '专题咨询' && this.sessionInfo?.band_post === '否') {
         this.updateBandConsult('全员禁言')
       }
       if (this.sessionType === '机构用户客服') {

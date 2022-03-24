@@ -570,7 +570,7 @@
   import {
     mapState
   } from 'vuex';
-  import parseHtml from '@/publicPages/static/js/html-parser.js'
+  // import parseHtml from '@/publicPages/static/js/html-parser.js'
   import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
   import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
   export default {
@@ -834,12 +834,12 @@
           })
         }
       },
-      getText(str) {
-        if (str && typeof str === 'string') {
-          let result = parseHtml(str.replace(/\<img/gi, '<img width=100% height=100%'))
-          return result
-        }
-      },
+      // getText(str) {
+      //   if (str && typeof str === 'string') {
+      //     let result = parseHtml(str.replace(/\<img/gi, '<img width=100% height=100%'))
+      //     return result
+      //   }
+      // },
       clickAvatar(e) {
         this.$emit('clickAvatar', e)
       },

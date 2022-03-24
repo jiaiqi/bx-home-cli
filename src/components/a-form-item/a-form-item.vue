@@ -387,14 +387,14 @@
       },
       label_width() {
         let result = '';
-        
+
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
-        if(['images','textarea'].includes(this.fieldData.type)){
+        if (['images', 'textarea'].includes(this.fieldData.type)) {
           result = '100%'
         }
-        
+
         return result;
       },
       pickerMode() {
@@ -633,7 +633,6 @@
 
             }
           }
-
           return;
         }
         let self = this;
@@ -644,8 +643,44 @@
           console.log('详细地址：' + res.address);
           console.log('纬度：' + res.latitude);
           console.log('经度：' + res.longitude);
-
           if (self.fieldData.col_type === 'bxsys_obj_type_gps') {
+            if (self.fieldData?.moreConfig?.scope) {
+              let scope = self.fieldData?.moreConfig?.scope
+              let {
+                latitude: lat1,
+                longitude: lng1
+              } = await new Promise(resolve => {
+                wx.getLocation({
+                  type: 'gcj02',
+                  success: function(res) {
+                    resolve(res)
+                  }
+                })
+              })
+              if (lat1 && lng1) {
+                let distance = this.calcDistance(lat1, lng1, res.latitude, res.longitude)
+                if(!isNaN(Number(scope))&&!isNaN(distance)&&distance>scope){
+                 
+                  uni.showModal({
+                    title:'提示',
+                    content:`所选位置不能距离当前定位超过${scope}米`,
+                    showCancel:false,
+                    success(res) {
+                      if(res.confirm){
+                        uni.showToast({
+                          title:`距离当前定位${distance}米`,
+                          duration:3000,
+                          icon:'none'
+                        })
+                      }
+                    }
+                  })
+                  return
+                }
+              }
+            }
+
+
             self.fieldData.value = await this.saveLocation(res)
             self.fkFieldLabel = res.address
           } else {
@@ -655,6 +690,32 @@
           self.onBlur()
           self.getDefVal();
         }
+      },
+      calcDistance(lat1, lng1, lat2, lng2) {
+        // 计算两个经纬度点之间的距离
+        console.log(lat1, lng1, lat2, lng2)
+        debugger
+        //进行经纬度转换为距离的计算
+        function rad(d) {
+          return d * Math.PI / 180.0; //经纬度转换成三角函数中度分表形式。
+        }
+        const radLat1 = rad(lat1);
+        const radLat2 = rad(lat2);
+        const a = radLat1 - radLat2;
+        const b = rad(lng1) - rad(lng2);
+        let s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
+          Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+        s = s * 6378.137;
+        // 输出为公里
+        // s = Math.round(s * 10000) / 10000;
+        // // 输出为米
+        s = Math.round(s * 1000);
+        s = Number(s.toFixed(4));
+        // uni.showToast({
+        //   title: `距离打卡点:${Number(s)}米`,
+        //   icon: 'none'
+        // })
+        return s
       },
       async getLocationFromSys() {
         const app = this.srvApp

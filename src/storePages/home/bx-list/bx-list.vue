@@ -1,6 +1,12 @@
 <template>
   <view class="page-wrap">
-    <view class="list-box" v-if="tabs.length === 0&&total>0">
+    <view class="list-box" v-if="tabs.length === 0">
+      <list-bar @change="changeSerchVal" :background-class='listBarBg' :listType="listType" :filterCols="filterCols"
+        :srvApp="appName" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :srvCols="srvCols"
+        :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
+        @handelCustomButton="handlerCustomizeButton" @clickAddButton="clickAddButton" @search="toSearch"
+        :readonly="true" v-if="showListBar">
+      </list-bar>
       <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'">
         <text>{{ pageItem.component_label || '' }}</text>
         <button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">
@@ -17,7 +23,9 @@
             @click-foot-btn="clickFootBtn" />
         </view>
       </view>
-      <view class="" style="text-align: center;" v-if="list && list.length === 0&&total==0">内容为空</view>
+      <view class="data-empty" style="text-align: center;" v-if="list && list.length === 0&&total===0">
+        <u-empty></u-empty>
+      </view>
     </view>
     <view class="tabs-list list-box" v-else-if="tabs.length > 0">
       <u-tabs :list="tabs" :is-scroll="true" :current="curTab" style="margin: 0 10px 5px;" @change="changeTab">
@@ -47,8 +55,26 @@
       }
     },
     computed: {
+      showListBar() {
+        return this.pageItem && this.pageItem.show_list_bar == '是' && this.srvCols && this.srvCols.length > 0 && this
+          .list_config.list_bar !== false
+      },
+      listBarBg() {
+        let color = 'white'
+        if (this.pageItem?.list_bar_bg) {
+          switch (this.pageItem.list_bar_bg) {
+            case '透明':
+              color = 'transparent'
+              break;
+            case '透明':
+              color = 'white'
+              break;
+          }
+        }
+        return `bg-${color}`
+      },
       nowrap() {
-        return this.pageItem?.list_is_auto_wrap === '否' && this.itemWidth?true:false
+        return this.pageItem?.list_is_auto_wrap === '否' && this.itemWidth ? true : false
       },
       itemWidth() {
         return this.pageItem?.list_item_width
@@ -124,6 +150,8 @@
           padding: this.listConfig?.padding || config?.padding,
           list_bar: this.listConfig?.list_bar ?? config?.list_bar,
           btn_cfg: {
+            margin: this.listConfig?.btn_cfg?.margin ?? config?.btn_cfg
+              ?.margin,
             show_custom_btn: this.listConfig?.btn_cfg?.show_custom_btn ?? config?.btn_cfg
               ?.show_custom_btn ?? null,
             show_public_btn: this.listConfig?.btn_cfg?.show_public_btn ?? config?.btn_cfg
@@ -195,6 +223,16 @@
       srvCols() {
         return this.colV2?._fieldInfo || [];
       },
+      finalSearchColumn() {
+        if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
+          let arr = []
+          if (Array.isArray(this.listConfig?.cols)) {
+            let cols = this.listConfig?.cols.map(item => item.col)
+            arr = this.srvCols.filter(item => cols.includes(item.column))
+          }
+          return arr
+        }
+      },
       filterCols() {
         let cols = this.moreConfig?.appTempColMap;
         let arr = [];
@@ -202,8 +240,10 @@
           cols = Object.keys(cols)
             .map(key => cols[key])
             .filter(item => item && item);
-          arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String'].includes(item
-            .col_type));
+          arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String', 'MultilineText',
+            'Integer', 'Email', 'TelNo'
+          ].includes(item
+            .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0));
         } else {
           let defVal = {};
           if (Array.isArray(this.condition) && this.condition.length > 0) {
@@ -213,7 +253,8 @@
             }, {});
           }
           arr = this.srvCols
-            .filter(item => !['Image', 'String', 'MultilineText'].includes(item.col_type))
+            .filter(item => !['Image', 'String', 'MultilineText', 'Integer', 'Email', 'TelNo'].includes(item
+              .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0))
             .map(item => {
               if (defVal[item.column]) {
                 item.defaultValue = defVal[item.column];
@@ -263,7 +304,7 @@
         showMockCount: false,
         list: [],
         pageNo: 1,
-        total: 0,
+        total: null,
         loadStatus: 'more',
         condition: null,
         colV2: null,
@@ -285,7 +326,12 @@
         initCond: [],
         relationCondition: [],
         curTab: 0,
-        tabsData: []
+        tabsData: [],
+        gridButtonDisp: {
+          refresh: false
+        },
+        rowButtonDisp: {},
+        placeholder: ""
       };
     },
     methods: {
@@ -351,7 +397,29 @@
           }
         }
       },
-
+      toOrder(e) {
+        this.order = e
+        setTimeout(_ => {
+          this.getList()
+        }, 100)
+      },
+      toSearch(e) {
+        let keywords = e || this.searchVal;
+        this.searchVal = keywords
+        this.pageNo = 1
+        this.getList()
+      },
+      changeSerchVal(e) {
+        this.searchVal = e
+      },
+      toFilter(e) {
+        this.searchVal = ''
+        this.showFilter = false;
+        if (Array.isArray(e)) {
+          let cond = e
+          this.getList(cond)
+        }
+      },
       handlerCustomizeButton(e) {
         // 自定义按钮
         if (e.servcie_type === 'add') {
@@ -485,6 +553,15 @@
               if (!this.customDetailUrl) {
                 this.customDetailUrl = colVs.moreConfig?.customDetailUrl;
               }
+            }
+            // if (colVs.moreConfig?.formButtonDisp && !this.formButtonDisp) {
+            // 	this.formButtonDisp = colVs.moreConfig?.formButtonDisp
+            // }
+            if (colVs.moreConfig?.rowButtonDisp && !this.rowButtonDisp) {
+              this.rowButtonDisp = colVs.moreConfig?.rowButtonDisp
+            }
+            if (colVs.moreConfig?.gridButtonDisp && !this.gridButtonDisp) {
+              this.gridButtonDisp = colVs.moreConfig?.gridButtonDisp
             }
           } catch (e) {
             //TODO handle the exception
@@ -1271,6 +1348,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding: 0 10px;
+
+    .data-empty {
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .title {
       font-size: 16px;
@@ -1284,7 +1369,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: 0 10px;
+      margin-top: 5px;
 
       .list-view {
         flex: 1;
