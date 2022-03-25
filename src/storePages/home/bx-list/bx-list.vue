@@ -295,45 +295,51 @@
       filterCols() {
         let cols = this.moreConfig?.appTempColMap;
         let arr = [];
-        if (typeof cols === 'object') {
-          cols = Object.keys(cols)
-            .map(key => cols[key])
-            .filter(item => item && item);
-          arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String', 'MultilineText',
+        if(Array.isArray(this.srvCols)&&this.srvCols.length>0){
+          arr = this.srvCols.filter(item =>!['Image', 'String', 'MultilineText',
             'Integer', 'Email', 'TelNo'
           ].includes(item
             .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0));
-        } else {
-          let defVal = {};
-          if (Array.isArray(this.condition) && this.condition.length > 0) {
-            defVal = this.condition.reduce((res, cur) => {
-              res[cur.colName] = cur.value;
-              return res;
-            }, {});
-          }
-          arr = this.srvCols
-            .filter(item => !['Image', 'String', 'MultilineText', 'Integer', 'Email', 'TelNo'].includes(item
-              .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0))
-            .map(item => {
-              if (defVal[item.column]) {
-                item.defaultValue = defVal[item.column];
-                item.disabled = true;
-                item.value = defVal[item.column];
-              }
-              return item;
-            });
         }
-        if (Array.isArray(this.initCond) && this.initCond.length > 0) {
-          arr = arr.map(field => {
-            this.initCond.forEach(cond => {
-              if (field.column === cond.colName) {
-                field.value = cond.value;
-                field.defaultValue = cond.value;
-              }
-            });
-            return field;
-          });
-        }
+        // if (typeof cols === 'object') {
+        //   cols = Object.keys(cols)
+        //     .map(key => cols[key])
+        //     .filter(item => item && item);
+        //   arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String', 'MultilineText',
+        //     'Integer', 'Email', 'TelNo'
+        //   ].includes(item
+        //     .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0));
+        // } else {
+        //   let defVal = {};
+        //   if (Array.isArray(this.condition) && this.condition.length > 0) {
+        //     defVal = this.condition.reduce((res, cur) => {
+        //       res[cur.colName] = cur.value;
+        //       return res;
+        //     }, {});
+        //   }
+        //   arr = this.srvCols
+        //     .filter(item => !['Image', 'String', 'MultilineText', 'Integer', 'Email', 'TelNo'].includes(item
+        //       .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0))
+        //     .map(item => {
+        //       if (defVal[item.column]) {
+        //         item.defaultValue = defVal[item.column];
+        //         item.disabled = true;
+        //         item.value = defVal[item.column];
+        //       }
+        //       return item;
+        //     });
+        // }
+        // if (Array.isArray(this.initCond) && this.initCond.length > 0) {
+        //   arr = arr.map(field => {
+        //     this.initCond.forEach(cond => {
+        //       if (field.column === cond.colName) {
+        //         field.value = cond.value;
+        //         field.defaultValue = cond.value;
+        //       }
+        //     });
+        //     return field;
+        //   });
+        // }
         return arr;
       },
       orderList() {

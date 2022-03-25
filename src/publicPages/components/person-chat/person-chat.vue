@@ -1989,7 +1989,7 @@
         }
         data.msg_content_type = type
         data.id = this.recordList.length > 0 ? (this.recordList[this.recordList.length - 1].id + 999) : 99
-        this.recordList.push(data)
+        // this.recordList.push(data)
 
         this.toBottom()
         let res = await this.$http.post(url, req);
@@ -2172,7 +2172,7 @@
         } else {
           req[0].data[0].msg_link = this.chooseRecod;
         }
-        this.recordList.push(req[0].data[0])
+        // this.recordList.push(req[0].data[0])
         if (serviceName === 'srvhealth_consultation_chat_record_add') {
           if (req[0].data[0].msg_content && req[0].data[0].msg_content.indexOf("@所有人") !== -1) {
             console.log(this.currentUserInfo)
@@ -2781,7 +2781,7 @@
               .id +
               999) :
             99
-          this.recordList.push(dataResult)
+          // this.recordList.push(dataResult)
           return result
         })
         req[0].data = reqData

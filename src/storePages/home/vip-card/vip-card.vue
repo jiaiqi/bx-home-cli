@@ -20,7 +20,6 @@
             {{vipCardInfo.card_last_bean||''}}
           </view>
         </view>
-
       </view>
       <view class="right-banner" v-if="rightBtn&&rightBtn.url">
         {{rightBtn.text||""}}
