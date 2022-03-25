@@ -31,7 +31,7 @@
             <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
               <text v-if="item.prefix">{{ item.prefix }}</text>
               <view class="" v-if="item.fmt">
-                <text class="cu-tag sm bg-gray radius" v-for=" tag in formatText(item)">{{tag}}</text>
+                <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;" v-for=" tag in formatText(item)">{{tag}}</text>
               </view>
               <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
