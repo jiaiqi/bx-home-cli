@@ -115,14 +115,20 @@
         }
       },
       consultFeeSum() {
+        let res = 0
         if (this.sessionInfo?.commission_amount && this.sessionInfo?.answer_amount) {
           let num = Number(this.sessionInfo.answer_amount) + Number(this.sessionInfo.commission_amount)
           if (!isNaN(num)) {
-            return num
+            res = Number((num*1000/1000).toFixed(2))
           }
         }
         if (this.groupInfo?.unit_price && this.totalMsg) {
-          return this.totalMsg * this.groupInfo?.unit_price
+          res =  Number((this.totalMsg * this.groupInfo?.unit_price*1000/1000).toFixed(2))
+        }
+        if(!isNaN(res)){
+          return res
+        }else{
+          return ''
         }
       },
       payConsultStatus() {

@@ -2565,7 +2565,7 @@
       stopRefreshMsgTimer() {
         clearInterval(this.refreshMessageTimer)
       },
-      setRefreshMessageTimer(second = 2 * 1000, enableSet = false) {
+      setRefreshMessageTimer(second = 2 * 1000, enableSet = true) {
         // 设置定时刷新消息的定时器
         if (this.sessionType === '专题咨询' && !enableSet && this.identity === '客户') {
           return
