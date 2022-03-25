@@ -12,7 +12,11 @@
             style="background-color: #10c0a8;color: #fff;border-radius: 5px;margin-left: 5px;padding: 2px 5px;font-size: 12px;">
             {{info.my_professional||''}}
           </view>
-          <view class="col-item ellipse nowrap width-wrap">
+
+          <view class="" v-if="info.show_str">
+            {{info.show_str}}
+          </view>
+          <view class="col-item ellipse nowrap width-wrap" v-else>
             {{info.location_addrs||''}}
           </view>
         </view>
@@ -82,27 +86,34 @@
     },
     methods: {
       async toConsult() {
-        // let res = await this.checkSubscribeStatus()
-        // if (!res) {
-        //   uni.showModal({
-        //     title: '提示',
-        //     content: '请先关注百想助理公众号，以便及时收到新消息通知',
-        //     success: (res) => {
-        //       if (res.confirm) {
-        //         this.toOfficial()
-        //       }
-        //     }
-        //   })
-        //   return
-        // }
-        if (this.vstoreUser?.store_no && this.groupInfo?.gc_no && this.info?.store_user_no) {
+        let res = await this.checkSubscribeStatus()
+        if (!res) {
+          let confirm =await new Promise((resolve)=>{
+            uni.showModal({
+              title: '提示',
+              content: '请先关注百想助理公众号，以便及时收到新消息通知',
+              success: (res) => {
+                if (res.confirm) {
+                  resolve(true)
+                }else{
+                  resolve(false)
+                }
+              }
+            })
+          })
+          if(confirm===true){
+            this.toOfficial()
+          }else{
+            return
+          }
+        }
+        if (this.vstoreUser?.store_no && this.groupInfo?.gc_no && this.vstoreUser?.store_user_no) {
           let url =
-            `/publicPages/chat/chat?identity=客户&groupNo=${this.groupInfo.gc_no}&type=专题咨询&storeNo=${this.vstoreUser.store_no}&store_user_no=${this.info.store_user_no}`
+            `/publicPages/chat/chat?identity=客户&groupNo=${this.groupInfo.gc_no}&type=专题咨询&storeNo=${this.vstoreUser.store_no}&store_user_no=${this.vstoreUser.store_user_no}`
           uni.navigateTo({
             url
           })
         }
-
       },
       toOfficial() {
         // 跳转到关注公众号页面

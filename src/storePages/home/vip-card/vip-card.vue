@@ -16,7 +16,7 @@
         {{rightBtn.text||""}}
       </view>
     </view>
-    <view class="not-vip" @click="toOpenVip" v-else-if="showText">
+    <view class="not-vip" v-else-if="showText">
       <view class="">
         <text class="cuIcon-crownfill text-white"></text>
         <text>开通VIP享受更多权益</text>

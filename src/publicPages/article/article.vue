@@ -29,9 +29,8 @@
       </view>
     </view>
 
-    <view class="content">
+    <view class="content" v-if="articleData.content">
       <view class="" v-html="articleData.content">
-
       </view>
       <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
       <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->

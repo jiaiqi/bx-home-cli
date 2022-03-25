@@ -45,7 +45,7 @@
     <!-- 付费咨询 -->
     <view class="pay-consult jyz" v-if="sessionType==='专题咨询'&&vvipCard&&identity==='经验主'">
       <text>总消息数 {{totalMsg||'0'}}</text>
-      <text> 我的佣金：<text class="margin-right-xs">{{consultFeeSum||'0'}}</text>想豆</text>
+      <text> 我的佣金：<text class="margin-right-xs">{{consultJyzSum||'0'}}</text>想豆</text>
     </view>
     <view class="pay-consult" v-if="sessionType==='专题咨询'&&vvipCard&&identity!=='经验主'">
       <view class="left">
@@ -107,6 +107,12 @@
         return !isNaN(Number(this.vvipCard?.card_last_bean)) && Number(this.vvipCard?.card_last_bean) === 0 &&
           this.identity == '客户' && this.sessionType == '专题咨询'
         return false
+      },
+      consultJyzSum() {
+        // 经验主佣金
+        if (this.sessionType === '专题咨询' && this.identity == '经验主') {
+          return this.sessionInfo?.answer_amount || '0'
+        }
       },
       consultFeeSum() {
         if (this.sessionInfo?.commission_amount && this.sessionInfo?.answer_amount) {
@@ -1057,7 +1063,7 @@
       },
     },
     beforeDestroy() {
-      if (this.sessionType === '专题咨询' && this.sessionInfo?.band_post === '否') {
+      if (this.sessionType === '专题咨询' && this.identity === '客户' && this.sessionInfo.store_user_no && this.sessionInfo?.store_user_no == this.vstoreUser?.store_user_no) {
         this.updateBandConsult('全员禁言')
       }
       if (this.sessionType === '机构用户客服') {
