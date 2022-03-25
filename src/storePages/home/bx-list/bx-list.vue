@@ -8,8 +8,7 @@
         :readonly="true" v-if="showListBar">
       </list-bar>
       <filter-tags :tabs="tags" ref="filterTabs" :mode="'fold'" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter"
-        v-if="colV2&&colV2.srv_cols&&tags">
+        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
       </filter-tags>
       <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'">
         <text>{{ pageItem.component_label || '' }}</text>
@@ -73,13 +72,13 @@
               conditions: null,
               seq: null,
               parent: null,
-      		      label: null,
+              label: null,
               list_tab_no: null,
               more_config: null,
               inputType: null
             }
-      		    let mc = JSON.parse(t.more_config)
-      		    tab.more_config = mc
+            let mc = JSON.parse(t.more_config)
+            tab.more_config = mc
             tab.service = t.service
             tab.table_name = t.table_name
             tab.conditions = t.conditions
@@ -89,7 +88,7 @@
             tab.label = t.label
             tab.list_tab_no = t.list_tab_no
             tab._data = t
-      		    tab._type = mc.type || null
+            tab._type = mc.type || null
             tab._colName = mc.colName || null
             tab.inputType = mc.inputType || null
             tab.showAllTag = mc.showAllTag || false
@@ -98,7 +97,7 @@
 
             if (tab._colName) {
               tab._colName = tab._colName.split(',')
-      			     let cols = tab._colName
+              let cols = tab._colName
               let srvCols = self.colV2.srv_cols
               tab['_colSrvData'] = []
               for (let c = 0; c < cols.length; c++) {
@@ -288,7 +287,7 @@
           let arr = []
           if (Array.isArray(this.listConfig?.cols)) {
             let cols = this.listConfig?.cols.map(item => item.col)
-            arr = this.srvCols.filter(item => cols.includes(item.column))
+            arr = this.srvCols.filter(item => cols.includes(item.column)).map(item => item.column)
           }
           return arr
         }
@@ -721,7 +720,49 @@
         }
 
         let keywords = this.searchVal;
-
+        if (keywords && this.finalSearchColumn) {
+          if (typeof this.finalSearchColumn === 'string') {
+            req.condition = req.condition.concat([{
+              colName: this.finalSearchColumn,
+              ruleType: 'like',
+              value: keywords
+            }]);
+          } else if (Array.isArray(this.finalSearchColumn)) {
+            // 数组 使用relation_condition
+            if (Array.isArray(req.condition) && req.condition.length > 0) {
+              req.relation_condition = {
+                relation: "AND",
+                data: [{
+                    relation: "OR",
+                    data: this.finalSearchColumn.map(item => {
+                      return {
+                        "colName": item,
+                        "value": keywords,
+                        "ruleType": 'like'
+                      }
+                    })
+                  },
+                  {
+                    relation: "AND",
+                    data: this.deepClone(req.condition)
+                  }
+                ]
+              }
+            } else {
+              req.relation_condition = {
+                relation: "OR",
+                data: this.finalSearchColumn.map(itme => {
+                  return {
+                    "colName": itme,
+                    "value": keywords,
+                    "ruleType": 'like'
+                  }
+                })
+              }
+            }
+            // delete req.condition
+          }
+        }
         if (Array.isArray(this.relationCondition?.data) && this.relationCondition.data.length > 0) {
           if (req.relation_condition?.data.length > 0) {
             req.relation_condition = {

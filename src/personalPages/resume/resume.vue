@@ -22,20 +22,23 @@
         </view>
       </view>
       <view class="other-col">
-        <view class="col-item" v-if="groupInfo.unit_price">
+    <!--    <view class="col-item" v-if="groupInfo.unit_price">
           <view class="label">
-            <text> 问询服务</text>
+            <text></text>
             <view class="value text-orange text-normal">
               <text>{{groupInfo.unit_price}}想豆/条</text>
             </view>
           </view>
-        </view>
+        </view> -->
         <view class="col-item" v-if="groupInfo.unit_price">
           <view class="label">
             个人简介
           </view>
-          <view class="value text-gray text-lg">
+          <view class="value text-gray text-lg" v-if="info.my_descript">
             {{info.my_descript||''}}
+          </view>
+          <view class="value text-gray text-lg" v-else>
+            无
           </view>
 
         </view>
@@ -43,16 +46,22 @@
           <view class="label">
             个人标签
           </view>
-          <view class="value">
+          <view class="value" v-if="info.my_tag_map">
             <text class="bx-tag bg-gray round" v-for="item in formatText(info.my_tag_map,'tags')">{{item}}</text>
+          </view>
+          <view class="value" v-else>
+            无
           </view>
         </view>
         <view class="col-item">
           <view class="label">
             证书
           </view>
-          <view class="value">
+          <view class="value" v-if="info.certificat_name">
             <text class="bx-tag bg-gray round" v-for="item in formatText(info.certificat_name,'tags')">{{item}}</text>
+          </view>
+          <view class="value" v-else>
+            无
           </view>
         </view>
       </view>
@@ -311,7 +320,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-
+    .price{
+      font-size: 16px;
+      padding-left: 10px;
+    }
     // position: absolute;
     // bottom: 0;
     .cu-btn {
