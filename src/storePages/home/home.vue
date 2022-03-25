@@ -16,7 +16,7 @@
         :before-click="clickStoreItem">
       </store-item>
     </view>
-
+    
     <view class="copyright-box">
       <view class="row">
         声明：图文信息均来源合作方，如有侵权请联系我们删除

@@ -1,6 +1,18 @@
 <template>
   <view class="filter-tags-view">
-    <view class="filter-form" v-if="setTabs&&setTabs.length>0">
+    <view class="filter-tags-box">
+      <button class="cu-btn round margin-right-xs" :class="{'bg-white':!tab.active,'line-cyan':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
+        v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
+        <text class="label">
+          <text
+            v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{formModel[tab.list_tab_no].value}}</text>
+          <text v-else>{{tab.label||''}}</text>
+        </text>
+        <text class="cuIcon-triangledownfill"></text>
+      </button>
+    </view>
+
+    <view class="filter-form" v-if="mode==='unfold'&&setTabs&&setTabs.length>0" @click.prevent.captur="">
       <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex">
         <view class="label" :class="{'pc-model':sysModel==='PC'}"
           v-if="(!tab.more_config.showLabel&&tab.more_config.showLabel!==false)||sysModel==='PC'">
@@ -43,7 +55,22 @@
             </bx-radio-group>
           </view>
         </view>
+      </view>
+    </view>
 
+    <view class="cu-modal" :class="{show:showTagsModal}" @click="showModal()">
+      <view class="cu-dialog" @click.stop=""
+        v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no">
+        <view class="label">
+          {{setTabs[curTag].label}}
+        </view>
+        <bx-radio-group mode="button" v-model="formModel[setTabs[curTag].list_tab_no].value" @change="radioChange">
+          <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in setTabs[curTag].options">
+            <view class="radio-label">
+              {{item.label||''}}
+            </view>
+          </bx-radio>
+        </bx-radio-group>
       </view>
     </view>
   </view>
@@ -73,8 +100,12 @@
           }]
         },
         setTabs: [],
+        curTag: 0,
+        curTagSelected: '',
+        curTagButtons: [],
         formModel: {},
         onInputValue: false, // 是否有输入值
+        showTagsModal: false
       };
     },
     computed: {
@@ -100,9 +131,43 @@
         default: function() {
           return '';
         }
+      },
+      mode: {
+        // fold-折叠 只显示类别 点击弹框选择筛选标签
+        // unfold-展开 直接选择标签
+        type: String,
+        default: "unfold"
       }
     },
     methods: {
+      radioChange(e) {
+        let curTag = this.setTabs[this.curTag]
+        let col = {
+          colName: curTag._colName,
+          value: e,
+          inputType: curTag.inputType,
+          default: curTag.default
+        }
+        col.colName = curTag._colName
+        col.inputType = curTag.inputType
+        col.formType = curTag._type
+        col.tags = curTag.more_config.tags || []
+        if (e == '_unlimited_') {
+          col.value = ''
+        }
+        this.formModel[curTag.list_tab_no] = col
+        this.showTagsModal = !this.showTagsModal
+      },
+      showModal(tag, index) {
+        this.showTagsModal = !this.showTagsModal
+        if (this.showTagsModal) {
+          this.curTag = index
+          this.curTagButtons = tag?.options
+        } else {
+          this.curTagSelected = ''
+          this.curTagButtons = []
+        }
+      },
       onBuildFormValues() {
         let self = this
         let tabs = this.deepClone(this.tabs)
@@ -142,6 +207,9 @@
           }
         })
         this.setTabs = tabs
+        if (tabs.length > 0) {
+          this.curTagButtons = tabs[0]?.options
+        }
         console.log('tabs,', tabs)
         self.formModel = model
       },
@@ -306,18 +374,7 @@
       buildConditions(e) {
         let self = this
         let condsModel = self.formModel
-        let reqs = {
-          "serviceName": "srvdemo_development_info_select",
-          "colNames": [
-            "*"
-          ],
-          "condition": [],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 10
-          },
-          "order": []
-        }
+        debugger
         let relation_Conditions = {
           "relation": "AND",
           "data": []
@@ -515,6 +572,44 @@
 </script>
 
 <style lang="scss" scoped>
+  .filter-tags-view {
+    position: relative;
+  }
+
+  .cur-tag-model {
+    position: absolute;
+    left: -20px;
+    right: -20px;
+    z-index: 999;
+    height: 1000vh;
+    background-color: rgba($color: #000000, $alpha: 0.2);
+    margin-top: 5px;
+
+    .cur-tag-dialog {
+      min-height: 100px;
+      padding: 10px 20px;
+      background-color: #fff;
+      border-radius: 0 0 40px 40px;
+
+      .radio-label {
+        min-width: 60px;
+        min-height: 40px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .filter-tags-box {
+    .line-cyan {
+      border: 1px solid #10c0a8;
+      background-color: rgba($color: #10c0a8, $alpha: 0.1);
+
+    }
+  }
+
   .filter-form {
     padding: 10rpx 20rpx;
     border: 1rpx solid #f1f1f1;
@@ -544,6 +639,31 @@
       }
 
       .form-item-content {}
+    }
+  }
+
+  .cu-modal {
+    display: block;
+    z-index: 9999;
+
+    .cu-dialog {
+      padding: 20px;
+      .label{
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .radio-label {
+        min-width: 80px;
+        text-align: center;
+        min-height: 25px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 </style>

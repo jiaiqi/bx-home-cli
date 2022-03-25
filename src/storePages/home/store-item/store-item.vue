@@ -247,10 +247,6 @@
             icon: 'none'
           })
         }
-        // if (toSub === true) {
-        //   webUrl =
-        //     `https://srvms.100xsys.cn/health/remote/getPage?address=${encodeURIComponent('https://mp.weixin.qq.com/mp/getmasssendmsg?__biz=MzI1NjE2NzE1OA==#wechat_webview_type=1&wechat_redirect')}`
-        // }
       },
       getUserList() {
         let serviceName = 'srvhealth_store_user_visitor_select';

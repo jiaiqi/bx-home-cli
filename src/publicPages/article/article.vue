@@ -17,7 +17,7 @@
         </view>
         <view class="create-time">
           <text class="store-name" @click="toStore" v-if="storeName && storeNo">{{ storeName }}</text>
-          <text>{{ dayjs(articleData.create_time).format("YYYY-MM-DD") }}</text>
+          <text v-if="articleData.create_time">{{ dayjs(articleData.create_time).format("YYYY-MM-DD") }}</text>
         </view>
       </view>
       <view class="right qr-code">
@@ -30,9 +30,13 @@
     </view>
 
     <view class="content">
+      <view class="" v-html="articleData.content">
+
+      </view>
       <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
       <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->
-      <uHtmlParse :content="articleData.content" />
+      <!-- <uHtmlParse :content="richTextNodes" /> -->
+      <!-- <uHtmlParse :content="articleData.content" /> -->
     </view>
 
     <view class="footer">

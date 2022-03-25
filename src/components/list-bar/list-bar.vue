@@ -297,6 +297,7 @@
     // height: 100px;
     .search-form {
       transition: all 0.5s ease-in-out;
+      margin: 0 15px 0 0;
     }
 
     .action {

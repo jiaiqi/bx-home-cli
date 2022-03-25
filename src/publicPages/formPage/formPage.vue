@@ -1,5 +1,6 @@
 <template>
-  <view class="form-wrap" :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title}]">
+  <view class="form-wrap"
+    :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode}]">
     <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
       v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
       <view class="icon">
@@ -15,15 +16,37 @@
       </view>
     </view>
     <view class="form-content">
-      <view class="main-form-edit">
+      <view class="main-form-edit" v-show="!stepMode||(stepMode&&curStep=='main')">
         <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0"
           :fields="fields" :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type"
           ref="bxForm" :mainData="mainData" @value-blur="valueChange" @setColData="setColData">
         </a-form>
       </view>
 
+
+      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'" v-if="stepMode">
+        <view class="change-child">
+          <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="curChild"
+            @change="radioChange">
+            <bx-radio class="radio" color="#10c0a8" :key="item.constraint_name" v-for="item in childServiceRadioOption"
+              :name="item.constraint_name">
+              {{ item.label }}
+            </bx-radio>
+          </bx-radio-group>
+        </view>
+
+        <view class="child-service" v-for="(item,index) in childServiceRadioOption" :key="index">
+          <child-list v-show="curChild===item.constraint_name" :config="item" :childListData="childListData"
+            :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
+            :fkInitVal="fkInitVal[item.constraint_name]" :fkCondition="fkCondition[item.constraint_name]"
+            ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
+          </child-list>
+        </view>
+      </view>
+
       <view class="child-service-box" :class="{'pc-model':model==='PC'}"
-        v-if="colsV2Data && isArray(fields)&&fields.length>0">
+        v-else-if="colsV2Data && isArray(fields)&&fields.length>0">
+
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
             :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
@@ -32,6 +55,7 @@
           </child-list>
         </view>
       </view>
+
     </view>
     <view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
       <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
@@ -39,12 +63,22 @@
         {{ btn.button_name}}
       </button>
     </view>
-    <view class="button-box" v-else-if="colsV2Data&&!disabled">
+    <view class="button-box" v-else-if="stepMode&&childService&&childService.length>0">
+      <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
+      <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
+        v-if="curStep==='child'">上一步</button>
+      <button class="cu-btn  bg-cyan round lg  flex-all" v-if="curStep==='child'&&isArray(fields) && fields.length > 0"
+        v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
+        {{ btn.button_name }}
+      </button>
+    </view>
+    <view class="button-box" v-else-if="!stepMode&&colsV2Data&&!disabled">
       <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
     </view>
+
   </view>
 </template>
 
@@ -83,7 +117,10 @@
         disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
         afterSubmit: "",
         params: {},
-        view_cfg: null
+        view_cfg: null,
+        stepMode: false, //分步模式，第一步填主表，第二步填子表
+        curStep: 'main',
+        curChild: ''
       }
     },
     computed: {
@@ -141,42 +178,47 @@
         }
         return {}
       },
-      childService: {
-        get() {
-          let result = []
-          if (['update', 'add'].includes(this.srvType)) {
-            result = this.operateChildService
-          } else {
-            result = this.detailChildService
-          }
-          if (Array.isArray(result)) {
-            return result.map(item => {
-              if (item?.foreign_key?.constraint_name) {
-                item.constraint_name = item?.foreign_key?.constraint_name
-              }
-              if (item?.foreign_key?.section_name) {
-                item.label = item.foreign_key.section_name
-              }
-              if (item?.foreign_key?.more_config) {
-                try {
-                  item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
-                } catch (e) {
-
-                }
-              }
-              return item
-            }).filter((item, index) => {
-              if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
-                ._child_tables.length) {
-                if (this.mainData._child_tables[index] === 0) {
-                  return false
-                }
-              }
-              return true
-            })
-          }
-          return result
+      childServiceRadioOption() {
+        if (Array.isArray(this.childService) && this.childService.length > 0) {
+          return this.childService.filter(item => item.constraint_name)
+        } else {
+          return []
         }
+      },
+      childService() {
+        let result = []
+        if (['update', 'add'].includes(this.srvType)) {
+          result = this.operateChildService
+        } else {
+          result = this.detailChildService
+        }
+        if (Array.isArray(result)) {
+          return result.map(item => {
+            if (item?.foreign_key?.constraint_name) {
+              item.constraint_name = item?.foreign_key?.constraint_name
+            }
+            if (item?.foreign_key?.section_name) {
+              item.label = item.foreign_key.section_name
+            }
+            if (item?.foreign_key?.more_config) {
+              try {
+                item.foreign_key.moreConfig = JSON.parse(item.foreign_key.more_config)
+              } catch (e) {
+
+              }
+            }
+            return item
+          }).filter((item, index) => {
+            if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
+              ._child_tables.length) {
+              if (this.mainData._child_tables[index] === 0) {
+                return false
+              }
+            }
+            return true
+          })
+        }
+        return result
       },
       operateChildService() {
         return this.detailV2?.child_service.filter(item => {
@@ -199,6 +241,18 @@
 
     },
     methods: {
+      radioChange(e) {
+        this.curChild = e
+      },
+      changeStep(e) {
+        if (e == 'child') {
+          let req = this.$refs.bxForm.getFieldModel();
+          if (req === false) {
+            return
+          }
+        }
+        this.curStep = e
+      },
       getChildListData() {
         return this.childListData
       },
@@ -1064,6 +1118,9 @@
         let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
 
         this.detailV2 = colVs
+        if (Array.isArray(this.childServiceRadioOption) && this.childServiceRadioOption.length > 0) {
+          this.curChild = this.childServiceRadioOption[0].constraint_name
+        }
         return colVs
       },
       async getFieldsV2() {
@@ -1300,6 +1357,9 @@
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)
       // })
+      if (option.stepMode) {
+        this.stepMode = true
+      }
       if (option.view_cfg) {
         // 详情页面自定义展示效果
         try {
@@ -1375,11 +1435,23 @@
 
   .form-wrap {
     min-height: 100vh;
-    background-color: #F1F1F1;
+    background-color: #F8F8F8;
     padding: 20rpx;
     display: flex;
     flex-direction: column;
     margin: 0 auto;
+
+    &.step-mode {
+      padding: 0;
+
+      ::v-deep .form-item {
+
+        &.before-section,
+        &.section-top {
+          border-radius: 0;
+        }
+      }
+    }
 
     &.no-padding {
       padding: 0;
@@ -1455,6 +1527,17 @@
   }
 
   .child-service-box {
+    &.step-mode {
+      .child-service {
+        margin: 0 10px;
+        border-radius: 10px;
+      }
+    }
+
+    .change-child {
+      padding: 20px 10px 10px;
+    }
+
     &.pc-model {
 
       @media screen and (min-width:800px) {
@@ -1493,14 +1576,29 @@
   }
 
   .button-box {
-    padding: 40rpx 20rpx;
+    padding: 10px;
     min-width: 300px;
     max-width: 800px;
     margin: 10px auto 20px;
     flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+
+    .bg-cyan {
+      background-color: #10c0a8;
+    }
 
     .cu-btn {
-      min-width: 65%;
+      min-width: 85%;
+
+      &.flex-half {
+        min-width: 40%;
+        margin-right: 10px;
+      }
+
+      &.flex-all {
+        min-width: calc(60% - 10px);
+      }
     }
   }
 </style>

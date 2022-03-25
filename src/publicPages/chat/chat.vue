@@ -43,6 +43,10 @@
     </view>
 
     <!-- 付费咨询 -->
+    <view class="pay-consult jyz" v-if="sessionType==='专题咨询'&&vvipCard&&identity==='经验主'">
+      <text>总消息数 {{totalMsg||'0'}}</text>
+      <text> 我的佣金：<text class="margin-right-xs">{{consultFeeSum||'0'}}</text>想豆</text>
+    </view>
     <view class="pay-consult" v-if="sessionType==='专题咨询'&&vvipCard&&identity!=='经验主'">
       <view class="left">
         <view class="" v-if="vvipCard.card_last_bean||vvipCard.card_last_bean===0">
@@ -70,8 +74,8 @@
       <person-chat ref="chatInstance" :payConsultStatus="payConsultStatus"
         :show-goods-card="showGoodsCard&&goodsInfo?true:false" :session-no="session_no" :identity="identity"
         :sessionInfo="sessionInfo" page-type="session" @clickAvatar="clickAvatar" @load-msg-complete="loadMsgComplete"
-        @msgSendSuccess="msgSendSuccess" :groupInfo="groupInfo" :rowInfo="rowInfo" :storeInfo="storeInfo"
-        :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight" :group-no="groupNo"
+        @msgSendSuccess="msgSendSuccess" @onRefresh="onRefreshMsg" :groupInfo="groupInfo" :rowInfo="rowInfo"
+        :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight" :group-no="groupNo"
         :receiverInfo="receiverInfo" :banSend="banSend||stopConsult" :band-post="bandPost"
         v-if="session_no&&storeUserInfo" :storeUserInfo="vstoreUser" :queryOption="queryOption"></person-chat>
     </view>
@@ -88,6 +92,7 @@
       personChat
     },
     computed: {
+
       isSelf() {
         // 专题咨询 自己给自己发消息
         return this.sessionType == '专题咨询' && this.identity == '客户' && this.vstoreUser?.store_user_no && this.vstoreUser
@@ -104,6 +109,12 @@
         return false
       },
       consultFeeSum() {
+        if (this.sessionInfo?.commission_amount && this.sessionInfo?.answer_amount) {
+          let num = Number(this.sessionInfo.answer_amount) + Number(this.sessionInfo.commission_amount)
+          if (!isNaN(num)) {
+            return num
+          }
+        }
         if (this.groupInfo?.unit_price && this.totalMsg) {
           return this.totalMsg * this.groupInfo?.unit_price
         }
@@ -166,7 +177,7 @@
       topHeight() {
         if (this.sessionType === '专题咨询') {
           if (this.identity == '经验主') {
-            return 0
+            return 40
           } else if (this.identity == '客户') {
             return 60
           }
@@ -403,8 +414,15 @@
           // 更新群组圈子最后查看时间
           this.updateLastLookTime(this.lastMessage);
         }
+
         if (page?.total) {
           this.totalMsg = page.total
+        }
+
+      },
+      onRefreshMsg() {
+        if (this.sessionType === '专题咨询') {
+          this.getZtSession(false)
         }
       },
       async getRow() {
@@ -538,7 +556,7 @@
           }
         })
       },
-      async getZtSession() {
+      async getZtSession(isGetGroup) {
         // 专题咨询会话查询
         let req = {
           "serviceName": "srvhealth_dialogue_session_select",
@@ -579,13 +597,16 @@
                 title: this.sessionInfo?.store_user_name
               })
             }
-            this.getGroup(false).then(res => {
-              if (this.identity === '客户' && this.groupInfo?.name) {
-                uni.setNavigationBarTitle({
-                  title: this.groupInfo?.name
-                })
-              }
-            })
+            if (isGetGroup !== false) {
+              this.getGroup(false).then(res => {
+                if (this.identity === '客户' && this.groupInfo?.name) {
+                  uni.setNavigationBarTitle({
+                    title: this.groupInfo?.name
+                  })
+                }
+              })
+            }
+
             return res.data[0]
           } else {
             await this.createSession()
@@ -1299,6 +1320,10 @@
     padding: 0 20px;
     height: 60px;
     align-items: center;
+
+    &.jyz {
+      height: 40px;
+    }
 
     .left {
       .text-sm {

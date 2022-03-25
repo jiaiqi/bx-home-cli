@@ -462,6 +462,9 @@
       <view class="band-tip text-blue" v-else-if="sessionType==='专题咨询'&&identity==='客户'&&payConsultStatus==='stop'">
         已关闭咨询,请先点击右上方按钮开启咨询
       </view>
+      <view class="band-tip" v-else-if="sessionType==='专题咨询'&&identity==='经验主'&&banSend&&bandPost!=='否'">
+        会话已关闭
+      </view>
       <view class="band-tip" v-else-if="banSend&&bandPost!=='否'">
         全员禁言中
       </view>
@@ -2568,6 +2571,7 @@
         this.refreshMessageTimer = setInterval(() => {
           const dontEmit = true
           this.initMessageList('refresh', dontEmit)
+          this.$emit('onRefresh')
         }, second)
       },
       async updateMessageInfo(e) {

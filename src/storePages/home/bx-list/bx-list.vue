@@ -7,6 +7,10 @@
         @handelCustomButton="handlerCustomizeButton" @clickAddButton="clickAddButton" @search="toSearch"
         :readonly="true" v-if="showListBar">
       </list-bar>
+      <filter-tags :tabs="tags" ref="filterTabs" :mode="'fold'" :cols="colV2.srv_cols" :srv="serviceName"
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="colV2&&colV2.srv_cols&&tags">
+      </filter-tags>
       <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'">
         <text>{{ pageItem.component_label || '' }}</text>
         <button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">
@@ -55,6 +59,62 @@
       }
     },
     computed: {
+      tags() {
+        if (Array.isArray(this.colV2?.tabs)) {
+          let tabs = this.colV2?.tabs
+          let self = this
+          let tab = {}
+          let tabsData = []
+          tabs.forEach((t) => {
+            tab = {
+              service: null,
+              table_name: null,
+              orders: null,
+              conditions: null,
+              seq: null,
+              parent: null,
+      		      label: null,
+              list_tab_no: null,
+              more_config: null,
+              inputType: null
+            }
+      		    let mc = JSON.parse(t.more_config)
+      		    tab.more_config = mc
+            tab.service = t.service
+            tab.table_name = t.table_name
+            tab.conditions = t.conditions
+            tab.orders = t.orders
+            tab.default = mc.default
+            tab.seq = t.seq
+            tab.label = t.label
+            tab.list_tab_no = t.list_tab_no
+            tab._data = t
+      		    tab._type = mc.type || null
+            tab._colName = mc.colName || null
+            tab.inputType = mc.inputType || null
+            tab.showAllTag = mc.showAllTag || false
+            tab.default = mc.default || ''
+            tab.placeholder = mc.placeholder || '请输入...'
+
+            if (tab._colName) {
+              tab._colName = tab._colName.split(',')
+      			     let cols = tab._colName
+              let srvCols = self.colV2.srv_cols
+              tab['_colSrvData'] = []
+              for (let c = 0; c < cols.length; c++) {
+                for (let cs = 0; cs < srvCols.length; cs++) {
+                  if (cols[c] === srvCols[cs].columns) {
+                    tab._colSrvData.push(srvCols[cs])
+                  }
+                }
+              }
+            }
+            tabsData.push(tab)
+          })
+          return tabsData
+        }
+        // return this.colV2?.tabs
+      },
       showListBar() {
         return this.pageItem && this.pageItem.show_list_bar == '是' && this.srvCols && this.srvCols.length > 0 && this
           .list_config.list_bar !== false

@@ -48,6 +48,7 @@
     },
     methods: {
       toFilter() {
+        debugger
         let model = this.$refs.filterForm.getFieldModel();
         let result = []
         this.filterCols = this.filterCols.map((item) => {

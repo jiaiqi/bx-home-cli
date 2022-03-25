@@ -30,7 +30,10 @@
             </view>
             <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
               <text v-if="item.prefix">{{ item.prefix }}</text>
-              <text>{{ excludeEnter(item.value)}}</text>
+              <view class="" v-if="item.fmt">
+                <text class="cu-tag sm bg-gray radius" v-for=" tag in formatText(item)">{{tag}}</text>
+              </view>
+              <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
             </view>
           </template>
@@ -354,7 +357,7 @@
             'border-radius': imgCfg.radius,
             width: imgCfg.width
           };
-          if(imgCfg.position!=='top'){
+          if (imgCfg.position !== 'top') {
             result.listContentMaxWidth = imgCfg.width ? `calc(100% - ${imgCfg.width})` : `calc(100% - 50px)`
           }
           result.imgMode = imgCfg?.mode || 'aspectFill';
@@ -434,6 +437,8 @@
                 return res;
               }, '');
             }
+            obj.fmt = cfg?.fmt;
+            obj.separator = cfg?.separator
             obj.prefix = cfg?.prefix || '';
             obj.suffix = cfg?.suffix || '';
             obj.valueWhiteSpace = cfg?.white_space;
@@ -520,6 +525,25 @@
       }
     },
     methods: {
+      formatText(item) {
+        let text = item.value
+        let type = item.fmt
+        let result = ''
+        if (text) {
+          switch (type) {
+            case 'tags':
+              result = text.split(',')
+              if (text.indexOf('，') !== -1) {
+                result = text.split('，')
+              }
+              break;
+            default:
+              break;
+          }
+        }
+        return result
+
+      },
       async getLocationFromSys(gno) {
         const app = this.appName || uni.getStorageSync('activeApp')
         const req = {

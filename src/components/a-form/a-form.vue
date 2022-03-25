@@ -117,17 +117,20 @@
       dateTimeChange(e) {
         const start_time_col = e?.moreConfig?.start_time_col
         const end_time_col = e?.moreConfig?.end_time_col
-        this.allField = this.allField.map(item => {
-          if (item.column === start_time_col) {
-            item.value = e.colData['time_start']
-            this.fieldModel[start_time_col] = e.colData['time_start']
-          }
-          if (item.column === end_time_col) {
-            item.value = e.colData['time_end']
-            this.fieldModel[end_time_col] = e.colData['time_end']
-          }
-          return item
-        })
+        if(start_time_col&&end_time_col){
+          this.allField = this.allField.map(item => {
+            if (item.column === start_time_col) {
+              item.value = e.colData['time_start']
+              this.fieldModel[start_time_col] = e.colData['time_start']
+            }
+            if (item.column === end_time_col) {
+              item.value = e.colData['time_end']
+              this.fieldModel[end_time_col] = e.colData['time_end']
+            }
+            return item
+          })
+        }
+      
       },
       eleIsBeforeSection(allField, index) {
         let item = allField[index]
@@ -243,7 +246,7 @@
         } else {
           console.log('表单校验失败', showsNum, valid, this.fieldModel);
           uni.showToast({
-            title: '请填写完信息后，再尝试提交',
+            title: '请检查输入数据是否有效',
             icon: 'none'
           });
           return false;

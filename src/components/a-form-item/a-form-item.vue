@@ -127,13 +127,13 @@
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="pickerMode"
           :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="fieldData.max"
-          :min="fieldData.min" @change="bindTimeChange" v-model="fieldData.value">
+          :min="fieldData.min" v-model="fieldData.value" @change="bindTimeChange">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
         <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true" v-model="fieldData.value"
-          :placeholder="'开始输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
+          :placeholder="'请输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
@@ -142,7 +142,7 @@
         <input type="text" v-model="fieldData.value" placeholder="选择或填写位置" />
       </view>
       <view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'" @click="showModal('RichEditor')">
-        <view class="value rich-text" v-if="!fieldData.value">开始输入</view>
+        <view class="value rich-text" v-if="!fieldData.value">请输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
       <input type="text" class="" style="width: 100%" @input="onInput"
@@ -463,6 +463,20 @@
         handler(newVal, oldVal) {
           if (newVal !== oldVal && oldVal !== undefined) {
             console.log('watch-fieldData.value', newVal, oldVal, this.fieldData)
+            this.fieldData.old_value = oldVal
+            if (Array.isArray(newVal) && Array.isArray(oldVal) && newVal.length === oldVal.length && newVal.length >
+              0) {
+              let length = newVal.length;
+              let eq = 0
+              for (let i = 0; i < length; i++) {
+                if (newVal[i] === oldVal[i]) {
+                  eq++
+                }
+              }
+              if (length === eq) {
+                return
+              }
+            }
             this.$emit('on-value-change', this.deepClone(this.fieldData));
             this.$nextTick(() => {
               this.onBlur()
@@ -659,18 +673,18 @@
               })
               if (lat1 && lng1) {
                 let distance = this.calcDistance(lat1, lng1, res.latitude, res.longitude)
-                if(!isNaN(Number(scope))&&!isNaN(distance)&&distance>scope){
-                 
+                if (!isNaN(Number(scope)) && !isNaN(distance) && distance > scope) {
+
                   uni.showModal({
-                    title:'提示',
-                    content:`所选位置不能距离当前定位超过${scope}米`,
-                    showCancel:false,
+                    title: '提示',
+                    content: `所选位置不能距离当前定位超过${scope}米`,
+                    showCancel: false,
                     success(res) {
-                      if(res.confirm){
+                      if (res.confirm) {
                         uni.showToast({
-                          title:`距离当前定位${distance}米`,
-                          duration:3000,
-                          icon:'none'
+                          title: `距离当前定位${distance}米`,
+                          duration: 3000,
+                          icon: 'none'
                         })
                       }
                     }
@@ -694,7 +708,6 @@
       calcDistance(lat1, lng1, lat2, lng2) {
         // 计算两个经纬度点之间的距离
         console.log(lat1, lng1, lat2, lng2)
-        debugger
         //进行经纬度转换为距离的计算
         function rad(d) {
           return d * Math.PI / 180.0; //经纬度转换成三角函数中度分表形式。
@@ -1170,7 +1183,7 @@
         }
       },
       bindTimeChange(e, type) {
-        if (type) {
+        if (type && typeof type === 'string') {
           this.$set(this.fieldData, type, e.detail.value)
           // this.fieldData[type] = e.detail.value;
           if (!this.fieldData.value) {
@@ -1182,7 +1195,11 @@
             this.fieldData.value[1] = e.detail.value
           }
         } else if (Array.isArray(e) && e.length > 0) {
-          this.fieldData.value = e
+          if (e.length === 2) {
+            this.fieldData.value = e
+          } else {
+            this.fieldData.value = e
+          }
         } else if (e && typeof e === 'object' && e.startDate && e.endDate) {
           if (!this.fieldData.value) {
             this.fieldData.value = [null, null]
