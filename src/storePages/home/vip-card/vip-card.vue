@@ -1,14 +1,24 @@
 <template>
   <view class="vip-card" @click="onHandler" v-if="showCard">
     <view class="card-info" v-if="vipCardInfo&&vipCardInfo.id">
-      <view class="">
-        <view class="">
-          我的余额(元)
+      <view class="" style="display: flex;align-items: center;">
+        <view class="margin-right" style="margin-right: 30px;" >
+          <view class="">
+            我的余额(元)
+          </view>
+          <view class="amount">
+            <text>￥{{vipCardInfo[amountCol]||'0.00'}}</text>
+           <!-- <text class="text-sm margin-left" v-if="vipCardInfo.card_last_bean">剩余想豆：{{vipCardInfo.card_last_bean||''}}
+              <text class="cuIcon-moneybag margin-left-xs"></text> </text> -->
+          </view>
         </view>
-        <view class="amount">
-          <text>￥{{vipCardInfo[amountCol]||'0.00'}}</text>
-          <text class="text-sm margin-left" v-if="vipCardInfo.card_last_bean">剩余想豆：{{vipCardInfo.card_last_bean||''}}
-            <text class="cuIcon-moneybag margin-left-xs"></text> </text>
+        <view class=""  v-if="vipCardInfo.card_last_bean">
+          <view class="">
+            我的想豆
+          </view>
+          <view class="amount">
+            {{vipCardInfo.card_last_bean||''}}
+          </view>
         </view>
 
       </view>
@@ -187,6 +197,8 @@
       .amount {
         font-size: 24px;
         padding-top: 10px;
+        height: 40px;
+        line-height: 40px;
       }
 
       .right-banner {

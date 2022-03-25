@@ -822,15 +822,18 @@
       },
       toPages(type) {
         let url = ''
+        
         switch (type) {
           case 'openVip':
             url =
               `/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"},{"column":"useing_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"}]`
             break;
           case 'byBean':
-            url = `/storePages/GoodsDetail/GoodsDetail?goods_no=GD2203170067&storeNo=S0000000000`
+            url =
+              `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
             break;
         }
+        
         if (url) {
           uni.redirectTo({
             url

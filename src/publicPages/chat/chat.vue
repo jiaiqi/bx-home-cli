@@ -224,7 +224,7 @@
         showGoodsCard: false,
         top_buttons: [],
         payConsultInfo: { //付费咨询信息
-          status: 'stop' //open\stop
+          status: 'open' //open\stop
         },
         totalMsg: 0
       }
@@ -598,12 +598,16 @@
           if (Array.isArray(res.data) && res.data.length > 0) {
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
-            if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
-              uni.setNavigationBarTitle({
-                title: this.sessionInfo?.store_user_name
-              })
+            if (this.sessionInfo.band_post === '全员禁言') {
+              this.payConsultInfo.status = 'close'
             }
+
             if (isGetGroup !== false) {
+              if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
+                uni.setNavigationBarTitle({
+                  title: this.sessionInfo?.store_user_name
+                })
+              }
               this.getGroup(false).then(res => {
                 if (this.identity === '客户' && this.groupInfo?.name) {
                   uni.setNavigationBarTitle({
@@ -1063,9 +1067,9 @@
       },
     },
     beforeDestroy() {
-      if (this.sessionType === '专题咨询' && this.identity === '客户' && this.sessionInfo.store_user_no && this.sessionInfo?.store_user_no == this.vstoreUser?.store_user_no) {
-        this.updateBandConsult('全员禁言')
-      }
+      // if (this.sessionType === '专题咨询' && this.identity === '客户' && this.sessionInfo.store_user_no && this.sessionInfo?.store_user_no == this.vstoreUser?.store_user_no) {
+      //   this.updateBandConsult('全员禁言')
+      // }
       if (this.sessionType === '机构用户客服') {
         this.updateKefuSessionLastLookTime(this.lastMessage)
         uni.$emit("updateUnread")

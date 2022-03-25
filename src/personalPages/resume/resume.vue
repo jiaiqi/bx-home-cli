@@ -47,7 +47,7 @@
             个人标签
           </view>
           <view class="value" v-if="info.my_tag_map">
-            <text class="bx-tag bg-gray round" v-for="item in formatText(info.my_tag_map,'tags')">{{item}}</text>
+            <text class="bx-tag bg-gray round margin-top-xs" v-for="item in formatText(info.my_tag_map,'tags')">{{item}}</text>
           </view>
           <view class="value" v-else>
             无
@@ -292,9 +292,9 @@
           position: absolute;
           content: '';
           left: 0;
-          top: calc(50% - 10px);
+          top: calc(50% - 8px);
           width: 2px;
-          height: 20px;
+          height: 16px;
           background-color: #10c0a8;
         }
       }
