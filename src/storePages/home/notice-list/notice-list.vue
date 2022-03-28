@@ -2,7 +2,7 @@
   <view class="notice-wrap" v-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
     <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
       :type="theme" :color="color" :duration="duration" @click="clickNotice">
-      </u-notice-bar>
+    </u-notice-bar>
   </view>
   <view class="notice-wrap" :style="[calcStyle]" v-else-if="pageItem&&noticeList&&noticeList.length>0">
     <view class="notice-item" v-for="item in noticeList" :key="item.id" @click="handelClick(item)" :style="{
@@ -74,9 +74,9 @@
     },
     methods: {
       clickNotice(index) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -84,9 +84,9 @@
         this.handelClick(e)
       },
       handelClick(e) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -108,10 +108,16 @@
         let app = 'health'
         let req = {
           "condition": [{
-            "colName": "component_no",
-            "ruleType": "eq",
-            "value": this.pageItem.component_no
-          }],
+              "colName": "component_no",
+              "ruleType": "eq",
+              "value": this.pageItem.component_no
+            },
+            {
+              colName: 'notice_display',
+              ruleType: 'eq',
+              value: '发布'
+            }
+          ],
           "page": {
             "pageNo": 1,
             "rownumber": 10
@@ -171,6 +177,7 @@
     border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;
+
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;
@@ -183,7 +190,8 @@
     padding: 20rpx 40rpx;
     display: flex;
     align-items: center;
-    .label{
+
+    .label {
       flex: 1;
     }
   }
@@ -200,5 +208,4 @@
     line-height: 50rpx;
     margin-right: 20rpx;
   }
-  
 </style>

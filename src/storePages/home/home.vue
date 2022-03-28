@@ -477,6 +477,11 @@
                   colName: 'component_no',
                   ruleType: 'eq',
                   value: element.component_no
+                },
+                {
+                  colName: 'notice_display',
+                  ruleType: 'eq',
+                  value: '发布'
                 }],
                 page: {
                   pageNo: 1,

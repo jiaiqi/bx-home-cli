@@ -1,23 +1,27 @@
 <template>
-  <view class="vip-card" @click="onHandler" v-if="showCard">
-    <view class="card-info" v-if="vipCardInfo&&vipCardInfo.id">
+  <view class="vip-card" @click="onHandler" v-if="showCard" :style="[setStyle]">
+
+    <view class="content-text" v-if="moreConfig&&moreConfig.content_text"><text class="margin-right-xs"
+        :class="'cuIcon-'+moreConfig.content_icon" v-if="moreConfig.content_icon"></text> {{moreConfig.content_text}}
+    </view>
+    <view class="card-info" v-else-if="info&&info.card_no">
       <view class="" style="display: flex;align-items: center;">
-        <view class="margin-right" style="margin-right: 30px;" >
+        <view class="margin-right" style="margin-right: 30px;">
           <view class="">
             我的余额(元)
           </view>
           <view class="amount">
-            <text>￥{{vipCardInfo[amountCol]||'0.00'}}</text>
-           <!-- <text class="text-sm margin-left" v-if="vipCardInfo.card_last_bean">剩余想豆：{{vipCardInfo.card_last_bean||''}}
+            <text>￥{{info[amountCol]||'0.00'}}</text>
+            <!-- <text class="text-sm margin-left" v-if="info.card_last_bean">剩余想豆：{{info.card_last_bean||''}}
               <text class="cuIcon-moneybag margin-left-xs"></text> </text> -->
           </view>
         </view>
-        <view class=""  v-if="vipCardInfo.card_last_bean">
+        <view class="" v-if="info.card_last_bean">
           <view class="">
             我的想豆
           </view>
           <view class="amount">
-            {{vipCardInfo.card_last_bean||''}}
+            {{info.card_last_bean||''}}
           </view>
         </view>
       </view>
@@ -46,6 +50,7 @@
       },
     },
     computed: {
+      
       rightBtn() {
         return this.detailCfg?.right_btn
       },
@@ -62,24 +67,30 @@
         return this.config?.more_config
       },
       showCard() {
-        return this.vipCardInfo?.id && this.moreConfig?.hide_if_open == true ? false : true
+        if(this.moreConfig?.hide_if_nodata==true&&!this.info?.id){
+          return false
+        }
+        return this.info?.id && this.moreConfig?.hide_if_open == true ? false : true
       },
       showText() {
         return this.moreConfig?.show_text !== false
       },
       setStyle() {
-        let style = {
-
-        }
+        let style = {}
         if (this.config?.component_bg_img) {
           style.backgroundImage = `url(${this.getImagePath(this.config?.component_bg_img,true)})`
+        }
+        if (this.moreConfig?.content_style) {
+          style.borderRadius = this.moreConfig?.content_style?.radius
+          style.color = this.moreConfig?.content_style?.color
+          style.minHeight = this.moreConfig?.content_style?.height
         }
         return style
       },
     },
     data() {
       return {
-        vipCardInfo: {}
+        info: {}
       }
     },
     mounted() {
@@ -94,7 +105,7 @@
     },
     methods: {
       onHandler() {
-        if (this.vipCardInfo?.id) {
+        if (this.info?.id) {
           this.toDetail()
         } else {
           this.toOpenVip()
@@ -107,7 +118,7 @@
           })
           return
         }
-        let url = this.moreConfig?.detailUrl
+        let url = this.moreConfig?.detailUrl || this.moreConfig?.detailUrl 
         if (url) {
           url = this.renderStr(url, this)
           uni.navigateTo({
@@ -155,7 +166,7 @@
 
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-            this.vipCardInfo = res.data.data[0]
+            this.info = res.data.data[0]
           }
         })
       },
@@ -184,6 +195,12 @@
     background-repeat: no-repeat;
     min-height: 50px;
 
+    .content-text {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+    }
+
     .card-info {
       background-image: url(vip-bg.jpg);
       background-size: 100% 100%;
@@ -193,6 +210,7 @@
       margin: 0 10px;
       position: relative;
       color: #fff;
+
       .amount {
         font-size: 24px;
         padding-top: 10px;

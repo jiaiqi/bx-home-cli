@@ -449,17 +449,17 @@
       </view>
     </view>
     <view class="person-chat-bot"
-      :class="{ showLayer: !isFeed && isSendLink, 'ban-send': banSend&&(bandPost!=='否'||(sessionType==='专题咨询'&&identity==='客户'&&(payConsultStatus==='stop'||isNSF||notVip||isSelf))) }">
-      <view class="band-tip text-red" v-if="isSelf" @click.stop>
+      :class="{ showLayer: !isFeed && isSendLink, 'ban-send': banSend&&(bandPost!=='否'||(sessionType==='专题咨询'&&identity==='客户'&&(payConsultStatus==='stop'))) }">
+      <!--      <view class="band-tip text-red" v-if="isSelf" @click.stop>
         不能自己向自己发起咨询！
-      </view>
-      <view class="band-tip text-red" v-else-if="notVip" @click.stop="toPages('openVip')">
+      </view> -->
+      <!--      <view class="band-tip text-red" v-else-if="notVip" @click.stop="toPages('openVip')">
         您还没有开通会员，点击前往开通会员页面
       </view>
       <view class="band-tip text-red" v-else-if="isNSF" @click.stop="toPages('byBean')">
         想豆余额不足,请前往充值
-      </view>
-      <view class="band-tip text-blue" v-else-if="sessionType==='专题咨询'&&identity==='客户'&&payConsultStatus==='stop'">
+      </view> -->
+      <view class="band-tip text-blue" v-if="sessionType==='专题咨询'&&identity==='客户'&&payConsultStatus==='stop'">
         已关闭咨询,请先点击右上方按钮开启咨询
       </view>
       <view class="band-tip" v-else-if="sessionType==='专题咨询'&&identity==='经验主'&&banSend&&bandPost!=='否'">
@@ -822,7 +822,7 @@
       },
       toPages(type) {
         let url = ''
-        
+
         switch (type) {
           case 'openVip':
             url =
@@ -833,7 +833,7 @@
               `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
             break;
         }
-        
+
         if (url) {
           uni.redirectTo({
             url
@@ -1029,13 +1029,7 @@
         this.toBottom()
         this.isSendLink = false;
       },
-      keyboardheightchange(e) {
-        const {
-          height,
-          duration
-        } = e
-        // alert("键盘高度发生变化：" + height)
-      },
+
       openMap(item) {
         // 打开地图
         this.isSendLink = false;
@@ -1767,10 +1761,6 @@
       },
       /*点击发送后添加图片或语音数据**/
       async sendMessageLanguageInfo(type, value, info) {
-        uni.showLoading({
-          title: '发送中...',
-          mask: true
-        })
         let serviceName = 'srvhealth_consultation_chat_record_add'
         if (this.sessionType === '机构用户客服') {
           if (this.identity === '客户') {
@@ -1990,16 +1980,25 @@
         data.msg_content_type = type
         data.id = this.recordList.length > 0 ? (this.recordList[this.recordList.length - 1].id + 999) : 99
         // this.recordList.push(data)
-
-        this.toBottom()
-        let res = await this.$http.post(url, req);
+        uni.showLoading({
+          title: '发送中...',
+          mask: true
+        })
+        // let res = await this.$http.post(url, req);
+        let res = await this.$fetch('operate', serviceName, req, 'health')
+        if (res.data.length > 0) {
+          this.recordList.push(res.data[0])
+        }
         uni.hideLoading();
         if (this.remindPerson && this.remindPerson.no) {
           this.remindPerson = {}
         }
         this.isAll = false;
         this.pageInfo.pageNo = 1;
-        this.initMessageList('refresh');
+        // this.initMessageList('refresh');
+        // if (res.data.length > 0) {
+        //   this.recordList.push(res.data[0])
+        // }
         this.$emit('msgSendSuccess')
         setTimeout(() => {
           this.toBottom()
@@ -2211,13 +2210,22 @@
             }
           }
         }
+        uni.showLoading({
+          title: '发送中...',
+          mask: true
+        })
         this.$fetch('operate', serviceName, req, 'health').then(res => {
+          uni.hideLoading()
           this.isAll = false;
           if (this.remindPerson && this.remindPerson.no) {
             this.remindPerson = {}
           }
           this.remindPersonList = []
-          this.initMessageList('refresh');
+          if (res.data.length > 0) {
+            this.recordList.push(res.data[0])
+          }
+          // this.recordList.push(req[0].data[0])
+          // this.initMessageList('refresh');
           this.$emit('msgSendSuccess')
           setTimeout(() => {
             this.toBottom()
@@ -2277,16 +2285,7 @@
               }]
             }];
           } else if (this.pageType === 'session') {
-            // conditionData = [ {
-            //   relation: 'AND',
-            //   data: [ {
-            //     colName: 'session_no', // 会话编码
-            //     ruleType: 'eq',
-            //     value: this.sessionNo
-            //   } ]
-            // } ];
             if (this.groupNo) {
-
               conditionData = [{
                 relation: 'OR',
                 data: [{
@@ -2380,7 +2379,10 @@
           delete req.relation_condition
         }
         let res = await this.$http.post(url, req);
-        console.log(this.pageInfo.total)
+        if (res.data.state !== 'SUCCESS') {
+
+          return
+        }
         if (dontEmit !== true) {
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.$emit('load-msg-complete', res.data.data[0], res.data.page, this.pageInfo.total);
@@ -2391,6 +2393,13 @@
           this.$emit('load-msg-complete', res.data.data, res.data.page, this.pageInfo.total);
         }
         let resData = res.data.data;
+        if (this.sessionType == '专题咨询') {
+          let unread = res.data.data.filter(item => item.msg_state === '未读' && item.identity && this.identity && item
+            .identity !== this.identity)
+          if (unread.length > 0) {
+            await this.updateMessageInfo(unread)
+          }
+        }
         if (type) {
           this.isLoading = false;
         }
@@ -2567,6 +2576,7 @@
       },
       setRefreshMessageTimer(second = 2 * 1000, enableSet = true) {
         // 设置定时刷新消息的定时器
+        return
         if (this.sessionType === '专题咨询' && !enableSet && this.identity === '客户') {
           return
         }
@@ -2577,11 +2587,13 @@
           this.$emit('onRefresh')
         }, second)
       },
+
       async updateMessageInfo(e) {
         // 将对方发送的msg_state为未读的消息改为已读
-        let url = this.getServiceUrl('health', 'srvhealth_consultation_chat_record_update', 'operate');
+        // return
+        let url = this.getServiceUrl('health', 'srvhealth_consultation_chat_status_record_update', 'operate');
         let req = [{
-          serviceName: 'srvhealth_consultation_chat_record_update',
+          serviceName: 'srvhealth_consultation_chat_status_record_update',
           colNames: ['*'],
           condition: [{
               colName: 'id',
@@ -2599,12 +2611,12 @@
           }]
         }];
         if (Array.isArray(e) && e.length > 0) {
-          this.$http.post(url, req).then(res => {
-            if (res.data.state === 'SUCCESS') {
-              uni.$emit('updateUnread')
-            }
-          })
+          let res = await this.$http.post(url, req)
+          if (res.data.state === 'SUCCESS') {
+            uni.$emit('updateUnread')
+          }
         }
+        return
       },
       /*查询当前用户信息**/
       async getUserInfo(customer_no) {
@@ -2786,14 +2798,19 @@
         })
         req[0].data = reqData
 
-        let res = await this.$http.post(url, req);
+        // let res = await this.$http.post(url, req);
+        let res = await this.$fetch('operate', serviceName, req, 'health')
+        if (res.data.length > 0) {
+          this.recordList.push(res.data[0])
+        }
         uni.hideLoading();
         if (this.remindPerson && this.remindPerson.no) {
           this.remindPerson = {}
         }
         this.isAll = false;
         this.pageInfo.pageNo = 1;
-        this.initMessageList('refresh');
+        // this.initMessageList('refresh');
+
         this.$emit('msgSendSuccess')
         setTimeout(() => {
           this.toBottom()
@@ -2889,7 +2906,7 @@
       //   }
       // }, 3000)
       uni.onKeyboardHeightChange((res = {}) => {
-        console.log(res.height);
+        console.log('键盘高度:',res.height);
         this.keyboardHeight = res.height
         if (res.height > 0) {
           this.showKeyboard = true;
@@ -3032,26 +3049,26 @@
           height: calc(var(--chart-height) - 55px);
 
           &.showLayer {
-            height: calc(100vh - var(--window-top) - 55px - 42px - 230px);
+            height: calc(var(--chart-height) - 55px - 230px);
           }
         }
 
         &.showLayer {
-          height: calc(100vh - var(--window-top) - 42px - 230px);
+          height: calc(var(--chart-height) - 230px);
         }
 
         &.showKeyboard {
-          height: calc(100vh - var(--keyboard-height) - var(--window-top) - 55px);
+          height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px);
 
           &.showLayer {
-            height: calc(100vh - var(--keyboard-height) - var(--window-top) - 55px - 230px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px - 230px);
           }
 
           &.top-height {
-            height: calc(100vh - var(--keyboard-height) - var(--window-top) - 42px - 55px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px);
 
             &.showLayer {
-              height: calc(100vh - var(--keyboard-height) - var(--window-top) - 42px - 55px - 230px);
+              height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px - 230px);
             }
           }
         }

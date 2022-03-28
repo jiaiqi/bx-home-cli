@@ -119,7 +119,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "successTip/successTip",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "成功提示",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "storePages",

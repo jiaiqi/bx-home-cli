@@ -43,29 +43,9 @@
     </link-wifi>
     <bx-list v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick" :pageItem="pageItem"
       class="bx-list" />
-    <view class="user-card" v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'">
-      <view class="left" v-if="!hasNotRegInfo">
-        <view class="profile-image">
-          <!-- <open-data type="userAvatarUrl"></open-data> -->
-          <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image"></image>
-        </view>
-        <view class="nick-name">
-          <!-- <open-data type="userNickName"></open-data> -->
-          <view class="name">{{ userInfo.name || userInfo.nick_name }}</view>
-          <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
-          <view class="text-orange" v-if="moreConfig&&moreConfig.showSubscribe&&!isAttention" @click="toOfficial(true)">
-            点击关注公众号,及时获取消息通知!
-          </view>
-        </view>
-      </view>
-      <view class="left" v-else>
-        <button class="cu-btn bg-white" @click="toLogin">请点击登录</button>
-      </view>
-      <view class="right"><text class="cuIcon-message"></text></view>
-    </view>
+    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :config="moreConfig"></user-card>
     <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
     </vip-card>
-
     <avatar-list :storeNo="storeNo" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
       :beforeClick="beforeClick"></avatar-list>
     <!-- 公众号关注组件 -->
@@ -95,6 +75,7 @@
   import bxList from '../bx-list/bx-list.vue';
   import vipCard from '../vip-card/vip-card.vue'
   import avatarList from '../avatar-list/avatar-list.vue'
+  import userCard from '../user-info/user-info.vue'
   export default {
     components: {
       slideList,
@@ -110,7 +91,8 @@
       linkWifi,
       bxList,
       vipCard,
-      avatarList
+      avatarList,
+      userCard
     },
     props: {
       pageItem: {
@@ -172,10 +154,13 @@
         if (this.pageItem?.margin) {
           style.margin = this.pageItem?.margin
         }
-        if(this.pageItem?.is_radius==='否'){
+        if (this.pageItem?.is_radius === '否') {
           style.borderRadius = '0'
         }
+        if (this.pageItem?.is_radius === '是') {
+          style.borderRadius = '10px'
 
+        }
         return style
       },
       titleStyle() {
@@ -415,46 +400,7 @@
     color: #474849;
   }
 
-  .user-card {
-    display: flex;
-    padding: 10px;
 
-    .left {
-      display: flex;
-
-      .profile-image {
-        width: 60px;
-        height: 60px;
-        border-radius: 60px;
-      }
-
-      .nick-name {
-        margin-left: 10px;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-
-        .name {
-          margin-bottom: 5px;
-        }
-
-        .account {
-          color: #666;
-        }
-      }
-
-      flex: 1;
-    }
-
-    .right {
-      display: flex;
-      align-items: center;
-
-      .cuIcon-message {
-        font-size: 24px;
-      }
-    }
-  }
 
   .user-avatar-list {
     display: flex;

@@ -30,9 +30,6 @@
         <view class="value" v-else>{{ selectVal }}</view>
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
-      <!-- #ifdef H5 -->
-
-      <!-- #endif -->
       <mx-datepicker :show="show" :type="mode" :value="value" :min="min" :show-tips="true" :begin-text="'入住'"
         :end-text="'离店'" :show-seconds="false" :price-map="priceMap" :price-config="priceConfig" @confirm="change"
         @cancel="cancel" format="yyyy-mm-dd" />
@@ -86,6 +83,9 @@
       min: {
         type: String,
         default: "1950-01-01"
+      },
+      max: {
+        type: String
       },
       priceConfig: {
         type: Object
@@ -194,7 +194,7 @@
           })
         } else if (e.startDate && e.endDate) {
           debugger
-          this.$emit('change',[e.startDate, e.endDate])
+          this.$emit('change', [e.startDate, e.endDate])
           // this.$emit('change', [e.startDate, e.endDate])
         } else if (e.time) {
           this.hideModal()

@@ -22,7 +22,7 @@
         </view>
       </view>
       <view class="other-col">
-    <!--    <view class="col-item" v-if="groupInfo.unit_price">
+        <!--    <view class="col-item" v-if="groupInfo.unit_price">
           <view class="label">
             <text></text>
             <view class="value text-orange text-normal">
@@ -47,7 +47,8 @@
             个人标签
           </view>
           <view class="value" v-if="info.my_tag_map">
-            <text class="bx-tag bg-gray round margin-top-xs" v-for="item in formatText(info.my_tag_map,'tags')">{{item}}</text>
+            <text class="bx-tag bg-gray round margin-top-xs"
+              v-for="item in formatText(info.my_tag_map,'tags')">{{item}}</text>
           </view>
           <view class="value" v-else>
             无
@@ -94,25 +95,72 @@
       }
     },
     methods: {
+      toPages(type) {
+        let url = ''
+        switch (type) {
+          case 'openVip':
+            url =
+              `/publicPages/form/form?pageType=form&submitAction=vipCardChange&serviceName=srvhealth_store_user_card_case_add&fieldsCond=[{"column":"store_no","disabled":true,"value":"${this.storeInfo?.store_no}"},{"column":"attr_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"},{"column":"useing_store_user_no","disabled":true,"value":"${this.vstoreUser?.store_user_no}"}]`
+            break;
+          case 'byBean':
+            url =
+              `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
+            break;
+        }
+        if (url) {
+          uni.redirectTo({
+            url
+          })
+        }
+      },
       async toConsult() {
+        // 1. 检测有没有开通会员卡
+        if (!this.vvipCard?.card_no) {
+          uni.showModal({
+            title: '提示',
+            content: '请先开通会员，是否前往会员开通页面?',
+            success: (res) => {
+              if (res.confirm) {
+                this.toPages('openVip')
+              }
+            }
+          })
+          return
+        }
+
+        // 2. 检测想豆余额够不够
+        let isNSF = !isNaN(Number(this.vvipCard?.card_last_bean)) && Number(this.vvipCard?.card_last_bean) === 0
+        if (isNSF) {
+          uni.showModal({
+            title: '提示',
+            content: '想豆余额不足，是否前往想豆充值页面?',
+            success: (res) => {
+              if (res.confirm) {
+                this.toPages('byBean')
+              }
+            }
+          })
+          return
+        }
+
         let res = await this.checkSubscribeStatus()
         if (!res) {
-          let confirm =await new Promise((resolve)=>{
+          let confirm = await new Promise((resolve) => {
             uni.showModal({
               title: '提示',
               content: '请先关注百想助理公众号，以便及时收到新消息通知',
               success: (res) => {
                 if (res.confirm) {
                   resolve(true)
-                }else{
+                } else {
                   resolve(false)
                 }
               }
             })
           })
-          if(confirm===true){
+          if (confirm === true) {
             this.toOfficial()
-          }else{
+          } else {
             return
           }
         }
@@ -320,10 +368,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    .price{
+
+    .price {
       font-size: 16px;
       padding-left: 10px;
     }
+
     // position: absolute;
     // bottom: 0;
     .cu-btn {

@@ -605,7 +605,7 @@
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
             if (this.sessionInfo.band_post === '全员禁言') {
-              this.payConsultInfo.status = 'close'
+              this.payConsultInfo.status = 'stop'
             }
 
             if (isGetGroup !== false) {
@@ -622,7 +622,6 @@
                 }
               })
             }
-
             return res.data[0]
           } else {
             await this.createSession()
@@ -1087,9 +1086,9 @@
       }
     },
     onShow() {
-      if (this.vstoreUser?.store_user_no) {
-        this.getVipCard(this.vstoreUser?.store_user_no)
-      }
+      // if (this.vstoreUser?.store_user_no) {
+      //   this.getVipCard(this.vstoreUser?.store_user_no)
+      // }
     },
     async onLoad(option) {
       const self = this

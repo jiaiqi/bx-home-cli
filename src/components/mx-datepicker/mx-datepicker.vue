@@ -473,6 +473,10 @@
           item.statusStyle.color = '#ccc';
           item.bgStyle.background = ''
         }
+        if(new Date(item.dateObj) > new Date(this.max)){
+          item.statusStyle.color = '#ccc';
+          item.bgStyle.background = ''
+        }
       },
       //刷新日历
       refreshCalendars(refresh = false) {
@@ -505,6 +509,11 @@
       onSelectDate(date) {
         if(this.min){
           if(new Date(this.min)>new Date(date.dateObj)){
+            return
+          }
+        }
+        if(this.max){
+          if(new Date(this.max)<new Date(date.dateObj)){
             return
           }
         }
