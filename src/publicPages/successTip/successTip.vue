@@ -10,38 +10,38 @@
         {{config.navigation_remind_txt||''}}
       </view>
     </view>
-    <view class="official-box">
+    <view class="official-box" v-if="config.attention_public==='需要'">
       <view class="title">
-        关注百想助理公众号，消息通知不错过
+        {{config.official_title||'关注百想助理公众号，消息通知不错过'}}
       </view>
       <view class="hint">
-        为了您的相关通知消息、咨询信息能及时提醒、需要您关注“百想助理”公众号
+        {{config.official_tips||'为了您的相关通知消息、咨询信息能及时提醒、需要您关注“百想助理”公众号'}}
       </view>
     </view>
-    <view class="official-nav">
+    <view class="official-nav" v-if="config.attention_public==='需要'">
       <view class="main-title">
         点击下方卡片即可前往
       </view>
-      <view class="official-card">
+      <view class="official-card" @click="toOfficial">
         <view class="top">
           <view class="icon-box">
             <image src="../../static/basicprofile.jpg" class="icon" mode=""></image>
             <view class="text">
-              百想科技
+              {{config.app_short_name||'百想科技'}}
             </view>
           </view>
           <view class="content">
             <view class="title">
-              <text>百想助理</text>
+              <text> {{config.official_card_title||'百想助理'}}</text>
               <text class="cuIcon-right margin-left-xs"></text>
             </view>
-            <view class="tip">
-              为用户提供定制化的<text class="text-blue">“助理”</text>功能软件服务，包括个人服务工具、协同工具、健康管理工具等，按用户需求定制的个性化工具。
+            <view class="tip" v-html="config.official_card_tips">
+              <!-- 为用户提供定制化的<text class="text-blue">“助理”</text>功能软件服务，包括个人服务工具、协同工具、健康管理工具等，按用户需求定制的个性化工具。 -->
             </view>
           </view>
         </view>
         <view class="bottom">
-          公众号
+          {{config.official_type||'公众号'}}
         </view>
       </view>
     </view>
@@ -62,38 +62,51 @@
         buttons: []
       }
     },
-    computed: {
-    },
+    computed: {},
     methods: {
+      toOfficial() {
+        // 跳转到关注公众号页面
+        const frontEndAddress = this.$api.frontEndAddress
+        let mp_no = this.config?.mini_app_no
+        if (mp_no) {
+          let webUrl =
+            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
+          let url =
+            `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+          uni.navigateTo({
+            url
+          })
+        }
+      },
       getStyle(e) {
         let style = {}
         if (e?.top_block_bg_color) {
           style.background = e.top_block_bg_color
         }
-        if(e?.button_font_color){
+        if (e?.button_font_color) {
           style.color = e.button_font_color
         }
-        if(e?.button_border_color){
+        if (e?.button_border_color) {
           style.border = `1px solid ${e.button_border_color}`
         }
-        if(e?.button_bg_color){
+        if (e?.button_bg_color) {
           style.background = e.button_bg_color
         }
-        
+
         return style
       },
       onClick(e) {
         let {
           button_goto_path
         } = e
-        if(button_goto_path){
+        if (button_goto_path) {
           let data = {
-            storeInfo:this.storeInfo,
-            bindUserInfo:this.vstoreUser,
+            storeInfo: this.storeInfo,
+            bindUserInfo: this.vstoreUser,
           }
-          button_goto_path = this.renderStr(button_goto_path,data)
+          button_goto_path = this.renderStr(button_goto_path, data)
           uni.redirectTo({
-            url:button_goto_path
+            url: button_goto_path
           })
         }
       },
@@ -270,14 +283,16 @@
 
   .button-box {
     margin: 20px 0;
-    flex:1;
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    .cu-btn{
+
+    .cu-btn {
       border-radius: 20px;
       margin-right: 10px;
-      &:last-child{
+
+      &:last-child {
         margin-right: 0;
       }
     }

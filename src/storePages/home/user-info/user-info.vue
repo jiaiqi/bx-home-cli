@@ -65,7 +65,7 @@
           console.log(res)
           if (res.data.state.length > 0) {
             this.info = res.data.data[0];
-            this.auditStatus = this.info.audit_status
+            this.auditStatus = this.info?.audit_status
           }
         })
       },

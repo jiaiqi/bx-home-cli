@@ -740,7 +740,17 @@
                   for (let i = 0; i < afterSubmit.length; i++) {
                     let item = afterSubmit[i];
                     if ((i > 0 && actionResult[i - 1]) || i == 0) {
-                      if (item.type === 'wx_pay') {
+                      if (effect_data && effect_data.id && ['redirectTo', 'navigateTo'].includes(item.type)) {
+                        if (item.url) {
+                          let url = this.renderStr(item.url, globalData)
+                          uni[item.type]({
+                            url: url,
+                            success: () => {
+                              actionResult[i] = true
+                            }
+                          })
+                        }
+                      } else if (item.type === 'wx_pay') {
                         if (item.money_col && item.order_no_col && effect_data && effect_data[
                             item.order_no_col]) {
                           const wxMchId = this.storeInfo?.wx_mch_id

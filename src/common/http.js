@@ -42,6 +42,8 @@ let ignoreServiceName = (url) => {
     // "srvhealth_body_activity_record_select",
     // "srvhealth_sleep_record_select",
     // "srvhealth_person_relation_select",
+    'upload',
+    'srv_bxfile_service',
     'srvhealth_consultation_chat_record_add',
     "srvhealth_consultation_chat_record_update",
     "srvhealth_consultation_chat_record_select",

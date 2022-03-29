@@ -135,7 +135,7 @@
       itemStyle() {
         let style = {}
 
-        if (typeof this.pageItem?.more_config === 'object') {
+        if (typeof this.pageItem?.more_config === 'object' &&typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
 

@@ -159,7 +159,10 @@
             })
           })
           if (confirm === true) {
-            this.toOfficial()
+            if (this.$api?.env === 'prod') {
+              this.toOfficial()
+              return
+            }
           } else {
             return
           }
@@ -250,7 +253,7 @@
         }
       },
     },
-    onLoad(option) {
+     onLoad(option) {
       if (option.app) {
         this.app = option.app
       }
@@ -265,6 +268,9 @@
       }
       if (this.idCol && this.idVal && this.service) {
         this.getInfo()
+      }
+      if(this.vstoreUser?.store_user_no){
+        this.getVipCard(this.vstoreUser?.store_user_no)
       }
     }
   }

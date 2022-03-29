@@ -32,6 +32,7 @@
     <view class="content" v-if="articleData.content">
       <view class="" v-html="articleData.content">
       </view>
+      <!-- <mp-html :content="articleData.content" /> -->
       <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
       <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->
       <!-- <uHtmlParse :content="richTextNodes" /> -->
@@ -51,11 +52,11 @@
   import {
     mapState
   } from 'vuex'
-  import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
+  // import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
   // import parseHtml from '@/publicPages/static/js/html-parser.js'
   export default {
     components: {
-      uHtmlParse
+      // uHtmlParse
     },
     computed: {
       ...mapState({

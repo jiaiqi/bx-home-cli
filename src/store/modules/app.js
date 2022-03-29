@@ -45,7 +45,8 @@ const state = {
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
   storeInfo: {}, // 当前店铺信息
-  showLoginDialog: false
+  showLoginDialog: false,
+  curStoreNo:""
 }
 let persistData = {}; //持久化数据
 const mutations = {
@@ -172,6 +173,9 @@ const mutations = {
   SET_LOGIN_DIALOG: (state, show) => {
     // 显示登录弹框
     state.showLoginDialog = show
+  },
+  SET_CUR_STORE_NO:(state,storeNo)=>{
+    state.curStoreNo = storeNo
   }
 }
 

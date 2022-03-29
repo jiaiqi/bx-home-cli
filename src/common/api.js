@@ -3,7 +3,7 @@
 
 let env = 'prod'
 
-env = 'test'
+// env = 'test'
 
 // env = 'custom'
 
@@ -13,15 +13,6 @@ env = 'test'
 // }
 
 let conf = {
-  'test': {
-    //测试环境
-    serviceAddress: "https://wx.100xsys.cn",
-    appNo: "APPNO20210926101030",
-    appid: "wx08876efb5760ca75",
-    ws: "wss://wx.100xsys.cn:8081",
-    file: "https://wx.100xsys.cn",
-    frontPath: "https://login.100xsys.cn:1443/health/#/",
-  },
   "prod": {
     // 生产环境
     serviceAddress: "https://srvms.100xsys.cn",
@@ -31,6 +22,15 @@ let conf = {
     file: "https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
     frontPath: "https://wx2.100xsys.cn/health/#/",
+  },
+  'test': {
+    //测试环境
+    serviceAddress: "https://wx.100xsys.cn",
+    appNo: "APPNO20210926101030",
+    appid: "wx08876efb5760ca75",
+    ws: "wss://wx.100xsys.cn:8081",
+    file: "https://wx.100xsys.cn",
+    frontPath: "https://login.100xsys.cn:1443/health/#/",
   },
   "custom": {
     // 陕西省软件行业协会
@@ -77,6 +77,7 @@ if (top?.window?.pathConfig?.ws_gateway) {
 // #endif
 
 let ENV = {
+  env:env,
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址
   frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址

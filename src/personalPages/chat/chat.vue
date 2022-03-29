@@ -646,6 +646,7 @@
 			}
 		},
 		async onLoad(option) {
+      await this.toAddPage()
 			const self = this
 			if (option.articleList) {
 				try {

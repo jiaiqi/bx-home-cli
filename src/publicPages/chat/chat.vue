@@ -119,15 +119,15 @@
         if (this.sessionInfo?.commission_amount && this.sessionInfo?.answer_amount) {
           let num = Number(this.sessionInfo.answer_amount) + Number(this.sessionInfo.commission_amount)
           if (!isNaN(num)) {
-            res = Number((num*1000/1000).toFixed(2))
+            res = Number((num * 1000 / 1000).toFixed(2))
           }
         }
         if (this.groupInfo?.unit_price && this.totalMsg) {
-          res =  Number((this.totalMsg * this.groupInfo?.unit_price*1000/1000).toFixed(2))
+          res = Number((this.totalMsg * this.groupInfo?.unit_price * 1000 / 1000).toFixed(2))
         }
-        if(!isNaN(res)){
+        if (!isNaN(res)) {
           return res
-        }else{
+        } else {
           return ''
         }
       },
@@ -469,29 +469,6 @@
       },
       async getStore() {
         // 查找店铺信息
-        // let req = {
-        //   "condition": [{
-        //     "colName": "store_no",
-        //     "ruleType": "eq",
-        //     "value": this.storeNo
-        //   }],
-        //   "page": {
-        //     "pageNo": 1,
-        //     "rownumber": 1
-        //   }
-        // }
-        // let res = await this.$fetch('select', 'srvhealth_store_mgmt_select', req, 'health')
-        // if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        //   this.storeInfo = res.data[0]
-        //   if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
-        //     const pageTitle =
-        //       `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
-        //     uni.setNavigationBarTitle({
-        //       title: pageTitle
-        //     })
-        //   }
-        //   return this.storeInfo
-        // }
         if (this.storeInfo && this.storeInfo.user_count && this.sessionType === '店铺机构全员') {
           const pageTitle =
             `${this.sessionInfo && this.sessionInfo.session_name || this.storeInfo.name}(${this.storeInfo.user_count})`
@@ -586,7 +563,7 @@
             {
               "colName": "store_no",
               "ruleType": "eq",
-              "value": this.vstoreUser?.store_no
+              "value": this.storeNo|| this.vstoreUser?.store_no
             },
             {
               "colName": "store_user_no",
@@ -1086,12 +1063,14 @@
       }
     },
     onShow() {
-      // if (this.vstoreUser?.store_user_no) {
-      //   this.getVipCard(this.vstoreUser?.store_user_no)
-      // }
+      if (this.vstoreUser?.store_user_no) {
+        this.getVipCard(this.vstoreUser?.store_user_no)
+      }
     },
     async onLoad(option) {
       const self = this
+      await this.initApp()
+      
       if (option.top_buttons) {
         let top_buttons = option.top_buttons;
         try {
@@ -1228,12 +1207,13 @@
   .util-bar {
     // position: fixed;
     // top: 0;
+    height: 42px;
     background-color: #f5f5f5;
     display: flex;
     justify-content: flex-end;
-    border-radius: 0 0 20rpx 20rpx;
+    border-radius: 0 0 10px 10px;
     overflow: hidden;
-    padding: 10rpx 20rpx;
+    padding: 5px 10px;
     top: 0;
     /* #ifdef H5 */
     top: 44px;
@@ -1260,27 +1240,27 @@
       }
 
       .icon {
-        width: 40rpx;
-        height: 40rpx;
+        width: 20px;
+        height: 20px;
         // border-radius: 50%;
         color: #333;
-        line-height: 40rpx;
+        line-height: 20px;
         text-align: center;
-        font-size: 40rpx;
+        font-size: 20px;
         margin-right: 5px;
       }
 
       .label {
         // color: #999;
         // margin-top: 10rpx;
-        font-size: 28rpx;
+        font-size: 14px;
         // margin-left: 5px;
       }
     }
   }
 
   .goods-card {
-    width: calc(100% - 40rpx);
+    width: calc(100% - 20px);
     // height: 150px;
     margin: 10rpx auto;
     background-color: #fff;
@@ -1295,9 +1275,9 @@
       display: flex;
 
       .goods-img {
-        width: 200rpx;
-        height: 200rpx;
-        border-radius: 10rpx;
+        width: 100px;
+        height: 100px;
+        border-radius: 5px;
       }
 
       .goods-info {
@@ -1320,7 +1300,7 @@
     .goods-card-footer {
       text-align: center;
       border-top: 1rpx solid #f1f1f1;
-      padding: 20rpx;
+      padding: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;

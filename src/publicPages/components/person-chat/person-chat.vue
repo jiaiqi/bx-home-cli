@@ -139,7 +139,8 @@
                   ">
                   @{{ item.attribute.name }}
                 </text>
-                <uHtmlParse :content="item.msg_content" />
+                <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text>
+                <!-- <uHtmlParse :content="item.msg_content" /> -->
               </view>
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
@@ -195,7 +196,8 @@
             <view @tap.stop.prevent="openVideo(item)" v-else-if="item.video && item.msg_content_type === '视频'"
               class="video_right_play">
               <!-- <text>视频</text> -->
-              <video class="video-msg" :poster="item.image ? getImagePath(item.image, true) : ''" :style="{
+              <video class="video-msg" :show-fullscreen-btn="false"
+                :poster="item.image ? getImagePath(item.image, true) : ''" :style="{
                   width: item.videoWidth + 'px',
                   height: item.videoHeight + 'px',
                 }" :id="'myVideo' + item.id" :src="item.video_url" :duration="
@@ -319,7 +321,8 @@
                   item.attribute.type &&
                   item.attribute.type === 'remindPerson'
                 ">@{{ item.attribute.name }}</text>
-              <uHtmlParse :content="item.msg_content" />
+              <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text>
+              <!-- <uHtmlParse :content="item.msg_content" /> -->
               <!-- <uHtmlParse :content="renderEmoji(item.msg_content)" /> -->
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
@@ -363,7 +366,7 @@
             <view @tap.stop.prevent="openVideo(item)" v-else-if="item.video && item.msg_content_type === '视频'"
               class="video_right_play">
               <!-- <text>视频</text> -->
-              <video class="video-msg" style="width: 250px; height: 200px"
+              <video class="video-msg" :show-fullscreen-btn="false" style="width: 250px; height: 200px"
                 :poster="item.image ? getImagePath(item.image, true) : ''" :style="{
                   width: item.videoWidth + 'px',
                   height: item.videoHeight + 'px',
@@ -372,7 +375,6 @@
                     ? item.attribute.duration
                     : ''
                 " :src="item.video_url" controls></video>
-              <!-- <video style="width: 250px;height: 200px;" id="myVideo" :src="item.video_url" controls></video> -->
             </view>
             <view v-else-if="
                 item.longitude &&
@@ -575,12 +577,12 @@
   } from 'vuex';
   // import parseHtml from '@/publicPages/static/js/html-parser.js'
   import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
-  import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
+  // import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
   export default {
     name: 'personchat',
     components: {
       robbyImageUpload,
-      uHtmlParse
+      // uHtmlParse
     },
     props: {
       showGoodsCard: {
@@ -672,9 +674,9 @@
       },
       chartHeight() {
         if (this.topHeight) {
-          return `calc(100vh - ${this.topHeight}px)`;
+          return `calc(100vh - ${this.topHeight}px - 55px)`;
         } else {
-          return 'calc(100vh)';
+          return 'calc(100vh - 55px)';
         }
       },
       isBandPost() {
@@ -773,53 +775,7 @@
     },
 
     methods: {
-      async refreshZTSession() {
-        // 刷新专题咨询会话状态
 
-        // 专题咨询会话查询
-        let req = {
-          "serviceName": "srvhealth_dialogue_session_select",
-          "colNames": ["*"],
-          "condition": [{
-              "colName": "session_type",
-              "ruleType": "eq",
-              "value": '专题咨询'
-            },
-            {
-              "colName": "group_no",
-              "ruleType": "eq",
-              "value": this.groupNo
-            },
-            {
-              "colName": "store_no",
-              "ruleType": "eq",
-              "value": this.vstoreUser?.store_no
-            },
-            {
-              "colName": "store_user_no",
-              "ruleType": "eq",
-              "value": this.store_user_no || this.vstoreUser?.store_user_no
-            }
-          ],
-          "page": {
-            "pageNo": 1,
-            "rownumber": 1
-          },
-        }
-        let res = await this.$fetch('select', 'srvhealth_dialogue_session_select', req, 'health')
-        if (res.success) {
-          if (Array.isArray(res.data) && res.data.length > 0) {
-            this.sessionInfo = res.data[0]
-            this.session_no = res.data[0].session_no
-            this.getGroup(false)
-            return res.data[0]
-          } else {
-            await this.createSession()
-          }
-
-        }
-
-      },
       toPages(type) {
         let url = ''
 
@@ -850,15 +806,21 @@
         this.$emit('clickAvatar', e)
       },
       deleteRecord(item) {
+        let serviceName = 'srvhealth_consultation_chat_record_delete'
+        // serviceName = 'srvhealth_consultation_chat_record_update'
         let req = [{
-          "serviceName": "srvhealth_consultation_chat_record_delete",
+          "serviceName": serviceName,
           "condition": [{
             "colName": "id",
             "ruleType": "in",
             "value": item.id
           }]
+          // ,
+          // data: [{
+          //   msg_state: "撤回"
+          // }]
         }]
-        this.$fetch('operate', 'srvhealth_consultation_chat_record_delete', req, 'health').then(res => {
+        this.$fetch('operate', serviceName, req, 'health').then(res => {
           if (res.success) {
             this.recordList.forEach((e, i) => {
               if (item.id === e.id) {
@@ -1293,7 +1255,7 @@
         } else if (type === 'photo') {
           uni.chooseImage({
             count: 6, //默认9
-            sourceType: ['album'], //从相册选择
+            // sourceType: ['album','camera'], //从相册选择
             success: function(res) {
               let reqHeader = {
                 bx_auth_ticket: uni.getStorageSync('bx_auth_ticket')
@@ -1306,6 +1268,10 @@
                 thumbnailType: 'fwsu_100',
                 columns: 'image'
               };
+              uni.showLoading({
+                title: '发送中...',
+                mask: true
+              })
               let url = '';
               for (let i = 0; i < res.tempFilePaths.length; i++) {
                 uni.getImageInfo({
@@ -1412,7 +1378,6 @@
                 success: (result) => {},
                 fail: (error) => {}
               })
-              uni.hideLoading()
               uni.hideNavigationBarLoading()
               if (!file_no) {
                 uni.showToast({
@@ -1422,11 +1387,11 @@
                 })
                 return
               } else {
-                uni.showToast({
-                  title: '上传成功！',
-                  icon: 'success',
-                  mask: true
-                })
+                // uni.showToast({
+                //   title: '上传成功！',
+                //   icon: 'success',
+                //   mask: true
+                // })
               }
               if (res.tempFiles[i].type === 'video') {
                 const videoInfo = await new Promise(resolve => {
@@ -1481,6 +1446,7 @@
             mediaType: ['video'],
             sourceType: ['camera', 'album'],
             success: function(res) {
+
               let src = res.tempFilePath;
               let imgPath = res.thumbTempFilePath
               // chooseMedia返回数据
@@ -1489,10 +1455,10 @@
                 src = res.tempFilePath
                 imgPath = res.thumbTempFilePath
               }
-              // 1. 上传视频文件res.tempFilePath、2.上传视频缩略图res.thumbTempFilePath
               uni.showLoading({
                 title: '发送中...'
               });
+              // 1. 上传视频文件res.tempFilePath、2.上传视频缩略图res.thumbTempFilePath
               uni.uploadFile({
                 url: self.$api.upload,
                 header: reqHeader,
@@ -1558,7 +1524,6 @@
                       self.sendMessageLanguageInfo('视频', photoDataNo,
                         res);
                     }
-
                     // self.sendMessageLanguageInfo('视频', photoDataNo,res);
                   } else {}
                 }
@@ -1761,6 +1726,7 @@
       },
       /*点击发送后添加图片或语音数据**/
       async sendMessageLanguageInfo(type, value, info) {
+        let self = this
         let serviceName = 'srvhealth_consultation_chat_record_add'
         if (this.sessionType === '机构用户客服') {
           if (this.identity === '客户') {
@@ -1979,15 +1945,14 @@
         }
         data.msg_content_type = type
         data.id = this.recordList.length > 0 ? (this.recordList[this.recordList.length - 1].id + 999) : 99
-        // this.recordList.push(data)
-        uni.showLoading({
-          title: '发送中...',
-          mask: true
-        })
+        req[0].data[0].msg_state = '未读'
+
+
         // let res = await this.$http.post(url, req);
         let res = await this.$fetch('operate', serviceName, req, 'health')
         if (res.data.length > 0) {
-          this.recordList.push(res.data[0])
+          this.recordList.push(this.formatMsg(res.data[0]))
+          // this.recordList.push(res.data[0])
         }
         uni.hideLoading();
         if (this.remindPerson && this.remindPerson.no) {
@@ -1996,9 +1961,6 @@
         this.isAll = false;
         this.pageInfo.pageNo = 1;
         // this.initMessageList('refresh');
-        // if (res.data.length > 0) {
-        //   this.recordList.push(res.data[0])
-        // }
         this.$emit('msgSendSuccess')
         setTimeout(() => {
           this.toBottom()
@@ -2104,10 +2066,7 @@
           if (this.identity) {
             req[0].data[0].identity = this.identity
           }
-          // if (this.remindPerson && this.remindPerson.no) {
-          //   req[ 0 ].data[ 0 ].receiver_person_no = this.remindPerson.no
-          //   req[ 0 ].data[ 0 ].attribute = JSON.stringify(this.remindPerson)
-          // }
+
           if (Array.isArray(this.remindPersonList) && this.remindPersonList.length > 0) {
             if (this.remindPersonList.length === 1) {
               req[0].data[0].receiver_person_no = this.remindPersonList[0].no
@@ -2171,7 +2130,6 @@
         } else {
           req[0].data[0].msg_link = this.chooseRecod;
         }
-        // this.recordList.push(req[0].data[0])
         if (serviceName === 'srvhealth_consultation_chat_record_add') {
           if (req[0].data[0].msg_content && req[0].data[0].msg_content.indexOf("@所有人") !== -1) {
             console.log(this.currentUserInfo)
@@ -2210,6 +2168,9 @@
             }
           }
         }
+
+        req[0].data[0].msg_state = '未读'
+
         uni.showLoading({
           title: '发送中...',
           mask: true
@@ -2222,9 +2183,9 @@
           }
           this.remindPersonList = []
           if (res.data.length > 0) {
-            this.recordList.push(res.data[0])
+            this.recordList.push(this.formatMsg(res.data[0]))
+            // this.recordList.push(res.data[0])
           }
-          // this.recordList.push(req[0].data[0])
           // this.initMessageList('refresh');
           this.$emit('msgSendSuccess')
           setTimeout(() => {
@@ -2263,6 +2224,11 @@
         let req = {
           serviceName: 'srvhealth_consultation_chat_record_select',
           colNames: ['*'],
+          condition: [{
+            colName: "msg_state",
+            ruleType: "ne",
+            value: '撤回'
+          }],
           relation_condition: {
             relation: 'OR',
             data: []
@@ -2380,7 +2346,6 @@
         }
         let res = await this.$http.post(url, req);
         if (res.data.state !== 'SUCCESS') {
-
           return
         }
         if (dontEmit !== true) {
@@ -2530,26 +2495,15 @@
               return true
             }
           })
-          // resData = resData.reduce((pre, cur) => {
-          //   if (Array.isArray(pre) && !pre.find(item => item.id === cur.id)) {
-          //     cur.showRecall = false
-          //     pre.push(cur);
-          //     return pre;
-          //   }
-          // }, []);
-          // console.log(this.deepClone(resData))
-          // debugger
+
           resData.sort((a, b) => {
             return new Date(a.create_time.replace(/\-/g, '/')).getTime() - new Date(b.create_time
               .replace(/\-/g,
                 '/')).getTime(); //时间反序
           });
-          // console.log(this.deepClone(resData))
-          // debugger
 
-          // resData = resData.reverse()
           this.recordList = resData;
-          // this.recordList = this._SortJson(resData);
+
           if (this.identity) {
             let recordList = this.recordList.filter((item) => {
               if (item.identity !== this.identity && item.msg_state === '未读') {
@@ -2576,6 +2530,7 @@
       },
       setRefreshMessageTimer(second = 2 * 1000, enableSet = true) {
         // 设置定时刷新消息的定时器
+        // if(this.$api?.env!=='prod')
         return
         if (this.sessionType === '专题咨询' && !enableSet && this.identity === '客户') {
           return
@@ -2793,15 +2748,14 @@
               .id +
               999) :
             99
-          // this.recordList.push(dataResult)
           return result
         })
         req[0].data = reqData
-
+        req[0].data[0].msg_state = '未读'
         // let res = await this.$http.post(url, req);
         let res = await this.$fetch('operate', serviceName, req, 'health')
         if (res.data.length > 0) {
-          this.recordList.push(res.data[0])
+          this.recordList.push(this.formatMsg(res.data[0]))
         }
         uni.hideLoading();
         if (this.remindPerson && this.remindPerson.no) {
@@ -2815,6 +2769,94 @@
         setTimeout(() => {
           this.toBottom()
         }, 200)
+      },
+      formatMsg(msg) {
+        if (msg?.attribute && typeof msg?.attribute === 'string') {
+          try {
+            msg.attribute = JSON.parse(msg.attribute);
+          } catch (e) {
+            console.log(e)
+          }
+        }
+        if (msg.msg_content_type === '链接') {
+          /*饮食记录**/
+          if (msg.msg_link.indexOf('chatChoseTime') > -1) {
+            msg['recode_num'] = msg.msg_link.split('&')[1].split('=')[1];
+          } else if (msg.msg_link.indexOf('activity_no') > -1 && this.recodeOnloadList.length > 0) {
+            //问卷记录
+            let active_num = msg.msg_link.split('&')[1].split('=')[1];
+            this.recodeOnloadList.forEach(t => {
+              if (t.activity_no === active_num) {
+                msg['quertion_name'] = t.title;
+              }
+            });
+          }
+        } else if (msg.msg_content_type === '视频' && msg.video) {
+          if (msg.attribute && msg.attribute.width && msg.attribute.height) {
+            let info = this.setImgSize(msg.attribute, 500);
+            if (info.width && info.height) {
+              this.$set(msg, 'videoWidth', info.width);
+              this.$set(msg, 'videoHeight', info.height);
+            }
+          }
+          let video_url = this.$api.downloadFile + msg.video + '&bx_auth_ticket=' + uni
+            .getStorageSync(
+              'bx_auth_ticket');
+          this.$set(msg, 'video_url', video_url);
+        } else if (msg.attachment) {
+          this.getFileNo(msg.attachment).then(obj => {
+            if (['jpg', 'png', 'jepg', 'gif'].includes(obj.file_type) === true) {
+              this.$set(msg, 'pic_url', this.getImagePath(msg.attachment,
+                true));
+              this.getFilePath(msg.attachment).then(files => {
+                files = files.map(f => {
+                  f._file_url = this.$api.getFilePath + msg
+                    .fileurl + '&bx_auth_ticket=' + uni
+                    .getStorageSync('bx_auth_ticket')
+                  return f
+                })
+                this.$set(msg, 'imgs_list', files.map(file => file
+                  ._file_url))
+                this.$set(msg, 'img_list', files)
+
+              })
+            }
+            this.$set(msg, 'documents_name', obj.src_name);
+            this.$set(msg, 'file_type', obj.file_type);
+            this.$set(msg, 'file_size', obj.file_size);
+          });
+        } else if (msg.msg_content_type === '语音') {
+          msg.anmitionPlay = false
+          this.getFilePath(msg.msg_link).then(obj => {
+            if (obj) {
+              let voice_url = this.$api.getFilePath + obj[0].fileurl;
+              this.$set(msg, 'voice_url', voice_url);
+            }
+          });
+        } else if (msg?.image) {
+          msg.img_url = this.$api.downloadFile + msg?.image + '&bx_auth_ticket=' + uni
+            .getStorageSync('bx_auth_ticket');
+          if (msg?.attribute && msg?.attribute.width && msg?.attribute.height) {
+            let info = this.setImgSize(msg?.attribute);
+            if (info.width && info.height) {
+              msg.imgWidth = info.width
+              msg.imgHeight = info.height
+            }
+          } else {
+            this.getImageInfo({
+              url: msg?.img_url
+            }).then(picInfo => {
+              if (picInfo.w && picInfo.h) {
+                let res = this.setPicSize(picInfo);
+                if (res.w && res.h) {
+                  msg.imgWidth = res.w
+                  msg.imgHeight = res.h
+                }
+              }
+            });
+          }
+        }
+        return msg
       },
       toGoods(e) {
         if (e && e.attribute && e.attribute.goods_no) {
@@ -2906,7 +2948,7 @@
       //   }
       // }, 3000)
       uni.onKeyboardHeightChange((res = {}) => {
-        console.log('键盘高度:',res.height);
+        console.log('键盘高度:', res.height);
         this.keyboardHeight = res.height
         if (res.height > 0) {
           this.showKeyboard = true;
@@ -2964,7 +3006,6 @@
     background-color: #f5f5f5;
     overflow: hidden;
     width: 100%;
-    // height: var(--chart-height);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -2989,7 +3030,8 @@
       }
 
       .msg-list {
-        height: calc(100vh - var(--window-top) - 55px);
+        // height: calc(100vh - var(--window-top));
+        height: var(--chart-height);
 
         .loading {
           //loading动画
@@ -3044,12 +3086,10 @@
         }
 
         &.top-height {
-          // height: calc(100vh - var(--window-top) - 55px - 42px);
-
-          height: calc(var(--chart-height) - 55px);
+          height: calc(var(--chart-height));
 
           &.showLayer {
-            height: calc(var(--chart-height) - 55px - 230px);
+            height: calc(var(--chart-height) - 230px);
           }
         }
 
@@ -3058,29 +3098,29 @@
         }
 
         &.showKeyboard {
-          height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px);
+          height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top));
 
           &.showLayer {
-            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px - 230px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 230px);
           }
 
           &.top-height {
-            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top));
 
             &.showLayer {
-              height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 55px - 230px);
+              height: calc(var(--chart-height) - var(--keyboard-height) - var(--window-top) - 230px);
             }
           }
         }
 
         /* #ifdef H5 */
         &.top-height {
-          height: calc(var(--chart-height) - 55px);
+          height: calc(var(--chart-height));
 
-          height: calc(var(--chart-height) - 55px);
+          height: calc(var(--chart-height));
 
           &.showLayer {
-            height: calc(var(--chart-height) - 55px - 230px);
+            height: calc(var(--chart-height) - 230px);
           }
         }
 
@@ -3089,17 +3129,17 @@
         }
 
         &.showKeyboard {
-          height: calc(var(--chart-height) - var(--keyboard-height) - 55px);
+          height: calc(var(--chart-height) - var(--keyboard-height));
 
           &.showLayer {
-            height: calc(var(--chart-height) - var(--keyboard-height) - 55px - 230px);
+            height: calc(var(--chart-height) - var(--keyboard-height) - 230px);
           }
 
           &.top-height {
-            height: calc(var(--chart-height) - var(--keyboard-height) - 55px);
+            height: calc(var(--chart-height) - var(--keyboard-height));
 
             &.showLayer {
-              height: calc(var(--chart-height) - var(--keyboard-height) - 55px - 230px);
+              height: calc(var(--chart-height) - var(--keyboard-height) - 230px);
             }
           }
         }

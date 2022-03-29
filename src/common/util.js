@@ -35,7 +35,8 @@ export default {
           scene: state => state.app.scene,
           hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
           isLogin: state => state.app.isLogin,
-          vvipCard: state => state.user.vipCard //用户会员卡信息（充值卡）
+          vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
+          curStoreNo: state => state.app.curStoreNo //当前店铺编号
         }),
         $api() {
           return api
@@ -44,12 +45,101 @@ export default {
           return !!this.vvipCard?.card_no
         }
       },
+      onLoad(option) {
+        if (option.storeNo || option.store_no) {
+          this.$store.commit('SET_CUR_STORE_NO', option.storeNo || option.store_no)
+        }
+      },
       methods: {
+        async initApp() {
+          // 初始化小程序
+          // 1. 登录检测、用户信息查找
+          await this.toAddPage()
+          // 2. 店铺信息查找
+          let storeInfo = await this.getStore_()
+          if(storeInfo?.store_no){
+            // 3. 店铺用户信息查找
+            await this.getStoreUser_()
+            // 4. vipcard信息查找
+            await this.getVipCard()
+          }
+         
+        },
+        async getStore_() {
+          if (!this.curStoreNo) {
+            return
+          }
+          let req = {
+            condition: [{
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: this.curStoreNo
+            }],
+            page: {
+              pageNo: 1,
+              rownumber: 1
+            }
+          };
+          let serviceName = 'srvhealth_store_list_select';
+          // serviceName = 'srvhealth_store_mgmt_select'
+          serviceName = 'srvhealth_store_cus_niming_detail_select'
+          let res = await this.$fetch('select', serviceName, req, 'health');
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            this.$store.commit('SET_STORE_INFO', res.data[0]);
+            let theme = 'blue';
+            if (res.data[0].para_cfg) {
+              try {
+                let moreConfig = JSON.parse(res.data[0].para_cfg);
+                res.data[0].moreConfig = moreConfig;
+                if (moreConfig.theme) {
+                  theme = moreConfig.theme;
+                }
+              } catch (err) {
+                console.log(err);
+              }
+            }
+            this.$store.commit('SET_THEME', theme);
+            return res.data[0]
+          }
+          return false
+        },
+        async getStoreUser_() {
+          let storeNo = this.curStoreNo
+          if (this.userInfo?.no && storeNo) {
+            let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
+            let req = {
+              serviceName: 'srvhealth_store_user_select',
+              colNames: ['*'],
+              condition: [{
+                  colName: 'person_no',
+                  ruleType: 'eq',
+                  value: this.userInfo.no
+                },
+                {
+                  colName: 'store_no',
+                  ruleType: 'eq',
+                  value: storeNo
+                }
+              ]
+            };
+            let res = await this.$http.post(url, req);
+            if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+              this.bindUserInfo = res.data.data[0]
+              this.$store.commit('SET_STORE_USER', res.data.data[0]);
+              return res.data.data;
+            }
+            return res
+          }
+        },
         getwxMchId() {
           // 获取商户号
           return this.storeInfo?.wx_mch_id || '1485038452'
         },
         async getVipCard(no) {
+          no = no || this.vstoreUser?.store_user_no
+          if (!no) {
+            return
+          }
           let service = 'srvhealth_store_card_case_select'
           const req = {
             "serviceName": service,
@@ -378,7 +468,7 @@ export default {
           fieldInfo.type = "number"
         } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "Selector"
-          if (item.option_list_v2 && (item.option_list_v2.is_tree === true||fieldInfo.column==='location')) {
+          if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
@@ -401,7 +491,7 @@ export default {
           // fieldInfo.type = 'location'
         } else if (item.bx_col_type === "string" && item.col_type === "fk") {
           fieldInfo.type = "Selector"
-          if (item.option_list_v2 && (item.option_list_v2.is_tree === true||fieldInfo.column==='location')) {
+          if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
@@ -1064,7 +1154,6 @@ export default {
      * */
     Vue.prototype.getInputsArray = function(e) {
       let viewCfg = e
-
       let inputTemp = function() {
         let a = {
           type: "", //input textarea pics  radio checkbox picker-date（picker-dateTime| String| 日期加时间| | picker-date| String| 日期| | picker-time| String| 时间|） picker-city text  infinitePics
@@ -1096,7 +1185,6 @@ export default {
               }
             } else {
               inputData.type = "input"
-
               return inputData
             }
             break;

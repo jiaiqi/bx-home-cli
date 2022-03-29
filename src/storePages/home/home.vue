@@ -26,7 +26,7 @@
       </view>
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
-    <u-tabbar :value="currentTab" :list="tabbarList" :mid-button="false"
+    <u-tabbar :value="currentTab" :list="tabbarList" inactive-color="#888" active-color="#000" :mid-button="false"
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
