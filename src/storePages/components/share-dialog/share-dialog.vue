@@ -59,7 +59,7 @@
     v-else-if="modalName==='sharePoster'">
     <view class="cu-dialog transparent" @click.stop="hideModal">
       <view class="share-poster" @click.stop="">
-        <image :src="postPath" mode="aspectFit" class="poster-image" :lazy-load="true"></image>
+        <image :src="postPath" mode="aspectFit" show-menu-by-longpress class="poster-image" :lazy-load="true"></image>
         <view class="margin-tb">
           <button class="cu-btn bg-blue round" style="width: 60%;" type="primary" @click="saveTolbum">保存到相册</button>
         </view>

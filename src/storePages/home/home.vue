@@ -16,7 +16,7 @@
         :before-click="clickStoreItem">
       </store-item>
     </view>
-    
+
     <view class="copyright-box">
       <view class="row">
         声明：图文信息均来源合作方，如有侵权请联系我们删除
@@ -474,15 +474,16 @@
                 serviceName: 'srvhealth_store_home_notice_select',
                 colNames: ['*'],
                 condition: [{
-                  colName: 'component_no',
-                  ruleType: 'eq',
-                  value: element.component_no
-                },
-                {
-                  colName: 'notice_display',
-                  ruleType: 'eq',
-                  value: '发布'
-                }],
+                    colName: 'component_no',
+                    ruleType: 'eq',
+                    value: element.component_no
+                  },
+                  {
+                    colName: 'notice_display',
+                    ruleType: 'eq',
+                    value: '发布'
+                  }
+                ],
                 page: {
                   pageNo: 1,
                   rownumber: 10
@@ -1291,6 +1292,9 @@
       if (this.StoreInfo?.logo) {
         imageUrl = this.getImagePath(this.StoreInfo.logo, true);
       }
+      if (this.StoreInfo?.wx_share_img) {
+        imageUrl = this.getImagePath(this.StoreInfo.wx_share_img, true);
+      }
       this.saveSharerInfo(this.userInfo, path);
       return {
         imageUrl: imageUrl,
@@ -1509,19 +1513,19 @@
           await this.bindStore(option.store_no, option.invite_user_no);
         }
       }
-      
+
       if (option.pd_no) {
         this.pdNo = option.pd_no;
       }
       await this.initPage();
-      if(this.pdNo){
+      if (this.pdNo) {
         await this.getPageDefine(this.pdNo);
         // this.storeNo = this.pageDefine.store_no;
         await this.getTabbar(this.pdNo);
         await this.getPageComponent(this.pdNo);
       }
-      
-      
+
+
 
       if (option.cardNo && option.share_type === "shareCoupon") {
         // 点击赠送卡券的分享进入小程序

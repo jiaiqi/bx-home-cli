@@ -5,14 +5,13 @@
         <image :src="getImagePath(info.user_image,true)" class="profile" mode="aspectFit" v-if="info.user_image">
         </image>
         <view class="col-list">
-          <view class="col-item text-bold">
+          <view class="col-item text-bold text-lg">
             {{info.real_name||''}}
           </view>
           <view class="col-item"
             style="background-color: #10c0a8;color: #fff;border-radius: 5px;margin-left: 5px;padding: 2px 5px;font-size: 12px;">
             {{info.my_professional||''}}
           </view>
-
           <view class="" v-if="info.show_str">
             {{info.show_str}}
           </view>
@@ -303,7 +302,13 @@
 
       .col-item {
         display: inline-block;
-
+        .bg-gray{
+          background-color: #EEEEF1;
+          font-size: 14px;
+          font-family: 苹方-简;
+          font-weight: normal;
+          color: #333333;
+        }
         &.width-wrap {
           width: 100%;
         }

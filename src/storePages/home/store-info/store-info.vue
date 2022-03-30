@@ -119,8 +119,8 @@
       <view class="cu-dialog " @click.stop="">
         <view class="qrcode-box">
           <view class="title">我的推广码</view>
-          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="setStoreInfo && qrcodePath"
-            @click="toPreviewImage(qrcodePath)"></image>
+          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" show-menu-by-longpress
+            v-if="setStoreInfo && qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
           <view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
           <view class="store-name">{{ setStoreInfo.name || '' }}</view>
         </view>
@@ -170,7 +170,7 @@
           this.qrCodeText = '';
           this.qrcodePath = '';
           this.setStoreInfo = false
-          if(newValue?.logo){
+          if (newValue?.logo) {
             this.getFilePath(newValue?.logo).then(res => {
               if (Array.isArray(res) && res.length > 0) {
                 const item = res[0];
@@ -178,7 +178,7 @@
               }
             });
           }
-      
+
           if (this.userInfo && this.userInfo.userno && newValue && newValue.store_no) {
             result =
               `https://wx2.100xsys.cn/${this.$api.customQrcodeFolder?this.$api.customQrcodeFolder+'/home':'shareClinic'}/${newValue.store_no}/${this.userInfo.userno}`;

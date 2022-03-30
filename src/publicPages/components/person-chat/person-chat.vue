@@ -3211,7 +3211,7 @@
 
           .sender-info {
             width: 100%;
-            font-size: 24rpx;
+            font-size: 12px;
             margin-bottom: 10rpx;
             text-align: left;
 
@@ -3231,7 +3231,7 @@
               padding: 20rpx;
 
               .address {
-                font-size: 24rpx;
+                font-size: 12px;
                 color: #999;
                 margin-top: 10rpx;
               }
@@ -3356,7 +3356,7 @@
               .article-title {
                 font-weight: bold;
                 margin-bottom: 10rpx;
-                font-size: 30rpx;
+                font-size: 15px;
               }
 
               .article-main {
@@ -3494,7 +3494,7 @@
 
           .sender-info {
             width: 100%;
-            font-size: 24rpx;
+            font-size: 12px;
             margin-bottom: 10rpx;
             text-align: right;
             display: flex;
@@ -3517,7 +3517,7 @@
               padding: 20rpx;
 
               .address {
-                font-size: 24rpx;
+                font-size: 12px;
                 color: #999;
                 margin-top: 10rpx;
               }
@@ -3527,7 +3527,7 @@
           .unread {
             line-height: 86rpx;
             margin-right: 10rpx;
-            font-size: 24rpx;
+            font-size: 12px;
             color: #ccc;
           }
 
@@ -3648,7 +3648,7 @@
               .article-title {
                 font-weight: bold;
                 margin-bottom: 10rpx;
-                font-size: 30rpx;
+                font-size: 12px;
               }
 
               .article-main {
@@ -3813,9 +3813,9 @@
 
           // margin-right: 30rpx;
           .image-icon {
-            width: 50rpx;
-            height: 50rpx;
-            font-size: 50rpx;
+            width:25px;
+            height:25px;
+            font-size: 25px;
             margin-right: 10rpx;
           }
 
@@ -3833,7 +3833,7 @@
 
             .remind-one {
               border-radius: 10rpx;
-              line-height: 70rpx;
+              line-height: 35px;
               font-size: 14px;
               position: relative;
               background-color: #f1f1f1;
@@ -3869,13 +3869,13 @@
           .person-chat-rig-add-wrap {
             .person-chat-rig-add {
               margin: 0 auto;
-              width: 50rpx;
-              height: 50rpx;
+              width:25px;
+              height:25px;
               display: flex;
               align-items: center;
               justify-content: center;
-              border-radius: 30rpx;
-              font-size: 60rpx;
+              border-radius: 15px;
+              font-size: 30px;
             }
           }
 
