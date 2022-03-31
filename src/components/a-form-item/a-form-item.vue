@@ -132,8 +132,8 @@
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
-        <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true" v-model="fieldData.value"
-          :placeholder="'请输入'" @blur="onBlur" :disabled="fieldData.disabled"></textarea>
+        <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
+          :placeholder="'请输入'" @input="textareaInput" :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
@@ -1351,6 +1351,9 @@
         // this.fieldData.old_value = this.fieldData.value
         // this.$emit('on-value-change', this.fieldData);
         // }
+      },
+      textareaInput(e) {
+      	this.fieldData.value = e.detail.value
       },
       onInput() {
         // input事件

@@ -30,9 +30,9 @@
     </view>
 
     <view class="content" v-if="articleData.content">
-      <view class="" v-html="articleData.content">
-      </view>
-      <!-- <mp-html :content="articleData.content" /> -->
+<!--      <view class="" v-html="articleData.content">
+      </view> -->
+      <mp-html :content="articleData.content" />
       <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
       <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->
       <!-- <uHtmlParse :content="richTextNodes" /> -->

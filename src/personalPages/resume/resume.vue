@@ -302,6 +302,11 @@
         }
       },
     },
+    onShow() {
+      if (this.vstoreUser?.store_user_no) {
+        this.getVipCard(this.vstoreUser?.store_user_no)
+      }
+    },
     onLoad(option) {
       if (option.app) {
         this.app = option.app
@@ -318,9 +323,7 @@
       if (this.idCol && this.idVal && this.service) {
         this.getInfo()
       }
-      if (this.vstoreUser?.store_user_no) {
-        this.getVipCard(this.vstoreUser?.store_user_no)
-      }
+    
     }
   }
 </script>

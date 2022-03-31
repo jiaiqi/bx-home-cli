@@ -2182,7 +2182,8 @@
               title:'消息发送失败',
               icon:'none'
             })
-            if(res.code===6666&&res.msg==='库存不足'){
+            debugger
+            if((res.code===6666||res.code==='6666')&&res.msg==='库存不足'){
               uni.showModal({
                 title:'提示',
                 content:'想豆余额不足,是否前往充值?',

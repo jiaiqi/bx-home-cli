@@ -138,8 +138,12 @@
 				immediate:true,
 				deep:true,
 				handler(newValue, oldValue){
-					this.curNodeInfo = this.deepClone(this.current)
-					this.curNode = this.curNodeInfo[this.srvInfo.column]||''
+          console.log(this.current)
+          console.log(this.srvInfo)
+          if(this.current&&this.srvInfo&&this.srvInfo.column){
+            this.curNodeInfo = this.deepClone(this.current)
+            this.curNode = this.curNodeInfo[this.srvInfo.column]||''
+          }
 					if(!this.curNode){
 						this.selectedList = []
 					}

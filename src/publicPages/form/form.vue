@@ -39,7 +39,7 @@
         condition: null,
         fieldsCond: [],
         params: {},
-        defaultVal: {},
+        defaultVal:false,
         showChildService: false,
         successTip: '操作成功',
         afterSubmit: 'back', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页,close:关闭当前页面 仅pc端框架内嵌页面中有用
@@ -736,6 +736,7 @@
         return serviceName;
       },
       async getDefaultVal() {
+        debugger
         if (this.use_type === 'detail' || this.use_type === 'update') {
           let serviceName = this.colsV2Data?.select_service_name || this.service || this.serviceName.replace(
               '_update',
@@ -785,7 +786,6 @@
         let defaultVal = self.defaultVal;
         self.colsV2Data = colVs;
         colVs = self.deepClone(colVs);
-
         if (colVs && colVs.service_view_name) {
           uni.setNavigationBarTitle({
             title: colVs.service_view_name
@@ -1274,9 +1274,9 @@
                 item.value = this.doctorInfo.store_no;
                 item.display = false;
               }
-			  if(item.value&&typeof item.value==='string'&&item.value.indexOf('${')){
-				  item.value = this.renderStr(item.value,this)
-			  }
+              if (item.value && typeof item.value === 'string' && item.value.indexOf('${')) {
+                item.value = this.renderStr(item.value, this)
+              }
             }
             return item;
           });
@@ -1303,8 +1303,8 @@
           value: option.id
         }]
       }
+      await this.getFieldsV2();
       await this.getDefaultVal();
-      this.getFieldsV2();
     }
   };
 </script>

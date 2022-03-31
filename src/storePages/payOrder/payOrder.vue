@@ -627,7 +627,7 @@
 						self.selectorData = res.data.data;
 					}
 					self.selectorData = self.selectorData.map(item => {
-						item.label = roomV2.show_as_pair !== false ?
+						item.label = roomV2.show_as_pair === true ?
 							`${item[ roomV2.key_disp_col||'' ]}/${item[ roomV2.refed_col ]}` : item[roomV2
 								.key_disp_col]
 						// item.label = roomV2.key_disp_col ? item[roomV2.key_disp_col] : '';
