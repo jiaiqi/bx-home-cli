@@ -787,6 +787,7 @@
           case 'byBean':
             url =
               `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
+            url = `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
             break;
         }
 
@@ -2176,6 +2177,27 @@
           mask: true
         })
         this.$fetch('operate', serviceName, req, 'health').then(res => {
+          if(!res.success){
+            uni.showToast({
+              title:'消息发送失败',
+              icon:'none'
+            })
+            if(res.code===6666&&res.msg==='库存不足'){
+              uni.showModal({
+                title:'提示',
+                content:'想豆余额不足,是否前往充值?',
+                confirmText:'去充值',
+                success: (res) => {
+                  if(res.confirm){
+                    uni.navigateTo({
+                      url:  `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
+                    })
+                  }
+                }
+              })
+            }
+            return
+          }
           uni.hideLoading()
           this.isAll = false;
           if (this.remindPerson && this.remindPerson.no) {

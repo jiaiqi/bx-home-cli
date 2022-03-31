@@ -21,7 +21,17 @@ export default {
 	},
 	methods: {
 		toHome() {
-			uni.navigateBack({})
+      // #ifdef H5
+      uni.postMessage({
+        type:"navigateBack"
+      })
+      return
+      // #endif
+			uni.navigateBack({
+        success:(res)=>{
+          console.log(res)
+        }
+      })
 		},
 		toDetail() {
 			uni.redirectTo({

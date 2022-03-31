@@ -118,7 +118,7 @@
 						</view>
 					</view>
 					<view class="button-box" v-if="wxUserInfo&&wxUserInfo.unionid">
-						<button class="cu-btn bg-orange lg margin-top" :disabled="disabledButton"
+						<button class="cu-btn bg-orange lg margin-top"
 							@click="presentFlower">点击送祝福</button>
 					</view>
 				</view>
@@ -196,8 +196,8 @@
 	} from 'vuex'
 	import * as echarts from '@/components/uni-ec-canvas/echarts.js'
 
-	import chinaMap from '@/static/china.json'
-	echarts.registerMap('china', chinaMap);
+	// import chinaMap from '@/static/china.json'
+	// echarts.registerMap('china', chinaMap);
 	export default {
 		components: {
 			timelineList: () => import('./timeline-list/timeline-list.vue')

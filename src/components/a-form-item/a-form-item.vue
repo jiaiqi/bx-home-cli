@@ -133,7 +133,7 @@
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
         <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true" v-model="fieldData.value"
-          :placeholder="'请输入'" @input="onBlur" :disabled="fieldData.disabled"></textarea>
+          :placeholder="'请输入'" @blur="onBlur" :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
@@ -220,9 +220,12 @@
     </view>
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
-        <view class="tree-selector cascader" v-if="modalName === 'TreeSelector'">
-          <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
-          </cascader-selector>
+        <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
+      <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
+          </cascader-selector> -->
+          <tree-selector :srvInfo="fieldData.srvInfo" @cancel="hideModal" :current="selectTreeData"
+            @confirm="getCascaderValue">
+          </tree-selector>
         </view>
       </view>
     </view>
@@ -453,7 +456,8 @@
         },
         longpressTimer: null,
         modalName: '', //当前显示的modal
-        selectorListUUID: ""
+        selectorListUUID: "",
+        selectTreeData: {}
       };
     },
     watch: {
@@ -782,6 +786,7 @@
         }
 
       },
+ 
       showModal(name) {
         this.modalName = name;
       },
@@ -830,9 +835,11 @@
           }
           if (self.fieldData.colData && self.fieldData.colData[self.fieldData.option_list_v2.refed_col] &&
             self.fieldData.colData[self.fieldData.option_list_v2.key_disp_col]) {
-            self.fkFieldLabel = self.fieldData.option_list_v2.show_as_pair === false ? self.fieldData
-              .colData[self.fieldData.option_list_v2.key_disp_col] :
-              `${self.fieldData.colData[self.fieldData.option_list_v2.key_disp_col]}/${self.fieldData.colData[self.fieldData.option_list_v2.refed_col]}`
+            self.fkFieldLabel = self.fieldData?.option_list_v2?.show_as_pair === true ?
+              `${self.fieldData.colData[self.fieldData.option_list_v2.key_disp_col]}/${self.fieldData.colData[self.fieldData.option_list_v2.refed_col]}` :
+              self.fieldData
+              .colData[self.fieldData.option_list_v2.key_disp_col]
+
           } else {
             self.getSelectorData(cond).then(_ => {
               if (self.fieldData.value) {
@@ -892,15 +899,25 @@
         console.log(e);
         this.fieldData.value = '';
       },
+      confirmSelectTree(e) {
+        if (e && e.id) {
+          this.selectTreeData = e
+          let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
+          this.fkFieldLabel = srvInfo?.show_as_pair === true ?
+            `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
+            this.fieldData['colData'] = e;
+          this.modalName = '';
+        }
+      },
       getCascaderValue(e) {
         if (e) {
+          this.selectTreeData = e
           let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
-          this.fkFieldLabel = srvInfo.show_as_pair !== false ?
+          this.fkFieldLabel = srvInfo.show_as_pair === true ?
             `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
           this.fieldData['colData'] = e;
           this.fieldData.value = e[srvInfo.refed_col];
           this.$emit('setColData', this.fieldData)
-
         }
         this.hideModal();
         // this.onInput();
@@ -1151,7 +1168,7 @@
           self.selectorData = self.selectorData.map(item => {
             const config = this.deepClone(this.fieldData.option_list_v2);
             // item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
-            item.label = config.show_as_pair !== false ?
+            item.label = config.show_as_pair === true ?
               `${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
                 .key_disp_col]
             // item.label = config.key_disp_col ? item[config.key_disp_col] : '';
@@ -1285,7 +1302,7 @@
                 const key_disp_col = srvInfo?.key_disp_col
                 if (refed_col) {
                   // self.getCascaderValue(e.data)
-                  this.fkFieldLabel = srvInfo.show_as_pair !== false ?
+                  this.fkFieldLabel = srvInfo.show_as_pair === true ?
                     `${e.data[ key_disp_col ]}/${e.data[ refed_col ]}` : e.data[
                       key_disp_col];
                   this.fieldData['colData'] = e.data;

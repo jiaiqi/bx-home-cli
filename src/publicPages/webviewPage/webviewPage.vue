@@ -24,7 +24,8 @@
     },
     methods: {
       onMessage(e) {
-        console.log(e)
+        console.log('webview-onMessage:',e)
+        
       }
     },
     onUnload() {

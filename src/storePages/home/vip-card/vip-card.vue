@@ -50,7 +50,9 @@
       },
     },
     computed: {
-      
+      vipCardInfo(){
+        return this.info||{}
+      },
       rightBtn() {
         return this.detailCfg?.right_btn
       },

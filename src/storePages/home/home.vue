@@ -1600,7 +1600,6 @@
     .row {
       width: 600rpx;
       margin: 0 auto;
-      height: 17px;
       font-size: 12px;
       font-family: 苹方-简;
       font-weight: normal;

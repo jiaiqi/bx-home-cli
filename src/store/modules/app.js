@@ -44,7 +44,7 @@ const state = {
   systemInfo: wx.getSystemInfoSync(),
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
-  storeInfo: {}, // 当前店铺信息
+  storeInfo: getItem('storeInfo')||{}, // 当前店铺信息
   showLoginDialog: false,
   curStoreNo:""
 }

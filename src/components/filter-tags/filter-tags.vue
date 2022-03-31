@@ -1,6 +1,6 @@
 <template>
   <view class="filter-tags-view">
-    <view class="filter-tags-box">
+    <view class="filter-tags-box" v-if="mode==='fold'&&setTabs&&setTabs.length>0">
       <button class="cu-btn round margin-right-xs" :class="{'bg-white':!tab.active,'line-cyan':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
         v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
         <text class="label">

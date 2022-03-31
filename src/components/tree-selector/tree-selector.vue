@@ -186,12 +186,11 @@
 
 <style lang="scss" scoped>
 	.tree-selector-wrap {
-		width: 100vw;
 		height: 80vh;
 		display: flex;
 		flex-direction: column;
 		background-color: #f1f1f1;
-
+    overflow-y: scroll;
 		.selected-node-wrap {
 			background-color: #fff;
 			display: flex;

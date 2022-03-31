@@ -57,13 +57,13 @@ export default {
           await this.toAddPage()
           // 2. 店铺信息查找
           let storeInfo = await this.getStore_()
-          if(storeInfo?.store_no){
+          if (storeInfo?.store_no) {
             // 3. 店铺用户信息查找
             await this.getStoreUser_()
             // 4. vipcard信息查找
             await this.getVipCard()
           }
-         
+
         },
         async getStore_() {
           if (!this.curStoreNo) {
@@ -472,6 +472,11 @@ export default {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
+            fieldInfo.srvInfo.column = fieldInfo.srvInfo.column || item.option_list_v2.refed_col
+            fieldInfo.srvInfo.parentCol = fieldInfo.srvInfo.parentCol || item.option_list_v2.parent_col
+            fieldInfo.srvInfo.showCol = fieldInfo.srvInfo.showCol || item.option_list_v2.key_disp_col
+            fieldInfo.srvInfo.appNo = fieldInfo.srvInfo.appNo || item.option_list_v2.srv_app
+            
           }
         } else if (item.col_type === "User") {
           fieldInfo.type = "Selector"

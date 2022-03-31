@@ -826,7 +826,6 @@
 						}]
 					}]
 				}];
-				debugger
 				if (this.needIdNum && this.idNum) {
 					req[0].data[0].id_num = this.idNum
 				}

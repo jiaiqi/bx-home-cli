@@ -244,6 +244,7 @@
 						if (item.button_type === 'add') {
 							return true
 						}
+            return true
 					}
 				}).map(item => {
 					if (item.button_type === 'select') {
@@ -742,6 +743,21 @@
 			},
 			handlerCustomizeButton(e) {
 				// 自定义按钮
+        if(e.more_config){
+          let more_config = e.more_config;
+          try{
+            more_config = JSON.parse(more_config)
+          }catch(e){
+            //TODO handle the exception
+          }
+          if(more_config?.navUrl){
+            let url = this.renderStr(more_config?.navUrl,this);
+            uni.navigateTo({
+              url
+            })
+            return
+          }
+        }
 				if (e.servcie_type === 'add') {
 					let params = {
 						type: 'add',

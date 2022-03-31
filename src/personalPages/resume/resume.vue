@@ -29,7 +29,7 @@
             </view>
           </view>
         </view> -->
-        <view class="col-item" v-if="groupInfo.unit_price">
+        <view class="col-item">
           <view class="label">
             个人简介
           </view>
@@ -39,7 +39,6 @@
           <view class="value text-gray text-lg" v-else>
             无
           </view>
-
         </view>
         <view class="col-item">
           <view class="label">
@@ -53,7 +52,56 @@
             无
           </view>
         </view>
-        <view class="col-item">
+
+        <view class="col-item" v-if="info.my_school_map">
+          <view class="label">
+            教育经历
+          </view>
+          <view class="value" v-if="info.my_school_map">
+            <text> {{info.my_school_map}} </text>
+          </view>
+          <view class="value" v-else>
+            无
+          </view>
+        </view>
+        <view class="col-item" v-if="info.my_certificate_map">
+          <view class="label">
+            荣誉证书
+          </view>
+          <view class="value" v-if="info.my_certificate_map">
+            <!-- {{info.my_certificate_map}} -->
+            <text> {{info.my_certificate_map}} </text>
+          </view>
+          <view class="value" v-else>
+            无
+          </view>
+        </view>
+
+        <view class="col-item" v-if="info.my_work_map">
+          <view class="label">
+            工作经历
+          </view>
+          <view class="value" v-if="info.my_work_map">
+            <!-- {{info.my_work_map}} -->
+            <text> {{info.my_work_map}} </text>
+          </view>
+          <view class="value" v-else>
+            无
+          </view>
+        </view>
+        <view class="col-item" v-if="info.my_project_map">
+          <view class="label">
+            项目经验
+          </view>
+          <view class="value" v-if="info.my_project_map">
+            <!-- {{info.my_project_map}} -->
+            <text> {{info.my_project_map}} </text>
+          </view>
+          <view class="value" v-else>
+            无
+          </view>
+        </view>
+        <!--   <view class="col-item">
           <view class="label">
             证书
           </view>
@@ -63,7 +111,7 @@
           <view class="value" v-else>
             无
           </view>
-        </view>
+        </view> -->
       </view>
     </view>
 
@@ -104,6 +152,8 @@
           case 'byBean':
             url =
               `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
+           url = `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
+           
             break;
         }
         if (url) {
@@ -180,7 +230,7 @@
         let mp_no = 'MP2201210021'
         if (mp_no) {
           let webUrl =
-            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
+            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
           let url =
             `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
           uni.navigateTo({
@@ -252,7 +302,7 @@
         }
       },
     },
-     onLoad(option) {
+    onLoad(option) {
       if (option.app) {
         this.app = option.app
       }
@@ -268,7 +318,7 @@
       if (this.idCol && this.idVal && this.service) {
         this.getInfo()
       }
-      if(this.vstoreUser?.store_user_no){
+      if (this.vstoreUser?.store_user_no) {
         this.getVipCard(this.vstoreUser?.store_user_no)
       }
     }
@@ -302,13 +352,15 @@
 
       .col-item {
         display: inline-block;
-        .bg-gray{
+
+        .bg-gray {
           background-color: #EEEEF1;
           font-size: 14px;
           font-family: 苹方-简;
           font-weight: normal;
           color: #333333;
         }
+
         &.width-wrap {
           width: 100%;
         }
