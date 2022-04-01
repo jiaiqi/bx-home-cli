@@ -133,7 +133,7 @@ export default {
         },
         getwxMchId() {
           // 获取商户号
-          return this.storeInfo?.wx_mch_id || '1485038452'
+          return this.storeInfo?.wx_mch_id|| this.$api?.wxMchId || '1485038452'
         },
         async getVipCard(no) {
           no = no || this.vstoreUser?.store_user_no

@@ -22,7 +22,7 @@
             'layout-center-multi-image':
               item.cover_pic_style === '下三' && item.icon_image,
           }" v-for="(item, noticeIndex) in cate.list" :key="noticeIndex" @click="toArticle(item)">
-          <image mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
+          <image lazy-load mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
           </image>
           <view class="content-box">
             <text class="title-text">
@@ -61,7 +61,7 @@
           'layout-center-multi-image':
             item.cover_pic_style === '下三' && item.icon_image,
         }" v-for="(item, noticeIndex) in list" :key="noticeIndex" @click="toArticle(item)">
-        <image mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
+        <image lazy-load mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
         </image>
         <view class="content-box">
           <text class="title-text">

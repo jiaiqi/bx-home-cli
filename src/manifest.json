@@ -64,6 +64,7 @@
         "appid" : "wxa3c50c8177ef6739",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
+            "ignoreUploadUnusedFiles" : false,
             "urlCheck" : true,
             "postcss" : true,
             "es6" : true,

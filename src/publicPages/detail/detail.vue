@@ -3,7 +3,7 @@
     <view class="detail-temp-box" v-if="detailConfig&&detail">
       <view class="detail-top">
         <view class="left-image" v-if="detailConfig.img&&setValue(detailConfig.img.col).value">
-          <image class="image" :src="getImagePath(setValue(detailConfig.img.col).value,true)" mode="aspectFit"></image>
+          <image lazy-load class="image" :src="getImagePath(setValue(detailConfig.img.col).value,true)" mode="aspectFit"></image>
         </view>
         <view class="cols-list" v-if="detailConfig.top_col">
           <view class="col-item" :style="{
@@ -473,7 +473,7 @@
             return true
           }
         })
-        let defaultVal = await this.getDetail(colVs?.vpage_no)||{}
+        let defaultVal = await this.getDetail(colVs?.vpage_no) || {}
         colVs._fieldInfo = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal)
 
         if (Array.isArray(colVs?.child_service) && colVs.child_service.length > 0) {
@@ -547,7 +547,7 @@
         if (colVs?.moreConfig?.rowButtonDisp) {
           this.rowButtonDisp = colVs?.moreConfig?.rowButtonDisp
         }
- 
+
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
         let result = null
@@ -659,7 +659,7 @@
             this.isOnButton = false;
             break;
           case 'customize':
-          debugger
+            debugger
             console.log(this.deepClone(e))
             let buttonInfo = this.deepClone(e)
             if (Array.isArray(buttonInfo.operate_params.condition) && buttonInfo.operate_params
@@ -761,15 +761,15 @@
                 let condition = buttonInfo?.operate_params?.condition
                 let defaultVal = buttonInfo?.operate_params?.data
                 if (Array.isArray(defaultVal) && defaultVal.length > 0) {
-                	let obj = defaultVal[0]
-                	if (this.iObject(obj)) {
-                		Object.keys(obj).forEach(key => {
-                			fieldsCond.push({
-                				column: key,
-                				value: obj[key]
-                			})
-                		})
-                	}
+                  let obj = defaultVal[0]
+                  if (this.iObject(obj)) {
+                    Object.keys(obj).forEach(key => {
+                      fieldsCond.push({
+                        column: key,
+                        value: obj[key]
+                      })
+                    })
+                  }
                 }
                 let url =
                   `/publicPages/form/form?params=${JSON.stringify(params)}&condition=${JSON.stringify(condition)}&service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
@@ -847,39 +847,47 @@
           this.disabled = true
         }
         if (option.cond) {
+          let cond = {}
           try {
-            let cond = JSON.parse(option.cond)
-            if (Array.isArray(cond)) {
-              this.fieldsCond = cond.filter(item => {
-                item.column = item.colName
-                if (item.ruleType === 'eq') {
-                  return item.value
-                } else {
-                  return true
-                }
-              })
-            } else if (typeof cond === 'object' && Object.keys(cond).length > 0) {
-              let arr = []
-              Object.keys(cond).forEach(key => {
-                let obj = {
-                  colName: key,
-                  ruleType: 'eq',
-                  value: cond[key]
-                }
-                obj.column = obj.colName
-                arr.push(obj)
-              })
-              this.fieldsCond = arr.filter(item => {
-                if (item.ruleType === 'eq') {
-                  return item.value
-                } else {
-                  return true
-                }
-              })
-            }
+            cond = JSON.parse(decodeURIComponent(option.cond))
           } catch (e) {
             //TODO handle the exception
+            try {
+              cond = JSON.parse(option.cond)
+            } catch (e) {
+              //TODO handle the exception
+            }
           }
+
+          if (Array.isArray(cond)) {
+            this.fieldsCond = cond.filter(item => {
+              item.column = item.colName
+              if (item.ruleType === 'eq') {
+                return item.value
+              } else {
+                return true
+              }
+            })
+          } else if (typeof cond === 'object' && Object.keys(cond).length > 0) {
+            let arr = []
+            Object.keys(cond).forEach(key => {
+              let obj = {
+                colName: key,
+                ruleType: 'eq',
+                value: cond[key]
+              }
+              obj.column = obj.colName
+              arr.push(obj)
+            })
+            this.fieldsCond = arr.filter(item => {
+              if (item.ruleType === 'eq') {
+                return item.value
+              } else {
+                return true
+              }
+            })
+          }
+
         }
 
         if (option.fieldsCond) {
@@ -906,7 +914,7 @@
   @import '../common/top-card';
 
   .detail-wrap {
-    padding: 20rpx;
+    // padding: 20rpx;
     background-color: #F5F5F5;
     min-height: calc(100vh - var(--window-top));
     max-width: 1500px;
@@ -1085,8 +1093,10 @@
         display: flex;
         flex-wrap: wrap;
         padding: 10px;
+        width: calc(100% - 20px);
         padding-right: 0;
         padding-bottom: 0;
+        
       }
 
     }

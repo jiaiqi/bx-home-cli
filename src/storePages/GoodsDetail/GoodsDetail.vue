@@ -6,7 +6,7 @@
       <swiper-item v-for="(item, index) in swiperList" :key="item.url">
         <video :src="item.url" controls v-if="item.file_type === '视频' && current === index" :id="item.store_video_file"
           :poster="item.videoPoster" @click.stop=""></video>
-        <image :src="item.url" :lazy-load="true" mode="aspectFill" @click.stop="toPreviewImage(item.url)"
+        <image lazy-load :src="item.url" :lazy-load="true" mode="aspectFill" @click.stop="toPreviewImage(item.url)"
           v-else-if="!item.store_video_file || item.file_type !== '视频'"></image>
       </swiper-item>
     </swiper>
@@ -73,7 +73,7 @@
       <view class="">{{ goodsInfo.goods_desc || '' }}</view>
     </view>
     <view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
-      <image :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
+      <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
       <view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
         {{storeInfo.name.slice(0,1)}}
       </view>
@@ -84,7 +84,7 @@
     <view class="detail" v-if="goodsDetailImage&&goodsDetailImage.length>0">
       <view class="title">图文详情</view>
       <view class="image-box">
-        <image :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
+        <image lazy-load :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
 					}" v-for="item in goodsDetailImage" :key="item.url" @click="toPreviewImage(item.url)"></image>
@@ -127,7 +127,7 @@
       <view class="cu-dialog" @click.stop="">
         <view class="modal-content" v-if="optionsType==='商品属性'">
           <view class="selected-sku" v-if="selectSku&&selectSku.sku_no">
-            <image :src="getImagePath(selectSku.goods_icon)" mode="aspectFit" class="goods-icon"
+            <image lazy-load :src="getImagePath(selectSku.goods_icon)" mode="aspectFit" class="goods-icon"
               v-if="selectSku.goods_icon"></image>
             <view class="selected-sku-attr">
               <view class="goods-name" v-if="selectSku.goods_name">
@@ -165,7 +165,7 @@
               相关商品
             </view>
             <view class="goods-item" v-for="goods in relationGoods">
-              <image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
+              <image lazy-load class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
 
               </image>
               <view class="goods-name">
@@ -186,7 +186,7 @@
         </view>
         <view class="modal-content" v-else-if="optionsType==='SKU商品'">
           <view class="selected-sku" v-if="selectedAttrs&&selectedAttrs.selectSku">
-            <image :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit" class="goods-icon"></image>
+            <image lazy-load :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit" class="goods-icon"></image>
             <view class="selected-sku-attr">
               <view class="goods-name">
                 {{selectedAttrs.selectSku.goods_name}}
@@ -237,7 +237,7 @@
               相关商品
             </view>
             <view class="goods-item" v-for="goods in relationGoods">
-              <image class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
+              <image lazy-load class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
 
               </image>
               <view class="goods-name">

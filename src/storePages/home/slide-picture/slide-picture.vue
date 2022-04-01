@@ -13,7 +13,7 @@
           <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
             <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
           </view>
-          <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+          <image lazy-load :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
             @click.stop="toDetail(item)">
         </view>
       </swiper-item>
@@ -26,7 +26,7 @@
         <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
           <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
         </view>
-        <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+        <image lazy-load :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
           @click.stop="toDetail(item)">
         </image>
       </swiper-item>
@@ -36,7 +36,7 @@
         :data-id="item.id">
         <video :src="item.url" controls v-if="item.file_type ==='视频'&&current===index" :id="item.store_video_file"
           :poster="item.videoPoster"></video>
-        <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
+        <image lazy-load :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
           @click.stop="toDetail(item)">
         </image>
       </view>

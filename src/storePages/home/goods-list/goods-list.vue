@@ -9,7 +9,7 @@
 		</view>
 		<view class="goods-list" :style="[calcStyle]" v-if="goodsList&&goodsList.length>0">
 			<view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
-				<image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
+				<image  class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
 					:style="{ height: item.imgHeight + 'px' }"></image>
 				<view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
 				<view class="goods-info">

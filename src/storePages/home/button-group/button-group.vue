@@ -2,18 +2,18 @@
   <view class="menu-list" :style="[calcStyle]" v-if="buttons&&buttons.length>0">
     <view class="template-1" v-if="pageItem.button_style==='模板1'&&buttonsIcon.length>=4">
       <view class="left">
-        <image :src="getImagePath(buttonsIcon[0].icon,true)" mode="aspectFit"></image>
+        <image lazy-load :src="getImagePath(buttonsIcon[0].icon,true)" mode="aspectFit"></image>
       </view>
       <view class="right">
         <view class="top">
-          <image :src="getImagePath(buttonsIcon[1].icon,true)" mode="aspectFit"></image>
+          <image lazy-load :src="getImagePath(buttonsIcon[1].icon,true)" mode="aspectFit"></image>
         </view>
         <view class="bottom">
           <view class="bottom-item">
-            <image :src="getImagePath(buttonsIcon[2].icon,true)" mode="aspectFit"></image>
+            <image lazy-load :src="getImagePath(buttonsIcon[2].icon,true)" mode="aspectFit"></image>
           </view>
           <view class="bottom-item">
-            <image :src="getImagePath(buttonsIcon[3].icon,true)" mode="aspectFit"></image>
+            <image lazy-load :src="getImagePath(buttonsIcon[3].icon,true)" mode="aspectFit"></image>
           </view>
         </view>
       </view>
@@ -48,7 +48,7 @@
     <view class="menu-list-box" v-else-if="pageItem.button_style === 'info-list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">
-          <image class="image" :src="getImagePath(item.icon,true)" mode="aspectFit">
+          <image lazy-load class="image" :src="getImagePath(item.icon,true)" mode="aspectFit">
           </image>
           <!--   <button :open-type="item.openType" v-if="item.openType" @getphonenumber="getPhoneNumber"
             class="cu-btn bg-white text">{{item.button_label}}</button>
@@ -86,7 +86,7 @@
             <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
               v-else-if="item.iconType === 'uicon' && item.custonIcon">
             </u-icon>
-            <image class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
+            <image lazy-load class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
               <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
               <text class="title">{{ item.label }}</text>
             </image>
@@ -113,7 +113,7 @@
         <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
           v-else-if="item.iconType === 'uicon' && item.custonIcon">
         </u-icon>
-        <image class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
+        <image lazy-load class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
           <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
           <text class="title">{{ item.label }}</text>
         </image>
@@ -126,7 +126,7 @@
             我的推广码
           </view> -->
           <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
-          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
+          <image lazy-load :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
             @click="toPreviewImage(qrcodePath)">
           </image>
           <view class="qr-code-image" v-else @click="makeQrCode">
@@ -1096,33 +1096,42 @@
     // background: #FAFBFC;
     border-radius: 20rpx;
     min-width: 300px;
-    .template-1{
+
+    .template-1 {
       display: flex;
       width: 100%;
       height: 200px;
       padding: 20px;
-      image{
+
+      image {
         width: 100%;
         height: 100%;
       }
-      .left,.right{
+
+      .left,
+      .right {
         flex: 1;
       }
-      .right{
+
+      .right {
         display: flex;
         flex-direction: column;
-        .top,.bottom{
+
+        .top,
+        .bottom {
           flex: 1;
         }
-        .bottom{
+
+        .bottom {
           display: flex;
-          
-          .bottom-item{
+
+          .bottom-item {
             flex: 1;
           }
         }
       }
     }
+
     .pictuer-button {
       display: flex;
       flex-wrap: wrap;

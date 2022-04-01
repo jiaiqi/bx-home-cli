@@ -4,7 +4,7 @@
     <view class="list-item" @click="clickItem">
       <view class="main-image" :style="[setListView.imgStyle]" :class="[setListView.imgClass]"
         v-if="setListView.showImg&& setListView.imgAlign!=='right'">
-        <image class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
+        <image lazy-load class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
         </image>
       </view>
       <view class="list-item-content" :style="{width:setListView.listContentWidth}"
@@ -56,7 +56,7 @@
       }"
         v-if="setViewTemp&&setViewTemp.img&&setViewTemp.img.col&&setViewTemp.img.cfg&&setViewTemp.img.cfg.position=='right'">
         <!-- <image class="image" :src="getImagePath(rowData[setViewTemp.img.col])" -->
-        <image class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
+        <image lazy-load class="image" :src="getImagePath(setValue(setViewTemp.img.col).value)"
           :mode="setViewTemp.img.cfg.mode||'aspectFill'" :style="{
             'border-radius':setViewTemp.img.cfg.radius,
             'width':setViewTemp.img.cfg.width

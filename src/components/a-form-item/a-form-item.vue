@@ -30,9 +30,11 @@
         'label-top': labelPosition === 'top' || label_width === '100%',
       }">
       <!-- detail-详情-start -->
-      <view class="form-item_image" v-if="pageType === 'detail' && fieldData.type === 'images'">
+      <view class=" form-item-content_detail form-item_image"
+        v-if="pageType === 'detail' && fieldData.type === 'images'">
         <image class="form-item-content_detail image" v-for="(item, index) in imagesUrl" :key="index"
-          style="padding: 5upx" @tap="previewImage(item, 'Image')" data-target="Image" :src="item"></image>
+          style="padding: 5upx" lazy-load show-menu-by-longpress @tap="previewImage(item, 'Image')" data-target="Image"
+          :src="item"></image>
       </view>
       <view class="form-item-content_detail rich-text" v-else-if="
           pageType === 'detail' &&
@@ -40,7 +42,8 @@
             field.type === 'Note' ||
             field.type === 'RichText')
         ">
-        <rich-text :nodes="field.value" class="value rich-text"></rich-text>
+        <mp-html :content="fieldData.value" v-if="fieldData.value" />
+        <!-- <rich-text :nodes="field.value" class="value rich-text"></rich-text> -->
       </view>
       <view class="form-item-content_detail text" :class="{ 'can-link': canLink }" v-else-if="pageType === 'detail'"
         @click="toFKLink">
@@ -132,8 +135,9 @@
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
-        <textarea class="textarea-content" :adjust-position="true" :show-confirm-bar="true"
-          :placeholder="'请输入'" @input="textareaInput" :disabled="fieldData.disabled"></textarea>
+        <textarea class="textarea-content" :adjust-position="true" :value="fieldData.value" :show-confirm-bar="true"
+          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @input="textareaInput"
+          :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
@@ -221,7 +225,7 @@
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
-      <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
+          <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
           </cascader-selector> -->
           <tree-selector :srvInfo="fieldData.srvInfo" @cancel="hideModal" :current="selectTreeData"
             @confirm="getCascaderValue">
@@ -786,7 +790,7 @@
         }
 
       },
- 
+
       showModal(name) {
         this.modalName = name;
       },
@@ -803,7 +807,8 @@
               self.imagesUrl = [];
               for (let i = 0; i < fileDatas.length; i++) {
                 const url =
-                  `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}&thumbnailType=fwsu_100`;
+                  `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+                // `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}&thumbnailType=fwsu_100`;
                 self.imagesUrl.push(url);
               }
             }
@@ -824,7 +829,8 @@
           'string') {
           // 多选
           self.fieldData.value = self.fieldData.value.split(',');
-        } else if (self.fieldData && self.fieldData.type === 'Selector') {
+        } else if (self.fieldData && ['TreeSelector', 'Selector', 'location'].includes(self.fieldData.type)) {
+
           let cond = null;
           if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && self.formType !== 'add') {
             cond = [{
@@ -844,7 +850,7 @@
             self.getSelectorData(cond).then(_ => {
               if (self.fieldData.value) {
                 let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData
-                  .value)
+                  .value || item.value === Number(self.fieldData.value))
                 if (fkFieldLabel && fkFieldLabel.label) {
                   self.fkFieldLabel = fkFieldLabel.label
                 } else if (self.fieldData.value) {
@@ -853,17 +859,7 @@
               }
             });
           }
-
-          // self.getSelectorData(cond).then(_ => {
-          //   if (self.fieldData.value) {
-          //     let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
-          //     if (fkFieldLabel && fkFieldLabel.label) {
-          //       self.fkFieldLabel = fkFieldLabel.label
-          //     } else if (self.fieldData.value) {
-          //       self.fkFieldLabel = self.fieldData.value
-          //     }
-          //   }
-          // });
+         
         } else {
           let keys = Object.keys(this.fieldsModel)
           if (Array.isArray(keys) && keys.length > 0) {
@@ -905,7 +901,7 @@
           let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
           this.fkFieldLabel = srvInfo?.show_as_pair === true ?
             `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
-            this.fieldData['colData'] = e;
+          this.fieldData['colData'] = e;
           this.modalName = '';
         }
       },
@@ -1011,6 +1007,7 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
+
         self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
           if (Array.isArray(this.fieldData.options)) {
@@ -1118,47 +1115,16 @@
         if (!appName) {
           return
         }
+
         let res = await self.onRequest('select', req.serviceName, req, appName);
+        if (self.fieldData.type == 'TreeSelector') {
+          debugger
+        }
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
             this.treePageInfo = res.data.page;
           }
-          // let hasParentNo = res.data.data.filter(item => item.parent_no).length;
-          // if (hasParentNo) {
-          // 	self.selectorData = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
-          // 		.option_list_v2);
-          // 	if (res.data.page && res.data.page.pageNo > 1) {
-          // 		let data = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData
-          // 			.option_list_v2);
-          // 		self.selectorData = [...self.selectorData, ...data];
-          // 	}
-          // 	self.selectorData = self.selectorData.map((item, index) => {
-          // 		let a = {
-          // 			title: '',
-          // 			name: '',
-          // 			icon: '',
-          // 			seq: '',
-          // 			link: '',
-          // 			type: 'button',
-          // 		};
-          // 		// a = Object.assign(a, item);
-          // 		// a.title = item.pr_name;
-          // 		// a.name = item.pr_name;
-          // 		// a.no = item.no;
-          // 		// a.parent_no = item.parent_no;
-          // 		// a.label
-          // 		const config = this.deepClone(this.fieldData.option_list_v2);
-          // 		debugger
-          // 		// item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
-          // 		item.label = config.show_as_pair !== false ?
-          // 			`${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
-          // 				.key_disp_col]
-          // 		item.value = config.refed_col ? item[config.refed_col] : '';
-          // 		a = item;
 
-          // 		return a;
-          // 	});
-          // } else {
           if (res.data.page && res.data.page.pageNo > 1) {
             let data = res.data.data;
             self.selectorData = [...self.selectorData, ...data];
@@ -1178,8 +1144,9 @@
           // }
           if (Array.isArray(self.selectorData) && self.selectorData.length > 0) {
             self.selectorData.forEach(item => {
-              if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] ===
-                self.fieldData.value && (self.fieldData.value || self.fieldData.value === 0)) {
+              if (self.fieldData.option_list_v2 && (item[self.fieldData.option_list_v2.refed_col] ===
+                  self.fieldData.value || item[self.fieldData.option_list_v2.refed_col] ===
+                  Number(self.fieldData.value)) && (self.fieldData.value || self.fieldData.value === 0)) {
                 self.fieldData['colData'] = item;
                 self.$emit('setColData', self.fieldData)
               }
@@ -1353,7 +1320,7 @@
         // }
       },
       textareaInput(e) {
-      	this.fieldData.value = e.detail.value
+        this.fieldData.value = e.detail.value
       },
       onInput() {
         // input事件
@@ -1449,7 +1416,7 @@
         this.getDefVal();
       }
       this.initSetOptions()
-      if (self.fieldData && self.fieldData.type === 'Selector') {
+      if (self.fieldData && ['TreeSelector', 'Selector', 'location'].includes(self.fieldData.type)) {
         self.getDefVal()
         // let cond = null;
         // if (this.fieldData.value && this.fieldData?.option_list_v2?.refed_col && this.formType !== 'add') {

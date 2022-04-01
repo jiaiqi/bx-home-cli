@@ -19,10 +19,11 @@
 
     <view class="copyright-box">
       <view class="row">
-        声明：图文信息均来源合作方，如有侵权请联系我们删除
+        声明：图文信息均来源合作方，如有侵权请联系删除
       </view>
       <view class="row">
-        由 百想科技 提供技术支持
+        由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
+          @click="toHome">百想首页</text> 提供技术支持
       </view>
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
@@ -109,6 +110,30 @@
       })
     },
     methods: {
+      toHome() {
+        //#ifdef MP-WEIXIN
+        if (this.$api?.env === 'custom') {
+          uni.navigateToMiniProgram({
+            appId: 'wxa3c50c8177ef6739',
+            path: 'storePages/home/home?store_no=S0000000000',
+            extraData: {
+              'from': {
+                miniProgramName: this.$api?.miniProgramName,
+                storeNo: this.$api?.storeNo
+              }
+            },
+            success(res) {
+              // 打开成功
+            }
+          })
+          return
+        }
+        //#endif
+        
+        uni.navigateTo({
+          url: '/storePages/home/home?store_no=S0000000000'
+        })
+      },
       clickStoreItem(e) {
         if (this.hasNotRegInfo) {
           debugger

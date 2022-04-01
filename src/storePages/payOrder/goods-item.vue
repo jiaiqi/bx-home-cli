@@ -1,7 +1,7 @@
 <template>
 	<view class="">
 		<view class="goods-item">
-			<image class="goods-image" :src="
+			<image lazy-load class="goods-image" :src="
 		  goods.goods_image
 		    ? getImagePath(goods.goods_image)
 		    : goods.image
@@ -28,7 +28,7 @@
 		</view>
 		<view class="goods-item-list">
 			<view class="goods-item" v-for="(item,index) in list" :key="index">
-				<image class="goods-image" :src="
+				<image lazy-load class="goods-image" :src="
 			  item.goods_image
 			    ? getImagePath(item.goods_image)
 			    : item.goods_img

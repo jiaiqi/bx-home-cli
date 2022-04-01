@@ -54,7 +54,7 @@
           <text v-if="groupInfo.unit_price" class="margin-left text-sm">{{groupInfo.unit_price}}想豆/条</text>
         </view>
         <view class="text-sm ">
-          <text>总消息数 {{totalMsg||'0'}}</text>
+          <text>总消息数 {{setMsgTotal||'0'}}</text>
           <text class="margin-left-xl">使用想豆 {{consultFeeSum||'0'}}</text>
         </view>
       </view>
@@ -200,7 +200,10 @@
         } else {
           return 0
         }
-      }
+      },
+      setMsgTotal(){
+        return this.sessionInfo?.msg_count || this.totalMsg
+      },
     },
     data() {
       return {
@@ -796,7 +799,6 @@
             data.store_user_image = this.storeUser?.profile_url
             data.store_person_no = this.userInfo.no
             data.store_user_name = this.userInfo.name
-            debugger
             break;
           case '机构用户客服':
             data.person_image_a = this.userInfo.user_image ? this.userInfo.user_image : this.userInfo
@@ -891,6 +893,26 @@
           if (res.success && Array.isArray(res.data) && res.data.length > 0) {
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
+            
+            if(this.sessionType==='专题咨询'){
+              if (this.sessionInfo.band_post === '全员禁言') {
+                this.payConsultInfo.status = 'stop'
+              }
+              if (isGetGroup !== false) {
+                if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
+                  uni.setNavigationBarTitle({
+                    title: this.sessionInfo?.store_user_name
+                  })
+                }
+                this.getGroup(false).then(res => {
+                  if (this.identity === '客户' && this.groupInfo?.name) {
+                    uni.setNavigationBarTitle({
+                      title: this.groupInfo?.name
+                    })
+                  }
+                })
+              }
+            }
             this.updateSessionNo()
           }
         })

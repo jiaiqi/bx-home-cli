@@ -973,9 +973,10 @@
 				}
 			},
 			async toPay() {
-				if (this.storeInfo?.wx_mch_id) {
-					this.wxMchId = this.storeInfo?.wx_mch_id
-				}
+				// if (this.storeInfo?.wx_mch_id) {
+				// 	this.wxMchId = this.storeInfo?.wx_mch_id
+				// }
+        this.wxMchId = this.getwxMchId()
 				let self = this;
 				let orderData = this.deepClone(this.orderInfo);
 				let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -994,7 +995,20 @@
 					}
 					return
 				}
+        
+        if (Array.isArray(this.vloginUser?.roles) && this.vloginUser.roles.includes('health_admin')) {
+          if (totalMoney >= 10) {
+            totalMoney = totalMoney / 1000
+          } else {
+            totalMoney = totalMoney / 100
+          }
+        }
+        
+        
+        
+        
 				let result = {};
+        
 				if (orderData.prepay_id) {
 					result.prepay_id = orderData.prepay_id;
 				} else {

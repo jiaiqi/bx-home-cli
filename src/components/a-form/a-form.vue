@@ -8,11 +8,11 @@
     </view>
     <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}"
       v-for="(field,fIndex) in allField" :key="fIndex">
-      <view class="section-name" v-if="field.section&&showSectionName">
-        {{field.section}}
+      <view class="section-name" v-if="field.section">
+        <text v-if="showSectionName">{{field.section}}</text>
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
-        :srvApp="srvApp" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
+        :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
         :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
         @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
         :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
@@ -477,9 +477,13 @@
 </script>
 
 <style lang="scss">
+  .a-form{
+    padding: 0;
+  }
   .section-name {
-    padding: 10rpx;
+    padding: 10px 10px 5px;
     color: #B8BAC0;
+    line-height: 30px;
   }
 
   .field-item {
@@ -495,7 +499,7 @@
     .before-section {
       border-bottom-left-radius: 20rpx;
       border-bottom-right-radius: 20rpx;
-      margin-bottom: 20rpx;
+      // margin-bottom: 20rpx;
     }
 
     .section-top {

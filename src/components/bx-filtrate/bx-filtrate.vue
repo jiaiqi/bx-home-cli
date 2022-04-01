@@ -102,6 +102,7 @@
           <view class="smallbox">
             <view v-if="searchArg.imgCol" class="smallbox-img">
               <image
+              lazy-load
                 width="100%"
                 height="100%"
                 v-if="!getImageUrl(food)"
@@ -128,7 +129,7 @@
                 <text v-if="food.message_num" style="z-index: 1">{{
                   food.message_num > 99 ? "99+" : food.message_num
                 }}</text>
-                <image src="/static/chat.png" mode=""></image>
+                <image lazy-load src="/static/chat.png" mode=""></image>
               </view>
             </view>
           </view>

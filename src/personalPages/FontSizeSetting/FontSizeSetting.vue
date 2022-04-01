@@ -205,9 +205,11 @@
     padding: 20rpx 0 40rpx;
     justify-content: center;
     width: 100%;
-
+    
     .cu-btn {
-      width: 45%;
+      width: 70%;
+      height: 50px;
+      line-height: 50px;
     }
   }
 </style>

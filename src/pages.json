@@ -51,7 +51,7 @@
           "path": "MessageCenter/MessageCenter",
           "style": {
             "enablePullDownRefresh": true,
-            "navigationBarTitleText":"咨询记录"
+            "navigationBarTitleText": "咨询记录"
           }
         },
         {
@@ -118,17 +118,15 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "successTip/successTip",
+          "style": {
+            "navigationBarTitleText": "成功提示",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "successTip/successTip",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "成功提示",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "storePages",
@@ -259,7 +257,7 @@
             "navigationBarTextStyle": "black",
             "enablePullDownRefresh": false
           }
-        }, 
+        },
         {
           "path": "PrintTicket/PrintTicket",
           "style": {
@@ -389,37 +387,35 @@
             "navigationBarTitleText": "切换账号",
             "enablePullDownRefresh": false
           }
-        }, {
+        },
+        {
           "path": "resetPwd/resetPwd",
           "style": {
             "navigationBarTitleText": "修改密码",
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "resume/resume",
+          "style": {
+            "navigationBarTitleText": "个人简历",
+            "enablePullDownRefresh": false
+          }
         }
-          ,{
-                    "path" : "resume/resume",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "个人简历",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "chargeCoin/chargeCoin",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "充值",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+        , 
+        {
+          "path": "chargeCoin/chargeCoin",
+          "style": {
+            "navigationBarTitleText": "充值",
+            "enablePullDownRefresh": false
+          }
+        }
+      ]
     },
     {
       "root": "otherPages",
-      "pages": [{
+      "pages": [
+        {
           "path": "clockIn/clockIn",
           "style": {
             "navigationBarTitleText": "打卡",
@@ -427,15 +423,14 @@
           }
         },
         {
-        	"path": "activity/activity",
-        	"style": {
-        		// "navigationStyle": "custom",
-        		"navigationBarBackgroundColor": "#8a1b1f"
-        		// ,
-        		// "navigationBarTitleText": "建党100周年祝福接力"
-        	}
-        }
-        ,
+          "path": "activity/activity",
+          "style": {
+            // "navigationStyle": "custom",
+            "navigationBarBackgroundColor": "#8a1b1f"
+         		 // ,
+            // "navigationBarTitleText": "建党100周年祝福接力"
+          }
+        },
         // {
         //   "path": "publish/publish",
         //   "style": {

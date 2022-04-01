@@ -2,7 +2,7 @@
   <view class="page-wrap">
     <view class="page-content">
       <view class="top-card">
-        <image :src="getImagePath(info.user_image,true)" class="profile" mode="aspectFit" v-if="info.user_image">
+        <image lazy-load :src="getImagePath(info.user_image,true)" class="profile" mode="aspectFit" v-if="info.user_image">
         </image>
         <view class="col-list">
           <view class="col-item text-bold text-lg">

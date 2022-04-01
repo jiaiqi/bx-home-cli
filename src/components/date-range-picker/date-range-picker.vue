@@ -23,31 +23,31 @@
     </view>
   </view>
   <view class="date-picker" v-else>
-    <picker class="uni-picker" :mode="mode" :value="selectVal" @change="change" :disabled="disabled"
-      v-if="mode==='date'&&field&&field.moreConfig&&field.moreConfig.finderType==='picker'">
-      <view class="picker-content date-select-box">
-        <view class="place-holder" v-if="!selectVal">请选择</view>
-        <view class="value" v-else>{{ selectVal }}</view>
-        <text class="cuIcon-calendar margin-left-xs"></text>
-      </view>
-    </picker>
-    <view class="calendar-box" v-else-if="mode==='date'||mode=='date_time_linkage'">
+    <view class="calendar-box"
+      v-if="(mode==='date'||mode=='date_time_linkage')&&field&&field.moreConfig&&field.moreConfig.finderType==='calendar'">
       <view class="date-select-box picker-content" @click="showModal()">
         <view class="place-holder" v-if="!selectVal">请选择</view>
         <view class="value" v-else>{{ selectVal }}</view>
         <text class="cuIcon-calendar margin-left-xs"></text>
       </view>
-
       <mx-datepicker :show="show" :type="mode" :value="value" :min="min" :show-tips="true" :begin-text="'入住'"
         :end-text="'离店'" :show-seconds="false" :price-map="priceMap" :price-config="priceConfig" @confirm="change"
         @cancel="cancel" format="yyyy-mm-dd" />
-
       <!-- #ifdef MP -->
       <!--   <u-calendar v-model="show" :defaultDate="value" mode="date" @change="change" :min-date="min||'1950-01-01'"
         max-date="2050-01-01">
       </u-calendar> -->
       <!-- #endif -->
     </view>
+    <picker class="uni-picker" :mode="mode" :value="selectVal" @change="change" :disabled="disabled"
+      v-else-if="mode==='date'">
+      <view class="picker-content date-select-box">
+        <view class="place-holder" v-if="!selectVal">请选择</view>
+        <view class="value" v-else>{{ selectVal }}</view>
+        <text class="cuIcon-calendar margin-left-xs"></text>
+      </view>
+    </picker>
+
     <view class="calendar-box" v-else-if="mode==='dateTime'">
       <datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
     </view>

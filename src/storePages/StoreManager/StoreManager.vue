@@ -11,7 +11,7 @@
           </view>
         </view>
         <view class="store-info" v-if="StoreInfo.address">
-          <image :src="getImagePath(StoreInfo.image)" class="logo" @click="toStoreDetail">
+          <image lazy-load :src="getImagePath(StoreInfo.image)" class="logo" @click="toStoreDetail">
           </image>
           <view class="store-address">
             <view class="address" @click="openLocation">
@@ -126,7 +126,7 @@
                 <text class="cu-tag badge" v-if="item.unread">{{
                   item.unread
                 }}</text>
-                <image :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
+                <image lazy-load :src="item.iconPath" class="icon" mode="aspectFit" v-if="item.iconPath"></image>
                 <text class="icon" v-else-if="item.icon && item.color" :class="[
                     'cuIcon-' + item.icon,
                     item.color ? 'text-' + item.color : '',

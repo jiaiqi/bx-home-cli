@@ -38,7 +38,7 @@
 							<text v-else-if="col.col_type=='Date'">{{item[col.columns]|hideYear}}</text>
 							<text
 								v-else-if="col.col_type=='Time'">{{item[col.columns]?item[col.columns].slice(0,5):''}}</text>
-							<image class="image" :src="getImagePath(item[col.columns],true)" mode="aspectFit"
+							<image lazy-load class="image" :src="getImagePath(item[col.columns],true)" mode="aspectFit"
 								v-else-if="col.type==='images'&&item[col.columns]"></image>
 							<text v-else> {{item[col.columns]||''}}</text>
 						</view>
