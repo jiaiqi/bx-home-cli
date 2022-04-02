@@ -135,8 +135,8 @@
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
-        <textarea class="textarea-content" :adjust-position="true" :value="fieldData.value" :show-confirm-bar="true"
-          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @input="textareaInput"
+        <textarea class="textarea-content" :adjust-position="true" :value="fieldData.value" :show-confirm-bar="false"
+          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @blur="textareaInput"
           :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
@@ -859,7 +859,7 @@
               }
             });
           }
-         
+
         } else {
           let keys = Object.keys(this.fieldsModel)
           if (Array.isArray(keys) && keys.length > 0) {
@@ -1117,9 +1117,7 @@
         }
 
         let res = await self.onRequest('select', req.serviceName, req, appName);
-        if (self.fieldData.type == 'TreeSelector') {
-          debugger
-        }
+
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
             this.treePageInfo = res.data.page;
@@ -1321,6 +1319,7 @@
       },
       textareaInput(e) {
         this.fieldData.value = e.detail.value
+        this.getValid();
       },
       onInput() {
         // input事件

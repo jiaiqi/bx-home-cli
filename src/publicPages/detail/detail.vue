@@ -3,7 +3,8 @@
     <view class="detail-temp-box" v-if="detailConfig&&detail">
       <view class="detail-top">
         <view class="left-image" v-if="detailConfig.img&&setValue(detailConfig.img.col).value">
-          <image lazy-load class="image" :src="getImagePath(setValue(detailConfig.img.col).value,true)" mode="aspectFit"></image>
+          <image lazy-load class="image" :src="getImagePath(setValue(detailConfig.img.col).value,true)"
+            mode="aspectFit"></image>
         </view>
         <view class="cols-list" v-if="detailConfig.top_col">
           <view class="col-item" :style="{
@@ -54,7 +55,7 @@
           :src="getImagePath(setValue(appTempColMap.img).value,true)" mode="aspectFit"></u-image>
         <u-image class="u-image" v-else width="200" height="200"></u-image>
       </view>
-      <view class="top-content" @click="toDetail">
+      <view class="top-content" @click="toDetail" v-if="!notTempColMap">
         <view class="top-title-bar">
           <view class="top-item title" v-if="appTempColMap.title">
             <view class="label" v-if="setValue(appTempColMap.title).label">
@@ -122,7 +123,7 @@
           </a-form>
         </view>
       </view>
-      <view class="handler-bar" v-if="!detailConfig&&model!=='PC'">
+      <view class="handler-bar" v-if="!notTempColMap&&!detailConfig&&model!=='PC'">
         <view class="show-or-hide" @click="changeDetailStatus" v-if="isArray(detailFields)&&detailFields.length>0">
           <text class="margin-right">{{setShowDetail?"收起":"展开"}}详情 </text>
           <text class="cuIcon-unfold" v-if="!setShowDetail"></text>
@@ -207,11 +208,11 @@
         if (this.model === 'PC') {
           return false
         }
-        // if (this.notTempColMap) {
-        //   return true
-        // } else {
-        return this.showDetail
-        // }
+        if (this.notTempColMap) {
+          return true
+        } else {
+          return this.showDetail
+        }
       },
       notTempColMap() {
         return Object.keys(this.appTempColMap).length === 0
@@ -1096,7 +1097,7 @@
         width: calc(100% - 20px);
         padding-right: 0;
         padding-bottom: 0;
-        
+
       }
 
     }

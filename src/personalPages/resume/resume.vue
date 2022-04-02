@@ -66,7 +66,7 @@
         </view>
         <view class="col-item" v-if="info.my_certificate_map">
           <view class="label">
-            荣誉证书
+            所获证书
           </view>
           <view class="value" v-if="info.my_certificate_map">
             <!-- {{info.my_certificate_map}} -->

@@ -11,7 +11,7 @@
       </swiper-item>
     </swiper>
 
-    <view class="goods-info">
+    <view class="goods-info" v-if="goodsInfo">
       <view class="goods-name">{{ goodsInfo.goods_name || '' }}</view>
       <view class="handler-bar margin-top-xs">
         <view class="" style="display: flex;">
@@ -45,7 +45,7 @@
         </view>
       </view>
     </view>
-    <view class="selected-sku-info" v-if="enableSku" @click="changeModalConfirmType('option-selector')">
+    <view class="selected-sku-info" v-if="goodsInfo&&enableSku" @click="changeModalConfirmType('option-selector')">
       <view class="label margin-right-xl">
         <text v-if="selectSku&&selectSku.sku_no">已选:</text>
         <text v-else>请选择</text>
@@ -58,7 +58,7 @@
         <text class="cuIcon-more"></text>
       </view>
     </view>
-    <view class="desc" v-if="goodsInfo.goods_desc">
+    <view class="desc" v-if="goodsInfo&&goodsInfo.goods_desc">
       <view class="title">
         <text>商品详情</text>
         <view class="data-display">
@@ -72,7 +72,7 @@
       </view>
       <view class="">{{ goodsInfo.goods_desc || '' }}</view>
     </view>
-    <view class="store-info" v-if="storeInfo && storeInfo.store_no" @click="toStoreHome">
+    <view class="store-info" v-if="goodsInfo&&storeInfo && storeInfo.store_no" @click="toStoreHome">
       <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
       <view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
         {{storeInfo.name.slice(0,1)}}
@@ -81,7 +81,7 @@
       <view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
-    <view class="detail" v-if="goodsDetailImage&&goodsDetailImage.length>0">
+    <view class="detail" v-if="goodsInfo&&goodsDetailImage&&goodsDetailImage.length>0">
       <view class="title">图文详情</view>
       <view class="image-box">
         <image lazy-load :lazy-load="true" class="detail-img" :src="item.url" mode="aspectFill" :style="{
@@ -90,7 +90,7 @@
 					}" v-for="item in goodsDetailImage" :key="item.url" @click="toPreviewImage(item.url)"></image>
       </view>
     </view>
-    <view class="cu-bar foot bottom bg-white tabbar border shop" v-if="scene !== 1154">
+    <view class="cu-bar foot bottom bg-white tabbar border shop" v-if="goodsInfo&&scene !== 1154">
       <view class="right-btn " v-if="moreConfig && moreConfig.button_list">
         <button class="cu-btn shadow-blur round"
           :class="{'bg-orange':!item.target_url||item.target_url==='place_order','bg-red':item.target_url==='add_to_cart'||item.type==='add_to_cart',}"
@@ -123,7 +123,8 @@
       </view>
     </view>
 
-    <view class="cu-modal bottom-modal" :class="{show:modalName==='option-selector'}" @click="changeModal()">
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='option-selector'}" @click="changeModal()"
+      v-if="goodsInfo">
       <view class="cu-dialog" @click.stop="">
         <view class="modal-content" v-if="optionsType==='商品属性'">
           <view class="selected-sku" v-if="selectSku&&selectSku.sku_no">
@@ -186,7 +187,8 @@
         </view>
         <view class="modal-content" v-else-if="optionsType==='SKU商品'">
           <view class="selected-sku" v-if="selectedAttrs&&selectedAttrs.selectSku">
-            <image lazy-load :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit" class="goods-icon"></image>
+            <image lazy-load :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit"
+              class="goods-icon"></image>
             <view class="selected-sku-attr">
               <view class="goods-name">
                 {{selectedAttrs.selectSku.goods_name}}
@@ -272,7 +274,7 @@
       return {
         current: 0,
         videoContext: {},
-        goodsInfo: {},
+        goodsInfo: null,
         swiperList: [],
         goodsDetailImage: [],
         phone: '',
@@ -292,6 +294,9 @@
         modalConfirmType: "", // 确认类型  toOrder,addToCart,all
         selectSku: null,
         relationGoods: [], //相关商品
+        purchase_limit: 0, // 商品限购次数
+        purchaseTimes: 0, //商品购买次数
+        purchasedGoods: [], //商品购买记录
       };
     },
     // watch:{
@@ -305,6 +310,10 @@
     // 	}
     // },
     computed: {
+      onLimit() {
+        // 已经到了商品购买限制次数
+        return this.purchase_limit && this.purchase_limit <= this.purchaseTimes
+      },
       enableSku() {
         return this.goodsInfo?.enable_sku === '是' ? true : false
       },
@@ -550,7 +559,17 @@
         }
       },
       async confirmAdd2Cart(modalConfirmType = '') {
-        debugger
+
+        if (this.onLimit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          return
+        }
+
         modalConfirmType = modalConfirmType || this.modalConfirmType
         let goods = {}
         let skuAttrList = []
@@ -734,6 +753,15 @@
 
       },
       async addToCart(goods) {
+        if (this.onLimit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          return
+        }
         if (goods?.goods_no) {
           let goodsInfo = await this.getCartDetail(null, goods.goods_no);
           if (goodsInfo?.goods_no) {
@@ -769,6 +797,15 @@
         return;
       },
       async updateCart(goodsInfo) {
+        if (this.onLimit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          return
+        }
         let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
         if (goodsInfo?.cart_goods_rec_no) {
           let req = [{
@@ -793,6 +830,7 @@
         }
       },
       async clickBtn(e) {
+        debugger
         if (this.onHandler === true) {
           return;
         }
@@ -870,8 +908,21 @@
           }
 
         }
+        
+        if (this.onLimit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          this.onHandler = false;
+          return
+        }
+        
         if (target_url === 'add_to_cart') {
           // 添加到购物车表
+
           this.addToCart(goodsInfo).then(_ => {
             this.onHandler = false;
           });
@@ -1198,6 +1249,33 @@
         }
         // });
       },
+      async getPurchased() {
+        // 查找已购次数
+        let app = this.destApp || 'health';
+        let service = 'srvhealth_store_order_goods_detail_select';
+        const req = {
+          "serviceName": "srvhealth_store_order_goods_detail_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "goods_no",
+            "ruleType": "eq",
+            "value": this.goodsInfo?.goods_no
+          }, {
+            "colName": "create_user",
+            "ruleType": "eq",
+            "value": this.vloginUser?.user_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 5
+          }
+        }
+        let res = await this.$fetch('select', service, req, app)
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          this.purchasedGoods = res.data
+          this.purchaseTimes = res?.page?.total || 0
+        }
+      },
       async getGoodsInfo(no) {
         let req = {
           condition: [{
@@ -1212,6 +1290,15 @@
         if (Array.isArray(res.data) && res.data.length > 0) {
           res.data[0].goods_amount = 1
           this.goodsInfo = res.data[0];
+          if (this.goodsInfo?.purchase_limit) {
+            let purchase_limit = Number(this.goodsInfo?.purchase_limit)
+            if (!isNaN(purchase_limit)) {
+              this.purchase_limit = purchase_limit
+              if (purchase_limit > 0) {
+                this.getPurchased()
+              }
+            }
+          }
           let enable_sku = this.goodsInfo?.enable_sku;
           let options_type = this.goodsInfo?.options_type
           if (enable_sku === '是') {
@@ -1241,6 +1328,15 @@
         }
       },
       add(e) {
+        if (this.onLimit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          return
+        }
         if (this.enableSku) {
           this.changeModal('option-selector')
           return

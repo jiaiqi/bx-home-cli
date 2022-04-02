@@ -17,7 +17,7 @@
       </store-item>
     </view>
 
-    <view class="copyright-box">
+    <view class="copyright-box" v-if="pageItemList&&pageItemList.length>0">
       <view class="row">
         声明：图文信息均来源合作方，如有侵权请联系删除
       </view>
@@ -1621,9 +1621,9 @@
   .copyright-box {
     padding: 20px;
     text-align: center;
-
+    
     .row {
-      width: 600rpx;
+      min-width: 600rpx;
       margin: 0 auto;
       font-size: 12px;
       font-family: 苹方-简;
