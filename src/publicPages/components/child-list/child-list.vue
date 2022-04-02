@@ -73,14 +73,16 @@
         <view class="close-btn text-right">
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
-        <view class="child-form-wrap">
-          <a-form class="bx-form-wrap" :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields"
-            :pageType="use_type" :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange"
-            :main-data="mainData"></a-form>
-        </view>
-        <view class="button-box" v-if="addV2&&addV2.formButton">
-          <button class="cu-btn bg-blue" v-for="(btn,index) in addV2.formButton" :key="index"
-            @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+        <view class="" style="max-height: 80vh;overflow-y: scroll;">
+          <view class="child-form-wrap">
+            <a-form class="bx-form-wrap" :srvApp="srvApp" v-if="allFields && isArray(allFields)" :fields="allFields"
+              :pageType="use_type" :formType="'add'" ref="childForm" :key="modalName" @value-blur="valueChange"
+              :main-data="mainData"></a-form>
+          </view>
+          <view class="button-box" v-if="addV2&&addV2.formButton">
+            <button class="cu-btn bg-blue" v-for="(btn,index) in addV2.formButton" :key="index"
+              @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+          </view>
         </view>
       </view>
     </view>
@@ -91,14 +93,16 @@
         <view class="close-btn text-right">
           <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
-        <view class="child-form-wrap">
-          <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData"
-            :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange">
-          </a-form>
-        </view>
-        <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-          <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,idx) in updateV2.formButton" :key="idx"
-            @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+        <view class="" style="max-height: 80vh;overflow-y: scroll;">
+          <view class="child-form-wrap">
+            <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData"
+              :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange">
+            </a-form>
+          </view>
+          <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
+            <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,idx) in updateV2.formButton" :key="idx"
+              @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+          </view>
         </view>
       </view>
     </view>
@@ -2146,12 +2150,12 @@
   }
 
   .child-form-wrap {
-    max-height: 70vh;
-    overflow-y: scroll;
-    margin-top: 10px;
+    // max-height: 70vh;
+    // overflow-y: scroll;
+    margin-top: 0px;
 
     .bx-form-wrap {
-      padding-left: 10px;
+      // padding-left: 10px;
 
       @media screen and(min-width:800px) {
         display: flex;

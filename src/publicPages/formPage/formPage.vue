@@ -57,13 +57,13 @@
       </view>
 
     </view>
-    <view class="button-box" v-if="srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
+    <view class="button-box" v-if="!loading&&srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
       <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
         :key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
         {{ btn.button_name}}
       </button>
     </view>
-    <view class="button-box" v-else-if="stepMode&&childService&&childService.length>0">
+    <view class="button-box" v-else-if="!loading&&stepMode&&childService&&childService.length>0">
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
       <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
         v-if="curStep==='child'">上一步</button>
@@ -72,11 +72,15 @@
         {{ btn.button_name }}
       </button>
     </view>
-    <view class="button-box" v-else-if="!stepMode&&colsV2Data&&!disabled">
+    <view class="button-box" v-else-if="!loading&&!stepMode&&colsV2Data&&!disabled">
       <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button>
+    </view>
+    
+    <view class="loading-box" v-if="loading">
+      <u-loading mode="flower"  size="80" :show="loading"></u-loading>
     </view>
 
   </view>
@@ -120,7 +124,8 @@
         view_cfg: null,
         stepMode: false, //分步模式，第一步填主表，第二步填子表
         curStep: 'main',
-        curChild: ''
+        curChild: '',
+        loading:false
       }
     },
     computed: {
@@ -1124,6 +1129,7 @@
         }
       },
       async getDetailV2(srv) {
+        
         const app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
 
@@ -1434,7 +1440,9 @@
       }
       if (option.serviceName) {
         this.serviceName = option.serviceName;
-        this.getFieldsV2();
+        this.loading = true
+        await this.getFieldsV2();
+        this.loading = false
       }
     }
   }
@@ -1584,7 +1592,12 @@
 
     }
   }
-
+  .loading-box{
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    padding-top: 40vh;
+  }
   .button-box {
     padding: 10px;
     min-width: 300px;
