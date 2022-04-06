@@ -638,6 +638,47 @@
         });
       },
       async getLocation() {
+        
+        // let isAuthLocation = await new Promise(resolve=>{
+        //   uni.authorize({
+        //       scope: 'scope.userLocation',
+        //       success() {
+        //         resolve()
+        //       }
+        //   })
+        // }) 
+        
+        
+        // #ifdef MP-WEIXIN
+        let settings = await new Promise(resolve => {
+          uni.getSetting({
+            success: (res) => {
+              resolve(res)
+            },
+            fail: (err) => {
+              resolve(err)
+            }
+          })
+        })
+      
+        console.log(settings)
+        if(settings?.authSetting?.['scope.userLocation'] === false){
+          uni.showModal({
+            title:'提示',
+            content:'未授权访问位置信息，请先在权限设置页面授权允许小程序访问您的位置信息',
+            confirmText:'去设置',
+            cancelText:'算了',
+            success: (res) => {
+              if(res.confirm){
+                uni.openSetting({
+                  
+                })
+              }
+            }
+          })
+         return 
+        }
+        // #endif
         if (this.pageType === 'detail') {
           if (this.fieldData.value) {
             let res = await this.getLocationFromSys()

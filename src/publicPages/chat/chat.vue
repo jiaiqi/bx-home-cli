@@ -201,7 +201,7 @@
           return 0
         }
       },
-      setMsgTotal(){
+      setMsgTotal() {
         return this.sessionInfo?.msg_count || this.totalMsg
       },
     },
@@ -566,7 +566,7 @@
             {
               "colName": "store_no",
               "ruleType": "eq",
-              "value": this.storeNo|| this.vstoreUser?.store_no
+              "value": this.storeNo || this.vstoreUser?.store_no
             },
             {
               "colName": "store_user_no",
@@ -584,29 +584,27 @@
           if (Array.isArray(res.data) && res.data.length > 0) {
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
-            if (this.sessionInfo.band_post === '全员禁言') {
-              this.payConsultInfo.status = 'stop'
-            }
-
-            if (isGetGroup !== false) {
-              if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
-                uni.setNavigationBarTitle({
-                  title: this.sessionInfo?.store_user_name
-                })
-              }
-              this.getGroup(false).then(res => {
-                if (this.identity === '客户' && this.groupInfo?.name) {
-                  uni.setNavigationBarTitle({
-                    title: this.groupInfo?.name
-                  })
-                }
-              })
-            }
-            return res.data[0]
           } else {
             await this.createSession()
           }
-
+          if (this.sessionInfo.band_post === '全员禁言') {
+            this.payConsultInfo.status = 'stop'
+          }
+          if (isGetGroup !== false) {
+            if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
+              uni.setNavigationBarTitle({
+                title: this.sessionInfo?.store_user_name
+              })
+            }
+            this.getGroup(false).then(res => {
+              if (this.identity === '客户' && this.groupInfo?.name) {
+                uni.setNavigationBarTitle({
+                  title: this.groupInfo?.name
+                })
+              }
+            })
+          }
+          return res.data[0]
         }
       },
       async getSession(condition) {
@@ -893,26 +891,6 @@
           if (res.success && Array.isArray(res.data) && res.data.length > 0) {
             this.sessionInfo = res.data[0]
             this.session_no = res.data[0].session_no
-            
-            if(this.sessionType==='专题咨询'){
-              if (this.sessionInfo.band_post === '全员禁言') {
-                this.payConsultInfo.status = 'stop'
-              }
-              if (isGetGroup !== false) {
-                if (this.identity === '经验主' && this.sessionInfo?.store_user_name) {
-                  uni.setNavigationBarTitle({
-                    title: this.sessionInfo?.store_user_name
-                  })
-                }
-                this.getGroup(false).then(res => {
-                  if (this.identity === '客户' && this.groupInfo?.name) {
-                    uni.setNavigationBarTitle({
-                      title: this.groupInfo?.name
-                    })
-                  }
-                })
-              }
-            }
             this.updateSessionNo()
           }
         })
@@ -1092,7 +1070,7 @@
     async onLoad(option) {
       const self = this
       await this.initApp()
-      
+
       if (option.top_buttons) {
         let top_buttons = option.top_buttons;
         try {

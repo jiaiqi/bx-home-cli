@@ -133,7 +133,21 @@ export default {
         },
         getwxMchId() {
           // 获取商户号
-          return this.storeInfo?.wx_mch_id|| this.$api?.wxMchId || '1485038452'
+          return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
+        },
+        toOfficial() {
+          // 跳转到关注公众号页面
+          const frontEndAddress = this.$api.frontEndAddress
+          let mp_no = 'MP2201210021'
+          if (mp_no) {
+            let webUrl =
+              `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
+            let url =
+              `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+            uni.navigateTo({
+              url
+            })
+          }
         },
         async getVipCard(no) {
           no = no || this.vstoreUser?.store_user_no
@@ -456,9 +470,7 @@ export default {
           fieldInfo.showSearch = false
           fieldInfo.option_list_v2 = item.option_list_v2
           fieldInfo.options = item.option_list_v2
-        } else if (item.col_type === "MultilineText" || item.col_type === 'longtext' || item
-          .col_type ===
-          'Json') {
+        } else if (['MultilineText', 'longtext', 'Json', 'Text'].includes(item.col_type)) {
           fieldInfo.type = "textarea"
         } else if (item.col_type === 'snote' || item.col_type === 'Note') {
           fieldInfo.type = "RichText"
@@ -476,7 +488,7 @@ export default {
             fieldInfo.srvInfo.parentCol = fieldInfo.srvInfo.parentCol || item.option_list_v2.parent_col
             fieldInfo.srvInfo.showCol = fieldInfo.srvInfo.showCol || item.option_list_v2.key_disp_col
             fieldInfo.srvInfo.appNo = fieldInfo.srvInfo.appNo || item.option_list_v2.srv_app
-            
+
           }
         } else if (item.col_type === "User") {
           fieldInfo.type = "Selector"
@@ -2321,20 +2333,21 @@ export default {
     }
 
     Vue.prototype.getImagePath = (no, notThumb) => {
-      if (no && (no.indexOf('http://') !== -1 || no.indexOf('https://') !== -1)) {
-        return no
-      } else if (no) {
+      if (no) {
+        if ((no.indexOf('http://') !== -1 || no.indexOf('https://') !== -1)) {
+          return no
+        }
+        if (no.indexOf('data:image') !== -1 && no.indexOf('base64') !== -1) {
+          return no
+        }
         if (no.indexOf('&bx_auth_ticket') !== -1) {
           no = no.split('&bx_auth_ticket')[0]
         }
-        if (notThumb) {
-          return api.downloadFile + no + '&bx_auth_ticket=' + uni.getStorageSync(
-            'bx_auth_ticket');
-        } else {
-          return api.downloadFile + no + '&bx_auth_ticket=' + uni.getStorageSync(
-              'bx_auth_ticket') +
-            '&thumbnailType=fwsu_100';
+        let url = `${api.downloadFile}${no}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+        if (notThumb !== true) {
+          url += `&thumbnailType=fwsu_100`
         }
+        return url
       } else {
         return ''
       }

@@ -996,16 +996,17 @@
 					return
 				}
         
-        if (Array.isArray(this.vloginUser?.roles) && this.vloginUser.roles.includes('health_admin')) {
-          if (totalMoney >= 10) {
+        
+        if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
+            .vloginUser.roles.includes('DEVE_LOPER'))) {
+          if (totalMoney > 100) {
+            totalMoney = 0.01
+          } else if (totalMoney >= 10) {
             totalMoney = totalMoney / 1000
           } else {
             totalMoney = totalMoney / 100
           }
         }
-        
-        
-        
         
 				let result = {};
         

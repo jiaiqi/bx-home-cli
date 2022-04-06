@@ -256,8 +256,7 @@
           result.prepay_id = orderData.prepay_id;
         } else {
           result = await this.toPlaceOrder(
-            this.totalMoney ? this.totalMoney : 1,
-            this.loginUserInfo && this.loginUserInfo.login_user_type ? this.loginUserInfo.login_user_type : '',
+            this.totalMoney ? this.totalMoney : 1, this.loginUserInfo?.login_user_type: '',
             orderData
           );
         }
@@ -274,7 +273,8 @@
               self.orderInfo.order_state = '待发货';
               self.updateOrderState('待发货', '已支付', result.prepay_id);
               self.orderInfo.pay_state = '已支付';
-              let webUrl = 'https://login.100xsys.cn/health/#/personalPages/successPay/successPay?order_no=' + orderData.order_no +
+              let webUrl = 'https://login.100xsys.cn/health/#/personalPages/successPay/successPay?order_no=' +
+                orderData.order_no +
                 '&totalMoney=' + self.totalMoney
               let url =
                 `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`

@@ -41,8 +41,8 @@
     <link-wifi :store_no="storeNo" :beforeClick="beforeClick"
       v-else-if="storeNo && pageItem && pageItem.type === '连接WiFi' && room_no">
     </link-wifi>
-    <bx-list v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick" :pageItem="pageItem"
-      class="bx-list" />
+    <bx-list ref="normalList" v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick"
+      :pageItem="pageItem" class="bx-list" />
     <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :config="moreConfig"></user-card>
     <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
     </vip-card>
@@ -135,7 +135,7 @@
       itemStyle() {
         let style = {}
 
-        if (typeof this.pageItem?.more_config === 'object' &&typeof this.pageItem?.more_config?.style === 'object') {
+        if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
 
@@ -201,6 +201,11 @@
       });
     },
     methods: {
+      listLoadMore() {
+        if(this.pageItem.type==='通用列表'){
+          this.$refs?.normalList?.loadMore?.()
+        }
+      },
       toLogin() {
         if (this.hasNotRegInfo) {
           uni.navigateTo({

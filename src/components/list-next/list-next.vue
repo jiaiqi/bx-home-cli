@@ -143,6 +143,7 @@
           },
           img: {
             col: this.listConfig?.img?.col || viewTemp?.img?.col,
+            icon:this.listConfig?.img?.icon || viewTemp?.img?.icon,
             cfg: {
               width: this.listConfig?.img?.cfg?.width || this.listConfig?.img?.width || viewTemp?.img
                 ?.cfg?.width || '100%',

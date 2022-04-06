@@ -4,8 +4,17 @@
     <view class="list-item" @click="clickItem">
       <view class="main-image" :style="[setListView.imgStyle]" :class="[setListView.imgClass]"
         v-if="setListView.showImg && setListView.imgAlign !== 'right'">
-        <image lazy-load class="image" :src="setListView.imgSrc" :mode="setListView.imgMode" :style="[setListView.imgTagStyle]">
+        <image lazy-load class="image" :src="setListView.imgSrc" :mode="setListView.imgMode"
+          :style="[setListView.imgTagStyle]">
         </image>
+        <image class="icon" :class="setListView.imgIcon.name" v-if="setListView.imgIcon&&setListView.imgIcon.name"
+          :style="[setListView.imgIcon.style]" :src="require('@/static/icon/'+setListView.imgIcon.name+'.png')"
+          mode="aspectFit"></image>
+        <image class="icon" v-else-if="setListView.imgIcon&&setListView.imgIcon.fileNo"
+          :style="[setListView.imgIcon.style]" :src="getImagePath(setListView.imgIcon.fileNo,true)" mode="aspectFit">
+        </image>
+        <!--     <image class="icon famale" v-if="setListView.imgIcon==='famale'" :style="[setListView.imgIconStyle]"
+          :src="require('@/static/icon/female.png')" mode="aspectFit"></image> -->
       </view>
       <view class="list-item-content" :style="{ maxWidth: setListView.listContentMaxWidth }"
         v-if="setListView && setListView.cols">
@@ -18,6 +27,12 @@
           </template>
           <template v-else>
             <view class="label" v-if="item.label">{{ item.label }}:</view>
+            <!-- 前置图标 -->
+            <image class="icon" :class="item.preIcon.name" v-if="item.preIcon&&item.preIcon.name"
+              :style="[item.preIcon.style]" :src="require('@/static/icon/'+item.preIcon.name+'.png')" mode="aspectFit">
+            </image>
+            <image class="icon" :class="item.preIcon.fileNo" v-else-if="item.preIcon&&item.preIcon.fileNo"
+              :style="[item.preIcon.style]" :src="getImagePath(item.preIcon.fileNo,true)" mode="aspectFit"></image>
             <view class="value" v-if="item.type==='location_fk'">
               <text class="cuIcon-locationfill"></text>
             </view>
@@ -31,11 +46,19 @@
             <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
               <text v-if="item.prefix">{{ item.prefix }}</text>
               <view class="" v-if="item.fmt">
-                <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;" v-for=" tag in formatText(item)">{{tag}}</text>
+                <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;"
+                  v-for=" tag in formatText(item)">{{tag}}</text>
               </view>
               <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
+
             </view>
+            <!-- 后置图标 -->
+            <image class="icon" :class="item.sufIcon.name" v-if="item.sufIcon&&item.sufIcon.name"
+              :style="[item.sufIcon.style]" :src="require('@/static/icon/'+item.sufIcon.name+'.png')" mode="aspectFit">
+            </image>
+            <image class="icon" :class="item.sufIcon.fileNo" v-else-if="item.sufIcon&&item.sufIcon.fileNo"
+              :style="[item.sufIcon.style]" :src="getImagePath(item.sufIcon.fileNo,true)" mode="aspectFit"></image>
           </template>
         </view>
         <view class="col-item text-right flex-1" v-if="listType === 'cartList' && rowData && rowData.goods_amount">
@@ -221,6 +244,7 @@
           padding: this.viewTemp?.padding,
           btn_cfg: this.viewTemp?.btn_cfg,
           img: {
+            icon: this.viewTemp?.img?.icon,
             col: this.viewTemp?.img?.col,
             cfg: this.viewTemp?.img?.cfg || {
               radius: '50%',
@@ -369,6 +393,22 @@
           }
         }
 
+        if (this.setViewTemp?.img?.icon) {
+          let imgIcon = this.setViewTemp?.img?.icon;
+          if (imgIcon?.type === 'gender') {
+            if (imgIcon?.ref_col && this.rowData[imgIcon?.ref_col]) {
+              result.imgIcon = {
+                name: this.rowData[imgIcon?.ref_col] === '男' ? "male" : this.rowData[imgIcon?.ref_col] === '女' ?
+                  "female" : null,
+                fileNo: imgIcon?.fileNo,
+                style: imgIcon?.style || {
+                  borderRadius: imgIcon?.radius || imgCfg?.radius
+                }
+              }
+            }
+          }
+        }
+
         // 字段配置
         let cols = this.setViewTemp?.cols || [];
         result.cols = [];
@@ -376,17 +416,21 @@
           cols.forEach(col => {
             let cfg = col?.cfg;
             let obj = {
+              sufIcon: col.sufIcon,
+              preIcon: col.preIcon,
               style: {
                 flex: cfg?.flex,
                 'border-radius': cfg?.radius,
                 width: cfg?.width,
                 height: cfg?.height,
                 'min-width': cfg?.min_width,
+                'max-width': cfg?.max_width,
                 padding: cfg?.padding,
                 margin: cfg?.margin,
                 'font-size': cfg?.font_size,
                 'font-weight': cfg?.font_weight,
                 'text-align': cfg?.align,
+                'overflow':cfg?.overflow,
                 color: cfg?.color,
                 'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
                   'right' ? 'flex-end' : cfg?.align
@@ -714,6 +758,21 @@
         align-items: center;
         background-color: #fff;
         border: 1rpx solid #f8f8fa;
+        position: relative;
+
+        .icon {
+          position: absolute;
+          top: -3px;
+          left: -3px;
+          width: 24px;
+          height: 24px;
+          padding: 6px;
+          background-color: #007aff;
+
+          &.female {
+            background-color: #ff7598;
+          }
+        }
 
         &.m-r-0 {
           margin-right: 0;
@@ -830,6 +889,13 @@
             // white-space: nowrap;
             max-width: 100%;
             flex: 1;
+            // display: inline-flex;
+            align-items: center;
+
+            .icon {
+              width: 16px;
+              height: 16px;
+            }
           }
         }
       }

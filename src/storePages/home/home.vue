@@ -1331,7 +1331,13 @@
       uni.$off('updateSessionLastLookTime');
       uni.$off('updateStoreInfo');
     },
-
+    onReachBottom(){
+      this.$refs?.storeItem.forEach(item=>{
+        if(item.pageItem?.type==='通用列表'){
+          item?.listLoadMore?.()
+        }
+      })
+    },
     async onLoad(option) {
       if (option?.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', option.bx_auth_ticket)

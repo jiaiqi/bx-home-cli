@@ -217,8 +217,11 @@
         let orderData = this.deepClone(this.orderInfo);
 
         let totalMoney = orderData.order_amount || this.curGoods?.price
-        if (Array.isArray(this.vloginUser?.roles) && this.vloginUser.roles.includes('health_admin')) {
-          if (totalMoney >= 10) {
+        if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
+            .vloginUser.roles.includes('DEVE_LOPER'))) {
+          if (totalMoney > 100) {
+            totalMoney = 0.01
+          } else if (totalMoney >= 10) {
             totalMoney = totalMoney / 1000
           } else {
             totalMoney = totalMoney / 100
@@ -253,13 +256,13 @@
               self.updateOrderState('待发货', '已支付', result.prepay_id);
               self.orderInfo.pay_state = '已支付';
               uni.showModal({
-                title:'提示',
-                content:'支付成功',
-                showCancel:false,
+                title: '提示',
+                content: '支付成功',
+                showCancel: false,
                 success: (res) => {
-                  if(res.confirm){
+                  if (res.confirm) {
                     uni.navigateBack({
-                      
+
                     })
                   }
                 }

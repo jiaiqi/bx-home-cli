@@ -78,9 +78,9 @@
         {{ btn.button_name }}
       </button>
     </view>
-    
+
     <view class="loading-box" v-if="loading">
-      <u-loading mode="flower"  size="80" :show="loading"></u-loading>
+      <u-loading mode="flower" size="80" :show="loading"></u-loading>
     </view>
 
   </view>
@@ -125,7 +125,7 @@
         stepMode: false, //分步模式，第一步填主表，第二步填子表
         curStep: 'main',
         curChild: '',
-        loading:false
+        loading: false
       }
     },
     computed: {
@@ -373,7 +373,6 @@
               if (Array.isArray(this.childService) && this.childService.length > 0) {
                 this.childService.forEach((item, index) => {
                   let child_data = this.$refs.childList[index].getChildDataList()
-                  debugger
                   data.child_data_list.push(...child_data)
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
@@ -647,6 +646,10 @@
                           break;
                       }
                     } else if (item.type === 'no-repeat') {
+                      // 校验重复数据
+                      if(num>0){
+                        return
+                      }
                       const service = item.service
                       let condition = []
                       if (Array.isArray(item.condition)) {
@@ -685,10 +688,37 @@
                           })
                         }
                       }
+                    } else if (item.type === 'followOfficial') {
+                      // 检查是否关注公众号
+                      let res = await this.checkSubscribeStatus()
+                      if (!res) {
+                        num++
+                        let confirm = await new Promise((resolve) => {
+                          uni.showModal({
+                            title: '提示',
+                            content: '请先关注百想助理公众号，以便及时收到新消息通知',
+                            confirmText:'去关注',
+                            success: (res) => {
+                              if (res.confirm) {
+                                resolve(true)
+                              } else {
+                                resolve(false)
+                              }
+                            }
+                          })
+                        })
+                        if (confirm === true) {
+                          if (this.$api?.env === 'prod') {
+                            this.toOfficial()
+                            return
+                          }
+                        } else {
+                          return
+                        }
+                      }
                     }
 
                   }
-                  // submit_validate.forEach( async item => {})
                   if (num > 0) {
                     return
                   }
@@ -1129,7 +1159,7 @@
         }
       },
       async getDetailV2(srv) {
-        
+
         const app = this.appName || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(srv || this.serviceName, 'detail', 'detail', app);
 
@@ -1592,12 +1622,14 @@
 
     }
   }
-  .loading-box{
+
+  .loading-box {
     width: 100vw;
     height: 100vh;
     text-align: center;
     padding-top: 40vh;
   }
+
   .button-box {
     padding: 10px;
     min-width: 300px;

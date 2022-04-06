@@ -96,9 +96,10 @@ export default {
 
     Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id) => {
       // 统一下单
-	  if(total_fee){
-		  total_fee = Number(total_fee.toFixed(2))
-	  }
+      login_user_type = uni.getStorageSync('login_user_info')?.login_user_type || ''
+      if (total_fee) {
+        total_fee = Number(total_fee.toFixed(2))
+      }
       let url = Vue.prototype.getServiceUrl('wx', 'srvwx_order', 'operate');
       let req = [{
         "serviceName": "srvwx_order",
@@ -111,7 +112,7 @@ export default {
           "notify_url": "http://wx2.100xsys.cn/wx/notify/payment",
           "body": "test producet",
           "user_no": store.state.user.userInfo.userno,
-          "login_user_type": login_user_type ? login_user_type : "user"
+          "login_user_type": login_user_type || "user"
         }]
       }]
       let res = await _http.post(url, req)

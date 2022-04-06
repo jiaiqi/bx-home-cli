@@ -17,7 +17,18 @@
           <text class="cuIcon-right"></text>
         </button>
       </view>
+      <!-- <scroll-list ref="scrollList" :option="scrollListOption" @load="loadMore" @refresh="refresh"> -->
       <view class="list-content" :style="{
+        		backgroundColor: list_config.bg
+        	}" v-if="list&&list.length>0">
+        <view class="list-view">
+          <list-next class="list-next" :nowrap="nowrap" :itemWidth="itemWidth" :cartData="cartData"
+            :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
+            @click-foot-btn="clickFootBtn" />
+        </view>
+      </view>
+      <!-- </scroll-list> -->
+      <!--   <view class="list-content" :style="{
 					backgroundColor: list_config.bg
 				}" v-if="list&&list.length>0">
         <view class="list-view">
@@ -25,10 +36,15 @@
             :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
             @click-foot-btn="clickFootBtn" />
         </view>
-      </view>
+      </view> -->
       <view class="data-empty" style="text-align: center;" v-if="list && list.length === 0&&total===0">
         <u-empty></u-empty>
       </view>
+      <uni-load-more :status="loadStatus"></uni-load-more>
+      <!-- <u-loading mode="flower" size="40" :show="loadStatus==='loading'"></u-loading> -->
+      <!-- <view class="data-empty" style="text-align: center;" v-else-if="loading">
+        <u-loading mode="flower" size="80" :show="loading"></u-loading>
+      </view> -->
     </view>
     <view class="tabs-list list-box" v-else-if="tabs.length > 0">
       <u-tabs :list="tabs" :is-scroll="true" :current="curTab" style="margin: 0 10px 5px;" @change="changeTab">
@@ -58,6 +74,9 @@
       }
     },
     computed: {
+      loadOnReachBottom(){
+        return this.pageItem?.load_on_reach_bottom|| this.config?.loadOnReachBottom
+      },
       tags() {
         if (Array.isArray(this.colV2?.tabs)) {
           let tabs = this.colV2?.tabs
@@ -295,51 +314,12 @@
       filterCols() {
         let cols = this.moreConfig?.appTempColMap;
         let arr = [];
-        if(Array.isArray(this.srvCols)&&this.srvCols.length>0){
-          arr = this.srvCols.filter(item =>!['Image', 'String', 'MultilineText',
+        if (Array.isArray(this.srvCols) && this.srvCols.length > 0) {
+          arr = this.srvCols.filter(item => !['Image', 'String', 'MultilineText',
             'Integer', 'Email', 'TelNo'
           ].includes(item
             .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0));
         }
-        // if (typeof cols === 'object') {
-        //   cols = Object.keys(cols)
-        //     .map(key => cols[key])
-        //     .filter(item => item && item);
-        //   arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String', 'MultilineText',
-        //     'Integer', 'Email', 'TelNo'
-        //   ].includes(item
-        //     .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0));
-        // } else {
-        //   let defVal = {};
-        //   if (Array.isArray(this.condition) && this.condition.length > 0) {
-        //     defVal = this.condition.reduce((res, cur) => {
-        //       res[cur.colName] = cur.value;
-        //       return res;
-        //     }, {});
-        //   }
-        //   arr = this.srvCols
-        //     .filter(item => !['Image', 'String', 'MultilineText', 'Integer', 'Email', 'TelNo'].includes(item
-        //       .col_type) && (item.in_cond !== 0 || item.in_cond_def !== 0))
-        //     .map(item => {
-        //       if (defVal[item.column]) {
-        //         item.defaultValue = defVal[item.column];
-        //         item.disabled = true;
-        //         item.value = defVal[item.column];
-        //       }
-        //       return item;
-        //     });
-        // }
-        // if (Array.isArray(this.initCond) && this.initCond.length > 0) {
-        //   arr = arr.map(field => {
-        //     this.initCond.forEach(cond => {
-        //       if (field.column === cond.colName) {
-        //         field.value = cond.value;
-        //         field.defaultValue = cond.value;
-        //       }
-        //     });
-        //     return field;
-        //   });
-        // }
         return arr;
       },
       orderList() {
@@ -356,7 +336,8 @@
         return arr;
       },
       rownumber() {
-        let rownumber = this.config?.page?.rownumber ?? 1;
+        // return 10
+        let rownumber = this.config?.page?.rownumber ?? 10;
         if (this.tabs?.length > 0 && this.tabs[this.curTab].page && this.tabs[this.curTab].page.rownumber) {
           rownumber = this.tabs[this.curTab].page.rownumber
         }
@@ -396,10 +377,33 @@
           refresh: false
         },
         rowButtonDisp: {},
-        placeholder: ""
+        placeholder: "",
+        loading: false,
+        scrollListOption: {
+          size: 5,
+          auto: true
+        }
       };
     },
     methods: {
+      loadMore() {
+        if(this.loadOnReachBottom&&this.loadStatus==='more'){
+          // 允许触底加载
+          if (this.rownumber * this.pageNo >= this.total) {
+            this.loading = 'noMore'
+            return
+          } else {
+            this.pageNo++;
+            this.getList().then(_ => {
+              this.loading = false
+              // this.$refs.scrollList.loadSuccess({
+              //   list: this.list,
+              //   total: this.total
+              // });
+            })
+          }
+        }
+      },
       changeTab(e) {
         this.curTab = e;
         // this.serviceName  = this.tabs[e].service||this.serviceName
@@ -594,10 +598,15 @@
           });
         }
       },
-      refresh() {
+      async refresh() {
         this.loadStatus = 'more';
         this.pageNo = 1;
-        this.getList(null, this.initCond);
+        await this.getList(null, this.initCond);
+        // this.$refs.scrollList.refreshSuccess({
+        //   list: this.list,
+        //   total: this.total
+        // });
+        return
       },
       async getListV2() {
         let app = this.appName || uni.getStorageSync('activeApp');
@@ -790,6 +799,7 @@
           req['vpage_no'] = this.colV2.vpage_no;
         }
         this.loadStatus = 'loading';
+        
         let res = await this.$http.post(url, req);
 
         if (res.data.state === 'SUCCESS') {
@@ -1429,8 +1439,11 @@
     },
     mounted() {
       if (this.serviceName) {
+        this.loading = true
         this.getListV2().then(_ => {
-          this.refresh();
+          this.refresh().then(_ => {
+            this.loading = false
+          })
         });
       }
     },

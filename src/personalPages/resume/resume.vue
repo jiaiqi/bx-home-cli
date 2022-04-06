@@ -2,7 +2,8 @@
   <view class="page-wrap">
     <view class="page-content">
       <view class="top-card">
-        <image lazy-load :src="getImagePath(info.user_image,true)" class="profile" mode="aspectFit" v-if="info.user_image">
+        <image lazy-load :src="getImagePath(info.user_image,true)" class="profile" mode="aspectFit"
+          v-if="info.user_image">
         </image>
         <view class="col-list">
           <view class="col-item text-bold text-lg">
@@ -152,8 +153,8 @@
           case 'byBean':
             url =
               `/publicPages/list2/list2?serviceName=srvhealth_store_goods_guest_select&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"online_state","ruleType":"eq","value":"上线"},{"colName":"goods_type","ruleType":"eq","value":"想豆卡"}]`
-           url = `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
-           
+            url = `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
+
             break;
         }
         if (url) {
@@ -163,6 +164,34 @@
         }
       },
       async toConsult() {
+        // 检测有没有关注公众号
+        let res = await this.checkSubscribeStatus()
+        if (!res) {
+          let confirm = await new Promise((resolve) => {
+            uni.showModal({
+              title: '提示',
+              content: '请先关注百想助理公众号，以便及时收到新消息通知',
+              success: (res) => {
+                if (res.confirm) {
+                  resolve(true)
+                } else {
+                  resolve(false)
+                }
+              }
+            })
+          })
+          if (confirm === true) {
+            if (this.$api?.env === 'prod') {
+              this.toOfficial()
+              return
+            }
+          } else {
+            return
+          }
+        }
+
+
+
         // 1. 检测有没有开通会员卡
         if (!this.vvipCard?.card_no) {
           uni.showModal({
@@ -192,30 +221,7 @@
           return
         }
 
-        let res = await this.checkSubscribeStatus()
-        if (!res) {
-          let confirm = await new Promise((resolve) => {
-            uni.showModal({
-              title: '提示',
-              content: '请先关注百想助理公众号，以便及时收到新消息通知',
-              success: (res) => {
-                if (res.confirm) {
-                  resolve(true)
-                } else {
-                  resolve(false)
-                }
-              }
-            })
-          })
-          if (confirm === true) {
-            if (this.$api?.env === 'prod') {
-              this.toOfficial()
-              return
-            }
-          } else {
-            return
-          }
-        }
+
         if (this.vstoreUser?.store_no && this.groupInfo?.gc_no && this.vstoreUser?.store_user_no) {
           let url =
             `/publicPages/chat/chat?identity=客户&groupNo=${this.groupInfo.gc_no}&type=专题咨询&storeNo=${this.vstoreUser.store_no}&store_user_no=${this.vstoreUser.store_user_no}`
@@ -323,7 +329,7 @@
       if (this.idCol && this.idVal && this.service) {
         this.getInfo()
       }
-    
+
     }
   }
 </script>
