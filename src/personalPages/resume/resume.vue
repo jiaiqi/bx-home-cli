@@ -230,6 +230,7 @@
           })
         }
       },
+      
       toOfficial() {
         // 跳转到关注公众号页面
         const frontEndAddress = this.$api.frontEndAddress

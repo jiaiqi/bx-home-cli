@@ -39,7 +39,7 @@
       noMargin showMore :condition="timelinecondition" :limit="3" :showPublish="false"
       v-else-if="storeNo && pageItem && pageItem.type === '朋友圈' && userInfo && userInfo.userno"></timeline-list>
     <link-wifi :store_no="storeNo" :beforeClick="beforeClick"
-      v-else-if="storeNo && pageItem && pageItem.type === '连接WiFi' && room_no">
+      v-else-if="storeNo && pageItem && pageItem.type === '连接WiFi'">
     </link-wifi>
     <bx-list ref="normalList" v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick"
       :pageItem="pageItem" class="bx-list" />
@@ -57,6 +57,8 @@
         v-if="pageItem.right_btn_name">{{pageItem.right_btn_name}}</button>
       <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()" v-else>立即关注</button>
     </view>
+    <!-- 优惠券列表  -->
+    <coupon-list :page-item="pageItem"  v-else-if="storeNo && pageItem && pageItem.type === '优惠券列表'"></coupon-list>
   </view>
 </template>
 
@@ -76,6 +78,7 @@
   import vipCard from '../vip-card/vip-card.vue'
   import avatarList from '../avatar-list/avatar-list.vue'
   import userCard from '../user-info/user-info.vue'
+  import couponList from '../coupon-list/coupon-list.vue'
   export default {
     components: {
       slideList,
@@ -92,7 +95,8 @@
       bxList,
       vipCard,
       avatarList,
-      userCard
+      userCard,
+      couponList
     },
     props: {
       pageItem: {
@@ -159,7 +163,6 @@
         }
         if (this.pageItem?.is_radius === '是') {
           style.borderRadius = '10px'
-
         }
         return style
       },
@@ -170,7 +173,7 @@
       },
       isShow() {
         if (this.pageItem?.type === '连接WiFi') {
-          return this.room_no;
+          return this.moreConfig?.alwaysShow == true || this.room_no;
         } else {
           return true;
         }
@@ -202,7 +205,7 @@
     },
     methods: {
       listLoadMore() {
-        if(this.pageItem.type==='通用列表'){
+        if (this.pageItem.type === '通用列表') {
           this.$refs?.normalList?.loadMore?.()
         }
       },

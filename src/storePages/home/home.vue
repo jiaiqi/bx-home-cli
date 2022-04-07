@@ -3,12 +3,18 @@
   <view class="page-wrap" v-if="(!showAuthBox || client_env === 'web')" :class="['theme-' + theme]">
     <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar" @click="openSwitchHomePage">
-        <text class="home-name">{{ StoreInfo.name || '首页' }}</text>
+        <text class="home-name">
+          <text v-if="StoreInfo&&StoreInfo.name">{{ StoreInfo.name || '' }}</text>
+          <text v-else>
+            <u-loading :show="true" mode="flower"></u-loading>
+            <text class="text-gray text-sm margin-left-xs">加载中</text>
+          </text>
+        </text>
         <text class="cuIcon-unfold margin-left-xs" v-if="!singleStore"></text>
       </view>
     </cu-custom-navbar>
 
-    <view v-if="pageItemList&&pageItemList.length>0">
+    <view v-if="pageItemList&&pageItemList.length>0" class="page-item-list">
       <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
         :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
         :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
@@ -129,7 +135,7 @@
           return
         }
         //#endif
-        
+
         uni.navigateTo({
           url: '/storePages/home/home?store_no=S0000000000'
         })
@@ -561,7 +567,7 @@
                 // }
                 break;
               case '通知横幅':
-                element['listdata'] = dataArray[index].map(item => {
+                element['listdata'] = dataArray[index] ? dataArray[index].map(item => {
                   if (!item.style_config) {
                     item.style_config = {};
                   } else if (typeof item.style_config === 'string') {
@@ -572,7 +578,7 @@
                     }
                   }
                   return item;
-                });
+                }) : [];
                 break;
             }
             //  [ '按钮组', '人员列表', '商品列表', '通知横幅' ]
@@ -683,8 +689,31 @@
           return res.data.data[0];
         }
       },
-
-      async selectStoreInfo(times = 0) {
+      async getThemeCfg(no) {
+        // 查找店铺主题配置
+        if(!no||typeof no!=='string'){
+          return
+        }
+        let req = {
+          "serviceName": "srvhealth_store_template_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName:'style_no',
+            ruleType:'eq',
+            value:no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+        }
+        let res = await this.$fetch('select', 'srvhealth_store_template_select', req, 'health');
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          this.$store.commit('SET_THEME_CFG')
+        }
+      },
+      async selectStoreInfo(times = 0, forceUpdate = false) {
+        // forceUpdate,是否强制更新店铺组件
         let req = {
           condition: [{
             colName: 'store_no',
@@ -715,9 +744,11 @@
             }
           }
           this.$store.commit('SET_THEME', theme);
-          // this.setNavBg(this.theme)
           this.StoreInfo = res.data[0];
-          if (this.StoreInfo.home_page_no && !this.pdNo) {
+          if (this.StoreInfo?.style_no) {
+            this.getThemeCfg(this.StoreInfo?.style_no)
+          }
+          if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
             this.pdNo = this.StoreInfo.home_page_no;
             await this.getPageDefine(this.StoreInfo.home_page_no);
             await this.getTabbar(this.StoreInfo.home_page_no);
@@ -1098,14 +1129,15 @@
           console.log('WebSocket 已关闭！');
         });
       },
-      async initPage() {
+      async initPage(forceUpdate = false) {
+        // forceUpdate - 是否强制更新店铺组件
         await this.toAddPage();
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
           this.checkSubscribeStatus();
         }
         if (this.storeNo) {
-          await this.selectStoreInfo();
+          await this.selectStoreInfo(forceUpdate);
           // await this.selectBindUser();
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {
@@ -1306,6 +1338,9 @@
         // 检测是否已关注公众号
         this.checkSubscribeStatus();
       }
+      if (this.storeInfo?.store_no && this.storeNo && this.storeInfo?.store_no !== this.storeNo) {
+        this.initPage()
+      }
     },
     onShareAppMessage() {
       let path =
@@ -1331,9 +1366,9 @@
       uni.$off('updateSessionLastLookTime');
       uni.$off('updateStoreInfo');
     },
-    onReachBottom(){
-      this.$refs?.storeItem.forEach(item=>{
-        if(item.pageItem?.type==='通用列表'){
+    onReachBottom() {
+      this.$refs?.storeItem.forEach(item => {
+        if (item.pageItem?.type === '通用列表') {
           item?.listLoadMore?.()
         }
       })
@@ -1577,6 +1612,13 @@
     overflow: hidden;
     min-height: calc(100vh - var(--window-top));
 
+    .page-item-list {
+      min-height: calc(100vh - 45px - 50px - 100px);
+      overflow: auto;
+      // display: flex;
+      // flex-direction: column;
+    }
+
     ::v-deep swiper.rectangle-dot {
 
       .wx-swiper-dot,
@@ -1627,7 +1669,7 @@
   .copyright-box {
     padding: 20px;
     text-align: center;
-    
+
     .row {
       min-width: 600rpx;
       margin: 0 auto;

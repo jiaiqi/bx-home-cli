@@ -5,8 +5,8 @@
       <button class=" cu-btn shadow-blur" v-if="userInfo && userInfo.home_store_no !== storeInfo.store_no">
         <text class="cuIcon-home"></text></button>
     </view>
-    <swiper class="card-swiper square-dot" :indicator-dots="false" :style="calcStyle"  :circular="true" :autoplay="true" interval="5000"
-      duration="500" @change="swiperChange" indicator-color="#8799a3" indicator-active-color="#0081ff"
+    <swiper class="card-swiper square-dot" :indicator-dots="false" :style="calcStyle" :circular="true" :autoplay="true"
+      interval="5000" duration="500" @change="swiperChange" indicator-color="#8799a3" indicator-active-color="#0081ff"
       v-if="swiperList.length>1&&swiperStyle==='卡片'">
       <swiper-item v-for="(item,index) in swiperList" :key="index" :class="current==index?'cur':''">
         <view class="swiper-item">
@@ -66,13 +66,6 @@
         }
         return `${this.pageItem?.more_config?.swiperHeight || uni.upx2px(300)}px`
       },
-      height2rpx() {
-        if (this.pageItem?.img_ratio) {
-          return 710 * this.pageItem?.img_ratio
-        } else {
-          return this.pageItem?.more_config?.swiperHeight ? this.pageItem?.more_config?.swiperHeight * 2 : 300
-        }
-      },
       calcStyle() {
         let obj = {}
         if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
@@ -96,15 +89,33 @@
     },
     data() {
       return {
+        storeNo: "",
         current: 0,
         swiperList: [],
         videoContext: {},
         isFirstSwiperList: false
-
       }
     },
     mounted() {
-      this.getSwiperList()
+      // this.getSwiperList()
+    },
+    watch: {
+      'storeInfo.store_no': {
+        immediate: true,
+        deep: true,
+        handler(newValue, oldValue) {
+          this.storeNo = newValue
+          if (newValue) {
+            this.getSwiperList()
+          }
+
+          // if (newValue?.type === '用户展示' && this.avatarList.length == 0) {
+          //   setTimeout(() => {
+          //     this.getUserList();
+          //   }, 1000)
+          // }
+        }
+      }
     },
     methods: {
       swiperChange(e) {
@@ -115,7 +126,6 @@
         if (this.swiperList[this.current].file_type === '视频') {
           this.videoContext = uni.createVideoContext(this.swiperList[this.current].store_video_file, this)
         }
-        // this.pauseVideo()
       },
       toDetail(item) {
 

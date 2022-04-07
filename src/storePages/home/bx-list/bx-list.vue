@@ -12,10 +12,10 @@
       </filter-tags>
       <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'">
         <text>{{ pageItem.component_label || '' }}</text>
-        <button class="cu-btn sm border  bg-white" @click="toAll" v-if="isShowToAll">
-          更多
+        <view @click="toAll" v-if="isShowToAll">
+          <text>更多</text>
           <text class="cuIcon-right"></text>
-        </button>
+        </view>
       </view>
       <!-- <scroll-list ref="scrollList" :option="scrollListOption" @load="loadMore" @refresh="refresh"> -->
       <view class="list-content" :style="{
@@ -40,7 +40,7 @@
       <view class="data-empty" style="text-align: center;" v-if="list && list.length === 0&&total===0">
         <u-empty></u-empty>
       </view>
-      <uni-load-more :status="loadStatus"></uni-load-more>
+      <uni-load-more :status="loadStatus" v-if="loadOnReachBottom"></uni-load-more>
       <!-- <u-loading mode="flower" size="40" :show="loadStatus==='loading'"></u-loading> -->
       <!-- <view class="data-empty" style="text-align: center;" v-else-if="loading">
         <u-loading mode="flower" size="80" :show="loading"></u-loading>
@@ -74,8 +74,8 @@
       }
     },
     computed: {
-      loadOnReachBottom(){
-        return this.pageItem?.load_on_reach_bottom|| this.config?.loadOnReachBottom
+      loadOnReachBottom() {
+        return this.pageItem?.load_on_reach_bottom || this.config?.loadOnReachBottom
       },
       tags() {
         if (Array.isArray(this.colV2?.tabs)) {
@@ -226,6 +226,7 @@
           detailPage: this.listConfig?.detailPage || config?.detailPage,
           margin: this.listConfig?.margin || config?.margin,
           padding: this.listConfig?.padding || config?.padding,
+          borderRadius: this.listConfig?.borderRadius || config?.borderRadius,
           list_bar: this.listConfig?.list_bar ?? config?.list_bar,
           btn_cfg: {
             margin: this.listConfig?.btn_cfg?.margin ?? config?.btn_cfg
@@ -387,7 +388,7 @@
     },
     methods: {
       loadMore() {
-        if(this.loadOnReachBottom&&this.loadStatus==='more'){
+        if (this.loadOnReachBottom && this.loadStatus === 'more') {
           // 允许触底加载
           if (this.rownumber * this.pageNo >= this.total) {
             this.loading = 'noMore'
@@ -799,7 +800,7 @@
           req['vpage_no'] = this.colV2.vpage_no;
         }
         this.loadStatus = 'loading';
-        
+
         let res = await this.$http.post(url, req);
 
         if (res.data.state === 'SUCCESS') {

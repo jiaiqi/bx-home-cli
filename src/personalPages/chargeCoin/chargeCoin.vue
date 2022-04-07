@@ -143,6 +143,7 @@
             sex: this.userInfo.sex,
             user_role: this.userInfo.user_role,
             order_amount: this.curGoods?.price,
+            delivery_type:'当面交易',
             // order_remark: this.order_remark || '',
             pay_state: '待支付',
             order_state: '待支付',
@@ -252,8 +253,8 @@
             paySign: res.paySign,
             success(res) {
               // 支付成功
-              self.orderInfo.order_state = '待发货';
-              self.updateOrderState('待发货', '已支付', result.prepay_id);
+              self.orderInfo.order_state = '已完成';
+              self.updateOrderState('已完成', '已支付', result.prepay_id);
               self.orderInfo.pay_state = '已支付';
               uni.showModal({
                 title: '提示',

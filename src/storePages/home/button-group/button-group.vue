@@ -984,7 +984,9 @@
         if (e.navType) {
           navType = e.navType;
         }
+
         if (navType === "miniProgram") {
+          // #ifdef MP-WEIXIN
           if (url) {
             url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
           }
@@ -994,6 +996,8 @@
               path: url,
             });
           }
+          // #endif
+
         } else if (navType === "takePhone") {
           if (e.phone_number) {
             uni.makePhoneCall({

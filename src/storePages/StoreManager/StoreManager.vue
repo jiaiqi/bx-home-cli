@@ -768,12 +768,14 @@
           navType = e.navigate_type
         }
         if (navType === 'miniProgram') {
+          // #ifdef MP-WEIXIN
           if (e.appid) {
             uni.navigateToMiniProgram({
               appId: e.appid,
               path: url
             })
           }
+          // #endif
         } else if (navType === 'takePhone') {
           if (e.phone_number) {
             uni.makePhoneCall({

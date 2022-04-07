@@ -39,7 +39,6 @@
           </view>
         </view>
         <view class="content">
-
           <view class="top">
             <view class="text-black user-name">{{item.store_user_name||''}}</view>
             <view class="last-time">
@@ -94,7 +93,7 @@
         } else if (item.last_msg_content_type) {
           res = `[${item.last_msg_content_type}]`
         }
-        return res
+        return this.renderEmoji(res)
       },
       formatTime(time) {
         let str = ''

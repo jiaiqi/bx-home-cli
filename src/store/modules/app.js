@@ -13,6 +13,7 @@ env = 'h5'
 
 const state = {
   theme: getItem('theme') || 'blue',
+  themeConfig: getItem('themeConfig') || {},
   env: env,
   homePath: '', //默认主页
   globalTextFontSize: 16,
@@ -44,15 +45,19 @@ const state = {
   systemInfo: wx.getSystemInfoSync(),
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
-  storeInfo: getItem('storeInfo')||{}, // 当前店铺信息
+  storeInfo: getItem('storeInfo') || {}, // 当前店铺信息
   showLoginDialog: false,
-  curStoreNo:""
+  curStoreNo: ""
 }
 let persistData = {}; //持久化数据
 const mutations = {
   SET_THEME: (state, theme) => {
     state.theme = theme
     setItem('theme', state.theme)
+  },
+  SET_THEME_CFG: (state, cfg) => {
+    state.themeConfig = cfg
+    setItem('themeConfig', cfg)
   },
   SET_SCENE: (state, scene) => {
     state.scene = scene
@@ -174,7 +179,7 @@ const mutations = {
     // 显示登录弹框
     state.showLoginDialog = show
   },
-  SET_CUR_STORE_NO:(state,storeNo)=>{
+  SET_CUR_STORE_NO: (state, storeNo) => {
     state.curStoreNo = storeNo
   }
 }

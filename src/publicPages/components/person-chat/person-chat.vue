@@ -321,7 +321,8 @@
                   item.attribute.type &&
                   item.attribute.type === 'remindPerson'
                 ">@{{ item.attribute.name }}</text>
-              <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text>
+              <!-- <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text> -->
+              <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{renderEmoji(item.msg_content)}}</text>
               <!-- <uHtmlParse :content="item.msg_content" /> -->
               <!-- <uHtmlParse :content="renderEmoji(item.msg_content)" /> -->
             </view>

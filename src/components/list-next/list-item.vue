@@ -242,6 +242,7 @@
           grid_span: this.viewTemp?.grid_span || '3',
           margin: this.viewTemp?.margin,
           padding: this.viewTemp?.padding,
+          borderRadius:this.viewTemp?.borderRadius,
           btn_cfg: this.viewTemp?.btn_cfg,
           img: {
             icon: this.viewTemp?.img?.icon,
@@ -328,7 +329,9 @@
           rootClass: '',
           rootStyle: {
             margin: this.setViewTemp?.margin,
-            padding: this.setViewTemp?.padding
+            padding: this.setViewTemp?.padding,
+            borderRadius: this.setViewTemp?.borderRadius,
+            background:this.setViewTemp?.bg||this.setViewTemp?.background,
           }
         };
         if (this.setViewTemp?.lp_style === '宫格') {
@@ -372,6 +375,7 @@
             true);
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
+            'border': imgCfg?.border,
             width: imgCfg?.width,
             height: imgCfg?.height,
             margin: imgCfg?.margin,
@@ -757,7 +761,7 @@
         display: flex;
         align-items: center;
         background-color: #fff;
-        border: 1rpx solid #f8f8fa;
+        // border: 1rpx solid #f8f8fa;
         position: relative;
 
         .icon {

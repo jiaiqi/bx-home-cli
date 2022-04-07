@@ -121,8 +121,9 @@
           grid_span: this.listConfig?.grid_span || viewTemp?.grid_span || '2',
           margin: this.listConfig?.margin ?? viewTemp?.margin,
           padding: this.listConfig?.padding ?? viewTemp?.padding,
+          borderRadius: this.listConfig?.borderRadius ?? viewTemp?.borderRadius,
+          background: this.listConfig?.bg || this.listConfig?.background || viewTemp?.bg || viewTemp?.background,
           btn_cfg: {
-         
             show_custom_btn: this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig
               ?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
             show_public_btn: this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig
@@ -134,7 +135,7 @@
             height: this.listConfig?.btn_cfg?.height || viewTemp?.btn_cfg?.height,
             color: this.listConfig?.btn_cfg?.color || viewTemp?.btn_cfg?.color,
             font_size: this.listConfig?.btn_cfg?.font_size || viewTemp?.btn_cfg?.font_size,
-            radius: this.listConfig?.btn_cfg?.size || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg
+            radius: this.listConfig?.btn_cfg?.radius || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg
               ?.radius || '10px',
             size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || 'sm',
             margin: this.listConfig?.btn_cfg?.margin ?? viewTemp?.btn_cfg
@@ -143,8 +144,14 @@
           },
           img: {
             col: this.listConfig?.img?.col || viewTemp?.img?.col,
-            icon:this.listConfig?.img?.icon || viewTemp?.img?.icon,
+            icon: this.listConfig?.img?.icon || viewTemp?.img?.icon,
             cfg: {
+              "padding": this.listConfig?.img?.cfg?.padding || this.listConfig?.img?.padding || viewTemp?.img
+                ?.cfg?.padding || '',
+              "margin": this.listConfig?.img?.cfg?.margin || this.listConfig?.img?.margin || viewTemp?.img
+                ?.cfg?.margin || '',
+              'border': this.listConfig?.img?.cfg?.border || this.listConfig?.img?.border || viewTemp?.img
+                ?.cfg?.border || '',
               width: this.listConfig?.img?.cfg?.width || this.listConfig?.img?.width || viewTemp?.img
                 ?.cfg?.width || '100%',
               height: this.listConfig?.img?.cfg?.height || this.listConfig?.img?.height || viewTemp?.img
