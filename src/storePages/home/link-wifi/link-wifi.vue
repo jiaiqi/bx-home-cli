@@ -36,9 +36,9 @@
 
     methods: {
       toWifi() {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -48,6 +48,7 @@
       },
       getConnectedWifi() {
         let self = this
+        // #ifdef MP-WEIXIN
         wx.getConnectedWifi({
           success: (e) => {
             if (e && e.wifi) {
@@ -55,6 +56,7 @@
             }
           }
         })
+        // #endif
       },
       async startSearch() {
         // 搜索wifi列表

@@ -230,7 +230,7 @@
           })
         }
       },
-      
+
       toOfficial() {
         // 跳转到关注公众号页面
         const frontEndAddress = this.$api.frontEndAddress
@@ -314,7 +314,30 @@
         this.getVipCard(this.vstoreUser?.store_user_no)
       }
     },
-    onLoad(option) {
+    onShareAppMessage() {
+      let pages = getCurrentPages();
+      let path = pages[pages.length - 1]?.$page?.fullPath;
+      path += '&from=share';
+      if (this.userInfo?.userno) {
+        path += `&invite_user_no=${this.userInfo?.userno}`;
+      }
+      if (this.storeInfo?.store_no) {
+        path += `&store_no=${this.storeInfo?.store_no}`;
+      }
+      let title = `${this.info?.real_name}`;
+      title = this.renderEmoji(title)
+      // title = `${this.userInfo.name}邀请您使用【呼吸健康云助手】，【呼吸健康云助手】 -- 集患者服务，呼吸筛查，医生助理，科学研究为一体的功能性小程序`
+      let imageUrl = this.getImagePath(this.info?.user_image, true);
+
+      this.saveSharerInfo(this.userInfo, path);
+      return {
+        imageUrl: imageUrl,
+        title: title,
+        path: path
+      };
+    },
+    async onLoad(option) {
+      await this.initApp()
       if (option.app) {
         this.app = option.app
       }
@@ -330,7 +353,6 @@
       if (this.idCol && this.idVal && this.service) {
         this.getInfo()
       }
-
     }
   }
 </script>

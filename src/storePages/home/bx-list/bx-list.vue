@@ -18,9 +18,7 @@
         </view>
       </view>
       <!-- <scroll-list ref="scrollList" :option="scrollListOption" @load="loadMore" @refresh="refresh"> -->
-      <view class="list-content" :style="{
-        		backgroundColor: list_config.bg
-        	}" v-if="list&&list.length>0">
+      <view class="list-content" v-if="list&&list.length>0">
         <view class="list-view">
           <list-next class="list-next" :nowrap="nowrap" :itemWidth="itemWidth" :cartData="cartData"
             :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"

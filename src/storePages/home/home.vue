@@ -1,6 +1,7 @@
 <template>
   <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
-  <view class="page-wrap" v-if="(!showAuthBox || client_env === 'web')" :class="['theme-' + theme]">
+  <view :style="themeVariable" class="page-wrap" v-if="(!showAuthBox || client_env === 'web')"
+    :class="['theme-' + theme]">
     <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
@@ -33,7 +34,9 @@
       </view>
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
-    <u-tabbar :value="currentTab" :list="tabbarList" inactive-color="#888" active-color="#000" :mid-button="false"
+    <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
+      :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" inactive-color="#888"
+      :active-color="themeConfig&&themeConfig.style_font_color?themeConfig.style_font_color:'#000'" :mid-button="false"
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
@@ -86,6 +89,10 @@
       };
     },
     computed: {
+      themeVariable() {
+        let config = this.themeConfig 
+        return `--home-bg-color:${config?.style_bg_color||'#f8f8f8'};--home-text-color:${config?.style_font_color||'#333'};--home-text-size:${config?.style_font_size||'14'}px;`
+      },
       singleStore() {
         return this.$api.singleStore && this.$api.storeNo
       },
@@ -691,16 +698,16 @@
       },
       async getThemeCfg(no) {
         // 查找店铺主题配置
-        if(!no||typeof no!=='string'){
+        if (!no || typeof no !== 'string') {
           return
         }
         let req = {
           "serviceName": "srvhealth_store_template_select",
           "colNames": ["*"],
           "condition": [{
-            colName:'style_no',
-            ruleType:'eq',
-            value:no
+            colName: 'style_no',
+            ruleType: 'eq',
+            value: no
           }],
           "page": {
             "pageNo": 1,
@@ -709,7 +716,7 @@
         }
         let res = await this.$fetch('select', 'srvhealth_store_template_select', req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
-          this.$store.commit('SET_THEME_CFG')
+          this.$store.commit('SET_THEME_CFG', res.data[0])
         }
       },
       async selectStoreInfo(times = 0, forceUpdate = false) {
@@ -747,6 +754,11 @@
           this.StoreInfo = res.data[0];
           if (this.StoreInfo?.style_no) {
             this.getThemeCfg(this.StoreInfo?.style_no)
+          } else {
+            this.$store.commit('SET_THEME_CFG', null)
+            // let style_no = 'FG202204081049460001'
+            // style_no = 'FG202204081050460002'
+            // this.getThemeCfg(style_no)
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
             this.pdNo = this.StoreInfo.home_page_no;
@@ -1604,6 +1616,9 @@
 <style lang="scss" scoped>
   .page-wrap {
     background-color: #f8f8fa;
+    background-color: var(--home-bg-color);
+    color: var(--home-text-color);
+    font-size: var(--home-text-size);
     max-width: 960px;
     margin: 0 auto;
     // display: flex;
@@ -1645,6 +1660,11 @@
     z-index: 100000;
   }
 
+  ::v-deep .cu-bar {
+    background-color: var(--home-bg-color) !important;
+    color: var(--home-text-color) !important;
+    font-size: var(--home-text-size);
+  }
 
   ::v-deep .nav-bar {
     display: flex;

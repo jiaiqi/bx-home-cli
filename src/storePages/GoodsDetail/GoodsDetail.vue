@@ -259,9 +259,7 @@
         </view>
       </view>
     </view>
-    <!-- <view class="cu-bar foot bottom bg-white tabbar border shop" v-else>
-			<view class="right-btn"><button class="cu-btn text-center shadow-blur">点击下方【前往小程序】按钮进行操作</button></view>
-		</view> -->
+
   </view>
 </template>
 
@@ -830,12 +828,10 @@
         }
       },
       async clickBtn(e) {
-        debugger
         if (this.onHandler === true) {
           return;
         }
         this.onHandler = true;
-
         let target_url = e?.target_url || this.moreConfig?.target_url;
         if (target_url && target_url !== 'add_to_cart') {
           let storeInfo = this.$store?.state?.app?.storeInfo;
@@ -885,7 +881,6 @@
             }
             return
           }
-
         }
         if (goodsInfo?.goods_type === '想豆卡') {
           await this.getVipCard(this.vstoreUser?.store_user_no)
@@ -908,7 +903,7 @@
           }
 
         }
-        
+
         if (this.onLimit) {
           uni.showModal({
             title: "提示",
@@ -919,7 +914,7 @@
           this.onHandler = false;
           return
         }
-        
+
         if (target_url === 'add_to_cart') {
           // 添加到购物车表
 

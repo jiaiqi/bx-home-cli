@@ -89,9 +89,23 @@
         return style
       },
       setItemStyle() {
+        let str = ';margin-bottom:0!important;flex:none;'
         if (this.itemWidth) {
-          return `width:${this.itemWidth}!important;margin-right:10px!important;margin-bottom:0!important;flex:none;`
+          str+= `width:${this.itemWidth}!important;`
         }
+        // if(this.setViewTemp?.background){
+        //   str += `background-color:${this.setViewTemp?.background}!important;`
+        // }
+        if(this.setViewTemp?.borderRadius){
+          str += `border-radius:${this.setViewTemp?.borderRadius}!important;`
+        }
+        // if(this.setViewTemp?.padding){
+        //   str += `padding:${this.setViewTemp?.padding}!important;`
+        // }
+        // if(this.setViewTemp?.margin){
+        //   str += `margin:${this.setViewTemp?.margin}!important;`
+        // }
+        return str
       },
       rowButton() {
         return this.colV2?.rowButton.filter(item => item.permission !== false);
@@ -215,11 +229,11 @@
       // padding: 0 10px;
       margin-bottom: 10px;
       margin-right: 10px;
-      background-color: #fff;
+      // background-color: #fff;
       border-radius: 10px;
 
       &.check-box_item {
-        background-color: #fff;
+        // background-color: #fff;
         border-radius: 10px;
         align-items: center;
         // margin: 10px;

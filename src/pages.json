@@ -398,7 +398,7 @@
         }, {
           "path": "resume/resume",
           "style": {
-            "navigationBarTitleText": "个人简历",
+            "navigationBarTitleText": "个人主页",
             "enablePullDownRefresh": false
           }
         }

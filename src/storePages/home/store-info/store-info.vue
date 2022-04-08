@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class=" layout-2" :style="[calcStyle]" v-if="pageItem && pageItem.type === '店铺信息2'">
+    <view class="layout-2" :style="[calcStyle]" v-if="pageItem && pageItem.type === '店铺信息2'">
       <view class="image-bg" :style="{ 'background-image': backgroundImage }">
         <view class="store-info" v-if="setStoreInfo">
           <view class="store-icon" v-if="setStoreInfo.logo">
@@ -16,13 +16,19 @@
           <view class="store-button">
             <button class="image-btn margin-right bg-white" style="border-radius: 50%;background-color: #fff;"
               @click.stop="showModal('showQrCode')">
-              <image class="image" :src="require('../../static/qrcode1.png')" mode=""></image>
+              <image class="image"
+                :src=" pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode: require('../../static/qrcode1.png')"
+                mode=""></image>
             </button>
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
-              <image class="image" :src="require('../../static/setting1.png')" mode=""></image>
+              <image class="image"
+                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_manager: require('../../static/setting1.png')"
+                mode=""></image>
             </button>
             <button class="image-btn margin-right" @click="showShareDialog">
-              <image class="image" :src="require('../../static/share1.png')" mode=""></image>
+              <image class="image"
+                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share: require('../../static/share1.png')" mode="">
+              </image>
             </button>
           </view>
         </view>
@@ -33,13 +39,19 @@
         <text>{{ setStoreInfo.name || '' }}</text>
         <view class="store-button">
           <button class="image-btn sm margin-left" @click.stop="showModal('showQrCode')">
-            <image class="image" :src="require('../../static/qrcode.png')" mode=""></image>
+            <image class="image"
+              :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode:require('../../static/qrcode.png')" mode="">
+            </image>
           </button>
           <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage">
-            <image class="image" :src="require('../../static/setting.png')" mode=""></image>
+            <image class="image"
+              :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_manager:require('../../static/setting.png')" mode="">
+            </image>
           </button>
           <button class="image-btn sm margin-left" @click="showShareDialog">
-            <image class="image" :src="require('../../static/share.png')" mode=""></image>
+            <image class="image"
+              :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share:require('../../static/share.png')" mode="">
+            </image>
           </button>
         </view>
       </view>
@@ -65,10 +77,14 @@
           <view class="name">{{ setStoreInfo.name || '机构名称' }}</view>
           <view class="bind store-button" v-if="isBind === true">
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
-              <image class="image" :src="require('../../static/setting1.png')" mode=""></image>
+              <image class="image"
+                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_manager:require('../../static/setting1.png')"
+                mode=""></image>
             </button>
             <button class="image-btn" @click="showShareDialog">
-              <image class="image" :src="require('../../static/share1.png')" mode=""></image>
+              <image class="image"
+                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share:require('../../static/share1.png')" mode="">
+              </image>
             </button>
           </view>
           <view class="bind" v-if="isBind === false"><button @click.stop="bindStore(true)" type="primary"
@@ -875,12 +891,13 @@
         overflow: hidden;
         word-break: break-all;
         display: -webkit-box;
+        color: var(--home-text-color)!important;
         -webkit-line-clamp: 4;
         /**指定行数*/
         -webkit-box-orient: vertical;
       }
     }
-
+     
     .home-btn {
       font-weight: bold;
       text-align: center;
@@ -972,5 +989,15 @@
 
   .cu-modal.bottom-modal {
     z-index: 9999;
+  }
+  
+  .introduce-content {
+    overflow: hidden;
+    word-break: break-all;
+    display: -webkit-box;
+    color: var(--home-text-color)!important;
+    -webkit-line-clamp: 4;
+    /**指定行数*/
+    -webkit-box-orient: vertical;
   }
 </style>

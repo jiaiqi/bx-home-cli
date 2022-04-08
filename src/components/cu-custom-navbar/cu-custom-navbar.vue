@@ -112,5 +112,11 @@
 <style>
   .cu-custom {
     width: 100vw;
+
+  }
+  .action,.nav-bar{
+    background-color: var(--home-bg-color) !important;
+    color: var(--home-text-color) !important;
+    font-size: var(--home-text-size);
   }
 </style>

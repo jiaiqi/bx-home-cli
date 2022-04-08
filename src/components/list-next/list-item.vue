@@ -242,8 +242,9 @@
           grid_span: this.viewTemp?.grid_span || '3',
           margin: this.viewTemp?.margin,
           padding: this.viewTemp?.padding,
-          borderRadius:this.viewTemp?.borderRadius,
+          borderRadius: this.viewTemp?.borderRadius,
           btn_cfg: this.viewTemp?.btn_cfg,
+          background: this.viewTemp?.bg || this.viewTemp?.background,
           img: {
             icon: this.viewTemp?.img?.icon,
             col: this.viewTemp?.img?.col,
@@ -331,7 +332,7 @@
             margin: this.setViewTemp?.margin,
             padding: this.setViewTemp?.padding,
             borderRadius: this.setViewTemp?.borderRadius,
-            background:this.setViewTemp?.bg||this.setViewTemp?.background,
+            background: this.setViewTemp?.bg || this.setViewTemp?.background,
           }
         };
         if (this.setViewTemp?.lp_style === '宫格') {
@@ -434,7 +435,7 @@
                 'font-size': cfg?.font_size,
                 'font-weight': cfg?.font_weight,
                 'text-align': cfg?.align,
-                'overflow':cfg?.overflow,
+                'overflow': cfg?.overflow,
                 color: cfg?.color,
                 'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
                   'right' ? 'flex-end' : cfg?.align
@@ -760,7 +761,7 @@
         margin-right: 20rpx;
         display: flex;
         align-items: center;
-        background-color: #fff;
+        // background-color: #fff;
         // border: 1rpx solid #f8f8fa;
         position: relative;
 

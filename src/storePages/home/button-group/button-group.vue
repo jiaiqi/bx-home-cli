@@ -826,12 +826,12 @@
           e.type !== "health-manager" &&
           e.navType
         ) {
-          uni.showModal({
-            title: "提示",
-            content: "请先绑定为当前机构用户，点击右上方加入按钮进行绑定",
-            showCancel: false,
-            confirmText: "知道了",
-          });
+          // uni.showModal({
+          //   title: "提示",
+          //   content: "请先绑定为当前机构用户，点击右上方加入按钮进行绑定",
+          //   showCancel: false,
+          //   confirmText: "知道了",
+          // });
           return;
         }
 
@@ -861,7 +861,8 @@
               ...this.$data,
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
-              bindUserInfo: this.bindUserInfo
+              bindUserInfo: this.bindUserInfo,
+              storeUserInfo:this.bindUserInfo
             }
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
@@ -876,12 +877,14 @@
           })
           return
         }
+
         if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
           if (e.url.split('q=').length > 1) {
             let data = {
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
-              bindUserInfo: this.bindUserInfo
+              bindUserInfo: this.bindUserInfo,
+              storeUserInfo:this.bindUserInfo
             }
             this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
             this.showQrcode = true
@@ -984,6 +987,8 @@
         if (e.navType) {
           navType = e.navType;
         }
+        
+       
 
         if (navType === "miniProgram") {
           // #ifdef MP-WEIXIN
@@ -1008,6 +1013,9 @@
             });
           }
         } else {
+          if(e.url&&e.url.indexOf('https')==0){
+            url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(e.url)}`
+          }
           if (
             ["navigateTo", "redirectoTo", "switchTab", "reLaunch"].includes(
               navType
@@ -1063,13 +1071,13 @@
       async toGroup(e) {
         if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
           // this.bindUserInfo = await this.bindStore()
-          // this.addToStore()
-          uni.showModal({
-            title: "提示",
-            content: "请先绑定为当前机构用户，点击右上方加入按钮进行绑定",
-            showCancel: false,
-            confirmText: "知道了",
-          });
+          this.addToStore()
+          // uni.showModal({
+          //   title: "提示",
+          //   content: "请先绑定为当前机构用户，点击右上方加入按钮进行绑定",
+          //   showCancel: false,
+          //   confirmText: "知道了",
+          // });
           return;
         }
         let data = await this.selectPersonInGroup(e);
@@ -1303,6 +1311,7 @@
         font-weight: normal;
         line-height: 22px;
         color: #9092A5;
+        color: var(--home-text-color)!important;
       }
     }
   }

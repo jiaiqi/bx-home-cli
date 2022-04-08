@@ -142,16 +142,15 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-
+        
         if (this.pageItem?.component_bg_color) {
-          style.backgroundColor = this.pageItem?.component_bg_color
-        }
-
-        if (this.pageItem?.component_bg_img) {
+          style.background = this.pageItem?.component_bg_color
+        }else if (this.pageItem?.component_bg_img&&this.pageItem?.component_bg_img!=='否') {
           style.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
           style.backgroundRepeat = 'no-repeat'
           style.backgroundSize = "100% 100%"
         }
+         style.background =  style.background ||'#fff'
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }
@@ -367,7 +366,7 @@
 
 <style scoped lang="scss">
   .store-item {
-    background-color: #fff;
+    // background-color: #fff;
     border-radius: 20rpx;
     margin: 20rpx;
     overflow: hidden;

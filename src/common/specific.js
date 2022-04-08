@@ -97,6 +97,7 @@ export default {
     Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id) => {
       // 统一下单
       login_user_type = uni.getStorageSync('login_user_info')?.login_user_type || ''
+      debugger
       if (total_fee) {
         total_fee = Number(total_fee.toFixed(2))
       }

@@ -645,9 +645,10 @@
                           }
                           break;
                       }
-                    } else if (item.type === 'no-repeat') {
-                      // 校验重复数据
-                      if(num>0){
+                    } else if (['data-empty', 'no-repeat'].includes(item.type)) {
+                      // 校验重复数据及空数据
+                      // data-empty:没有数据时不通过；no-repeat：有数据时不通过
+                      if (num > 0) {
                         return
                       }
                       const service = item.service
@@ -679,9 +680,20 @@
                         }
                       }
                       let res = await this.$http.post(url, req)
-                      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-                        num++
-                        if (item.fail_tip) {
+                      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+                        let noPass = false
+                        if (item.type === 'no-repeat') {
+                          if (res.data.data.length > 0) {
+                            num++
+                            noPass = true
+                          }
+                        } else {
+                          if (res.data.data.length <= 0) {
+                            num++
+                            noPass = true
+                          }
+                        }
+                        if (noPass && item.fail_tip) {
                           uni.showToast({
                             title: item.fail_tip,
                             icon: 'none'
@@ -697,7 +709,7 @@
                           uni.showModal({
                             title: '提示',
                             content: '请先关注百想助理公众号，以便及时收到新消息通知',
-                            confirmText:'去关注',
+                            confirmText: '去关注',
                             success: (res) => {
                               if (res.confirm) {
                                 resolve(true)

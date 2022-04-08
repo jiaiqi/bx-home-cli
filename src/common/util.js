@@ -24,6 +24,7 @@ export default {
     Vue.mixin({
       computed: {
         ...mapState({
+          themeConfig:state=>state.app.themeConfig,
           globalTextFontSize: state => state.app['globalTextFontSize'],
           globalLabelFontSize: state => state.app.globalLabelFontSize,
           isAttention: state => state.app.subscsribeStatus, //是否关注公众号
