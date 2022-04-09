@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" v-if="cardInfo">
     <view class="page-content">
       <view class="card-info" v-if="cardInfo">
         <view class="card-icon">
@@ -74,7 +74,7 @@
         this.curGoods = e
       },
       // 1. 查找会员卡信息
-      getCard() {
+      async getCard() {
         const serviceName = this.config?.cardService
         const req = {
           "serviceName": serviceName,
@@ -91,11 +91,26 @@
         }
         const app = this.config?.cardApp || uni.getStorageSync('activeApp')
         const url = this.getServiceUrl(app, serviceName, 'select');
-        this.$http.post(url, req).then(res => {
-          if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-            this.cardInfo = res.data.data[0]
-          }
-        })
+        let res = await this.$http.post(url, req)
+        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          this.cardInfo = res.data.data[0]
+          return this.cardInfo
+        } else {
+          uni.showModal({
+            title: '提示',
+            content: '请先开通会员卡',
+            showCancel: false,
+            // confirmText:'去开通'
+            success: (res) => {
+              if (res.confirm) {
+                uni.navigateBack({
+
+                })
+              }
+            }
+          })
+          return false
+        }
       },
       // 2.查找用于充值的商品列表
       getGoods() {
@@ -143,7 +158,7 @@
             sex: this.userInfo.sex,
             user_role: this.userInfo.user_role,
             order_amount: this.curGoods?.price,
-            delivery_type:'当面交易',
+            delivery_type: '当面交易',
             // order_remark: this.order_remark || '',
             pay_state: '待支付',
             order_state: '待支付',
@@ -241,7 +256,7 @@
           result.prepay_id = orderData.prepay_id;
         } else {
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
-            orderData, this.config.wxMchId);
+            orderData, this.config.wxMchId, this.curGoods?.goods_name);
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.config.wxMchId);
@@ -296,8 +311,11 @@
         }
       })
 
-      this.getCard()
-      this.getGoods()
+      this.getCard().then(res=>{
+        if(res!==false){
+          this.getGoods()
+        }
+      })
     }
   }
 </script>

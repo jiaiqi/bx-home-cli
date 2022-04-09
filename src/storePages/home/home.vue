@@ -22,6 +22,7 @@
         @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode"
         :before-click="clickStoreItem">
       </store-item>
+      <!-- <multistepPicker></multistepPicker> -->
     </view>
 
     <view class="copyright-box" v-if="pageItemList&&pageItemList.length>0">
@@ -51,6 +52,7 @@
   } from 'vuex';
   import StoreItem from './store-item/store-item.vue';
   import userSetting from './user-setting/user-setting.vue'
+  // import multistepPicker from './multistep-picker/multistep-picker.vue'
   var socketOpen = false;
   var socketMsgQueue = [];
   var socketIsLogin = false;
@@ -58,7 +60,8 @@
   export default {
     components: {
       StoreItem,
-      userSetting
+      userSetting,
+      // multistepPicker
     },
     data() {
       return {

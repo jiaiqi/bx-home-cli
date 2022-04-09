@@ -454,6 +454,21 @@
                 }
               })
             }
+            
+            item = {
+              ...item,
+              prompt: item.prompt,
+              navType: item.navigate_type,
+              icon: this.getImagePath(item.icon, true),
+              iconType: "image",
+              label: item.button_label,
+              eventType: "toPage",
+              type: "navPage",
+              url: item.dest_page,
+              appid: item.appid,
+              phone_number: item.phone_number,
+            }
+            
             this.buttonsIcon.push(item)
           }
         }
@@ -854,7 +869,6 @@
           } else if (e?.url.indexOf('getPhoneNumber') !== -1) {
             return
           }
-
           try {
             let data = {
               storeNo: this.storeNo,
@@ -884,7 +898,8 @@
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo,
-              storeUserInfo:this.bindUserInfo
+              storeUserInfo:this.bindUserInfo,
+              
             }
             this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
             this.showQrcode = true

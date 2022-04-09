@@ -1157,11 +1157,12 @@
           if (this.StoreInfo.para_cfg) {
             try {
               let data = {
-                StoreInfo: this.StoreInfo
+                storeInfo:this.storeInfo,
+                ...this.$data
               }
-              this.StoreInfo.para_cfg = this.renderStr(this.StoreInfo.para_cfg, data)
-              let moreConfig = JSON.parse(this.StoreInfo.para_cfg)
-              this.StoreInfo.moreConfig = moreConfig
+              let para_cfg = this.renderStr(this.StoreInfo.para_cfg, data)
+              let moreConfig = JSON.parse(para_cfg)
+              // this.StoreInfo.moreConfig = moreConfig
               if (moreConfig && moreConfig.displayColumn) {
                 this.displayColumn = moreConfig.displayColumn
               }

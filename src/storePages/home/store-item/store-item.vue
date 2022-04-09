@@ -58,7 +58,9 @@
       <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()" v-else>立即关注</button>
     </view>
     <!-- 优惠券列表  -->
-    <coupon-list :page-item="pageItem"  v-else-if="storeNo && pageItem && pageItem.type === '优惠券列表'"></coupon-list>
+    <coupon-list :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '优惠券列表'" />
+    <!-- 通用多级选择-预约组件 -->
+    <multistep-picker :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '通用预约'" />
   </view>
 </template>
 
@@ -79,6 +81,7 @@
   import avatarList from '../avatar-list/avatar-list.vue'
   import userCard from '../user-info/user-info.vue'
   import couponList from '../coupon-list/coupon-list.vue'
+  import multistepPicker from '../multistep-picker/multistep-picker.vue'
   export default {
     components: {
       slideList,
@@ -96,7 +99,8 @@
       vipCard,
       avatarList,
       userCard,
-      couponList
+      couponList,
+      multistepPicker
     },
     props: {
       pageItem: {
@@ -142,15 +146,15 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-        
+
         if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
-        }else if (this.pageItem?.component_bg_img&&this.pageItem?.component_bg_img!=='否') {
+        } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
           style.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
           style.backgroundRepeat = 'no-repeat'
           style.backgroundSize = "100% 100%"
         }
-         style.background =  style.background ||'#fff'
+        style.background = style.background || '#fff'
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }

@@ -23,8 +23,10 @@
         </a-form>
       </view>
 
+      <view class="" v-if="hideChildTable">
 
-      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'" v-if="stepMode">
+      </view>
+      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'" v-else-if="stepMode">
         <view class="change-child">
           <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="curChild"
             @change="radioChange">
@@ -67,16 +69,27 @@
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
       <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
         v-if="curStep==='child'">上一步</button>
-      <button class="cu-btn  bg-cyan round lg  flex-all" v-if="curStep==='child'&&isArray(fields) && fields.length > 0"
+      <!--  <button class="cu-btn  bg-cyan round lg  flex-all" v-if="curStep==='child'&&isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
-      </button>
+      </button> -->
+      <debounce-view style="min-width: calc(60% - 10px);" v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @onTap="onButton(btn)">
+        <button style="width: 100%;" class="cu-btn  bg-cyan round lg  "
+          v-if="curStep==='child'&&isArray(fields) && fields.length > 0">
+          {{ btn.button_name }}
+        </button>
+      </debounce-view>
     </view>
     <view class="button-box" v-else-if="!loading&&!stepMode&&colsV2Data&&!disabled">
-      <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
+      <!-- <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
-      </button>
+      </button> -->
+      <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @onTap="onButton(btn)">
+        <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0">
+          {{ btn.button_name }}
+        </button>
+      </debounce-view>
     </view>
 
     <view class="loading-box" v-if="loading">
@@ -117,7 +130,7 @@
         isOnButton: false,
         disabled: false,
         childListData: {},
-        disabledChildButton: false, // 禁用子表
+        disabledChildButton: false, // 禁用子表按钮
         disabledChildPublicButton: false, // 禁用子表的添加、编辑操作并隐藏对应按钮
         afterSubmit: "",
         params: {},
@@ -125,7 +138,8 @@
         stepMode: false, //分步模式，第一步填主表，第二步填子表
         curStep: 'main',
         curChild: '',
-        loading: false
+        loading: false,
+        hideChildTable: false, // 隐藏子表
       }
     },
     computed: {
@@ -327,6 +341,7 @@
         }
       },
       async onButton(e) {
+        // this.isOnButton = true
         if (!e) {
           return;
         }
@@ -777,12 +792,14 @@
                 }
                 let afterSubmit = self.moreConfig?.after_submit;
                 if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+
                   const globalData = {
                     data: effect_data || {},
                     storeInfo: self.storeInfo,
                     userInfo: self.userInfo,
                     storeUser: self.vstoreUser
                   }
+
                   const actionResult = new Array(afterSubmit.length)
                   for (let i = 0; i < afterSubmit.length; i++) {
                     let item = afterSubmit[i];
@@ -800,7 +817,7 @@
                       } else if (item.type === 'wx_pay') {
                         if (item.money_col && item.order_no_col && effect_data && effect_data[
                             item.order_no_col]) {
-                          const wxMchId = this.storeInfo?.wx_mch_id
+                          const wxMchId = this.getwxMchId()
                           const totalMoney = effect_data[item.money_col] || 0
                           const orderData = {
                             order_no: effect_data[item.order_no_col]
@@ -1249,6 +1266,9 @@
                     if (item.hasOwnProperty('display')) {
                       field.display = item.display;
                     }
+                    if (item.hasOwnProperty('label')) {
+                      field.customLabel = item.label;
+                    }
                     if (item.hasOwnProperty('value')) {
                       field.value = item.value;
                     }
@@ -1309,6 +1329,9 @@
                   if (item.column === field.column) {
                     if (item.hasOwnProperty('display')) {
                       field.display = item.display;
+                    }
+                    if (item.hasOwnProperty('label')) {
+                      field.customLabel = item.label;
                     }
                     if (item.hasOwnProperty('disabled')) {
                       field.disabled = item.disabled;
@@ -1415,6 +1438,9 @@
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)
       // })
+      if (option.hideChildTable) {
+        this.hideChildTable = true
+      }
       if (option.stepMode) {
         this.stepMode = true
       }

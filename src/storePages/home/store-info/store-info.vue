@@ -22,12 +22,12 @@
             </button>
             <button class="image-btn margin-right" @click.stop="toManage" v-if="isManager && showBtn.manage">
               <image class="image"
-                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_manager: require('../../static/setting1.png')"
+                :src="pageItem&&pageItem.icon_manager?pageItem.icon_manager: require('../../static/setting1.png')"
                 mode=""></image>
             </button>
             <button class="image-btn margin-right" @click="showShareDialog">
               <image class="image"
-                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share: require('../../static/share1.png')" mode="">
+                :src="pageItem&&pageItem.icon_share?pageItem.icon_share: require('../../static/share1.png')" mode="">
               </image>
             </button>
           </view>
@@ -45,12 +45,12 @@
           </button>
           <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage">
             <image class="image"
-              :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_manager:require('../../static/setting.png')" mode="">
+              :src="pageItem&&pageItem.icon_manager?pageItem.icon_manager:require('../../static/setting.png')" mode="">
             </image>
           </button>
           <button class="image-btn sm margin-left" @click="showShareDialog">
             <image class="image"
-              :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share:require('../../static/share.png')" mode="">
+              :src="pageItem&&pageItem.icon_share?pageItem.icon_share:require('../../static/share.png')" mode="">
             </image>
           </button>
         </view>
@@ -83,7 +83,7 @@
             </button>
             <button class="image-btn" @click="showShareDialog">
               <image class="image"
-                :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_share:require('../../static/share1.png')" mode="">
+                :src="pageItem&&pageItem.icon_share?pageItem.icon_share:require('../../static/share1.png')" mode="">
               </image>
             </button>
           </view>

@@ -94,10 +94,9 @@ export default {
       }
     }
 
-    Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id) => {
+    Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id,description) => {
       // 统一下单
       login_user_type = uni.getStorageSync('login_user_info')?.login_user_type || ''
-      debugger
       if (total_fee) {
         total_fee = Number(total_fee.toFixed(2))
       }
@@ -111,7 +110,7 @@ export default {
           "total_fee": total_fee, // 单位是分
           "spbill_create_ip": "192.168.0.21",
           "notify_url": "http://wx2.100xsys.cn/wx/notify/payment",
-          "body": "test producet",
+          "body":description|| "test producet",
           "user_no": store.state.user.userInfo.userno,
           "login_user_type": login_user_type || "user"
         }]

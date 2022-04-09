@@ -245,6 +245,7 @@
         this.show = false
       },
       showModal() {
+        debugger
         if (this.mode === 'date_time_linkage') {
           let cfg = this.field?.moreConfig;
           if (cfg && typeof cfg === 'object') {

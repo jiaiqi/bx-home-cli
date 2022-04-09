@@ -1,19 +1,7 @@
 <template>
 	<view class="page-wrap">
 		<view class="calendar-box" v-if="dateList.length>0">
-			<!-- 	<view class="date-select-box cu-btn line-blue radius" @click="showCalendar"
-				:class="{'readonly':dateReadonly}">
-				<view class="place-holder " v-if="!date">点击选择日期</view>
-				<view class="value text-black" v-else>{{ date||'' }}</view>
-				<text class="cuIcon-calendar margin-left-xs text-black"></text>
-			</view> -->
-			<!-- 	<view class="" style="margin-bottom: 5px;">
-				选择日期
-			</view> -->
 			<view class="date-box">
-				<!-- 	<view class="handler-icon" style="transform: rotate(180deg);margin: 5px;" @click="changeLeft(-100)">
-					<text class="cuIcon-right"></text>
-				</view> -->
 				<scroll-view scroll-x="true" class="scroll-view_H" :class="{'full':fullDate}" :scroll-left="scrollLeft"
 					:scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper"
 					v-if="cfg&&cfg.disp_date_col&&cfg.week_col&&cfg.val_date_col">
@@ -35,9 +23,6 @@
 
 					</view>
 				</scroll-view>
-				<!-- <view class="handler-icon" style="margin-left: 5px;" @click="changeLeft(100)">
-					<text class="cuIcon-right"></text>
-				</view> -->
 			</view>
 		</view>
 		<view class="main">

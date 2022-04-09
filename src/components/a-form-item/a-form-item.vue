@@ -21,7 +21,7 @@
           fieldData.isRequire ? "*" : ""
         }}</text>
         <text class="text-hidden is-required" v-else>*</text>
-        <text>{{ fieldData.label }}</text>
+        <text>{{ fieldData.customLabel|| fieldData.label }}</text>
       </text>
     </label>
     <view class="form-item-content" :class="{
@@ -150,7 +150,7 @@
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
       <input type="text" class="" style="width: 100%" @input="onInput"
-        :placeholder="fieldData.disabled ?'':'请输入'+fieldData.label" @blur="onBlur" :maxlength="
+        :placeholder="fieldData.disabled ?'':'请输入'+fieldData.customLabel||fieldData.label" @blur="onBlur" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
@@ -160,8 +160,8 @@
         :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
         v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
       <input class="" style="width: 100%" @blur="onBlur"
-        :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.label" :type="fieldData.type" @input="onInput"
-        :maxlength="
+        :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.customLabel||fieldData.label"
+        :type="fieldData.type" @input="onInput" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
@@ -638,7 +638,7 @@
         });
       },
       async getLocation() {
-        
+
         // let isAuthLocation = await new Promise(resolve=>{
         //   uni.authorize({
         //       scope: 'scope.userLocation',
@@ -647,8 +647,8 @@
         //       }
         //   })
         // }) 
-        
-        
+
+
         // #ifdef MP-WEIXIN
         let settings = await new Promise(resolve => {
           uni.getSetting({
@@ -660,23 +660,23 @@
             }
           })
         })
-      
+
         console.log(settings)
-        if(settings?.authSetting?.['scope.userLocation'] === false){
+        if (settings?.authSetting?. ['scope.userLocation'] === false) {
           uni.showModal({
-            title:'提示',
-            content:'未授权访问位置信息，请先在权限设置页面授权允许小程序访问您的位置信息',
-            confirmText:'去设置',
-            cancelText:'算了',
+            title: '提示',
+            content: '未授权访问位置信息，请先在权限设置页面授权允许小程序访问您的位置信息',
+            confirmText: '去设置',
+            cancelText: '算了',
             success: (res) => {
-              if(res.confirm){
+              if (res.confirm) {
                 uni.openSetting({
-                  
+
                 })
               }
             }
           })
-         return 
+          return
         }
         // #endif
         if (this.pageType === 'detail') {

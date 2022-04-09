@@ -121,6 +121,11 @@
               colName: 'store_user_no',
               ruleType: 'eq',
               value: this.vstoreUser?.store_user_no
+            },
+            {
+              colName: 'receive_status',
+              ruleType: 'eq',
+              value: '已领取'
             }
           ],
           "page": {

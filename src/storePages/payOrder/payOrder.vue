@@ -332,11 +332,6 @@
       setCouponMinus(e) {
         if (e?.num) {
           this.couponMinus = e.num
-          // if(e.num>=this.totalMoney){
-          //   uni.showToast({
-          //     title:'订单金额不得低于0.01'
-          //   })
-          // }
         }
       },
       async addVerRecord(order_no, childData) {
@@ -1024,18 +1019,11 @@
 
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
             .vloginUser.roles.includes('DEVE_LOPER'))) {
-          totalMoney = 0.01
           uni.showToast({
             title:`实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
             icon:"none"
           })
-          // if (totalMoney > 100) {
-          //   totalMoney = 0.01
-          // } else if (totalMoney >= 10) {
-          //   totalMoney = totalMoney / 1000
-          // } else {
-          //   totalMoney = totalMoney / 100
-          // }
+          totalMoney = 0.01
         }
 
         let result = {};

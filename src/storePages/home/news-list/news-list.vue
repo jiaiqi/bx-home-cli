@@ -452,7 +452,7 @@
       padding: 20rpx 20rpx 0;
       background: #FAFBFC;
       border-radius: 20rpx;
-
+      color: #333;
       .news-item {
         display: flex;
         padding: 20rpx;

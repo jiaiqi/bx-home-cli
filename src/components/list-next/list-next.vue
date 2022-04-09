@@ -89,7 +89,7 @@
         return style
       },
       setItemStyle() {
-        let str = ';margin-bottom:0!important;flex:none;'
+        let str = 'flex:none;'
         if (this.itemWidth) {
           str+= `width:${this.itemWidth}!important;`
         }
