@@ -413,9 +413,11 @@
         path: path
       };
     },
+    
     onUnload() {
       clearInterval(coundDownTimer)
     },
+    
     onLoad(option) {
       if (option.orderNo) {
         this.orderNo = option.orderNo

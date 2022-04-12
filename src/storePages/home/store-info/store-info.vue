@@ -14,7 +14,7 @@
             </view>
           </view>
           <view class="store-button">
-            <button class="image-btn margin-right bg-white" style="border-radius: 50%;background-color: #fff;"
+            <button class="image-btn margin-right bg-white" style="background-color: #fff;"
               @click.stop="showModal('showQrCode')">
               <image class="image"
                 :src=" pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode: require('../../static/qrcode1.png')"
@@ -525,7 +525,6 @@
         .store-icon {
           width: 160rpx;
           height: 160rpx;
-          border-radius: 50%;
         }
 
         .store-intro {
@@ -703,7 +702,6 @@
     .logo {
       width: 50px;
       height: 50px;
-      // border-radius: 50%;
     }
 
     .content-center {
@@ -825,7 +823,7 @@
       .logo {
         width: 130rpx;
         height: 130rpx;
-        border-radius: 20rpx;
+        // border-radius: 20rpx;
         margin-right: 20rpx;
         font-size: 60rpx;
         font-weight: bold;
@@ -907,7 +905,7 @@
       right: 0px;
 
       .cu-btn {
-        border-radius: 20px 0 0 20px;
+        // border-radius: 20px 0 0 20px;
         font-size: 20px;
         font-weight: 300;
       }
@@ -983,7 +981,7 @@
       font-size: 20px;
       border: 15rpx solid #333;
       padding: 10px;
-      border-radius: 20rpx;
+      // border-radius: 20rpx;
     }
   }
 

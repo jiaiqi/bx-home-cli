@@ -28,9 +28,9 @@
     <view class="child-node">
       <view class="child-node-item" :class="{active:item.selected}" v-for="item in secondLevelData"
         @click="selectDate(item,'second')">
-        <view class="">
+        <text class="">
           {{item[secondLevelDispCol]||''}}
-        </view>
+        </text>
         <view class="">
           <!-- {{item.place_name||''}} -->
         </view>
@@ -38,10 +38,10 @@
     </view>
     <!-- 三级节点 -->
     <view class="child-node">
-      <view class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
+      <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
         @click="selectDate(item,'third')">
         {{item[thirdLevelDispCol]||''}}
-      </view>
+      </text>
     </view>
     <view class="handler-bar" v-if="curSelect">
       <view class="subscribe-money">
@@ -131,21 +131,24 @@
         }
         return cfg
       },
+      config(){
+        return this.moreConfig?.multistep_config||this.moreConfig?.coupon_config
+      },
       handlerCfg() {
-        return this.moreConfig?.coupon_config?.handlerCfg || {
+        return this.config?.handlerCfg || {
           color: '#fff',
           btnBg: 'red',
           btnColor: '#fff'
         }
       },
       topLevelCfg() {
-        return this.moreConfig?.coupon_config?.topLevelCfg
+        return this.config?.topLevelCfg
       },
       secondLevelCfg() {
-        return this.moreConfig?.coupon_config?.secondLevelCfg
+        return this.config?.secondLevelCfg
       },
       thirdLevelCfg() {
-        return this.moreConfig?.coupon_config?.thirdLevelCfg
+        return this.config?.thirdLevelCfg
       },
     },
     props: {
@@ -436,6 +439,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--top-color);
     }
 
     .date-box {

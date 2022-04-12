@@ -35,11 +35,10 @@
         </view>
       </view>
     </view>
-    
-    <view class="cu-load load-modal" v-else>
-    	<!-- <view class="cuIcon-emojifill text-orange"></view> -->
-    	<!-- <image src="/static/basicprofile.jpg" mode="aspectFit"></image> -->
-    	<view class="gray-text">加载中...</view>
+
+    <view class="cu-load load-modal" v-else @click.stop="">
+      <!-- <image src="/static/basicprofile.jpg" mode="aspectFit"></image> -->
+      <text>加载中...</text>
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
@@ -1714,5 +1713,16 @@
       opacity: 1;
       margin-bottom: 5px;
     }
+  }
+
+  .cu-load.load-modal {
+    color: #999;
+    background-color:transparent;
+    box-shadow: 0 0 0px 1000px rgba($color: #fff, $alpha: 0.1);
+    &::after {
+      border-left: 3px solid #fff;
+      background-color: transparent;
+    }
+
   }
 </style>

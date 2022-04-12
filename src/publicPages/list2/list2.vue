@@ -2216,6 +2216,7 @@
 		display: flex;
 		flex-direction: column;
 		// overflow: hidden;
+    overflow: auto;
 		background-color: #F8F8FA;
 
 		.top-bar {

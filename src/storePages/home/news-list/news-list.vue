@@ -6,7 +6,7 @@
           <text class="cuIcon-titles text-blue"></text>
           <text class="text-bold" style="font-size: 16px">{{ cate.name }}</text>
         </view>
-        <view class="to-more text-grey" @click="toMore(cate)" v-if="cate.list.length > rownumber">
+        <view class="to-more " @click="toMore(cate)" v-if="cate.total > rownumber">
           <text> 更多 </text>
           <text class="cuIcon-right"></text>
         </view>
@@ -87,7 +87,7 @@
         网络错误,点击进行刷新
       </view>
     </view>
-    <view class="to-more text-grey text-center margin-top-xs" @click="toMore(noticeList[current])" v-if="
+    <view class="to-more  text-center margin-top-xs" @click="toMore(noticeList[current])" v-if="
         noticeList[current] &&
         noticeList[current].total &&
         noticeList[current].total > rownumber

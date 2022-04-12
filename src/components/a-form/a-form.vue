@@ -34,7 +34,7 @@
       // 	type: [Array, Object],
       // },
       mainData: {
-        type: Object
+        type: [Object,Boolean]
       },
       fields: {
         type: Array,

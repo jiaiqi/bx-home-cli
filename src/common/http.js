@@ -83,14 +83,14 @@ fly.interceptors.request.use(async (request) => {
     }
   }
 
-  if (request.url && ignoreServiceName(request.url)) {
-    if (store.state.app.xhrNum === 0 && new Date().getTime() - store.state.app.xhrTimestamp > 1000) {
-      uni.showLoading({
-        // mask: true,
-        title: '加载中...'
-      })
-    }
-  }
+  // if (request.url && ignoreServiceName(request.url)) {
+  //   if (store.state.app.xhrNum === 0 && new Date().getTime() - store.state.app.xhrTimestamp > 1000) {
+  //     uni.showLoading({
+  //       // mask: true,
+  //       title: '加载中...'
+  //     })
+  //   }
+  // }
 
   store.commit('SET_XHR_NUM', store.state.app.xhrNum + 1)
   console.log(store.state.app.xhrNum)
@@ -166,9 +166,9 @@ fly.interceptors.response.use(
   async (res) => {
       store.commit('SET_XHR_NUM', store.state.app.xhrNum - 1)
       console.log(store.state.app.xhrNum)
-      if (store.state.app.xhrNum === 0) {
+      // if (store.state.app.xhrNum === 0) {
         uni.hideLoading()
-      }
+      // }
       if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
         try {
           let str = JSON.stringify(res.data.data);

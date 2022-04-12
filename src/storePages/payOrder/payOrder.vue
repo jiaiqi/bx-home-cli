@@ -57,21 +57,36 @@
         <view class="goods-list">
           <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"></goods-item>
         </view>
-        <view class="order-remark">
-          <textarea class="textarea" v-model="order_remark" placeholder="订单备注"
-            :disabled="orderInfo&&orderInfo.order_no" />
+        <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
+          <view class="detail-info_item" v-if="goodsAmount">
+            <view class="detail-info_item_label">
+              商品总数
+            </view>
+            <view class="detail-info_item_value">
+              {{goodsAmount}}
+            </view>
+          </view>
+          <view class="detail-info_item" v-if="orderInfo.order_amount">
+            <view class="detail-info_item_label">
+              订单金额
+            </view>
+            <view class="detail-info_item_value text-red">
+              ￥{{orderInfo.order_amount}}
+            </view>
+          </view>
         </view>
-        <view class="id-number-edit" v-if="needIdNum">
+        <view class="id-number-edit" v-if="!disabled&&needIdNum">
           <view class="cu-form-group ">
             <view class="title">身份证号</view>
-            <input :placeholder="'请输入身份证号'" name="input" v-model="idNum" placeholder-style="fontSize:24rpx;"></input>
+            <input class="value" :placeholder="'请输入身份证号'" name="input" v-model="idNum"
+              placeholder-style="fontSize:24rpx;"></input>
           </view>
           <view class="remark text-cyan">
             <text class="cuIcon-info"></text> {{needIdRemark||''}}
           </view>
         </view>
       </view>
-      <view class="room-selector" v-if="storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
+      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
         <view class="place-holder" v-if="!room_no">
           点击选择房间号
         </view>
@@ -81,23 +96,26 @@
         <text class="cuIcon-right place-holder"></text>
       </view>
       <!-- 优惠券 -->
-      <view class="order-other-info">
+      <view class="order-other-info" v-if="!orderInfo.order_no">
         <view class="info-item">
           <view class="info-label">
             优惠券
           </view>
           <view class="info-value">
             <!-- <text class="text-red margin-right-xs">-￥100</text> -->
-            <coupon-selector ref='couponSelector' :max="totalMoney" @update="setCouponMinus" @close="setCouponMinus">
+            <coupon-selector ref='couponSelectorRef' :max="totalMoney" @update="setCouponMinus" @close="setCouponMinus">
             </coupon-selector>
             <text class="cuIcon-right text-gray"></text>
           </view>
         </view>
       </view>
-      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;" v-if="needAddress&&orderType!=='团购'">
-        <view class="pay-mode-item ">
+
+
+      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
+        v-if="!disabled && needAddress&&orderType!=='团购'">
+        <view class="pay-mode-item">
           <view class="">
-            <text class="cuIcon-deliver text-yellow  icon"></text>
+            <text class="cuIcon-deliver text-yellow icon"></text>
             提货方式
           </view>
           <view class="" v-if="orderInfo.delivery_type">
@@ -145,11 +163,117 @@
           </view>
         </radio-group>
       </view>
+
+      <view class="order-remark" v-if="!disabled">
+        <view class="cu-form-group">
+          <view class="title">订单备注</view>
+          <input class="value" :placeholder="'选填,建议填写前与商家沟通确认'" :disabled="orderInfo&&orderInfo.order_no" name="input"
+            v-model="order_remark" placeholder-style="fontSize:24rpx;"></input>
+        </view>
+      </view>
+
+      <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
+        <!--        <view class="detail-info-title">
+          订单信息
+        </view> -->
+        <view class="detail-info_item" v-if="orderInfo.order_no">
+          <view class="detail-info_item_label">
+            订单编号
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.order_no}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.order_state">
+          <view class="detail-info_item_label">
+            订单状态
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.order_state}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.pay_state">
+          <view class="detail-info_item_label">
+            支付状态
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.pay_state}}
+          </view>
+        </view>
+
+        <view class="detail-info_item" v-if="orderInfo.pay_method">
+          <view class="detail-info_item_label">
+            支付方式
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.pay_method}}
+          </view>
+        </view>
+
+        <view class="detail-info_item" v-if="orderInfo.order_remark">
+          <view class="detail-info_item_label">
+            订单备注
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.order_remark}}
+          </view>
+        </view>
+
+        <view class="detail-info_item" v-if="orderInfo.create_time">
+          <view class="detail-info_item_label">
+            下单时间
+          </view>
+          <view class="detail-info_item_value">
+            {{dayjs(orderInfo.create_time).format("YYYY-MM-DD HH:mm")}}
+          </view>
+        </view>
+      </view>
+
+      <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
+        <!--  <view class="detail-info-title">
+          收货信息
+        </view> -->
+        <view class="detail-info_item" v-if="orderInfo.rcv_name">
+          <view class="detail-info_item_label">
+            收货人
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_name}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.rcv_telephone">
+          <view class="detail-info_item_label">
+            手机号
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_telephone}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.rcv_addr_str">
+          <view class="detail-info_item_label">
+            收货地址
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_addr_str}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.delivery_type">
+          <view class="detail-info_item_label">
+            提货方式
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.delivery_type}}
+          </view>
+        </view>
+      </view>
+
     </view>
 
 
-    <view class="handler-bar">
-      <text class="amount margin-right-xs" v-if="totalMoney&&actualMoney">共省{{ totalMoney - actualMoney }}元</text>
+
+    <view class="handler-bar" v-if="!disabled">
+      <text class="amount margin-right-xs"
+        v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ totalMoney - actualMoney }}元</text>
       <text class="amount">共{{ totalAmount }}件</text>
       <text class="text" v-if="totalMoney&&!pay_method">合计:</text>
       <text class="money-amount" v-if="totalMoney&&!pay_method">
@@ -268,6 +392,7 @@
         tgNo: "", //团购编号
         goodsWay: "", //团购收货方式
         couponMinus: 0, //优惠券减的金额
+        disabled: false
       };
     },
     computed: {
@@ -279,6 +404,27 @@
         storeUserInfo: state => state.user.storeUserInfo,
         theme: state => state.app.theme
       }),
+      goodsAmount() {
+        // 订单商品总数
+        let result = 0
+        let goods = this.orderInfo.goodsList;
+        if (Array.isArray(goods)) {
+          result = goods.reduce((res, cur) => {
+            if (cur.goods_amount && !isNaN(Number(cur.goods_amount))) {
+              res += cur.goods_amount
+            }
+            return res
+          }, 0)
+        }
+        return result
+      },
+      addressStr() {
+        let str = ''
+        if (this.orderInfo?.order_no) {
+          str += `${this.orderInfo?.rcv_name} ${this.orderInfo?.rcv_telephone} \r\n ${this.orderInfo?.rcv_addr_str}`
+        }
+        return str
+      },
       needIdNum() {
         let goods = this.orderInfo.goodsList;
         if (Array.isArray(goods) && goods.length > 0) {
@@ -1020,19 +1166,31 @@
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
             .vloginUser.roles.includes('DEVE_LOPER'))) {
           uni.showToast({
-            title:`实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
-            icon:"none"
+            title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
+            icon: "none"
           })
           totalMoney = 0.01
         }
 
         let result = {};
-
+        let goodsName = ''
+        if (Array.isArray(this.orderInfo.goodsList) && this.orderInfo.goodsList.length > 0) {
+          goodsName = this.orderInfo.goodsList.reduce((res, cur) => {
+            if (cur.goods_name) {
+              if (res) {
+                res += `,${cur.goods_name}`
+              } else {
+                res += cur.goods_name
+              }
+            }
+            return res
+          }, '')
+        }
         if (orderData.prepay_id) {
           result.prepay_id = orderData.prepay_id;
         } else {
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
-            orderData, this.wxMchId);
+            orderData, this.wxMchId, goodsName);
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
@@ -1047,15 +1205,15 @@
               self.orderInfo.order_state = '待发货';
               self.updateOrderState('待发货', '已支付', result.prepay_id);
               self.orderInfo.pay_state = '已支付';
-              let webUrl =
-                'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' +
-                orderData
-                .order_no + '&totalMoney=' + totalMoney
-              let url =
-                `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-              uni.redirectTo({
-                url
-              });
+              // let webUrl =
+              //   'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' +
+              //   orderData
+              //   .order_no + '&totalMoney=' + totalMoney
+              // let url =
+              //   `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+              // uni.redirectTo({
+              //   url
+              // });
               // uni.redirectTo({
               //   url: '/storePages/successPay/successPay?order_no=' + orderData
               //     .order_no + '&totalMoney=' + self.totalMoney
@@ -1137,8 +1295,11 @@
         }
         this.getSelectorData()
       }
-
-      this.getCouponList()
+      if (option.disabled) {
+        this.disabled = true
+      } else {
+        this.getCouponList()
+      }
     }
   };
 </script>
@@ -1234,31 +1395,51 @@
       overflow-y: scroll;
     }
 
+
+    .order-remark {
+      // background-color: #F8F8FA;
+      background-color: #fff;
+      border-radius: 5px;
+      margin: 10px;
+      padding: 10px;
+
+      .cu-form-group {
+        min-height: 10px;
+
+        .title {
+          height: auto;
+          line-height: inherit;
+        }
+      }
+
+      .textarea {
+        box-sizing: border-box;
+        width: calc(100% - 40rpx);
+        padding: 20rpx;
+        height: 200rpx;
+      }
+    }
+
+
     .order-info {
       margin: 20rpx;
       margin-top: 0;
       background-color: #fff;
-      padding: 20rpx 20rpx 40rpx;
+      padding: 20rpx;
       border-radius: 5px;
-
+      .detail-info{
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid #F9F9F9;
+        border-radius: 0;
+      }
       .title-bar {
         padding: 0px 0 5px;
         margin-bottom: 10px;
         border-bottom: 1px solid #f1f1f1;
       }
 
-      .order-remark {
-        background-color: #F8F8FA;
-        border-radius: 5px;
-        margin-top: 20rpx;
 
-        .textarea {
-          box-sizing: border-box;
-          width: calc(100% - 40rpx);
-          padding: 20rpx;
-          height: 200rpx;
-        }
-      }
 
       .id-number-edit {
         margin-top: 20rpx;
@@ -1382,6 +1563,15 @@
 
     }
 
+    .cu-form-group {
+      padding: 0;
+
+      .value {
+        text-align: right;
+        padding: 0;
+      }
+    }
+
     .handler-bar {
       background-color: #fff;
       height: 50px;
@@ -1408,6 +1598,36 @@
         .money-operate {
           font-size: 12px;
         }
+      }
+    }
+  }
+
+  .detail-info {
+    background-color: #fff;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+
+    &-title {
+      font-size: 12px;
+      padding: 0 0 5px;
+      color: #666;
+    }
+
+    &_item {
+      display: flex;
+      min-height: 30px;
+      line-height: 30px;
+
+      &_label {
+        width: 30%;
+        color: #999;
+      }
+
+      &_value {
+        padding-left: 5px;
+        text-align: right;
+        flex: 1;
       }
     }
   }

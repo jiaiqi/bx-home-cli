@@ -387,7 +387,8 @@
             "navigationBarTitleText": "切换账号",
             "enablePullDownRefresh": false
           }
-        }, {
+        },
+        {
           "path": "resetPwd/resetPwd",
           "style": {
             "navigationBarTitleText": "修改密码",
@@ -397,23 +398,24 @@
         }, {
           "path": "resume/resume",
           "style": {
-            "navigationBarTitleText": "个人简历",
+            "navigationBarTitleText": "个人主页",
             "enablePullDownRefresh": false
           }
-
-        }, {
+        }
+        , 
+        {
           "path": "chargeCoin/chargeCoin",
           "style": {
             "navigationBarTitleText": "充值",
             "enablePullDownRefresh": false
           }
-
         }
       ]
     },
     {
       "root": "otherPages",
-      "pages": [{
+      "pages": [
+        {
           "path": "clockIn/clockIn",
           "style": {
             "navigationBarTitleText": "打卡",

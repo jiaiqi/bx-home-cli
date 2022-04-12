@@ -1,7 +1,8 @@
 <template>
   <view>
     <view class="list-wrap" v-if="setViewTemp" :style="setListStyle" :class="{
-				'grid-layout': setViewTemp && setViewTemp.lp_style === '宫格'
+				'grid-layout': setViewTemp && setViewTemp.lp_style === '宫格'&&!nowrap,
+        'no-wrap':nowrap
 			}">
       <view class="check-box-item " :class="{
 					'check-box_item':listType==='selectorList',
@@ -216,7 +217,10 @@
   .list-wrap {
     // margin-bottom: 10px;
     // padding: 10px;
-
+    &.no-wrap{
+      display: flex;
+      flex-wrap: wrap;
+    }
     .check-box-group {
       display: flex;
       flex-wrap: wrap;

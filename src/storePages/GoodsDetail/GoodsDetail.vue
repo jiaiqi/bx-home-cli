@@ -72,7 +72,7 @@
       <view class="">{{ goodsInfo.goods_desc || '' }}</view>
     </view>
     <view class="store-info" v-if="goodsInfo&&storeInfo && storeInfo.store_no" @click="toStoreHome">
-      <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"></image>
+      <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo" mode="aspectFit"></image>
       <view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
         {{storeInfo.name.slice(0,1)}}
       </view>
@@ -1041,7 +1041,6 @@
     .store-icon {
       width: 50px;
       height: 50px;
-      border-radius: 50%;
       line-height: 50px;
       text-align: center;
 

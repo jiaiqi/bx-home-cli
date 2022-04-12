@@ -131,13 +131,11 @@
           } catch (e) {
             //TODO handle the exception
           console.log(e)
-          debugger
           }
           //TODO handle the exception
         }
         this.fieldsCond = fieldsCond
       }
-      debugger
       if (option.preAction) {
         let action = option.preAction
         try {

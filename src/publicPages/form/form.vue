@@ -351,7 +351,6 @@
                   });
                   return;
                 }
-                debugger
                 let res = await this.onRequest('update', e.service_name, req, app);
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
@@ -772,7 +771,6 @@
           if (res.data.state === 'SUCCESS') {
             if (Array.isArray(res.data.data) && res.data.data.length > 0) {
               this.params.defaultVal = res.data.data[0];
-              debugger
               this.defaultVal = res.data.data[0];
               return res.data.data[0];
             }

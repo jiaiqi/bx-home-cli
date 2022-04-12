@@ -19,9 +19,12 @@
       </view>
     </view>
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
-      <view class="picture-item" :style="[getImgButtonStyle(item)]" v-for="item in buttonsIcon" @click="toPages(item)">
-      </view>
-      <!--      <image :src="getImagePath(item.icon,true)" mode="aspectFit" :style="{
+      <u-image :width="item.imgWidth" :height="item.imgHeight" :src="getImagePath(item.icon,true)" mode="aspectFit"
+        @click="toPages(item)" v-for="item in buttonsIcon">
+        <u-loading slot="loading"></u-loading>
+        <view slot="error" style="font-size: 24rpx;">加载失败</view>
+      </u-image>
+      <!--     <image :src="getImagePath(item.icon,true)" mode="aspectFit" :lazy-load="true" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
 					}" v-for="item in buttonsIcon" @click="toPages(item)"></image> -->
@@ -404,6 +407,13 @@
       }
     },
     methods: {
+      getImageStyle(item) {
+        let style = {
+          width: item?.imgWidth ? `${item.imgWidth}px` : '100%',
+          height: item?.imgHeight ? `${item.imgHeight}px` : "80px"
+        }
+        return style
+      },
       getImgButtonStyle(item) {
         let style = {
           backgroundImage: `url(${this.getImagePath(item.icon,true)})`,
@@ -417,6 +427,12 @@
         if (Array.isArray(this.buttonList)) {
           for (let item of this.buttonList) {
             item.url = item.dest_page
+            if (!item.imgWidth) {
+              item.imgWidth = '100%'
+            }
+            if (!item.imgHeight) {
+              item.imgHeight = '80px'
+            }
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
             }
@@ -433,8 +449,8 @@
                   res.w = res.w * ratio
                   res.h = res.h * ratio
                 }
-                this.$set(item, 'imgWidth', res.w);
-                this.$set(item, 'imgHeight', res.h);
+                this.$set(item, 'imgWidth', `${res.w}px`);
+                this.$set(item, 'imgHeight', `${res.h}px`);
               }
             } else {
               this.getImageInfo({
@@ -448,13 +464,13 @@
                       res.w = res.w * ratio
                       res.h = res.h * ratio
                     }
-                    this.$set(item, 'imgWidth', res.w);
-                    this.$set(item, 'imgHeight', res.h);
+                    this.$set(item, 'imgWidth', `${ res.w}px`);
+                    this.$set(item, 'imgHeight', `${res.h}px`);
                   }
                 }
               })
             }
-            
+
             item = {
               ...item,
               prompt: item.prompt,
@@ -468,7 +484,7 @@
               appid: item.appid,
               phone_number: item.phone_number,
             }
-            
+
             this.buttonsIcon.push(item)
           }
         }
@@ -876,7 +892,7 @@
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo,
-              storeUserInfo:this.bindUserInfo
+              storeUserInfo: this.bindUserInfo
             }
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
@@ -898,8 +914,8 @@
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo,
-              storeUserInfo:this.bindUserInfo,
-              
+              storeUserInfo: this.bindUserInfo,
+
             }
             this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
             this.showQrcode = true
@@ -1002,8 +1018,8 @@
         if (e.navType) {
           navType = e.navType;
         }
-        
-       
+
+
 
         if (navType === "miniProgram") {
           // #ifdef MP-WEIXIN
@@ -1028,7 +1044,7 @@
             });
           }
         } else {
-          if(e.url&&e.url.indexOf('https')==0){
+          if (e.url && e.url.indexOf('https') == 0) {
             url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(e.url)}`
           }
           if (
@@ -1162,6 +1178,12 @@
     .pictuer-button {
       display: flex;
       flex-wrap: wrap;
+      text-align: center;
+
+      .image-button {
+        width: 100%;
+        height: 100px;
+      }
 
       .picture-item {
         background-size: 100% 100%;
@@ -1326,7 +1348,7 @@
         font-weight: normal;
         line-height: 22px;
         color: #9092A5;
-        color: var(--home-text-color)!important;
+        color: var(--home-text-color) !important;
       }
     }
   }

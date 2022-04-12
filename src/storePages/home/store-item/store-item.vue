@@ -146,7 +146,7 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-
+        
         if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
         } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
@@ -154,7 +154,14 @@
           style.backgroundRepeat = 'no-repeat'
           style.backgroundSize = "100% 100%"
         }
+        if(style.background&&style.background.indexOf('否')!==-1){
+          style.background = ''
+        }
+        
+        
         style.background = style.background || '#fff'
+        
+        
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }

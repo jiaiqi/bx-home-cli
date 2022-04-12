@@ -401,8 +401,7 @@
             "navigationBarTitleText": "个人主页",
             "enablePullDownRefresh": false
           }
-        }
-        , 
+        },
         {
           "path": "chargeCoin/chargeCoin",
           "style": {
@@ -414,8 +413,7 @@
     },
     {
       "root": "otherPages",
-      "pages": [
-        {
+      "pages": [{
           "path": "clockIn/clockIn",
           "style": {
             "navigationBarTitleText": "打卡",
@@ -427,7 +425,7 @@
           "style": {
             // "navigationStyle": "custom",
             "navigationBarBackgroundColor": "#8a1b1f"
-         		 // ,
+            // ,
             // "navigationBarTitleText": "建党100周年祝福接力"
           }
         },

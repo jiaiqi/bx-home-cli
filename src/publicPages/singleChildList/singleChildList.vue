@@ -684,7 +684,6 @@
           if (item.x_if) {
             if (Array.isArray(item.xif_trigger_col)) {
               if (item.table_name !== table_name) {
-                debugger
                 result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
               }
               if (result?.response && result.response[item.column]) {

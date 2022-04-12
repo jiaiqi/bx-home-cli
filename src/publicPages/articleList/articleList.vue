@@ -184,6 +184,7 @@
 <style scoped lang="scss">
 	.list-wrap {
 		// 简介
+    background-color: #f;
 		margin-bottom: 20rpx;
 		padding: 20rpx;
 		min-height: calc(100vh - var(--window-top) - var(--window-bottom));
@@ -209,12 +210,16 @@
 		}
 
 		.news-list {
+      
 			.news-item {
 				display: flex;
-				padding: 20rpx 0;
+				padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 5px;
 				border-bottom: 1rpx solid #f1f1f1;
 				align-items: center;
-
+        background-color: #fff;
+        
 				.title-text {
 					width: 70%;
 					overflow: hidden;
