@@ -48,9 +48,6 @@ fly.interceptors.request.use(async (request) => {
       });
       request.cancel = true
       // #endif
-      // #ifdef MP-WEIXIN
-      // await Vue.prototype.toAddPage()
-      // #endif
     }
   }
   if (request.url && ignoreServiceName(request.url)) {
@@ -145,7 +142,6 @@ fly.interceptors.response.use(
             });
             // #endif
             // #ifdef MP-WEIXIN
-            // Vue.prototype.toAddPage()
             // wx.login({
             // 	success(res) {
             // 		if (res.code) {

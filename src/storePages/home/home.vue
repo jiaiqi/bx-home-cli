@@ -15,24 +15,31 @@
       </view>
     </cu-custom-navbar>
 
-    <view v-if="pageItemList&&pageItemList.length>0" class="page-item-list">
-      <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
-        :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
-        :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
-        @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode"
-        :before-click="clickStoreItem">
-      </store-item>
-      <!-- <multistepPicker></multistepPicker> -->
-    </view>
+    <view class="" v-if="pageItemList&&pageItemList.length>0">
+      <view class="page-item-list">
+        <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
+          :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
+          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
+          @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode"
+          :before-click="clickStoreItem">
+        </store-item>
+      </view>
 
-    <view class="copyright-box" v-if="pageItemList&&pageItemList.length>0">
-      <view class="row">
-        声明：图文信息均来源合作方，如有侵权请联系删除
+      <view class="copyright-box">
+        <view class="row">
+          声明：图文信息均来源合作方，如有侵权请联系删除
+        </view>
+        <view class="row">
+          由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
+            @click="toHome">百想首页</text> 提供技术支持
+        </view>
       </view>
-      <view class="row">
-        由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
-          @click="toHome">百想首页</text> 提供技术支持
-      </view>
+    </view>
+    
+    <view class="cu-load load-modal" v-else>
+    	<!-- <view class="cuIcon-emojifill text-orange"></view> -->
+    	<!-- <image src="/static/basicprofile.jpg" mode="aspectFit"></image> -->
+    	<view class="gray-text">加载中...</view>
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
@@ -42,6 +49,7 @@
     </u-tabbar>
   </view>
 
+  </view>
   <bx-auth v-else @auth-complete="initPage"></bx-auth>
 
 </template>
@@ -93,7 +101,7 @@
     },
     computed: {
       themeVariable() {
-        let config = this.themeConfig 
+        let config = this.themeConfig
         return `--home-bg-color:${config?.style_bg_color||'#f8f8f8'};--home-text-color:${config?.style_font_color||'#333'};--home-text-size:${config?.style_font_size||'14'}px;`
       },
       singleStore() {
@@ -1208,7 +1216,7 @@
           order: []
         };
         let res = await this.$http.post(url, req);
-        this.pageItemList = []
+        // this.pageItemList = []
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           // this.pageItemList = res.data.data;
           let setFirstSwiper = false;
@@ -1222,6 +1230,8 @@
               return item;
             });
           this.getComponentData();
+        } else {
+          this.pageItemList = []
         }
       },
       async getTabbar(home_page_no) {
@@ -1548,8 +1558,7 @@
       if (option.invite_user_no) {
         this.invite_user_no = option.invite_user_no;
       }
-
-      await this.toAddPage();
+      // await this.toAddPage();
 
       if (option.pt_no) {
         this.pt_no = option.pt_no;
@@ -1599,12 +1608,13 @@
         this.pdNo = option.pd_no;
       }
       await this.initPage();
-      if (this.pdNo) {
-        await this.getPageDefine(this.pdNo);
-        // this.storeNo = this.pageDefine.store_no;
-        await this.getTabbar(this.pdNo);
-        await this.getPageComponent(this.pdNo);
-      }
+      // if (this.pdNo) {
+      //   await this.getPageDefine(this.pdNo);
+      //   // this.storeNo = this.pageDefine.store_no;
+      //   await this.getTabbar(this.pdNo);
+      //   debugger
+      //   await this.getPageComponent(this.pdNo);
+      // }
 
 
 

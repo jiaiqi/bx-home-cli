@@ -23,8 +23,7 @@
     </view>
   </view>
   <view class="date-picker" v-else>
-    <view class="calendar-box"
-      v-if="(mode==='date'||mode=='date_time_linkage')&&field&&field.moreConfig&&field.moreConfig.finderType==='calendar'">
+    <view class="calendar-box" v-if="(mode==='date'&&finderType==='calendar')||mode=='date_time_linkage'">
       <view class="date-select-box picker-content" @click="showModal()">
         <view class="place-holder" v-if="!selectVal">请选择</view>
         <view class="value" v-else>{{ selectVal }}</view>
@@ -125,6 +124,9 @@
       })
     },
     computed: {
+      finderType() {
+        return this.field?.moreConfig?.finderType
+      },
       sysModel() {
         return uni.getSystemInfoSync().model
       },

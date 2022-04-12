@@ -347,9 +347,10 @@
               }
               break;
             case '轮播图':
-              if (this.$refs && this.$refs.swiperList && this.$refs.swiperList.getSwiperList) {
-                this.$refs.swiperList.getSwiperList();
-              }
+              // if (this?.$refs?.swiperList?.getSwiperList) {
+              //   debugger
+              //   this.$refs.swiperList.getSwiperList?.();
+              // }
               break;
               // case '商品列表':
               //   if (this.$refs && this.$refs.goodsList && this.$refs.goodsList.getGoodsListData) {

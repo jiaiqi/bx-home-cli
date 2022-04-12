@@ -13,7 +13,8 @@
         <view class="goods-item"
           :class="{active:config&&config.goodsNoCol&&curGoods[config.goodsNoCol]=== item[config.goodsNoCol]}"
           v-for="(item,index) in goodsList" :key="index" @click="changeSelectedGoods(item)">
-          {{item.goods_name||''}}
+          <text v-if="config.goodsNameCol&&item[config.goodsNameCol]">{{item[config.goodsNameCol]}}</text>
+          <text v-else>{{item.goods_name || ''}}</text>
         </view>
       </view>
     </view>
@@ -37,6 +38,7 @@
         orderNo: "",
         orderInfo: {},
         config: {
+          goodsType: "想豆卡",
           cardService: "srvhealth_store_card_case_select", // 会员卡service
           cardApp: "health", // 会员卡的表对应的app
           cardNo: "", // 会员卡编号
@@ -45,21 +47,10 @@
           goodsApp: "health",
           goodsNoCol: "goods_no",
           goodsService: "srvhealth_store_goods_guest_select", //查找商品的服务
-          goodsCondition: [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": 'S0000000000'
-          }, {
-            "colName": "online_state",
-            "ruleType": "eq",
-            "value": "上线"
-          }, {
-            "colName": "goods_type",
-            "ruleType": "eq",
-            "value": "想豆卡"
-          }],
+          goodsCondition: [],
           goodsPriceCol: "", //商品价格字段
           goodsOriginPriceCol: "", //商品原价的字段
+          goodsNameCol: 'goods_name', //商品名称
           addOrderService: "srvhealth_store_order_add", //创建订单的服务
           orderMoneyCol: "", //订单金额字段
           orderNoCol: "", //订单编号字段
@@ -115,17 +106,54 @@
       // 2.查找用于充值的商品列表
       getGoods() {
         const serviceName = this.config?.goodsService
-
+        const data = {
+          ...this.$data,
+          storeInfo: this.storeInfo,
+          userInfo: this.userInfo,
+          storeUser: this.vstoreUser
+        }
         const req = {
           "serviceName": serviceName,
           "colNames": ["*"],
-          "condition": this.config.goodsCondition,
+          "condition": [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo.store_no
+          }, {
+            "colName": "online_state",
+            "ruleType": "eq",
+            "value": "上线"
+          }],
           "page": {
             "pageNo": 1,
             "rownumber": 100
           }
         }
-
+        if (this.config.goodsType) {
+          req.condition.push({
+            colName: 'goods_type',
+            ruleType: 'eq',
+            value: this.config.goodsType
+          })
+        } else if (Array.isArray(this.config.goodsCondition) && this.config.goodsCondition.length > 0) {
+          let data = {
+            ...this.$data,
+            storeInfo: this.storeInfo,
+            storeUser: this.vstoreUser
+          }
+          req.condition = [...req.condition, ...this.config.goodsCondition.map(item => {
+            let obj = {
+              ...item
+            }
+            if (obj.value && obj.value.indexOf('${') !== -1) {
+              obj.value = this.renderStr(obj.value, data);
+            }
+            return obj
+          })]
+        } else {
+          // 
+          return
+        }
         const app = this.config?.goodsApp || uni.getStorageSync('activeApp')
         const url = this.getServiceUrl(app, serviceName, 'select');
         this.$http.post(url, req).then(res => {
@@ -227,7 +255,7 @@
       // 支付
       async toPay() {
         if (this.storeInfo?.wx_mch_id) {
-          this.config.wxMchId = this.storeInfo?.wx_mch_id
+          this.config.wxMchId = this.getwxMchId()
         }
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
@@ -283,15 +311,6 @@
                   }
                 }
               })
-              // let webUrl =
-              //   'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' +
-              //   orderData
-              //   .order_no + '&totalMoney=' + totalMoney
-              // let url =
-              //   `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-              // uni.redirectTo({
-              //   url
-              // });
             },
             fail(res) {
               // 支付失败/取消支付
@@ -311,8 +330,8 @@
         }
       })
 
-      this.getCard().then(res=>{
-        if(res!==false){
+      this.getCard().then(res => {
+        if (res !== false) {
           this.getGoods()
         }
       })
@@ -362,8 +381,7 @@
 
         .goods-item {
           padding: 10px;
-          flex: 1;
-          min-width: 30%;
+          width: calc(33.33% - 7px);
           text-align: center;
           background-color: #f6f6f6;
           border-radius: 5px;

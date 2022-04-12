@@ -150,7 +150,7 @@
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
       <input type="text" class="" style="width: 100%" @input="onInput"
-        :placeholder="fieldData.disabled ?'':'请输入'+fieldData.customLabel||fieldData.label" @blur="onBlur" :maxlength="
+        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @blur="onBlur" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len
             : 999
@@ -160,7 +160,7 @@
         :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
         v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
       <input class="" style="width: 100%" @blur="onBlur"
-        :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+fieldData.customLabel||fieldData.label"
+        :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+(fieldData.customLabel||fieldData.label)"
         :type="fieldData.type" @input="onInput" :maxlength="
           fieldData.item_type_attr && fieldData.item_type_attr.max_len
             ? fieldData.item_type_attr.max_len

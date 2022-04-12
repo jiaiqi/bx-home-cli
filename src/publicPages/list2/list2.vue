@@ -483,7 +483,6 @@
 				}
 			},
 			toOrderPage() {
-				debugger
 				let list = this.list.filter(item => item.checked === true && item.goods_amount);
 				list = this.deepClone(list)
 				if (list.length > 0) {
@@ -1383,7 +1382,6 @@
 						//TODO handle the exception
 					}
 				}
-
 				if (buttonInfo.button_type === "customize") {
 					if (buttonInfo.operate_type === '删除') {
 						this.onButtonToUrl(data, this.appName).then(res => {
@@ -1392,7 +1390,7 @@
 							}
 						})
 
-					} else if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+					} else if (['操作','增加'].includes(buttonInfo.operate_type)&& buttonInfo.operate_mode === '静默操作') {
 						if (moreConfig?.type === 'wx_pay') {
 							this.onRequestPayment(rowData, moreConfig)
 							return

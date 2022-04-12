@@ -187,12 +187,13 @@
           this.qrcodePath = '';
           this.setStoreInfo = false
           if (newValue?.logo) {
-            this.getFilePath(newValue?.logo).then(res => {
-              if (Array.isArray(res) && res.length > 0) {
-                const item = res[0];
-                this.qrCodeLogo = this.$api.getFilePath + item.fileurl;
-              }
-            });
+            this.qrCodeLogo = this.getImagePath(newValue?.logo, true)
+            // this.getFilePath(newValue?.logo).then(res => {
+            //   if (Array.isArray(res) && res.length > 0) {
+            //     const item = res[0];
+            //     this.qrCodeLogo = this.$api.getFilePath + item.fileurl;
+            //   }
+            // });
           }
 
           if (this.userInfo && this.userInfo.userno && newValue && newValue.store_no) {
@@ -392,7 +393,6 @@
       },
       showModal(e) {
         if (e) {
-          debugger
           if (e === 'showQrCode') {
             this.makeQrCode()
           }
@@ -891,13 +891,13 @@
         overflow: hidden;
         word-break: break-all;
         display: -webkit-box;
-        color: var(--home-text-color)!important;
+        color: var(--home-text-color) !important;
         -webkit-line-clamp: 4;
         /**指定行数*/
         -webkit-box-orient: vertical;
       }
     }
-     
+
     .home-btn {
       font-weight: bold;
       text-align: center;
@@ -990,12 +990,12 @@
   .cu-modal.bottom-modal {
     z-index: 9999;
   }
-  
+
   .introduce-content {
     overflow: hidden;
     word-break: break-all;
     display: -webkit-box;
-    color: var(--home-text-color)!important;
+    color: var(--home-text-color) !important;
     -webkit-line-clamp: 4;
     /**指定行数*/
     -webkit-box-orient: vertical;

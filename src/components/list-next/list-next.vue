@@ -233,7 +233,7 @@
       border-radius: 10px;
 
       &.check-box_item {
-        // background-color: #fff;
+        background-color: #fff;
         border-radius: 10px;
         align-items: center;
         // margin: 10px;

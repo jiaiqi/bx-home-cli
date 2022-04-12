@@ -119,7 +119,7 @@
     >
       <view class="cu-dialog" style="width:60%" @click.stop="">
         <view class="label font-bold margin-tb-xs text-bold">更改状态</view>
-        <view class="buttons">
+        <view class="buttons" v-if="curQue">
           <button
             class="cu-btn bg-red light round margin-right-xs lg"
             @click.stop="changeStatus(curQue, '已结束')"

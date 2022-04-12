@@ -78,8 +78,6 @@ fly.interceptors.request.use(async (request) => {
       // #ifdef MP-WEIXIN
       let option = wx.getLaunchOptionsSync()
       if (option && option.scene !== 1154) {
-
-        // await Vue.prototype.toAddPage()
       }
       // #endif
     }
@@ -214,7 +212,6 @@ fly.interceptors.response.use(
             });
             // #endif
             // #ifdef MP-WEIXIN
-            // Vue.prototype.toAddPage()
             // const result = await wx.login();
             // if (result.code) {
             // 	await Vue.prototype.wxLogin({

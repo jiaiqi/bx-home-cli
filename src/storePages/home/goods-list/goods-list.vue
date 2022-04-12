@@ -8,7 +8,13 @@
       </view>
     </view>
     <view class="goods-list" :style="[calcStyle]" v-if="goodsList&&goodsList.length>0">
-      <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
+      <view class="goods-item" v-for="(item,index) in goodsList" :key="index">
+        <goods-item :goods="item" :image="image" :name="name" :desc="desc" :price="price" :originPrice="originPrice"
+          :salesVolume="salesVolume" :viewingCount="viewingCount" :enableAddCart="enableAddCart"
+          @to-etail="toGoodsDetail" @addSku2Cart="addSku2Cart" @toCart="toCart" @minus="delFromCart">
+        </goods-item>
+      </view>
+      <!-- <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
         <image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
           :style="{ height: item.imgHeight + 'px' }"></image>
         <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
@@ -28,9 +34,6 @@
               </view>
             </view>
             <view class="" @click.stop="toCart(item)" v-if="enableAddCart">
-             <!-- <view class="hand-btn" v-if="item.enable_sku==='是'">
-                选规格
-              </view> -->
               <view class="hand-btn round">
                 <text class="cuIcon-add"></text>
               </view>
@@ -49,148 +52,8 @@
             </view>
           </view>
         </view>
-      </view>
+      </view> -->
     </view>
-
-
-    <!-- <view class="cu-modal bottom-modal" :class="{show:modalName==='option-selector'}" @click="changeModal()"
-      v-if="goodsInfo">
-      <view class="cu-dialog" @click.stop="">
-        <view class="modal-content" v-if="goodsInfo.options_type==='商品属性'">
-          <view class="selected-sku" v-if="selectSku&&selectSku.sku_no">
-            <image lazy-load :src="getImagePath(selectSku.goods_icon)" mode="aspectFit" class="goods-icon"
-              v-if="selectSku.goods_icon"></image>
-            <view class="selected-sku-attr">
-              <view class="goods-name" v-if="selectSku.goods_name">
-                {{selectSku.goods_name}}
-              </view>
-              <view class="text-red" v-if="selectSku.price">
-                <text class="text-sm">￥</text> <text class="text-lg">
-                  {{selectSku.price}}</text>
-              </view>
-            </view>
-          </view>
-         <view class="sku-goods-datas" v-if="goodsAttrList&&goodsAttrList.length>0">
-            <view class="sku-goods-attr-list" v-for="(item,index) in goodsAttrList">
-              <view class="label">
-                {{item.good_attr_name||''}}
-                <text v-if="item.is_required==='是'" class="text-red text-sm margin-left-xs">(必选)</text>
-              </view>
-              <view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
-                <bx-radio-group class="form-item-content_value radio-group" mode="button" :disabled="false"
-                  v-model="item.radioSelected" @change="radioChange($event,item)">
-                  <bx-radio class="radio" color="#2979ff" v-for="(option,opIndex) in item.goods_attr_values"
-                    :key="opIndex" :disabled="false" :name="option.good_attr_value_no">
-                    {{ option.good_attr_value }}
-                  </bx-radio>
-                </bx-radio-group>
-              </view>
-            </view>
-          </view>
-          <view class="number-box">
-            <text>数量</text>
-            <u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
-          </view>
-          <view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
-            <view class="title">
-              相关商品
-            </view>
-            <view class="goods-item" v-for="goods in relationGoods">
-              <image lazy-load class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
-
-              </image>
-              <view class="goods-name">
-                {{goods.goods_name||""}}
-                <text class="margin-lr-xs text-red text-sm">￥{{goods.price||''}}</text>
-              </view>
-              <u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
-            </view>
-          </view>
-          <view class="button-box" v-if="modalConfirmType==='all'">
-            <button class="cu-btn round lg bg-red flex-1 margin-right-xs"
-              @click="confirmAdd2Cart('addToCart')">加入购物车</button>
-            <button class="cu-btn round lg bg-orange flex-1" @click="confirmAdd2Cart('toOrder')">立即购买</button>
-          </view>
-          <view class="button-box" v-else>
-            <button class="cu-btn round lg bg-red" @click="confirmAdd2Cart()">确定</button>
-          </view>
-        </view>
-        <view class="modal-content" v-else-if="optionsType==='SKU商品'">
-          <view class="selected-sku" v-if="selectedAttrs&&selectedAttrs.selectSku">
-            <image lazy-load :src="getImagePath(selectedAttrs.selectSku.goods_icon)" mode="aspectFit"
-              class="goods-icon"></image>
-            <view class="selected-sku-attr">
-              <view class="goods-name">
-                {{selectedAttrs.selectSku.goods_name}}
-              </view>
-              <view class="text-red">
-                <text class="text-sm">￥</text> <text class="text-lg">
-                  {{selectedAttrs.selectSku.price}}</text>
-              </view>
-            </view>
-          </view>
-          <view class="sku-goods-datas" v-if="goodsSkuInfo.skuGoodsDatas&&goodsSkuInfo.skuGoodsDatas.length>0">
-            <view class="label">
-              规格
-            </view>
-            <view class="option-list">
-              <bx-radio-group class="form-item-content_value radio-group" mode="button" :disabled="false"
-                v-model="goodsSkuInfo.radioSelected" @change="radioChange($event,goodsSkuInfo)">
-                <bx-radio class="radio" color="#2979ff" v-for="(option,opIndex) in goodsSkuInfo.skuGoodsDatas"
-                  :key="opIndex" :disabled="false" :name="option.sku_no">
-                  {{ option.goods_name }}
-                </bx-radio>
-              </bx-radio-group>
-            </view>
-          </view>
-          <view class="sku-goods-datas" v-if="goodsSkuInfo.skuGoodsAttr&&goodsSkuInfo.skuGoodsAttr.length>0">
-            <view class="sku-goods-attr-list" v-for="(item,index) in goodsSkuInfo.skuGoodsAttr">
-              <view class="label">
-                {{item.good_attr_name||''}}
-                <text v-if="item.is_required==='是'" class="text-red text-sm margin-left-xs">(必选)</text>
-              </view>
-              <view class="option-list" v-if="item.goods_attr_values&&item.goods_attr_values.length>0">
-                <bx-radio-group class="form-item-content_value radio-group" mode="button" :disabled="false"
-                  v-model="item.radioSelected">
-                  <bx-radio class="radio" color="#2979ff" v-for="(option,opIndex) in item.goods_attr_values"
-                    :key="opIndex" :disabled="false" :name="option.good_attr_value_no">
-                    {{ option.good_attr_value }}
-                  </bx-radio>
-                </bx-radio-group>
-              </view>
-            </view>
-          </view>
-          <view class="number-box">
-            <text>数量</text>
-            <u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
-          </view>
-          <view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
-            <view class="title">
-              相关商品
-            </view>
-            <view class="goods-item" v-for="goods in relationGoods">
-              <image lazy-load class="goods-icon" :src="getImagePath(goods.goods_img)" v-if="goods.goods_img">
-
-              </image>
-              <view class="goods-name">
-                {{goods.goods_name||""}}
-                <text class="margin-lr-xs text-red text-sm">￥{{goods.price||''}}</text>
-              </view>
-              <u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
-            </view>
-          </view>
-          <view class="button-box" v-if="modalConfirmType==='all'">
-            <button class="cu-btn round lg bg-red flex-1" @click="confirmAdd2Cart('addToCart')">加入购物车</button>
-            <button class="cu-btn round lg bg-orange flex-1" @click="confirmAdd2Cart('toOrder')">立即购买</button>
-          </view>
-          <view class="button-box" v-else>
-            <button class="cu-btn round lg bg-red" @click="confirmAdd2Cart()">确定</button>
-          </view>
-        </view>
-      </view>
-    </view>
- -->
-
   </view>
 </template>
 
@@ -206,12 +69,15 @@
    * @event {Function} toGoodsDetail 跳转到商品详情
    * @example <good-list :list=""></good-list>
    */
-
+  import goodsItem from './goods-item.vue'
   export default {
     name: 'good-list',
+    components: {
+      goodsItem
+    },
     computed: {
       enableAddCart() {
-        return this.pageItem?.more_config?.enableAddCart ?? false
+        return this.pageItem?.more_config?.enableAddCart ? true : false
       },
       titleStyle() {
         if (typeof this.pageItem?.more_config === 'object') {
@@ -261,6 +127,67 @@
     // 	this.getGoodsListData()
     // },
     methods: {
+      async addSku2Cart(e) {
+        // 添加到购物车
+        let {
+          modalConfirmType,
+          skuAttrList,
+          goods,
+          otherGoods
+        } = e
+        if (!modalConfirmType || !e || !goods) {
+          return
+        }
+        let service = 'srvhealth_store_shopping_cart_goods_detail_add';
+        let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
+        let depend_key = 'cart_goods_rec_no'
+        if (goods?.goods_no) {
+          let data = {
+            store_user_no: this.vstoreUser?.store_user_no,
+            store_no: this.storeNo,
+            unit_price: goods.price,
+            goods_amount: this.goodsInfo?.goods_amount || 1,
+            goods_no: goods.goods_no,
+            sum_price: goods.price,
+            goods_desc: goods.goods_desc,
+            goods_image: goods.goods_img,
+            goods_name: goods.goods_name,
+            goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
+            child_data_list: [{
+              "serviceName": childService,
+              "condition": [],
+              "depend_keys": [{
+                "type": "column",
+                "add_col": depend_key,
+                "depend_key": depend_key
+              }],
+              "data": skuAttrList
+            }]
+          }
+
+          if (this.enableSku) {
+            data.goods_no = goods.sku_no
+          }
+
+          let req = [{
+            serviceName: service,
+            condition: [],
+            data: [data, ...otherGoods]
+          }];
+          let res = await this.$fetch('operate', service, req, 'health');
+          if (res.success) {
+            // this.getCartList();
+            uni.showToast({
+              title: '添加成功'
+            });
+            this.getGoodsListData()
+            this.$emit('added')
+          } else {
+            return
+          }
+        }
+
+      },
       changeModalConfirmType(e) {
         this.modalConfirmType = 'all'
         this.modalName = e
@@ -268,7 +195,13 @@
       changeModal(e = '') {
         this.modalName = e
       },
-      toCart(e) {
+      delFromCart(e) {
+        if (e?.goods_amount) {
+          let goodsInfo = this.deepClone(e);
+          this.toCart(e, 'minus')
+        }
+      },
+      toCart(e, type) {
         if (e) {
           let goodsInfo = this.deepClone(e);
           this.goodsInfo = goodsInfo
@@ -284,32 +217,26 @@
           goodsInfo.car_num = 1;
           goodsInfo.unit_price = goodsInfo.price;
           goodsInfo.type = this.storeInfo?.type;
-          let enable_sku = goodsInfo?.enable_sku;
-          let options_type = goodsInfo?.options_type
-          // if (enable_sku === '是') {
-          //   // this.changeModal('option-selector')
-          //   this.onHandler = false
-          //   this.modalConfirmType = 'addToCart'
-          //   return
-          // }
-
-          // 添加到购物车表
-          this.addToCart(goodsInfo).then(_ => {
+          if (type == 'minus') {
+            goodsInfo.car_num = goodsInfo.goods_amount - 1
+          }
+          if (isNaN(Number(goodsInfo.car_num)) || goodsInfo.car_num <= 0) {
+            return
+          }
+          debugger
+          // 从购物车表添加删除
+          this.addToCart(goodsInfo, type).then(_ => {
             this.onHandler = false;
           });
 
         }
       },
-      async getCartDetail(cart_no, goods_no) {
+      async getCartDetail(goods_no) {
         let service = 'srvhealth_store_shopping_cart_goods_detail_select';
         let req = {
           serviceName: service,
           colNames: ['*'],
-          condition: [{
-            colName: 'cart_no',
-            ruleType: 'eq',
-            value: cart_no
-          }],
+          condition: [],
           page: {
             pageNo: 1,
             rownumber: 99
@@ -318,7 +245,7 @@
         if (goods_no) {
           req.condition = [{
             colName: 'goods_no',
-            ruleType: 'eq',
+            ruleType: 'in',
             value: goods_no
           }];
         }
@@ -331,17 +258,21 @@
         }
         let res = await this.$fetch('select', service, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
-          if (goods_no) {
+          if (goods_no && goods_no.indexOf(',')==-1) {
             return res.data[0];
           }
           return res.data;
         }
       },
-      async addToCart(goods) {
+      async addToCart(goods, type) {
         if (goods?.goods_no) {
-          let goodsInfo = await this.getCartDetail(null, goods.goods_no);
+          let goodsInfo = await this.getCartDetail(goods.goods_no);
           if (goodsInfo?.goods_no) {
-            goodsInfo.goods_amount++;
+            if (type == 'minus') {
+              goodsInfo.goods_amount--;
+            } else {
+              goodsInfo.goods_amount++;
+            }
             this.updateCart(goodsInfo);
           } else {
             goodsInfo = goods;
@@ -353,7 +284,7 @@
                 store_user_no: this.vstoreUser?.store_user_no,
                 store_no: this.storeInfo?.storeNo,
                 unit_price: goods.price,
-                goods_amount: 1,
+                goods_amount: goodsInfo.goods_amount || 1,
                 goods_no: goods.goods_no,
                 sum_price: goods.price,
                 goods_desc: goods.goods_desc,
@@ -363,10 +294,12 @@
             }];
             let res = await this.$fetch('operate', service, req, 'health');
             if (res.success) {
-              // this.getCartList();
-              uni.showToast({
-                title: '添加成功'
-              });
+              if (type !== 'minus') {
+                uni.showToast({
+                  title: '添加成功'
+                });
+                this.getGoodsListData()
+              }
             }
           }
         }
@@ -395,13 +328,14 @@
               goods_amount: goodsInfo.goods_amount
             }]
           }];
-          await this.$fetch('update', serviceName, req, 'health').then(res => {
+          await this.$fetch('operate', serviceName, req, 'health').then(res => {
             if (res.success) {
-              // this.getCartList();
               uni.showToast({
                 title: '操作成功'
               });
+              this.getGoodsListData()
             }
+            
           });
         }
       },
@@ -445,8 +379,7 @@
           url
         })
       },
-      getGoodsListData() {
-        this.goodsList = []
+      async getGoodsListData() {
         let req = {
           page: {
             rownumber: this.rownumber
@@ -474,35 +407,48 @@
             value: this.pageItem?.goods_classify_path
           })
         }
-        this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health').then(res => {
-          if (Array.isArray(res.data)) {
-            if (res.page?.total) {
-              this.total = res.page.total
-            }
-            if (Array.isArray(res.data)) {
-              this.goodsList = res.data.reduce((pre, cur) => {
-                let url = this.getImagePath(cur[this.image], true);
-                cur.url = url;
-                if (cur[this.image]) {
-                  this.getImageInfo({
-                    url: url
-                  }).then(picInfo => {
-                    if (picInfo.w && picInfo.h) {
-                      let res = this.setPicHeight(picInfo);
-                      if (res.w && res.h) {
-                        this.$set(cur, 'imgWidth', res.w);
-                        this.$set(cur, 'imgHeight', res.h);
-                      }
-                    }
-                  });
-                }
-                pre.push(cur)
-                return pre
-              }, []);
-              console.log(this.goodsList)
-            }
+        let res = await this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health')
+        if (Array.isArray(res.data)) {
+          if (res.page?.total) {
+            this.total = res.page.total
           }
-        });
+          if (Array.isArray(res.data)) {
+            let goodsNos = res.data.map(item => item.goods_no).toString()
+            if (goodsNos) {
+              let cartList = await this.getCartDetail(goodsNos)
+              if (Array.isArray(cartList) && cartList.length > 0) {
+                res.data = res.data.map(item => {
+                  let cartData = cartList.find(e => e.goods_no && e.goods_no === item.goods_no)
+                  if (cartData?.goods_no) {
+                    item.goods_amount = cartData?.goods_amount
+                  }
+                  return item
+                })
+              }
+            }
+            this.goodsList = res.data.reduce((pre, cur) => {
+              let url = this.getImagePath(cur[this.image], true);
+              cur.url = url;
+              if (cur[this.image]) {
+                this.getImageInfo({
+                  url: url
+                }).then(picInfo => {
+                  if (picInfo.w && picInfo.h) {
+                    let res = this.setPicHeight(picInfo);
+                    if (res.w && res.h) {
+                      this.$set(cur, 'imgWidth', res.w);
+                      this.$set(cur, 'imgHeight', res.h);
+                    }
+                  }
+                });
+              }
+              pre.push(cur)
+              return pre
+            }, []);
+
+            console.log(this.goodsList)
+          }
+        }
       },
       setPicHeight(content) {
         let maxW = uni.upx2px(350);
@@ -635,102 +581,102 @@
     }
   }
 
-  .goods-image {
-    width: 100%;
-    height: 300rpx;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    border: 1px solid #fff;
-  }
+  // .goods-image {
+  //   width: 100%;
+  //   height: 300rpx;
+  //   display: flex;
+  //   justify-content: center;
+  //   align-items: center;
+  //   font-size: 20px;
+  //   font-weight: bold;
+  //   border: 1px solid #fff;
+  // }
 
-  .goods-info {
-    padding: 10rpx;
-    width: 100%;
-    margin-top: 5px;
-    font-size: 16px;
+  // .goods-info {
+  //   padding: 10rpx;
+  //   width: 100%;
+  //   margin-top: 5px;
+  //   font-size: 16px;
 
-    .desc {
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 5px;
-      word-break: break-all;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      /**指定行数*/
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+  //   .desc {
+  //     font-size: 12px;
+  //     color: #aaa;
+  //     margin-top: 5px;
+  //     word-break: break-all;
+  //     display: -webkit-box;
+  //     -webkit-line-clamp: 2;
+  //     /**指定行数*/
+  //     -webkit-box-orient: vertical;
+  //     overflow: hidden;
+  //   }
 
-    .price {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
+  //   .price {
+  //     display: flex;
+  //     align-items: center;
+  //     justify-content: space-between;
+  //     font-size: 12px;
 
-      .hand-btn {
-        background-color: #FDCA01;
-        color: #fff;
-        padding: 2px 5px;
-        border-radius: 5px;
+  //     .hand-btn {
+  //       background-color: #FDCA01;
+  //       color: #fff;
+  //       padding: 2px 5px;
+  //       border-radius: 5px;
 
-        &.round {
-          padding: 0;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          text-align: center;
-          line-height: 20px;
-          font-size: 18px;
-        }
-      }
+  //       &.round {
+  //         padding: 0;
+  //         width: 20px;
+  //         height: 20px;
+  //         border-radius: 50%;
+  //         text-align: center;
+  //         line-height: 20px;
+  //         font-size: 18px;
+  //       }
+  //     }
 
-      .symbol {
-        font-size: 12px;
-      }
+  //     .symbol {
+  //       font-size: 12px;
+  //     }
 
-      .number {
-        font-size: 20px;
-      }
+  //     .number {
+  //       font-size: 20px;
+  //     }
 
-      .line-through {
-        position: relative;
-        color: #666;
-        font-size: 18px;
+  //     .line-through {
+  //       position: relative;
+  //       color: #666;
+  //       font-size: 18px;
 
-        .number {
-          font-size: 18px;
-        }
+  //       .number {
+  //         font-size: 18px;
+  //       }
 
-        &::after {
-          content: '';
-          width: 100%;
-          height: 2px;
-          top: 50%;
-          background-color: #666;
-          position: absolute;
-          left: 0;
-        }
-      }
-
-
-    }
-
-    .data-display {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #999;
-      padding: 5px;
-    }
-  }
+  //       &::after {
+  //         content: '';
+  //         width: 100%;
+  //         height: 2px;
+  //         top: 50%;
+  //         background-color: #666;
+  //         position: absolute;
+  //         left: 0;
+  //       }
+  //     }
 
 
+  //   }
 
-  .goods-name {
-    text-align: left;
-  }
+  //   .data-display {
+  //     display: flex;
+  //     justify-content: space-between;
+  //     align-items: center;
+  //     font-size: 12px;
+  //     color: #999;
+  //     padding: 5px;
+  //   }
+  // }
+
+
+
+  // .goods-name {
+  //   text-align: left;
+  // }
 </style>

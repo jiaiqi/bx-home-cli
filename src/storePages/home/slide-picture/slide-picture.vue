@@ -104,11 +104,10 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-          this.storeNo = newValue
-          if (newValue) {
+          if (newValue&&newValue!==this.storeNo) {
             this.getSwiperList()
           }
-
+          this.storeNo = newValue
           // if (newValue?.type === '用户展示' && this.avatarList.length == 0) {
           //   setTimeout(() => {
           //     this.getUserList();
