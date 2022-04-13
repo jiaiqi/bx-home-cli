@@ -977,7 +977,8 @@
               data: rowData,
               rowData,
               storeInfo,
-              bindUserInfo
+              bindUserInfo,
+              storeUser:bindUserInfo
             };
             if (buttonInfo?.moreConfig?.navUrl) {
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj);

@@ -14,45 +14,6 @@
           @to-etail="toGoodsDetail" @addSku2Cart="addSku2Cart" @toCart="toCart" @minus="delFromCart">
         </goods-item>
       </view>
-      <!-- <view class="goods-item" v-for="(item,index) in goodsList" @click="toGoodsDetail(item)" :key="index">
-        <image class="goods-image" v-if="item[image]" :lazy-load="true" :src="item.url" mode="aspectFill"
-          :style="{ height: item.imgHeight + 'px' }"></image>
-        <view class="goods-image" v-else>{{ item[name].slice(0, 4) }}</view>
-        <view class="goods-info">
-          <view class="goods-name">{{ item[name] }}</view>
-          <view class="desc" v-if="item[desc]">{{ item[desc]||'' }}</view>
-          <view class="price margin-top-xs">
-            <view class="">
-              <view class="text-red ">
-                <text class="symbol">￥</text>
-                <text class="number" style="font-size: 20px;">{{ item[price] }}</text>
-              </view>
-              <view class="line-through" v-if="item[originPrice]">
-                <text class="symbol" :class="{'text-red':!item[originPrice],'text-gray':item[originPrice]}">￥</text>
-                <text class="number "
-                  :class="{' text-gray':item[originPrice],'text-red':!item[originPrice]}">{{ item[originPrice] }}</text>
-              </view>
-            </view>
-            <view class="" @click.stop="toCart(item)" v-if="enableAddCart">
-              <view class="hand-btn round">
-                <text class="cuIcon-add"></text>
-              </view>
-            </view>
-          </view>
-          <view class="data-display">
-            <view class="disp-item" v-if="item[salesVolume]">
-              销量：{{ getNumber(item[salesVolume])||''}}
-            </view>
-            <view class="disp-item" v-else>
-
-            </view>
-            <view class="disp-item" v-if="item[viewingCount]">
-              <text class="cuIcon-attention margin-right-xs"></text>
-              <text>{{ getNumber(item[viewingCount])||''}}</text>
-            </view>
-          </view>
-        </view>
-      </view> -->
     </view>
   </view>
 </template>
@@ -152,7 +113,7 @@
             goods_desc: goods.goods_desc,
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
-            goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
+            goods_source:  '店铺SKU',
             child_data_list: [{
               "serviceName": childService,
               "condition": [],
@@ -165,7 +126,7 @@
             }]
           }
 
-          if (this.enableSku) {
+          if (goods.sku_no) {
             data.goods_no = goods.sku_no
           }
 

@@ -21,16 +21,16 @@
             </view>
           </view>
           <view class="number-handler-box" v-if="enableAddCart">
-            <view class="goods-amount" v-if="goodsInfo.goods_amount">
+            <view class="hand-btn" v-if="enableSku" @click.stop="openSkuSelector">
+              选规格
+            </view>
+            <view class="goods-amount" v-else-if="goodsInfo.goods_amount">
               <view class="hand-btn round" @click.stop="minus(goodsInfo)">
                 <u-icon name="minus"></u-icon>
               </view>
               <text v-if="goodsInfo.goods_amount" class="goods-amount-num">{{goodsInfo.goods_amount}}</text>
             </view>
-            <view class="hand-btn" v-if="enableSku" @click.stop="openSkuSelector">
-              选规格
-            </view>
-            <view class="hand-btn round" v-else @click.stop="toCart(goodsInfo)">
+            <view class="hand-btn round" v-if="!enableSku" @click.stop="toCart(goodsInfo)">
               <u-icon name="plus"></u-icon>
             </view>
           </view>
@@ -130,7 +130,7 @@
       // minus(e) {
       //   this.$emit('minus', e)
       // },
-      toCart:debounce(function(e) {
+      toCart: debounce(function(e) {
         this.$emit('toCart', e)
       }, 500, false),
       // toCart(e) {
@@ -303,9 +303,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      &:active{
-        transform: translate(1px,1px);
+
+      &:active {
+        transform: translate(1px, 1px);
       }
+
       &.round {
         padding: 0;
         width: 20px;

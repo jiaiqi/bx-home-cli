@@ -40,19 +40,19 @@
     </scroll-view>
     <!-- 三级节点 -->
     <scroll-view scroll-x="true">
-    <view class="child-node">
-      <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
-        @click="selectDate(item,'third')">
-        {{item[thirdLevelDispCol]||''}}
-      </text>
-    </view>
-    <view class="handler-bar" v-if="curSelect">
-      <view class="subscribe-money">
-        <text>￥</text>
-        <text class="money">{{curSelect.subscribe_money}}</text>
+      <view class="child-node">
+        <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
+          @click="selectDate(item,'third')">
+          {{item[thirdLevelDispCol]||''}}
+        </text>
       </view>
-      <button class="cu-btn round" @click="onHandler" v-if="handlerCfg&&handlerCfg.showBtn!==false">预约</button>
-    </view>
+      <view class="handler-bar" v-if="curSelect&&showHandler">
+        <view class="subscribe-money"  v-if="handlerCfg&&handlerCfg.showText!==false">
+          <text>￥</text>
+          <text class="money">{{curSelect.subscribe_money}}</text>
+        </view>
+        <button class="cu-btn round" @click="onHandler" v-if="handlerCfg&&handlerCfg.showBtn!==false">预约</button>
+      </view>
     </scroll-view>
     <!-- 子孙节点 -->
     <cascader-item></cascader-item>
@@ -98,6 +98,9 @@
       }
     },
     computed: {
+      showHandler() {
+        return this.handlerCfg?.show === false ? false : true
+      },
       curSelect() {
         return this.thirdLevelData.find(item => item.selected === true)
       },
@@ -178,20 +181,21 @@
             display: false
           }
         ]
-        if (this.handlerCfg?.order_default_value) {
+        if (this.orderCfg?.defaultVal) {
+          let defaultVal = this.orderCfg?.defaultVal
           let data = {
             data: this.curSelect,
             storeInfo: this.storeInfo,
             storeUser: this.vstoreUser,
             bindUserInfo: this.vstoreUser,
           }
-          Object.keys(this.handlerCfg?.order_default_value).forEach(key => {
-            if (key && this.handlerCfg?.order_default_value[key]) {
+          Object.keys(defaultVal).forEach(key => {
+            if (key && defaultVal[key]) {
               fieldsCond.push({
                 column: key,
                 display: false,
                 disabled: true,
-                value: this.renderStr(this.handlerCfg?.order_default_value[key], data)
+                value: this.renderStr(defaultVal[key], data)
               })
             }
           })
@@ -518,6 +522,7 @@
     // overflow-x: scroll;
     display: block;
     white-space: nowrap;
+
     .child-node-item {
       padding: 5px;
       text-align: center;

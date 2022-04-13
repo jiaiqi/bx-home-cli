@@ -1,7 +1,7 @@
 <template>
   <view class="queue-info" v-if="queueInfo&&queueInfo.queue_status==='进行中'">
     <view class="icon">
-      <image src="./icon.jpg" mode="aspectFit" class="image"></image>
+      <image :src="icon" mode="aspectFit" class="image"></image>
     </view>
     <view class="info-view" v-if="!config.customCols">
       <view class="info-item">
@@ -31,7 +31,8 @@
         </view>
       </view>
     </view>
-    <button class="cu-btn bg-black round" @click="toQueue">{{config.btnLabel||'立即排队'}}</button>
+    <button class="cu-btn bg-black round" :style="[{color:config.btnColor,'background':config.btnBg}]"
+      @click="toQueue">{{config.btnLabel||'立即排队'}}</button>
   </view>
 </template>
 
@@ -39,8 +40,16 @@
   // 排队信息
   export default {
     props: {
+      pageItem: {
+        type: Object
+      },
       config: {
         type: Object
+      }
+    },
+    computed: {
+      icon() {
+        return this.pageItem?.icon_queue || require('./icon.jpg')
       }
     },
     data() {

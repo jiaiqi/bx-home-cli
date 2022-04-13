@@ -1,7 +1,7 @@
 <template>
-  <view class="page-bg bx-bg-color" :class="['theme-'+theme]">
+  <view class="page-bg">
     <view class="page-wrap">
-      <view class="head">
+      <!--      <view class="head">
         <view class="store-name">
           <view class="name" @click="toStoreDetail">
             {{StoreInfo.name||''}}
@@ -22,16 +22,28 @@
         </view>
 
       </view>
-      <view class="statis-box" v-if="countData&&StoreInfo" @click="toDashboard">
-        <view class="statis-item" v-for="(item,index) in countData" :key="index">
-          <view class="item-label" v-if="labelPosition==='top'">
-            {{item.label||'0'}}
-          </view>
-          <view class="item-value">
-            {{item.value||'0'}}
-          </view>
-          <view class="item-label" v-if="labelPosition!=='top'">
-            {{item.label||'0'}}
+ -->
+      <view class="statis-box" :style="[{color:countConfig.color,background:countConfig.background}]"
+        v-if="countConfig&&countData&&StoreInfo" @click="toDashboard">
+        <view class="statis-title">
+          <text> {{countConfig.title||''}}</text>
+          <text v-if="countConfig.rightBtn&&countConfig.rightBtn.label">
+            <text v-if="countConfig.rightBtn.label"> {{countConfig.rightBtn.label||''}}</text>
+            <text class="margin-left-xs" :class="'cuIcon-'+countConfig.rightBtn.icon"
+              v-if="countConfig.rightBtn.icon"></text>
+          </text>
+        </view>
+        <view class="statis-list " :style="[{background:countConfig.contentBg}]">
+          <view class="statis-item" v-for="(item,index) in countData" :key="index">
+            <view class="item-label" :style="[{color:item.labelColor}]" v-if="labelPosition==='top'">
+              {{item.label||'0'}}
+            </view>
+            <view class="item-value" :style="[{color:item.valueColor}]">
+              {{item.value||'0'}}
+            </view>
+            <view class="item-label" :style="[{color:item.labelColor}]" v-if="labelPosition!=='top'">
+              {{item.label||'0'}}
+            </view>
           </view>
         </view>
       </view>
@@ -270,7 +282,7 @@
         }
       },
       countConfig() {
-        return this.moreConfig?.count_config || {}
+        return this.StoreInfo?.moreConfig?.count_config || {}
       },
       statisConfig() {
         // 统计字段配置
@@ -1157,12 +1169,13 @@
           if (this.StoreInfo.para_cfg) {
             try {
               let data = {
-                storeInfo:this.storeInfo,
+                storeInfo: this.storeInfo,
+                storeUser: this.vstoreUser,
                 ...this.$data
               }
               let para_cfg = this.renderStr(this.StoreInfo.para_cfg, data)
               let moreConfig = JSON.parse(para_cfg)
-              // this.StoreInfo.moreConfig = moreConfig
+              this.StoreInfo.moreConfig = moreConfig
               if (moreConfig && moreConfig.displayColumn) {
                 this.displayColumn = moreConfig.displayColumn
               }
@@ -1311,7 +1324,7 @@
   }
 
   .page-bg {
-    background-color: #35C6C4;
+    // background-color: #35C6C4;
     min-height: calc(100vh - var(--window-top));
   }
 
@@ -1319,24 +1332,38 @@
     // background-color: #f1f1f1;
     min-height: calc(100vh - var(--window-top));
     background-color: #fff;
-    border-radius: 50rpx 50rpx 0 0;
+    // border-radius: 50rpx 50rpx 0 0;
     overflow: hidden;
     color: #333;
   }
 
   .statis-box {
-    display: flex;
-    flex-wrap: wrap;
-    // background-color: #fff;
-    margin: 20rpx;
-    // border-radius: 20rpx;
+    margin-bottom: 10px;
+    padding: 0 10px;
     justify-content: space-around;
+    background: #fff;
+
+    .statis-title {
+      width: 100%;
+      padding: 10px;
+      display: flex;
+      font-size: 16px;
+      justify-content: space-between;
+    }
+
+    .statis-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      background-color: #ffe7ba;
+      border-radius: 5px;
+    }
 
     .statis-item {
       padding: 30rpx 20rpx;
       min-width: 30%;
       text-align: center;
-      background-image: linear-gradient(to right, #EAF9F9, #ECF1FE);
+      // background-image: linear-gradient(to right, #EAF9F9, #ECF1FE);
       border-radius: 20rpx;
       display: flex;
       justify-content: center;

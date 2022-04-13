@@ -55,7 +55,7 @@
           }}</text>
         </view>
         <view class="goods-list">
-          <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"></goods-item>
+          <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx" @attrChange="attrChange($event,idx)"></goods-item>
         </view>
         <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
           <view class="detail-info_item" v-if="goodsAmount">
@@ -877,7 +877,11 @@
         };
         let goodsList = await this.$fetch('select', 'srvhealth_store_order_goods_detail_select', req,
           'health');
+          debugger
         if (goodsList.success) {
+          for(let item in  goodsList.data){
+            debugger
+          }
           this.$set(this.orderInfo, 'goodsList', goodsList.data);
         }
       },

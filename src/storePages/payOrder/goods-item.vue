@@ -11,7 +11,8 @@
       <view class="content">
         <view class="goods-name">{{ goods.name||goods.goods_name||goods.goods_desc||'' }}
         </view>
-        <view class="attr" v-if="skuAttrStr">{{skuAttrStr}}</view>
+        <view class="attr" v-if="goods.attr">{{goods.attr}}</view>
+        <view class="attr" v-else-if="skuAttrStr">{{skuAttrStr}}</view>
       </view>
       <view class="num">
         <view class="price" v-if="goods.unit_price ||goods.price">
@@ -36,6 +37,9 @@
 			" mode=""></image>
         <view class="content">
           <view class="goods-name">{{ item.name||item.goods_name||item.goods_desc||'' }}
+          </view>
+          <view class="attr">
+            {{ item.attr||'' }}
           </view>
         </view>
         <view class="num">
@@ -80,34 +84,43 @@
             return res
           }, '')
         }
+        if(this.goods?.child_data_list?.[0]?.data?.length>0){
+          return this.goods.child_data_list.[0].data.map(item=>item.good_attr_value).toString()
+        }
       }
     },
     mounted() {
       if (['套餐卡', '提货卡'].includes(this.goods?.goods_type) && this.goods?.package_goods_no) {
         this.getDetail()
       }
-      if (this.goods?.goods_source === '店铺SKU') {
+      if (this.goods?.goods_source === '店铺SKU' ) {
         this.getSkuAttr()
       }
     },
     methods: {
-      async getSkuAttr() {
-        if (this.goods?.order_goods_rec_no) {
+      async getSkuAttr(from) {
+        let no = this.goods?.order_goods_rec_no || this.goods?.cart_goods_rec_no
+        if (no) {
+          let serviceName = 'srvhealth_store_order_goods_attr_value_select'
+          let col = 'order_goods_rec_no'
+          if (this.goods?.cart_goods_rec_no) {
+            col = 'cart_goods_rec_no'
+            serviceName = 'srvhealth_store_shopping_cart_goods_detail_select'
+          }
           const req = {
-            "serviceName": "srvhealth_store_order_goods_attr_value_select",
+            "serviceName": serviceName,
             "colNames": ["*"],
             "condition": [{
-              "colName": "order_goods_rec_no",
+              "colName": col,
               "ruleType": "eq",
-              "value": this.goods?.order_goods_rec_no
+              "value": no
             }],
-            "relation_condition": {},
             "page": {
               "pageNo": 1,
               "rownumber": 100
             }
           }
-          let res = await this.$fetch('select', 'srvhealth_store_order_goods_attr_value_select', req,
+          let res = await this.$fetch('select', serviceName, req,
             'health');
           if (res.success) {
             this.skuAttr = res.data

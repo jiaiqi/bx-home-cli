@@ -320,7 +320,16 @@
             "enablePullDownRefresh": false
           }
         }
-      ]
+          ,{
+                    "path" : "storeStatement/storeStatement",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "报表",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "questionnaire",
