@@ -247,7 +247,6 @@
             "enablePullDownRefresh": true
           }
         },
-
         // #ifdef H5
         {
           "path": "appointmentCheckIn/appointmentCheckIn",
@@ -271,6 +270,14 @@
             "navigationBarTitleText": "关注公众号",
             "enablePullDownRefresh": false
           }
+        },
+        {
+          "path": "storeStatement/storeStatement",
+          "style": {
+            "navigationBarTitleText": "报表",
+            "enablePullDownRefresh": false
+          }
+
         },
         // #endif
         {
@@ -320,16 +327,8 @@
             "enablePullDownRefresh": false
           }
         }
-          ,{
-                    "path" : "storeStatement/storeStatement",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "报表",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+
+      ]
     },
     {
       "root": "questionnaire",

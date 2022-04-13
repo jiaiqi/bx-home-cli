@@ -209,7 +209,6 @@
             if (Array.isArray(this.setViewTemp?.cols)) {
               let related_col = this.setViewTemp?.cols.find(item => item.type === 'childData')?.related_col
               if (related_col) {
-                debugger
                 this.setChildData = newValue.filter(item => item[related_col] === this.rowData[
                   related_col])
               }
@@ -259,6 +258,9 @@
         if (Array.isArray(this.viewTemp?.cols) && this.viewTemp?.cols.length > 0) {
           obj.cols = this.viewTemp?.cols;
         } else {
+          if(obj.cols===false){
+            return obj
+          }
           if (typeof this.rowData === 'object' && Object.keys(this.rowData).length > 0) {
             let arr = [];
             Object.keys(this.rowData).forEach(key => {
@@ -747,10 +749,10 @@
     }
 
     .list-item {
-      flex: 1;
+      // flex: 1;
       display: flex;
       width: 100%;
-
+      
       .cuIcon-moreandroid {
         margin-bottom: 10rpx;
       }

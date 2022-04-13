@@ -27,7 +27,7 @@
         v-if="countConfig&&countData&&StoreInfo" @click="toDashboard">
         <view class="statis-title">
           <text> {{countConfig.title||''}}</text>
-          <text v-if="countConfig.rightBtn&&countConfig.rightBtn.label">
+          <text v-if="countConfig.rightBtn&&countConfig.rightBtn.label" @click="toPages">
             <text v-if="countConfig.rightBtn.label"> {{countConfig.rightBtn.label||''}}</text>
             <text class="margin-left-xs" :class="'cuIcon-'+countConfig.rightBtn.icon"
               v-if="countConfig.rightBtn.icon"></text>
@@ -318,6 +318,16 @@
       }
     },
     methods: {
+      toPages() {
+        let url = this.countConfig?.rightBtn?.target || this.countConfig?.rightBtn?.url;
+        url = this.renderStr(url, this)
+        if (url.indexOf('http') == 0) {
+          url = "/publicPages/webviewPage/webviewPage?webUrl=" + encodeURIComponent(url);
+        }
+        uni.navigateTo({
+          url
+        })
+      },
       toDashboard() {
         uni.navigateTo({
           url: '/otherPages/dashboard/dashboard'
