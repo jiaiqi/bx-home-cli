@@ -96,7 +96,7 @@
         <text class="cuIcon-right place-holder"></text>
       </view>
       <!-- 优惠券 -->
-      <view class="order-other-info" v-if="!orderInfo.order_no">
+      <view class="order-other-info" v-if="!orderInfo.order_no&&payMode!=='coupon'">
         <view class="info-item">
           <view class="info-label">
             优惠券
@@ -131,7 +131,7 @@
         </view>
       </view>
       <view class="pay-mode"
-        v-if="!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&&( orderInfo.order_state==='待支付'|| orderInfo.order_state==='待提交'))">
+        v-if="payMode!=='coupon'&&(!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&&( orderInfo.order_state==='待支付'|| orderInfo.order_state==='待提交')))">
         <radio-group @change="payModeChange" style="width: 100%;">
           <view class="pay-mode-item" v-if="couponList&&couponList.length>0" @click="toCouponSelector">
             <view class="">
@@ -1515,7 +1515,7 @@
     }
 
     .order-other-info {
-      margin: 0 20rpx;
+      margin: 20rpx;
       padding: 10px;
       background-color: #fff;
       border-radius: 5px;

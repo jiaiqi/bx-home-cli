@@ -264,6 +264,9 @@
         }
       },
       openSwitchHomePage() {
+        if (this.singleStore) {
+          return
+        }
         let cond = [{
             colName: 'person_no',
             ruleType: 'eq',
@@ -1717,8 +1720,9 @@
 
   .cu-load.load-modal {
     color: #999;
-    background-color:transparent;
+    background-color: transparent;
     box-shadow: 0 0 0px 1000px rgba($color: #fff, $alpha: 0.1);
+
     &::after {
       border-left: 3px solid #fff;
       background-color: transparent;

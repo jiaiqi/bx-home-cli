@@ -734,6 +734,8 @@ export default {
   // background-color: #f1f1f1;
   padding-top: 20px;
   margin-bottom: 30rpx;
+  min-height: 100vh;
+  background-color: #fff;
   .queue-content {
     min-height: 80vh;
     overflow: auto;

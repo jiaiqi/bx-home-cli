@@ -1,6 +1,6 @@
 <template>
   <view class="form-wrap"
-    :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode}]">
+    :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode,'order-mode':orderMode}]">
     <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
       v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
       <view class="icon">
@@ -48,7 +48,6 @@
 
       <view class="child-service-box" :class="{'pc-model':model==='PC'}"
         v-else-if="colsV2Data && isArray(fields)&&fields.length>0">
-
         <view class="child-service" v-for="(item,index) in childService" :key="index">
           <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
             :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
@@ -59,13 +58,22 @@
       </view>
 
     </view>
-    <view class="button-box" v-if="!loading&&srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
+    <view class="handler-bar cu-bar" v-if="orderMode">
+      <view class="left-text" v-if="leftText">
+        <text class="margin-right-xs"
+          v-if="leftText.col&&mainData&&mainData[leftText.col]">{{leftText.label||''}}</text>
+        <text v-if="leftText.col&&mainData&&mainData[leftText.col]">{{mainData[leftText.col]}}</text>
+      </view>
+      <button class="cu-btn bg-blue" v-if="rightBtn"
+        @click="onButton(rightBtn,'handler')">{{rightBtn.label||''}}</button>
+    </view>
+    <view class="button-box" v-if="!orderMode&&!loading&&srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
       <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
         :key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
         {{ btn.button_name}}
       </button>
     </view>
-    <view class="button-box" v-else-if="!loading&&stepMode&&childService&&childService.length>0">
+    <view class="button-box" v-else-if="!orderMode&&!loading&&stepMode&&childService&&childService.length>0">
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
       <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
         v-if="curStep==='child'">上一步</button>
@@ -73,19 +81,21 @@
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button> -->
-      <debounce-view style="min-width: calc(60% - 10px);" v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @onTap="onButton(btn)">
+      <debounce-view style="min-width: calc(60% - 10px);" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
+        @onTap="onButton(btn)">
         <button style="width: 100%;" class="cu-btn  bg-cyan round lg  "
           v-if="curStep==='child'&&isArray(fields) && fields.length > 0">
           {{ btn.button_name }}
         </button>
       </debounce-view>
     </view>
-    <view class="button-box" v-else-if="!loading&&!stepMode&&colsV2Data&&!disabled">
+    <view class="button-box" v-else-if="!orderMode&&!loading&&!stepMode&&colsV2Data&&!disabled">
       <!-- <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
         v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
         {{ btn.button_name }}
       </button> -->
-      <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @onTap="onButton(btn)">
+      <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
+        @onTap="onButton(btn)">
         <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0">
           {{ btn.button_name }}
         </button>
@@ -136,10 +146,13 @@
         params: {},
         view_cfg: null,
         stepMode: false, //分步模式，第一步填主表，第二步填子表
+        orderMode: false, //订单模式
         curStep: 'main',
         curChild: '',
         loading: false,
         hideChildTable: false, // 隐藏子表
+        leftText: null,
+        rightBtn: null
       }
     },
     computed: {
@@ -340,10 +353,18 @@
           }
         }
       },
-      async onButton(e) {
+      async onButton(e, btnTarget) {
         // this.isOnButton = true
         if (!e) {
           return;
+        }
+        if (btnTarget === 'handler') {
+          if (e?.type) {
+            e = this.formButtons.find(item => item.button_type && item.button_type == e.type)
+            if (!e) {
+              return
+            }
+          }
         }
         const self = this
         if (e.type === 'navToList') {
@@ -385,7 +406,7 @@
               let data = this.deepClone(req);
               data.child_data_list = []
               console.log(this.childService)
-              if (Array.isArray(this.childService) && this.childService.length > 0) {
+              if (Array.isArray(this.childService) && this.childService.length > 0 && !this.hideChildTable) {
                 this.childService.forEach((item, index) => {
                   let child_data = this.$refs.childList[index].getChildDataList()
                   data.child_data_list.push(...child_data)
@@ -552,7 +573,7 @@
               let data = this.deepClone(req);
               data.child_data_list = []
               console.log(this.childService)
-              if (Array.isArray(this.childService) && this.childService.length > 0) {
+              if (Array.isArray(this.childService) && this.childService.length > 0 && !this.hideChildTable) {
                 this.childService.forEach((item, index) => {
                   let child_data = this.$refs.childList[index].getChildDataList()
 
@@ -1439,6 +1460,23 @@
       if (option.hideChildTable) {
         this.hideChildTable = true
       }
+      if (option.orderMode) {
+        this.orderMode = true
+      }
+      if (option.leftText) {
+        try {
+          this.leftText = JSON.parse(option.leftText)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.rightBtn) {
+        try {
+          this.rightBtn = JSON.parse(option.rightBtn)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
       if (option.stepMode) {
         this.stepMode = true
       }
@@ -1524,6 +1562,28 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
+
+    &.order-mode {
+      padding: 0 0 50px;
+
+      .handler-bar {
+        border-top: 1px solid #F1F1F1;
+        height: 50px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        position: fixed;
+        bottom: 0;
+        background-color: #fff;
+        justify-content: space-between;
+
+        .cu-btn {
+          min-width: 100px;
+          border-radius: 30px;
+        }
+      }
+    }
 
     &.step-mode {
       padding: 0;

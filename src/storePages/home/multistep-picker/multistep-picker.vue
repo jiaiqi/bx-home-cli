@@ -25,18 +25,21 @@
 
     </view>
     <!-- 二级节点 -->
-    <view class="child-node">
-      <view class="child-node-item" :class="{active:item.selected}" v-for="item in secondLevelData"
-        @click="selectDate(item,'second')">
-        <text class="">
-          {{item[secondLevelDispCol]||''}}
-        </text>
-        <view class="">
-          <!-- {{item.place_name||''}} -->
+    <scroll-view scroll-x="true">
+      <view class="child-node">
+        <view class="child-node-item" :class="{active:item.selected}" v-for="item in secondLevelData"
+          @click="selectDate(item,'second')">
+          <text class="">
+            {{item[secondLevelDispCol]||''}}
+          </text>
+          <view class="">
+            <!-- {{item.place_name||''}} -->
+          </view>
         </view>
       </view>
-    </view>
+    </scroll-view>
     <!-- 三级节点 -->
+    <scroll-view scroll-x="true">
     <view class="child-node">
       <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
         @click="selectDate(item,'third')">
@@ -48,8 +51,9 @@
         <text>￥</text>
         <text class="money">{{curSelect.subscribe_money}}</text>
       </view>
-      <button class="cu-btn round" @click="onHandler">预约</button>
+      <button class="cu-btn round" @click="onHandler" v-if="handlerCfg&&handlerCfg.showBtn!==false">预约</button>
     </view>
+    </scroll-view>
     <!-- 子孙节点 -->
     <cascader-item></cascader-item>
   </view>
@@ -131,8 +135,8 @@
         }
         return cfg
       },
-      config(){
-        return this.moreConfig?.multistep_config||this.moreConfig?.coupon_config
+      config() {
+        return this.moreConfig?.multistep_config || this.moreConfig?.coupon_config
       },
       handlerCfg() {
         return this.config?.handlerCfg || {
@@ -150,69 +154,60 @@
       thirdLevelCfg() {
         return this.config?.thirdLevelCfg
       },
+      orderCfg() {
+        return this.config?.orderCfg
+      },
     },
     props: {
       pageItem: {
         type: Object,
-      },
-      // topLevelCfg: {
-      //   type: Object,
-      //   default: () => {
-      //     return {
-      //       activeColor: '#D61920',
-      //       bg: "#2B2B2B",
-      //       color: "#fff",
-      //       srvInfo: {
-      //         app: "fyzhmd",
-      //         service: 'srvstore_entity_subscribe_app_date',
-      //         idCol: 'year_month_day',
-      //         dispCol: 'month_day'
-      //       }
-      //     }
-      //   }
-      // },
-      // secondLevelCfg: {
-      //   type: Object,
-      //   default: () => {
-      //     return {
-      //       borderColor: '#303030',
-      //       activeColor: '#fff',
-      //       activeBg: '#D61920',
-      //       bg: "#1c1c1c",
-      //       color: "#fff",
-      //       srvInfo: {
-      //         app: "health",
-      //         service: 'srvhealth_store_place_join_select',
-      //         idCol: 'place_type_no',
-      //         dispCol: 'place_type_name',
-      //         pidCol: "year_month_day"
-      //       }
-      //     }
-      //   }
-      // },
-      // thirdLevelCfg: {
-      //   type: Object,
-      //   default: () => {
-      //     return {
-      //       borderColor: '#303030',
-      //       activeColor: '#fff',
-      //       activeBg: '#D61920',
-      //       bg: "#1c1c1c",
-      //       color: "#fff",
-      //       srvInfo: {
-      //         app: "health",
-      //         service: 'srvhealth_store_place_timearea_join_select',
-      //         idCol: 'timearea_no',
-      //         dispCol: 'showtimearea',
-      //         pidCol: 'place_type_no',
-      //       }
-      //     }
-      //   }
-      // }
+      }
     },
     methods: {
       onHandler() {
         // 点击了预约按钮
+        let fieldsCond = [{
+            column: 'tobe_paid_amount',
+            value: this.curSelect[this.thirdLevelCfg?.srvInfo?.moneyCol],
+            disabled: true
+          },
+          {
+            column: 'store_user_no',
+            value: this.vstoreUser.store_user_no,
+            disabled: true,
+            display: false
+          }
+        ]
+        if (this.handlerCfg?.order_default_value) {
+          let data = {
+            data: this.curSelect,
+            storeInfo: this.storeInfo,
+            storeUser: this.vstoreUser,
+            bindUserInfo: this.vstoreUser,
+          }
+          Object.keys(this.handlerCfg?.order_default_value).forEach(key => {
+            if (key && this.handlerCfg?.order_default_value[key]) {
+              fieldsCond.push({
+                column: key,
+                display: false,
+                disabled: true,
+                value: this.renderStr(this.handlerCfg?.order_default_value[key], data)
+              })
+            }
+          })
+        }
+        let service = this.orderCfg?.service || 'srvhealth_store_order_add'
+        let url =
+          `/publicPages/formPage/formPage?serviceName=${service}&orderMode=true&hideChildTable=true&fieldsCond=${JSON.stringify(fieldsCond)}`
+        if (this.orderCfg?.leftText) {
+          url += `&leftText=${JSON.stringify(this.orderCfg?.leftText)}`
+        }
+        if (this.orderCfg?.rightBtn) {
+          url += `&rightBtn=${JSON.stringify(this.orderCfg?.rightBtn)}`
+        }
+        uni.navigateTo({
+          url
+        })
       },
       selectDate(e, type) {
         switch (type) {
@@ -225,14 +220,13 @@
           case 'third':
             let cfg = this.thirdLevelCfg?.srvInfo;
             if (cfg) {
-              
               const {
                 app,
                 service,
                 idCol,
                 pidCol
               } = cfg;
-              
+
               if (idCol && e && e[idCol]) {
                 this.thirdLevelData = this.thirdLevelData.map(item => {
                   item.selected = false
@@ -328,15 +322,15 @@
             const req = {
               "serviceName": service,
               "colNames": ["*"],
-              group: [{
-                  "colName": idCol,
-                  "type": 'by'
-                },
-                {
-                  "colName": dispCol,
-                  "type": "by"
-                }
-              ],
+              // group: [{
+              //     "colName": idCol,
+              //     "type": 'by'
+              //   },
+              //   {
+              //     "colName": dispCol,
+              //     "type": "by"
+              //   }
+              // ],
               "condition": [{
                 colName: 'store_no',
                 ruleType: 'eq',
@@ -519,15 +513,18 @@
   }
 
   .child-node {
-    display: flex;
-    flex-wrap: wrap;
-
+    // display: flex;
+    // flex-wrap: nowrap;
+    // overflow-x: scroll;
+    display: block;
+    white-space: nowrap;
     .child-node-item {
       padding: 5px;
+      text-align: center;
       margin-right: 5px;
-      width: calc(25% - 5px);
+      min-width: calc(25% - 5px);
       min-height: 50px;
-      display: flex;
+      display: inline-flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -538,7 +535,7 @@
       border-radius: 8px;
 
       &:nth-child(4n) {
-        margin-right: 0;
+        // margin-right: 0;
       }
 
       &.active {

@@ -406,9 +406,10 @@ export default {
 }
 .queue-list-view {
   padding: 20rpx;
+  background-color: #F8F8F8;
   .queue-item {
     padding: 20rpx;
-    // background-color: #f9f9f9;
+    background-color: #f9f9f9;
     border-bottom: 1px #f1f1f1 solid;
     .que-header {
       display: flex;

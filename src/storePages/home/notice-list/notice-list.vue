@@ -177,7 +177,7 @@
     border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;
-
+    color: #333;
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;

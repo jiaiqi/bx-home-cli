@@ -19,11 +19,18 @@
       </view>
     </view>
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
-      <u-image :width="item.imgWidth" :height="item.imgHeight" :src="getImagePath(item.icon,true)" mode="aspectFit"
+      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight}]" v-for="item in buttonsIcon">
+        <u-image widht="100%" height="100%" :src="getImagePath(item.icon,true)"
+          @click="toPages(item)">
+          <!-- <u-loading slot="loading"></u-loading> -->
+          <view slot="error" style="font-size: 24rpx;">加载失败</view>
+        </u-image>
+      </view>
+      <!-- <u-image :width="item.imgWidth" :height="item.imgHeight" :src="getImagePath(item.icon,true)" mode="aspectFit"
         @click="toPages(item)" v-for="item in buttonsIcon">
         <u-loading slot="loading"></u-loading>
         <view slot="error" style="font-size: 24rpx;">加载失败</view>
-      </u-image>
+      </u-image> -->
       <!--     <image :src="getImagePath(item.icon,true)" mode="aspectFit" :lazy-load="true" :style="{
 						width: item.imgWidth + 'px',
 						height: item.imgHeight + 'px'
@@ -314,13 +321,17 @@
         let style = {
 
         }
-        if (
-          this.pageItem?.margin || this.pageItem?.margin == 0
-        ) {
-          style.margin = this.pageItem.margin
-        }
+        // if (
+        //   this.pageItem?.margin || this.pageItem?.margin == 0
+        // ) {
+        //   style.margin = this.pageItem.margin
+        // }
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
+          if (this.pageItem?.is_radius === '是') {
+            style.borderRadius = this.pageItem.radius_value || '10px'
+            style.overflow = 'hidden'
+          }
         }
         return style
       },
@@ -846,6 +857,24 @@
         if (e.$orig) {
           e = e.$orig;
         }
+        if (e?.navType === 'scanCode') {
+          //#ifdef MP-WEIXIN
+          // 只允许通过相机扫码
+          uni.scanCode({
+            onlyFromCamera: true,
+            success: function(res) {
+              console.log('条码类型：' + res.scanType);
+              console.log('条码内容：' + res.result);
+              uni.showModal({
+                title: '提示',
+                content: `二维码内容：${res.result}`,
+                showCancel: false
+              })
+            }
+          });
+          //#endif
+          return
+        }
         if (e && e.eventType === "toGroup") {
           this.toGroup(e.type);
           return;
@@ -1179,7 +1208,16 @@
       display: flex;
       flex-wrap: wrap;
       text-align: center;
-
+      width: 100%;
+      overflow: hidden;
+      .picture-button-item{
+        width: 100%;
+        height: 80px;
+        .u-image{
+          width: 100%;
+          height: 100%;
+        }
+      }
       .image-button {
         width: 100%;
         height: 100px;

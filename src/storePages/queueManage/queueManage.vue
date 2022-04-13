@@ -836,6 +836,7 @@ export default {
 
 <style scoped lang="scss">
 .queue-manage {
+  background-color: #F8F8F8;
   .cur-que-no {
     width: 100%;
     text-align: center;

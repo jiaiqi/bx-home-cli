@@ -61,6 +61,7 @@
     <coupon-list :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '优惠券列表'" />
     <!-- 通用多级选择-预约组件 -->
     <multistep-picker :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '通用预约'" />
+    <queue-info :config="pageItem.more_config.queueCfg" v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
   </view>
 </template>
 
@@ -82,6 +83,7 @@
   import userCard from '../user-info/user-info.vue'
   import couponList from '../coupon-list/coupon-list.vue'
   import multistepPicker from '../multistep-picker/multistep-picker.vue'
+  import queueInfo from '../queue-info/queue-info.vue'
   export default {
     components: {
       slideList,
@@ -100,7 +102,8 @@
       avatarList,
       userCard,
       couponList,
-      multistepPicker
+      multistepPicker,
+      queueInfo
     },
     props: {
       pageItem: {
@@ -146,7 +149,7 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-        
+
         if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
         } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
@@ -154,14 +157,14 @@
           style.backgroundRepeat = 'no-repeat'
           style.backgroundSize = "100% 100%"
         }
-        if(style.background&&style.background.indexOf('否')!==-1){
+        if (style.background && style.background.indexOf('否') !== -1) {
           style.background = ''
         }
-        
-        
+
+
         style.background = style.background || '#fff'
-        
-        
+
+
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }

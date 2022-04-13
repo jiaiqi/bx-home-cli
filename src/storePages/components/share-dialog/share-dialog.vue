@@ -17,8 +17,9 @@
             <view class="share-title">
               {{storeUser.person_name||storeUser.user_name||''}}邀请您使用【{{storeInfo.name}}】
             </view>
-            <image class="share-image" v-if="storeInfo.logo||storeInfo.logo.image"
-              :src="getImagePath(storeInfo.logo,true)||getImagePath(storeInfo.image,true)" mode="aspectFill"></image>
+            <image class="share-image" v-if="storeInfo.wx_share_img||storeInfo.image||storeInfo.logo"
+              :src="getImagePath(storeInfo.wx_share_img||storeInfo.image||storeInfo.logo,true)" mode="aspectFill">
+            </image>
           </view>
           <view class="share-bottom">
             <text class="cuIcon-link margin-right-xs text-purple"></text>小程序
