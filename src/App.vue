@@ -6,6 +6,7 @@
 			statusBarHeight: uni.getSystemInfoSync()['statusBarHeight'], // 获取导航栏的高度
 			room_no: "", //酒店房间编号
 			pt_no: "", //二维码参数编号
+      service_place_no:"", //场地编号
 			beforeRedirectUrl: "",
 			systemInfo: uni.getSystemInfoSync(),
 			firstSwiperListOrder: null,

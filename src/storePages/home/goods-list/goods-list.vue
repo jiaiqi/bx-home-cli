@@ -15,6 +15,10 @@
         </goods-item>
       </view>
     </view>
+
+    <goods-cart :cartData="cartData" margin="0" :fixed="true" :fold="true" bottom="50px" :list_config="list_config"
+      @changeAmount="changeAmount" @clear="clearCart" v-if="enableAddCart"></goods-cart>
+
   </view>
 </template>
 
@@ -61,6 +65,61 @@
     },
     data() {
       return {
+        cartMode: "default",
+        cartData: [],
+        list_config: {
+          "bg": "",
+          "lp_style": "宫格",
+          "grid_span": "3",
+          "padding": "0",
+          "btn_cfg": {
+            "show_custom_btn": true,
+            "show_public_btn": false,
+            "show": true,
+            "bg_style": "line",
+            "bg": "#FFEEDE",
+            "color": "#F3A250",
+            "font_size": "18px",
+            "radius": "10px",
+            "size": "sm",
+            "padding": "0 10rpx"
+          },
+          "img": {
+            "col": "goods_image",
+            "cfg": {
+              "width": "100%",
+              "height": "150rpx",
+              "radius": "10px 10px 0 0",
+              "position": "top",
+              "mode": "",
+              "padding": "",
+              "margin": ""
+            }
+          },
+          "cols": [{
+            "col": "goods_name",
+            "cfg": {
+              "disp_label": false,
+              "align": "left",
+              "color": "#333",
+              "width": "100%",
+              "font_size": "14px",
+              "padding": "0 20rpx",
+              "white_space": "initial"
+            }
+          }, {
+            "col": "unit_price",
+            "cfg": {
+              "disp_label": false,
+              "align": "left",
+              "color": "#F3A250",
+              "width": "100%",
+              "font_size": "14px",
+              "padding": "0 20rpx",
+              "prefix": "￥"
+            }
+          }]
+        },
         goodsList: [],
         goodsInfo: null,
         pageNo: 1,
@@ -88,6 +147,38 @@
     // 	this.getGoodsListData()
     // },
     methods: {
+      clearCart(e) {
+
+      },
+      changeAmount(data) {
+        if (data && data.row && typeof data.index === 'number') {
+          this.$set(this.cartData, data.index, data.row)
+          if (data.row.goods_count === 0) {
+            this.cartData.splice(data.index, 1)
+          }
+        }
+      },
+      toOrderPage(e) {
+
+      },
+      del(e) {
+
+      },
+      selectAllChange(e) {
+
+        if (e) {
+          this.list = this.list.map(item => {
+            item.checked = true
+            return item
+          })
+        } else {
+          this.list = this.list.map(item => {
+            item.checked = false
+            return item
+          })
+        }
+
+      },
       async addSku2Cart(e) {
         // 添加到购物车
         let {
@@ -113,7 +204,7 @@
             goods_desc: goods.goods_desc,
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
-            goods_source:  '店铺SKU',
+            goods_source: '店铺SKU',
             child_data_list: [{
               "serviceName": childService,
               "condition": [],
@@ -203,13 +294,13 @@
             rownumber: 99
           }
         };
-        if (goods_no) {
-          req.condition = [{
-            colName: 'goods_no',
-            ruleType: 'in',
-            value: goods_no
-          }];
-        }
+        // if (goods_no) {
+        //   req.condition = [{
+        //     colName: 'goods_no',
+        //     ruleType: 'in',
+        //     value: goods_no
+        //   }];
+        // }
         if (this.vstoreUser?.store_user_no) {
           req.condition.push({
             colName: 'store_user_no',
@@ -219,7 +310,7 @@
         }
         let res = await this.$fetch('select', service, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
-          if (goods_no && goods_no.indexOf(',')==-1) {
+          if (goods_no && goods_no.indexOf(',') == -1) {
             return res.data[0];
           }
           return res.data;
@@ -296,7 +387,7 @@
               });
               this.getGoodsListData()
             }
-            
+
           });
         }
       },
@@ -377,6 +468,8 @@
             let goodsNos = res.data.map(item => item.goods_no).toString()
             if (goodsNos) {
               let cartList = await this.getCartDetail(goodsNos)
+              debugger
+              this.cartData = cartList
               if (Array.isArray(cartList) && cartList.length > 0) {
                 res.data = res.data.map(item => {
                   let cartData = cartList.find(e => e.goods_no && e.goods_no === item.goods_no)
@@ -489,6 +582,16 @@
 </script>
 
 <style scoped lang="scss">
+  .goods-list-wrap{
+    .cart-list-wrap{
+      border-top: 1px solid #f1f1f1;
+      border-bottom: 1px solid #f1f1f1;
+      width: 100vw;
+      left: 0;
+      margin: 0;
+      border-radius: 0;
+    }
+  }
   .title {
     padding: 20rpx;
     position: relative;

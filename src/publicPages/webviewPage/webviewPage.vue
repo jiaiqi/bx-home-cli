@@ -24,8 +24,8 @@
     },
     methods: {
       onMessage(e) {
-        console.log('webview-onMessage:',e)
-        
+        console.log('webview-onMessage:', e)
+
       }
     },
     onUnload() {
@@ -42,7 +42,17 @@
     onLoad(option) {
       if (option.webUrl) {
         let url = decodeURIComponent(option.webUrl)
-        url = this.renderStr(url,this)
+        url = this.renderStr(url, this)
+        console.log(url)
+        // #ifdef H5
+        if (url && url.indexOf('https://login.100xsys.cn/health/#') == 0) {
+          let navUrl = url.replace('https://login.100xsys.cn/health/#', '')
+          uni.redirectTo({
+            url: navUrl
+          })
+          return
+        }
+        // #endif
         if (url && url.indexOf('100xsys.cn') > -1) {
           if (url.indexOf('?') == -1) {
             url += `?bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
@@ -51,8 +61,8 @@
           }
         }
         let login_user_info = uni.getStorageSync('login_user_info')
-        if(login_user_info?.user_no){
-          url+=`&login_user_info=${encodeURIComponent(JSON.stringify(login_user_info))}`
+        if (login_user_info?.user_no) {
+          url += `&login_user_info=${encodeURIComponent(JSON.stringify(login_user_info))}`
         }
         this.webUrl = url
       } else {

@@ -800,8 +800,17 @@
             let pages = getCurrentPages()
             url2 = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
             if (url2) {
+              if(url.indexOf('/publicPages/accountExec/accountExec')!==-1){
+                url2 = that.$api.homePath
+              }
               uni.reLaunch({
-                url: url2
+                url: url2,
+                fail: () => {
+                  url2 = that.$api.homePath
+                  uni.reLaunch({
+                    url: url2
+                  })
+                }
               })
             } else {
               let pages = getCurrentPages()

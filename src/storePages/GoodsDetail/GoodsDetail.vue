@@ -72,7 +72,8 @@
       <view class="">{{ goodsInfo.goods_desc || '' }}</view>
     </view>
     <view class="store-info" v-if="goodsInfo&&storeInfo && storeInfo.store_no" @click="toStoreHome">
-      <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo" mode="aspectFit"></image>
+      <image lazy-load :src="getImagePath(storeInfo.logo, true)" class="store-icon" v-if="storeInfo.logo"
+        mode="aspectFit"></image>
       <view :src="getImagePath(storeInfo.logo, true)" class="store-icon text" v-else-if="storeInfo.name">
         {{storeInfo.name.slice(0,1)}}
       </view>
@@ -105,6 +106,7 @@
               'cuIcon-service':item.type=='message',
               'cuIcon-cart':item.type=='cart'
             }"></text>
+            <text class="badge" v-if="item.type=='cart'&&cartAmount">{{cartAmount||''}}</text>
             <text class="label">{{ item.button_name }}</text>
           </button>
         </view>
@@ -162,6 +164,15 @@
     },
 
     computed: {
+      cartAmount(){
+        // 购物车数量
+        return this.cartList.reduce((res,cur)=>{
+          if(cur.goods_amount){
+            res+=cur.goods_amount
+          }
+          return res
+        },0)
+      },
       onLimit() {
         // 已经到了商品购买限制次数
         return this.purchase_limit && this.purchase_limit <= this.purchaseTimes
@@ -198,7 +209,7 @@
               name: '购物车',
               button_name: '购物车',
               type: 'cart',
-              target_url: `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeNo}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser.store_user_no}"}]&detailType=custom&customDetailUrl=%252FstorePages%252FGoodsDetail%252FGoodsDetail%253Fgoods_no%253D%2524%257Bdata.goods_no%257D%2526storeNo%253D%2524%257BstoreInfo.store_no%257D&listType=cartList`
+              target_url: `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeNo||this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser.store_user_no}"}]&detailType=custom&customDetailUrl=%252FstorePages%252FGoodsDetail%252FGoodsDetail%253Fgoods_no%253D%2524%257Bdata.goods_no%257D%2526storeNo%253D%2524%257BstoreInfo.store_no%257D&listType=cartList`
             }
           ]
           let obj = {
@@ -499,6 +510,21 @@
           })
           return
         }
+          // if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
+          //  let res = await this.getGoodsStock(this.inCartGoodsInfo)
+          //     if (res && res.id) {
+          //       if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
+          //         // this.inCartGoodsInfo.goods_amount++;
+          //         // this.updateCart(this.inCartGoodsInfo);
+          //       } else {
+          //         uni.showToast({
+          //           title: '商品库存不足',
+          //           icon: 'none'
+          //         });
+          //         return
+          //       }
+          //     }
+          // }
         if (goods?.goods_no) {
           let goodsInfo = await this.getCartDetail(null, goods.goods_no);
           if (goodsInfo?.goods_no) {
@@ -582,6 +608,7 @@
             storeInfo,
             bindUserInfo
           };
+          debugger
           data = this.deepClone(data);
           let url = this.renderStr(target_url, data);
           uni.navigateTo({
@@ -590,13 +617,16 @@
           this.onHandler = false;
           return;
         }
-        let goodsInfo = this.deepClone(this.goodsInfo);
+        let goodsInfo = this.deepClone(this.goodsInfo)
+        if (this.inCartGoodsInfo?.goods_amount) {
+          goodsInfo.goods_amount = this.inCartGoodsInfo?.goods_amount;
+        }
         if (!goodsInfo.goods_image && goodsInfo.goods_img) {
           goodsInfo.goods_image = goodsInfo.goods_img;
         }
         goodsInfo.name = goodsInfo.goods_name;
         goodsInfo.image = goodsInfo.store_image;
-        goodsInfo.car_num = 1;
+        goodsInfo.car_num = goodsInfo?.goods_amount || 1;
         goodsInfo.unit_price = goodsInfo.price;
         goodsInfo.type = this.storeInfo?.type;
         let enable_sku = this.goodsInfo?.enable_sku;
@@ -656,7 +686,7 @@
 
         if (target_url === 'add_to_cart') {
           // 添加到购物车表
-
+          
           this.addToCart(goodsInfo).then(_ => {
             this.onHandler = false;
           });
@@ -682,7 +712,7 @@
 
         this.onHandler = false;
       },
-      
+
       async getSwiperList(e) {
         let self = this;
         if (e?.banner_video_config === '子表') {
@@ -887,19 +917,21 @@
           }
         }
         if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
-          this.getGoodsStock(this.inCartGoodsInfo).then(res => {
-            if (res && res.id) {
-              if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
-                this.inCartGoodsInfo.goods_amount++;
-                this.updateCart(this.inCartGoodsInfo);
-              } else {
-                uni.showToast({
-                  title: '商品库存不足',
-                  icon: 'none'
-                });
-              }
-            }
-          });
+          this.inCartGoodsInfo.goods_amount++;
+          this.updateCart(this.inCartGoodsInfo);
+          // this.getGoodsStock(this.inCartGoodsInfo).then(res => {
+          //   if (res && res.id) {
+          //     if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
+          //       this.inCartGoodsInfo.goods_amount++;
+          //       this.updateCart(this.inCartGoodsInfo);
+          //     } else {
+          //       uni.showToast({
+          //         title: '商品库存不足',
+          //         icon: 'none'
+          //       });
+          //     }
+          //   }
+          // });
         }
       }
     },
@@ -1162,10 +1194,26 @@
         flex-direction: column;
         padding: 0;
         margin-right: 20px;
-
+        position: relative;
+        .badge{
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          width: 18px;
+          height: 18px;
+          text-align: center;
+          line-height: 18px;
+          font-size: 12px;
+          overflow: hidden;
+          border-radius: 50%;
+          background-color: #ff0000;
+          border: 1px solid #ff0000;
+          color: #fff;
+        }
         .icon {
           margin-bottom: 4px;
           font-size: 22px;
+         
         }
 
         .label {

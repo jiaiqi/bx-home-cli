@@ -29,7 +29,7 @@
             </view>
             <view class="order-option" v-if="item.selected"
               :class="{'bx-text-coffee':theme==='coffee'&& item.selected,'bx-border-coffee':theme==='coffee'&& item.selected}">
-              <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
+              <text class="cuIcon-top" v-if="item.orderType === 'asc'" :class="{
                   active: item.orderType === 'asc' && item.selected,
                   'bx-text-coffee':theme==='coffee'&& item.selected,
                   
@@ -64,20 +64,17 @@
             <view class="order-item" hover-class="hover"
               :class="{ current: item.selected,'bx-btn-bg-color': item.selected&&theme }"
               v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
-              <view class="label"
-                :class="{'bx-text-color':theme&& item.selected}">
+              <view class="label">
                 {{ item.label || "" }}
               </view>
               <view class="order-option" v-if="item.selected"
-                :class="{'bx-text-color':theme&& item.selected,'bx-border-color':theme && item.selected}">
-                <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
+                >
+                <text class="cuIcon-top " v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
-                    'bx-text-color':theme&& item.selected,
                     
 		              }"></text>
-                <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
+                <text class="cuIcon-down" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
-                     'bx-text-color':theme&& item.selected,
 		              }"></text>
               </view>
             </view>
@@ -397,14 +394,12 @@
 
         &.current {
           margin-top: 6rpx;
-          border: 1px solid #0bc99d;
-
+          // border: 1px solid #0bc99d;
           .label {
-            color: #0bc99d;
+            // color: #0bc99d;
           }
-
           .order-option {
-            border-color: #0bc99d;
+            // border-color: #0bc99d;
           }
         }
 
@@ -419,7 +414,7 @@
 
           .active {
             animation: scale 0.2s;
-            color: #0bc99d;
+            // color: #0bc99d;
             // background-color: rgba($color: #0bc99d, $alpha: 0.1);
           }
 

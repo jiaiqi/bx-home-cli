@@ -27,19 +27,16 @@
             <view class="order-item" hover-class="hover"
               :class="{ current: item.selected,'bx-btn-bg-color': item.selected&&theme&&false }"
               v-for="(item, index) in orderCols" :key="item.columns" @click.stop="changeOrderType(item, index)">
-              <view class="label" :class="{'bx-text-color':theme&& item.selected&&false}">
+              <view class="label">
                 {{ item.label || "" }}
               </view>
               <view class="order-option" v-if="item.selected"
-                :class="{'bx-text-color':theme&& item.selected&&false,'bx-border-color':theme && item.selected&&false}">
+                :class="{'bx-border-color':theme && item.selected&&false}">
                 <text class="cuIcon-top text-gray" v-if="item.orderType === 'asc'" :class="{
 		                active: item.orderType === 'asc' && item.selected,
-                    'bx-text-color':theme&& item.selected&&false,
-                    
 		              }"></text>
                 <text class="cuIcon-down text-gray" v-if="item.orderType === 'desc'" :class="{
 		                active: item.orderType === 'desc' && item.selected,
-                     'bx-text-color':theme&& item.selected&&false,
 		              }"></text>
               </view>
             </view>

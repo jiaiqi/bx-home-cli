@@ -836,6 +836,10 @@
                           })
                         }
                       } else if (item.type === 'wx_pay') {
+                        if (totalMoney == 0) {
+                          actionResult[i] === true
+                          return
+                        }
                         if (item.money_col && item.order_no_col && effect_data && effect_data[
                             item.order_no_col]) {
                           const wxMchId = this.getwxMchId()
@@ -903,6 +907,10 @@
                           `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
                         if (this.appName) {
                           url += `&appName=${this.appName}`
+                        }
+
+                        if (item.hideChildTable) {
+                          url += `&hideChildTable=true`
                         }
                         if (item.custom_url) {
                           url = this.renderStr(item.custom_url, globalData);

@@ -8,7 +8,9 @@
     <view class="number-view">
       <view class="title">
         <view class="left">
-          <view>营业额</view>
+          <view>
+            <text class="cuIcon-titles text-blue"></text>
+            营业额</view>
           <view class="amount">
             ￥{{data.yi_order_amount||'0'}}
           </view>
@@ -79,6 +81,7 @@
     <view class="number-view">
       <view class="title">
         <view class="left">
+          <text class="cuIcon-titles text-blue"></text>
           微信支付
         </view>
       </view>
@@ -143,10 +146,14 @@
   export default {
     data() {
       return {
-        data: null
+        data: null,
+        storeNo:""
       }
     },
-    onLoad() {
+    onLoad(option) {
+      if(option.storeNo){
+        this.storeNo = option.storeNo
+      }
       this.getData()
     },
     methods: {
@@ -158,7 +165,7 @@
           "condition": [{
             "colName": "store_no",
             "ruleType": "eq",
-            "value": this.storeInfo?.store_no
+            "value": this.storeNo||this.storeInfo?.store_no
           }]
         }
         const res = await this.$fetch('select', service, req, 'health')

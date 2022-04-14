@@ -35,8 +35,8 @@
       </view>
 
     </view>
-    <cart-list :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
-      @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></cart-list>
+    <goods-cart :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
+      @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></goods-cart>
     <cart-bottom :sum-price="sumPrice" ref="cartBottom" @selectAll="selectAllChange" @del="del" :mode="cartMode"
       @toOrderPage="toOrderPage" v-if="listType==='cartList'">
     </cart-bottom>
@@ -49,14 +49,12 @@
 <script>
   import listNext from '@/components/list-next/list-next.vue';
   import listBar from '../components/list-bar/list-bar.vue'
-  import cartList from '../components/goods-cart/goods-cart.vue'
   import countBar from '../components/count-bar/count-bar.vue'
   import cartBottom from '../components/cart-bottom/cart-bottom.vue'
   export default {
     components: {
       listNext,
       listBar,
-      cartList,
       countBar,
       cartBottom
     },
@@ -512,7 +510,7 @@
           let attrList = list.filter(item => item.attr && item.cart_goods_rec_no).map(item => item.cart_goods_rec_no)
             .toString()
           if (attrList) {
-            
+
             let skuList = await this.getGoodsSku(attrList)
             // let service = 'srvhealth_store_shopping_cart_goods_detail_add';
             let childService = "srvhealth_store_order_goods_attr_value_add"
@@ -1246,6 +1244,7 @@
           if (moreConfig.prepay_id_col && rowData[moreConfig.prepay_id_col]) {
             prepay_id = rowData[moreConfig.prepay_id_col]
           }
+          debugger
           if (!prepay_id) {
             const result = await this.toPlaceOrder(totalMoney * 100, '', orderData,
               wxMchId);
@@ -1511,6 +1510,7 @@
               'requestPayment') {
               let total_col = 'order_amount'
               let order_no_col = 'order_no'
+              debugger
               if (buttonInfo?.moreConfig?.total_col) {
                 total_col = buttonInfo?.moreConfig?.total_col
               }
@@ -1522,8 +1522,14 @@
               rowData.order_no = rowData.order_no || orderNo
               if (total && orderNo) {
                 let wx_mch_id = this.getwxMchId()
-                let result = await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type,
-                  rowData, wx_mch_id);
+                let result = {}
+                if (rowData?.prepay_id) {
+                  result = {
+                    prepay_id: rowData?.prepay_id
+                  }
+                } else {
+                  await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type, rowData, wx_mch_id);
+                }
                 if (result && result.prepay_id) {
                   let res = await this.getPayParams(result.prepay_id, wx_mch_id);
                   wx.requestPayment({
@@ -1536,20 +1542,6 @@
                       // 支付成功
                       self.updateOrderState('待发货', '已支付', result.prepay_id, rowData
                         .order_no);
-                      let webUrl =
-                        'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' +
-                        rowData.order_no +
-                        '&totalMoney=' + rowData.order_amount
-                      let url =
-                        `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-                      uni.redirectTo({
-                        url
-                      });
-                      // uni.redirectTo({
-                      //   url: '/storePages/successPay/successPay?order_no=' +
-                      //     rowData
-                      //     .order_no + '&totalMoney=' + rowData.order_amount
-                      // });
                     },
                     fail(res) {
                       // 支付失败/取消支付

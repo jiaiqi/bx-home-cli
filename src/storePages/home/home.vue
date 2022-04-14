@@ -6,6 +6,7 @@
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
           <text v-if="StoreInfo&&StoreInfo.name">{{ StoreInfo.name || '' }}</text>
+          <text v-else-if="pageDefine&&pageDefine.pg_label">{{pageDefine.pg_label}}</text>
           <text v-else>
             <u-loading :show="true" mode="flower"></u-loading>
             <text class="text-gray text-sm margin-left-xs">加载中</text>
@@ -1365,9 +1366,9 @@
         // 检测是否已关注公众号
         this.checkSubscribeStatus();
       }
-      if (this.storeInfo?.store_no && this.storeNo && this.storeInfo?.store_no !== this.storeNo) {
-        this.initPage()
-      }
+      // if (this.storeInfo?.store_no && this.storeNo && this.storeInfo?.store_no !== this.storeNo) {
+      //   this.initPage()
+      // }
     },
     onShareAppMessage() {
       let path =
@@ -1401,6 +1402,9 @@
       })
     },
     async onLoad(option) {
+      if (option.service_place_no) {
+        getApp().globalData.service_place_no = option.service_place_no;
+      }
       if (option?.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', option.bx_auth_ticket)
         uni.setStorageSync('isLogin', true)
@@ -1421,10 +1425,10 @@
       }
       this.$store.commit('SET_INTO_HOSPITAL_STATUS', true);
       // #ifdef MP-WEIXIN
-      wx.showShareMenu({
-        withShareTicket: true,
-        menus: ['shareAppMessage']
-      });
+      // wx.showShareMenu({
+      //   withShareTicket: true,
+      //   menus: ['shareAppMessage']
+      // });
       // #endif
       uni.$on('updateStoreSessionLastLookTime', e => {
         this.selectBindUser();
@@ -1465,7 +1469,17 @@
         if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
           let arr = result.split('/');
-          if (arr.length == 3) {
+          if (arr.length > 0 && arr[0] === 'QRForFood') {
+            //扫码点餐
+            // /store_no/QRForFood/餐桌号/
+            option.store_no = arr[1];
+            option.service_place_no = arr[2]
+            if(arr[3]){
+              option.link_pd_no = arr[3]
+            }
+            // getApp().globalData.service_place_no = option.service_place_no;
+            
+          } else if (arr.length == 3) {
             let rowData = this.getUrlParams(arr[2], 'rowData');
             if (rowData) {
               try {
@@ -1557,6 +1571,9 @@
 
       this.checkOptionParams(option);
 
+      if (option.service_place_no) {
+        getApp().globalData.service_place_no = option.service_place_no;
+      }
       if (option.invite_user_no) {
         this.invite_user_no = option.invite_user_no;
       }
@@ -1609,14 +1626,14 @@
       if (option.pd_no) {
         this.pdNo = option.pd_no;
       }
-      await this.initPage();
-      // if (this.pdNo) {
-      //   await this.getPageDefine(this.pdNo);
-      //   // this.storeNo = this.pageDefine.store_no;
-      //   await this.getTabbar(this.pdNo);
-      //   debugger
-      //   await this.getPageComponent(this.pdNo);
-      // }
+      if (this.pdNo) {
+        await this.getPageDefine(this.pdNo);
+        // this.storeNo = this.pageDefine.store_no;
+        await this.getTabbar(this.pdNo);
+        await this.getPageComponent(this.pdNo);
+      } else {
+        await this.initPage();
+      }
 
 
 

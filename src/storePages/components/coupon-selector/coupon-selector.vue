@@ -144,6 +144,13 @@
             "rownumber": 10
           },
         }
+        if(!isNaN(Number(this.max))){
+          req.condition.push({
+            colName:'minimum_charge',
+            ruleType:'ge',
+            value:this.max
+          })
+        }
         this.loadStatus = 'loading'
         let res = await this.$fetch('select', 'srvhealth_store_coupons_user_select', req, 'health');
         if (Array.isArray(res.data)) {

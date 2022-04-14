@@ -1,5 +1,5 @@
 <template>
-  <view :class="{fixed:fixed}" :style="{bottom:bottom}" class="cart-list-wrap">
+  <view :class="{fixed:fixed,fold:isFold}" :style="[{bottom:bottom,margin:margin}]" class="cart-list-wrap">
     <view class="goods-list" v-show="showList" :class="['theme-'+theme]">
       <view class="title">
         <view class="left">
@@ -63,7 +63,7 @@
             <text class="hand-btn cu-btn line-orange border sm radius bx-btn-bg-color"
               @click="changeAmount(rowData,index,-1)">-</text>
             <view class="amount">
-              {{rowData.goods_count||'0'}}
+              {{rowData.goods_count||rowData.goods_amount||'0'}}
             </view>
             <text class="hand-btn cu-btn bg-orange sm radius bx-bg-color" :class="'bx-bg-'+theme"
               @click="changeAmount(rowData,index,1)">+</text>
@@ -72,15 +72,15 @@
       </view>
     </view>
     <view class="cart-bottom" @click="changeStatus" :class="['theme-'+theme]">
-      <view class="cart-icon"
+      <view class="cart-icon" @click.stop="changeStatus"
         :class="{active:cartData&&cartData.length>0,'bx-btn-bg-color':cartData&&cartData.length>0&&theme}">
         <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
-      <view class="price">
+      <view class="price" v-if="!isFold">
         ￥{{sumPrice||'0'}}
       </view>
-      <view class="handler">
+      <view class="handler" v-if="!isFold">
         <button class="cu-btn round"
           :class="{active:cartData&&cartData.length>0,'bx-bg-color':cartData&&cartData.length>0&&theme}"
           @click.stop="placeOrder">下单</button>
@@ -93,7 +93,8 @@
   export default {
     data() {
       return {
-        showList: false
+        showList: false,
+        isFold: false
       }
     },
     computed: {
@@ -115,6 +116,8 @@
           sum = this.cartData.reduce((res, cur) => {
             if (cur.goods_count) {
               res += cur.goods_count
+            } else if (cur.goods_amount) {
+              res += cur.goods_amount
             }
             return res
           }, 0)
@@ -127,6 +130,8 @@
           sum = this.cartData.reduce((res, cur) => {
             if (cur.goods_count && cur.price) {
               res += cur.goods_count * cur.price
+            } else if (cur.goods_amount && cur.unit_price) {
+              res += cur.goods_amount * cur.unit_price
             }
             return res
           }, 0)
@@ -152,7 +157,17 @@
       },
       wxMchId: {
         type: String
+      },
+      margin: {
+        type: String
+      },
+      fold: { //默认收缩
+        type: Boolean,
+        default: false
       }
+    },
+    created() {
+      this.isFold = this.fold
     },
     methods: {
       clear() {
@@ -203,7 +218,17 @@
         }
       },
       changeStatus() {
-        this.showList = !this.showList
+        if (this.isFold == true) {
+          // this.isFold = false
+          let url =
+            `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=${encodeURIComponent('/storePages/GoodsDetail/GoodsDetail?goods_no=${data.goods_no}&storeNo=${storeInfo.store_no}')}`
+          uni.navigateTo({
+            url
+          })
+          return
+        } else {
+          this.showList = !this.showList
+        }
       },
     }
   }
@@ -340,10 +365,18 @@
     border-radius: 20rpx;
     padding: 20rpx;
 
-
     &.fixed {
       width: calc(100% - 80rpx);
-      left: 20rpx;
+      right: 10px;
+    }
+
+    &.fold {
+      background-color: transparent;
+      border: none !important;
+      right: 0;
+      padding-right: 20px;
+      display: flex;
+      justify-content: flex-end;
     }
 
     .cart-bottom {
