@@ -25,9 +25,9 @@
         </view>
       </scroll-view>
       <!-- <uni-load-more class="load-more" :status="loadStatus"></uni-load-more> -->
-      <view class="node-data"  v-if="loadStatus=='noMore'&&nearWifiList.length==0">
+<!--      <view class="node-data"  v-if="loadStatus=='noMore'&&nearWifiList.length==0">
         <u-empty text="暂无数据"></u-empty>
-      </view>
+      </view> -->
     </view>
     <view class="page-nav">
       <uni-pagination title="标题文字" show-icon="false" :total="resultTotal" :pageSize="5" :current="currentNo"
