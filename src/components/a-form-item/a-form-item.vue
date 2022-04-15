@@ -42,12 +42,12 @@
             field.type === 'Note' ||
             field.type === 'RichText')
         ">
-        <mp-html :content="fieldData.value" v-if="fieldData.value" />
+        <mp-html :content="fieldData.value.replace(/\<img/gi, '<img width=100%')" v-if="fieldData.value" />
         <!-- <rich-text :nodes="field.value" class="value rich-text"></rich-text> -->
       </view>
       <view class="form-item-content_detail text" :class="{ 'can-link': canLink }" v-else-if="pageType === 'detail'"
         @click="toFKLink">
-        {{ fieldData.value | formalText }}
+        {{ fkFieldLabel || fieldData.value | formalText }}
         <text class="cuIcon-link margin-left" v-if="canLink"></text>
       </view>
       <!-- detail-详情-end -->

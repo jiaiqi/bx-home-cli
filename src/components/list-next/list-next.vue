@@ -14,7 +14,7 @@
         <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
           style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
         <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData"
-          :childData="colV2._childData" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
+          :childData="colV2._childData" :childDataCfg="childDataCfg" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
           @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
           :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
         <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
@@ -128,6 +128,9 @@
       },
       viewTemp() {
         return this.moreConfig?.list_config;
+      },
+      childDataCfg(){
+        return this.moreConfig?.list_config?.child_config
       },
       setViewTemp() {
         let viewTemp = this.viewTemp;

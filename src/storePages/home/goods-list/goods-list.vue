@@ -254,8 +254,16 @@
         }
       },
       toCart(e, type) {
+        debugger
         if (e) {
           let goodsInfo = this.deepClone(e);
+          if (['面额卡', '套餐卡', '提货卡', '线下服务', '在线服务', '想豆卡', '充值卡'].includes(goodsInfo?.goods_type)) {
+            uni.showToast({
+              title: '非实物商品不支持加入购物车~',
+              icon: 'none'
+            })
+            return
+          }
           this.goodsInfo = goodsInfo
           if (this.onHandler === true) {
             return;
@@ -275,7 +283,6 @@
           if (isNaN(Number(goodsInfo.car_num)) || goodsInfo.car_num <= 0) {
             return
           }
-          debugger
           // 从购物车表添加删除
           this.addToCart(goodsInfo, type).then(_ => {
             this.onHandler = false;
@@ -294,13 +301,13 @@
             rownumber: 99
           }
         };
-        // if (goods_no) {
-        //   req.condition = [{
-        //     colName: 'goods_no',
-        //     ruleType: 'in',
-        //     value: goods_no
-        //   }];
-        // }
+        if (goods_no) {
+          req.condition = [{
+            colName: 'goods_no',
+            ruleType: 'in',
+            value: goods_no
+          }];
+        }
         if (this.vstoreUser?.store_user_no) {
           req.condition.push({
             colName: 'store_user_no',
@@ -468,7 +475,6 @@
             let goodsNos = res.data.map(item => item.goods_no).toString()
             if (goodsNos) {
               let cartList = await this.getCartDetail(goodsNos)
-              debugger
               this.cartData = cartList
               if (Array.isArray(cartList) && cartList.length > 0) {
                 res.data = res.data.map(item => {
@@ -482,6 +488,9 @@
             }
             this.goodsList = res.data.reduce((pre, cur) => {
               let url = this.getImagePath(cur[this.image], true);
+              if (cur.enable_sku === '是') {
+                cur.goods_amount = cur.goods_amount || 1
+              }
               cur.url = url;
               if (cur[this.image]) {
                 this.getImageInfo({
@@ -582,8 +591,8 @@
 </script>
 
 <style scoped lang="scss">
-  .goods-list-wrap{
-    .cart-list-wrap{
+  .goods-list-wrap {
+    .cart-list-wrap {
       border-top: 1px solid #f1f1f1;
       border-bottom: 1px solid #f1f1f1;
       width: 100vw;
@@ -592,6 +601,7 @@
       border-radius: 0;
     }
   }
+
   .title {
     padding: 20rpx;
     position: relative;

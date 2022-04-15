@@ -26,9 +26,9 @@
       </view>
       <view class="right" v-if="!orderInfo||!orderInfo.rcv_addr_str"><text class="cuIcon-right"></text></view>
     </view>
-   
+
     <view class="order-detail">
-      
+
       <!-- 点餐 -->
       <view class="field-list" v-if="isFood">
         <view class="field-title" v-if="orderInfo.order_no">
@@ -43,7 +43,15 @@
             {{orderInfo.repast_num}}
           </view>
         </view>
-        <view class="field-item" style="padding-right: 0;">
+        <view class="field-item" v-if="orderInfo&&orderInfo.order_no">
+          <view class="label">
+            用餐方式
+          </view>
+          <view class="value">
+            <text>{{repast_type}}</text>
+          </view>
+        </view>
+        <view class="field-item" style="padding-right: 0;" v-else>
           <view class="label">
             用餐方式
           </view>
@@ -61,7 +69,7 @@
             <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text> 联系人
           </view>
           <view class="value">
-            <text  class="text-gray"v-if="orderInfo&&orderInfo.order_no">{{rcv_name}}</text>
+            <text class="text-gray" v-if="orderInfo&&orderInfo.order_no">{{rcv_name}}</text>
             <input type="text" v-model="rcv_name" placeholder="输入姓名" v-else />
           </view>
         </view>
@@ -70,7 +78,7 @@
             <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text>手机号
           </view>
           <view class="value">
-            <text  class="text-gray"v-if="orderInfo&&orderInfo.order_no">{{rcv_telephone}}</text>
+            <text class="text-gray" v-if="orderInfo&&orderInfo.order_no">{{rcv_telephone}}</text>
             <input type="number" maxlength="11" v-model="rcv_telephone" placeholder="输入手机号" v-else />
           </view>
         </view>
@@ -83,8 +91,8 @@
           </view>
         </view>
       </view>
-      
-      
+
+
       <view class="person-info" v-if="orderType==='团购'">
         <view class="cu-form-group">
           <view class="title">姓名</view>
@@ -134,7 +142,7 @@
               ￥{{orderInfo.order_amount}}
             </view>
           </view>
-       <!--   <view class="detail-info_item" v-else-if="totalMoney">
+          <!--   <view class="detail-info_item" v-else-if="totalMoney">
             <view class="detail-info_item_label">
               商品总价
             </view>
@@ -150,6 +158,14 @@
               ￥{{actualMoney}}
             </view>
           </view>
+          <view class="detail-info_item" v-if="orderInfo.order_pay_amount">
+            <view class="detail-info_item_label">
+              支付金额
+            </view>
+            <view class="detail-info_item_value text-red">
+              ￥{{orderInfo.order_pay_amount}}
+            </view>
+          </view>
         </view>
         <view class="id-number-edit" v-if="!disabled&&needIdNum">
           <view class="cu-form-group ">
@@ -162,7 +178,7 @@
           </view>
         </view>
       </view>
-      
+
       <view class="field-list" v-if="!disabled">
         <view class="field-item">
           <view class="label">订单备注</view>
@@ -170,9 +186,9 @@
             v-model="order_remark" placeholder-style="fontSize:24rpx;"></input>
         </view>
       </view>
-      
-      
-     
+
+
+
       <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
         <view class="place-holder" v-if="!room_no">
           点击选择房间号
@@ -202,7 +218,7 @@
           </view>
         </view>
       </view>
-     
+
 
 
       <!-- 优惠券 -->
@@ -219,7 +235,7 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 支付方式 -->
       <view class="pay-mode"
         v-if="!isHexiao&&(!orderInfo||(orderInfo&& orderInfo.pay_state==='待支付'&&( orderInfo.order_state==='待支付'|| orderInfo.order_state==='待提交')))">
@@ -254,8 +270,8 @@
           </view>
         </radio-group>
       </view>
-      
-     
+
+
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
         <!--        <view class="detail-info-title">
@@ -498,9 +514,9 @@
         storeUserInfo: state => state.user.storeUserInfo,
         theme: state => state.app.theme
       }),
-      isHexiao(){
+      isHexiao() {
         // 是否核销
-        return this.pay_method==='套餐卡'||this.pay_method==='提货卡'
+        return this.pay_method === '套餐卡' || this.pay_method === '提货卡'
       },
       isFood() {
         let goods = this.orderInfo?.goodsList;
@@ -580,8 +596,11 @@
     },
     methods: {
       setCouponMinus(e) {
+        debugger
         if (e?.num) {
           this.couponMinus = e.num
+        } else {
+          this.couponMinus = 0
         }
       },
       async addVerRecord(order_no, childData) {
@@ -1049,6 +1068,7 @@
             user_image: this.userInfo.user_image,
             sex: this.userInfo.sex,
             user_role: this.userInfo.user_role,
+            order_pay_amount: this.actualMoney || this.totalMoney,
             order_amount: this.actualMoney || this.totalMoney,
             order_remark: this.order_remark || '',
             pay_state: '待支付',
@@ -1124,21 +1144,22 @@
               return
             }
           }
+          req[0].data[0].order_method = '实时'
           if (!this.service_place_no) {
-            req[0].data[0].order_method = '预约'
+            // req[0].data[0].order_method = '预约'
             req[0].data[0].service_date = this.dayjs().format("YYYY-MM-DD")
+            // req[0].data[0].repast_status = '未到店'
           } else {
-            req[0].data[0].order_method = '实时'
+            // req[0].data[0].order_method = '实时'
+            // req[0].data[0].repast_status = '待出餐'
           }
+          req[0].data[0].repast_status = '待出餐'
         }
 
         if (this.service_place_no) { // 场地号、餐桌号
           req[0].data[0].service_place_no = this.service_place_no
+
         }
-
-
-
-
 
         if (this.needIdNum && this.idNum) {
           req[0].data[0].id_num = this.idNum
@@ -1254,7 +1275,7 @@
           "serviceName": "srvhealth_store_card_recharge_detail_add",
           "condition": [],
           "data": [{
-            "bill_money": orderData.order_amount,
+            "bill_money": orderData?.order_pay_amount || orderData.order_amount,
             bill_type: "消费",
             card_no: card_no,
             "order_no": orderData.order_no
@@ -1294,7 +1315,7 @@
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
-        let totalMoney = orderData.order_amount || this.actualMoney || this.totalMoney
+        let totalMoney = orderData?.order_pay_amount || orderData.order_amount || this.actualMoney || this.totalMoney
         if (typeof totalMoney !== 'number' || totalMoney.toString() === 'NaN') {
           uni.showModal({
             title: '提示',
@@ -1576,7 +1597,7 @@
 
 
     .order-info {
-      margin:5px 10px;
+      margin: 5px 10px;
       margin-top: 0;
       background-color: #fff;
       padding: 20rpx;
@@ -1678,9 +1699,11 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 5px;
-        .info-label{
+
+        .info-label {
           color: #999;
         }
+
         &:last-child {
           margin-bottom: 0;
         }
@@ -1787,7 +1810,7 @@
   }
 
   .field-list {
-    margin:5px 10px;
+    margin: 5px 10px;
     background-color: #fff;
     overflow: hidden;
 
@@ -1796,7 +1819,7 @@
       padding: 10px;
       display: flex;
       justify-content: space-between;
-      
+
       .badge {
         background-color: #0bc99d;
         padding: 2px 10px;
@@ -1816,9 +1839,11 @@
       &:last-child {
         border-bottom: none;
       }
-      .label{
+
+      .label {
         color: #999;
       }
+
       .value {
         text-align: right;
       }

@@ -1,6 +1,6 @@
 <template>
   <view class="coupon-selector-wrap">
-    <text class="view-text" @click="open"  :class="{'data-empty':noData}">
+    <text class="view-text" @click="open" :class="{'data-empty':noData}">
       <text v-if="minusAmount" class="text-red">-￥{{minusAmount||''}}</text>
       <text v-else-if="noData">没有可用的优惠券</text>
       <text v-else>去选择</text>
@@ -96,7 +96,7 @@
         }
       }
     },
-    mounted(){
+    mounted() {
       this.getList()
     },
     methods: {
@@ -107,7 +107,7 @@
         } else {
           this.couponList = this.couponList.map(item => {
             if (item.coupon_no === e?.coupon_no) {
-              item.checked = true
+              item.checked = item.checked ? false : true
             } else {
               item.checked = false
             }
@@ -144,11 +144,11 @@
             "rownumber": 10
           },
         }
-        if(!isNaN(Number(this.max))){
+        if (!isNaN(Number(this.max))) {
           req.condition.push({
-            colName:'minimum_charge',
-            ruleType:'ge',
-            value:this.max
+            colName: 'minimum_charge',
+            ruleType: 'le',
+            value: this.max
           })
         }
         this.loadStatus = 'loading'
@@ -196,7 +196,8 @@
       min-width: 100px;
       text-align: right;
       margin-right: 5px;
-      &.data-empty{
+
+      &.data-empty {
         // pointer-events: none;
         opacity: 0.8;
       }

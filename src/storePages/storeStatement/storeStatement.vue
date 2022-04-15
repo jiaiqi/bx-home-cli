@@ -1,24 +1,30 @@
 <template>
-  <view v-if="data">
+  <view>
     <view class="date-view">
       <view class="">
-        {{dayjs().format("MM-DD")}} (今天)
+        <!-- {{dayjs().format("MM-DD")}} (今天) -->
       </view>
+      <!--    <view class="date-item" v-for="item in types" :key="item.name">
+        {{item.name}}
+      </view> -->
+
+      <u-subsection :list="types" mode="subsection" :current="current" @change="changeType"></u-subsection>
     </view>
-    <view class="number-view">
+    <view class="number-view" v-if="curData">
       <view class="title">
         <view class="left">
           <view>
             <text class="cuIcon-titles text-blue"></text>
-            营业额</view>
+            营业额
+          </view>
           <view class="amount">
-            ￥{{data.yi_order_amount||'0'}}
+            ￥{{curData.yi_order_amount||'0'}}
           </view>
         </view>
         <view class="right">
           <view>昨日环比</view>
           <view class="amount">
-            0%
+            {{curData.bi_order_amount||'0'}}%
           </view>
         </view>
       </view>
@@ -28,8 +34,7 @@
             交易笔数
           </view>
           <view class="item-value">
-            {{data.order_num||'0'}}
-
+            {{curData.order_num||'0'}}
           </view>
         </view>
         <view class="number-item">
@@ -37,26 +42,15 @@
             实收笔数
           </view>
           <view class="item-value">
-            {{data.yi_order_num||'0'}}
-
+            {{curData.yi_order_num||'0'}}
           </view>
         </view>
         <view class="number-item">
           <view class="item-lable">
-            未支付笔数/金额
+            退款金额
           </view>
           <view class="item-value">
-            {{data.wei_order_num||'0'}} / {{data.wei_order_amount||'0'}}
-
-          </view>
-        </view>
-        <view class="number-item">
-          <view class="item-lable">
-            退款金额/笔数
-          </view>
-          <view class="item-value">
-            {{data.return_amount||'0'}}
-
+            {{curData.return_amount||'0'}}
           </view>
         </view>
         <view class="number-item">
@@ -64,21 +58,28 @@
             手续费
           </view>
           <view class="item-value">
-            {{data.poundage_amount||'0'}}
-
+            {{curData.poundage_amount||'0'}}
           </view>
         </view>
         <view class="number-item">
           <view class="item-lable">
-            结算金额
+            优惠金额
           </view>
           <view class="item-value">
-            {{data.order_amount||'0'}}
+            {{curData.preferential_amount||'0'}}
+          </view>
+        </view>
+        <view class="number-item">
+          <view class="item-lable">
+            昨日营业额
+          </view>
+          <view class="item-value">
+            {{curData.zuo_order_amount||'0'}}
           </view>
         </view>
       </view>
     </view>
-    <view class="number-view">
+    <view class="number-view" v-if="curData">
       <view class="title">
         <view class="left">
           <text class="cuIcon-titles text-blue"></text>
@@ -88,11 +89,18 @@
       <view class="number-box">
         <view class="number-item">
           <view class="item-lable">
-            支付金额/笔数
+            交易笔数
           </view>
           <view class="item-value">
-            {{data.yi_order_amount||'0'}} / {{data.yi_order_num||'0'}}
-
+            {{curData.order_num||'0'}}
+          </view>
+        </view>
+        <view class="number-item">
+          <view class="item-lable">
+            实收笔数
+          </view>
+          <view class="item-value">
+            {{curData.yi_order_num||'0'}}
           </view>
         </view>
         <view class="number-item">
@@ -100,16 +108,7 @@
             退款金额
           </view>
           <view class="item-value">
-            {{data.return_amount||'0'}}
-
-          </view>
-        </view>
-        <view class="number-item">
-          <view class="item-lable">
-            净支付金额
-          </view>
-          <view class="item-value">
-            {{data.yi_order_amount||'0'}}
+            {{curData.return_amount||'0'}}
 
           </view>
         </view>
@@ -118,7 +117,7 @@
             优惠金额
           </view>
           <view class="item-value">
-            {{data.preferential_amount||'0'}}
+            {{curData.preferential_amount||'0'}}
           </view>
         </view>
         <view class="number-item">
@@ -126,7 +125,7 @@
             手续费
           </view>
           <view class="item-value">
-            {{data.poundage_amount||'0'}}
+            {{curData.poundage_amount||'0'}}
           </view>
         </view>
         <view class="number-item">
@@ -134,7 +133,7 @@
             结算金额
           </view>
           <view class="item-value">
-            {{data.yi_order_amount||'0'}}
+            {{curData.yi_order_amount||'0'}}
           </view>
         </view>
       </view>
@@ -146,31 +145,68 @@
   export default {
     data() {
       return {
-        data: null,
-        storeNo:""
+        datas: {
+          day: null,
+          week: null,
+          month: null
+        },
+        types: [{
+            type: 'day',
+            name: '今天'
+          },
+          {
+            type: 'week',
+            name: '本周'
+          },
+          {
+            type: 'month',
+            name: '本月'
+          }
+        ],
+        current: 0,
+        curType: 'day',
+        storeNo: ""
+      }
+    },
+    computed: {
+      curData() {
+        return this.datas[this.curType]
       }
     },
     onLoad(option) {
-      if(option.storeNo){
+      if (option.storeNo) {
         this.storeNo = option.storeNo
       }
       this.getData()
     },
     methods: {
+      changeType(index) {
+        this.curType = this.types[index]?.type
+        this.getData()
+      },
       async getData() {
-        const service = 'srvhealth_store_order_report_select'
+        let type = this.curType
+        let serviceMap = {
+          day: 'srvhealth_store_order_report_select',
+          week: 'srvhealth_store_order_week_report_select',
+          month: 'srvhealth_store_order_month_report_select'
+        }
+        let service = serviceMap[type]
         const req = {
           "serviceName": service,
           "colNames": ["*"],
           "condition": [{
             "colName": "store_no",
             "ruleType": "eq",
-            "value": this.storeNo||this.storeInfo?.store_no
+            "value": this.storeNo || this.storeInfo?.store_no
           }]
+        }
+        if (!service) {
+          return
         }
         const res = await this.$fetch('select', service, req, 'health')
         if (Array.isArray(res.data) && res.data.length > 0) {
-          this.data = res.data[0]
+          this.datas[type] = res.data[0]
         }
       },
     }
@@ -183,6 +219,13 @@
     padding: 10px;
     font-size: 20px;
     line-height: 30px;
+    // display: flex;
+    width: 100%;
+
+    .date-item {
+      width: 30%;
+      margin-right: 10px;
+    }
   }
 
   .number-view {
@@ -196,20 +239,24 @@
       border-bottom: 1px solid #f1f1f1;
       font-size: 18px;
       padding: 10px 0;
-      .left{
-        text-align:center;
-        .amount{
+
+      .left {
+        text-align: center;
+
+        .amount {
           color: #1c93ff;
           line-height: 40px;
-          font-size:25px;
+          font-size: 25px;
         }
       }
-      .right{
-        text-align:center;
+
+      .right {
+        text-align: center;
         color: #00ad19;
-        .amount{
+
+        .amount {
           line-height: 40px;
-          font-size:25px;
+          font-size: 25px;
         }
       }
     }

@@ -47,7 +47,7 @@
         </text>
       </view>
       <view class="handler-bar" v-if="curSelect&&showHandler">
-        <view class="subscribe-money"  v-if="handlerCfg&&handlerCfg.showText!==false">
+        <view class="subscribe-money" v-if="handlerCfg&&handlerCfg.showText!==false">
           <text>￥</text>
           <text class="money">{{curSelect.subscribe_money}}</text>
         </view>
@@ -184,6 +184,9 @@
         if (this.orderCfg?.defaultVal) {
           let defaultVal = this.orderCfg?.defaultVal
           let data = {
+            data1: this.topLevelData.find(item => item.selected === true) || {},
+            data2: this.secondLevelData.find(item => item.selected === true) || {},
+            data3: this.thirdLevelData.find(item => item.selected === true) || {},
             data: this.curSelect,
             storeInfo: this.storeInfo,
             storeUser: this.vstoreUser,
@@ -293,9 +296,10 @@
             }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
-              this.topLevelData = res.data
               if (Array.isArray(res.data) && res.data.length > 0) {
                 this.date = res.data[0][idCol || 'year_month_day']
+                res.data[0].selected = true
+                this.topLevelData = res.data
               }
             }
           }
@@ -303,7 +307,6 @@
       },
       async getSecondData(e) {
         let cfg = this.secondLevelCfg?.srvInfo;
-
         if (cfg) {
           const {
             app,

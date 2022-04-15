@@ -552,14 +552,20 @@
           let dataArray = res.data;
           for (let index = 0; index < pageItemList.length; index++) {
             const element = pageItemList[index];
-            dataArray[index] = dataArray[index].data;
+            
+            if (dataArray && dataArray[index]?.data) {
+              dataArray[index] = dataArray[index]?.data;
+            }
+            
             switch (element.type) {
               case '关联店铺':
-                element['listdata'] = dataArray[index];
+                element['listdata'] = dataArray[index]||[];
                 break;
               case '按钮组':
-                element['listdata'] = dataArray[index].filter(item => item.display !== '否' && item
-                  .display !== '隐藏');
+                if (Array.isArray(dataArray[index])) {
+                  element['listdata'] = dataArray[index].filter(item => item.display !== '否' && item
+                    .display !== '隐藏');
+                }
                 break;
               case '人员列表':
                 element['listdata'] = dataArray[index];
@@ -1165,16 +1171,25 @@
         if (this.storeNo) {
           await this.selectStoreInfo(forceUpdate);
           // await this.selectBindUser();
-          if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
-            if (!this.pdNo) {
-              await this.getPageItem();
-            }
-          }
+
           if (!this.vstoreUser?.id) {
             await this.bindStore();
           }
+
+          if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
+            if (!this.pdNo) {
+              await this.getPageItem();
+            } else {
+              await this.getPageDefine(this.pdNo);
+              await this.getTabbar(this.pdNo);
+              await this.getPageComponent(this.pdNo);
+            }
+          }
+
           this.getQuery();
+
           this.initSocket()
+
           if (this.bindUserInfo?.store_user_no) {
             await this.getVipCard(this.bindUserInfo?.store_user_no)
           }
@@ -1464,21 +1479,19 @@
             option.from = 'share';
           }
         }
-
         // 通用二维码参数
         if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
           let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
           let arr = result.split('/');
-          if (arr.length > 0 && arr[0] === 'QRForFood') {
+          if (arr.length > 0 && arr[0] === 'food') {
             //扫码点餐
-            // /store_no/QRForFood/餐桌号/
+            // /store_no/food/餐桌号/
             option.store_no = arr[1];
             option.service_place_no = arr[2]
-            if(arr[3]){
+            if (arr[3]) {
               option.link_pd_no = arr[3]
             }
-            // getApp().globalData.service_place_no = option.service_place_no;
-            
+
           } else if (arr.length == 3) {
             let rowData = this.getUrlParams(arr[2], 'rowData');
             if (rowData) {
@@ -1577,7 +1590,7 @@
       if (option.invite_user_no) {
         this.invite_user_no = option.invite_user_no;
       }
-      // await this.toAddPage();
+      await this.toAddPage();
 
       if (option.pt_no) {
         this.pt_no = option.pt_no;
@@ -1626,14 +1639,11 @@
       if (option.pd_no) {
         this.pdNo = option.pd_no;
       }
-      if (this.pdNo) {
-        await this.getPageDefine(this.pdNo);
-        // this.storeNo = this.pageDefine.store_no;
-        await this.getTabbar(this.pdNo);
-        await this.getPageComponent(this.pdNo);
-      } else {
-        await this.initPage();
-      }
+
+      await this.initPage();
+
+
+
 
 
 

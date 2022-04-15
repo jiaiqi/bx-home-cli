@@ -48,7 +48,7 @@
               {{goods.goods_name||""}}
               <text class="margin-lr-xs text-red text-sm">￥{{goods.price||''}}</text>
             </view>
-            <u-number-box v-model="goods.goods_amount" :min="0"></u-number-box>
+            <u-number-box v-model="goods.goods_amount" :min="1"></u-number-box>
           </view>
         </view>
         <view class="button-box" v-if="modalConfirmType==='all'">

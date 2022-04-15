@@ -322,10 +322,21 @@
         let url = this.countConfig?.rightBtn?.target || this.countConfig?.rightBtn?.url;
         url = this.renderStr(url, this)
         if (url.indexOf('http') == 0) {
+          // #ifdef H5
+          if(url.indexOf('https://login.100xsys.cn/health/#/')==0){
+            url=url.split('https://login.100xsys.cn/health/#')[1]
+          }
+          // #endif
+          // #ifdef MP-WEIXIN
           url = "/publicPages/webviewPage/webviewPage?webUrl=" + encodeURIComponent(url);
+          // #endif
         }
+        
         uni.navigateTo({
-          url
+          url,
+          fail(e) {
+            console.log(e)
+          }
         })
       },
       toDashboard() {

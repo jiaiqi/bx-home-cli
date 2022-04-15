@@ -8,7 +8,7 @@
       <view class="title" v-else>
         未连接WIFI
       </view>
-      <view class="room-id">
+      <view class="room-id" v-if="room_no">
         当前房间号：{{room_no||'-'}}
       </view>
     </view>

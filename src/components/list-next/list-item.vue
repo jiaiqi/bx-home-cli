@@ -193,6 +193,9 @@
       },
       childData: {
         type: [Object, Array]
+      },
+      childDataCfg:{
+        
       }
     },
     data() {

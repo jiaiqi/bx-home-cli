@@ -618,6 +618,7 @@
           return;
         }
         let goodsInfo = this.deepClone(this.goodsInfo)
+        
         if (this.inCartGoodsInfo?.goods_amount) {
           goodsInfo.goods_amount = this.inCartGoodsInfo?.goods_amount;
         }
@@ -637,6 +638,13 @@
           if (!target_url) {
             this.modalConfirmType = 'toOrder'
           } else if (target_url === 'add_to_cart') {
+            if (['面额卡', '套餐卡', '提货卡', '线下服务', '在线服务', '想豆卡', '充值卡'].includes(goodsInfo?.goods_type)) {
+              uni.showToast({
+                title: '非实物商品不支持加入购物车~',
+                icon: 'none'
+              })
+              return
+            }
             this.modalConfirmType = 'addToCart'
           }
           return
@@ -646,6 +654,13 @@
             if (!target_url) {
               this.modalConfirmType = 'toOrder'
             } else if (target_url === 'add_to_cart') {
+              if (['面额卡', '套餐卡', '提货卡', '线下服务', '在线服务', '想豆卡', '充值卡'].includes(goodsInfo?.goods_type)) {
+                uni.showToast({
+                  title: '非实物商品不支持加入购物车~',
+                  icon: 'none'
+                })
+                return
+              }
               this.modalConfirmType = 'addToCart'
             }
             return
@@ -686,7 +701,13 @@
 
         if (target_url === 'add_to_cart') {
           // 添加到购物车表
-          
+          if (['面额卡', '套餐卡', '提货卡', '线下服务', '在线服务', '想豆卡', '充值卡'].includes(goodsInfo?.goods_type)) {
+            uni.showToast({
+              title: '非实物商品不支持加入购物车~',
+              icon: 'none'
+            })
+            return
+          }
           this.addToCart(goodsInfo).then(_ => {
             this.onHandler = false;
           });

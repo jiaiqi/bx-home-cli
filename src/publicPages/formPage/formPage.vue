@@ -64,6 +64,9 @@
           v-if="leftText.col&&mainData&&mainData[leftText.col]">{{leftText.label||''}}</text>
         <text v-if="leftText.col&&mainData&&mainData[leftText.col]">{{mainData[leftText.col]}}</text>
       </view>
+      <view class="" v-else>
+
+      </view>
       <button class="cu-btn bg-blue" v-if="rightBtn"
         @click="onButton(rightBtn,'handler')">{{rightBtn.label||''}}</button>
     </view>
@@ -813,7 +816,6 @@
                 }
                 let afterSubmit = self.moreConfig?.after_submit;
                 if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
-
                   const globalData = {
                     data: effect_data || {},
                     storeInfo: self.storeInfo,
@@ -824,6 +826,10 @@
                   const actionResult = new Array(afterSubmit.length)
                   for (let i = 0; i < afterSubmit.length; i++) {
                     let item = afterSubmit[i];
+                    console.log(i)
+                    console.log(actionResult)
+                    console.log((i > 0 && actionResult[i - 1]) || i == 0)
+                    debugger
                     if ((i > 0 && actionResult[i - 1]) || i == 0) {
                       if (effect_data && effect_data.id && ['redirectTo', 'navigateTo'].includes(item.type)) {
                         if (item.url) {
@@ -836,45 +842,46 @@
                           })
                         }
                       } else if (item.type === 'wx_pay') {
-                        if (totalMoney == 0) {
-                          actionResult[i] === true
-                          return
-                        }
                         if (item.money_col && item.order_no_col && effect_data && effect_data[
                             item.order_no_col]) {
-                          const wxMchId = this.getwxMchId()
                           const totalMoney = effect_data[item.money_col] || 0
-                          const orderData = {
-                            order_no: effect_data[item.order_no_col]
+                          if (totalMoney == 0) {
+                            actionResult[i] = true
+                          } else {
+                            const wxMchId = this.getwxMchId()
+                            const orderData = {
+                              order_no: effect_data[item.order_no_col]
+                            }
+                            const result = await this.toPlaceOrder(totalMoney * 100, '',
+                              orderData, wxMchId);
+                            if (result && result.prepay_id) {
+                              let res = await this.getPayParams(result.prepay_id, wxMchId);
+                              const resData = await new Promise((resolve) => {
+                                wx.requestPayment({
+                                  timeStamp: res.timeStamp.toString(),
+                                  nonceStr: res.nonceStr,
+                                  package: res.package,
+                                  signType: 'MD5',
+                                  paySign: res.paySign,
+                                  success(res) {
+                                    // 支付成功
+                                    resolve(true)
+                                  },
+                                  fail(res) {
+                                    // 支付失败/取消支付
+                                    resolve('支付失败/取消支付')
+                                  }
+                                });
+                              })
+                              actionResult[i] = resData
+                            }
                           }
-                          const result = await this.toPlaceOrder(totalMoney * 100, '',
-                            orderData, wxMchId);
-                          if (result && result.prepay_id) {
-                            let res = await this.getPayParams(result.prepay_id, wxMchId);
-                            const resData = await new Promise((resolve) => {
-                              wx.requestPayment({
-                                timeStamp: res.timeStamp.toString(),
-                                nonceStr: res.nonceStr,
-                                package: res.package,
-                                signType: 'MD5',
-                                paySign: res.paySign,
-                                success(res) {
-                                  // 支付成功
-                                  resolve(true)
-                                },
-                                fail(res) {
-                                  // 支付失败/取消支付
-                                  resolve('支付失败/取消支付')
-                                }
-                              });
-                            })
-                            actionResult[i] = resData
-                          }
+                        }else{
+                          actionResult[i] === true
                         }
                       } else if (item.type === 'update_call_back') {
                         if (item.service && item.app && Array.isArray(item.data) && item
                           .cond) {
-
                           let url = this.getServiceUrl(item.app, item.service, 'operate');
                           let req = [{
                             serviceName: item.service,
@@ -918,14 +925,12 @@
                         if (item.view_cfg) {
                           url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
                         }
-
                         uni.redirectTo({
                           url
                         })
+                        actionResult[i] = true
                       }
                     }
-
-
                   }
                   if (actionResult.length === afterSubmit.length && !actionResult.every(item =>
                       item == true)) {

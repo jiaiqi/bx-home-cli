@@ -48,11 +48,11 @@
         return 3000
       },
       calcStyle() {
-        if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
-          return {
-            margin: this.pageItem.margin
-          }
-        }
+        // if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
+        //   return {
+        //     margin: this.pageItem.margin
+        //   }
+        // }
       },
       setList() {
         if (Array.isArray(this.noticeList)) {
@@ -173,7 +173,7 @@
   .notice-wrap {
     /* margin-bottom: 20rpx; */
     min-width: 300px;
-    margin: 0rpx 20rpx 0;
+    // margin: 0rpx 20rpx 0;
     border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;

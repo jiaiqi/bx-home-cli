@@ -19,9 +19,9 @@
       </view>
     </view>
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
-      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight}]" v-for="item in buttonsIcon">
-        <u-image widht="100%" height="100%" :src="getImagePath(item.icon,true)"
-          @click="toPages(item)">
+      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight}]"
+        v-for="item in buttonsIcon">
+        <u-image widht="100%" height="100%" :src="getImagePath(item.icon,true)" @click="toPages(item)">
           <!-- <u-loading slot="loading"></u-loading> -->
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
         </u-image>
@@ -865,10 +865,45 @@
             success: function(res) {
               console.log('条码类型：' + res.scanType);
               console.log('条码内容：' + res.result);
-              uni.showModal({
-                title: '提示',
-                content: `二维码内容：${res.result}`,
-                showCancel: false
+              const text = res.result
+              // 通用二维码参数
+              let option = {}
+              if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
+                let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
+                let arr = result.split('/');
+                if (arr.length > 0 && arr[0] === 'food') {
+                  //扫码点餐
+                  // /store_no/food/餐桌号/
+                  option.store_no = arr[1];
+                  option.service_place_no = arr[2]
+                  if (arr[3]) {
+                    option.link_pd_no = arr[3]
+                  }
+                  if (arr[4]) {
+                    option.invite_user_no = arr[4]
+                  }
+                }
+              } else if (text && text.indexOf('service_place_no:') !== -1) {
+                option.service_place_no = text.slice(text.indexOf('service_place_no:'))
+              } else {
+                uni.showModal({
+                  title: '提示',
+                  content: `二维码内容：${res.result}`,
+                  showCancel: false
+                })
+              }
+              let url = `/storePages/home/home?store_no=${option.store_no || this.storeInfo?.store_no}`
+              if (option.service_place_no) {
+                url += `&service_place_no=${option.service_place_no}`
+              }
+              if (option.link_pd_no) {
+                url += `&link_pd_no=${option.link_pd_no}`
+              }
+              if (option.invite_user_no) {
+                url += `&invite_user_no=${option.invite_user_no}`
+              }
+              uni.navigateTo({
+                url
               })
             }
           });
@@ -1210,14 +1245,17 @@
       text-align: center;
       width: 100%;
       overflow: hidden;
-      .picture-button-item{
+
+      .picture-button-item {
         width: 100%;
         height: 80px;
-        .u-image{
+
+        .u-image {
           width: 100%;
           height: 100%;
         }
       }
+
       .image-button {
         width: 100%;
         height: 100px;
