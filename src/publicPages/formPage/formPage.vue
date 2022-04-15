@@ -99,7 +99,8 @@
       </button> -->
       <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
         @onTap="onButton(btn)">
-        <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0">
+        <button class="cu-btn bg-orange round lg bx-btn-bg-color"
+          v-if="isArray(fields) && fields.length > 0&&isShowBtn(btn)">
           {{ btn.button_name }}
         </button>
       </debounce-view>
@@ -175,6 +176,12 @@
           if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
             buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
           }
+          // buttons = buttons.map(item=>{
+          //   if (this.moreConfig?.formButtonDisp && this.formButtonDisp[item.button_type] === false) {
+          //     item.display = false
+          //   } 
+          //   return item
+          // })
           return buttons
         }
       },
@@ -276,6 +283,12 @@
 
     },
     methods: {
+      isShowBtn(e) {
+        if (this.moreConfig?.formButtonDisp && this.moreConfig?.formButtonDisp[e.button_type] === false) {
+          return false
+        }
+        return true
+      },
       radioChange(e) {
         this.curChild = e
       },
@@ -876,7 +889,7 @@
                               actionResult[i] = resData
                             }
                           }
-                        }else{
+                        } else {
                           actionResult[i] === true
                         }
                       } else if (item.type === 'update_call_back') {
