@@ -226,6 +226,19 @@
     mounted() {
       let globalData = getApp().globalData
       this.globalData = globalData
+
+      if (this.pageItem?.more_config) {
+        try {
+          let moreConfig = JSON.parse(this.pageItem?.more_config)
+          if (moreConfig?.noticeNumConfig) {
+            let noticeNumConfig = moreConfig.noticeNumConfig;
+            this.getNoticeNum(noticeNumConfig)
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+
     },
     data() {
       return {
@@ -248,7 +261,8 @@
           customer_phone: '',
           appoint_remark: ''
         },
-        buttonsIcon: []
+        buttonsIcon: [],
+        noticeNum:{}
       };
     },
 
@@ -332,6 +346,9 @@
             style.borderRadius = this.pageItem.radius_value || '10px'
             style.overflow = 'hidden'
           }
+        }
+        if (this.pageItem?.buttons_label_color) {
+          style.color = this.pageItem?.buttons_label_color === '#fff' ? '' : this.pageItem?.buttons_label_color
         }
         return style
       },
@@ -1067,23 +1084,11 @@
         if (!url && e?.dest_page) {
           url = e.dest_page;
         }
-        // if (url) {
-        // 	if(url==='/pages/pedia/pedia'){
-        // 		uni.navigateToMiniProgram({
-        // 		  appId: 'wxa8574a1e93d8e8d0',
-        // 		  path: 'pages/pedia/pedia',
-        // 		  extraData: {
-        // 		    'data1': 'test'
-        // 		  }
-        // 		})
-        // 		return
-        // 	}
+
         let navType = "navigateTo";
         if (e.navType) {
           navType = e.navType;
         }
-
-
 
         if (navType === "miniProgram") {
           // #ifdef MP-WEIXIN
@@ -1127,10 +1132,46 @@
           }
         }
 
-
       },
       addToStore() {
         this.$emit("addToStore");
+      },
+      async getNoticeNum(e) {
+        let serviceName = e?.service_name
+        let app = e?.app
+        let req = {
+          "colNames": ["*"],
+          "serviceName": serviceName,
+          "condition": [],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          }
+        }
+        if (Array.isArray(e.condition) && e.condition.length > 0) {
+          let data = {
+            bindUserInfo: this.bindUserInfo,
+            storeInfo: this.storeInfo,
+            userInfo: this.userInfo
+          }
+          e.condition.forEach(item => {
+            let obj = {
+              colName: item.colName,
+              ruleType: 'eq',
+              value: item.value
+            }
+            if (item.value && item.value.indexOf('${') !== -1) {
+              obj.value = this.renderStr(item.value, data)
+            }
+            req.condition.push(obj)
+          })
+        }
+        let url = this.getServiceUrl(app, serviceName, 'select');
+        let res = await this.$http.post(url, req)
+        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          let data = res.data.data[0]
+          this.noticeNum = Object.assign(this.noticeNum, data)
+        }
       },
       async selectPersonInGroup(group_no) {
         // 查找当前登录用户有没有在此圈子用户列表中
@@ -1423,8 +1464,6 @@
         font-family: 苹方-简;
         font-weight: normal;
         line-height: 22px;
-        color: #9092A5;
-        color: var(--home-text-color) !important;
       }
     }
   }

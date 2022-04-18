@@ -25,7 +25,7 @@
         </view>
       </scroll-view>
       <!-- <uni-load-more class="load-more" :status="loadStatus"></uni-load-more> -->
-<!--      <view class="node-data"  v-if="loadStatus=='noMore'&&nearWifiList.length==0">
+      <!--      <view class="node-data"  v-if="loadStatus=='noMore'&&nearWifiList.length==0">
         <u-empty text="暂无数据"></u-empty>
       </view> -->
     </view>
@@ -133,10 +133,13 @@
         let password = e.wifi_psd
         console.log(e, 'toConnect: 83')
         let self = this
-        linkjs.getConnectedWifi().then(wifi => {
-          self.connectedWifi = wifi
-        })
+        // linkjs.getConnectedWifi().then(wifi => {
+        //   self.connectedWifi = wifi
+        // })
+        let wifi = linkjs.getConnectedWifi()
+        self.connectedWifi = wifi
         console.log(e, 'toConnect: 88')
+        
         linkjs.startConnectWifi(SSID, password).then(res => {
           console.log(res, 'toConnect: 90')
           wx.vibrateLong()
@@ -453,7 +456,7 @@
       })
     },
     onLoad(option) {
-     this.setNavBg(this.$store?.state?.app?.theme||'blue')
+      this.setNavBg(this.$store?.state?.app?.theme || 'blue')
       if (option.store_no) {
         this.store_no = option.store_no
       }
@@ -471,9 +474,10 @@
 </script>
 
 <style lang="scss" scoped>
-  .node-data{
+  .node-data {
     height: 500px;
   }
+
   .wifi-manage {
     padding: 0rpx;
     background-color: #f2f3f5;

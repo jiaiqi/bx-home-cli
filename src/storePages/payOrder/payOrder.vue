@@ -55,7 +55,7 @@
           <view class="label">
             用餐方式
           </view>
-          <view class="value">
+          <view class="value flex-end">
             <text v-if="orderInfo&&orderInfo.order_no">{{repast_type}}</text>
             <bx-radio-group class="form-item-content_value radio-group" v-model="repast_type" mode="button"
               @change="pickerChange" v-else>
@@ -182,8 +182,9 @@
       <view class="field-list" v-if="!disabled">
         <view class="field-item">
           <view class="label">订单备注</view>
-          <input class="value" :placeholder="'选填,建议填写前与商家沟通确认'" :disabled="orderInfo&&orderInfo.order_no" name="input"
-            v-model="order_remark" placeholder-style="fontSize:24rpx;"></input>
+          <text v-if="orderInfo&&orderInfo.order_no">{{order_remark}}</text>
+          <textarea class="value text-area" :auto-height="true" placeholder="选填,建议填写前与商家沟通确认" name="input"
+            v-model="order_remark" placeholder-style="fontSize:24rpx;" v-else></textarea>
         </view>
       </view>
 
@@ -501,6 +502,7 @@
         tgNo: "", //团购编号
         goodsWay: "", //团购收货方式
         couponMinus: 0, //优惠券减的金额
+        curCouponNo: '',
         disabled: false,
         service_place_no: "", //场地编号、餐桌号、房间号等
       };
@@ -596,7 +598,10 @@
     },
     methods: {
       setCouponMinus(e) {
-        debugger
+        // debugger
+        if (Array.isArray(e?.list) && e.list.length > 0) {
+          this.curCouponNo = e.list[0]
+        }
         if (e?.num) {
           this.couponMinus = e.num
         } else {
@@ -679,10 +684,9 @@
       },
       toCouponSelector() {
         if (this.pay_method) {
-
           return
         }
-        this.payMode = 'coupon'
+        // this.payMode = 'coupon'
         let url =
           '/storePages/coupon/coupon?serviceName=srvhealth_store_card_case_select&app=health&mode=selector&pageTitle=支付方式'
         let condition = [{
@@ -718,6 +722,7 @@
         let emitId = uni.$u.guid()
         url += `&cond=${JSON.stringify(condition)}&emitId=${emitId}`
         uni.$on(emitId, (e) => {
+          this.payMode = 'coupon'
           this.couponInfo = e
         })
         uni.navigateTo({
@@ -725,7 +730,7 @@
         })
       },
       payModeChange(e) {
-        this.payMode = e.detail.value
+        this.payMode = e.detail.value === 'wx' ? 'wx' : this.payMode
       },
       getCouponList() {
         const serviceName = 'srvhealth_store_card_case_select'
@@ -1056,8 +1061,8 @@
             image: this.orderInfo.image,
             type: this.orderInfo.type,
             rcv_addr_str: this.addressInfo.fullAddress,
-            rcv_name: this.addressInfo.userName,
-            rcv_telephone: this.addressInfo.telNumber,
+            rcv_name: this.rcv_name || this.addressInfo.userName,
+            rcv_telephone: this.rcv_telephone || this.addressInfo.telNumber,
             person_no: this.userInfo.no,
             person_name: this.userInfo.name,
             user_account: this.userInfo.userno,
@@ -1092,6 +1097,9 @@
                     .unit_price)
                 };
                 // debugger
+                if (item.father_goods_no) {
+                  obj.father_goods_no = item.father_goods_no
+                }
                 if (item.child_data_list) {
                   obj.child_data_list = item.child_data_list
                 }
@@ -1159,6 +1167,11 @@
         if (this.service_place_no) { // 场地号、餐桌号
           req[0].data[0].service_place_no = this.service_place_no
 
+        }
+
+        if (this.curCouponNo) {
+          req[0].data[0].coupon_no = this.curCouponNo
+          req[0].data[0].coupon_amount = this.couponMinus
         }
 
         if (this.needIdNum && this.idNum) {
@@ -1841,11 +1854,25 @@
       }
 
       .label {
+        margin-right: 10px;
         color: #999;
       }
 
       .value {
+        flex: 1;
         text-align: right;
+
+        // display: flex;
+        // align-items: center;
+        // justify-content: flex-end;
+        // &.text-area{
+        //   text-align: left;
+        // }
+        &.flex-end {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
       }
     }
   }

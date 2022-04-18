@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap" :class="{'pc-model':sysModel==='PC'}">
+  <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}">
 
     <view class="top-bar">
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
@@ -89,7 +89,6 @@
           if (cfg?.type === 'enum_col' && cfg?.column) {
             if (Array.isArray(this.colV2?._fieldInfo)) {
               let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
-
               if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
                 res.tabs = [{
                   value: '_all',
@@ -415,6 +414,7 @@
               ruleType: 'eq',
               value: tab.value
             }]
+            this.curTabVal = tab.value
           } else {
             cond = []
           }
@@ -703,9 +703,7 @@
                 item.goods_amount -= 1
                 this.updateCart(item).then(res => {
                   if (res.success) {
-                    // uni.showToast({
-                    //   title:'操作成功'
-                    // })
+                    // this.getList()
                   }
                 })
               }
@@ -720,7 +718,7 @@
         }
       },
 
-      add2Cart(e) {
+      async add2Cart(e) {
         let data = this.deepClone(e)
         if (this.listType === 'cart') {
           let index = this.cartData.findIndex(item => item.id === data.id)
@@ -734,36 +732,34 @@
         } else if (this.listType === 'cartList') {
           let goodsInfo = this.list.find(item => item.cart_goods_rec_no === data.cart_goods_rec_no)
           if (goodsInfo) {
-            this.getGoodsStock(goodsInfo).then(res => {
-              if (res && res.id) {
-                if (res.amount > goodsInfo.goods_amount - 1) {
-                  this.list = this.list.map(item => {
-                    if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
-                      item.goods_amount += 1
-                      if (item.checked == false) {
-                        item.checked = true
-                      }
-                      this.updateCart(item).then(res => {
-                        if (res.success) {
-                          // uni.showToast({
-                          //   title:'操作成功'
-                          // })
-                        }
-                      })
-                    }
-                    return item
-                  })
-                } else {
-                  uni.showToast({
-                    title: '商品库存不足',
-                    icon: 'none'
-                  })
+            // if (!goodsInfo.father_goods_no) {
+            //   let res = await this.getGoodsStock(goodsInfo)
+            //   if (!res?.id) {
+            //     return
+            //   } else if (res.amount < goodsInfo.goods_amount - 1) {
+            //     uni.showToast({
+            //       title: '商品库存不足',
+            //       icon: 'none'
+            //     })
+            //     return
+            //   }
+            // }
+            this.list = this.list.map(item => {
+              if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
+                item.goods_amount += 1
+                if (item.checked == false) {
+                  item.checked = true
                 }
+                this.updateCart(item).then(res => {
+                  if (res.success) {
+                    // this.getList()
+                  }
+                })
               }
+              return item
             })
 
           }
-
 
           // this.list = this.list.map(item => {
           //   if (item.cart_goods_rec_no === data.cart_goods_rec_no) {
@@ -1068,7 +1064,7 @@
         if (Array.isArray(initCond) && initCond.length > 0) {
           req.condition = [...req.condition, ...initCond]
         }
-
+        
         let keywords = this.searchVal;
         // req.condition = []
         if (keywords && this.finalSearchColumn) {
@@ -1138,11 +1134,15 @@
         this.loadStatus = 'loading'
         let res = await this.$http.post(url, req);
         if (res.data.state === 'SUCCESS') {
-          if (this.pageNo === 1) {
-            this.list = [];
-          }
+          // if (this.pageNo === 1) {
+          //   this.list = res.data.data;
+          // }
           let list = this.deepClone(this.list)
-          list = list.concat(res.data.data);
+          if(this.pageNo === 1){
+            list = res.data.data
+          }else{
+            list = list.concat(res.data.data);
+          }
           let viewTemp = this.colV2?.moreConfig?.list_config
           if (Array.isArray(viewTemp?.cols) && viewTemp.cols.length > 0 && Array.isArray(this.list)) {
             let col = viewTemp.cols.find(item => item.type === 'childData')
@@ -1633,14 +1633,7 @@
                   })
                 }
               }
-              // if (Array.isArray(condition) && condition.length > 0) {
-              //   condition.forEach(cond => {
-              //     fieldsCond.push({
-              //       column: cond.colName,
-              //       value: cond.value
-              //     })
-              //   })
-              // }
+              
               if (fieldsCond.length === 0) {
                 fieldsCond = [{
                   column: 'id',
@@ -2293,6 +2286,10 @@
         flex: 1;
         // overflow-y: scroll;
       }
+    }
+
+    &.cart-list {
+      padding-bottom: 60px;
     }
 
     &.pc-model {

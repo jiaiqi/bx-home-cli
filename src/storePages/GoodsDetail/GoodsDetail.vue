@@ -164,14 +164,18 @@
     },
 
     computed: {
-      cartAmount(){
+      cartAmount() {
         // 购物车数量
-        return this.cartList.reduce((res,cur)=>{
-          if(cur.goods_amount){
-            res+=cur.goods_amount
+        let res = this.cartList.reduce((res, cur) => {
+          if (cur.goods_amount) {
+            res += cur.goods_amount
           }
           return res
-        },0)
+        }, 0)
+        if (res > 99) {
+          res = '99+'
+        }
+        return res
       },
       onLimit() {
         // 已经到了商品购买限制次数
@@ -221,7 +225,7 @@
         }
       },
       inCartGoodsInfo() {
-        if (this.storeInfo?.store_no && Array.isArray(this.cartList) && this.goodsInfo.goods_no) {
+        if (this.storeInfo?.store_no && Array.isArray(this.cartList) && this.goodsInfo?.goods_no) {
           let cartList = this.cartList;
           if (Array.isArray(cartList)) {
             let goodsInfo = cartList.filter(item => item.goods_no === this.goodsInfo.goods_no);
@@ -389,6 +393,13 @@
         this.selectSku = e
       },
       async confirmAdd2Cart(e = {}) {
+        if (this.cartAmount >= 99) {
+          uni.showToast({
+            title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
+            icon: "none"
+          })
+          return
+        }
         let {
           modalConfirmType,
           skuAttrList,
@@ -429,6 +440,7 @@
             goods_desc: goods.goods_desc,
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
+            goods_type: goods.goods_type,
             goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
             child_data_list: [{
               "serviceName": childService,
@@ -443,6 +455,7 @@
           }
           if (this.enableSku) {
             data.goods_no = goods.sku_no
+            data.father_goods_no = data.goods_no
           }
           if (modalConfirmType === 'toOrder') {
             let goodsInfo = this.deepClone(data);
@@ -510,21 +523,21 @@
           })
           return
         }
-          // if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
-          //  let res = await this.getGoodsStock(this.inCartGoodsInfo)
-          //     if (res && res.id) {
-          //       if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
-          //         // this.inCartGoodsInfo.goods_amount++;
-          //         // this.updateCart(this.inCartGoodsInfo);
-          //       } else {
-          //         uni.showToast({
-          //           title: '商品库存不足',
-          //           icon: 'none'
-          //         });
-          //         return
-          //       }
-          //     }
-          // }
+        // if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
+        //  let res = await this.getGoodsStock(this.inCartGoodsInfo)
+        //     if (res && res.id) {
+        //       if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
+        //         // this.inCartGoodsInfo.goods_amount++;
+        //         // this.updateCart(this.inCartGoodsInfo);
+        //       } else {
+        //         uni.showToast({
+        //           title: '商品库存不足',
+        //           icon: 'none'
+        //         });
+        //         return
+        //       }
+        //     }
+        // }
         if (goods?.goods_no) {
           let goodsInfo = await this.getCartDetail(null, goods.goods_no);
           if (goodsInfo?.goods_no) {
@@ -608,7 +621,6 @@
             storeInfo,
             bindUserInfo
           };
-          debugger
           data = this.deepClone(data);
           let url = this.renderStr(target_url, data);
           uni.navigateTo({
@@ -618,7 +630,7 @@
           return;
         }
         let goodsInfo = this.deepClone(this.goodsInfo)
-        
+
         if (this.inCartGoodsInfo?.goods_amount) {
           goodsInfo.goods_amount = this.inCartGoodsInfo?.goods_amount;
         }
@@ -705,6 +717,13 @@
             uni.showToast({
               title: '非实物商品不支持加入购物车~',
               icon: 'none'
+            })
+            return
+          }
+          if (this.cartAmount >= 99) {
+            uni.showToast({
+              title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
+              icon: "none"
             })
             return
           }
@@ -904,6 +923,11 @@
 
           this.getSwiperList(this.goodsInfo);
           this.getDetaiImageList(this.goodsInfo);
+          if (this.goodsInfo?.enable_sku === '是') {
+            this.$nextTick(() => {
+              this.$refs?.skuSelector?.init?.()
+            })
+          }
         }
       },
       del() {
@@ -1020,13 +1044,11 @@
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId;
       }
-      if (option.storeNo) {
-        this.storeNo = option.storeNo;
-        this.getStoreInfo();
-      }
-      if (option.store_no) {
-        this.storeNo = option.store_no;
-        this.getStoreInfo();
+      if (option.storeNo || option.store_no) {
+        this.storeNo = option.storeNo || option.store_no;
+        if (this.storeInfo?.store_no !== this.storeNo) {
+          this.getStoreInfo();
+        }
       }
       if (option.destApp) {
         this.destApp = option.destApp;
@@ -1216,25 +1238,30 @@
         padding: 0;
         margin-right: 20px;
         position: relative;
-        .badge{
+
+        .badge {
           position: absolute;
           top: -5px;
-          right: -5px;
-          width: 18px;
-          height: 18px;
-          text-align: center;
-          line-height: 18px;
+          right: calc(-50% + 12px);
+          min-width: 25px;
+          min-height: 25px;
+          padding: 2px;
           font-size: 12px;
+          transform: scale(0.8);
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           border-radius: 50%;
           background-color: #ff0000;
           border: 1px solid #ff0000;
           color: #fff;
         }
+
         .icon {
           margin-bottom: 4px;
           font-size: 22px;
-         
+
         }
 
         .label {

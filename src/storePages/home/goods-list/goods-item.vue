@@ -21,8 +21,17 @@
             </view>
           </view>
           <view class="number-handler-box" v-if="enableAddCart">
-            <view class="hand-btn" v-if="enableSku" @click.stop="openSkuSelector">
+            <view class="hand-btn" v-if="enableSku&&!goodsInfo.goods_sku_amount" @click.stop="openSkuSelector">
               选规格
+            </view>
+            <view class="goods-amount" v-else-if="enableSku&&goodsInfo.goods_sku_amount">
+              <view class="hand-btn round" style="opacity: 0.5;" @click.stop="minus(goodsInfo)">
+                <u-icon name="minus"></u-icon>
+              </view>
+              <text v-if="goodsInfo.goods_sku_amount" class="goods-amount-num">{{goodsInfo.goods_sku_amount}}</text>
+              <view class="hand-btn round" @click.stop="openSkuSelector">
+                <u-icon name="plus"></u-icon>
+              </view>
             </view>
             <view class="goods-amount" v-else-if="goodsInfo.goods_amount">
               <view class="hand-btn round" @click.stop="minus(goodsInfo)">
@@ -118,6 +127,11 @@
     },
     watch: {
       'goods.goods_amount': {
+        handler(newValue, oldValue) {
+          this.goodsInfo = this.goods
+        }
+      },
+      'goods.goods_sku_amount': {
         handler(newValue, oldValue) {
           this.goodsInfo = this.goods
         }

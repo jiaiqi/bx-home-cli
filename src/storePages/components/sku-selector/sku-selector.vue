@@ -166,23 +166,23 @@
       }
     },
     created() {
-      this.init()
+      // this.init()
     },
     methods: {
-      init() {
+     async init() {
         let enable_sku = this.goodsInfo?.enable_sku;
         let options_type = this.goodsInfo?.options_type
         if (enable_sku === '是') {
-          this.getRelationGoods()
+         await this.getRelationGoods()
           if (options_type == 'SKU商品') {
-            this.getGoodsSkuInfo()
+          await  this.getGoodsSkuInfo()
           } else if (options_type == '商品属性') {
-            this.getGoodsAttr()
+           await this.getGoodsAttr()
           }
         }
       },
-      open() {
-        this.init()
+      async open() {
+        await this.init()
         this.show = true
         this.$emit('open')
       },
@@ -438,6 +438,7 @@
         let app = this.destApp || 'health';
         let res = await this.$fetch('select', serviceName, req, app)
         if (Array.isArray(res.data) && res.data.length > 0) {
+          res.data[0].goods_amount = this.goodsInfo.goods_amount
           return res.data[0]
         } else if (res.msg && showXhrMsg) {
           uni.showToast({

@@ -196,7 +196,7 @@
             if (key && defaultVal[key]) {
               fieldsCond.push({
                 column: key,
-                display: false,
+                // display: false,
                 disabled: true,
                 value: this.renderStr(defaultVal[key], data)
               })

@@ -43,8 +43,8 @@
     </view>
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
-      :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" inactive-color="#888"
-      :active-color="themeConfig&&themeConfig.style_font_color?themeConfig.style_font_color:'#000'" :mid-button="false"
+      :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" :inactive-color="labelColor"
+      :active-color="activeColor" :mid-button="false"
       v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
@@ -106,6 +106,13 @@
       },
       singleStore() {
         return this.$api.singleStore && this.$api.storeNo
+      },
+
+      labelColor() {
+        return this.pageDefine?.label_color || '#888'
+      },
+      activeColor() {
+        return this.pageDefine?.label_active_color||this.themeConfig?.style_font_color || '#000'
       },
       currentTab() {
         if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0) {
@@ -552,14 +559,14 @@
           let dataArray = res.data;
           for (let index = 0; index < pageItemList.length; index++) {
             const element = pageItemList[index];
-            
+
             if (dataArray && dataArray[index]?.data) {
               dataArray[index] = dataArray[index]?.data;
             }
-            
+
             switch (element.type) {
               case '关联店铺':
-                element['listdata'] = dataArray[index]||[];
+                element['listdata'] = dataArray[index] || [];
                 break;
               case '按钮组':
                 if (Array.isArray(dataArray[index])) {
@@ -780,12 +787,7 @@
             // style_no = 'FG202204081050460002'
             // this.getThemeCfg(style_no)
           }
-          if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
-            this.pdNo = this.StoreInfo.home_page_no;
-            await this.getPageDefine(this.StoreInfo.home_page_no);
-            await this.getTabbar(this.StoreInfo.home_page_no);
-            await this.getPageComponent(this.StoreInfo.home_page_no);
-          }
+
           // if (this.StoreInfo.type === '健康服务') {
           // 	this.getGoodsListData();
           // }
@@ -798,6 +800,12 @@
           } else {
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
             this.bindStore();
+          }
+          if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
+            this.pdNo = this.StoreInfo.home_page_no;
+            await this.getPageDefine(this.StoreInfo.home_page_no);
+            await this.getTabbar(this.StoreInfo.home_page_no);
+            await this.getPageComponent(this.StoreInfo.home_page_no);
           }
           // });
           // }

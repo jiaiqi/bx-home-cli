@@ -74,8 +74,8 @@
       },
       checkedNo() {
         return this.couponList.reduce((res, cur) => {
-          if (cur.checked && cur.coupon_no) {
-            res.push(cur.coupon_no)
+          if (cur.checked && cur.receive_no) {
+            res.push(cur.receive_no)
           }
           return res
         }, [])
@@ -106,7 +106,7 @@
           this.$set(this.couponList, index, e)
         } else {
           this.couponList = this.couponList.map(item => {
-            if (item.coupon_no === e?.coupon_no) {
+            if (item.receive_no === e?.receive_no) {
               item.checked = item.checked ? false : true
             } else {
               item.checked = false
@@ -163,7 +163,7 @@
           }
           this.couponList = res.data.map(item => {
             item.checked = false;
-            if (Array.isArray(this.checkedNo) && this.checkedNo.indexOf(item.coupon_no) !== -1) {
+            if (Array.isArray(this.checkedNo) && this.checkedNo.indexOf(item.receive_no) !== -1) {
               item.checked = true
             }
             return item

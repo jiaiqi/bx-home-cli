@@ -100,7 +100,7 @@
       <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
         @onTap="onButton(btn)">
         <button class="cu-btn bg-orange round lg bx-btn-bg-color"
-          v-if="isArray(fields) && fields.length > 0&&isShowBtn(btn)">
+          v-if="isArray(fields) && fields.length > 0&&btn.isShow!==false">
           {{ btn.button_name }}
         </button>
       </debounce-view>
@@ -166,9 +166,6 @@
       model() {
         return getApp()?.globalData?.systemInfo?.model
       },
-      // storeInfo() {
-      //   return this.$store?.state?.app?.storeInfo
-      // },
       formButtons() {
         let buttons = []
         if (Array.isArray(this.colsV2Data?._formButtons)) {
@@ -176,22 +173,21 @@
           if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
             buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
           }
-          // buttons = buttons.map(item=>{
-          //   if (this.moreConfig?.formButtonDisp && this.formButtonDisp[item.button_type] === false) {
-          //     item.display = false
-          //   } 
-          //   return item
-          // })
-          return buttons
+          return buttons.map(item=>{
+            item.isShow = true
+            if (this.moreConfig?.formButtonDisp && item?.button_type && this.moreConfig?.formButtonDisp[item.button_type] ===
+              false) {
+              item.isShow = false
+            }
+            return item
+          })
         }
       },
       appTempColMap() {
         // 字段关系映射
-        if (this.moreConfig?.appTempColMa) {
+        if (this.moreConfig?.appTempColMap) {
           return this.moreConfig?.appTempColMap
         }
-        if (Array.isArray())
-          return {}
       },
       labelMap() {
         // 字段对应的label
@@ -212,7 +208,7 @@
         return fk_condition
       },
       moreConfig() {
-        return this.colsV2Data?.moreConfig
+        return this.colsV2Data?.moreConfig || {}
       },
       colsV2Data() {
         if (this.srvType) {
@@ -284,7 +280,8 @@
     },
     methods: {
       isShowBtn(e) {
-        if (this.moreConfig?.formButtonDisp && this.moreConfig?.formButtonDisp[e.button_type] === false) {
+        if (this.moreConfig?.formButtonDisp && e.button_type && this.moreConfig?.formButtonDisp[e.button_type] ===
+          false) {
           return false
         }
         return true

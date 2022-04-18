@@ -59,6 +59,18 @@
       rownumber() {
         return this.pageItem?.row_number || 6
       },
+      cartTotal(){
+        let res = 0
+        if(Array.isArray(this.cartData)){
+          res = this.cartData.reduce((res,cur)=>{
+            if(!isNaN(Number(cur.goods_amount))){
+              res+=cur.goods_amount
+            }
+            return res
+          },0)
+        }
+        return res
+      },
       hasMore() {
         return this.total > this.rownumber
       },
@@ -181,6 +193,13 @@
       },
       async addSku2Cart(e) {
         // 添加到购物车
+        if(this.cartTotal>=99){
+          uni.showToast({
+            title:'购物车商品总数超出限制,请先清理购物车后在进行加购',
+            icon:"none"
+          })
+          return
+        }
         let {
           modalConfirmType,
           skuAttrList,
@@ -193,7 +212,14 @@
         let service = 'srvhealth_store_shopping_cart_goods_detail_add';
         let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
         let depend_key = 'cart_goods_rec_no'
-        if (goods?.goods_no) {
+        
+        if (goods?.sku_no) {
+          let goodsInfo = await this.getCartDetail(goods.sku_no);
+          if (goodsInfo?.goods_no) {
+            goodsInfo.goods_amount += goods.goods_amount
+            this.updateCart(goodsInfo)
+            return
+          }
           let data = {
             store_user_no: this.vstoreUser?.store_user_no,
             store_no: this.storeNo,
@@ -204,6 +230,7 @@
             goods_desc: goods.goods_desc,
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
+            goods_type:goods.goods_type,
             goods_source: '店铺SKU',
             child_data_list: [{
               "serviceName": childService,
@@ -218,6 +245,7 @@
           }
 
           if (goods.sku_no) {
+            data.father_goods_no = data.goods_no
             data.goods_no = goods.sku_no
           }
 
@@ -226,6 +254,7 @@
             condition: [],
             data: [data, ...otherGoods]
           }];
+          
           let res = await this.$fetch('operate', service, req, 'health');
           if (res.success) {
             // this.getCartList();
@@ -248,13 +277,27 @@
         this.modalName = e
       },
       delFromCart(e) {
-        if (e?.goods_amount) {
+        if (e.enable_sku === '是') {
+          uni.showModal({
+            title: '提示',
+            content: '不同规格的商品需要在购物车减购，是否跳转到购物车页面？',
+            confirmText: '打开购物车',
+            success: (res) => {
+              if (res.confirm) {
+                let url =
+                  `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=/`
+                uni.navigateTo({
+                  url: url
+                })
+              }
+            }
+          })
+        } else if (e?.goods_amount) {
           let goodsInfo = this.deepClone(e);
           this.toCart(e, 'minus')
         }
       },
       toCart(e, type) {
-        debugger
         if (e) {
           let goodsInfo = this.deepClone(e);
           if (['面额卡', '套餐卡', '提货卡', '线下服务', '在线服务', '想豆卡', '充值卡'].includes(goodsInfo?.goods_type)) {
@@ -280,10 +323,17 @@
           if (type == 'minus') {
             goodsInfo.car_num = goodsInfo.goods_amount - 1
           }
-          if (isNaN(Number(goodsInfo.car_num)) || goodsInfo.car_num <= 0) {
+          if(this.cartTotal>=99){
+            uni.showToast({
+              title:'购物车商品总数超出限制,请先清理购物车后在进行加购',
+              icon:"none"
+            })
             return
           }
-          // 从购物车表添加删除
+          if (isNaN(Number(goodsInfo.car_num)) || goodsInfo.car_num < 0) {
+            return
+          }
+          // 从购物车表添加/删除
           this.addToCart(goodsInfo, type).then(_ => {
             this.onHandler = false;
           });
@@ -302,11 +352,26 @@
           }
         };
         if (goods_no) {
-          req.condition = [{
-            colName: 'goods_no',
-            ruleType: 'in',
-            value: goods_no
-          }];
+          // req.condition = [{
+          //   colName: 'goods_no',
+          //   ruleType: 'in',
+          //   value: goods_no
+          // }];
+          req.relation_condition = {
+            "relation": "OR",
+            "data": [{
+                "colName": "goods_no",
+                "value": goods_no,
+                "ruleType": "in"
+              },
+              {
+
+                "colName": "father_goods_no",
+                ruleType: 'in',
+                value: goods_no
+              }
+            ]
+          }
         }
         if (this.vstoreUser?.store_user_no) {
           req.condition.push({
@@ -314,6 +379,8 @@
             ruleType: 'eq',
             value: this.vstoreUser?.store_user_no
           });
+        }else{
+          return
         }
         let res = await this.$fetch('select', service, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
@@ -332,7 +399,8 @@
             } else {
               goodsInfo.goods_amount++;
             }
-            this.updateCart(goodsInfo);
+            let operateType = goodsInfo.goods_amount === 0 ? 'delete' : 'update'
+            this.updateCart(goodsInfo, operateType)
           } else {
             goodsInfo = goods;
             let service = 'srvhealth_store_shopping_cart_goods_detail_add';
@@ -364,8 +432,9 @@
         }
         return;
       },
-      async updateCart(goodsInfo) {
-        if (this.onLimit) {
+      async updateCart(goodsInfo, type = 'update') {
+        let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+        if (type === 'update' && this.onLimit) {
           uni.showModal({
             title: "提示",
             content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
@@ -373,8 +442,9 @@
             confirmText: '知道了'
           })
           return
+        } else if (type === 'delete') {
+          serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete'
         }
-        let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
         if (goodsInfo?.cart_goods_rec_no) {
           let req = [{
             serviceName: serviceName,
@@ -387,15 +457,23 @@
               goods_amount: goodsInfo.goods_amount
             }]
           }];
-          await this.$fetch('operate', serviceName, req, 'health').then(res => {
-            if (res.success) {
-              uni.showToast({
-                title: '操作成功'
-              });
-              this.getGoodsListData()
-            }
-
-          });
+          if (type === 'delete') {
+            delete req.data;
+            req.condition = [{
+              colName: 'id',
+              ruleType: 'req',
+              value: goodsInfo.id
+            }]
+          }
+          uni.showLoading()
+          let res = await this.$fetch('operate', serviceName, req, 'health')
+          uni.hideLoading()
+          if (res.success) {
+            uni.showToast({
+              title: '操作成功'
+            });
+            this.getGoodsListData()
+          }
         }
       },
       getNumber(num) {
@@ -466,19 +544,36 @@
             value: this.pageItem?.goods_classify_path
           })
         }
+
         let res = await this.$fetch('select', 'srvhealth_store_goods_guest_select', req, 'health')
         if (Array.isArray(res.data)) {
           if (res.page?.total) {
             this.total = res.page.total
           }
           if (Array.isArray(res.data)) {
-            let goodsNos = res.data.map(item => item.goods_no).toString()
+            let goodsNos = res.data.map(item => {
+              if (item.father_goods_no) {
+                return item.father_goods_no
+              } else {
+                return item.goods_no
+              }
+            }).toString()
+
             if (goodsNos) {
               let cartList = await this.getCartDetail(goodsNos)
               this.cartData = cartList
               if (Array.isArray(cartList) && cartList.length > 0) {
                 res.data = res.data.map(item => {
-                  let cartData = cartList.find(e => e.goods_no && e.goods_no === item.goods_no)
+                  let cartData = cartList.filter(e => e.goods_no && (e.goods_no === item.goods_no || e
+                    .father_goods_no === item.goods_no))
+                  if (Array.isArray(cartData) && cartData.length > 0) {
+                    item.goods_amount = cartData.reduce((res, cur) => {
+                      if (cur?.goods_amount) {
+                        res += cur?.goods_amount
+                      }
+                      return res
+                    }, 0)
+                  }
                   if (cartData?.goods_no) {
                     item.goods_amount = cartData?.goods_amount
                   }
@@ -486,10 +581,12 @@
                 })
               }
             }
+            debugger
             this.goodsList = res.data.reduce((pre, cur) => {
               let url = this.getImagePath(cur[this.image], true);
               if (cur.enable_sku === '是') {
-                cur.goods_amount = cur.goods_amount || 1
+                cur.goods_sku_amount = cur.goods_amount // 商品在购物车中的数量
+                cur.goods_amount = 1
               }
               cur.url = url;
               if (cur[this.image]) {

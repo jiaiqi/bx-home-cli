@@ -2842,13 +2842,13 @@ export default {
 
     Vue.prototype.updateCart = async (goodsInfo) => {
       let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
-      if (goodsInfo?.cart_goods_rec_no) {
+      if (goodsInfo?.id) {
         let req = [{
           "serviceName": serviceName,
           "condition": [{
-            colName: 'cart_goods_rec_no',
+            colName: 'id',
             ruleType: 'in',
-            value: goodsInfo.cart_goods_rec_no
+            value: goodsInfo.id
           }],
           "data": [{
             goods_amount: goodsInfo.goods_amount

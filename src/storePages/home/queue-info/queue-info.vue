@@ -16,7 +16,7 @@
           <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
             {{queueInfo.wait_amount||'-'}}
           </view>
-          <view class="info-item-label">
+          <view class="info-item-label":style="[{color:config&&config.labelColor?config.labelColor:''}]">
             排队人数
           </view>
         </view>

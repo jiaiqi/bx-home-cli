@@ -447,7 +447,6 @@ export default {
           })
           if (promise) {
             return
-
           }
         }
       }
@@ -494,7 +493,6 @@ export default {
             }
           }
           if (this?.todayQue?.activity_no) {
-
             if (!this.fill_batch_no) {
               uni.redirectTo({
                 url: `/questionnaire/index/index?formType=form&activity_no=${this?.todayQue?.activity_no}&status=进行中&from=queue&store_no=${this.store_no}&queue_no=${this.queue_no}`

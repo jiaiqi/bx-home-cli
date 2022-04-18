@@ -11,8 +11,11 @@
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
 					grid_span5: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '5' || setViewTemp.grid_span === 5)
 				}" v-for="(item, index) in list" :key="index" :style="setItemStyle">
-        <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
-          style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
+        
+        <view class="" style="display: flex;align-items: center;">
+          <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
+            style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
+        </view>
         <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData"
           :childData="colV2._childData" :childDataCfg="childDataCfg" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
           @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
@@ -249,6 +252,7 @@
 
       .list-item-wrap {
         flex: 1;
+        display: infl;
         max-width: 100%;
       }
     }

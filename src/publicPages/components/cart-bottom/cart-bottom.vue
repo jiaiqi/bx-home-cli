@@ -51,17 +51,20 @@
 
 <style scoped lang="scss">
   .cart-bottom {
-    width: calc(100% - 20rpx);
+    width: 100%;
+    // width: calc(100% - 20rpx);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 10px 20px 40px;
     border-top: 1px solid #f1f1f1;
     background-color: #fff;
     position: fixed;
-    bottom: 30px;
-    left: 10rpx;
-    border-radius: 20rpx;
+    // bottom: 30px;
+    bottom: 0;
+    left: 0;
+    // left: 10rpx;
+    // border-radius: 20rpx;
 
     .cart-left {
       display: flex;

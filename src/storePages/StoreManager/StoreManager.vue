@@ -601,16 +601,6 @@
             const buttons = await this.getButtons(item)
             item.buttonGroup = buttons
           }
-          // const buttons = await this.getButtons(buttonGroup)
-          // if (Array.isArray(buttons)) {
-          //   // buttons.push({
-          //   // 	label: '店铺设置',
-          //   // 	icon: 'settings',
-          //   // 	color: 'blue',
-          //   // 	type: 'setting'
-          //   // })
-          //   this.buttonGroup = buttons
-          // }
         }
       },
       async getButtons(e) {
@@ -1361,6 +1351,8 @@
   .statis-box {
     margin-bottom: 10px;
     padding: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: space-around;
     background: #fff;
 
@@ -1373,6 +1365,7 @@
     }
 
     .statis-list {
+      width: 100%;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-around;
