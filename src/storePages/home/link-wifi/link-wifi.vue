@@ -120,7 +120,9 @@
     },
     mounted() {
       uni.$on('wifi-status-change',(wifi)=>{
-        
+        if(wifi?.SSID){
+          this.connectedWifi = wifi 
+        }
       })
       let globalData = getApp().globalData
       if (globalData.room_no) {

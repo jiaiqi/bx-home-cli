@@ -1,12 +1,52 @@
 <template>
-    <view class="queue-info" v-if="queueInfo&&queueInfo.queue_status==='进行中'">
+  <view class="queue-info" v-if="queueInfo&&queueInfo.queue_status==='进行中'">
+    <view class="icon">
+      <image :src="icon" mode="aspectFit" class="image"></image>
+    </view>
+    <view class="info-view" v-if="!config.customCols">
+      <view class="info-item">
+        <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
+          {{queueInfo.cur_no || '-'}}
+        </view>
+        <view class="info-item-label">
+          当前叫号
+        </view>
+      </view>
+      <view class="info-item" v-if="!config.customCols">
+        <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
+          {{queueInfo.wait_amount||'-'}}
+        </view>
+        <view class="info-item-label" :style="[{color:config&&config.labelColor?config.labelColor:''}]">
+          排队人数
+        </view>
+      </view>
+    </view>
+    <view class="info-view" v-else-if="config.customCols">
+      <view class="info-item" v-for="item in config.customCols">
+        <view class="info-item-value" :style="[{color:item.valueColor || config.valueColor}]">
+          {{queueInfo[item.col] || ''}}
+        </view>
+        <view class="info-item-label" :style="[{color:item.labelColor}]">
+          {{item.label || ''}}
+        </view>
+      </view>
+    </view>
+    <button class="cu-btn bg-black round" :style="[{color:config.btnColor,'background':config.btnBg}]"
+      @click="toQueue">{{config.btnLabel||'立即排队'}}</button>
+  </view>
+  <view class="queue-list" v-else-if="queueList&&queueList.length>0">
+    <view class="queue-info" v-for="item in queueList">
+      <view class="queue-name">
+        <text> {{item.queue_name||''}}</text>
+        <text class="cuIcon-refresh" @click="getQueueInfo(true)"></text>
+      </view>
       <view class="icon">
         <image :src="icon" mode="aspectFit" class="image"></image>
       </view>
       <view class="info-view" v-if="!config.customCols">
         <view class="info-item">
           <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
-            {{queueInfo.cur_no || '-'}}
+            {{item.cur_no || '-'}}
           </view>
           <view class="info-item-label">
             当前叫号
@@ -14,9 +54,9 @@
         </view>
         <view class="info-item" v-if="!config.customCols">
           <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
-            {{queueInfo.wait_amount||'-'}}
+            {{item.wait_amount||'-'}}
           </view>
-          <view class="info-item-label":style="[{color:config&&config.labelColor?config.labelColor:''}]">
+          <view class="info-item-label">
             排队人数
           </view>
         </view>
@@ -24,7 +64,7 @@
       <view class="info-view" v-else-if="config.customCols">
         <view class="info-item" v-for="item in config.customCols">
           <view class="info-item-value" :style="[{color:item.valueColor || config.valueColor}]">
-            {{queueInfo[item.col] || ''}}
+            {{item[item.col] || ''}}
           </view>
           <view class="info-item-label" :style="[{color:item.labelColor}]">
             {{item.label || ''}}
@@ -32,48 +72,9 @@
         </view>
       </view>
       <button class="cu-btn bg-black round" :style="[{color:config.btnColor,'background':config.btnBg}]"
-        @click="toQueue">{{config.btnLabel||'立即排队'}}</button>
+        @click="toQueue(item)">{{config.btnLabel||'立即排队'}}</button>
     </view>
-    <view class="queue-list" v-else-if="queueList&&queueList.length>0">
-      <view class="queue-info" v-for="item in queueList">
-        <view class="queue-name">
-          {{item.queue_name||''}}
-        </view>
-        <view class="icon">
-          <image :src="icon" mode="aspectFit" class="image"></image>
-        </view>
-        <view class="info-view" v-if="!config.customCols">
-          <view class="info-item">
-            <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
-              {{item.cur_no || '-'}}
-            </view>
-            <view class="info-item-label">
-              当前叫号
-            </view>
-          </view>
-          <view class="info-item" v-if="!config.customCols">
-            <view class="info-item-value" :style="[{color:config&&config.valueColor?config.valueColor:''}]">
-              {{item.wait_amount||'-'}}
-            </view>
-            <view class="info-item-label">
-              排队人数
-            </view>
-          </view>
-        </view>
-        <view class="info-view" v-else-if="config.customCols">
-          <view class="info-item" v-for="item in config.customCols">
-            <view class="info-item-value" :style="[{color:item.valueColor || config.valueColor}]">
-              {{item[item.col] || ''}}
-            </view>
-            <view class="info-item-label" :style="[{color:item.labelColor}]">
-              {{item.label || ''}}
-            </view>
-          </view>
-        </view>
-        <button class="cu-btn bg-black round" :style="[{color:config.btnColor,'background':config.btnBg}]"
-          @click="toQueue(item)">{{config.btnLabel||'立即排队'}}</button>
-      </view>
-    </view>
+  </view>
 </template>
 
 <script>
@@ -110,7 +111,8 @@
         let url = `${this.$api?.serverURL}/health/select/srvhealth_store_queue_up_cfg_select`
       },
       toQueue(e) {
-        let url = `/storePages/queue/queue?store_no=${this.storeInfo?.store_no}&queue_no=${e?.queue_no||this.queueInfo?.queue_no}`
+        let url =
+          `/storePages/queue/queue?store_no=${this.storeInfo?.store_no}&queue_no=${e?.queue_no||this.queueInfo?.queue_no}`
         if (this.config?.btnUrl) {
           let data = {
             data: this.queueInfo,
@@ -151,18 +153,20 @@
               value: this.storeInfo?.store_no
             },
             {
-              colName:'queue_status',
+              colName: 'queue_status',
               ruleType: 'eq',
-              value:'进行中'
+              value: '进行中'
             }
           ]
         }
+        uni.showLoading()
         this.$http.post(url, req).then(res => {
+          uni.hideLoading()
           if (Array.isArray(res.data.data)) {
             if (res.data.data.length > 0) {
-              if(all){
+              if (all) {
                 this.queueList = res.data.data
-              }else{
+              } else {
                 this.queueInfo = res.data.data[0]
               }
             } else if (!all) {
@@ -176,11 +180,12 @@
 </script>
 
 <style scoped lang="scss">
-  .queue-list{
-    .queue-info{
+  .queue-list {
+    .queue-info {
       border-bottom: 1px solid #f1f1f1;
     }
   }
+
   .queue-info {
     display: flex;
     padding: 10px;
@@ -188,13 +193,16 @@
     align-items: center;
     flex-wrap: wrap;
 
-    .queue-name{
+    .queue-name {
       width: 100%;
       // text-align: center;
       font-size: 12px;
       color: #999;
       font-weight: bold;
+      display: flex;
+      justify-content: space-between;
     }
+
     .info-view {
       flex: 1;
       display: flex;
