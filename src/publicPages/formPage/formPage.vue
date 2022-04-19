@@ -40,7 +40,7 @@
         <view class="child-service" v-for="(item,index) in childServiceRadioOption" :key="index">
           <child-list v-show="curChild===item.constraint_name" :config="item" :childListData="childListData"
             :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
-            :fkInitVal="fkInitVal[item.constraint_name]" :fkCondition="fkCondition[item.constraint_name]"
+            :fkInitVal="fkInitVal[item.constraint_name||item.key_no]" :fkCondition="fkCondition[item.constraint_name||item.key_no]"
             ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
           </child-list>
         </view>

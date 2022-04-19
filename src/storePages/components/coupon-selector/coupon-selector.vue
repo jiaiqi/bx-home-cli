@@ -137,6 +137,11 @@
               colName: 'receive_status',
               ruleType: 'eq',
               value: '已领取'
+            },
+            {
+              colName: 'coupon_status',
+              ruleType: 'eq',
+              value: '未使用'
             }
           ],
           "page": {

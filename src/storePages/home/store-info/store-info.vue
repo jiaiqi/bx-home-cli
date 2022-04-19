@@ -114,8 +114,6 @@
           </uni-qrcode>
           <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
             @click.stop.prevent="showModal('showQrCode')"></image>
-          <!--    <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrcodePath"
-        @click="toPreviewImage(qrcodePath)"></image> -->
           <view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
         </view>
       </view>

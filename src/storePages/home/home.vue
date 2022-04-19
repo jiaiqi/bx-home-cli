@@ -1499,7 +1499,6 @@
             if (arr[3]) {
               option.link_pd_no = arr[3]
             }
-
           } else if (arr.length == 3) {
             let rowData = this.getUrlParams(arr[2], 'rowData');
             if (rowData) {

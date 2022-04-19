@@ -24,7 +24,7 @@ export default {
     Vue.mixin({
       computed: {
         ...mapState({
-          themeConfig:state=>state.app.themeConfig,
+          themeConfig: state => state.app.themeConfig,
           globalTextFontSize: state => state.app['globalTextFontSize'],
           globalLabelFontSize: state => state.app.globalLabelFontSize,
           isAttention: state => state.app.subscsribeStatus, //是否关注公众号
@@ -2854,7 +2854,10 @@ export default {
             goods_amount: goodsInfo.goods_amount
           }]
         }]
-        return await Vue.prototype.$fetch('update', serviceName, req, 'health')
+
+        let res = await Vue.prototype.$fetch('update', serviceName, req, 'health')
+        uni.$emit('goods-cart-change')
+        return res
       }
     }
 

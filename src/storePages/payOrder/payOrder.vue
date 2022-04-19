@@ -1,7 +1,6 @@
 <template>
   <view class="pay-order" :class="['theme-'+theme]" v-if="orderInfo&&orderInfo.order_state">
-    <view class="address-box" @click="chooseAddress"
-      v-if="(!room_no&&(storeInfo&&storeInfo.type!=='酒店')&&(!orderInfo||!orderInfo.order_no))&&['快递','卖家配送'].includes(delivery_type)&&needAddress">
+    <view class="address-box" @click="chooseAddress" v-if="needAddress">
       <view class="left"
         v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
         <text class="cuIcon-locationfill"></text>
@@ -28,7 +27,6 @@
     </view>
 
     <view class="order-detail">
-
       <!-- 点餐 -->
       <view class="field-list" v-if="isFood">
         <view class="field-title" v-if="orderInfo.order_no">
@@ -53,18 +51,58 @@
         </view>
         <view class="field-item" style="padding-right: 0;" v-else>
           <view class="label">
+            <text class="text-red margin-right-xs"></text>
             用餐方式
           </view>
           <view class="value flex-end">
             <text v-if="orderInfo&&orderInfo.order_no">{{repast_type}}</text>
-            <bx-radio-group class="form-item-content_value radio-group" v-model="repast_type" mode="button"
-              @change="pickerChange" v-else>
+            <bx-radio-group class="form-item-content_value radio-group" v-model="repast_type" mode="button" v-else
+              @change="changeRepastType">
               <bx-radio v-for="item in repastTypeList" :key="item.name" :name="item.name">{{ item.name }}
               </bx-radio>
             </bx-radio-group>
           </view>
         </view>
-        <view class="field-item" v-if="!service_place_no">
+
+        <view class="field-item" v-if="!disabled&&repast_type==='外卖'">
+          <view class="label"><text class="text-red margin-right-xs">*</text>配送方式</view>
+          <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="delivery_type">
+            <bx-radio v-for="item in ['卖家配送','自提']" :key="item" :name="item">{{ item }}
+            </bx-radio>
+          </bx-radio-group>
+        </view>
+
+        <view class="field-item" style="padding-right: 0;" v-if="!orderInfo.order_no&&repast_type==='堂食'">
+          <view class="label">
+            <!-- 用餐时间 -->
+          </view>
+          <view class="value flex-end">
+            <text v-if="orderInfo&&orderInfo.order_no">{{repast_eat}}</text>
+            <radio-group style="display: flex; align-items: center;justify-content: center;"
+              @change="bindPickerChange($event,'repast_eat')">
+              <label class="margin-right" v-for="(item, index) in repastTimeList" :key="item.name">
+                <radio :value="item.name" style="transform: scale(0.6);" :checked="item.name===repast_eat" />
+                <text class="margin-left-xs">{{item.name}}</text>
+              </label>
+            </radio-group>
+          </view>
+        </view>
+        <view class="field-item" style="padding-right: 0;" v-if="!orderInfo.order_no&&repast_eat!=='立即用餐'">
+          <view class="label">
+            {{ repast_type==='堂食'? '预约时间':'就餐时间'}}
+          </view>
+          <view class="value flex-end">
+            <picker mode="time" :value="service_time" @change="bindPickerChange($event,'service_time')"
+              :start="timeStart">
+              <text class="place-holder" v-if="!service_time">选择时间</text>
+              <text class="" v-else>
+                {{service_time}}
+              </text>
+              <text class="cuIcon-right margin-right-xs margin-left-xs"></text>
+            </picker>
+          </view>
+        </view>
+        <view class="field-item" v-if="!service_place_no&&!disabled&&(repast_type!=='外卖'||delivery_type!=='卖家配送')">
           <view class="label">
             <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text> 联系人
           </view>
@@ -73,7 +111,7 @@
             <input type="text" v-model="rcv_name" placeholder="输入姓名" v-else />
           </view>
         </view>
-        <view class="field-item" v-if="!service_place_no">
+        <view class="field-item" v-if="!service_place_no&&!disabled&&(repast_type!=='外卖'||delivery_type!=='卖家配送')">
           <view class="label">
             <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text>手机号
           </view>
@@ -87,7 +125,9 @@
             餐桌号
           </view>
           <view class="value">
-            <text class="text-gray">{{service_place_no}}</text>
+            <text class="text-gray"
+              v-if="placeInfo">{{placeInfo.showplacearea||placeInfo.place_name||service_place_no}}</text>
+            <text class="text-gray" v-else>{{service_place_no}}</text>
           </view>
         </view>
       </view>
@@ -179,7 +219,7 @@
         </view>
       </view>
 
-      <view class="field-list" v-if="!disabled">
+      <view class="field-list" v-if="!disabled&&!orderInfo.order_no">
         <view class="field-item">
           <view class="label">订单备注</view>
           <text v-if="orderInfo&&orderInfo.order_no">{{order_remark}}</text>
@@ -187,7 +227,6 @@
             v-model="order_remark" placeholder-style="fontSize:24rpx;" v-else></textarea>
         </view>
       </view>
-
 
 
       <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
@@ -272,7 +311,43 @@
         </radio-group>
       </view>
 
-
+      <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
+        <!--  <view class="detail-info-title">
+          收货信息
+        </view> -->
+        <view class="detail-info_item" v-if="orderInfo.rcv_name">
+          <view class="detail-info_item_label">
+            联系人
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_name}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.rcv_telephone">
+          <view class="detail-info_item_label">
+            手机号
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_telephone}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.rcv_addr_str">
+          <view class="detail-info_item_label">
+            收货地址
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.rcv_addr_str}}
+          </view>
+        </view>
+        <view class="detail-info_item" v-if="orderInfo.delivery_type">
+          <view class="detail-info_item_label">
+            提货方式
+          </view>
+          <view class="detail-info_item_value">
+            {{orderInfo.delivery_type}}
+          </view>
+        </view>
+      </view>
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
         <!--        <view class="detail-info-title">
@@ -330,50 +405,11 @@
           </view>
         </view>
       </view>
-
-      <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
-        <!--  <view class="detail-info-title">
-          收货信息
-        </view> -->
-        <view class="detail-info_item" v-if="orderInfo.rcv_name">
-          <view class="detail-info_item_label">
-            收货人
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_name}}
-          </view>
-        </view>
-        <view class="detail-info_item" v-if="orderInfo.rcv_telephone">
-          <view class="detail-info_item_label">
-            手机号
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_telephone}}
-          </view>
-        </view>
-        <view class="detail-info_item" v-if="orderInfo.rcv_addr_str">
-          <view class="detail-info_item_label">
-            收货地址
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_addr_str}}
-          </view>
-        </view>
-        <view class="detail-info_item" v-if="orderInfo.delivery_type">
-          <view class="detail-info_item_label">
-            提货方式
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.delivery_type}}
-          </view>
-        </view>
-      </view>
-
     </view>
 
 
 
-    <view class="handler-bar" v-if="!disabled">
+    <view class="handler-bar">
       <text class="amount margin-right-xs"
         v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ totalMoney - actualMoney }}元</text>
       <text class="amount">共{{ totalAmount }}件</text>
@@ -388,10 +424,8 @@
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
-      <button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="(
-          orderInfo.order_state === '待支付' &&
-          (orderInfo.pay_state === '取消支付' ||
-            orderInfo.pay_state === '待支付'))&&payMode !== 'coupon'
+      <button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&
+          ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'
         ">
         付款
       </button>
@@ -442,6 +476,7 @@
     data() {
       return {
         curDelivery: 0,
+        service_time: '', //预约时间
         deliveryList: [{
             name: '快递'
           },
@@ -455,19 +490,30 @@
             name: '当面交易'
           }
         ],
-        delivery_type: "快递", //提货方式
+        delivery_type: "", //提货方式:快递、卖家配送、自提、当面交易
+        placeInfo: "",
         payMode: 'wx',
         couponList: [], //卡券列表
         store_no: "",
         room_no: "",
-        repast_type: "堂食", //就餐方式 堂食，打包
+        repast_type: "堂食", //就餐方式 堂食，外卖
         rcv_name: "", //联系人
         rcv_telephone: "", // 收货电话
         repastTypeList: [{
-          name: '打包'
-        }, {
-          name: '堂食'
-        }],
+            name: '堂食'
+          },
+          {
+            name: '外卖'
+          }
+        ],
+        repast_eat: "预约用餐", // 用餐时间
+        repastTimeList: [{
+            name: '预约用餐'
+          },
+          {
+            name: '立即用餐'
+          }
+        ],
         orderNo: '', //订单编号
         orderInfo: {},
         order_remark: "",
@@ -516,6 +562,9 @@
         storeUserInfo: state => state.user.storeUserInfo,
         theme: state => state.app.theme
       }),
+      timeStart() {
+        return this.dayjs().format("HH:mm")
+      },
       isHexiao() {
         // 是否核销
         return this.pay_method === '套餐卡' || this.pay_method === '提货卡'
@@ -563,8 +612,12 @@
         }
       },
       needAddress() {
-        return this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
-          item => ['产品'].includes(item.goods_type)) && !this.isFood
+        const state = !this.room_no && this.storeInfo?.type !== '酒店' && !this.orderInfo?.order_no && ['快递', '卖家配送']
+          .includes(this.delivery_type)
+
+        return state
+        // || this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
+        //  item => ['产品'].includes(item.goods_type)) && !this.isFood
       },
       totalAmount() {
         if (Array.isArray(this.orderInfo.goodsList)) {
@@ -580,6 +633,10 @@
       },
       actualMoney() {
         // 实际支付价格
+        if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount && this.orderInfo?.order_amount - this
+          .orderInfo?.order_pay_amount > 0) {
+          return this.orderInfo?.order_pay_amount
+        }
         return this.totalMoney - this.couponMinus > 0 ? this.totalMoney - this.couponMinus : 0.01
       },
       totalMoney() {
@@ -597,6 +654,12 @@
       }
     },
     methods: {
+      repastEatChange(e) {
+        let value = e?.detail.value;
+        if (value) {
+          this.repast_eat = value
+        }
+      },
       setCouponMinus(e) {
         // debugger
         if (Array.isArray(e?.list) && e.list.length > 0) {
@@ -787,6 +850,21 @@
       },
       showSelector() {
         this.modalName = 'Selector'
+      },
+      changeRepastType(e) {
+        // 用餐方式更改
+        this.repast_type = e
+        if (e == '外卖') {
+          this.delivery_type = '卖家配送'
+        } else {
+          this.delivery_type = ''
+        }
+      },
+      bindPickerChange(e, type) {
+        let value = e.detail?.value;
+        if (type) {
+          this[type] = value
+        }
       },
       pickerChange(e) {
         this.room_no = e
@@ -1131,9 +1209,19 @@
         }];
 
         if (this.isFood) {
+
+          // 立即用餐、预约用餐
+          this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
+
+          // 预约用餐时间
+          this.service_time ? req[0].data[0].service_time = this.service_time : '';
+
           req[0].data[0].order_type = '餐饮'
+
           req[0].data[0].repast_type = this.repast_type
-          this.delivery_type = '当面交易'
+
+          this.delivery_type = this.delivery_type || '当面交易'
+
           if (!this.service_place_no) {
             if (!this.rcv_name) {
               uni.showModal({
@@ -1166,8 +1254,17 @@
 
         if (this.service_place_no) { // 场地号、餐桌号
           req[0].data[0].service_place_no = this.service_place_no
-
         }
+
+
+
+        // 立即用餐、预约用餐
+        this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
+
+        // 预约用餐时间
+        this.service_time ? req[0].data[0].service_time = this.service_time : '';
+
+        // 
 
         if (this.curCouponNo) {
           req[0].data[0].coupon_no = this.curCouponNo
@@ -1228,6 +1325,7 @@
         }
 
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
+        uni.$emit('goods-cart-change')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1408,7 +1506,24 @@
             }
           });
         }
-      }
+      },
+      async getPlaceInfo() {
+        let req = {
+          condition: [{
+            colName: "store_no",
+            ruleType: "eq",
+            value: this.storeInfo?.store_no
+          }, {
+            colName: "place_no",
+            ruleType: "eq",
+            value: this.service_place_no
+          }]
+        };
+        let res = await this.$fetch('select', 'srvhealth_store_place_join_select', req, 'health')
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          this.placeInfo = res.data[0]
+        }
+      },
     },
     onLoad(option) {
       if (getApp().globalData?.service_place_no) {
@@ -1416,7 +1531,8 @@
       }
       if (option.service_place_no) {
         this.service_place_no = option.service_place_no
-        this.delivery_type = '当面交易'
+        // this.delivery_type = '当面交易'
+        this.getPlaceInfo()
       }
 
       if (option.tgNo) {
@@ -1515,7 +1631,6 @@
 
       .place-holder {
         color: #666;
-        margin-left: 20rpx;
       }
     }
 
@@ -1848,6 +1963,15 @@
       align-items: center;
       padding: 10px;
       border-bottom: 1px solid #f8f8f8;
+
+      .place-holder {
+        color: #808080;
+        font-size: 16px;
+        text-overflow: clip;
+        white-space: pre;
+        word-break: keep-all;
+        pointer-events: none;
+      }
 
       &:last-child {
         border-bottom: none;

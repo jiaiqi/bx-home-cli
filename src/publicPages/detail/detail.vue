@@ -148,8 +148,8 @@
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
-          :fkCondition="fkCondition[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]" :childListData="childListData"
+          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail" @addChild="addChild"
           @child-list-change="childListChange" v-if="detail&&currentChild">
         </child-list>
       </view>
@@ -159,7 +159,7 @@
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
           :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
-          :fkCondition="fkCondition[item.constraint_name]" :appName="appName" :mainData="detail" @addChild="addChild"
+          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail" @addChild="addChild"
           @child-list-change="childListChange" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
@@ -262,8 +262,8 @@
             if (item?.foreign_key?.section_name) {
               item.label = item.foreign_key.section_name
             }
-            if (item?.foreign_key?.constraint_name) {
-              item.constraint_name = item.foreign_key.constraint_name
+            if (item?.foreign_key?.constraint_name||item?.foreign_key?.key_no) {
+              item.constraint_name = item.foreign_key.constraint_name || item?.foreign_key?.key_no
             }
             item.use_type = 'detaillist'
             return item

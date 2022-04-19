@@ -1,11 +1,16 @@
 <template>
   <view class="" v-if="goodsInfo">
     <view class="" @click="toGoodsDetail()">
-      <image class="goods-image" v-if="goodsInfo[image]" :lazy-load="true" :src="goodsInfo.url" mode="aspectFill"
-        :style="{ height: goodsInfo.imgHeight + 'px' }"></image>
+      <view class="goods-image" :style="{ height: goodsInfo.imgHeight + 'px' }" v-if="goodsInfo[image]">
+        <image class="image" :lazy-load="true" :src="goodsInfo.url" mode="aspectFill"
+          :style="{ height: goodsInfo.imgHeight + 'px' }"></image>
+        <text v-if="goodsInfo.store_label" class="badge"> {{goodsInfo.store_label}}</text>
+      </view>
       <view class="goods-image" v-else>{{ goodsInfo[name].slice(0, 4) }}</view>
       <view class="goods-info">
-        <view class="goods-name">{{ goodsInfo[name] }}</view>
+        <view class="goods-name">
+          <text>{{ goodsInfo[name] }}</text>
+        </view>
         <view class="desc" v-if="goodsInfo[desc]">{{ goodsInfo[desc]||'' }}</view>
         <view class="price margin-top-xs">
           <view class="">
@@ -146,7 +151,7 @@
       // },
       toCart: debounce(function(e) {
         this.$emit('toCart', e)
-      }, 500, false),
+      }, 100, false),
       // toCart(e) {
       //   this.$emit('toCart', e)
       // },
@@ -217,6 +222,25 @@
     font-size: 20px;
     font-weight: bold;
     border: 1px solid #fff;
+    position: relative;
+    .image {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .badge {
+      background-color: #fde159;
+      color: #333;
+      font-size: 12px;
+      margin-left: 2px;
+      padding: 2px 5px;
+      border-radius: 2px;
+      position: absolute;
+      right: -2px;
+      top: -2px;
+    }
   }
 
   .goods-info {
@@ -291,6 +315,7 @@
 
   .goods-name {
     text-align: left;
+
   }
 
   .number-handler-box {

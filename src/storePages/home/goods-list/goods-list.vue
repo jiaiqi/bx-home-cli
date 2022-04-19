@@ -155,9 +155,15 @@
         }
       }
     },
-    // created() {
-    // 	this.getGoodsListData()
-    // },
+    created() {
+      uni.$on('goods-cart-change',()=>{
+         this.getGoodsListData()
+      })
+    	// this.getGoodsListData()
+    },
+    beforeDestroy(){
+      uni.$off('goods-cart-change')
+    },
     methods: {
       clearCart(e) {
 
@@ -413,6 +419,7 @@
                 unit_price: goods.price,
                 goods_amount: goodsInfo.goods_amount || 1,
                 goods_no: goods.goods_no,
+                goods_type: goods.goods_type,
                 sum_price: goods.price,
                 goods_desc: goods.goods_desc,
                 goods_image: goods.goods_img,
@@ -581,7 +588,6 @@
                 })
               }
             }
-            debugger
             this.goodsList = res.data.reduce((pre, cur) => {
               let url = this.getImagePath(cur[this.image], true);
               if (cur.enable_sku === '是') {
@@ -731,7 +737,7 @@
 
   .goods-item {
     border-radius: 10px;
-    overflow: hidden;
+    // overflow: hidden;
     background-color: #fff;
     break-inside: avoid;
     margin-top: 20rpx;

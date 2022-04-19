@@ -217,7 +217,7 @@
           console.log(newValue)
           this.$emit('child-list-change', {
             calcRelations: this.config?.calcRelations,
-            key: this.config?.foreign_key?.constraint_name,
+            key: this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no,
             data: newValue
           })
         }
@@ -226,7 +226,7 @@
     computed: {
       showHandle() {
         // 是否显示操作按钮
-        let constraint_name = this.config?.foreign_key?.constraint_name
+        let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no 
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
           return false
@@ -256,7 +256,7 @@
         if (this.fkMoreConfig?.gridButtonDisp?.seeAll === false) {
           return false
         }
-        let constraint_name = this.config?.foreign_key?.constraint_name
+        let constraint_name = this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no
         if (this.srvGridButtonDisp && constraint_name && this.srvGridButtonDisp[constraint_name]) {
           if (this.srvGridButtonDisp[constraint_name]['seeAll'] === false) {
             return false
@@ -382,7 +382,7 @@
               return false
             }
             // 主表服务上配置的隐藏按钮
-            let constraint_name = this.config?.foreign_key?.constraint_name
+            let constraint_name = this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no
             if (constraint_name && this.srvGridButtonDisp && this.srvGridButtonDisp[constraint_name] && this
               .srvGridButtonDisp[constraint_name][item.button_type] === false) {
               return false
@@ -529,7 +529,7 @@
             return true
           })
         }
-        let constraint_name = this.config?.foreign_key?.constraint_name
+        let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name]) {
           rowButton = rowButton.filter((item, index) => {
             if (this.srvRowButtonDisp[constraint_name][item.button_type] === false) {

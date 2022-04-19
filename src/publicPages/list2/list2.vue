@@ -1,9 +1,7 @@
 <template>
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}">
-
     <view class="top-bar">
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
-
       <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
@@ -42,6 +40,27 @@
     </cart-bottom>
     <view class="bottom-button" v-if="selectoDataId">
       <button class="cu-btn bg-blue round shadow-blur" @click="confirmSelect">确认</button>
+    </view>
+
+
+    <view class="cu-modal bottom-modal" :class="{ show: modalName === 'showQrCode' }" @click="hideModal">
+      <view class="cu-dialog " @click.stop="">
+        <view class="qrcode-box">
+          <!-- <view class="title">我的推广码</view> -->
+          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" show-menu-by-longpress
+            v-if="storeInfo && qrcodePath" @click="toPreviewImage(qrcodePath)" :show-menu-by-longpress="true"></image>
+          <view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
+          <!-- <view class="store-name">{{ setStoreInfo.name || '' }}</view> -->
+          <view class="store-name">长按保存图片</view>
+        </view>
+        <view class="button-box"><button @click.stop="hideModal()" class="cu-btn">关闭</button></view>
+        <view class="qrcodeCanvas-box" v-if="modalName === 'showQrCode' && qrCodeText">
+          <uni-qrcode cid="qrcodeCanvas" style="width: 100px;height: 100px;" :text="qrCodeText" :size="codeSize"
+            class="qrcode-canvas" foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete"
+            ref="qrcodeCanvas">
+          </uni-qrcode>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -359,6 +378,10 @@
     },
     data() {
       return {
+        modalName: "",
+        codeSize: uni.upx2px(750),
+        qrcodePath: "",
+        qrCodeText: "",
         cartMode: 'default',
         navigationBarTitle: "",
         hideChildList: false,
@@ -403,6 +426,19 @@
       }
     },
     methods: {
+      makeQrCode() {
+        if (this.$refs.qrcodeCanvas) {
+          this.$refs.qrcodeCanvas.make();
+        }
+      },
+      qrcodeCanvasComplete(e) {
+        this.qrcodePath = e;
+        // this.qrcodePath = this.setStoreInfo?.barcode_pic || e;
+        this.$emit('getQrcode', e);
+      },
+      hideModal() {
+        this.modalName = ''
+      },
       changeTabs(index) {
         this.curTab = index
         let cond = null
@@ -414,10 +450,10 @@
               ruleType: 'eq',
               value: tab.value
             }]
-            this.curTabVal = tab.value
           } else {
             cond = []
           }
+          this.curTabVal = tab.value
           this.pageNo = 1;
           this.getList(cond)
         }
@@ -585,6 +621,7 @@
                   }]
                 }]
                 this.$http.post(url, req).then(res => {
+                  uni.$emit('goods-cart-change')
                   if (res.data.state === 'SUCCESS') {
                     this.refresh()
                     uni.showToast({
@@ -1064,7 +1101,7 @@
         if (Array.isArray(initCond) && initCond.length > 0) {
           req.condition = [...req.condition, ...initCond]
         }
-        
+
         let keywords = this.searchVal;
         // req.condition = []
         if (keywords && this.finalSearchColumn) {
@@ -1138,9 +1175,9 @@
           //   this.list = res.data.data;
           // }
           let list = this.deepClone(this.list)
-          if(this.pageNo === 1){
+          if (this.pageNo === 1) {
             list = res.data.data
-          }else{
+          } else {
             list = list.concat(res.data.data);
           }
           let viewTemp = this.colV2?.moreConfig?.list_config
@@ -1450,7 +1487,6 @@
                 this.refresh()
               }
             })
-
           } else if (['操作', '增加'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
             if (moreConfig?.type === 'wx_pay') {
               this.onRequestPayment(rowData, moreConfig)
@@ -1489,6 +1525,7 @@
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
             if (buttonInfo?.moreConfig?.navUrl) {
+              // 跳转到自定义页面
               let storeInfo = this.$store?.state?.app?.storeInfo
               let bindUserInfo = this.$store?.state?.user?.storeUserInfo
               let obj = {
@@ -1508,9 +1545,10 @@
               })
             } else if (buttonInfo?.pre_data_handle === 'requestPayment' || buttonInfo?.path_col ===
               'requestPayment') {
+              // 调起支付接口
               let total_col = 'order_amount'
               let order_no_col = 'order_no'
-              debugger
+
               if (buttonInfo?.moreConfig?.total_col) {
                 total_col = buttonInfo?.moreConfig?.total_col
               }
@@ -1553,8 +1591,17 @@
               }
 
 
+            } else if (buttonInfo?.moreConfig?.type === 'showQrcode') {
+              // 展示二维码弹框
+              if (buttonInfo?.moreConfig?.qrcode_content) {
+                let data = {
+                  storeInfo:this.storeInfo,userInfo:this.userInfo,storeUser:this.vstoreUser,data:rowData
+                }
+                this.qrCodeText = this.renderStr(buttonInfo?.moreConfig?.qrcode_content,data)
+                this.modalName = 'showQrCode'
+                this.makeQrCode()
+              }
             }
-
           } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
             // 自定义按钮
             let moreConfig = buttonInfo.more_config;
@@ -1633,7 +1680,7 @@
                   })
                 }
               }
-              
+
               if (fieldsCond.length === 0) {
                 fieldsCond = [{
                   column: 'id',
@@ -2330,6 +2377,47 @@
     .cu-btn {
       width: 80%;
 
+    }
+  }
+  .qrcodeCanvas-box {
+    position: fixed;
+    top: -9999;
+  }
+  .qrcode-box {
+    padding: 80rpx 40rpx;
+    text-align: center;
+    position: relative;
+
+    .title {
+      padding: 0 0 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .store-name {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .store-logo {
+      position: absolute;
+      width: 100rpx;
+      height: 100rpx;
+      left: calc(50% - 50rpx);
+      top: 20rpx;
+      z-index: 2;
+    }
+
+    .qr-code-image {
+      width: 500rpx;
+      height: 500rpx;
+      line-height: 500rpx;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      border: 15rpx solid #333;
+      padding: 10px;
+      // border-radius: 20rpx;
     }
   }
 </style>

@@ -194,8 +194,8 @@
       childData: {
         type: [Object, Array]
       },
-      childDataCfg:{
-        
+      childDataCfg: {
+
       }
     },
     data() {
@@ -261,7 +261,7 @@
         if (Array.isArray(this.viewTemp?.cols) && this.viewTemp?.cols.length > 0) {
           obj.cols = this.viewTemp?.cols;
         } else {
-          if(obj.cols===false){
+          if (obj.cols === false) {
             return obj
           }
           if (typeof this.rowData === 'object' && Object.keys(this.rowData).length > 0) {
@@ -498,7 +498,7 @@
             obj.valueWhiteSpace = cfg?.white_space;
             obj.event = col.event
             if (col?.col) {
-              let getVal = this.setValue(col.col);
+              let getVal = this.setValue(col.col,col.cfg);
               if (cfg?.disp_label !== false) {
                 obj.label = getVal?.label || '';
               }
@@ -667,10 +667,14 @@
         if (!resCol && Array.isArray(arr) && arr.length > 0) {
           resCol = arr[0];
         }
-        res.label = labelMap[resCol] || cfg?.default_label || '';
+        res.label = cfg?.custom_label || labelMap[resCol] || cfg?.default_label || '';
         res.value = detail[resCol] ?? cfg?.default_val ?? '';
         if (res.value && typeof res.value === 'string') {
           res.value = res.value.replace(/\\n/, '')
+        }
+        debugger
+        if(cfg?.format?.type === 'date'&&res.value&&cfg?.format?.rule){
+          res.value = this.dayjs(res.value).format(cfg?.format?.rule)
         }
         return res;
       },
@@ -755,7 +759,7 @@
       // flex: 1;
       display: flex;
       width: 100%;
-      
+
       .cuIcon-moreandroid {
         margin-bottom: 10rpx;
       }
