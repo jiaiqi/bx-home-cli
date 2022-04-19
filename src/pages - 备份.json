@@ -247,7 +247,6 @@
             "enablePullDownRefresh": true
           }
         },
-
         // #ifdef H5
         {
           "path": "appointmentCheckIn/appointmentCheckIn",
@@ -269,6 +268,13 @@
           "path": "officialIntro/officialIntro",
           "style": {
             "navigationBarTitleText": "关注公众号",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "storeStatement/storeStatement",
+          "style": {
+            "navigationBarTitleText": "报表",
             "enablePullDownRefresh": false
           }
         },
@@ -320,6 +326,7 @@
             "enablePullDownRefresh": false
           }
         }
+
       ]
     },
     {
@@ -401,8 +408,7 @@
             "navigationBarTitleText": "个人主页",
             "enablePullDownRefresh": false
           }
-        }
-        , 
+        },
         {
           "path": "chargeCoin/chargeCoin",
           "style": {
@@ -414,8 +420,7 @@
     },
     {
       "root": "otherPages",
-      "pages": [
-        {
+      "pages": [{
           "path": "clockIn/clockIn",
           "style": {
             "navigationBarTitleText": "打卡",
@@ -427,7 +432,7 @@
           "style": {
             // "navigationStyle": "custom",
             "navigationBarBackgroundColor": "#8a1b1f"
-         		 // ,
+            // ,
             // "navigationBarTitleText": "建党100周年祝福接力"
           }
         },

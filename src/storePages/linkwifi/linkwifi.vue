@@ -2,7 +2,7 @@
   <view class="wifi-manage" :class="['theme-'+theme]">
     <view class="wifi-list">
       <scroll-view scroll-y="true">
-        <view class="wifi-item" v-for="(item,index) in pageData||resultWifiList" :key="index">
+        <view class="wifi-item" v-for="(item,index) in pageData" :key="index">
           <view class="wifi-item-left">
             <view class="top">
               <!-- <text class="wifi-icon">
@@ -18,7 +18,7 @@
           </view>
           <view class="wifi-item-right">
             <!-- #ifdef MP-WEIXIN -->
-            <button class="cu-btn border line-blue round" :class="'bx-bg-'+theme" @tap="toConnect(item)"
+            <button class="cu-btn border line-blue round" @click="toConnect(item)"
               v-if="activeWifiMac!==item.wifi_mac&&activeWifiMac!==item.wifi_ssid">连接</button>
             <!-- #endif -->
           </view>
@@ -30,8 +30,8 @@
       </view> -->
     </view>
     <view class="page-nav">
-      <uni-pagination title="标题文字" show-icon="false" :total="resultTotal" :pageSize="5" :current="currentNo"
-        @change="changePage"></uni-pagination>
+      <uni-pagination show-icon="false" :total="resultTotal" :pageSize="5" :current="currentNo" @change="changePage">
+      </uni-pagination>
     </view>
   </view>
 </template>
@@ -80,6 +80,8 @@
             arr[parseInt(index / 5)].push(item)
           })
           return arr[this.currentNo - 1]
+        }else if (Array.isArray(this.resultWifiList) ){
+          return this.resultWifiList
         }
       },
       resultTotal() {
@@ -95,7 +97,6 @@
         // #endif
 
         let result = this.wifiList.filter((item) => this.nearWifiList.find(wifi => item.wifi_ssid === wifi.SSID))
-        debugger
 
         if (result.length === 0) {
           result = this.wifiList
@@ -116,6 +117,7 @@
       if (linkjs?.getConnectedWifi) {
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi || {}
+          uni.$emit('wifi-status-change',wifi)
         })
       }
     },
@@ -128,27 +130,27 @@
         debugger
         this.currentNo = current
       },
-      async toConnect(e) {
+      toConnect(e) {
         let SSID = e.wifi_ssid
         let password = e.wifi_psd
-        console.log(e, 'toConnect: 83')
         let self = this
         // linkjs.getConnectedWifi().then(wifi => {
         //   self.connectedWifi = wifi
         // })
         let wifi = linkjs.getConnectedWifi()
         self.connectedWifi = wifi
-        console.log(e, 'toConnect: 88')
-        
+        if(wifi?.SSID){
+          uni.$emit('wifi-status-change',wifi)
+        }
         linkjs.startConnectWifi(SSID, password).then(res => {
-          console.log(res, 'toConnect: 90')
           wx.vibrateLong()
           linkjs.getConnectedWifi().then(wifi => {
+            uni.$emit('wifi-status-change',wifi)
             self.connectedWifi = wifi
           })
         }).catch(err => {
-          console.log('err:94', err)
           linkjs.getConnectedWifi().then(wifi => {
+            uni.$emit('wifi-status-change',wifi)
             self.connectedWifi = wifi
           })
         })
@@ -331,6 +333,7 @@
           success: (e) => {
             if (e && e.wifi) {
               this.connectedWifi = e.wifi
+              uni.$emit('wifi-status-change',e.wifi)
             }
           }
         })
@@ -340,6 +343,7 @@
         let self = this
         linkjs.getConnectedWifi().then(wifi => {
           self.connectedWifi = wifi
+          uni.$emit('wifi-status-change',wifi)
         })
 
         wx.getSystemInfo({
