@@ -88,8 +88,7 @@
       </view>
       <view class="cart-bottom" @click="changeCartStatus" :class="['theme-'+vtheme]">
         <view class="cart-bottom-left">
-          <view class="cart-icon"
-            :class="{'active bx-btn-bg-color':cartActive}">
+          <view class="cart-icon" :class="{'active bx-btn-bg-color':cartActive}">
             <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
             <text class="cuIcon-cart"></text>
           </view>
@@ -244,6 +243,9 @@
       },
       toPlaceOrder() {
         let url = `/storePages/payOrder/payOrder?type=restaurant&store_no=${this.storeInfo?.store_no }`
+        if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+          url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+        }
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`
         }

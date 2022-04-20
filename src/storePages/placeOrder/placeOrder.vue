@@ -1,6 +1,8 @@
 <template>
-  <view class="pay-order" :class="['theme-'+theme]" v-if="orderInfo&&orderInfo.order_state">
-<!--    <view class="address-box" @click="chooseAddress" v-if="needAddress">
+  <view class="pay-order" :class="['theme-'+theme]">
+    <!-- <bx-form :fields="colV2._fieldInfo" v-if="colV2&&colV2._fieldInfo"></bx-form> -->
+
+    <view class="address-box" @click="chooseAddress" v-if="needAddress">
       <view class="left"
         v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
         <text class="cuIcon-locationfill"></text>
@@ -25,116 +27,17 @@
       </view>
       <view class="right" v-if="!orderInfo||!orderInfo.rcv_addr_str"><text class="cuIcon-right"></text></view>
     </view>
- -->
-     <!-- 点餐 -->
+
     <view class="order-detail">
-  
-      <!-- <view class="field-list" v-if="isFood">
-        <view class="field-title" v-if="orderInfo.order_no">
-          <text>订单信息</text>
-          <text class="badge">{{service_place_no?"扫码点餐":'提前点餐'}}</text>
-        </view>
-        <view class="field-item" v-if="orderInfo.repast_num">
-          <view class="label">
-            用餐号
-          </view>
-          <view class="value">
-            {{orderInfo.repast_num}}
-          </view>
-        </view>
-        <view class="field-item" v-if="orderInfo&&orderInfo.order_no">
-          <view class="label">
-            用餐方式
-          </view>
-          <view class="value">
-            <text>{{repast_type}}</text>
-          </view>
-        </view>
-        <view class="field-item" style="padding-right: 0;" v-else>
-          <view class="label">
-            <text class="text-red margin-right-xs"></text>
-            用餐方式
-          </view>
-          <view class="value flex-end">
-            <text v-if="orderInfo&&orderInfo.order_no">{{repast_type}}</text>
-            <bx-radio-group class="form-item-content_value radio-group" v-model="repast_type" mode="button" v-else
-              @change="changeRepastType">
-              <bx-radio v-for="item in repastTypeList" :key="item.name" :name="item.name">{{ item.name }}
-              </bx-radio>
-            </bx-radio-group>
-          </view>
-        </view>
+      <!-- 点餐 -->
+      <view class="form-box">
+        <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
+          :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
+          @value-blur="valueChange">
+        </a-form>
+      </view>
 
-        <view class="field-item" v-if="!disabled&&repast_type==='外卖'">
-          <view class="label"><text class="text-red margin-right-xs">*</text>配送方式</view>
-          <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="delivery_type">
-            <bx-radio v-for="item in ['卖家配送','自提']" :key="item" :name="item">{{ item }}
-            </bx-radio>
-          </bx-radio-group>
-        </view>
-
-        <view class="field-item" style="padding-right: 0;" v-if="!orderInfo.order_no&&repast_type==='堂食'">
-          <view class="label">
-            用餐时机
-          </view>
-          <view class="value flex-end">
-            <text v-if="orderInfo&&orderInfo.order_no">{{repast_eat}}</text>
-            <radio-group style="display: flex; align-items: center;justify-content: center;"
-              @change="bindPickerChange($event,'repast_eat')">
-              <label class="margin-right" v-for="(item, index) in repastTimeList" :key="item.name">
-                <radio :value="item.name" style="transform: scale(0.6);" :checked="item.name===repast_eat" />
-                <text class="margin-left-xs">{{item.name}}</text>
-              </label>
-            </radio-group>
-          </view>
-        </view>
-        <view class="field-item" style="padding-right: 0;" v-if="!orderInfo.order_no&&repast_eat!=='立即用餐'">
-          <view class="label">
-            {{ repast_type==='堂食'? '预约时间':'就餐时间'}}
-          </view>
-          <view class="value flex-end">
-            <picker mode="time" :value="service_time" @change="bindPickerChange($event,'service_time')"
-              :start="timeStart">
-              <text class="place-holder" v-if="!service_time">选择时间</text>
-              <text class="" v-else>
-                {{service_time}}
-              </text>
-              <text class="cuIcon-right margin-right-xs margin-left-xs"></text>
-            </picker>
-          </view>
-        </view>
-        <view class="field-item" v-if="!service_place_no&&!disabled&&(repast_type!=='外卖'||delivery_type!=='卖家配送')">
-          <view class="label">
-            <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text> 联系人
-          </view>
-          <view class="value">
-            <text class="text-gray" v-if="orderInfo&&orderInfo.order_no">{{rcv_name}}</text>
-            <input type="text" v-model="rcv_name" placeholder="输入姓名" v-else />
-          </view>
-        </view>
-        <view class="field-item" v-if="!service_place_no&&!disabled&&(repast_type!=='外卖'||delivery_type!=='卖家配送')">
-          <view class="label">
-            <text class="text-red margin-right-xs" v-if="!orderInfo.order_no">*</text>手机号
-          </view>
-          <view class="value">
-            <text class="text-gray" v-if="orderInfo&&orderInfo.order_no">{{rcv_telephone}}</text>
-            <input type="number" maxlength="11" v-model="rcv_telephone" placeholder="输入手机号" v-else />
-          </view>
-        </view>
-        <view class="field-item" v-if="service_place_no">
-          <view class="label">
-            餐桌号
-          </view>
-          <view class="value">
-            <text class="text-gray"
-              v-if="placeInfo">{{placeInfo.showplacearea||placeInfo.place_name||service_place_no}}</text>
-            <text class="text-gray" v-else>{{service_place_no}}</text>
-          </view>
-        </view>
-      </view> -->
-
-
-<!--      <view class="person-info" v-if="orderType==='团购'">
+      <view class="person-info" v-if="orderType==='团购'">
         <view class="cu-form-group">
           <view class="title">姓名</view>
           <input :placeholder="'请输入姓名'" name="input" v-model="addressInfo.userName" placeholder-style="fontSize:12px;"
@@ -147,7 +50,7 @@
             :disabled="!!orderInfo.order_no"></input>
           <text class="cuIcon-write" style="fontSize:14px;" v-if="!orderInfo.order_no"></text>
         </view>
-      </view> -->
+      </view>
       <view class="order-info">
         <view class="title-bar text-bold" v-if="orderType==='团购'">
           已选商品
@@ -159,8 +62,8 @@
           </image>
           <text class="store-logo cuIcon-shop" v-else></text>
           <text class="store-name">{{
-            orderInfo.store_name ? orderInfo.store_name : orderInfo.name || ""
-          }}</text>
+              orderInfo.store_name ? orderInfo.store_name : orderInfo.name || ""
+            }}</text>
         </view>
         <view class="goods-list">
           <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
@@ -184,13 +87,13 @@
             </view>
           </view>
           <!--   <view class="detail-info_item" v-else-if="totalMoney">
-            <view class="detail-info_item_label">
-              商品总价
-            </view>
-            <view class="detail-info_item_value text-red">
-              ￥{{totalMoney}}
-            </view>
-          </view> -->
+              <view class="detail-info_item_label">
+                商品总价
+              </view>
+              <view class="detail-info_item_value text-red">
+                ￥{{totalMoney}}
+              </view>
+            </view> -->
           <view class="detail-info_item" v-if="totalMoney&&actualMoney">
             <view class="detail-info_item_label">
               应付金额
@@ -219,7 +122,7 @@
           </view>
         </view>
       </view>
-
+      <!-- 
       <view class="field-list" v-if="!disabled&&!orderInfo.order_no">
         <view class="field-item">
           <view class="label">订单备注</view>
@@ -227,7 +130,7 @@
           <textarea class="value text-area" :auto-height="true" placeholder="选填,建议填写前与商家沟通确认" name="input"
             v-model="order_remark" placeholder-style="fontSize:24rpx;" v-else></textarea>
         </view>
-      </view>
+      </view> -->
 
 
       <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
@@ -314,8 +217,8 @@
 
       <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
         <!--  <view class="detail-info-title">
-          收货信息
-        </view> -->
+            收货信息
+          </view> -->
         <view class="detail-info_item" v-if="orderInfo.rcv_name">
           <view class="detail-info_item_label">
             联系人
@@ -352,8 +255,8 @@
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
         <!--        <view class="detail-info-title">
-          订单信息
-        </view> -->
+            订单信息
+          </view> -->
         <view class="detail-info_item" v-if="orderInfo.order_no">
           <view class="detail-info_item_label">
             订单编号
@@ -408,8 +311,6 @@
       </view>
     </view>
 
-
-
     <view class="handler-bar">
       <text class="amount margin-right-xs"
         v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ totalMoney - actualMoney }}元</text>
@@ -426,14 +327,14 @@
         <text v-else> 提交订单</text>
       </button>
       <button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&
-          ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'
-        ">
+            ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'
+          ">
         付款
       </button>
     </view>
     <view class="cu-modal bottom-modal" :class="{
-     show: modalName === 'Selector'
-   }" @click="hideModal">
+       show: modalName === 'Selector'
+     }" @click="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector">
           <view class="content">
@@ -453,8 +354,6 @@
             </bx-radio-group>
           </view>
           <view class="dialog-button">
-            <!--       <view class="cu-btn bg-blue shadow" @tap="hideModal" v-if="modalName === 'MultiSelector'">确定
-            </view> -->
             <view class="cu-btn bg-grey shadow margin round" @tap="hideModal" v-if="modalName === 'Selector'">取消</view>
           </view>
         </view>
@@ -469,13 +368,27 @@
   } from 'vuex';
   import goodsItem from '../components/goods-item/goods-item.vue'
   import couponSelector from '../components/coupon-selector/coupon-selector.vue'
+  import bxForm from './bx-form/bx-form.vue'
   export default {
     components: {
       goodsItem,
-      couponSelector
+      couponSelector,
+      bxForm
     },
     data() {
       return {
+        includesColumns: "", // 表单中要包含的字段
+        columnsDefaultVal: {}, //表单默认值
+        submitColumns: "",
+        globalData: {},
+        app: '',
+        colV2: {},
+        fields: [],
+        mainData: {},
+        fieldsCfg: {
+          service: 'srvhealth_store_order_select',
+          app: 'health',
+        },
         curDelivery: 0,
         service_time: '', //预约时间
         deliveryList: [{
@@ -555,6 +468,15 @@
       };
     },
     computed: {
+      srvType() {
+        return this.disabled||this.orderInfo?.order_no ? 'detail' : 'add'
+      },
+      appName() {
+        return this.app || uni.getStorageSync('activeApp')
+      },
+      moreConfig() {
+        return this.colV2?.moreConfig || {}
+      },
       ...mapState({
         userInfo: state => state.user.userInfo,
         loginUserInfo: state => state.user.loginUserInfo,
@@ -614,7 +536,7 @@
       },
       needAddress() {
         const state = !this.room_no && this.storeInfo?.type !== '酒店' && !this.orderInfo?.order_no && ['快递', '卖家配送']
-          .includes(this.delivery_type)
+          .includes(this.delivery_type) && !this.isFood
 
         return state
         // || this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
@@ -655,6 +577,265 @@
       }
     },
     methods: {
+      async valueChange(e, triggerField) {
+        let data = this.mainData
+        const column = triggerField.column
+
+        if (this.mainData && typeof this.mainData === 'object') {
+          this.mainData[column] = triggerField.value
+        }
+
+        let fieldModel = e
+        let xIfCols = null
+
+        //#ifdef MP-WEIXIN
+        this.colV2?._fieldInfo.filter(item => item.x_if && Array.isArray(item
+          .xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
+        //#endif
+
+        //#ifdef H5
+        xIfCols = this.colV2?._fieldInfo.filter(item => item.x_if && ((Array.isArray(item
+          .xif_trigger_col) && item.xif_trigger_col.includes(column)) || item.x_if.indexOf(column) !== -1))
+        debugger
+        //#endif
+
+        const table_name = this.colV2?.main_table
+
+        let xIfResult = null
+
+        if (Array.isArray(xIfCols) && xIfCols.length > 0) {
+          //#ifdef MP-WEIXIN
+          xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
+          //#endif
+          //#ifdef H5
+          xIfResult = {
+            response: {}
+          }
+          xIfCols.forEach(col => {
+            let x_if = col?.x_if;
+            if (x_if) {
+              x_if = `(${x_if})(data)`
+              xIfResult.response[col.column] = eval(x_if)
+            }
+          })
+          debugger
+          //#endif
+        }
+
+
+        let calcResult = {}
+        let calcCols = null;
+        //#ifdef MP-WEIXIN
+        calcCols = this.colV2?._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+            .calc_trigger_col) && item.calc_trigger_col.includes(column) && item.value !== item
+          .old_value).map(item =>
+          item.column)
+        //#endif
+        //#ifdef H5
+        calcCols = this.colV2?._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+            .calc_trigger_col) && item.calc_trigger_col.includes(column) && item.value !== item
+          .old_value)
+        //#endif
+
+        if (Array.isArray(calcCols) && calcCols.length > 0) {
+          //#ifdef H5
+          calcCols.forEach(col => {
+            debugger
+          })
+          //#endif
+
+          //#ifdef MP-WEIXIN
+          calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
+          //#endif
+        }
+        for (let i = 0; i < this.fields.length; i++) {
+          const item = this.fields[i]
+
+          item.old_value = item.value
+          if (e.column && e.column === item.column) {
+            item = this.deepClone(e)
+          }
+          if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
+              .column] == 0)) {
+
+            if (item.redundant?.trigger === 'always' || !item.value) {
+              item.value = calcResult?.response[item.column] || item.value
+              fieldModel[item.column] = item.value
+              this.mainData[item.column] = item.value
+            }
+
+          }
+
+          if ((Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) || (item.x_if && item
+              .x_if.indexOf(column) !== -1)) {
+            if (item.table_name !== table_name) {
+              //#ifdef MP-WEIXIN
+              xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
+              //#endif
+            }
+            if (xIfResult?.response && xIfResult.response[item.column]) {
+              item.display = true
+            } else if (xIfResult === true) {
+              item.display = true
+            } else {
+              item.display = false
+            }
+          }
+          if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
+            item.value = e[item.column];
+            fieldModel[item.column] = item.value
+          }
+          this.$set(this.fields, i, item)
+        }
+        if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
+          let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
+        }
+      },
+
+      async getSrvCols(type = "add") {
+        const app = this.fieldsCfg?.app || this.appName || uni.getStorageSync('activeApp');
+        const service = this.fieldsCfg?.service
+        if (app && service) {
+          let colVs = await this.getServiceV2(service, type, type, app);
+          this.colV2 = colVs
+          let fields = []
+          let defaultVal = null
+          if (type === 'add') {
+            fields = colVs._fieldInfo.map(field => {
+              if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+                field.option_list_v2 = field.option_list_v2.map(item => {
+                  item.checked = false;
+                  return item;
+                });
+              }
+              
+              if (field.column === 'store_no') {
+                field.value = field.value || this.storeInfo?.store_no
+                this.mainData[field.column] = field.value
+              }
+              
+              if (field.column === 'store_user_no') {
+                field.value = field.value || this.vstoreUser?.store_user_no
+                this.mainData[field.column] = field.value
+              }
+              
+              
+              if (this.globalData[field.column]) {
+                field.value = field.value || this.globalData[field.column]
+              }
+              if (this.includesColumns && this.includesColumns.indexOf(field.column) == -1) {
+                field.display = false
+                field.disabled = true
+                field.in_add = 2
+              }
+              if (this.columnsDefaultVal && this.columnsDefaultVal[field.column]) {
+                field.value = this.columnsDefaultVal[field.column];
+                field.defaultValue = this.columnsDefaultVal[field.column];
+              }
+
+              if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+                this.fieldsCond.forEach(item => {
+                  if (item.colName && !item.column) {
+                    item.column = item.colName
+                  }
+
+                  this.mainData[item.column] = item.value
+                  if (item.column === field.column) {
+                    if (item.hasOwnProperty('display')) {
+                      field.display = item.display;
+                    }
+                    if (item.hasOwnProperty('label')) {
+                      field.customLabel = item.label;
+                    }
+                    if (item.hasOwnProperty('disabled')) {
+                      field.disabled = item.disabled;
+                    }
+                    if (item.hasOwnProperty('value')) {
+                      field.value = item.value;
+                      field.defaultValue = item.value;
+                    }
+                    if (field.option_list_v2 && Array.isArray(field
+                        .option_list_v2
+                        .conditions) && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = field
+                        .option_list_v2
+                        .conditions.concat(item.condition);
+                    } else if (field.option_list_v2 && !field
+                      .option_list_v2
+                      .conditions && Array.isArray(item
+                        .condition)) {
+                      field.option_list_v2.conditions = item
+                        .condition;
+                    }
+                  }
+                });
+              }
+              return field;
+            })
+            defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+              if (cur.defaultValue) {
+                res[cur.column] = cur.value || cur.defaultValue
+                cur.value = cur.value || cur.defaultValue
+                this.mainData[cur.column] = cur.value
+              } else if (cur.value) {
+                res[cur.column] = cur.value
+              }
+              return res
+            }, {})
+
+
+
+            const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+            const table_name = colVs.main_table
+            let result = null
+            if (Array.isArray(cols) && cols.length > 0) {
+              result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+            }
+
+            let calcResult = {}
+            let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+              .calc_trigger_col)).map(item => item.column)
+
+            if (Array.isArray(calcCols) && calcCols.length > 0) {
+              calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
+            }
+
+            for (let i = 0; i < colVs._fieldInfo.length; i++) {
+              const item = colVs._fieldInfo[i]
+              if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
+                  .column] == 0)) {
+
+                if (item.redundant?.trigger === 'always' || !item.value) {
+                  item.value = calcResult?.response[item.column]
+                  defaultVal[item.column] = item.value
+                  this.mainData[item.column] = item.value
+                }
+              }
+              if (item.x_if) {
+                if (Array.isArray(item.xif_trigger_col)) {
+                  if (item.table_name !== table_name) {
+                    result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
+                  }
+                  if (result?.response && result.response[item.column]) {
+                    item.display = true
+                  } else if (result === true) {
+                    item.display = true
+                  } else {
+                    item.display = false
+                  }
+                }
+              }
+            }
+          } else {
+            fields = colVs._fieldInfo
+          }
+
+
+          this.fields = fields
+          return colVs
+        }
+      },
       repastEatChange(e) {
         let value = e?.detail.value;
         if (value) {
@@ -1084,7 +1265,6 @@
         };
         let goodsList = await this.$fetch('select', 'srvhealth_store_order_goods_detail_select', req,
           'health');
-        debugger
         if (goodsList.success) {
           for (let item in goodsList.data) {
             debugger
@@ -1093,7 +1273,7 @@
         }
       },
       async submitOrder() {
-        if (this.needIdNum && !this.idNum) {
+        if (!this.isFood && this.needIdNum && !this.idNum) {
           uni.showModal({
             title: '提示',
             content: '请输入身份证号',
@@ -1102,7 +1282,7 @@
           })
           return
         }
-        if (this.storeInfo?.type === '酒店' && !this.room_no) {
+        if (!this.isFood && this.storeInfo?.type === '酒店' && !this.room_no) {
           uni.showToast({
             title: '请选择房间号',
             icon: 'none',
@@ -1111,7 +1291,8 @@
           })
           return
         }
-        if (!this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this.delivery_type) &&
+        if (!this.isFood && !this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this
+            .delivery_type) &&
           this.needAddress) {
           uni.showToast({
             title: '请先选择您的地址信息',
@@ -1121,7 +1302,9 @@
           return
         }
 
-        if ((!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递', '卖家配送']
+        if (!this.isFood && (!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递',
+            '卖家配送'
+          ]
           .includes(this.delivery_type) && this.needAddress) {
           uni.showToast({
             title: '请确认您的姓名、地址、手机号是否填写完善',
@@ -1129,6 +1312,10 @@
             duration: 3000,
             mask: true
           })
+          return
+        }
+        let formData = this.$refs.bxForm.getFieldModel();
+        if (formData == false) {
           return
         }
         let req = [{
@@ -1209,63 +1396,86 @@
           }]
         }];
 
-        if (this.isFood) {
+        // if (this.isFood) {
+        //   // 立即用餐、预约用餐
+        //   this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
 
-          // 立即用餐、预约用餐
-          this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
+        //   // 预约用餐时间
+        //   this.service_time ? req[0].data[0].service_time = this.service_time : '';
 
-          // 预约用餐时间
-          this.service_time ? req[0].data[0].service_time = this.service_time : '';
+        //   req[0].data[0].order_type = '餐饮'
 
-          req[0].data[0].order_type = '餐饮'
+        //   req[0].data[0].repast_type = this.repast_type
 
-          req[0].data[0].repast_type = this.repast_type
+        //   this.delivery_type = this.delivery_type || '当面交易'
 
-          this.delivery_type = this.delivery_type || '当面交易'
+        //   if (!this.service_place_no) {
+        //     if (!this.rcv_name) {
+        //       uni.showModal({
+        //         title: '提示',
+        //         content: '请填写联系人',
+        //         showCancel: false
+        //       })
+        //       return
+        //     }
+        //     if (!this.rcv_telephone) {
+        //       uni.showModal({
+        //         title: '提示',
+        //         content: '请填写手机号',
+        //         showCancel: false
+        //       })
+        //       return
+        //     }
+        //   }
+        //   req[0].data[0].order_method = '实时'
+        //   if (!this.service_place_no) {
+        //     // req[0].data[0].order_method = '预约'
+        //     req[0].data[0].service_date = this.dayjs().format("YYYY-MM-DD")
+        //     // req[0].data[0].repast_status = '未到店'
+        //   } else {
+        //     // req[0].data[0].order_method = '实时'
+        //     // req[0].data[0].repast_status = '待出餐'
+        //   }
+        //   req[0].data[0].repast_status = '待出餐'
+        // }
 
-          if (!this.service_place_no) {
-            if (!this.rcv_name) {
-              uni.showModal({
-                title: '提示',
-                content: '请填写联系人',
-                showCancel: false
+        // if (this.service_place_no) { // 场地号、餐桌号
+        //   req[0].data[0].service_place_no = this.service_place_no
+        // }
+
+
+
+        // // 立即用餐、预约用餐
+        // this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
+
+        // // 预约用餐时间
+        // this.service_time ? req[0].data[0].service_time = this.service_time : '';
+
+        // 提交订单时带上表单的值
+        if (this.includesColumns) {
+          let columns = this.submitColumns || this.includesColumns
+          if (typeof formData == 'object') {
+            let keys = Object.keys(formData)
+            if (keys.length > 0) {
+              keys.forEach(key => {
+                if (columns && columns.indexOf(key) !== -1&&formData[key]) {
+                  req[0].data[0][key] = formData[key] 
+                }
               })
-              return
-            }
-            if (!this.rcv_telephone) {
-              uni.showModal({
-                title: '提示',
-                content: '请填写手机号',
-                showCancel: false
-              })
-              return
             }
           }
-          req[0].data[0].order_method = '实时'
-          if (!this.service_place_no) {
-            // req[0].data[0].order_method = '预约'
-            req[0].data[0].service_date = this.dayjs().format("YYYY-MM-DD")
-            // req[0].data[0].repast_status = '未到店'
-          } else {
-            // req[0].data[0].order_method = '实时'
-            // req[0].data[0].repast_status = '待出餐'
+        } else {
+          if (typeof formData == 'object') {
+            let keys = Object.keys(formData)
+            if (keys.length > 0) {
+              keys.forEach(key => {
+                if(formData[key]){
+                  req[0].data[0][key] = formData[key] || req[0].data[0][key]
+                }
+              })
+            }
           }
-          req[0].data[0].repast_status = '待出餐'
         }
-
-        if (this.service_place_no) { // 场地号、餐桌号
-          req[0].data[0].service_place_no = this.service_place_no
-        }
-
-
-
-        // 立即用餐、预约用餐
-        this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
-
-        // 预约用餐时间
-        this.service_time ? req[0].data[0].service_time = this.service_time : '';
-
-        // 
 
         if (this.curCouponNo) {
           req[0].data[0].coupon_no = this.curCouponNo
@@ -1527,6 +1737,17 @@
       },
     },
     onLoad(option) {
+      if (option.includesColumns) {
+        this.includesColumns = option.includesColumns
+      }
+      if (option.columnsDefaultVal) {
+        try {
+          this.columnsDefaultVal = this.renderStr(JSON.parse(option.columnsDefaultVal), this)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      this.globalData = getApp().globalData
       if (getApp().globalData?.service_place_no) {
         option.service_place_no = getApp().globalData.service_place_no
       }
@@ -1535,7 +1756,6 @@
         // this.delivery_type = '当面交易'
         this.getPlaceInfo()
       }
-
       if (option.tgNo) {
         // 团购编号
         this.tgNo = option.tgNo
@@ -1606,6 +1826,7 @@
       } else {
         this.getCouponList()
       }
+      this.getSrvCols(this.disabled ? 'detail' : 'add')
     }
   };
 </script>
@@ -1698,6 +1919,16 @@
       margin-top: 5px;
       padding-bottom: 50px;
       overflow-y: scroll;
+
+      .form-box {
+        padding: 5px 10px;
+
+        ::v-deep .form-item-label .label {
+          font-size: 14px;
+          color: #999;
+          font-weight: normal;
+        }
+      }
     }
 
 

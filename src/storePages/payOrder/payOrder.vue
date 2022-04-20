@@ -240,7 +240,7 @@
       </view>
 
       <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
-        v-if="!disabled && needAddress&&orderType!=='团购'&&!isFood">
+        v-if="!disabled &&orderType!=='团购'&&!isFood">
         <view class="pay-mode-item">
           <view class="">
             <text class="cuIcon-deliver text-yellow icon"></text>
@@ -610,7 +610,6 @@
       needAddress() {
         const state = !this.room_no && this.storeInfo?.type !== '酒店' && !this.orderInfo?.order_no && ['快递', '卖家配送']
           .includes(this.delivery_type)
-
         return state
         // || this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
         //  item => ['产品'].includes(item.goods_type)) && !this.isFood

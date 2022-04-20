@@ -189,13 +189,17 @@
                     }
                   }
                   if (noPass && item.fail_tip) {
-                    uni.showToast({
-                      title: item.fail_tip,
-                      icon: 'none'
+                    uni.showModal({
+                      title: '提示',
+                      content: item?.fail_tip,
+                      showCancel: false
                     })
                   }
                 }
               } else if (item.type === 'followOfficial') {
+                if (num > 0) {
+                  return false
+                }
                 // 检查是否关注公众号
                 let res = await this.checkSubscribeStatus()
                 if (!res) {

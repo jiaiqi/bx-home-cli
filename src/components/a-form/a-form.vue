@@ -8,7 +8,7 @@
     </view>
     <view class="field-item" :class="{'hidden':showField(field)!==true||!field.display}"
       v-for="(field,fIndex) in allField" :key="fIndex">
-      <view class="section-name" v-if="field.section">
+      <view class="section-name" :class="{'show':showSectionName}" v-if="field.section">
         <text v-if="showSectionName">{{field.section}}</text>
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
@@ -481,9 +481,13 @@
     padding: 0;
   }
   .section-name {
-    padding: 10px 10px 5px;
+    padding: 5px 10px 0;
     color: #B8BAC0;
-    line-height: 30px;
+    // line-height: 30px;
+    &.show{
+      padding: 10px 10px 5px;
+      line-height: 30px;
+    }
   }
 
   .field-item {
@@ -496,20 +500,20 @@
       display: none;
     }
 
-    .before-section {
-      border-bottom-left-radius: 20rpx;
-      border-bottom-right-radius: 20rpx;
-      // margin-bottom: 20rpx;
-    }
+    // .before-section {
+    //   border-bottom-left-radius: 20rpx;
+    //   border-bottom-right-radius: 20rpx;
+    //   // margin-bottom: 20rpx;
+    // }
 
-    .section-top {
-      border-top-left-radius: 20rpx;
-      border-top-right-radius: 20rpx;
-    }
+    // .section-top {
+    //   border-top-left-radius: 20rpx;
+    //   border-top-right-radius: 20rpx;
+    // }
 
-    .section-top:first-child {
-      margin-top: 0;
-    }
+    // .section-top:first-child {
+    //   margin-top: 0;
+    // }
   }
 
   @media screen and (min-width:450px) {

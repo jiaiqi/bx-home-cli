@@ -30,7 +30,7 @@
         'label-top': labelPosition === 'top' || label_width === '100%',
       }">
       <!-- detail-详情-start -->
-      <view class=" form-item-content_detail form-item_image"
+      <view class="form-item-content_detail form-item_image"
         v-if="pageType === 'detail' && fieldData.type === 'images'">
         <image class="form-item-content_detail image" v-for="(item, index) in imagesUrl" :key="index"
           style="padding: 5upx" lazy-load show-menu-by-longpress @tap="previewImage(item, 'Image')" data-target="Image"
@@ -1146,19 +1146,28 @@
             value: self.fieldData.value
           })
         }
+        
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
           delete req.condition;
         }
+        
         if (!req.serviceName) {
           return;
         }
+        
         if (!appName) {
           return
         }
-
+        
+        if(self.fieldData.value&&(!req.condition||req.condition.length==0)&&(self.fieldData.disabled||self.fieldData.display==false)){
+          req.condition = [{
+            colName:self.fieldData.option_list_v2.refed_col,
+            ruleType:'like',
+            value:self.fieldData.value
+          }]
+        }
         let res = await self.onRequest('select', req.serviceName, req, appName);
-
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
             this.treePageInfo = res.data.page;

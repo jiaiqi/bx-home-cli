@@ -594,6 +594,9 @@
             list: list
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
+          if(this.storeInfo?.moreConfig?.userNewOrderPages===true){
+            url = url.replace('/payOrder/payOrder','/placeOrder/placeOrder')
+          }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }

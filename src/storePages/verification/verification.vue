@@ -73,6 +73,9 @@
 					// if (this.wxMchId) {
 					// 	url += `&wxMchId=${this.wxMchId}`
 					// }
+          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+          }
 					uni.navigateTo({
 						url
 					});

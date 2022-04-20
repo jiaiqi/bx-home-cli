@@ -170,7 +170,7 @@
     },
     computed: {
       curData() {
-        return this.datas[this.curType]
+        return this.datas[this.curType] || {}
       }
     },
     onLoad(option) {

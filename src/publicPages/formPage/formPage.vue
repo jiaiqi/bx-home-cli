@@ -40,8 +40,9 @@
         <view class="child-service" v-for="(item,index) in childServiceRadioOption" :key="index">
           <child-list v-show="curChild===item.constraint_name" :config="item" :childListData="childListData"
             :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
-            :fkInitVal="fkInitVal[item.constraint_name||item.key_no]" :fkCondition="fkCondition[item.constraint_name||item.key_no]"
-            ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
+            :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
+            :fkCondition="fkCondition[item.constraint_name||item.key_no]" ref="childList" @onButton="onChildButton"
+            @child-list-change="childListChange">
           </child-list>
         </view>
       </view>
@@ -173,9 +174,10 @@
           if (Array.isArray(this.mainData?._buttons) && this.mainData?._buttons.length === buttons.length) {
             buttons = buttons.filter((item, index) => this.mainData?._buttons[index] === 1)
           }
-          return buttons.map(item=>{
+          return buttons.map(item => {
             item.isShow = true
-            if (this.moreConfig?.formButtonDisp && item?.button_type && this.moreConfig?.formButtonDisp[item.button_type] ===
+            if (this.moreConfig?.formButtonDisp && item?.button_type && this.moreConfig?.formButtonDisp[item
+                .button_type] ===
               false) {
               item.isShow = false
             }
@@ -335,6 +337,7 @@
         }
       },
       setColData(e) {
+        debugger
         if (this.mainData) {
           if (!this.mainData?.colData) {
             this.mainData.colData = {}
@@ -454,7 +457,13 @@
                   });
                   return;
                 }
+
+                uni.showLoading()
+
                 let res = await this.onRequest('update', e.service_name, reqData, app);
+
+                uni.hideLoading()
+
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
                   uni.$emit('dataChange', e.service_name)
@@ -806,7 +815,9 @@
               }
               let url = this.getServiceUrl(app, e.service_name, 'operate');
               let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
+              uni.showLoading()
               let res = await this.$http.post(url, reqData);
+              uni.hideLoading()
               if (res.data.state === 'SUCCESS') {
                 uni.$emit('dataChange', service)
                 let effect_data = null
@@ -1425,6 +1436,7 @@
         }
 
         let calcResult = {}
+        
         let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col)).map(item => item.column)
 

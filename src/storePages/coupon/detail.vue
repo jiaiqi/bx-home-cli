@@ -179,6 +179,10 @@
 				}
 				if(data.order_no){
 					url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&order_no=${data.order_no}&disabled=true`
+          
+          if(this.storeInfo?.moreConfig?.userNewOrderPages===true){
+            url = url.replace('/payOrder/payOrder','/placeOrder/placeOrder')
+          }
 				}
 				if(url){
 					uni.navigateTo({

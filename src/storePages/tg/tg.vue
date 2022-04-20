@@ -70,7 +70,8 @@
             <view class="">
               商品名称:{{item.goods_name||''}}
             </view>
-            <view class="text-sm padding-tb-xs" style="display: flex;justify-content: space-between;align-items: center;">
+            <view class="text-sm padding-tb-xs"
+              style="display: flex;justify-content: space-between;align-items: center;">
               <!--    <view class="">
                 规格：100g
               </view> -->
@@ -190,6 +191,10 @@
           });
           let url =
             `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&orderType=团购&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
+          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+          }
+
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
@@ -413,11 +418,11 @@
         path: path
       };
     },
-    
+
     onUnload() {
       clearInterval(coundDownTimer)
     },
-    
+
     onLoad(option) {
       if (option.orderNo) {
         this.orderNo = option.orderNo
