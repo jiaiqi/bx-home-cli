@@ -407,8 +407,6 @@
       </view>
     </view>
 
-
-
     <view class="handler-bar">
       <text class="amount margin-right-xs"
         v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ totalMoney - actualMoney }}元</text>
@@ -452,8 +450,6 @@
             </bx-radio-group>
           </view>
           <view class="dialog-button">
-            <!--       <view class="cu-btn bg-blue shadow" @tap="hideModal" v-if="modalName === 'MultiSelector'">确定
-            </view> -->
             <view class="cu-btn bg-grey shadow margin round" @tap="hideModal" v-if="modalName === 'Selector'">取消</view>
           </view>
         </view>
@@ -466,7 +462,7 @@
   import {
     mapState
   } from 'vuex';
-  import goodsItem from './goods-item.vue'
+  import goodsItem from '../components/goods-item/goods-item.vue'
   import couponSelector from '../components/coupon-selector/coupon-selector.vue'
   export default {
     components: {
@@ -1985,13 +1981,6 @@
       .value {
         flex: 1;
         text-align: right;
-
-        // display: flex;
-        // align-items: center;
-        // justify-content: flex-end;
-        // &.text-area{
-        //   text-align: left;
-        // }
         &.flex-end {
           display: flex;
           align-items: center;

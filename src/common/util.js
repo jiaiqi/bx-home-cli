@@ -136,10 +136,10 @@ export default {
           // 获取商户号
           return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
         },
-        toOfficial() {
+        toOfficial(mp_no) {
           // 跳转到关注公众号页面
           const frontEndAddress = this.$api.frontEndAddress
-          let mp_no = 'MP2201210021'
+          mp_no = mp_no || 'MP2201210021'
           if (mp_no) {
             let webUrl =
               `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`

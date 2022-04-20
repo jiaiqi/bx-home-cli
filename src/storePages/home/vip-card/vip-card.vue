@@ -50,8 +50,8 @@
       },
     },
     computed: {
-      vipCardInfo(){
-        return this.info||{}
+      vipCardInfo() {
+        return this.info || {}
       },
       rightBtn() {
         return this.detailCfg?.right_btn
@@ -69,7 +69,7 @@
         return this.config?.more_config
       },
       showCard() {
-        if(this.moreConfig?.hide_if_nodata==true&&!this.info?.id){
+        if (this.moreConfig?.hide_if_nodata == true && !this.info?.id) {
           return false
         }
         return this.info?.id && this.moreConfig?.hide_if_open == true ? false : true
@@ -106,11 +106,16 @@
       }
     },
     methods: {
-      onHandler() {
-        if (this.info?.id) {
-          this.toDetail()
+      async onHandler() {
+        let res = await this.handlerBeforeNav()
+        if (res === false) {
+          return
         } else {
-          this.toOpenVip()
+          if (this.info?.id) {
+            this.toDetail()
+          } else {
+            this.toOpenVip()
+          }
         }
       },
       toDetail() {
@@ -120,12 +125,105 @@
           })
           return
         }
-        let url = this.moreConfig?.detailUrl || this.moreConfig?.detailUrl 
+        let url = this.moreConfig?.detailUrl || this.moreConfig?.detailUrl
         if (url) {
           url = this.renderStr(url, this)
           uni.navigateTo({
             url
           })
+        }
+      },
+      async handlerBeforeNav() {
+        if (this.moreConfig?.before_nav_handler) {
+          let handler = this.moreConfig?.before_nav_handler;
+          let varData = {
+            userInfo: this.userInfo,
+            storeInfo: this.storeInfo,
+            bindUserInfo: this.vstoreUser,
+            storeUser: this.vstoreUser,
+          }
+          if (Array.isArray(handler) && handler.length > 0) {
+            let num = 0;
+            for (let item of handler) {
+              if (['data-empty', 'no-repeat'].includes(item.type)) {
+                const service = item.service
+                let condition = []
+                if (Array.isArray(item.condition)) {
+                  condition = item.condition.map(cond => {
+                    let obj = {
+                      colName: cond.colName,
+                      ruleType: cond.ruleType,
+                      value: ''
+                    }
+                    if (cond?.value && cond?.value.indexOf('${') !== -1) {
+                      obj.value = this.renderStr(cond?.value, varData)
+                    } else if (cond?.value?.value_type === 'constant') {
+                      obj.value = cond?.value
+                    }
+                    return obj
+                  })
+                }
+                const appName = item?.app || uni.getStorageSync('activeApp')
+                let url = this.getServiceUrl(appName, service, 'select');
+                let req = {
+                  "serviceName": service,
+                  "condition": condition,
+                  colNames: ['*'],
+                  page: {
+                    pageNo: 1,
+                    rownumber: 1
+                  }
+                }
+                let res = await this.$http.post(url, req)
+                if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+                  let noPass = false
+                  if (item.type === 'no-repeat') {
+                    if (res.data.data.length > 0) {
+                      num++
+                      noPass = true
+                    }
+                  } else {
+                    if (res.data.data.length <= 0) {
+                      num++
+                      noPass = true
+                    }
+                  }
+                  if (noPass && item.fail_tip) {
+                    uni.showToast({
+                      title: item.fail_tip,
+                      icon: 'none'
+                    })
+                  }
+                }
+              } else if (item.type === 'followOfficial') {
+                // 检查是否关注公众号
+                let res = await this.checkSubscribeStatus()
+                if (!res) {
+                  num++
+                  let confirm = await new Promise((resolve) => {
+                    uni.showModal({
+                      title: '提示',
+                      content: item?.fail_tip || '请先关注百想助理公众号，以便及时收到新消息通知',
+                      confirmText: '去关注',
+                      success: (res) => {
+                        if (res.confirm) {
+                          resolve(true)
+                        } else {
+                          resolve(false)
+                        }
+                      }
+                    })
+                  })
+                  if (confirm === true) {
+                    this.toOfficial()
+                  }
+                }
+              }
+            }
+            if (num > 0) {
+              return false
+            }
+          }
         }
       },
       onRightBtn() {

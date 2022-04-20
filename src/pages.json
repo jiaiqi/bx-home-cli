@@ -326,7 +326,15 @@
             "enablePullDownRefresh": false
           }
         }
-
+        //#ifdef H5
+        , {
+          "path": "placeOrder/placeOrder",
+          "style": {
+            "navigationBarTitleText": "订单",
+            "enablePullDownRefresh": false
+          }
+        }
+        //#endif
       ]
     },
     {

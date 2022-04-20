@@ -669,10 +669,11 @@
         }
         res.label = cfg?.custom_label || labelMap[resCol] || cfg?.default_label || '';
         res.value = detail[resCol] ?? cfg?.default_val ?? '';
+        
         if (res.value && typeof res.value === 'string') {
           res.value = res.value.replace(/\\n/, '')
         }
-        debugger
+        
         if(cfg?.format?.type === 'date'&&res.value&&cfg?.format?.rule){
           res.value = this.dayjs(res.value).format(cfg?.format?.rule)
         }
