@@ -136,10 +136,10 @@ export default {
           // 获取商户号
           return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
         },
-        getOrderShowParams(orderType=''){
+        getOrderShowParams(orderType = '') {
           let showParams = ''
-          if(orderType){
-            if(orderType.indexOf('餐饮')>-1){
+          if (orderType) {
+            if (orderType.indexOf('餐饮') > -1) {
               showParams = '服务场地'
             }
           }
@@ -392,11 +392,36 @@ export default {
         if (item.more_config && typeof item.more_config === 'string') {
           try {
             fieldInfo.moreConfig = JSON.parse(item.more_config)
+            let data = {
+              time: { //时间选择器
+                "beforeQuarterOfHour": dayjs().subtract(15, 'minute').format('HH:mm'), //15分钟之前
+                "beforeHalfAnHour": dayjs().subtract(30, 'minute').format('HH:mm'), //半小时之前
+                "beforeAnHour": dayjs().subtract(1, 'hour').format('HH:mm'), //一小时之前
+                "afterQuarterOfHour": dayjs().add(15, 'minute').format('HH:mm'), //15分钟之后
+                "afterHalfAnHour": dayjs().add(30, 'minute').format('HH:mm'), //半小时之后
+                "afterAnHour": dayjs().add(1, 'hour').format('HH:mm'), //一小时之后
+              },
+              date: { // 日期选择器
+                "beforeADay": dayjs().subtract(1, 'day').format("YYYY-MM-DD"), //一天前
+                "beforeAWeek": dayjs().subtract(7, 'day').format("YYYY-MM-DD"), //一周前
+                "beforeAMonth": dayjs().subtract(1, 'month').format("YYYY-MM-DD"), //一月前
+                "afterADay": dayjs().add(1, 'day').format("YYYY-MM-DD"), //一天后
+                "afterAWeek": dayjs().add(7, 'day').format("YYYY-MM-DD"), //一周后
+                "afterAMonth": dayjs().add(1, 'month').format("YYYY-MM-DD"), //一月后
+              }
+            }
             if (fieldInfo.moreConfig.max && typeof fieldInfo.moreConfig.max === 'number') {
               fieldInfo.max = fieldInfo.moreConfig.max
+            } else if (fieldInfo.moreConfig.max && typeof fieldInfo.moreConfig.max === 'string' && fieldInfo
+              .moreConfig.max.indexOf("${") > -1) {
+              fieldInfo.max = Vue.prototype.renderStr(fieldInfo.moreConfig.max, data)
             }
+
             if (typeof fieldInfo.moreConfig.min === 'number') {
               fieldInfo.min = fieldInfo.moreConfig.min
+            } else if (fieldInfo.moreConfig.min && typeof fieldInfo.moreConfig.min === 'string' && fieldInfo
+              .moreConfig.min.indexOf("${") > -1) {
+              fieldInfo.min = Vue.prototype.renderStr(fieldInfo.moreConfig.min, data)
             }
 
           } catch (e) {
@@ -410,10 +435,12 @@ export default {
         if (item.init_expr) {
           item.init_expr = item.init_expr.replace(/\'|\"/g, '')
           let data = {
+            globalData: getApp().globalData,
             room_no: getApp().globalData?.room_no,
-            bindUserInfo: store?.state?.user?.storeUserInfo,
-            userInfo: store?.state?.user?.userInfo,
-            storeInfo: store?.state.app.storeInfo
+            storeUser: store?.state?.user?.storeUserInfo, // 店铺用户信息
+            bindUserInfo: store?.state?.user?.storeUserInfo, //  店铺用户信息
+            userInfo: store?.state?.user?.userInfo, // 健康app下的人员基本信息
+            storeInfo: store?.state.app.storeInfo // 店铺信息
           }
           item.init_expr = Vue.prototype.renderStr(item.init_expr, data)
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {

@@ -129,8 +129,8 @@
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="pickerMode"
-          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="fieldData.max"
-          :min="fieldData.min" v-model="fieldData.value" @change="bindTimeChange">
+          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="max" :min="min"
+          v-model="fieldData.value" @change="bindTimeChange">
         </date-range-picker>
       </view>
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
@@ -150,30 +150,17 @@
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
       <input type="text" class="" style="width: 100%" @input="onInput"
-        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @blur="onBlur" :maxlength="
-          fieldData.item_type_attr && fieldData.item_type_attr.max_len
-            ? fieldData.item_type_attr.max_len
-            : 999
-        " v-model="fieldData.value" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
+        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @blur="onBlur"
+        :maxlength="max_len" v-model="fieldData.value" :disabled="fieldData.disabled|| false"
+        v-else-if="fieldData.type === 'text'" />
       <uni-rate v-model="fieldData.value" :readonly="fieldData.disabled"
         :max="fieldData.moreConfig&&fieldData.moreConfig.max?fieldData.moreConfig.max:5"
         :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
         v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
       <input class="" style="width: 100%" @blur="onBlur"
         :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+(fieldData.customLabel||fieldData.label)"
-        :type="fieldData.type" @input="onInput" :maxlength="
-          fieldData.item_type_attr && fieldData.item_type_attr.max_len
-            ? fieldData.item_type_attr.max_len
-            : 999
-        " :max="
-          fieldData.item_type_attr && fieldData.item_type_attr.max
-            ? fieldData.item_type_attr.max
-            : 999
-        " :min="
-          fieldData.item_type_attr && fieldData.item_type_attr.min
-            ? fieldData.item_type_attr.min
-            : 0
-        " v-model.number="fieldData.value" :disabled="fieldData.disabled || false" v-else-if="
+        :type="fieldData.type" @input="onInput" :maxlength="max_len" :max="max" :min="min"
+        v-model.number="fieldData.value" :disabled="fieldData.disabled || false" v-else-if="
           (fieldData.type === 'number' || fieldData.type === 'digit') &&
           !fieldData.max
         " />
@@ -348,6 +335,16 @@
       }
     },
     computed: {
+      min() {
+        return this.fieldData?.item_type_attr?.min || this.fieldData?.min || this.fieldData?.moreConfig?.min
+      },
+      max_len() {
+        return this.fieldData?.item_type_attr?.max_len || this.fieldData?.max_len || this.fieldData?.moreConfig
+          ?.max_len || 999999
+      },
+      max() {
+        return this.fieldData?.item_type_attr?.max || this.fieldData?.max || this.fieldData?.moreConfig?.max
+      },
       hasNext() {
         return this.treePageInfo.total > this.treePageInfo.rownumber * this.treePageInfo.pageNo
       },
@@ -1146,25 +1143,26 @@
             value: self.fieldData.value
           })
         }
-        
+
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
           delete req.condition;
         }
-        
+
         if (!req.serviceName) {
           return;
         }
-        
+
         if (!appName) {
           return
         }
-        
-        if(self.fieldData.value&&(!req.condition||req.condition.length==0)&&(self.fieldData.disabled||self.fieldData.display==false)){
+
+        if (self.fieldData.value && (!req.condition || req.condition.length == 0) && (self.fieldData.disabled || self
+            .fieldData.display == false)) {
           req.condition = [{
-            colName:self.fieldData.option_list_v2.refed_col,
-            ruleType:'like',
-            value:self.fieldData.value
+            colName: self.fieldData.option_list_v2.refed_col,
+            ruleType: 'like',
+            value: self.fieldData.value
           }]
         }
         let res = await self.onRequest('select', req.serviceName, req, appName);

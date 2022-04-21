@@ -105,7 +105,7 @@
 </script>
 
 <style lang="scss">
-	@import "./static/iconfont.css"; //引入字体文件
+	// @import "./static/iconfont.css"; //引入字体文件
 	@import "colorui/main.css";
 	@import "colorui/icon.css";
 	@import "uview-ui/index.scss";

@@ -81,11 +81,11 @@
                     ? getImagePath(rowInfo.userb_profile_url)
                     : getImagePath(rowInfo.usera_profile_url)
                 " mode="aspectFit" v-else-if="!groupNo && identity && rowInfo && rowInfo.row_no"></image>
-              <image lazy-load :src="
+            <!--  <image lazy-load :src="
                   getSenderProfile(item)
                     ? getSenderProfile(item)
                     : '/static/img/man-profile.png'
-                " mode="aspectFit" v-else></image>
+                " mode="aspectFit" v-else></image> -->
             </view>
             <view @click="previewImages(item.img_url)" v-if="
                 item.image && item.img_url && item.msg_content_type === '图片'

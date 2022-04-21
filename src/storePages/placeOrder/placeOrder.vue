@@ -605,6 +605,7 @@
         if (Array.isArray(xIfCols) && xIfCols.length > 0) {
           //#ifdef MP-WEIXIN
           xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
+          debugger
           //#endif
           //#ifdef H5
           xIfResult = {
@@ -663,13 +664,10 @@
             }
 
           }
-
-          if ((Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) || (item.x_if && item
-              .x_if.indexOf(column) !== -1)) {
+          //#ifdef MP-WEIXIN
+          if (Array.isArray(item.xif_trigger_col) && item.xif_trigger_col.includes(column)) {
             if (item.table_name !== table_name) {
-              //#ifdef MP-WEIXIN
               xIfResult = await this.evalX_IF(item.table_name, [item.column], fieldModel, this.appName)
-              //#endif
             }
             if (xIfResult?.response && xIfResult.response[item.column]) {
               item.display = true
@@ -679,15 +677,27 @@
               item.display = false
             }
           }
+          //#endif
+          // #ifdef H5
+          if (item.x_if && item.x_if.indexOf(column) !== -1) {
+            if (xIfResult?.response && xIfResult.response[item.column]) {
+              item.display = true
+            } else if (xIfResult === true) {
+              item.display = true
+            } else {
+              item.display = false
+            }
+          }
+          // #endif
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.value = e[item.column];
             fieldModel[item.column] = item.value
           }
           this.$set(this.fields, i, item)
         }
-        if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
-          let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
-        }
+        // if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
+        //   let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
+        // }
       },
 
       async getSrvCols(type = "add") {

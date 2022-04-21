@@ -101,17 +101,17 @@
         >
           <view class="smallbox">
             <view v-if="searchArg.imgCol" class="smallbox-img">
-              <image
+         <!--     <image
               lazy-load
                 width="100%"
                 height="100%"
                 v-if="!getImageUrl(food)"
                 src="/static/man-profile.png"
-              ></image>
+              ></image> -->
               <image
                 width="100%"
                 height="100%"
-                v-else
+                
                 :src="getImageUrl(food)"
               ></image>
             </view>
@@ -599,17 +599,17 @@ export default {
       if (item[ this.searchArg.imgCol ]) {
         src = this.getImagePath(item[ this.searchArg.imgCol ]);
       }
-      if (!src) {
-        if (this.vuex_userInfo) {
-          if (this.vuex_userInfo.sex === '女') {
-            src = '/static/man-profile.png';
-          } else {
-            src = '/static/woman-profile.png';
-          }
-        } else {
-          src = '/static/woman-profile.png';
-        }
-      }
+      // if (!src) {
+      //   if (this.vuex_userInfo) {
+      //     if (this.vuex_userInfo.sex === '女') {
+      //       src = '/static/man-profile.png';
+      //     } else {
+      //       src = '/static/woman-profile.png';
+      //     }
+      //   } else {
+      //     src = '/static/woman-profile.png';
+      //   }
+      // }
       return src;
     },
     async getMessageInfo (no) {

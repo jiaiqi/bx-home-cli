@@ -10,8 +10,7 @@
 					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
 					grid_span5: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '5' || setViewTemp.grid_span === 5)
-				}" v-for="(item, index) in list" :key="index" :style="setItemStyle">
-        
+				}" v-for="(item, index) in setList"  :style="setItemStyle">
         <view class="" style="display: flex;align-items: center;">
           <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
             style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
@@ -85,6 +84,9 @@
       },
     },
     computed: {
+      setList(){
+        return this.list||[]
+      },
       setListStyle() {
         let style = ""
         if (this.nowrap && this.itemWidth) {
