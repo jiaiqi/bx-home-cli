@@ -193,8 +193,10 @@
             list: goodsList
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
-          if(this.storeInfo?.moreConfig?.userNewOrderPages===true){
-            url = url.replace('/payOrder/payOrder','/placeOrder/placeOrder')
+          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+            let orderType = this.getOrderType(goodsList)
+            url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
@@ -222,9 +224,10 @@
       changeStatus() {
         if (this.isFold == true) {
           // this.isFold = false
-          let url =  `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=/`
-          
-            // `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=${encodeURIComponent('/storePages/GoodsDetail/GoodsDetail?goods_no=${data.goods_no}&storeNo=${storeInfo.store_no}')}`
+          let url =
+            `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=/`
+
+          // `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=${encodeURIComponent('/storePages/GoodsDetail/GoodsDetail?goods_no=${data.goods_no}&storeNo=${storeInfo.store_no}')}`
           uni.navigateTo({
             url
           })

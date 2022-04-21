@@ -12,8 +12,8 @@
         <text v-if="showSectionName">{{field.section}}</text>
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
-        :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition" :fieldsModel="fieldModel"
-        :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
+        :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition"
+        :fieldsModel="fieldModel" :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
         @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
         :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
         @setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import evaluatorTo from '@/common/evaluator.js';
+  // import evaluatorTo from '@/common/evaluator.js';
   export default {
     name: 'aForm',
     props: {
@@ -34,7 +34,7 @@
       // 	type: [Array, Object],
       // },
       mainData: {
-        type: [Object,Boolean]
+        type: [Object, Boolean]
       },
       fields: {
         type: Array,
@@ -117,7 +117,7 @@
       dateTimeChange(e) {
         const start_time_col = e?.moreConfig?.start_time_col
         const end_time_col = e?.moreConfig?.end_time_col
-        if(start_time_col&&end_time_col){
+        if (start_time_col && end_time_col) {
           this.allField = this.allField.map(item => {
             if (item.column === start_time_col) {
               item.value = e.colData['time_start']
@@ -130,7 +130,7 @@
             return item
           })
         }
-      
+
       },
       eleIsBeforeSection(allField, index) {
         let item = allField[index]
@@ -372,9 +372,10 @@
 
           if (Array.isArray(item.isShowExp) && item.isShowExp.length > 0) {
             item.display = this.colItemShowExps(item, this.fieldModel)
-          } else if (item.formulaShow) {
-            item.display = evaluatorTo(fieldModel, item.formulaShow);
           }
+          //  else if (item.formulaShow) {
+          //   item.display = evaluatorTo(fieldModel, item.formulaShow);
+          // }
           if (item.display !== false) {
             item.display = true
           }
@@ -456,12 +457,6 @@
               this.oldField = this.deepClone(newValue);
             }
             this.allField = newValue
-            // this.allField = newValue.map(item => {
-            // 	if (!item.value && this.pageType === 'filter') {
-            // 		// item.value = '全部'
-            // 	}
-            // 	return item
-            // });
           }
         }
       },
@@ -477,14 +472,16 @@
 </script>
 
 <style lang="scss">
-  .a-form{
+  .a-form {
     padding: 0;
   }
+
   .section-name {
     padding: 5px 10px 0;
     color: #B8BAC0;
+
     // line-height: 30px;
-    &.show{
+    &.show {
       padding: 10px 10px 5px;
       line-height: 30px;
     }

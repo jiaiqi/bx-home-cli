@@ -53,6 +53,7 @@
           return
         }
         // #endif
+        
         if (url && url.indexOf('100xsys.cn') > -1) {
           if (url.indexOf('?') == -1) {
             url += `?bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
@@ -60,10 +61,24 @@
             url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
           }
         }
+        
         let login_user_info = uni.getStorageSync('login_user_info')
+        
         if (login_user_info?.user_no) {
-          url += `&login_user_info=${encodeURIComponent(JSON.stringify(login_user_info))}`
+          let info = {
+            user_no:login_user_info.user_no,
+            roles:login_user_info.roles,
+            user_type:login_user_info.user_type,
+            real_name:login_user_info.real_name
+          }
+          url += `&login_user_info=${encodeURIComponent(JSON.stringify(info))}`
         }
+        
+        let userInfo = this.userInfo;
+        if(userInfo?.userno){
+          url += `&userInfo=${encodeURIComponent(JSON.stringify(userInfo))}`
+        }
+        
         this.webUrl = url
       } else {
         uni.showModal({

@@ -17,9 +17,9 @@
     </view>
     <view class="form-content">
       <view class="main-form-edit" v-show="!stepMode||(stepMode&&curStep=='main')">
-        <a-form :class="{'pc-model':model==='PC'}" v-if="colsV2Data && isArray(fields)&&fields.length>0"
-          :fields="fields" :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type"
-          ref="bxForm" :mainData="mainData" @value-blur="valueChange" @setColData="setColData">
+        <a-form :class="{'pc-model':model==='PC'}" v-if="isArray(fields)&&fields.length>0" :fields="fields"
+          :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="use_type" ref="bxForm"
+          :mainData="mainData" @value-blur="valueChange" @setColData="setColData">
         </a-form>
       </view>
 
@@ -1436,7 +1436,7 @@
         }
 
         let calcResult = {}
-        
+
         let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
           .calc_trigger_col)).map(item => item.column)
 

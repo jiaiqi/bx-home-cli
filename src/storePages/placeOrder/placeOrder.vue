@@ -459,6 +459,7 @@
         couponInfo: null,
         pay_method: "", // 套餐卡、提货卡
         orderType: '', //普通，团购,餐饮
+        show_params_config: '', //显示参数
         tgNo: "", //团购编号
         goodsWay: "", //团购收货方式
         couponMinus: 0, //优惠券减的金额
@@ -469,7 +470,7 @@
     },
     computed: {
       srvType() {
-        return this.disabled||this.orderInfo?.order_no ? 'detail' : 'add'
+        return this.disabled || this.orderInfo?.order_no ? 'detail' : 'add'
       },
       appName() {
         return this.app || uni.getStorageSync('activeApp')
@@ -587,16 +588,14 @@
 
         let fieldModel = e
         let xIfCols = null
-
         //#ifdef MP-WEIXIN
-        this.colV2?._fieldInfo.filter(item => item.x_if && Array.isArray(item
+        xIfCols = this.colV2?._fieldInfo.filter(item => Array.isArray(item
           .xif_trigger_col) && item.xif_trigger_col.includes(column)).map(item => item.column)
         //#endif
 
         //#ifdef H5
         xIfCols = this.colV2?._fieldInfo.filter(item => item.x_if && ((Array.isArray(item
           .xif_trigger_col) && item.xif_trigger_col.includes(column)) || item.x_if.indexOf(column) !== -1))
-        debugger
         //#endif
 
         const table_name = this.colV2?.main_table
@@ -618,7 +617,6 @@
               xIfResult.response[col.column] = eval(x_if)
             }
           })
-          debugger
           //#endif
         }
 
@@ -708,18 +706,24 @@
                   return item;
                 });
               }
-              
+
               if (field.column === 'store_no') {
                 field.value = field.value || this.storeInfo?.store_no
                 this.mainData[field.column] = field.value
               }
-              
+              if (field.column === 'show_params_config' && this.show_params_config) {
+                field.value = this.show_params_config
+                this.mainData[field.column] = field.value
+              }
+              if (field.column === 'order_type' && this.orderType) {
+                field.value = this.orderType
+                this.mainData[field.column] = field.value
+              }
               if (field.column === 'store_user_no') {
                 field.value = field.value || this.vstoreUser?.store_user_no
                 this.mainData[field.column] = field.value
               }
-              
-              
+
               if (this.globalData[field.column]) {
                 field.value = field.value || this.globalData[field.column]
               }
@@ -1458,8 +1462,8 @@
             let keys = Object.keys(formData)
             if (keys.length > 0) {
               keys.forEach(key => {
-                if (columns && columns.indexOf(key) !== -1&&formData[key]) {
-                  req[0].data[0][key] = formData[key] 
+                if (columns && columns.indexOf(key) !== -1 && formData[key]) {
+                  req[0].data[0][key] = formData[key]
                 }
               })
             }
@@ -1469,7 +1473,7 @@
             let keys = Object.keys(formData)
             if (keys.length > 0) {
               keys.forEach(key => {
-                if(formData[key]){
+                if (formData[key]) {
                   req[0].data[0][key] = formData[key] || req[0].data[0][key]
                 }
               })
@@ -1737,6 +1741,12 @@
       },
     },
     onLoad(option) {
+      if (option.orderType || option.order_type) {
+        this.orderType = option.orderType || option.order_type
+      }
+      if (option.show_params_config) {
+        this.show_params_config = option.show_params_config
+      }
       if (option.includesColumns) {
         this.includesColumns = option.includesColumns
       }

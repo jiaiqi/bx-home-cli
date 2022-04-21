@@ -462,7 +462,7 @@
             goodsInfo.name = this.storeInfo?.goods_name;
             goodsInfo.image = this.storeInfo?.store_image;
             goodsInfo.car_num = goodsInfo.goods_amount;
-            goodsInfo.goods_type = goodsInfo.goods_type || '产品'
+            goodsInfo.goods_type = goodsInfo.goods_type 
             // || this.goodsInfo?.goods_type;
             goodsInfo.type = this.storeInfo?.type;
             this.$store.commit('SET_STORE_CART', {
@@ -473,8 +473,12 @@
 
             let url =
               `/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}`;
+              debugger
             if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
               url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+              let orderType = this.getOrderType([goodsInfo])
+              url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+              debugger
             }
             if (this.wxMchId) {
               url += `&wxMchId=${this.wxMchId}`;
@@ -743,9 +747,11 @@
 
         let url =
           `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
-        if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+        // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
           url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
-        }
+          let orderType = this.getOrderType([goodsInfo])
+          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+        // }
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`;
         }

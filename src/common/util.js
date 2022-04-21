@@ -136,6 +136,37 @@ export default {
           // 获取商户号
           return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
         },
+        getOrderShowParams(orderType=''){
+          let showParams = ''
+          if(orderType){
+            if(orderType.indexOf('餐饮')>-1){
+              showParams = '服务场地'
+            }
+          }
+          return showParams
+        },
+        getOrderType(list = []) {
+          // list-商品列表
+          let order_type = ''
+          switch (this.storeInfo?.type) {
+            case '饭馆':
+              order_type = '餐饮'
+              break;
+            case '酒店':
+              order_type = '酒店'
+              break;
+            default:
+              order_type = '普通商品'
+          }
+          let goodsType = Array.from(new Set(list.map(item => item.goods_type)))
+          if (goodsType.includes('现制餐饮') && order_type.indexOf('餐饮') == -1) {
+            order_type += ',餐饮'
+          }
+          if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程')) {
+            order_type += ',虚拟商品'
+          }
+          return order_type
+        },
         toOfficial(mp_no) {
           // 跳转到关注公众号页面
           const frontEndAddress = this.$api.frontEndAddress

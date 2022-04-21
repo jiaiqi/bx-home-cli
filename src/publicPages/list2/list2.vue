@@ -596,6 +596,8 @@
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
           if(this.storeInfo?.moreConfig?.userNewOrderPages===true){
             url = url.replace('/payOrder/payOrder','/placeOrder/placeOrder')
+            let orderType = this.getOrderType(list)
+            url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`

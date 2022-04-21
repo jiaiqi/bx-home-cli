@@ -73,8 +73,8 @@
             return res
           }, '')
         }
-        if (this.goods?.child_data_list?. [0]?.data?.length > 0) {
-          return this.goods.child_data_list. [0].data.map(item => item.good_attr_value).toString()
+        if (this.goods?.child_data_list?.[0]?.data?.length > 0) {
+          return this.goods.child_data_list[0].data.map(item => item.good_attr_value).toString()
         }
       }
     },
