@@ -159,12 +159,15 @@ export default {
               order_type = '普通商品'
           }
           let goodsType = Array.from(new Set(list.map(item => item.goods_type)))
+          
           if (goodsType.includes('现制餐饮') && order_type.indexOf('餐饮') == -1) {
             order_type += ',餐饮'
           }
-          if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程')) {
+          
+          if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程')|| goodsType.includes('活动')|| goodsType.includes('提货卡')|| goodsType.includes('套餐卡')|| goodsType.includes('面额卡')|| goodsType.includes('体验产品')|| goodsType.includes('线下服务')|| goodsType.includes('在线服务')) {
             order_type += ',虚拟商品'
           }
+          
           return order_type
         },
         toOfficial(mp_no) {

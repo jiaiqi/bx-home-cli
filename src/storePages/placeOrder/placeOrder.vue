@@ -700,7 +700,7 @@
         // }
       },
 
-      async getSrvCols(type = "add") {
+      async getSrvCols(type = "add",pageType="") {
         const app = this.fieldsCfg?.app || this.appName || uni.getStorageSync('activeApp');
         const service = this.fieldsCfg?.service
         if (app && service) {
@@ -708,7 +708,17 @@
           this.colV2 = colVs
           let fields = []
           let defaultVal = null
-          if (type === 'add') {
+          if(pageType==='detail'){
+            let defaultVal = this.orderInfo;
+            fields = colVs._fieldInfo.map(item=>{
+              if(defaultVal&&defaultVal[item.column]){
+                item.value = defaultVal[item.column]
+              }
+              return item
+            })
+          }
+          debugger
+          // if (type === 'add') {
             fields = colVs._fieldInfo.map(field => {
               if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
                 field.option_list_v2 = field.option_list_v2.map(item => {
@@ -746,47 +756,9 @@
                 field.value = this.columnsDefaultVal[field.column];
                 field.defaultValue = this.columnsDefaultVal[field.column];
               }
-
-              if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
-                this.fieldsCond.forEach(item => {
-                  if (item.colName && !item.column) {
-                    item.column = item.colName
-                  }
-
-                  this.mainData[item.column] = item.value
-                  if (item.column === field.column) {
-                    if (item.hasOwnProperty('display')) {
-                      field.display = item.display;
-                    }
-                    if (item.hasOwnProperty('label')) {
-                      field.customLabel = item.label;
-                    }
-                    if (item.hasOwnProperty('disabled')) {
-                      field.disabled = item.disabled;
-                    }
-                    if (item.hasOwnProperty('value')) {
-                      field.value = item.value;
-                      field.defaultValue = item.value;
-                    }
-                    if (field.option_list_v2 && Array.isArray(field
-                        .option_list_v2
-                        .conditions) && Array.isArray(item
-                        .condition)) {
-                      field.option_list_v2.conditions = field
-                        .option_list_v2
-                        .conditions.concat(item.condition);
-                    } else if (field.option_list_v2 && !field
-                      .option_list_v2
-                      .conditions && Array.isArray(item
-                        .condition)) {
-                      field.option_list_v2.conditions = item
-                        .condition;
-                    }
-                  }
-                });
-              }
               return field;
             })
+            
             defaultVal = colVs._fieldInfo.reduce((res, cur) => {
               if (cur.defaultValue) {
                 res[cur.column] = cur.value || cur.defaultValue
@@ -798,11 +770,13 @@
               return res
             }, {})
 
-
-
             const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+            
             const table_name = colVs.main_table
             let result = null
+            
+            debugger
+            
             if (Array.isArray(cols) && cols.length > 0) {
               result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
             }
@@ -841,11 +815,10 @@
                 }
               }
             }
-          } else {
-            fields = colVs._fieldInfo
-          }
+          // } else {
 
-
+          
+          // }
           this.fields = fields
           return colVs
         }
@@ -1531,12 +1504,12 @@
         if (this.couponInfo?.card_no && this.pay_method) {
           req[0].data[0].pay_state = '已支付'
         }
-        if (!this.needAddress && this.delivery_type !== '自提') {
-          // 非快递非自提
-          this.delivery_type = '当面交易'
-          this.curDelivery = 3
-          req[0].data[0].delivery_type = '当面交易'
-        }
+        // if (!this.needAddress && this.delivery_type !== '自提') {
+        //   // 非快递非自提
+        //   this.delivery_type = '当面交易'
+        //   this.curDelivery = 3
+        //   req[0].data[0].delivery_type = '当面交易'
+        // }
 
         if (this.tgNo) {
           // 团长开团编号
@@ -1554,6 +1527,16 @@
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
+          // this.orderInfo = res.data[0]
+          
+          
+          // this.fields = this.fields.map(item => {
+          //   if (res.data[0][item.column]) {
+          //     item.value = this.orderInfo[item.column]
+          //   }
+          //   return item
+          // })
+
           let childData = res.childData
           let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
           if (cartGoodsList.length > 0) {
@@ -1563,6 +1546,8 @@
             }
           }
           const orderData = await this.getOrderInfo()
+          
+          this.getSrvCols('add','detail')
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             this.toPay();
@@ -1668,7 +1653,7 @@
         }
 
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER'))) {
+            .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd'))) {
           uni.showToast({
             title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
             icon: "none"
@@ -1750,7 +1735,7 @@
         }
       },
     },
-    onLoad(option) {
+    async onLoad(option) {
       if (option.orderType || option.order_type) {
         this.orderType = option.orderType || option.order_type
       }
@@ -1832,7 +1817,7 @@
         }
       } else if (option.order_no) {
         this.orderNo = option.order_no;
-        this.getOrderInfo();
+        await this.getOrderInfo();
       }
       if (this?.storeInfo?.type === '酒店') {
         let room_no = getApp().globalData?.room_no
@@ -1846,7 +1831,7 @@
       } else {
         this.getCouponList()
       }
-      this.getSrvCols(this.disabled ? 'detail' : 'add')
+      this.getSrvCols('add')
     }
   };
 </script>

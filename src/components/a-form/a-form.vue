@@ -463,7 +463,7 @@
       moreConfig: {
         handler(newValue, oldValue) {
           if (newValue) {
-            this.more_config = this.deepClone(newval);
+            this.more_config = this.deepClone(newValue);
           }
         }
       }

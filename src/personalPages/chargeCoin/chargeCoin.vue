@@ -262,7 +262,7 @@
 
         let totalMoney = orderData.order_amount || this.curGoods?.price
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER'))) {
+            .vloginUser.roles.includes('DEVE_LOPER')|| this.vloginUser.roles.includes('bx_rd'))) {
           totalMoney = 0.01
         }
         if (typeof totalMoney !== 'number' || isNaN(Number(totalMoney))) {

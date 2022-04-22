@@ -1438,7 +1438,7 @@
         }
 
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER'))) {
+            .vloginUser.roles.includes('DEVE_LOPER')|| this.vloginUser.roles.includes('bx_rd'))) {
           uni.showToast({
             title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
             icon: "none"

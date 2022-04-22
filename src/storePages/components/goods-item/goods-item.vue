@@ -73,7 +73,7 @@
             return res
           }, '')
         }
-        if (this.goods?.child_data_list?.[0]?.data?.length > 0) {
+        if (this.goods?.child_data_list?. [0]?.data?.length > 0) {
           return this.goods.child_data_list[0].data.map(item => item.good_attr_value).toString()
         }
       }
@@ -149,9 +149,17 @@
 
 <style scoped lang="scss">
   .goods-item-list {
-    padding-left: 60px;
-    padding-top: 10px;
-    padding-right: 40px;
+    padding-left: 30px;
+    padding-top: 5px;
+    padding-right: 0px;
+
+    .goods-item {
+      display: flex;
+
+      &+.goods-item {
+        margin-top: 10px;
+      }
+    }
   }
 
   .goods-item {
@@ -181,7 +189,7 @@
     }
 
     .num {
-      width: 100px;
+      // width: 100px;
       text-align: right;
       margin-bottom: 5px;
 

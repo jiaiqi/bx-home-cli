@@ -594,8 +594,8 @@
             list: list
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
-          if(this.storeInfo?.moreConfig?.userNewOrderPages===true){
-            url = url.replace('/payOrder/payOrder','/placeOrder/placeOrder')
+          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
             let orderType = this.getOrderType(list)
             url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           }
@@ -607,12 +607,15 @@
           });
         }
       },
-      del() {
+      del(data, tip) {
         let list = this.list.filter(item => item.checked);
+        if (data) {
+          list = [data]
+        }
         if (Array.isArray(list) && list.length > 0) {
           uni.showModal({
             title: '提示',
-            content: '确认从购物车中删除已选项?',
+            content: tip || '确认从购物车中删除已选项?',
             success: (res) => {
               if (res.confirm) {
                 let service = 'srvhealth_store_shopping_cart_goods_detail_delete'
@@ -752,10 +755,21 @@
               return item
             })
           } else {
-            uni.showToast({
-              title: '不能再减少了~',
-              icon: 'none'
-            })
+            this.del(data, '是否从购物车中删除该商品？')
+            // uni.showModal({
+            //   title: '提示',
+            //   content: '不能再减少了~是否从购物车中删除该商品？',
+            //   confirmText: "删除",
+            //   success: (res) => {
+            //     if (res.confirm) {
+            //       this.del(data)
+            //     }
+            //   }
+            // })
+            // uni.showToast({
+            //   title: '不能再减少了~',
+            //   icon: 'none'
+            // })
           }
         }
       },
@@ -1600,9 +1614,12 @@
               // 展示二维码弹框
               if (buttonInfo?.moreConfig?.qrcode_content) {
                 let data = {
-                  storeInfo:this.storeInfo,userInfo:this.userInfo,storeUser:this.vstoreUser,data:rowData
+                  storeInfo: this.storeInfo,
+                  userInfo: this.userInfo,
+                  storeUser: this.vstoreUser,
+                  data: rowData
                 }
-                this.qrCodeText = this.renderStr(buttonInfo?.moreConfig?.qrcode_content,data)
+                this.qrCodeText = this.renderStr(buttonInfo?.moreConfig?.qrcode_content, data)
                 this.modalName = 'showQrCode'
                 this.makeQrCode()
               }
@@ -2384,10 +2401,12 @@
 
     }
   }
+
   .qrcodeCanvas-box {
     position: fixed;
     top: -9999;
   }
+
   .qrcode-box {
     padding: 80rpx 40rpx;
     text-align: center;
