@@ -2903,6 +2903,7 @@ export default {
 
     Vue.prototype.updateCart = async (goodsInfo) => {
       let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
+      let operateType = 'update'
       if (goodsInfo?.id) {
         let req = [{
           "serviceName": serviceName,
@@ -2915,8 +2916,11 @@ export default {
             goods_amount: goodsInfo.goods_amount
           }]
         }]
-
-        let res = await Vue.prototype.$fetch('update', serviceName, req, 'health')
+        if( goodsInfo.goods_amount===0){
+          operateType = 'delete'
+          serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete'
+        }
+        let res = await Vue.prototype.$fetch(operateType, serviceName, req, 'health')
         uni.$emit('goods-cart-change')
         return res
       }

@@ -1,6 +1,6 @@
 // 防抖
 // immediate 是否开始立即执行
-function debounce(func, delay = 300, immediate = false) {
+function debounce(func, delay = 300, immediate = true) {
   let timer = null
   return function() {
     if (timer) {

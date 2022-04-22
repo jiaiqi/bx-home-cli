@@ -156,7 +156,7 @@
         <text class="cuIcon-right place-holder"></text>
       </view>
 
-<!--      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
+      <!--      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
         v-if="!disabled && needAddress&&orderType!=='团购'&&!isFood">
         <view class="pay-mode-item">
           <view class="">
@@ -255,7 +255,7 @@
             {{orderInfo.rcv_addr_str}}
           </view>
         </view>
-  <!--      <view class="detail-info_item" v-if="orderInfo.delivery_type">
+        <!--      <view class="detail-info_item" v-if="orderInfo.delivery_type">
           <view class="detail-info_item_label">
             提货方式
           </view>
@@ -1410,15 +1410,15 @@
                 if (item.goods_img) {
                   obj.goods_image = item.goods_img;
                 }
-                
+
                 if (item.card_case_detail_no) {
                   obj.card_case_detail_no = item.card_case_detail_no
                 }
-                
-                if(item.cart_goods_rec_no){
+
+                if (item.cart_goods_rec_no) {
                   obj.cart_goods_rec_no = item.cart_goods_rec_no
                 }
-                
+
                 return obj;
               })
             }]
@@ -1488,7 +1488,7 @@
             if (keys.length > 0) {
               keys.forEach(key => {
                 if (columns && columns.indexOf(key) !== -1 && formData[key]) {
-                  req[0].data[0][key] = formData[key]
+                  req[0].data[0][key] = formData[key] || null
                 }
               })
             }
@@ -1499,7 +1499,7 @@
             if (keys.length > 0) {
               keys.forEach(key => {
                 if (formData[key]) {
-                  req[0].data[0][key] = formData[key] || req[0].data[0][key]
+                  req[0].data[0][key] = formData[key] || req[0].data[0][key] || null
                 }
               })
             }
@@ -1563,10 +1563,10 @@
             req[0].data[0].delivery_type = '自提'
           }
         }
-        
+
         let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
         if (cartGoodsList.length > 0) {
-          req[0].data[0].is_shopping_cart='是'
+          req[0].data[0].is_shopping_cart = '是'
           // let ids = cartGoodsList.map(item => item.id).toString()
           // if (ids) {
           //   await this.clearOrderCartGoods(ids)
@@ -1591,12 +1591,11 @@
           if (cartGoodsList.length > 0) {
             let ids = cartGoodsList.map(item => item.id).toString()
             if (ids) {
-              await this.clearOrderCartGoods(ids)
+              // await this.clearOrderCartGoods(ids)
             }
           }
-          uni.$emit('goods-cart-change')
           const orderData = await this.getOrderInfo()
-
+          uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付

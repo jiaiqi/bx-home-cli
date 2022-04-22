@@ -1,5 +1,5 @@
 <template>
-  <view class="goods-list-wrap">
+  <view class="goods-list-wrap" id="goods-list-wrap">
     <view class="title" :style="titleStyle" v-if="pageItem && pageItem.show_label === '是'">
       <text>{{ pageItem.component_label || '' }}</text>
       <view class="to-more cu-btn" v-if="hasMore" @click="toMore">
@@ -16,8 +16,8 @@
       </view>
     </view>
 
-    <goods-cart :cartData="cartData" margin="0" :fixed="true" :fold="true" bottom="50px" :list_config="list_config"
-      @changeAmount="changeAmount" @clear="clearCart" v-if="enableAddCart"></goods-cart>
+    <goods-cart ref="goodsCart" :cartData="cartData" margin="0" :fixed="true" :fold="foldBottomCart" bottom="50px"
+      :list_config="list_config" @changeAmount="changeAmount" @clear="clearCart" v-if="enableAddCart"></goods-cart>
 
   </view>
 </template>
@@ -59,15 +59,15 @@
       rownumber() {
         return this.pageItem?.row_number || 6
       },
-      cartTotal(){
+      cartTotal() {
         let res = 0
-        if(Array.isArray(this.cartData)){
-          res = this.cartData.reduce((res,cur)=>{
-            if(!isNaN(Number(cur.goods_amount))){
-              res+=cur.goods_amount
+        if (Array.isArray(this.cartData)) {
+          res = this.cartData.reduce((res, cur) => {
+            if (!isNaN(Number(cur.goods_amount))) {
+              res += cur.goods_amount
             }
             return res
-          },0)
+          }, 0)
         }
         return res
       },
@@ -79,6 +79,7 @@
       return {
         cartMode: "default",
         cartData: [],
+        foldBottomCart: true,
         list_config: {
           "bg": "",
           "lp_style": "宫格",
@@ -125,7 +126,7 @@
               "disp_label": false,
               "align": "left",
               "color": "#F3A250",
-              "width": "100%",
+              // "width": "100%",
               "font_size": "14px",
               "padding": "0 20rpx",
               "prefix": "￥"
@@ -155,18 +156,73 @@
         }
       }
     },
-    created() {
-      uni.$on('goods-cart-change',()=>{
-         this.getGoodsListData()
+
+    mounted() {
+      uni.$on('fold-bottom-cart', (res) => {
+        this.foldBottomCart = res
       })
-    	// this.getGoodsListData()
+      //    const query = uni.createSelectorQuery().in(this);
+
+      //    setInterval(()=>{
+      //      query.select('#goods-list-wrap').boundingClientRect(data => {
+      //        console.log("得到布局位置信息" + JSON.stringify(data));
+      //        console.log("节点离页面顶部的距离为" + data.top);
+      //        if(data.top<50){
+      //          this.foldBottomCart = true
+      //        }else{
+      //          this.foldBottomCart = false
+      //        }
+      //      }).exec();
+      //    },3000)
     },
-    beforeDestroy(){
+
+    created() {
+      uni.$on('goods-cart-change', () => {
+        setTimeout(_ => {
+          this.getGoodsListData()
+        }, 1000)
+      })
+      // this.getGoodsListData()
+    },
+    beforeDestroy() {
       uni.$off('goods-cart-change')
     },
     methods: {
-      clearCart(e) {
-
+      async clearCart(e) {
+        let ids = this.cartData.filter(item => !!item.cart_goods_rec_no).map(item => item.id).toString()
+        if (ids) {
+          let isConfirm = false
+          isConfirm = await new Promise((resove) => {
+            uni.showModal({
+              title: '提示',
+              content: '确认清空购物车?',
+              success: (res) => {
+                resove(res.confirm)
+              }
+            })
+          })
+          if (isConfirm) {
+            this.clearOrderCartGoods(ids).then(_ => {
+              this.getGoodsListData()
+              this.$refs.goodsCart.showList = false
+              this.$refs.goodsCart.isFold = true
+            })
+          }
+        }
+      },
+      async clearOrderCartGoods(ids) {
+        // 清除购物车中在订单中的商品
+        let serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete';
+        let req = [{
+          "serviceName": serviceName,
+          "condition": [{
+            "colName": "id",
+            "ruleType": "in",
+            "value": ids
+          }]
+        }]
+        let url = this.getServiceUrl('health', serviceName, 'operate');
+        return await this.$http.post(url, req)
       },
       changeAmount(data) {
         if (data && data.row && typeof data.index === 'number') {
@@ -174,6 +230,8 @@
           if (data.row.goods_count === 0) {
             this.cartData.splice(data.index, 1)
           }
+          let type = data.row.goods_amount === 0 ? 'delete' : 'update'
+          this.updateCart(data.row, type)
         }
       },
       toOrderPage(e) {
@@ -199,10 +257,10 @@
       },
       async addSku2Cart(e) {
         // 添加到购物车
-        if(this.cartTotal>=99){
+        if (this.cartTotal >= 99) {
           uni.showToast({
-            title:'购物车商品总数超出限制,请先清理购物车后在进行加购',
-            icon:"none"
+            title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
+            icon: "none"
           })
           return
         }
@@ -218,7 +276,7 @@
         let service = 'srvhealth_store_shopping_cart_goods_detail_add';
         let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
         let depend_key = 'cart_goods_rec_no'
-        
+
         if (goods?.sku_no) {
           let goodsInfo = await this.getCartDetail(goods.sku_no);
           if (goodsInfo?.goods_no) {
@@ -236,7 +294,7 @@
             goods_desc: goods.goods_desc,
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
-            goods_type:goods.goods_type,
+            goods_type: goods.goods_type,
             goods_source: '店铺SKU',
             child_data_list: [{
               "serviceName": childService,
@@ -260,7 +318,7 @@
             condition: [],
             data: [data, ...otherGoods]
           }];
-          
+
           let res = await this.$fetch('operate', service, req, 'health');
           if (res.success) {
             // this.getCartList();
@@ -284,20 +342,27 @@
       },
       delFromCart(e) {
         if (e.enable_sku === '是') {
-          uni.showModal({
-            title: '提示',
-            content: '不同规格的商品需要在购物车减购，是否跳转到购物车页面？',
-            confirmText: '打开购物车',
-            success: (res) => {
-              if (res.confirm) {
-                let url =
-                  `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=/`
-                uni.navigateTo({
-                  url: url
-                })
-              }
-            }
+          // this.foldBottomCart = false
+          uni.showToast({
+            title: '不同规格的商品需要在购物车减购',
+            icon: 'none'
           })
+          this.$refs.goodsCart.showList = true
+          this.$refs.goodsCart.isFold = false
+          // uni.showModal({
+          //   title: '提示',
+          //   content: '不同规格的商品需要在购物车减购，是否跳转到购物车页面？',
+          //   confirmText: '打开购物车',
+          //   success: (res) => {
+          //     if (res.confirm) {
+          //       let url =
+          //         `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&listType=cartList&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser?.store_user_no}"}]&detailType=custom&customDetailUrl=/`
+          //       uni.navigateTo({
+          //         url: url
+          //       })
+          //     }
+          //   }
+          // })
         } else if (e?.goods_amount) {
           let goodsInfo = this.deepClone(e);
           this.toCart(e, 'minus')
@@ -329,10 +394,10 @@
           if (type == 'minus') {
             goodsInfo.car_num = goodsInfo.goods_amount - 1
           }
-          if(this.cartTotal>=99){
+          if (this.cartTotal >= 99) {
             uni.showToast({
-              title:'购物车商品总数超出限制,请先清理购物车后在进行加购',
-              icon:"none"
+              title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
+              icon: "none"
             })
             return
           }
@@ -385,7 +450,7 @@
             ruleType: 'eq',
             value: this.vstoreUser?.store_user_no
           });
-        }else{
+        } else {
           return
         }
         let res = await this.$fetch('select', service, req, 'health');
@@ -449,7 +514,7 @@
             confirmText: '知道了'
           })
           return
-        } else if (type === 'delete') {
+        } else if (type === 'delete' || goodsInfo.goods_amount === 0) {
           serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete'
         }
         if (goodsInfo?.cart_goods_rec_no) {
@@ -695,7 +760,7 @@
 
 <style scoped lang="scss">
   .goods-list-wrap {
-    .cart-list-wrap {
+    :v-deep .cart-list-wrap {
       border-top: 1px solid #f1f1f1;
       border-bottom: 1px solid #f1f1f1;
       width: 100vw;

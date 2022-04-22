@@ -17,9 +17,7 @@
       <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
         @change="changeTabs"></u-tabs>
     </view>
-    <view class="list-content" :class="['theme-'+theme]" :style="{
-        backgroundColor:list_config.bg
-      }">
+    <view class="list-content" :class="['theme-'+theme]">
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">

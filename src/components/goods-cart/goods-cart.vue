@@ -1,86 +1,92 @@
 <template>
-  <view :class="{fixed:fixed,fold:isFold}" :style="[{bottom:bottom,margin:margin}]" class="cart-list-wrap">
-    <view class="goods-list" v-show="showList" :class="['theme-'+theme]">
-      <view class="title">
-        <view class="left">
-          已选商品
-        </view>
-        <view class="right" @click.stop="clear">
-          清空
-        </view>
-      </view>
-      <view class="goods-item" v-for="(rowData,index) in setCartData" :key="index">
-        <view class="main-image" v-if="setViewTemp.img.col">
-          <image lazy-load class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill"></image>
-        </view>
-        <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
-          <view class="col-item bg" v-for="(item,index) in setViewTemp.cols" :key="index" :style="{
-            'width':item.cfg.width,
-            'min-width':item.cfg.min_width,
-            'padding':item.cfg.padding,
-            'font-size':item.cfg.font_size,
-            'font-weight':item.cfg.font_weight,
-            'text-align':item.cfg.align,
-            'color':item.cfg.color,
-            'justify-content':item.cfg.align==='left'?'flex-start':item.cfg.align==='right'?'flex-end':item.cfg.align
-          }" :class="{
-            'cu-btn':item.cfg.style==='button'||item.cfg.style==='line_button',
-            'border':item.cfg.style==='line_button',
-            'round':item.cfg.round===true,
-            'light':item.cfg.light===true,
-            'sm':item.cfg.size==='sm',
-            'lg':item.cfg.size==='lg',
-            'bg-blue':item.cfg.bg==='blue',
-            'bg-red':item.cfg.bg==='red',
-            'bg-orange':item.cfg.bg==='orange',
-            'bg-cyan':item.cfg.bg==='cyan',
-            'bg-yellow':item.cfg.bg==='yellow',
-            'bg-white':item.cfg.bg==='white',
-            'bg-black':item.cfg.bg==='black',
-            'bg-green':item.cfg.bg==='green',
-            'bg-grey':item.cfg.bg==='grey',
-            'bg-gray':item.cfg.bg==='gray',
-            'line-blue':item.cfg.border_color==='blue',
-            'line-red':item.cfg.border_color==='red',
-            'line-orange':item.cfg.border_color==='orange',
-            'line-cyan':item.cfg.border_color==='cyan',
-            'line-yellow':item.cfg.border_color==='yellow',
-            'line-white':item.cfg.border_color==='white',
-            'line-black':item.cfg.border_color==='black',
-            'line-green':item.cfg.border_color==='green',
-            'line-grey':item.cfg.border_color==='grey',
-            'line-gray':item.cfg.border_color==='gray',
-          }">
-            <view class="label" v-if="item.cfg.disp_label&&labelMap[item.col]">
-              {{labelMap[item.col]||''}}:
-            </view>
-            <view class="value">
-              <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
-              {{rowData[item.col]||''}}
-            </view>
-          </view>
-          <view class="col-item text-right flex-1 handler-btn">
-            <text class="hand-btn cu-btn line-orange border sm radius bx-btn-bg-color"
-              @click="changeAmount(rowData,index,-1)">-</text>
-            <view class="amount">
-              {{rowData.goods_count||rowData.goods_amount||'0'}}
-            </view>
-            <text class="hand-btn cu-btn bg-orange sm radius bx-bg-color" :class="'bx-bg-'+theme"
-              @click="changeAmount(rowData,index,1)">+</text>
-          </view>
-        </view>
-      </view>
-    </view>
+  <view :class="{fixed:fixed,fold:isFold&&!showList}" :style="[{bottom:bottom,margin:margin}]" class="cart-list-wrap">
     <view class="cart-bottom" @click="changeStatus" :class="['theme-'+theme]">
+      <view class="goods-list-container" id="goods-list-container"
+        :style="{bottom:listBottom,backgroundColor:showList?'rgba(0, 0, 0, 0.2)':''}">
+        <view class="goods-list" :class="['theme-'+theme]" @click.stop="">
+          <view class="title">
+            <view class="left">
+              已选商品
+            </view>
+            <view class="right" @click.stop="clear">
+              清空
+            </view>
+          </view>
+          <view class="goods-item" v-for="(rowData,index) in setCartData" :key="index">
+            <view class="main-image" v-if="setViewTemp.img.col">
+              <image lazy-load class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill">
+              </image>
+            </view>
+            <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
+              <view class="col-item bg" v-for="(item,index) in setViewTemp.cols" :key="index" :style="{
+                'width':item.cfg.width,
+                'min-width':item.cfg.min_width,
+                'padding':item.cfg.padding,
+                'font-size':item.cfg.font_size,
+                'font-weight':item.cfg.font_weight,
+                'text-align':item.cfg.align,
+                'color':item.cfg.color,
+                'justify-content':item.cfg.align==='left'?'flex-start':item.cfg.align==='right'?'flex-end':item.cfg.align
+              }" :class="{
+                'cu-btn':item.cfg.style==='button'||item.cfg.style==='line_button',
+                'border':item.cfg.style==='line_button',
+                'round':item.cfg.round===true,
+                'light':item.cfg.light===true,
+                'sm':item.cfg.size==='sm',
+                'lg':item.cfg.size==='lg',
+                'bg-blue':item.cfg.bg==='blue',
+                'bg-red':item.cfg.bg==='red',
+                'bg-orange':item.cfg.bg==='orange',
+                'bg-cyan':item.cfg.bg==='cyan',
+                'bg-yellow':item.cfg.bg==='yellow',
+                'bg-white':item.cfg.bg==='white',
+                'bg-black':item.cfg.bg==='black',
+                'bg-green':item.cfg.bg==='green',
+                'bg-grey':item.cfg.bg==='grey',
+                'bg-gray':item.cfg.bg==='gray',
+                'line-blue':item.cfg.border_color==='blue',
+                'line-red':item.cfg.border_color==='red',
+                'line-orange':item.cfg.border_color==='orange',
+                'line-cyan':item.cfg.border_color==='cyan',
+                'line-yellow':item.cfg.border_color==='yellow',
+                'line-white':item.cfg.border_color==='white',
+                'line-black':item.cfg.border_color==='black',
+                'line-green':item.cfg.border_color==='green',
+                'line-grey':item.cfg.border_color==='grey',
+                'line-gray':item.cfg.border_color==='gray',
+              }">
+                <view class="label" v-if="item.cfg.disp_label&&labelMap[item.col]">
+                  {{labelMap[item.col]||''}}:
+                </view>
+                <view class="value">
+                  <text v-if="item.cfg&&item.cfg.prefix">{{item.cfg.prefix}}</text>
+                  {{rowData[item.col]||''}}
+                </view>
+              </view>
+              <view class="col-item text-right flex-1 handler-btn">
+                <text class="hand-btn" @click.stop="changeAmount(rowData,index,-1)">
+                  <text class="cuIcon-move"></text>
+                </text>
+                <view class="amount">
+                  {{rowData.goods_count||rowData.goods_amount||'0'}}
+                </view>
+                <text class="hand-btn" :class="'bx-bg-'+theme" @click.stop="changeAmount(rowData,index,1)">
+                  <text class="cuIcon-add"></text>
+                </text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
       <view class="cart-icon" @click.stop="changeStatus"
         :class="{active:cartData&&cartData.length>0,'bx-btn-bg-color':cartData&&cartData.length>0&&theme}">
         <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
-      <view class="price" v-if="!isFold">
+      <view class="price" v-if="!isFold||showList">
         ￥{{sumPrice||'0'}}
       </view>
-      <view class="handler" v-if="!isFold">
+      <view class="handler" v-if="!isFold||showList">
         <button class="cu-btn round"
           :class="{active:cartData&&cartData.length>0,'bx-bg-color':cartData&&cartData.length>0&&theme}"
           @click.stop="placeOrder">下单</button>
@@ -97,7 +103,22 @@
         isFold: false
       }
     },
+    watch: {
+      fold: {
+        immediate: true,
+        handler(newValue) {
+          this.isFold = newValue
+        }
+      },
+    },
     computed: {
+      listBottom() {
+        if (this.showList === true) {
+          return '50px'
+        } else {
+          return '-110vh'
+        }
+      },
       theme() {
         return this.$store?.state?.app?.theme
       },
@@ -108,7 +129,7 @@
         return this.list_config
       },
       setCartData() {
-        return this.cartData
+        return this.cartData || []
       },
       sumAmount() {
         let sum = 0
@@ -166,12 +187,9 @@
         default: false
       }
     },
-    created() {
-      this.isFold = this.fold
-    },
     methods: {
       clear() {
-        this.showList = false
+        // this.showList = false
         this.$emit('clear')
       },
       placeOrder() {
@@ -213,15 +231,30 @@
       },
       changeAmount(row, index, num) {
         row = this.deepClone(row)
-        row['goods_count'] = row['goods_count'] + num;
-        if (row.goods_count >= 0) {
-          this.$emit('changeAmount', {
-            row,
-            index
-          })
+        if (row.goods_count) {
+          row['goods_count'] = row['goods_count'] + num;
+          if (row.goods_count >= 0) {
+            this.$emit('changeAmount', {
+              row,
+              index
+            })
+          }
+        } else {
+          row['goods_amount'] = row['goods_amount'] + num;
+          if (row.goods_amount >= 0) {
+            this.$emit('changeAmount', {
+              row,
+              index
+            })
+          }
         }
+
+
       },
       changeStatus() {
+        this.isFold = this.fold
+        this.showList = !this.showList
+        return
         if (this.isFold == true) {
           // this.isFold = false
           let url =
@@ -233,6 +266,7 @@
           })
           return
         } else {
+          this.isFold = this.fold
           this.showList = !this.showList
         }
       },
@@ -241,8 +275,30 @@
 </script>
 
 <style lang="scss" scoped>
+  .goods-list-container {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    right: 0;
+    transition: bottom ease-in-out .5s;
+    display: flex;
+    align-items: flex-end;
+    background-color: transparent;
+    height: 100vh;
+    width: 100vw;
+    z-index: 9999;
+  }
+
   .goods-list {
-    padding: 0 0 20rpx;
+    padding: 20rpx;
+    border-top: 1px solid #f1f1f1;
+    // position: absolute;
+    // width: 100%;
+    // left: 0;
+    // right: 0;
+    // transition: all ease-in-out .5s;
+    background-color: #fff;
+    width: 100%;
 
     .title {
       font-size: 16px;
@@ -292,28 +348,32 @@
           align-items: center;
 
           .hand-btn {
-            width: 50rpx;
-            height: 50rpx;
-            text-align: center;
-            line-height: 50rpx;
-            border-radius: 10rpx;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            font-size: 16px;
+            font-weight: bold;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #fdca01;
+            color: #fff;
 
             &.line-orange {
-              color: #F3A250;
+              color: #fdca01;
             }
 
             &.bg-orange {
-              background-color: #F3A250;
+              background-color: #fdca01;
             }
           }
 
           .amount {
             // width: 100rpx;
             min-width: 60rpx;
-            height: 50rpx;
+            height: 20px;
             text-align: center;
-            line-height: 50rpx;
-            background-color: #F8F8FA;
+            line-height: 20px;
             text-align: center;
             padding: 0 20rpx;
             font-size: 14px;
@@ -366,14 +426,16 @@
   }
 
   .cart-list-wrap {
-    margin: 20rpx;
+    margin: 20rpx 0;
     background-color: #fff;
     border-radius: 20rpx;
-    padding: 20rpx;
+    padding: 20rpx 0;
 
     &.fixed {
-      width: calc(100% - 80rpx);
+      // width: calc(100% - 80rpx);
+      width: 100vw;
       right: 10px;
+      left: 0;
     }
 
     &.fold {
@@ -388,6 +450,8 @@
     .cart-bottom {
       display: flex;
       align-items: center;
+      position: relative;
+      padding: 0 20rpx;
     }
 
     .price {

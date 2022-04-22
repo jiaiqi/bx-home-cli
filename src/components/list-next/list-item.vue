@@ -111,6 +111,15 @@
             {{ btn.button_name }}
           </button>
         </view>
+        <view class="foot-button-box" v-else-if="listType!=='selectorList'">
+             <button class="cu-btn" :class="[setListView.btnClass]"
+               :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
+               v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
+               :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
+               :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
+               {{ btn.button_name }}
+             </button>
+           </view> 
       </view>
       <view class="main-image" :style="{
 					'border-radius': setViewTemp.img.cfg.radius,
@@ -132,7 +141,7 @@
     <view class="foot-button-box"
       v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
     </view>
-    <view class="foot-button-box" v-else-if="listType!=='selectorList'">
+ <!--   <view class="foot-button-box" v-else-if="listType!=='selectorList'">
       <button class="cu-btn" :class="[setListView.btnClass]"
         :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
         v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
@@ -140,7 +149,7 @@
         :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
         {{ btn.button_name }}
       </button>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -148,6 +157,9 @@
   // #ifdef MP-WEIXIN
   import listItem from './list-item.vue';
   // #endif
+  import {
+    debounce
+  } from '@/common/func/util.js'
   export default {
     name: "list-item",
     components: {
@@ -498,7 +510,7 @@
             obj.valueWhiteSpace = cfg?.white_space;
             obj.event = col.event
             if (col?.col) {
-              let getVal = this.setValue(col.col,col.cfg);
+              let getVal = this.setValue(col.col, col.cfg);
               if (cfg?.disp_label !== false) {
                 obj.label = getVal?.label || '';
               }
@@ -669,22 +681,28 @@
         }
         res.label = cfg?.custom_label || labelMap[resCol] || cfg?.default_label || '';
         res.value = detail[resCol] ?? cfg?.default_val ?? '';
-        
+
         if (res.value && typeof res.value === 'string') {
           res.value = res.value.replace(/\\n/, '')
         }
-        
-        if(cfg?.format?.type === 'date'&&res.value&&cfg?.format?.rule){
+
+        if (cfg?.format?.type === 'date' && res.value && cfg?.format?.rule) {
           res.value = this.dayjs(res.value).format(cfg?.format?.rule)
         }
         return res;
       },
-      del() {
+      del: debounce(function() {
         this.$emit('del2Cart', this.rowData);
-      },
-      add() {
+      }, 1000, true),
+      add: debounce(function() {
         this.$emit('add2Cart', this.rowData);
-      },
+      }, 1000, true),
+      // del() {
+      //   this.$emit('del2Cart', this.rowData);
+      // },
+      // add() {
+      //   this.$emit('add2Cart', this.rowData);
+      // },
       isShowBtn(btn) {
         let notDetail = btn.button_type !== 'detail';
         if (notDetail) {
@@ -920,8 +938,8 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      width: 100%;
-
+      // width: 100%;
+      flex: 1;
       .bg-orange {
         background-color: #f3a250;
       }

@@ -14,7 +14,7 @@
     methods: {
       onTap: debounce(function() {
         this.$emit('onTap')
-      }, 500, false)
+      }, 5000, true)
     },
   }
 </script>

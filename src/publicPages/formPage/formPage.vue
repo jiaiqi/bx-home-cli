@@ -81,10 +81,6 @@
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
       <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
         v-if="curStep==='child'">上一步</button>
-      <!--  <button class="cu-btn  bg-cyan round lg  flex-all" v-if="curStep==='child'&&isArray(fields) && fields.length > 0"
-        v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
-        {{ btn.button_name }}
-      </button> -->
       <debounce-view style="min-width: calc(60% - 10px);" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
         @onTap="onButton(btn)">
         <button style="width: 100%;" class="cu-btn  bg-cyan round lg  "
@@ -94,10 +90,6 @@
       </debounce-view>
     </view>
     <view class="button-box" v-else-if="!orderMode&&!loading&&!stepMode&&colsV2Data&&!disabled">
-      <!-- <button class="cu-btn bg-orange round lg bx-btn-bg-color" v-if="isArray(fields) && fields.length > 0"
-        v-for="(btn, btnIndex) in formButtons" :key="btnIndex" @click="onButton(btn)">
-        {{ btn.button_name }}
-      </button> -->
       <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
         @onTap="onButton(btn)">
         <button class="cu-btn bg-orange round lg bx-btn-bg-color"

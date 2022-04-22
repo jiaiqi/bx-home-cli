@@ -44,8 +44,8 @@
     <user-setting @save="savePushSet" ref='userSetting'></user-setting>
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
       :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" :inactive-color="labelColor"
-      :active-color="activeColor" :mid-button="false"
-      v-if="pageDefine && tabbarList && tabbarList.length > 0" :before-switch="beforeSwitch" @change="changeTab">
+      :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
+      :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
 
@@ -112,7 +112,7 @@
         return this.pageDefine?.label_color || '#888'
       },
       activeColor() {
-        return this.pageDefine?.label_active_color||this.themeConfig?.style_font_color || '#000'
+        return this.pageDefine?.label_active_color || this.themeConfig?.style_font_color || '#000'
       },
       currentTab() {
         if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0) {
@@ -1423,6 +1423,19 @@
           item?.listLoadMore?.()
         }
       })
+    },
+    onPageScroll() {
+      // this.$u.getRect('#goods-list-wrap').then(rect => {
+      //   if (rect?.top && rect.top < 50) {
+      //     if (rect?.top + rect.height < 50) {
+      //       uni.$emit('fold-bottom-cart', true)
+      //     } else {
+      //       uni.$emit('fold-bottom-cart', false)
+      //     }
+      //   } else {
+      //     uni.$emit('fold-bottom-cart', true)
+      //   }
+      // })
     },
     async onLoad(option) {
       if (option.service_place_no) {
