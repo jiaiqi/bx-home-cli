@@ -21,7 +21,7 @@
         </view>
       </view>
     </view>
-    <view class="goods-item-list">
+    <view class="goods-item-list" v-if="list&&list.length>0">
       <view class="goods-item" v-for="(item,index) in list" :key="index">
         <image lazy-load class="goods-image" :src="getGoodsImageUrl(item)" mode=""></image>
         <view class="content">
@@ -149,10 +149,10 @@
 
 <style scoped lang="scss">
   .goods-item-list {
-    padding-left: 30px;
-    padding-top: 5px;
-    padding-right: 0px;
-
+    margin-top: 5px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8f8fa;
     .goods-item {
       display: flex;
 
@@ -164,13 +164,13 @@
 
   .goods-item {
     display: flex;
-
-    &+.goods-item {
-      margin-top: 20px;
-    }
+    margin-top: 10px;
+    // &+.goods-item {
+    //   margin-top: 20px;
+    // }
 
     .goods-image {
-      width: 80px;
+      width: 60px;
       height: 60px;
       background-color: #f1f1f1;
       border-radius: 5px;
@@ -194,8 +194,8 @@
       margin-bottom: 5px;
 
       .price {
-        font-weight: bold;
-        color: #f76260;
+        // font-weight: bold;
+        color:#FE5A3F;
         font-size: 18px;
         margin-bottom: 5px;
 

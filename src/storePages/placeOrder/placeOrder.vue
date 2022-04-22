@@ -29,14 +29,13 @@
     </view>
 
     <view class="order-detail">
-      <!-- 点餐 -->
+
       <view class="form-box">
         <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
           :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
           @value-blur="valueChange">
         </a-form>
       </view>
-
       <view class="person-info" v-if="orderType==='团购'">
         <view class="cu-form-group">
           <view class="title">姓名</view>
@@ -86,6 +85,14 @@
               ￥{{orderInfo.order_amount}}
             </view>
           </view>
+          <view class="detail-info_item" v-if="couponMinus">
+            <view class="detail-info_item_label">
+              优惠金额
+            </view>
+            <view class="detail-info_item_value">
+              ￥{{couponMinus||'0'}}
+            </view>
+          </view>
           <!--   <view class="detail-info_item" v-else-if="totalMoney">
               <view class="detail-info_item_label">
                 商品总价
@@ -94,20 +101,20 @@
                 ￥{{totalMoney}}
               </view>
             </view> -->
-          <view class="detail-info_item" v-if="totalMoney&&actualMoney">
-            <view class="detail-info_item_label">
-              应付金额
-            </view>
-            <view class="detail-info_item_value text-red">
-              ￥{{actualMoney}}
-            </view>
-          </view>
           <view class="detail-info_item" v-if="orderInfo.order_pay_amount">
             <view class="detail-info_item_label">
               支付金额
             </view>
             <view class="detail-info_item_value text-red">
               ￥{{orderInfo.order_pay_amount}}
+            </view>
+          </view>
+          <view class="detail-info_item" v-if="totalMoney&&actualMoney">
+            <view class="detail-info_item_label">
+              <!-- 应付金额 -->
+            </view>
+            <view class="detail-info_item_value text-red actual-money">
+              <text class="text-sm margin-right-xs">应付:</text>￥{{actualMoney}}
             </view>
           </view>
         </view>
@@ -131,8 +138,14 @@
             v-model="order_remark" placeholder-style="fontSize:24rpx;" v-else></textarea>
         </view>
       </view> -->
-
-
+      <!-- 点餐 -->
+      <!--      <view class="form-box">
+        <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
+          :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
+          @value-blur="valueChange">
+        </a-form>
+      </view>
+ -->
       <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
         <view class="place-holder" v-if="!room_no">
           点击选择房间号
@@ -143,7 +156,7 @@
         <text class="cuIcon-right place-holder"></text>
       </view>
 
-      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
+<!--      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
         v-if="!disabled && needAddress&&orderType!=='团购'&&!isFood">
         <view class="pay-mode-item">
           <view class="">
@@ -152,7 +165,6 @@
           </view>
           <view class="" v-if="orderInfo.delivery_type">
             <text>{{orderInfo.delivery_type||''}}</text>
-            <!-- <text class="cuIcon-right"></text> -->
           </view>
         </view>
         <view class="pay-mode-item" v-if="!orderInfo.delivery_type">
@@ -161,7 +173,7 @@
             </u-subsection>
           </view>
         </view>
-      </view>
+      </view> -->
 
 
 
@@ -243,14 +255,14 @@
             {{orderInfo.rcv_addr_str}}
           </view>
         </view>
-        <view class="detail-info_item" v-if="orderInfo.delivery_type">
+  <!--      <view class="detail-info_item" v-if="orderInfo.delivery_type">
           <view class="detail-info_item_label">
             提货方式
           </view>
           <view class="detail-info_item_value">
             {{orderInfo.delivery_type}}
           </view>
-        </view>
+        </view> -->
       </view>
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
@@ -291,7 +303,7 @@
           </view>
         </view>
 
-        <view class="detail-info_item" v-if="orderInfo.order_remark">
+        <!--   <view class="detail-info_item" v-if="orderInfo.order_remark">
           <view class="detail-info_item_label">
             订单备注
           </view>
@@ -299,7 +311,7 @@
             {{orderInfo.order_remark}}
           </view>
         </view>
-
+ -->
         <view class="detail-info_item" v-if="orderInfo.create_time">
           <view class="detail-info_item_label">
             下单时间
@@ -700,126 +712,150 @@
         // }
       },
 
-      async getSrvCols(type = "add",pageType="") {
+      async getSrvCols(type = "add", pageType = "") {
         const app = this.fieldsCfg?.app || this.appName || uni.getStorageSync('activeApp');
         const service = this.fieldsCfg?.service
         if (app && service) {
+          uni.showLoading()
           let colVs = await this.getServiceV2(service, type, type, app);
           this.colV2 = colVs
           let fields = []
           let defaultVal = null
-          if(pageType==='detail'){
-            let defaultVal = this.orderInfo;
-            fields = colVs._fieldInfo.map(item=>{
-              if(defaultVal&&defaultVal[item.column]){
+          if (pageType === 'detail') {
+            defaultVal = this.deepClone(this.orderInfo);
+            colVs._fieldInfo = colVs._fieldInfo.map(item => {
+              if (defaultVal && defaultVal[item.column]) {
                 item.value = defaultVal[item.column]
+                this.mainData[item.column] = item.value
               }
               return item
             })
+            fields = colVs._fieldInfo
           }
-          debugger
           // if (type === 'add') {
-            fields = colVs._fieldInfo.map(field => {
-              if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
-                field.option_list_v2 = field.option_list_v2.map(item => {
-                  item.checked = false;
-                  return item;
-                });
-              }
+          fields = colVs._fieldInfo.map(field => {
+            if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
+              field.option_list_v2 = field.option_list_v2.map(item => {
+                item.checked = false;
+                return item;
+              });
+            }
 
-              if (field.column === 'store_no') {
-                field.value = field.value || this.storeInfo?.store_no
-                this.mainData[field.column] = field.value
-              }
-              if (field.column === 'show_params_config' && this.show_params_config) {
-                field.value = this.show_params_config
-                this.mainData[field.column] = field.value
-              }
-              if (field.column === 'order_type' && this.orderType) {
-                field.value = this.orderType
-                this.mainData[field.column] = field.value
-              }
-              if (field.column === 'store_user_no') {
-                field.value = field.value || this.vstoreUser?.store_user_no
-                this.mainData[field.column] = field.value
-              }
+            if (field.column === 'store_no') {
+              field.value = field.value || this.storeInfo?.store_no
+              this.mainData[field.column] = field.value
+            }
+            if (field.column === 'show_params_config' && this.show_params_config) {
+              field.value = this.show_params_config
+              this.mainData[field.column] = field.value
+            }
+            if (field.column === 'order_type' && this.orderType) {
+              field.value = this.orderType
+              this.mainData[field.column] = field.value
+            }
+            if (field.column === 'store_user_no') {
+              field.value = field.value || this.vstoreUser?.store_user_no
+              this.mainData[field.column] = field.value
+            }
 
-              if (this.globalData[field.column]) {
-                field.value = field.value || this.globalData[field.column]
+            if (this.globalData[field.column]) {
+              field.value = field.value || this.globalData[field.column]
+            }
+            if (this.includesColumns && this.includesColumns.indexOf(field.column) == -1) {
+              field.display = false
+              field.disabled = true
+              field.in_add = 2
+            }
+            if (this.columnsDefaultVal && this.columnsDefaultVal[field.column]) {
+              field.value = this.columnsDefaultVal[field.column];
+              field.defaultValue = this.columnsDefaultVal[field.column];
+            }
+            return field;
+          })
+          defaultVal = colVs._fieldInfo.reduce((res, cur) => {
+            if (cur.defaultValue) {
+              res[cur.column] = cur.value || cur.defaultValue
+              cur.value = cur.value || cur.defaultValue
+              this.mainData[cur.column] = cur.value
+            } else if (cur.value) {
+              res[cur.column] = cur.value
+            }
+            return res
+          }, {})
+
+          let cols = null;
+          // #ifdef MP-WEIXIN
+          cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
+          //#endif
+          // #ifdef H5
+          cols = colVs._fieldInfo.filter(item => item.x_if)
+          // #endif
+          const table_name = colVs.main_table
+          let result = null
+
+          debugger
+
+          if (Array.isArray(cols) && cols.length > 0) {
+            // #ifdef MP-WEIXIN
+            result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
+            // #endif
+            // #ifdef H5
+            result = {
+              response: {
+
               }
-              if (this.includesColumns && this.includesColumns.indexOf(field.column) == -1) {
-                field.display = false
-                field.disabled = true
-                field.in_add = 2
+            }
+            let data = defaultVal
+            cols.forEach(col => {
+              let x_if = col?.x_if;
+              if (x_if) {
+                x_if = `(${x_if})(data)`
+                result.response[col.column] = eval(x_if)
               }
-              if (this.columnsDefaultVal && this.columnsDefaultVal[field.column]) {
-                field.value = this.columnsDefaultVal[field.column];
-                field.defaultValue = this.columnsDefaultVal[field.column];
-              }
-              return field;
             })
-            
-            defaultVal = colVs._fieldInfo.reduce((res, cur) => {
-              if (cur.defaultValue) {
-                res[cur.column] = cur.value || cur.defaultValue
-                cur.value = cur.value || cur.defaultValue
-                this.mainData[cur.column] = cur.value
-              } else if (cur.value) {
-                res[cur.column] = cur.value
+            // #endif
+          }
+
+          let calcResult = {}
+          let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
+            .calc_trigger_col)).map(item => item.column)
+
+          if (Array.isArray(calcCols) && calcCols.length > 0) {
+            calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
+          }
+
+          for (let i = 0; i < colVs._fieldInfo.length; i++) {
+            const item = colVs._fieldInfo[i]
+            if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
+                .column] == 0)) {
+
+              if (item.redundant?.trigger === 'always' || !item.value) {
+                item.value = calcResult?.response[item.column]
+                defaultVal[item.column] = item.value
+                this.mainData[item.column] = item.value
               }
-              return res
-            }, {})
-
-            const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
-            
-            const table_name = colVs.main_table
-            let result = null
-            
-            debugger
-            
-            if (Array.isArray(cols) && cols.length > 0) {
-              result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
             }
-
-            let calcResult = {}
-            let calcCols = colVs._fieldInfo.filter(item => item.redundant?.func && Array.isArray(item
-              .calc_trigger_col)).map(item => item.column)
-
-            if (Array.isArray(calcCols) && calcCols.length > 0) {
-              calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
-            }
-
-            for (let i = 0; i < colVs._fieldInfo.length; i++) {
-              const item = colVs._fieldInfo[i]
-              if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
-                  .column] == 0)) {
-
-                if (item.redundant?.trigger === 'always' || !item.value) {
-                  item.value = calcResult?.response[item.column]
-                  defaultVal[item.column] = item.value
-                  this.mainData[item.column] = item.value
+            if (item.x_if) {
+              if (Array.isArray(item.xif_trigger_col)) {
+                if (item.table_name !== table_name) {
+                  result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
                 }
-              }
-              if (item.x_if) {
-                if (Array.isArray(item.xif_trigger_col)) {
-                  if (item.table_name !== table_name) {
-                    result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
-                  }
-                  if (result?.response && result.response[item.column]) {
-                    item.display = true
-                  } else if (result === true) {
-                    item.display = true
-                  } else {
-                    item.display = false
-                  }
+                if (result?.response && result.response[item.column]) {
+                  item.display = true
+                } else if (result === true) {
+                  item.display = true
+                } else {
+                  item.display = false
                 }
               }
             }
+          }
           // } else {
 
-          
+
           // }
           this.fields = fields
+          uni.hideLoading()
           return colVs
         }
       },
@@ -1374,9 +1410,15 @@
                 if (item.goods_img) {
                   obj.goods_image = item.goods_img;
                 }
+                
                 if (item.card_case_detail_no) {
                   obj.card_case_detail_no = item.card_case_detail_no
                 }
+                
+                if(item.cart_goods_rec_no){
+                  obj.cart_goods_rec_no = item.cart_goods_rec_no
+                }
+                
                 return obj;
               })
             }]
@@ -1521,15 +1563,22 @@
             req[0].data[0].delivery_type = '自提'
           }
         }
-
+        
+        let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
+        if (cartGoodsList.length > 0) {
+          req[0].data[0].is_shopping_cart='是'
+          // let ids = cartGoodsList.map(item => item.id).toString()
+          // if (ids) {
+          //   await this.clearOrderCartGoods(ids)
+          // }
+        }
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
-        uni.$emit('goods-cart-change')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
           // this.orderInfo = res.data[0]
-          
-          
+
+
           // this.fields = this.fields.map(item => {
           //   if (res.data[0][item.column]) {
           //     item.value = this.orderInfo[item.column]
@@ -1542,12 +1591,13 @@
           if (cartGoodsList.length > 0) {
             let ids = cartGoodsList.map(item => item.id).toString()
             if (ids) {
-              this.clearOrderCartGoods(ids)
+              await this.clearOrderCartGoods(ids)
             }
           }
+          uni.$emit('goods-cart-change')
           const orderData = await this.getOrderInfo()
-          
-          this.getSrvCols('add','detail')
+
+          this.getSrvCols('add', 'detail')
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             this.toPay();
@@ -1576,7 +1626,7 @@
         }
         // });
       },
-      clearOrderCartGoods(ids) {
+      async clearOrderCartGoods(ids) {
         // 清除购物车中在订单中的商品
         let serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete';
         let req = [{
@@ -1588,7 +1638,7 @@
           }]
         }]
         let url = this.getServiceUrl('health', serviceName, 'operate');
-        this.$http.post(url, req)
+        return await this.$http.post(url, req)
       },
       async payByCoupon(orderData = {}, card_no = "") {
         // 卡券支付
@@ -1831,7 +1881,7 @@
       } else {
         this.getCouponList()
       }
-      this.getSrvCols('add')
+      this.getSrvCols('add', this.orderInfo?.order_no ? 'detail' : '')
     }
   };
 </script>
@@ -1972,6 +2022,11 @@
         padding: 0;
         border-top: 1px solid #F9F9F9;
         border-radius: 0;
+
+        .actual-money {
+          font-size: 20px;
+          color: #FE5A3F;
+        }
       }
 
       .title-bar {

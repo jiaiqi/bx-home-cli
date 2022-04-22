@@ -17,7 +17,7 @@
         'background-color': labelPosition === 'left' ? '' : '',
       }">
       <text class="label" :for="fieldData.column">
-        <text class="text-red is-required" v-if="fieldData.isRequire">{{
+        <text class="text-red is-required" v-if="fieldData.isRequire&&formType!=='detail'">{{
           fieldData.isRequire ? "*" : ""
         }}</text>
         <text class="text-hidden is-required" v-else>*</text>
@@ -48,7 +48,7 @@
       <view class="form-item-content_detail text" :class="{ 'can-link': canLink }" v-else-if="pageType === 'detail'"
         @click="toFKLink">
         {{ fkFieldLabel || fieldData.value | formalText }}
-        <text class="cuIcon-link margin-left" v-if="canLink"></text>
+        <!-- <text class="cuIcon-link margin-left" v-if="canLink"></text> -->
       </view>
       <!-- detail-详情-end -->
       <!-- form-item-start -->

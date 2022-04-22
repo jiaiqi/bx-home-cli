@@ -659,10 +659,12 @@
                 title: '非实物商品不支持加入购物车~',
                 icon: 'none'
               })
+              this.onHandler = false;
               return
             }
             this.modalConfirmType = 'addToCart'
           }
+          this.onHandler = false;
           return
           if (options_type == 'SKU商品') {
             this.changeModal('option-selector')
@@ -675,10 +677,12 @@
                   title: '非实物商品不支持加入购物车~',
                   icon: 'none'
                 })
+                this.onHandler = false;
                 return
               }
               this.modalConfirmType = 'addToCart'
             }
+            this.onHandler = false;
             return
           }
         }
@@ -722,6 +726,7 @@
               title: '非实物商品不支持加入购物车~',
               icon: 'none'
             })
+            this.onHandler = false;
             return
           }
           if (this.cartAmount >= 99) {
@@ -729,6 +734,7 @@
               title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
               icon: "none"
             })
+            this.onHandler = false;
             return
           }
           this.addToCart(goodsInfo).then(_ => {

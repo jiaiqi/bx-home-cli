@@ -70,7 +70,8 @@
 
 <script>
   import {
-    debounce
+    debounce,
+    throttle
   } from '@/common/func/util.js'
   import skuSelector from '../../components/sku-selector/sku-selector.vue'
   export default {
@@ -143,24 +144,27 @@
       }
     },
     methods: {
-      minus: debounce(function(e) {
+      minus: throttle(function(e) {
         this.$emit('minus', e)
-      }, 500, false),
+      }, 1000, true),
       // minus(e) {
       //   this.$emit('minus', e)
       // },
-      toCart: debounce(function(e) {
+      toCart: throttle(function(e) {
         this.$emit('toCart', e)
-      }, 100, false),
+      }, 1000, true),
       // toCart(e) {
       //   this.$emit('toCart', e)
       // },
       toGoodsDetail() {
         this.$emit('to-etail', this.goodsInfo)
       },
-      openSkuSelector() {
+      openSkuSelector: throttle(function(e) {
         this.$refs?.skuSelector?.open?.()
-      },
+      }, 1000, true),
+      // openSkuSelector() {
+      //   this.$refs?.skuSelector?.open?.()
+      // },
       selectedSku(e) {
         this.skuAttr = e
       },
@@ -223,6 +227,7 @@
     font-weight: bold;
     border: 1px solid #fff;
     position: relative;
+
     .image {
       width: 100%;
       height: 100%;

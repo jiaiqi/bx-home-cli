@@ -25,7 +25,7 @@
         </view>
         <view class="field-value_detail text" v-else-if="pageType === 'detail'" @click="toFKLink">
           {{ fkFieldLabel || fieldData.value | formalText }}
-          <text class="cuIcon-link margin-left" v-if="canLink"></text>
+          <!-- <text class="cuIcon-link margin-left" v-if="canLink"></text> -->
         </view>
         <!-- detail-详情-end -->
 
