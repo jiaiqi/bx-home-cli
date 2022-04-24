@@ -507,6 +507,16 @@
           }
 
         }
+        // #ifdef H5
+        , {
+          "path": "article/article",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": true
+          }
+        }
+
+        //#endif
       ]
     }
   ],

@@ -82,7 +82,7 @@
       <button class="cu-btn line-cyan lg round flex-half" @click="changeStep('main')"
         v-if="curStep==='child'">上一步</button>
       <debounce-view style="min-width: calc(60% - 10px);" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
-        @onTap="onButton(btn)">
+        @onThrottle="onButton(btn)" type="throttle">
         <button style="width: 100%;" class="cu-btn  bg-cyan round lg  "
           v-if="curStep==='child'&&isArray(fields) && fields.length > 0">
           {{ btn.button_name }}
@@ -91,7 +91,7 @@
     </view>
     <view class="button-box" v-else-if="!orderMode&&!loading&&!stepMode&&colsV2Data&&!disabled">
       <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
-        @onTap="onButton(btn)">
+        @onThrottle="onButton(btn)">
         <button class="cu-btn bg-orange round lg bx-btn-bg-color"
           v-if="isArray(fields) && fields.length > 0&&btn.isShow!==false">
           {{ btn.button_name }}
