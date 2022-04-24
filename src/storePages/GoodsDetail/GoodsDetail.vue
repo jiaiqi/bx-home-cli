@@ -393,6 +393,15 @@
         this.selectSku = e
       },
       async confirmAdd2Cart(e = {}) {
+        // if (this.purchase_limit && this.goodsInfo?.goods_amount >= this.purchase_limit) {
+        //   uni.showModal({
+        //     title: "提示",
+        //     content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+        //     showCancel: false,
+        //     confirmText: '知道了'
+        //   })
+        //   return
+        // }
         if (this.cartAmount >= 99) {
           uni.showToast({
             title: '购物车商品总数超出限制,请先清理购物车后在进行加购',
@@ -462,7 +471,7 @@
             goodsInfo.name = this.storeInfo?.goods_name;
             goodsInfo.image = this.storeInfo?.store_image;
             goodsInfo.car_num = goodsInfo.goods_amount;
-            goodsInfo.goods_type = goodsInfo.goods_type 
+            goodsInfo.goods_type = goodsInfo.goods_type
             // || this.goodsInfo?.goods_type;
             goodsInfo.type = this.storeInfo?.type;
             this.$store.commit('SET_STORE_CART', {
@@ -527,25 +536,20 @@
           })
           return
         }
-        // if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
-        //  let res = await this.getGoodsStock(this.inCartGoodsInfo)
-        //     if (res && res.id) {
-        //       if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {
-        //         // this.inCartGoodsInfo.goods_amount++;
-        //         // this.updateCart(this.inCartGoodsInfo);
-        //       } else {
-        //         uni.showToast({
-        //           title: '商品库存不足',
-        //           icon: 'none'
-        //         });
-        //         return
-        //       }
-        //     }
-        // }
+
         if (goods?.goods_no) {
           let goodsInfo = await this.getCartDetail(null, goods.goods_no);
           if (goodsInfo?.goods_no) {
             goodsInfo.goods_amount++;
+            if (this.purchase_limit && goodsInfo.goods_amount > this.purchase_limit) {
+              uni.showModal({
+                title: "提示",
+                content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+                showCancel: false,
+                confirmText: '知道了'
+              })
+              return
+            }
             this.updateCart(goodsInfo);
           } else {
             goodsInfo = goods;
@@ -707,7 +711,16 @@
           }
 
         }
-
+        if (this.purchase_limit && goodsInfo.goods_amount > this.purchase_limit) {
+          uni.showModal({
+            title: "提示",
+            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+            showCancel: false,
+            confirmText: '知道了'
+          })
+          this.onHandler = false;
+          return
+        }
         if (this.onLimit) {
           uni.showModal({
             title: "提示",
@@ -908,10 +921,12 @@
         let res = await this.$fetch('select', service, req, app)
         if (Array.isArray(res?.data) && res.data.length > 0) {
           this.purchasedGoods = res.data
+          debugger
           this.purchaseTimes = res?.page?.total || 0
         }
       },
       async getGoodsInfo(no) {
+        no = no || this.goodsInfo?.goods_no
         let req = {
           condition: [{
             colName: 'goods_no',
@@ -976,7 +991,17 @@
           }
         }
         if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
-          this.inCartGoodsInfo.goods_amount++;
+          let amount = this.inCartGoodsInfo.goods_amount+1;
+          if (this.purchase_limit && amount> this.purchase_limit) {
+            uni.showModal({
+              title: "提示",
+              content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
+              showCancel: false,
+              confirmText: '知道了'
+            })
+            return
+          }
+          this.inCartGoodsInfo.goods_amount+1;
           this.updateCart(this.inCartGoodsInfo);
           // this.getGoodsStock(this.inCartGoodsInfo).then(res => {
           //   if (res && res.id) {

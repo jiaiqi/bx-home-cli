@@ -8,6 +8,7 @@
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
         @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
       </list-bar>
+
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
@@ -134,9 +135,9 @@
         return this.$store?.state?.app?.theme
       },
       tags() {
-        if (Array.isArray(this.colV2?.tabs)) {
-          let tabs = this.colV2?.tabs
-          let self = this
+        let self = this
+        let tabs = this.colV2?.moreConfig?.tags_cfg || this.colV2?.tabs
+        if (Array.isArray(tabs) && tabs.length > 0) {
           let tab = {}
           let tabsData = []
           tabs.forEach((t) => {
@@ -152,8 +153,20 @@
               more_config: null,
               inputType: null
             }
-            let mc = JSON.parse(t.more_config)
-            tab.more_config = mc
+            let mc = {}
+            if (t.more_config) {
+              try {
+                mc = JSON.parse(t.more_config)
+                tab.more_config = mc
+              } catch (e) {
+                //TODO handle the exception
+              }
+            } else {
+              mc = {
+                ...t
+              }
+              tab.more_config = mc
+            }
             tab.service = t.service
             tab.table_name = t.table_name
             tab.conditions = t.conditions
@@ -169,7 +182,7 @@
             tab.showAllTag = mc.showAllTag || false
             tab.default = mc.default || ''
             tab.placeholder = mc.placeholder || '请输入...'
-
+            debugger
             if (tab._colName) {
               tab._colName = tab._colName.split(',')
               let cols = tab._colName
@@ -284,12 +297,12 @@
         return this.colV2?._fieldInfo || []
       },
       filterCols() {
-        let cols = this.moreConfig?.appTempColMap
+        let cols = this.moreConfig?.filterCols
         let arr = []
-        if (typeof cols === 'object') {
-          cols = Object.keys(cols).map(key => cols[key]).filter(item => item && item)
-          arr = this.srvCols.filter(item => cols.includes(item.columns) && !['Image', 'String'].includes(item
-            .col_type))
+        let ignoreArr = ['Image', 'String', 'MultilineText', 'Float', 'Integer']
+        if (Array.isArray(cols) && cols.length > 0) {
+          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && cols.includes(item
+            .columns))
         } else {
           let defVal = {}
           if (Array.isArray(this.condition) && this.condition.length > 0) {
@@ -298,7 +311,8 @@
               return res
             }, {})
           }
-          arr = this.srvCols.filter(item => !['Image', 'String', 'MultilineText'].includes(item.col_type)).map(
+          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && !ignoreArr.includes(item
+            .col_type)).map(
             item => {
               if (defVal[item.column]) {
                 item.defaultValue = defVal[item.column]

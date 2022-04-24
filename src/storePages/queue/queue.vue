@@ -569,6 +569,10 @@
           "draft": false,
           "query_source": "list_page"
         }
+        if (this.store_no && this.vstoreUser?.store_no === this.store_no) {
+          this.storeUser = this.vstoreUser
+          return this.vstoreUser
+        }
         let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health')
         if (res.success && res.data.length > 0) {
           this.storeUser = res.data[0]
@@ -1028,7 +1032,7 @@
 
       .label {
         flex: 1;
-        
+
       }
 
       .value {

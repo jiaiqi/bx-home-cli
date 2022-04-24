@@ -19,6 +19,7 @@
   export default {
     data() {
       return {
+        userAliyun: false,
         service: '',
         app: '',
         idCol: '',
@@ -29,6 +30,7 @@
         data: null,
         loading: false,
         videoInfo: null,
+        videoSrc: ''
       }
     },
     computed: {
@@ -41,11 +43,7 @@
           }
         }
       },
-      videoSrc() {
-        if (this.videoCol && this.data && this.data[this.videoCol]) {
-          return this.getImagePath(this.data[this.videoCol], true)
-        }
-      },
+
       content() {
         let res = ''
         if (this.textCol && this.data && this.data[this.textCol]) {
@@ -55,6 +53,22 @@
       }
     },
     methods: {
+      async getVideoSrc() {
+        if (this.videoCol && this.data && this.data[this.videoCol]) {
+          if (this.userAliyun) {
+            return await this.getAliyunSrc()
+          } else {
+            return this.getImagePath(this.data[this.videoCol], true)
+          }
+        }
+      },
+      async getAliyunSrc() {
+        const url = `${this.$api.serverURL}/file/getPlayAddress?fileNo=${this.data[this.videoCol]}`
+        let res = await this.$http.get(url)
+        if (Array.isArray(res?.data?.data?.playUrl)&&res?.data?.data?.playUrl.length>0) {
+          return res?.data?.data?.playUrl[0]
+        }
+      },
       async getData() {
         const {
           service,
@@ -79,9 +93,10 @@
           this.loading = false
           if (res.success && res.data.length > 0) {
             this.data = res.data[0]
-            if (this.videoCol && this.data[this.videoCol]) {
+            this.videoSrc = await this.getVideoSrc()
+            if (this.videoSrc) {
               uni.getVideoInfo({
-                src: this.getImagePath(this.data[this.videoCol], true),
+                src: this.videoSrc,
                 success: (res) => {
                   this.videoInfo = res
                 }
@@ -104,7 +119,8 @@
         idVal,
         textCol,
         videoCol,
-        titleCol
+        titleCol,
+        userAliyun
       } = option
       if (service) {
         this.service = service
@@ -125,6 +141,9 @@
         }
         if (titleCol) {
           this.titleCol = titleCol
+        }
+        if (userAliyun) {
+          this.userAliyun = userAliyun
         }
         this.getData()
       }

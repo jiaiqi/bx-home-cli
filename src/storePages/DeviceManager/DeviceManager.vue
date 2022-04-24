@@ -400,6 +400,9 @@ export default {
         ],
         "page": { "pageNo": 1, "rownumber": 1 }
       }
+      if (this.store_no&&this.vstoreUser?.store_no === this.store_no) {
+        return this.vstoreUser
+      }
       const res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health')
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         this.storeUserInfo = res.data[ 0 ]

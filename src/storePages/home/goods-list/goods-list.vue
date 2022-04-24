@@ -265,19 +265,21 @@
           })
           return
         }
+
         let {
           modalConfirmType,
           skuAttrList,
           goods,
           otherGoods
         } = e
+
         if (!modalConfirmType || !e || !goods) {
           return
         }
+
         let service = 'srvhealth_store_shopping_cart_goods_detail_add';
         let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
         let depend_key = 'cart_goods_rec_no'
-
         if (goods?.sku_no) {
           let goodsInfo = await this.getCartDetail(goods.sku_no);
           if (goodsInfo?.goods_no) {
@@ -289,7 +291,7 @@
             store_user_no: this.vstoreUser?.store_user_no,
             store_no: this.storeNo,
             unit_price: goods.price,
-            goods_amount: this.goodsInfo?.goods_amount || 1,
+            goods_amount: goods?.goods_amount || this.goodsInfo?.goods_amount || 1,
             goods_no: goods.goods_no,
             sum_price: goods.price,
             goods_desc: goods.goods_desc,
@@ -460,7 +462,7 @@
             return res.data[0];
           }
           return res.data;
-        }else{
+        } else {
           return []
         }
       },

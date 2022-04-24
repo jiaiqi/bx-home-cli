@@ -193,8 +193,8 @@
             }
             goodsInfo.name = goodsInfo.goods_name
             goodsInfo.image = goodsInfo.store_image
-            goodsInfo.car_num = goodsInfo.goods_count || 1
-            goodsInfo.unit_price = goodsInfo.price
+            goodsInfo.car_num = goodsInfo.goods_count||goodsInfo.goods_amount || 1
+            goodsInfo.unit_price = goodsInfo.price || goodsInfo.unit_price
             return goodsInfo
           })
           this.$store.commit('SET_STORE_CART', {

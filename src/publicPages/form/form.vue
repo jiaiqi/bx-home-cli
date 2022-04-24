@@ -39,7 +39,7 @@
         condition: null,
         fieldsCond: [],
         params: {},
-        defaultVal:false,
+        defaultVal: false,
         showChildService: false,
         successTip: '操作成功',
         afterSubmit: 'back', // 提交后的操作 detail-跳转到表单详情，back-返回上一页面,home-返回店铺首页,close:关闭当前页面 仅pc端框架内嵌页面中有用
@@ -985,6 +985,10 @@
           }]
         };
         let res = await this.$http.post(url, req);
+        if (this.vstoreUser?.store_no === no) {
+          this.storeUserInfo = res.data.data[0];
+          return [this.vstoreUser]
+        }
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.storeUserInfo = res.data.data[0];
           return res.data.data;

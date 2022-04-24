@@ -185,7 +185,7 @@
           col.colName = item._colName
           col.inputType = item.inputType
           col.formType = item._type
-          col.tags = item.more_config.tags || []
+          col.tags = item?.more_config?.tags || []
           if (item.inputType == 'group') {
             col.tags = item.options
           }
@@ -261,6 +261,7 @@
       },
       getTabOptions(tab) {
         let self = this
+        debugger
         if (tab.hasOwnProperty('_colSrvData')) {
           let scol = tab._colSrvData
           let col = tab._colName

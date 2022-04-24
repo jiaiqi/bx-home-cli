@@ -654,6 +654,10 @@
           req.condition = [...req.condition, ...condition];
         }
         let userList = null;
+        if (this.storeNo && this.vstoreUser?.store_no === this.storeNo) {
+          this.bindUserInfo = this.vstoreUser;
+          return this.vstoreUser
+        }
         let res = await this.$fetch('select', 'srvhealth_store_user_select', req, 'health');
         if (res.success && res.data.length > 0) {
           userList = res.data;
@@ -798,6 +802,7 @@
             // 店铺用户列表中已存在此用户
 
           } else {
+            debugger
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
             this.bindStore();
           }
@@ -900,6 +905,7 @@
       },
       async toDoctorDetail(e) {
         if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
+          debugger
           this.bindUserInfo = await this.bindStore();
           this.$store.commit('SET_STORE_USER', this.bindUserInfo);
         }
@@ -982,11 +988,14 @@
             }
           ]
         };
+        if (no && this.vstoreUser?.store_no === no) {
+          this.bindUserInfo = this.vstoreUser
+          return [this.vstoreUser]
+        }
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.bindUserInfo = res.data.data[0]
           this.$store.commit('SET_STORE_USER', res.data.data[0]);
-
           return res.data.data;
         }
       },
@@ -1181,6 +1190,7 @@
           // await this.selectBindUser();
 
           if (!this.vstoreUser?.id) {
+            debugger
             await this.bindStore();
           }
 
@@ -1652,6 +1662,7 @@
         if (Array.isArray(storeUser) && storeUser.length > 0) {
           // 店铺用户列表中已存在此用户
         } else {
+          debugger
           await this.bindStore(option.store_no, option.invite_user_no);
         }
       }
