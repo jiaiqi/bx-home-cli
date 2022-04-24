@@ -112,14 +112,14 @@
           </button>
         </view>
         <view class="foot-button-box" v-else-if="listType!=='selectorList'">
-             <button class="cu-btn" :class="[setListView.btnClass]"
-               :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
-               v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
-               :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
-               :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
-               {{ btn.button_name }}
-             </button>
-           </view> 
+          <button class="cu-btn" :class="[setListView.btnClass]"
+            :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
+            v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
+            :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
+            :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
+            {{ btn.button_name }}
+          </button>
+        </view>
       </view>
       <view class="main-image" :style="{
 					'border-radius': setViewTemp.img.cfg.radius,
@@ -141,7 +141,7 @@
     <view class="foot-button-box"
       v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
     </view>
- <!--   <view class="foot-button-box" v-else-if="listType!=='selectorList'">
+    <!--   <view class="foot-button-box" v-else-if="listType!=='selectorList'">
       <button class="cu-btn" :class="[setListView.btnClass]"
         :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
         v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
@@ -158,7 +158,7 @@
   import listItem from './list-item.vue';
   // #endif
   import {
-    debounce
+    throttle
   } from '@/common/func/util.js'
   export default {
     name: "list-item",
@@ -691,10 +691,10 @@
         }
         return res;
       },
-      del: debounce(function() {
+      del: throttle(function() {
         this.$emit('del2Cart', this.rowData);
       }, 1000, true),
-      add: debounce(function() {
+      add: throttle(function() {
         this.$emit('add2Cart', this.rowData);
       }, 1000, true),
       // del() {
@@ -940,6 +940,7 @@
       justify-content: flex-end;
       // width: 100%;
       flex: 1;
+
       .bg-orange {
         background-color: #f3a250;
       }

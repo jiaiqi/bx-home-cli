@@ -68,7 +68,7 @@
 
 <script>
   import {
-    debounce
+    throttle
   } from '@/common/func/util.js'
   export default {
     // 优惠券模板
@@ -98,9 +98,9 @@
           return []
         }
       },
-      onBtn: debounce(function() {
+      onBtn: throttle(function() {
         this.$emit('on-btn', this.data)
-      }, 500, false)
+      }, 5000, false)
     },
     data() {
       return {

@@ -91,7 +91,7 @@
     </view>
     <view class="button-box" v-else-if="!orderMode&&!loading&&!stepMode&&colsV2Data&&!disabled">
       <debounce-view style="width: 100%;text-align: center;" v-for="(btn, btnIndex) in formButtons" :key="btnIndex"
-        @onThrottle="onButton(btn)">
+        type="throttle" @onThrottle="onButton(btn)">
         <button class="cu-btn bg-orange round lg bx-btn-bg-color"
           v-if="isArray(fields) && fields.length > 0&&btn.isShow!==false">
           {{ btn.button_name }}

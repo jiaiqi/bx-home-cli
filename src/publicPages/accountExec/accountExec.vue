@@ -38,7 +38,7 @@
             </label>
           </checkbox-group>
 
-          <debounce-view @onTap="userLogined">
+          <debounce-view type="throttle" @onThrottle="userLogined">
             <button class="confirm-btn bg-blue text-green">
               {{ isBindUser ? '提交绑定' : '登录' }}
             </button>

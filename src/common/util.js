@@ -2314,8 +2314,8 @@ export default {
               .replace(
                 /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
             "userno": user_no,
-            "name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
-              /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
+            // "name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
+            //   /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
             "profile_url": wxUserInfo ? wxUserInfo.headimgurl : "",
             // "user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
             "sex": sex ? sex : null,

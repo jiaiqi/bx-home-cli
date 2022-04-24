@@ -411,7 +411,7 @@
             sex: this.userInfo.sex,
             user_account: this.userInfo.userno,
             // user_image: this.userInfo.user_image,
-            person_name: this.userInfo.name || this.userInfo.nick_name,
+            person_name: this.userInfo.name||null,
             add_url: this.inviterInfo.add_url ? this.inviterInfo.add_url.slice(0, 150) : '',
             invite_user_no: this.inviterInfo.invite_user_no,
             store_no: 'S20210204016',

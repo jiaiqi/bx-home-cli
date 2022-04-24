@@ -56,7 +56,7 @@
           {{storeInfo.name||''}}
         </view>
         <view class="clock-button-box">
-          <debounce-view @onTap="addclockInInfo">
+          <debounce-view type="throttle" @onThrottle="addclockInInfo">
             <view class="clock-button">
               <view class="rotate-line" :class="{active:areClocking}"></view>
               <view class="text padding-tb-xs">
@@ -94,7 +94,7 @@
           </view>
 
           <view class="clock-button-box green wrap">
-            <debounce-view @onTap="addclockInInfo">
+            <debounce-view type="throttle" @onThrottle="addclockInInfo">
               <view class="clock-button">
                 <view class="rotate-line" :class="{active:areClocking}"></view>
                 <view class="text padding-tb-xs">
