@@ -105,13 +105,13 @@
           </text>
         </view>
         <view class="foot-button-box grid"
-          v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
+          v-if="setViewTemp && setViewTemp.lp_style === '宫格'&&hasShowButton && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
           <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
             v-for="(btn,index) in setRowButton" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
             {{ btn.button_name }}
           </button>
         </view>
-        <view class="foot-button-box" v-else-if="listType!=='selectorList'">
+        <view class="foot-button-box" v-else-if="hasShowButton&&listType!=='selectorList'">
           <button class="cu-btn" :class="[setListView.btnClass]"
             :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
             v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
@@ -308,6 +308,22 @@
       },
       btn_cfg() {
         return this.setViewTemp?.btn_cfg;
+      },
+      hasShowButton(){
+        let rowButton = this.setRowButton;
+        if(Array.isArray(rowButton)&& rowButton.length>0){
+          rowButton = rowButton.filter(item=>{
+            if(item.button_type==='customize'){
+              if(this.setViewTemp?.btn_cfg?.show_custom_btn===false){
+                return false
+              }
+            }else if(this.setViewTemp?.btn_cfg?.show_public_btn===false){
+              return false
+            }
+            return true
+          })
+          return rowButton.length>0
+        }
       },
       setRowButton() {
         let buttons = [];

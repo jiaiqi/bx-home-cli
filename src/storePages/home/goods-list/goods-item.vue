@@ -146,25 +146,19 @@
     methods: {
       minus: throttle(function(e) {
         this.$emit('minus', e)
-      }, 1000, true),
-      // minus(e) {
-      //   this.$emit('minus', e)
-      // },
+      }, 2000, true),
+
       toCart: throttle(function(e) {
         this.$emit('toCart', e)
-      }, 1000, true),
-      // toCart(e) {
-      //   this.$emit('toCart', e)
-      // },
+      }, 2000, true),
+
       toGoodsDetail() {
         this.$emit('to-etail', this.goodsInfo)
       },
       openSkuSelector: throttle(function(e) {
         this.$refs?.skuSelector?.open?.()
-      }, 1000, true),
-      // openSkuSelector() {
-      //   this.$refs?.skuSelector?.open?.()
-      // },
+      }, 2000, true),
+    
       selectedSku(e) {
         this.skuAttr = e
       },
@@ -194,29 +188,6 @@
 </script>
 
 <style scoped lang="scss">
-  // .goods-item {
-  //   border-radius: 10px;
-  //   overflow: hidden;
-  //   background-color: #fff;
-  //   break-inside: avoid;
-  //   margin-top: 20rpx;
-  //   // width: calc(50% - 20rpx);
-  //   min-width: 45%;
-  //   flex: 1;
-  //   max-width: calc(50% - 10rpx);
-  //   margin-right: 20rpx;
-
-  //   // margin-bottom: 20rpx;
-  //   &:first-child,
-  //   &:nth-child(2) {
-  //     margin-top: 0;
-  //   }
-
-  //   &:nth-child(2n) {
-  //     margin-right: 0;
-  //   }
-  // }
-
   .goods-image {
     width: 100%;
     height: 300rpx;
@@ -272,8 +243,6 @@
       align-items: center;
       justify-content: space-between;
       font-size: 12px;
-
-
 
       .symbol {
         font-size: 12px;

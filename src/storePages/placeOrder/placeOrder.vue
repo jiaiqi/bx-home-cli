@@ -93,22 +93,22 @@
               ￥{{couponMinus||'0'}}
             </view>
           </view>
-          <!--   <view class="detail-info_item" v-else-if="totalMoney">
-              <view class="detail-info_item_label">
-                商品总价
-              </view>
-              <view class="detail-info_item_value text-red">
-                ￥{{totalMoney}}
-              </view>
-            </view> -->
-          <view class="detail-info_item" v-if="orderInfo.order_pay_amount">
+    <!--      <view class="detail-info_item" v-else-if="totalMoney">
+            <view class="detail-info_item_label">
+              商品总价
+            </view>
+            <view class="detail-info_item_value text-red">
+              ￥{{totalMoney}}
+            </view>
+          </view> -->
+          <!--          <view class="detail-info_item" v-if="orderInfo.order_pay_amount">
             <view class="detail-info_item_label">
               支付金额
             </view>
             <view class="detail-info_item_value text-red">
               ￥{{orderInfo.order_pay_amount}}
             </view>
-          </view>
+          </view> -->
           <view class="detail-info_item" v-if="totalMoney&&actualMoney">
             <view class="detail-info_item_label">
               <!-- 应付金额 -->
@@ -569,8 +569,7 @@
       },
       actualMoney() {
         // 实际支付价格
-        if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount && this.orderInfo?.order_amount - this
-          .orderInfo?.order_pay_amount > 0) {
+        if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount) {
           return this.orderInfo?.order_pay_amount
         }
         return this.totalMoney - this.couponMinus > 0 ? this.totalMoney - this.couponMinus : 0.01
@@ -1268,6 +1267,9 @@
         let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
+          if(this.orderInfo.coupon_amount){
+            this.couponMinus = this.orderInfo.coupon_amount
+          }
           this.order_remark = this.orderInfo.order_remark || ''
           if (this.orderInfo.order_state === '待支付' && this.orderInfo.pay_state === '取消支付') {
             uni.setNavigationBarTitle({

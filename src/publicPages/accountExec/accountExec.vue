@@ -744,7 +744,6 @@
         };
       },
 
-      // debounceUserLogined: debounce(async function() {}, 1000, false),
       async userLogined() {
         let that = this;
         let url = that.getServiceUrl('sso', 'srvuser_login', 'operate');
@@ -752,8 +751,7 @@
           serviceName: 'srvuser_login',
           data: [that.user]
         }];
-
-
+        
         if (that.isInvalid(that.user.user_no) && that.isInvalid(this.user.pwd)) {
           let response = await that.$http.post(url, req);
           console.log('srvuser_login', response);
@@ -785,22 +783,13 @@
             let url2 = uni.getStorageSync('backUrl');
             url2 = ''
 
-            // if (url2 && url2 !== '/') {
-            //   debugger
-            //   url2 = that.getDecodeUrl(url2);
-            //   if (url2 && url2.lastIndexOf('backUrl=') !== -1) {
-            //     console.log(2)
-            //     url2 = url2.substring(url2.lastIndexOf('backUrl=') + 8, url2.length);
-            //   }
-            //   // url2 = that.$api.homePath + (that.showAllMenu ? '?showAllMenu=true' : '')
-            // }
             let model = getApp().globalData?.systemInfo?.model;
             // #ifdef H5
             url2 = ''
             let pages = getCurrentPages()
             url2 = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
             if (url2) {
-              if(url.indexOf('/publicPages/accountExec/accountExec')!==-1){
+              if(url2.indexOf('/publicPages/accountExec/accountExec')!==-1){
                 url2 = that.$api.homePath
               }
               uni.reLaunch({
@@ -831,9 +820,7 @@
             // #ifdef MP-WEIXIN
             url2 = url2 || that.$api.homePath
             // #endif
-            // if (model === 'PC') {
-            //   url2 = '/storePages/StoreManager/StoreManager?store_no=S2109260002'
-            // }
+   
 
             uni.reLaunch({
               url: ` /${url2}`

@@ -12,7 +12,7 @@
               清空
             </view>
           </view>
-          <view class="goods-item" v-for="(rowData,index) in setCartData" :key="index">
+          <view class="goods-item" v-for="(rowData,index) in cartData" :key="index">
             <view class="main-image" v-if="setViewTemp.img.col">
               <image lazy-load class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill">
               </image>
@@ -122,14 +122,8 @@
       theme() {
         return this.$store?.state?.app?.theme
       },
-      // storeInfo() {
-      //   return this.$store?.state?.app?.storeInfo
-      // },
       setViewTemp() {
         return this.list_config
-      },
-      setCartData() {
-        return this.cartData || []
       },
       sumAmount() {
         let sum = 0
@@ -164,7 +158,6 @@
       cartData: {
         type: Array
       },
-
       fixed: {
         type: Boolean,
         default: false
@@ -189,7 +182,6 @@
     },
     methods: {
       clear() {
-        // this.showList = false
         this.$emit('clear')
       },
       placeOrder() {

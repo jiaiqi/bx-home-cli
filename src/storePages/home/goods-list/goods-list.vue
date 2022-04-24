@@ -17,7 +17,8 @@
     </view>
 
     <goods-cart ref="goodsCart" :cartData="cartData" margin="0" :fixed="true" :fold="foldBottomCart" bottom="50px"
-      :list_config="list_config" @changeAmount="changeAmount" @clear="clearCart" v-if="enableAddCart"></goods-cart>
+      :list_config="list_config" @changeAmount="changeAmount" @clear="clearCart"
+      v-if="enableAddCart&&cartData&&cartData.length>0"></goods-cart>
 
   </view>
 </template>
@@ -226,16 +227,16 @@
       },
       changeAmount(data) {
         if (data && data.row && typeof data.index === 'number') {
-          this.$set(this.cartData, data.index, data.row)
-          if (data.row.goods_count === 0) {
-            this.cartData.splice(data.index, 1)
-          }
           let type = data.row.goods_amount === 0 ? 'delete' : 'update'
           this.updateCart(data.row, type)
+          this.$set(this.cartData, data.index, data.row)
+          // if (data.row.goods_count === 0) {
+          //   this.cartData.splice(data.index, 1)
+          // }
+          // if (data.row.goods_amount === 0) {
+          //   this.cartData.splice(data.index, 1)
+          // }
         }
-      },
-      toOrderPage(e) {
-
       },
       del(e) {
 
@@ -459,6 +460,8 @@
             return res.data[0];
           }
           return res.data;
+        }else{
+          return []
         }
       },
       async addToCart(goods, type) {
@@ -506,15 +509,7 @@
       },
       async updateCart(goodsInfo, type = 'update') {
         let serviceName = 'srvhealth_store_shopping_cart_goods_detail_update';
-        if (type === 'update' && this.onLimit) {
-          uni.showModal({
-            title: "提示",
-            content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
-            showCancel: false,
-            confirmText: '知道了'
-          })
-          return
-        } else if (type === 'delete' || goodsInfo.goods_amount === 0) {
+        if (type === 'delete' || goodsInfo.goods_amount === 0) {
           serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete'
         }
         if (goodsInfo?.cart_goods_rec_no) {
@@ -546,6 +541,7 @@
             });
             this.getGoodsListData()
           }
+          return
         }
       },
       getNumber(num) {
@@ -652,6 +648,8 @@
                   return item
                 })
               }
+            } else {
+              this.cartData = []
             }
             this.goodsList = res.data.reduce((pre, cur) => {
               let url = this.getImagePath(cur[this.image], true);
@@ -676,7 +674,6 @@
               pre.push(cur)
               return pre
             }, []);
-
             console.log(this.goodsList)
           }
         }
