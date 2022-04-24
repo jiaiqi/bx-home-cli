@@ -19,7 +19,7 @@
   export default {
     data() {
       return {
-        userAliyun: false,
+        useAliyun: false,
         service: '',
         app: '',
         idCol: '',
@@ -55,7 +55,7 @@
     methods: {
       async getVideoSrc() {
         if (this.videoCol && this.data && this.data[this.videoCol]) {
-          if (this.userAliyun) {
+          if (this.useAliyun) {
             return await this.getAliyunSrc()
           } else {
             return this.getImagePath(this.data[this.videoCol], true)
@@ -120,7 +120,7 @@
         textCol,
         videoCol,
         titleCol,
-        userAliyun
+        useAliyun
       } = option
       if (service) {
         this.service = service
@@ -142,8 +142,8 @@
         if (titleCol) {
           this.titleCol = titleCol
         }
-        if (userAliyun) {
-          this.userAliyun = userAliyun
+        if (useAliyun) {
+          this.useAliyun = useAliyun
         }
         this.getData()
       }
