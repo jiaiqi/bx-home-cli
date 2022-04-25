@@ -20,9 +20,8 @@
       <view class="page-item-list">
         <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
           :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
-          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
-          @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode"
-          :before-click="clickStoreItem">
+          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult" :isManage="isManage"
+          @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode" :before-click="clickStoreItem">
         </store-item>
       </view>
 
@@ -82,6 +81,7 @@
         StoreInfo: {},
         kefuSessionInfo: {},
         pageItemList: [],
+        manageButtonGroup: [],
         storeList: [],
         modalName: '',
         push_msg_set: '',
@@ -95,6 +95,9 @@
       };
     },
     computed: {
+      isManage() {
+        return Array.isArray(this.manageButtonGroup) && this.manageButtonGroup.length > 0
+      },
       themeVariable() {
         let config = this.themeConfig
         return `--home-bg-color:${config?.style_bg_color||'#f8f8f8'};--home-text-color:${config?.style_font_color||'#333'};--home-text-size:${config?.style_font_size||'14'}px;`
@@ -196,7 +199,6 @@
           await this.initPage();
           // await this.getPageDefine(this.pdNo);
           // await this.getTabbar(this.pdNo);
-          debugger
           // await this.getPageComponent(this.pdNo);
         } else if (curTab.link_pd_json) {
           try {
@@ -254,7 +256,7 @@
           this.selectBindUser(true);
         }
       },
-   
+
       hideModal() {
         this.modalName = null;
       },
@@ -382,6 +384,7 @@
               this.pageItemList.push(item)
               return item;
             });
+          this.manageButtonGroup = res.data.filter(item => item.display !== '否' && item.button_usage == '管理人员')
           this.getComponentData();
         }
       },
@@ -1182,7 +1185,6 @@
           // await this.selectBindUser();
 
           if (!this.vstoreUser?.id) {
-            debugger
             await this.bindStore();
           }
 
@@ -1192,15 +1194,12 @@
             } else {
               await this.getPageDefine(this.pdNo);
               await this.getTabbar(this.pdNo);
-              debugger
               await this.getPageComponent(this.pdNo);
             }
           }
 
           this.getQuery();
-
           this.initSocket()
-
           if (this.bindUserInfo?.store_user_no) {
             await this.getVipCard(this.bindUserInfo?.store_user_no)
           }
@@ -1284,6 +1283,7 @@
               }
               return item;
             });
+          this.manageButtonGroup = res.data.data.filter(item => item.display !== '否' && item.button_usage == '管理人员')
           this.getComponentData();
         } else {
           this.pageItemList = []
@@ -1663,9 +1663,7 @@
         console.log(this.$api, this.$api.storeNo)
         this.storeNo = this.$api.storeNo
       }
-      // if (this.hasNotRegInfo) {
-      // 	return; //未授权
-      // }
+
       if (option.room_no) {
         getApp().globalData.room_no = option.room_no;
         option.share_type = 'bindOrganization';
@@ -1681,7 +1679,6 @@
         if (Array.isArray(storeUser) && storeUser.length > 0) {
           // 店铺用户列表中已存在此用户
         } else {
-          debugger
           await this.bindStore(option.store_no, option.invite_user_no);
         }
       }
@@ -1691,11 +1688,6 @@
       }
 
       await this.initPage();
-
-
-
-
-
 
       if (option.cardNo && option.share_type === "shareCoupon") {
         // 点击赠送卡券的分享进入小程序

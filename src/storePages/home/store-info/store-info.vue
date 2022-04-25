@@ -168,7 +168,11 @@
       isBind: {
         type: Boolean,
         default: true
-      }
+      },
+      isManage: {
+        type: Boolean,
+        default: false
+      },
     },
     watch: {
       qrcodePath(newValue) {
@@ -334,6 +338,10 @@
         // this.modalName = 'shareStore'
       },
       async getButtonGroup() {
+        if(this.isManage){
+          this.hasManageBtn = true;
+          return
+        }
         const req = {
           serviceName: 'srvhealth_store_home_component_user_select',
           colNames: ['*'],

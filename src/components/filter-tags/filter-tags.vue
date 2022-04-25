@@ -2,7 +2,7 @@
   <view class="filter-tags-view">
     <view class="filter-tags-box" v-if="mode==='fold'&&setTabs&&setTabs.length>0">
       <button class="cu-btn round sm margin-right-xs"
-        :class="{'':!tab.active,' line-blue':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
+        :class="{'':!tab.active,' active-tag':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
         v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
         <text class="label">
           <text
@@ -50,7 +50,7 @@
             </bx-checkbox-group>
           </view>
           <view v-if="tab._type === 'radio'&&tab._colSrvData" v-show="tab&&tab.options && tab.options.length > 0">
-            <bx-radio-group mode="button" v-model="formModel[tab.list_tab_no].value">
+            <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F" v-model="formModel[tab.list_tab_no].value">
               <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
                 {{item.label||''}}
               </bx-radio>
@@ -607,20 +607,24 @@
   .filter-tags-box {
     padding: 10px;
     border: 1rpx solid #f1f1f1;
+
     .cu-btn {
       min-width: 80px;
       text-align: center;
       position: relative;
       margin-top: 5px;
-      &:nth-child(1),&:nth-child(2),&:nth-child(3),&:nth-child(4){
+
+      &:nth-child(1),
+      &:nth-child(2),
+      &:nth-child(3),
+      &:nth-child(4) {
         margin-top: 0;
       }
     }
 
-    .line-blue {
-      // border: 1px solid #0081ff;
-      color: #0081ff;
-      background-color: #e7f1ff;
+    .active-tag {
+      color: #FE5A3F;
+      background-color: #FBEAE7;
     }
   }
 
@@ -635,7 +639,7 @@
       justify-content: flex-start;
       flex-wrap: wrap;
       width: 100%;
-      
+
       .label {
         margin-right: 20rpx;
         min-width: 20%;

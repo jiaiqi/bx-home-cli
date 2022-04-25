@@ -204,6 +204,7 @@
           })
           if (isConfirm) {
             this.clearOrderCartGoods(ids).then(_ => {
+              
               this.getGoodsListData()
               this.$refs.goodsCart.showList = false
               this.$refs.goodsCart.isFold = true
@@ -280,6 +281,7 @@
         let service = 'srvhealth_store_shopping_cart_goods_detail_add';
         let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
         let depend_key = 'cart_goods_rec_no'
+        debugger
         if (goods?.sku_no) {
           let goodsInfo = await this.getCartDetail(goods.sku_no);
           if (goodsInfo?.goods_no) {
@@ -312,6 +314,7 @@
           }
 
           if (goods.sku_no) {
+            debugger
             data.father_goods_no = data.goods_no
             data.goods_no = goods.sku_no
           }
@@ -658,6 +661,7 @@
               if (cur.enable_sku === '是') {
                 cur.goods_sku_amount = cur.goods_amount // 商品在购物车中的数量
                 cur.goods_amount = 1
+                this.$set(cur, 'goods_amount', 1);
               }
               cur.url = url;
               if (cur[this.image]) {

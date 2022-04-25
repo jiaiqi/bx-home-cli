@@ -267,7 +267,10 @@
         }
         const app = this.detailCfg?.app || uni.getStorageSync('activeApp')
         const url = this.getServiceUrl(app, serviceName, 'select');
-
+        if(serviceName==='srvhealth_store_card_case_select'){
+          this.info = this.vvipCard
+          return
+        }
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.info = res.data.data[0]

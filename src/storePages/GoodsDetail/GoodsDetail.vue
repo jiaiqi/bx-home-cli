@@ -463,8 +463,8 @@
             }]
           }
           if (this.enableSku) {
-            data.goods_no = goods.sku_no
             data.father_goods_no = data.goods_no
+            data.goods_no = goods.sku_no
           }
           if (modalConfirmType === 'toOrder') {
             let goodsInfo = this.deepClone(data);
@@ -513,6 +513,7 @@
               this.getCartList();
               // this.changeModal()
               this.$refs?.skuSelector?.close?.(false)
+              uni.$emit('goods-cart-change')
               uni.showToast({
                 title: '添加成功'
               });
@@ -523,8 +524,6 @@
           this.goodsInfo.goods_amount = 1
           this.getGoodsInfo(this.goodsInfo?.goods_no)
         }
-
-
       },
       async addToCart(goods) {
         if (this.onLimit) {
@@ -572,6 +571,7 @@
             let res = await this.$fetch('operate', service, req, 'health');
             if (res.success) {
               this.getCartList();
+              uni.$emit('goods-cart-change')
               uni.showToast({
                 title: '添加成功'
               });

@@ -227,10 +227,7 @@
         </radio-group>
       </view>
 
-      <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
-        <!--  <view class="detail-info-title">
-            收货信息
-          </view> -->
+      <!-- <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
         <view class="detail-info_item" v-if="orderInfo.rcv_name">
           <view class="detail-info_item_label">
             联系人
@@ -255,15 +252,7 @@
             {{orderInfo.rcv_addr_str}}
           </view>
         </view>
-        <!--      <view class="detail-info_item" v-if="orderInfo.delivery_type">
-          <view class="detail-info_item_label">
-            提货方式
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.delivery_type}}
-          </view>
-        </view> -->
-      </view>
+      </view> -->
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
         <!--        <view class="detail-info-title">

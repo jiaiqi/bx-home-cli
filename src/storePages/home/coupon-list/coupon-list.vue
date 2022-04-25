@@ -90,6 +90,10 @@
               colName: 'store_user_no',
               ruleType: 'eq',
               value: this.vstoreUser?.store_user_no
+            }, {
+              colName: 'coupon_state',
+              ruleType: 'eq',
+              value: '上架'
             }
           ],
           "page": {

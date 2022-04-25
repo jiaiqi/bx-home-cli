@@ -98,7 +98,7 @@
     },
     computed: {
       tagsMode() {
-        return this.moreConfig?.tagsMode || 'fold'
+        return this.moreConfig?.tagsMode || 'unfold'
       },
       enumTabs() {
         return this.tabsCfg.tabs || []
@@ -1862,6 +1862,7 @@
             };
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
+            debugger
             if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
               let condition = buttonInfo?.operate_params?.condition
               let fieldsCond = [{
@@ -1899,7 +1900,6 @@
             let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
             if (this.listConfig?.navType === 'webview' || targetUrl && targetUrl.indexOf('https') == 0) {
               targetUrl = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(targetUrl)}`
-              return
             }
             if (this.listConfig?.navType && navTypes.includes(this.listConfig?.navType)) {
               uni[this.listConfig?.navType]({

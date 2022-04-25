@@ -1,5 +1,5 @@
 <template>
-  <view class="cu-modal bottom-modal" :class="{show:show==true}" @click="close()" v-if="goodsInfo">
+  <view class="cu-modal bottom-modal" :class="{show:show==true}" @click="close()" v-if="setGoods">
     <view class="cu-dialog" @click.stop="">
       <view class="modal-content" v-if="optionsType==='商品属性'">
         <view class="selected-sku" v-if="selectSku&&selectSku.sku_no">
@@ -34,7 +34,7 @@
         </view>
         <view class="number-box">
           <text>数量</text>
-          <u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
+          <u-number-box v-model="setGoods.goods_amount" :min="1"></u-number-box>
         </view>
         <view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
           <view class="title">
@@ -106,7 +106,7 @@
         </view>
         <view class="number-box">
           <text>数量</text>
-          <u-number-box v-model="goodsInfo.goods_amount" :min="1"></u-number-box>
+          <u-number-box v-model="setGoods.goods_amount" :min="1"></u-number-box>
         </view>
         <view class="relation-goods" v-if="relationGoods&&relationGoods.length>0">
           <view class="title">
@@ -140,6 +140,7 @@
     data() {
       return {
         show: false,
+        setGoods: null,
         selectOptions: [],
         goodsSkuInfo: {},
         goodsAttrList: [],
@@ -154,30 +155,39 @@
     },
     computed: {
       optionsType() {
-        return this.goodsInfo?.options_type
+        return this.setGoods?.options_type
       }
     },
     props: {
       goodsInfo: {
         type: Object
       },
-      modalConfirmType:{
-        type:String
+      modalConfirmType: {
+        type: String
+      }
+    },
+    watch: {
+      deep: true,
+      goodsInfo: {
+        handler(newValue, oldValue) {
+          this.setGoods = newValue
+        }
       }
     },
     created() {
       // this.init()
+      this.setGoods = this.goodsInfo
     },
     methods: {
-     async init() {
-        let enable_sku = this.goodsInfo?.enable_sku;
-        let options_type = this.goodsInfo?.options_type
+      async init() {
+        let enable_sku = this.setGoods?.enable_sku;
+        let options_type = this.setGoods?.options_type
         if (enable_sku === '是') {
-         await this.getRelationGoods()
+          await this.getRelationGoods()
           if (options_type == 'SKU商品') {
-          await  this.getGoodsSkuInfo()
+            await this.getGoodsSkuInfo()
           } else if (options_type == '商品属性') {
-           await this.getGoodsAttr()
+            await this.getGoodsAttr()
           }
         }
       },
@@ -186,10 +196,10 @@
         this.show = true
         this.$emit('open')
       },
-      close(isClearSku=false) {
+      close(isClearSku = false) {
         this.show = false;
         this.$emit('close')
-        if(isClearSku===true){
+        if (isClearSku === true) {
           this.selectedAttrs = {}
         }
       },
@@ -263,7 +273,7 @@
             return obj
           })
         }
-        
+
         // 相关商品
         let otherGoods = this.relationGoods.filter(item => item.goods_amount > 0)
         if (Array.isArray(otherGoods) && otherGoods.length > 0) {
@@ -284,8 +294,8 @@
             return obj
           })
         }
-        
-        this.$emit('confirm',{
+
+        this.$emit('confirm', {
           goods,
           skuAttrList,
           modalConfirmType,
@@ -343,7 +353,7 @@
           "condition": [{
             "colName": "superior_goods_no",
             "ruleType": "eq",
-            "value": this.goodsInfo?.goods_no
+            "value": this.setGoods?.goods_no
           }, {
             "colName": "online_state",
             "ruleType": "eq",
@@ -371,7 +381,7 @@
           "condition": [{
             "colName": "goods_no",
             "ruleType": "eq",
-            "value": this.goodsInfo?.goods_no
+            "value": this.setGoods?.goods_no
           }]
         }
         let app = this.destApp || 'health';
@@ -418,7 +428,7 @@
           "condition": [{
             "colName": "goods_no",
             "ruleType": "eq",
-            "value": this.goodsInfo?.goods_no
+            "value": this.setGoods?.goods_no
           }]
         }
         if (Array.isArray(selectOptions) && selectOptions.length > 0) {
@@ -438,7 +448,7 @@
         let app = this.destApp || 'health';
         let res = await this.$fetch('select', serviceName, req, app)
         if (Array.isArray(res.data) && res.data.length > 0) {
-          res.data[0].goods_amount = this.goodsInfo.goods_amount
+          res.data[0].goods_amount = this.setGoods.goods_amount
           return res.data[0]
         } else if (res.msg && showXhrMsg) {
           uni.showToast({
@@ -458,7 +468,7 @@
           "condition": [{
             "colName": "goods_no",
             "ruleType": "eq",
-            "value": this.goodsInfo?.goods_no
+            "value": this.setGoods?.goods_no
           }]
         }
         let app = this.destApp || 'health';
@@ -591,7 +601,8 @@
     }
 
   }
-  .cu-modal.bottom-modal{
+
+  .cu-modal.bottom-modal {
     display: block;
     z-index: 1100;
   }

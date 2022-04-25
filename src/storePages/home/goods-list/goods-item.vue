@@ -146,18 +146,18 @@
     methods: {
       minus: throttle(function(e) {
         this.$emit('minus', e)
-      }, 2000, true),
+      }, 1000, true),
 
       toCart: throttle(function(e) {
         this.$emit('toCart', e)
-      }, 2000, true),
+      }, 1000, true),
 
       toGoodsDetail() {
         this.$emit('to-etail', this.goodsInfo)
       },
       openSkuSelector: throttle(function(e) {
         this.$refs?.skuSelector?.open?.()
-      }, 2000, true),
+      }, 1000, true),
     
       selectedSku(e) {
         this.skuAttr = e

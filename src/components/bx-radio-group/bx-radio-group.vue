@@ -34,6 +34,10 @@ export default {
 		value: {
 			type: [String, Number]
 		},
+    // 选中状态下的背景色
+    activeBg: {
+    	type: String
+    },
 		// 选中状态下的颜色
 		activeColor: {
 			type: String,

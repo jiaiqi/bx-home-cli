@@ -171,7 +171,7 @@ export default {
           if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程') || goodsType
             .includes('活动') || goodsType.includes('提货卡') || goodsType.includes('套餐卡') || goodsType.includes(
               '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
-            order_type += ',虚拟商品'
+            order_type = '虚拟商品'
           }
 
           return order_type
@@ -199,7 +199,9 @@ export default {
           if (no === this.vvipCard?.attr_store_user_no) {
             return this.vvipCard
           }
-          
+          if(!this.vstoreUser?.member_card_no){
+            return
+          }
           let service = 'srvhealth_store_card_case_select'
           const req = {
             "serviceName": service,

@@ -1,13 +1,15 @@
 <template>
   <view class="bx-radio" :style="[radioStyle]" :class="[radioButtonClass]" @tap="toggle">
+
     <view class="bx-radio-icon" :style="{
 			'width':elIconSize+'px','height':elIconSize+'px'
 		}" :class="{ checked: name === parentData.value, 'has-char': serialChar, 'no-char': !serialChar}">
       <text v-if="serialChar">{{ serialChar }}</text>
       <text v-if="!serialChar && name === parentData.value" class="bx-radio-checked"></text>
     </view>
-    <view class="bx-radio__label" hover-class="active"
-      :class="{ checked: checked, disabled: disabled,'bx-btn-light-bg-color':theme&&radioButtonClass==='button-mode'&&checked  }">
+
+    <view class="bx-radio__label" :style="[buttonStyle]" hover-class="active"
+      :class="{ checked: checked, disabled: disabled }">
       <slot />
     </view>
   </view>
@@ -89,6 +91,7 @@
           disabled: null,
           shape: null,
           activeColor: null,
+          activeBg: null,
           size: null,
           width: null,
           height: null,
@@ -128,9 +131,25 @@
         return this.activeColor ? this.activeColor : this.parentData.activeColor ? this.parentData.activeColor :
           'primary';
       },
+      elActiveBg() {
+        return this.activeBg ? this.activeBg : this.parentData.activeBg ? this.parentData.activeBg :
+          'primary';
+      },
       // 组件的形状
       elShape() {
         return this.shape ? this.shape : this.parentData.shape ? this.parentData.shape : 'circle';
+      },
+      buttonStyle() {
+        let style = {};
+        if (this.checked) {
+          if (this.elActiveColor) {
+            style['color'] = this.elActiveColor
+          }
+          if (this.elActiveBg) {
+            style['background-color'] = this.elActiveBg
+          }
+        }
+        return style
       },
       radioStyle() {
         let style = {};
@@ -153,6 +172,7 @@
           // #endif
         }
         style['max-width'] = '100%'
+
 
         return style;
       },
@@ -288,6 +308,8 @@
       padding-right: 50rpx;
       position: relative;
       flex: 1;
+      min-width: 50px;
+      text-align: center;
 
       &::before {
         position: absolute;
@@ -324,7 +346,7 @@
         }
 
         &.checked {
-          border-color: #0bc99d;
+          // border-color: #0bc99d;
           color: #0bc99d;
           background-color: rgba(11, 201, 157, 0.1);
         }
