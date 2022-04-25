@@ -199,7 +199,7 @@
     },
     methods: {
       initPage(e) {
-        this.selectBasicUserList()
+        
         uni.navigateBack()
       },
       changeLoginType(e) {

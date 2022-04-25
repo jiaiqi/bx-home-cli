@@ -104,6 +104,7 @@
         if (!this.pageItem || !this.pageItem.component_no) {
           return
         }
+        debugger
         let serviceName = 'srvhealth_store_home_notice_select'
         let app = 'health'
         let req = {

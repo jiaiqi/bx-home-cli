@@ -181,7 +181,8 @@
     async onLoad() {
       await this.toAddPage()
       let userInfo = uni.getStorageSync('current_user_info');
-      let current_user_info = await this.selectBasicUserList();
+      
+      let current_user_info = this.userInfo
       if (current_user_info && current_user_info.userno) {
         userInfo = current_user_info;
       }

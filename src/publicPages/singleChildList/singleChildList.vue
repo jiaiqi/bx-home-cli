@@ -241,10 +241,8 @@
                   res.data.response[0].response.effect_data.length > 0
                 ) {
                   // this.params.submitData = res.data.response[0].response.effect_data[0];
-                  // if (e.service_name === 'srvhealth_person_info_update') {
-                  //   this.$store.commit('SET_USERINFO', this.params.submitData);
-                  //   uni.setStorageSync('cur_user_no', this.params.submitData.no)
-                  // }
+                
+                
                 }
                 uni.showModal({
                   title: '提示',

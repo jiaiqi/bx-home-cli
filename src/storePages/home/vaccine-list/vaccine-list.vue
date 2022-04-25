@@ -188,7 +188,7 @@
   import {
     mapState
   } from 'vuex'
-  
+
   const dayjs = require('dayjs');
   export default {
     name: "VaccineList", //疫苗预约列表
@@ -467,9 +467,9 @@
         })
       },
       toMore() {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -497,9 +497,9 @@
         }
       },
       async showInfo(e) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -551,13 +551,8 @@
         let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
         if (res.success) {
           if (Array.isArray(res.data) && res.data.length > 0) {
-            let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-            if (info && info.no) {
-              this.$store.commit('SET_USERINFO', info)
-            } else if (res.data[0].no) {
-              uni.setStorageSync('cur_user_no', res.data[0].no)
-              this.$store.commit('SET_USERINFO', res.data[0])
-            }
+            uni.setStorageSync('cur_user_no', res.data[0].no)
+            this.$store.commit('SET_USERINFO', res.data[0])
           }
           // this.selectTimeArr(this.vaccineInfo)
         }

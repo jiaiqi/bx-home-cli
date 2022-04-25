@@ -1209,20 +1209,7 @@
         }
         return result;
       },
-      async getUserInfoList() {
-        const url = this.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
-        let req = {
-          serviceName: 'srvhealth_person_info_select',
-          colNames: ['*'],
-          condition: [],
-          order: [{
-            colName: 'create_time',
-            orderType: 'asc'
-          }]
-        };
-        const res = await this.$http.post(url, req);
-        this.$store.commit('SET_USERLIST', res.data.data);
-      },
+      
       clickChatLink(item) {
         console.log('点击聊天----', item);
         uni.navigateTo({

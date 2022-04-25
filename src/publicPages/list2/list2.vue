@@ -13,16 +13,20 @@
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
       </filter-tags>
+      <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
+      </filter-tags>
     </view>
     <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
       <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
         @change="changeTabs"></u-tabs>
     </view>
     <view class="list-content" :class="['theme-'+theme]">
-      <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+      <!--   <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
-      </filter-tags>
+      </filter-tags> -->
       <view class="list-view">
         <list-next class="list-next" ref="listRef" :id-col="idCol" :gridButtonDisp="gridButtonDisp"
           :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig"
@@ -93,6 +97,9 @@
       }
     },
     computed: {
+      tagsMode() {
+        return this.moreConfig?.tagsMode || 'fold'
+      },
       enumTabs() {
         return this.tabsCfg.tabs || []
       },
@@ -136,7 +143,11 @@
       },
       tags() {
         let self = this
-        let tabs = this.colV2?.moreConfig?.tags_cfg || this.colV2?.tabs
+        let tabs = this.colV2?.tabs
+        if (Array.isArray(tabs) && tabs.length === 0 && Array.isArray(this.colV2?.moreConfig?.tags_cfg) && this.colV2
+          ?.moreConfig?.tags_cfg.length > 0) {
+          tabs = this.colV2?.moreConfig?.tags_cfg
+        }
         if (Array.isArray(tabs) && tabs.length > 0) {
           let tab = {}
           let tabsData = []
@@ -182,7 +193,6 @@
             tab.showAllTag = mc.showAllTag || false
             tab.default = mc.default || ''
             tab.placeholder = mc.placeholder || '请输入...'
-            debugger
             if (tab._colName) {
               tab._colName = tab._colName.split(',')
               let cols = tab._colName
@@ -305,13 +315,21 @@
             .columns))
         } else {
           let defVal = {}
+
           if (Array.isArray(this.condition) && this.condition.length > 0) {
             defVal = this.condition.reduce((res, cur) => {
               res[cur.colName] = cur.value;
               return res
             }, {})
           }
-          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && !ignoreArr.includes(item
+          let showCols = []
+          if (Array.isArray(this.list_config?.cols) && this.list_config?.cols.length > 0) {
+            showCols = this.list_config?.cols.map(item => item.col)
+          } else {
+            showCols = this.srvCols.map(item => item.columns)
+          }
+          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && showCols.includes(item
+            .column) && !ignoreArr.includes(item
             .col_type)).map(
             item => {
               if (defVal[item.column]) {
@@ -321,6 +339,7 @@
               }
               return item
             })
+
         }
         if (Array.isArray(this.initCond) && this.initCond.length > 0) {
           arr = arr.map(field => {
@@ -418,6 +437,7 @@
         cartData: [],
         wxMchId: '',
         customDetailUrl: "",
+        detailNavType: "", // 自定义跳转方式
         listConfig: {
 
         },
@@ -1877,12 +1897,18 @@
               targetUrl += '&disabled=true'
             }
             let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
-            if(this.listConfig?.navType==='webview'||targetUrl&&targetUrl.indexOf('https')==0){
+            if (this.listConfig?.navType === 'webview' || targetUrl && targetUrl.indexOf('https') == 0) {
               targetUrl = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(targetUrl)}`
-              return 
+              return
             }
             if (this.listConfig?.navType && navTypes.includes(this.listConfig?.navType)) {
               uni[this.listConfig?.navType]({
+                url: targetUrl
+              })
+              return
+            }
+            if (this.detailNavType && navTypes.includes(this.detailNavType)) {
+              uni[this.detailNavType]({
                 url: targetUrl
               })
               return
@@ -1938,14 +1964,6 @@
               if (this.appName) {
                 url += `&appName=${this.appName}`
               }
-              // if (button.service_name === 'srvdaq_cms_content_select') {
-              //   if (rowData.content_no) {
-              //     uni.navigateTo({
-              //       url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${rowData.content_no}`
-              //     });
-              //   }
-              //   return
-              // }
               if (this.disabled === true) {
                 url += '&disabled=true'
               }
@@ -2189,7 +2207,9 @@
       }
       if (option.customDetailUrl) {
         this.detailType = option.detailType || ''
-
+        if (option.navType) {
+          this.detailNavType = option.navType
+        }
         let decodeUrl = option.customDetailUrl
         try {
           decodeUrl = decodeURIComponent(decodeUrl)
@@ -2354,6 +2374,7 @@
 
     .top-bar {
       // position: fixed;
+      background-color: #fff;
       top: 0;
       top: var(--window-top);
       z-index: 10;

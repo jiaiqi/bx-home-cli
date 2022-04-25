@@ -14,7 +14,7 @@
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
       v-else-if="['店铺信息','店铺信息2','简洁店铺信息'].includes(pageItem.type)" :isBind="isBind" :pageItem="pageItem"
-      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult" @toSetting="toSetting"
+      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult"
       @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem&&pageItem.type === '按钮组'" :button-list="pageItem.listdata"
@@ -61,7 +61,8 @@
     <coupon-list :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '优惠券列表'" />
     <!-- 通用多级选择-预约组件 -->
     <multistep-picker :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '通用预约'" />
-    <queue-info :config="pageItem.more_config.queueCfg" v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
+    <queue-info :config="pageItem.more_config.queueCfg"
+      v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
   </view>
 </template>
 
@@ -303,9 +304,6 @@
       // },
       getQrcode(e) {
         this.$emit('getQrcode', e);
-      },
-      toSetting() {
-        this.$emit('toSetting');
       },
       toMore() {
         // let url = '/otherPages/timeline/timeline'

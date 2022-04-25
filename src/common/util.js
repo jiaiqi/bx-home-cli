@@ -170,7 +170,7 @@ export default {
 
           if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程') || goodsType
             .includes('活动') || goodsType.includes('提货卡') || goodsType.includes('套餐卡') || goodsType.includes(
-            '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
+              '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
             order_type += ',虚拟商品'
           }
 
@@ -195,6 +195,11 @@ export default {
           if (!no) {
             return
           }
+
+          if (no === this.vvipCard?.attr_store_user_no) {
+            return this.vvipCard
+          }
+          
           let service = 'srvhealth_store_card_case_select'
           const req = {
             "serviceName": service,
@@ -1882,235 +1887,7 @@ export default {
         return 0
       }
     }
-    Vue.prototype.selectBasicUserList = async () => {
-      const url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
-      const user_no = uni.getStorageSync('login_user_info').user_no
-      try {
-        if (store.state.user.loginUserInfo) {
-          user_no = store.state.user.loginUserInfo.user_no
-        }
-      } catch (e) {
-        //TODO handle the exception
-      }
-      let req = {
-        serviceName: 'srvhealth_person_info_select',
-        colNames: ['*'],
-        condition: [{
-          colName: 'userno',
-          ruleType: 'eq',
-          value: user_no
-        }],
-        order: [{
-          colName: 'create_time',
-          orderType: 'asc'
-        }]
-      };
-      if (user_no) {
-        const res = await _http.post(url, req);
-        if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-          let current_user_info = null
-          store.commit('SET_USERLIST', res.data.data);
-          let info = res.data.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-          if (info && info.no) {
-            store.commit("SET_USERINFO", info)
-          } else {
-            uni.setStorageSync('current_user_info', res.data.data[0]);
-            uni.setStorageSync('current_user', res.data.data[0].name);
-            current_user_info = res.data.data[0]
-            store.commit("SET_USERINFO", current_user_info)
-            store.commit("SET_USERLIST", res.data.data)
-          }
-          return current_user_info
-        } else if (res.data.resultCode === '0011') {
-          // 登录失效 进行静默登录
-          // #ifdef MP-WEIXIN
-          store.commit("SET_LOGIN_STATE", false)
-          // const result = await wx.login();
-          // if (result.code) {
-          // 
-          // await Vue.prototype.wxLogin({
-          // 	code: result.code
-          // });
-          // }
-          // #endif
-        } else if (Array.isArray(res.data.data) && res.data.data.length === 0) {
-          return 0
-          // 没有角色 提示跳转到创建角色页面
-        }
-      } else {
-        // 没有user_no 跳转到登录页面
-        // #ifdef MP-WEIXIN
-        // const result = await wx.login();
-        // if (result.code) {
-        // 	await Vue.prototype.wxLogin({
-        // 		code: result.code
-        // 	});
-        // }
-        // #endif
-        // #ifdef H5
 
-        uni.navigateTo({
-          url: '/publicPages/accountExec/accountExec'
-        });
-        // #endif
-
-      }
-    }
-    Vue.prototype.selectBasicUserInfo = async () => {
-      let userInfo = store.state.user.userInfo
-      if (userInfo && userInfo.no) {
-        if (userInfo.home_store_no && !store.state.app.hasIntoHospital) {
-          // 有home_store 未进入过医院主页
-          let pageInfo = Vue.prototype.getShareParams()
-          // console.log(store.state.app.inviterInfo)
-          // let pageInfo = Vue.prototype.getShareParams()
-          // 暂时去掉
-          let pageStack = getCurrentPages()
-          let currentPage = ''
-          if (Array.isArray(pageStack) && pageStack.length >= 1) {
-            currentPage = pageStack[pageStack.length - 1]?.$page?.fullPath
-          }
-          if (['诊所', '医院', '健康服务'].includes(userInfo.home_store_type) && userInfo.home_store_no && (!
-              currentPage || (currentPage && currentPage.indexOf(
-                  'pages/home/home') == -1 && currentPage
-                .indexOf(
-                  '/publicPages/chat/chat') == -1 && currentPage.indexOf(
-                  'publicPages/gropDetail/gropDetail') == -1)) && pageStack.length ===
-            1) {
-            // 通过分享医院主页加入的用户
-            let home_store_no = userInfo.home_store_no
-            if (api && api.singleStore && api.storeNo) {
-              home_store_no = api.storeNo
-            }
-            uni.redirectTo({
-              url: `pages/home/home?store_no=${home_store_no}`,
-              success() {
-                // 标记 已进入过医院主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          } else if (userInfo.home_store_type === '饭馆' && userInfo.home_store_no) {
-            // 通过分享餐馆主页加入的用户
-            uni.redirectTo({
-              url: '/otherPages/shop/shopHome?type=find&store_no=' + userInfo
-                .home_store_no,
-              success() {
-                // 标记 已进入过餐馆主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          } else if (userInfo.home_store_type === '医生') {
-            uni.redirectTo({
-              url: '/pediaPages/doctorIntro/doctorIntro',
-              success() {
-                // 标记 已进入过餐馆主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          }
-        }
-        return store.state.user.userInfo
-      }
-
-      const user_no = uni.getStorageSync('login_user_info').user_no
-      try {
-        if (store.state.user.loginUserInfo) {
-          user_no = store.state.user.loginUserInfo.user_no
-        }
-      } catch (e) {
-        //TODO handle the exception
-      }
-      let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_select', 'select')
-      let req = {
-        "serviceName": "srvhealth_person_info_select",
-        "colNames": ["*"],
-        order: [{
-          colName: 'create_time',
-          orderType: 'asc'
-        }],
-        "condition": [{
-          "colName": "create_user",
-          "ruleType": "eq",
-          "value": user_no
-        }],
-        "page": {
-          "pageNo": 1,
-          "rownumber": 2
-        },
-      }
-      let res = await _http.post(url, req)
-
-      if (res.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-        store.commit('SET_USERINFO', res.data.data[0])
-        store.commit('SET_USERLIST', res.data.data)
-        uni.setStorageSync('current_user_info', res.data.data[0]);
-        uni.setStorageSync('current_user', res.data.data[0].name);
-        let info = res.data.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-        if (info && info.no) {
-          store.commit('SET_USERINFO', info)
-          uni.setStorageSync('current_user_info', info);
-          uni.setStorageSync('current_user', info.name);
-        }
-        // #ifdef MP-WEIXIN
-        if (res.data.data[0].home_store_no && !store.state.app.hasIntoHospital) {
-          // 有home_store 此次打开小程序未进入过医院/餐馆主页
-          let pageInfo = Vue.prototype.getShareParams()
-          // console.log(store.state.app.inviterInfo)
-          let pageStack = getCurrentPages()
-          let currentPage = ''
-          if (Array.isArray(pageStack) && pageStack.length >= 1) {
-            currentPage = pageStack[pageStack.length - 1]?.$page?.fullPath
-          }
-          // 暂时去掉
-          if (['诊所', '医院', '健康服务'].includes(store.state
-              .user.userInfo.home_store_type) && (!currentPage || (currentPage && currentPage
-              .indexOf(
-                'pages/home/home') == -1 && currentPage
-              .indexOf(
-                '/publicPages/chat/chat') == -1 && currentPage.indexOf(
-                'publicPages/gropDetail/gropDetail') == -1)) && pageStack.length ===
-            1) {
-            let home_store_no = res.data.data[0].home_store_no
-            if (api && api.singleStore && api.storeNo) {
-              home_store_no = api.storeNo
-            }
-            // 通过分享医院主页加入的用户
-            uni.redirectTo({
-              url: `pages/home/home?store_no=${home_store_no}`,
-              success() {
-                // 标记 已进入过医院主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          } else if ((['饭馆'].includes(store.state
-                .user.userInfo.home_store_type) && store.state.user
-              .userInfo.home_store_no)) {
-            // 通过分享饭馆主页加入的用户
-            uni.redirectTo({
-              url: '/otherPages/shop/shopHome?type=find&store_no=' + store.state
-                .user
-                .userInfo.home_store_no,
-              success() {
-                // 标记 已进入过餐馆主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          } else if (userInfo.home_store_type === '医生') {
-            uni.redirectTo({
-              url: '/pediaPages/doctorIntro/doctorIntro',
-              success() {
-                // 标记 已进入过餐馆主页
-                store.commit('SET_INTO_HOSPITAL_STATUS', true)
-              }
-            })
-          }
-        }
-        // #endif
-        return res.data.data[0]
-      } else {
-        return false
-      }
-    }
     Vue.prototype.getWxUserInfo = async (e) => {
       // #ifdef MP-WEIXIN
       const user = e.mp.detail;
@@ -2129,71 +1906,7 @@ export default {
       }
       // #endif
     }
-    Vue.prototype.getDoctorInfo = async (no) => {
-      // 查找医生信息
-      let serviceName = 'srvhealth_person_info_select';
-      let url = Vue.prototype.getServiceUrl('health', serviceName, 'select');
-      let req = {
-        serviceName: serviceName,
-        colNames: ['*'],
-        condition: [{
-          colName: 'no',
-          ruleType: 'eq',
-          value: no
-        }],
-        page: {
-          pageNo: 1,
-          rownumber: 10
-        }
-      };
-      let res = await _http.post(url, req);
-      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data
-        .length > 0) {
-        return res.data.data[0];
-      } else {
-        return false;
-      }
-    }
-    Vue.prototype.bindDoctorInfo = async (no, params) => {
-      let docInfo = await Vue.prototype.getDoctorInfo(no)
-      if (docInfo && docInfo.no) {
-        let serviceName = 'srvhealth_person_relation_add';
-        let url = Vue.prototype.getServiceUrl('health', serviceName, 'operate');
-        let req = [{
-          serviceName: 'srvhealth_person_relation_add',
-          condition: [],
-          data: [{
-            relation_type: params?.relation_type || '管理',
-            state: '正常',
-            usera_name: docInfo.name,
-            usera_no: docInfo.userno,
-            usera_person_no: docInfo.no,
-            usera_profile_url: docInfo.profile_url,
-            userb_name: store.state.user.userInfo.name,
-            userb_no: store.state.user.userInfo.userno,
-            userb_person_no: store.state.user.userInfo.no,
-            userb_image: store.state.user.userInfo.user_image,
-            userb_profile_url: store.state.user.userInfo
-              .profile_url,
-            userb_sex: store.state.user.userInfo.sex
-          }]
-        }];
-        let res = await _http.post(url, req);
-        if (res.data.state === 'SUCCESS') {
-          // uni.showModal({
-          // 	title: '提示',
-          // 	content: `已绑定${docInfo.name}为您的医生`,
-          // 	showCancel: false,
-          // 	confirmText: '知道了'
-          // });
-          return true
-        } else {
-          return false
-        }
-      } else {
-        return false
-      }
-    }
+
     Vue.prototype.updateUserInfo = async (e) => {
       let userInfo = JSON.parse(JSON.stringify(e))
       let gender = userInfo.gender || userInfo.sex //性别 0：未知、1：男、2：女
@@ -2207,13 +1920,7 @@ export default {
       }
       store.commit('SET_AUTH_USERINFO', true);
     }
-    Vue.prototype.initLogin = async () => {
-      // 初始化登录状态
-      // #ifdef MP-WEIXIN
-      let isLogin = await wxVerifyLogin()
-      let userInfo = await Vue.prototype.selectBasicUserInfo()
-      // #endif
-    }
+
     Vue.prototype.toAddPage = async (rawData) => {
       let isLogin = store.state.app.isLogin
       if (!isLogin) {

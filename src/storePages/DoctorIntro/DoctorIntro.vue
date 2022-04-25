@@ -174,24 +174,6 @@
 					return res.data.data;
 				}
 			},
-			// async getDoctorInfo(no) {
-			// 	let url = this.getServiceUrl('health', 'srvhealth_person_info_select', 'select');
-			// 	let req = {
-			// 		serviceName: 'srvhealth_person_info_select',
-			// 		colNames: ['*'],
-			// 		condition: [{
-			// 			colName: 'no',
-			// 			ruleType: 'eq',
-			// 			value: no
-			// 		}]
-			// 	};
-			// 	let res = await this.$http.post(url, req);
-			// 	if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-			// 		this.doctorInfo = res.data.data[0];
-			// 		this.getStoreUserInfo();
-			// 		return res.data.data;
-			// 	}
-			// }
 		},
 		async onLoad(option) {
 			this.checkOptionParams(option);
@@ -204,7 +186,7 @@
 			}
 			if (option.person_no) {
 				this.getStoreUserInfo(option.person_no)
-				// this.getDoctorInfo(option.person_no);
+        
 			}
 		}
 	};

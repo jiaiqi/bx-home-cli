@@ -21,7 +21,7 @@
         <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
           :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
           :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult"
-          @bindStore="bindStore" @setHomePage="setHomePage" @toSetting="toSetting" @getQrcode="getQrcode"
+          @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode"
           :before-click="clickStoreItem">
         </store-item>
       </view>
@@ -41,7 +41,6 @@
       <!-- <image src="/static/basicprofile.jpg" mode="aspectFit"></image> -->
       <text>加载中...</text>
     </view>
-    <user-setting @save="savePushSet" ref='userSetting'></user-setting>
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
       :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" :inactive-color="labelColor"
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
@@ -59,8 +58,6 @@
     mapState
   } from 'vuex';
   import StoreItem from './store-item/store-item.vue';
-  import userSetting from './user-setting/user-setting.vue'
-  // import multistepPicker from './multistep-picker/multistep-picker.vue'
   var socketOpen = false;
   var socketMsgQueue = [];
   var socketIsLogin = false;
@@ -68,8 +65,6 @@
   export default {
     components: {
       StoreItem,
-      userSetting,
-      // multistepPicker
     },
     data() {
       return {
@@ -199,9 +194,10 @@
           this.pageItemList = []
           this.pdNo = curTab?.link_pd_no;
           await this.initPage();
-          await this.getPageDefine(this.pdNo);
-          await this.getTabbar(this.pdNo);
-          await this.getPageComponent(this.pdNo);
+          // await this.getPageDefine(this.pdNo);
+          // await this.getTabbar(this.pdNo);
+          debugger
+          // await this.getPageComponent(this.pdNo);
         } else if (curTab.link_pd_json) {
           try {
             let jsonStr = JSON.parse(curTab.link_pd_json);
@@ -258,10 +254,7 @@
           this.selectBindUser(true);
         }
       },
-      toSetting() {
-        this.$refs.userSetting.modalName = 'setting'
-        // this.modalName= 'setting';
-      },
+   
       hideModal() {
         this.modalName = null;
       },
@@ -326,8 +319,7 @@
           let url =
             `/publicPages/list2/list2?serviceName=srvhealth_store_user_select&destApp=health&cond=${JSON.stringify(cond)}&listConfig=${encodeURIComponent(
 						JSON.stringify(listConfig)
-					)}` +
-            `&customDetailUrl=${encodeURIComponent('/storePages/home/home?store_no=${data.store_no}')}&detailType=custom`;
+					)}&navType=redirectTo&customDetailUrl=${encodeURIComponent('/storePages/home/home?store_no=${data.store_no}')}&detailType=custom`;
           uni.navigateTo({
             url
           });
@@ -398,7 +390,6 @@
         let req = [];
         const pageItemList = this.pageItemList.filter(item => ['按钮组', '人员列表', '通知横幅', '关联店铺'].includes(
           item.type));
-
         for (let index = 0; index < pageItemList.length; index++) {
           const element = pageItemList[index];
           let reqBody = null;
@@ -810,6 +801,7 @@
             this.pdNo = this.StoreInfo.home_page_no;
             await this.getPageDefine(this.StoreInfo.home_page_no);
             await this.getTabbar(this.StoreInfo.home_page_no);
+            debugger
             await this.getPageComponent(this.StoreInfo.home_page_no);
           }
           // });
@@ -1200,6 +1192,7 @@
             } else {
               await this.getPageDefine(this.pdNo);
               await this.getTabbar(this.pdNo);
+              debugger
               await this.getPageComponent(this.pdNo);
             }
           }
@@ -1228,6 +1221,32 @@
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
+          // await this.getTabbar()
+          // if (this.pageDefine?.bottom_nav_json) {
+          //   try {
+          //     let tabbarList = JSON.parse(this.pageDefine?.bottom_nav_json)
+          //     debugger
+          //     if (Array.isArray(tabbarList) && tabbarList.length > 0) {
+          //       this.tabbarList = tabbarList.map(item => {
+          //         // item.iconPath = 'https://cdn.uviewui.com/uview/common/min_button.png';
+          //         // item.selectedIconPath = 'https://cdn.uviewui.com/uview/common/min_button_select.png';
+          //         item.text = item.label;
+          //         if (item.nav_icon) {
+          //           item.iconPath = this.getImagePath(item.nav_icon, true);
+          //         }
+          //         if (item.nav_icon_selected) {
+          //           item.selectedIconPath = this.getImagePath(item.nav_icon_selected, true);
+          //         }
+          //         return item;
+          //       });
+          //     }
+
+          //   } catch (e) {
+          //     console.log(e)
+          //     debugger
+          //     //TODO handle the exception
+          //   }
+          // }
           // this.currentTab = this.pageDefine.active_nav_index;
         }
       },

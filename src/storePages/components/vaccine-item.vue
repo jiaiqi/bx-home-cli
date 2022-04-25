@@ -1,5 +1,5 @@
 <template>
-  <view class="vaccine-item"  @click="showInfo(item)">
+  <view class="vaccine-item" @click="showInfo(item)">
     <view class="title">
       <text class="text">
         {{item.vaccine_drug_name}}
@@ -79,25 +79,25 @@
       item: {
         type: Object
       },
-      
+
     },
     data() {
       return {
         vaccineInfo: null,
-        formModel:{
-          
+        formModel: {
+
         },
-        tip:""
+        tip: ""
       }
     },
     methods: {
-      showRealNameModal(){
-          this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
-          this.formModel.customer_phone = this.userInfo.phone
-          this.formModel.customer_birth_day = this.userInfo.birthday
-          this.formModel.id_no = this.userInfo.id_no
-          this.formModel.phone_xcx = this.userInfo.phone_xcx
-          this.modalName = 'realname'
+      showRealNameModal() {
+        this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+        this.formModel.customer_phone = this.userInfo.phone
+        this.formModel.customer_birth_day = this.userInfo.birthday
+        this.formModel.id_no = this.userInfo.id_no
+        this.formModel.phone_xcx = this.userInfo.phone_xcx
+        this.modalName = 'realname'
       },
       async updateUserInfo() {
         let data = {}
@@ -135,13 +135,8 @@
         let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
         if (res.success) {
           if (Array.isArray(res.data) && res.data.length > 0) {
-            let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-            if (info && info.no) {
-              this.$store.commit('SET_USERINFO', info)
-            } else if (res.data[0].no) {
-              uni.setStorageSync('cur_user_no', res.data[0].no)
-              this.$store.commit('SET_USERINFO', res.data[0])
-            }
+            uni.setStorageSync('cur_user_no', res.data[0].no)
+            this.$store.commit('SET_USERINFO', res.data[0])
           }
           this.selectTimeArr(this.vaccineInfo)
         }
@@ -161,7 +156,7 @@
           }
           await this.toAddPage()
         }
-      
+
         if (e.detail && e.detail.errMsg && e.detail.errMsg.indexOf('ok') !== -1) {
           let url = this.getServiceUrl('wx', 'srvwx_app_data_decrypt', 'operate')
           let req = [{
@@ -176,24 +171,23 @@
             .length > 0 && res.data.response[0].response && res.data.response[0].response.phoneNumber) {
             this.formModel.phone_xcx = res.data.response[0].response.phoneNumber
             this.formModel.customer_phone = res.data.response[0].response.phoneNumber
-          } else {
-          }
+          } else {}
         }
       },
       showModal(e) {
-          if (e.persons_count === 1) {
-            if (!e.stock_count || e.stock_count < 1) {
-              return
-            }
-            this.selectVaccineDayList(e)
+        if (e.persons_count === 1) {
+          if (!e.stock_count || e.stock_count < 1) {
+            return
           }
-          this.vaccineInfo = e
-          if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
-            this.showRealNameModal()
-          } else {
-            this.selectTimeArr(e)
-          }
-        
+          this.selectVaccineDayList(e)
+        }
+        this.vaccineInfo = e
+        if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
+          this.showRealNameModal()
+        } else {
+          this.selectTimeArr(e)
+        }
+
       }
     },
   }

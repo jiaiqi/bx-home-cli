@@ -418,7 +418,7 @@ export default {
         await this.wxLogin({
           code: result.code
         });
-        await this.selectBasicUserList();
+        
       }
     }
     if (option.from) {

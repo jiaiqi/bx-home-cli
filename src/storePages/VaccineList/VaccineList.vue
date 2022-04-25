@@ -43,11 +43,13 @@
         <view class="button-area">
           <view class="button-box">
             <view class="cu-btn sm line-orange border round"
-              v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5" @click.stop="showModal(item)">
+              v-if="item.btnTextConfig&&item.btnTextConfig.less&&item.btnTextConfig.less.button&&item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5"
+              @click.stop="showModal(item)">
               {{item.btnTextConfig.less.button}}
             </view>
             <view class="cu-btn sm line-orange border round"
-              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5" @click.stop="showModal(item)">
+              v-else-if="item.persons_count===1&&item.stock_count&&item.stock_count>0&&item.stock_count<5"
+              @click.stop="showModal(item)">
               立即预约
             </view>
             <view class="cu-btn sm line-blue border round" @click.stop="showModal(item)"
@@ -176,7 +178,7 @@
   } from 'vuex'
   // 在页面中定义插屏广告
   let interstitialAd = null
-  
+
   const dayjs = require('dayjs');
   export default {
     data() {
@@ -280,13 +282,8 @@
         let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
         if (res.success) {
           if (Array.isArray(res.data) && res.data.length > 0) {
-            let info = res.data.find(item => item.no === uni.getStorageSync('cur_user_no'))
-            if (info && info.no) {
-              this.$store.commit('SET_USERINFO', info)
-            } else if (res.data[0].no) {
-              uni.setStorageSync('cur_user_no', res.data[0].no)
-              this.$store.commit('SET_USERINFO', res.data[0])
-            }
+            uni.setStorageSync('cur_user_no', res.data[0].no)
+            this.$store.commit('SET_USERINFO', res.data[0])
           }
         }
       },
@@ -513,7 +510,7 @@
     display: flex;
     flex-direction: column;
     margin-bottom: 20rpx;
-    background-color: #F5F5F5 ;
+    background-color: #F5F5F5;
     // min-height: var(--page-height);
     min-height: 100vh;
     padding: 20rpx;

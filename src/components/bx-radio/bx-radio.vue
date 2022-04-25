@@ -73,6 +73,10 @@
       wrap: {
         type: [String, Boolean],
         default: ''
+      },
+      allowCanel: { //允许取消选中
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -174,7 +178,6 @@
       }
     },
     methods: {
-      updateParentData() {},
       getParentData(parentName = '') {
         // 避免在created中去定义parent变量
         if (!this.parent) this.parent = false;
@@ -226,14 +229,16 @@
 
         this.emitEvent();
 
-
         if (this.parent) {
           if (this.parentData.value != this.name) {
             this.parent.setValue(this.name);
             this.parentData.value = this.name;
           } else {
-            this.parent.setValue(null);
-            this.parentData.value = null;
+            if (this.allowCanel) {
+              this.parent.setValue(null);
+              this.parentData.value = null;
+            }
+
           }
         }
       }
@@ -300,6 +305,7 @@
       padding: 0;
       min-width: 50px;
       text-align: center;
+
       .bx-radio-icon {
         display: none;
       }

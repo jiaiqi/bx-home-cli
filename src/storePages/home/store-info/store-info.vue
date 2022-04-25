@@ -400,9 +400,7 @@
           this.showNoticeModal = true;
         }
       },
-      toSetting() {
-        this.$emit('toSetting');
-      },
+      
       makeQrCode() {
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make();

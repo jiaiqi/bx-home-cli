@@ -294,6 +294,23 @@
               "colNames": ["*"],
               "condition": []
             }
+            if (Array.isArray(this.topLevelCfg?.customCond) && this.topLevelCfg?.customCond.length > 0) {
+              let str = JSON.stringify(this.topLevelCfg?.customCond)
+              let data = {
+                storeInfo: this.storeInfo,
+                storeUser: this.vstoreUser,
+                bindUserInfo: this.vstoreUser,
+              }
+              str = this.renderStr(str, data)
+              try {
+                let cond = JSON.parse(str)
+                if (Array.isArray(cond) && cond.length > 0) {
+                  req.condition = cond
+                }
+              } catch (e) {
+                //TODO handle the exception
+              }
+            }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
               if (Array.isArray(res.data) && res.data.length > 0) {
@@ -304,6 +321,7 @@
             }
           }
         }
+        return
       },
       async getSecondData(e) {
         let cfg = this.secondLevelCfg?.srvInfo;
@@ -329,20 +347,30 @@
             const req = {
               "serviceName": service,
               "colNames": ["*"],
-              // group: [{
-              //     "colName": idCol,
-              //     "type": 'by'
-              //   },
-              //   {
-              //     "colName": dispCol,
-              //     "type": "by"
-              //   }
-              // ],
               "condition": [{
                 colName: 'store_no',
                 ruleType: 'eq',
                 value: this.storeInfo?.store_no
               }]
+            }
+            if (Array.isArray(this.secondLevelCfg?.customCond) && this.secondLevelCfg?.customCond.length > 0) {
+              let str = JSON.stringify(this.secondLevelCfg?.customCond)
+              let data = {
+                data1: this.topLevelData.find(item => item.selected === true) || {},
+                data: this.curSelect,
+                storeInfo: this.storeInfo,
+                storeUser: this.vstoreUser,
+                bindUserInfo: this.vstoreUser,
+              }
+              str = this.renderStr(str, data)
+              try {
+                let cond = JSON.parse(str)
+                if (Array.isArray(cond) && cond.length > 0) {
+                  req.condition = cond
+                }
+              } catch (e) {
+                //TODO handle the exception
+              }
             }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
@@ -363,6 +391,7 @@
 
       async getThirdData(e) {
         let cfg = this.thirdLevelCfg?.srvInfo;
+        debugger
         if (cfg) {
           const {
             app,
@@ -379,6 +408,7 @@
               value: this.storeInfo?.store_no
             }]
           }
+
           if (service && app && idCol) {
             if (e && pidCol && e[pidCol]) {
               this.secondLevelData = this.secondLevelData.map(item => {
@@ -393,6 +423,27 @@
                 ruleType: 'eq',
                 value: e[pidCol]
               })
+            }
+
+            if (Array.isArray(this.thirdLevelCfg?.customCond) && this.thirdLevelCfg?.customCond.length > 0) {
+              let str = JSON.stringify(this.thirdLevelCfg?.customCond)
+              let data = {
+                data1: this.topLevelData.find(item => item.selected === true) || {},
+                data2: this.secondLevelData.find(item => item.selected === true) || {},
+                data: this.curSelect,
+                storeInfo: this.storeInfo,
+                storeUser: this.vstoreUser,
+                bindUserInfo: this.vstoreUser,
+              }
+              str = this.renderStr(str, data)
+              try {
+                let cond = JSON.parse(str)
+                if (Array.isArray(cond) && cond.length > 0) {
+                  req.condition = cond
+                }
+              } catch (e) {
+                //TODO handle the exception
+              }
             }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
@@ -410,8 +461,9 @@
       },
     },
     created() {
-      this.getTopData()
-      this.getSecondData()
+      this.getTopData().then(_=>{
+        this.getSecondData()
+      })
     }
   }
 </script>

@@ -1,14 +1,16 @@
 <template>
   <view class="filter-tags-view">
     <view class="filter-tags-box" v-if="mode==='fold'&&setTabs&&setTabs.length>0">
-      <button class="cu-btn round margin-right-xs" :class="{'bg-white':!tab.active,'line-cyan':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
+      <button class="cu-btn round sm margin-right-xs"
+        :class="{'':!tab.active,' line-blue':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
         v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
         <text class="label">
           <text
             v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{formModel[tab.list_tab_no].value}}</text>
           <text v-else>{{tab.label||''}}</text>
         </text>
-        <text class="cuIcon-triangledownfill"></text>
+        <text class="cuIcon-right margin-left-xs" style="transform: rotate(90deg);"></text>
+        <!-- <text class="cuIcon-triangledownfill"></text> -->
       </button>
     </view>
 
@@ -58,7 +60,7 @@
       </view>
     </view>
 
-    <view class="cu-modal" :class="{show:showTagsModal}" @click="showModal()">
+    <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
       <view class="cu-dialog" @click.stop=""
         v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no">
         <view class="label">
@@ -261,7 +263,6 @@
       },
       getTabOptions(tab) {
         let self = this
-        debugger
         if (tab.hasOwnProperty('_colSrvData')) {
           let scol = tab._colSrvData
           let col = tab._colName
@@ -604,10 +605,22 @@
   }
 
   .filter-tags-box {
-    .line-cyan {
-      border: 1px solid #10c0a8;
-      background-color: rgba($color: #10c0a8, $alpha: 0.1);
+    padding: 10px;
+    border: 1rpx solid #f1f1f1;
+    .cu-btn {
+      min-width: 80px;
+      text-align: center;
+      position: relative;
+      margin-top: 5px;
+      &:nth-child(1),&:nth-child(2),&:nth-child(3),&:nth-child(4){
+        margin-top: 0;
+      }
+    }
 
+    .line-blue {
+      // border: 1px solid #0081ff;
+      color: #0081ff;
+      background-color: #e7f1ff;
     }
   }
 
@@ -619,9 +632,10 @@
       display: flex;
       align-items: center;
       padding-bottom: 10rpx;
-      justify-content: center;
+      justify-content: flex-start;
       flex-wrap: wrap;
-
+      width: 100%;
+      
       .label {
         margin-right: 20rpx;
         min-width: 20%;
@@ -647,15 +661,24 @@
     display: block;
     z-index: 9999;
 
+    &.bottom-modal {
+      .cu-dialog {
+        min-height: 200px;
+      }
+
+    }
+
     .cu-dialog {
       padding: 20px;
-      .label{
+
+      .label {
         display: flex;
         justify-content: flex-start;
         align-items: center;
         font-weight: bold;
         margin-bottom: 5px;
       }
+
       .radio-label {
         min-width: 80px;
         text-align: center;

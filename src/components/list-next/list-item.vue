@@ -309,20 +309,20 @@
       btn_cfg() {
         return this.setViewTemp?.btn_cfg;
       },
-      hasShowButton(){
+      hasShowButton() {
         let rowButton = this.setRowButton;
-        if(Array.isArray(rowButton)&& rowButton.length>0){
-          rowButton = rowButton.filter(item=>{
-            if(item.button_type==='customize'){
-              if(this.setViewTemp?.btn_cfg?.show_custom_btn===false){
+        if (Array.isArray(rowButton) && rowButton.length > 0) {
+          rowButton = rowButton.filter(item => {
+            if (item.button_type === 'customize') {
+              if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
                 return false
               }
-            }else if(this.setViewTemp?.btn_cfg?.show_public_btn===false){
+            } else if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
               return false
             }
             return true
           })
-          return rowButton.length>0
+          return rowButton.length > 0
         }
       },
       setRowButton() {
@@ -702,9 +702,14 @@
           res.value = res.value.replace(/\\n/, '')
         }
 
-        if (cfg?.format?.type === 'date' && res.value && cfg?.format?.rule) {
+        if ((cfg?.format?.type === 'date' || cfg?.format?.type === 'dateTime') && res.value && cfg?.format?.rule) {
           res.value = this.dayjs(res.value).format(cfg?.format?.rule)
         }
+        
+        if (cfg?.format?.type === 'time' && res.value && cfg?.format?.rule && cfg?.format?.rule.indexOf('Y')==-1 && cfg?.format?.rule.indexOf('M')==-1 && cfg?.format?.rule.indexOf('D')==-1) {
+          res.value = this.dayjs(this.dayjs().format("YYYY-MM-DD") + ' ' + res.value).format(cfg?.format?.rule)
+        }
+        
         return res;
       },
       del: throttle(function() {

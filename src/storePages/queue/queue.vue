@@ -659,13 +659,8 @@
         this.hideModal()
         if (res.success) {
           if (Array.isArray(res.data) && res.data.length > 0) {
-            let info = res.data.find(item => item.no === this.userInfo.no)
-            if (info && info.no) {
-              this.$store.commit('SET_USERINFO', info)
-            } else if (res.data[0].no) {
-              uni.setStorageSync('cur_user_no', res.data[0].no)
-              this.$store.commit('SET_USERINFO', res.data[0])
-            }
+            uni.setStorageSync('cur_user_no', res.data[0].no)
+            this.$store.commit('SET_USERINFO', res.data[0])
             return info
           }
         }
