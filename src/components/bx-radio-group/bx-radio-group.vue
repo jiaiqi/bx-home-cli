@@ -36,12 +36,13 @@ export default {
 		},
     // 选中状态下的背景色
     activeBg: {
-    	type: String
+    	type: String,
+      // default: '#94bcff'
     },
 		// 选中状态下的颜色
 		activeColor: {
 			type: String,
-			default: '#2979ff'
+			// default: '#2979ff'
 		},
 		// 组件的整体大小
 		size: {

@@ -1,5 +1,6 @@
 <template>
-  <view class="search-bar" :class="['theme-'+theme]">
+  <view class="search-bar" style="--home-bg-color:#fff;" :class="['theme-'+theme]">
+    
     <view class="cu-bar search" :class="[{'pc-model':sysModel=='PC'},backgroundClass]">
       <view class="search-form round">
         <text class="cuIcon-search"></text>
@@ -19,6 +20,7 @@
         </button>
       </view>
     </view>
+    
 
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'orderModal' }" @click.stop="hideModal">
       <view class="cu-dialog" @click.stop="">
@@ -289,6 +291,7 @@
 
     .cu-bar {
       z-index: 1 !important;
+      background-color: initial;
     }
 
     // height: 100px;

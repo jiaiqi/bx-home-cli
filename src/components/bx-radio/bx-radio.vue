@@ -144,6 +144,7 @@
         if (this.checked) {
           if (this.elActiveColor) {
             style['color'] = this.elActiveColor
+            style['border-color'] = this.elActiveColor
           }
           if (this.elActiveBg) {
             style['background-color'] = this.elActiveBg
@@ -346,7 +347,7 @@
         }
 
         &.checked {
-          // border-color: #0bc99d;
+          border-color: #0bc99d;
           color: #0bc99d;
           background-color: rgba(11, 201, 157, 0.1);
         }

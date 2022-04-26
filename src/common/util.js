@@ -555,7 +555,8 @@ export default {
           fieldInfo.type = "number"
         } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "Selector"
-          if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
+          if (item.option_list_v2 ) {
+          // if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree

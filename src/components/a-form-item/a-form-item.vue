@@ -200,7 +200,7 @@
       </robby-image-upload>
     </view>
     <view class="icon-area" v-if="(fieldData.type === 'location' || fieldData.type === 'addr')"><text
-        class="cuIcon-locationfill text-blue" @click="getLocation"></text></view>
+        class="cuIcon-locationfill text-cyan" @click="getLocation"></text></view>
     <view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
     <view class="cu-modal bottom-modal" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
       @click="hideModal">
@@ -214,7 +214,7 @@
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
           <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
           </cascader-selector> -->
-          <tree-selector :srvInfo="fieldData.srvInfo" @cancel="hideModal" :current="selectTreeData"
+          <tree-selector :srvInfo="fieldData.srvInfo" :fields-model="fieldsModel" @cancel="hideModal" :current="selectTreeData"
             @confirm="getCascaderValue">
           </tree-selector>
         </view>
@@ -1045,7 +1045,6 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
-
         self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
           if (Array.isArray(this.fieldData.options)) {
@@ -1351,7 +1350,7 @@
             this.modalName = 'Selector';
             break;
           case 'TreeSelector':
-            await this.getSelectorData(null, null, null)
+            // await this.getSelectorData(null, null, null)
             this.modalName = 'TreeSelector';
             break;
         }
