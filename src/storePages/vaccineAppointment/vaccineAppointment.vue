@@ -120,10 +120,10 @@
         <button class="cu-btn line-cyan border" @click="toOrderList">我的预约</button>
         <debounce-view
           v-if="vaccineInfo&&vaccineInfo.persons_count&&vaccineInfo.persons_count===1&&(vaccineInfo.stock_count<1||!vaccineInfo.stock_count)"
-          @onTap="submitNotify">
+          @onThrottle="submitNotify" type="throttle">
           <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}">提交</button>
         </debounce-view>
-        <debounce-view @onTap="submitOrder" v-else>
+        <debounce-view @onThrottle="submitOrder" type="throttle" v-else>
           <button class="cu-btn bg-cyan" :class="{disabled:onSubmit}">提交预约</button>
         </debounce-view>
       </view>
@@ -136,7 +136,7 @@
     mapState
   } from 'vuex'
   const dayjs = require('dayjs');
-  
+
   export default {
     data() {
       return {
@@ -776,7 +776,7 @@
       }, 1000)
     },
     async onLoad(option) {
-      
+
       if (option.app_type) {
         this.app_type = option.app_type
       }

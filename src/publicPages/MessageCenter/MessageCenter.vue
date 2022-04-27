@@ -2,45 +2,28 @@
   <view class="list-wrap">
     <view class="cu-list">
       <view class="cu-item" v-for="(item,index) in sessionList" :key="item.session_no" @click="toChat(item)">
-        <view class="cu-avatar  lg" v-if="item.store_user_profile"
-          :style="[{backgroundImage:'url('+getImagePath(item.store_user_profile,true)+')'}]">
-          <view class="unread" v-if="item.master_unread_num">
+        <view class="cu-avatar" :style="[{backgroundImage:'url('+getProfile(item)+')'}]">
+          <view class="unread" v-if="item.client_unread_num&&identity==='客户'">
+            {{item.client_unread_num}}
+          </view>
+          <view class="unread" v-else-if="item.master_unread_num&&identity!=='客户'">
             {{item.master_unread_num}}
           </view>
-          <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
-            {{item.kefu_kefu_unread_msg}}
-          </view>
-          <view class="cu-tag badge-left" v-if="item.kefu_kefu_unack_msg">
-            {{item.kefu_kefu_unack_msg}}
-          </view>
-        </view>
-        <view class="cu-avatar  lg" v-else-if="item.store_user_image"
-          :style="[{backgroundImage:'url('+getImagePath(item.store_user_image,true)+')'}]">
-          <view class="unread" v-if="item.master_unread_num">
-            {{item.master_unread_num}}
-          </view>
-          <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
-            {{item.kefu_kefu_unread_msg}}
-          </view>
-          <view class="cu-tag badge-left" v-if="item.kefu_kefu_unack_msg">
-            {{item.kefu_kefu_unack_msg}}
-          </view>
-        </view>
-        <view class="cu-avatar lg" v-else>
-          <view class="unread" v-if="item.master_unread_num">
-            {{item.master_unread_num}}
-          </view>
-          <text class="cuIcon-profilefill"></text>
-          <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
-            {{item.kefu_kefu_unread_msg}}
-          </view>
-          <view class="cu-tag badge-left" v-if="item.kefu_kefu_unack_msg">
-            {{item.kefu_kefu_unack_msg}}
+          <view class="" v-else>
+            <view class="cu-tag badge" v-if="item.kefu_kefu_unread_msg">
+              {{item.kefu_kefu_unread_msg}}
+            </view>
+            <view class="cu-tag badge-left" v-if="item.kefu_kefu_unack_msg">
+              {{item.kefu_kefu_unack_msg}}
+            </view>
           </view>
         </view>
         <view class="content">
           <view class="top">
-            <view class="text-black user-name">{{item.store_user_name||''}}</view>
+            <view class="text-black user-name" v-if="identity==='客户'&&session_type==='专题咨询'&&item.group_name">
+              {{item.group_name||''}}
+            </view>
+            <view class="text-black user-name" v-else>{{item.store_user_name||''}}</view>
             <view class="last-time">
               {{formatTime(item.last_msg_time)}}
             </view>
@@ -62,8 +45,10 @@
   export default {
     data() {
       return {
+        identity: "",
         storeNo: '',
         session_type: "",
+        store_user_no: "",
         groupNo: "", //专题咨询编码
         sessionList: [],
         page: {
@@ -75,6 +60,15 @@
       };
     },
     methods: {
+      getProfile(item) {
+        if (this.identity === '客户') {
+          return ''
+        }
+        let str = item.store_user_profile || item.store_user_image
+        if (str) {
+          return this.getImagePath(str, true)
+        }
+      },
       formatUnread(num) {
         if (isNaN(Number(num))) {
           return ''
@@ -119,7 +113,11 @@
           url += `&groupNo=${this.groupNo}`
         }
         if (this.session_type === '专题咨询') {
-          url += '&identity=经验主'
+          if (this.identity) {
+            url += `&identity=${this.identity}`
+          } else {
+            url += '&identity=经验主'
+          }
         } else {
           url += '&identity=客服'
         }
@@ -183,10 +181,22 @@
             // 		"orderType": "desc" // asc升序  desc降序
             // 	}
           ],
+          order: [{
+            colName: 'last_msg_time',
+            orderType: "desc"
+          }],
           "page": {
             "pageNo": this.page.pageNo,
             "rownumber": this.page.rownumber
           }
+        }
+
+        if (this.store_user_no) {
+          req.condition.push({
+            colName: 'store_user_no',
+            ruleType: 'eq',
+            value: this.store_user_no
+          })
         }
         if (this.groupNo) {
           req.condition.push({
@@ -219,25 +229,24 @@
       uni.$on('updateKefuSessionLastLookTime', () => {
         this.getStoreSession()
       })
-      if (option.sessionType) {
-        option.session_type = option.sessionType
+      if (option.identity) {
+        this.identity = option.identity
       }
-      if (option.session_type && option.groupNo) {
-        this.session_type = option.session_type
+
+      if (option.sessionType || option.session_type) {
+        this.session_type = option.sessionType || option.session_type
+      }
+
+      if (option.groupNo) {
         this.groupNo = option.groupNo
+      }
+      if (option.store_user_no) {
+        this.store_user_no = option.store_user_no
       }
 
       if (option.storeNo) {
-
         this.storeNo = option.storeNo
         this.getStoreSession()
-
-
-        // if(!this.session_type){
-        //   uni.setNavigationBarTitle({
-        //     title: '用户咨询记录'
-        //   })
-        // }
       }
     },
     onPullDownRefresh() {
@@ -267,6 +276,7 @@
   .list-wrap {
     min-height: calc(100vh - var(--window-bottom) - var(--window-top) + 10px);
     padding: 20rpx 0;
+    background-color: #f8f8f8;
   }
 
   .cu-list {
@@ -282,8 +292,14 @@
       display: flex;
       background-color: #fff;
 
-      &:hover {
-        background-color: #F1F1F1;
+      // &:hover {
+      //   background-color: #F1F1F1;
+      // }
+
+      .cu-avatarlg {
+        width: 50px;
+        height: 50px;
+        background-size: contain;
       }
 
       .badge-left {
@@ -303,6 +319,9 @@
         position: relative;
         margin-right: 10px;
         border-radius: 5px;
+        width: 50px;
+        height: 50px;
+        background-color: #F1F1F1;
 
         .unread {
           position: absolute;

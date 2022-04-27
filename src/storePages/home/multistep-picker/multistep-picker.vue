@@ -391,7 +391,6 @@
 
       async getThirdData(e) {
         let cfg = this.thirdLevelCfg?.srvInfo;
-        debugger
         if (cfg) {
           const {
             app,

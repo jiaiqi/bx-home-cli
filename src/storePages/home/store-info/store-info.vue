@@ -481,10 +481,6 @@
         // 将当前登录用户添加到店铺用户列表，角色为用户
         this.$emit('bindUser');
       },
-      async toConsult() {
-        // 在线咨询
-        this.$emit('toConsult');
-      }
     },
     mounted() {
       this.getButtonGroup();

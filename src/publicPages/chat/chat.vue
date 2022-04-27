@@ -111,6 +111,9 @@
       consultJyzSum() {
         // 经验主佣金
         if (this.sessionType === '专题咨询' && this.identity == '经验主') {
+          if (this.totalMsg && this.groupInfo?.unit_price) {
+            return this.totalMsg * this.groupInfo?.unit_price
+          }
           return this.sessionInfo?.answer_amount || '0'
         }
       },
@@ -202,7 +205,7 @@
         }
       },
       setMsgTotal() {
-        return this.sessionInfo?.msg_count || this.totalMsg
+        return this.totalMsg
       },
     },
     data() {
@@ -411,7 +414,8 @@
       msgSendSuccess(e, page) {
         if (this.sessionType === '专题咨询') {
           if (this.vstoreUser?.store_user_no) {
-            this.getVipCard(this.vstoreUser?.store_user_no)
+            // this.getVipCard(this.vstoreUser?.store_user_no)
+
           }
         }
         if (page?.total) {
@@ -434,10 +438,23 @@
           this.totalMsg = page.total
         }
 
+        if (this.sessionType === '专题咨询') {
+          // this.getZtSession(false)
+          if (Array.isArray(e) && e.length > 0) {
+            e = e[0]
+          }
+          if (e?.comminicate_after_over && e?.comminicate_before_over !== e?.comminicate_after_over) {
+            let info = this.vvipCard
+            info.card_last_bean = e?.comminicate_after_over
+            this.$store.commit('SET_VIP_CARD', info)
+          }
+        }
+
       },
       onRefreshMsg() {
         if (this.sessionType === '专题咨询') {
-          this.getZtSession(false)
+          // this.getZtSession(false)
+
         }
       },
       async getRow() {
@@ -795,6 +812,8 @@
             data.store_no = this.storeNo || this.storeInfo?.store_no
             data.store_user_no = this.store_user_no || this.storeUser?.store_user_no
             data.store_user_image = this.storeUser?.profile_url
+            data.store_user_profile = this.storeUser?.profile_url || this.userInfo.user_image || this.userInfo
+              .profile_url
             data.store_person_no = this.userInfo.no
             data.store_user_name = this.userInfo.name
             break;
@@ -1169,8 +1188,6 @@
         }
         this.createSession()
       }
-
-
 
       if (option.receiver_person_no) {
         this.receiver_person_no = option.receiver_person_no

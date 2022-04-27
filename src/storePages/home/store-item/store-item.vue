@@ -13,9 +13,9 @@
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
-      v-else-if="['店铺信息','店铺信息2','简洁店铺信息'].includes(pageItem.type)" :isBind="isBind" :isManage="isManage" :pageItem="pageItem"
-      @setHomePage="setHomePage" @addToStore="addToStore" @toConsult="toConsult"
-      @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
+      v-else-if="['店铺信息','店铺信息2','简洁店铺信息'].includes(pageItem.type)" :isBind="isBind" :isManage="isManage"
+      :pageItem="pageItem" @setHomePage="setHomePage" @addToStore="addToStore" @getQrcode="getQrcode"
+      :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem&&pageItem.type === '按钮组'" :button-list="pageItem.listdata"
       ref="buttonGroup">
@@ -30,7 +30,7 @@
     <news-list :pageItem="pageItem" :website_no="storeInfo && storeInfo.website_no" ref="articleList"
       :article-style="pageItem.article_style" :rownumber="pageItem.row_number" :cateNo="pageItem.category_no"
       :storeInfo="storeInfo" :beforeClick="beforeClick" v-else-if="pageItem.type === '文章列表'"></news-list>
-    <notice-list v-else-if="pageItem.type === '通知横幅'" :beforeClick="beforeClick" ref="noticeList" :storeNo="storeNo"
+    <notice-list v-else-if="pageItem.type === '通知横幅'&&(!pageItem.store_no||pageItem.store_no===storeInfo.store_no)" :beforeClick="beforeClick" ref="noticeList" :storeNo="storeNo"
       :pageItem="pageItem">
     </notice-list>
     <relation-store v-else-if="pageItem && pageItem.type === '关联店铺'" :beforeClick="beforeClick" ref="relationStore"
@@ -126,9 +126,9 @@
         type: Function,
         default: null
       },
-      isManage:{
-        type:Boolean,
-        default:false
+      isManage: {
+        type: Boolean,
+        default: false
       }
     },
     watch: {
@@ -150,11 +150,9 @@
       },
       itemStyle() {
         let style = {}
-
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-
         if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
         } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
@@ -165,11 +163,7 @@
         if (style.background && style.background.indexOf('否') !== -1) {
           style.background = ''
         }
-
-
         style.background = style.background || '#fff'
-
-
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }
@@ -333,7 +327,6 @@
       toDoctorDetail(e) {
         this.$emit('toDoctorDetail', e);
       },
-
       onRefresh() {
         if (this.pageItem) {
           switch (this.pageItem.type) {

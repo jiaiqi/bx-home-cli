@@ -99,6 +99,13 @@
       uni.$on('vipCardChange', () => {
         this.getCard()
       })
+      uni.$on('updateUnread', e => {
+        // 已读状态更新
+        if (['srvhealth_dialogue_session_select', 'srvhealth_group_circle_select'].includes(this.detailCfg
+            ?.serviceName)) {
+          this.getCard()
+        }
+      });
     },
     created() {
       if (this.detailCfg?.serviceName) {
@@ -267,13 +274,15 @@
         }
         const app = this.detailCfg?.app || uni.getStorageSync('activeApp')
         const url = this.getServiceUrl(app, serviceName, 'select');
-        if(serviceName==='srvhealth_store_card_case_select'){
-          this.info = this.vvipCard
-          return
-        }
+        // if(serviceName==='srvhealth_store_card_case_select'){
+        //   this.info = this.vvipCard
+        //   return
+        // }
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.info = res.data.data[0]
+          } else {
+            this.info = null
           }
         })
       },

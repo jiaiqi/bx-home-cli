@@ -70,22 +70,18 @@
             </view>
             <view class="person-chat-item-left" @tap.stop="clickAvatar(item)" @longpress.stop="remindSomeone(item)">
               <image lazy-load :src="
-                  storeInfo.log
+                  storeInfo.logo
                     ? getImagePath(storeInfo.logo)
                     : getImagePath(storeInfo.image)
-                " mode="aspectFill" v-if="identity === '客户' && item.identity === '客服'"></image>
-              <image lazy-load :src="getImagePath(item.sender_profile_url)" mode="aspectFit"
-                v-else-if="identity === '客服' && identity !== item.identity"></image>
+                " mode="aspectFill"
+                v-if="identity === '客户' && item.identity === '客服'&&(storeInfo.logo||storeInfo.image)"></image>
               <image lazy-load :src="
                   identity === '患者'
                     ? getImagePath(rowInfo.userb_profile_url)
                     : getImagePath(rowInfo.usera_profile_url)
                 " mode="aspectFit" v-else-if="!groupNo && identity && rowInfo && rowInfo.row_no"></image>
-            <!--  <image lazy-load :src="
-                  getSenderProfile(item)
-                    ? getSenderProfile(item)
-                    : '/static/img/man-profile.png'
-                " mode="aspectFit" v-else></image> -->
+              <image lazy-load :src="getSenderProfile(item)
+                " mode="aspectFit" v-else></image>
             </view>
             <view @click="previewImages(item.img_url)" v-if="
                 item.image && item.img_url && item.msg_content_type === '图片'
@@ -118,7 +114,8 @@
             <view class="person-chat-item-right goods-card" v-else-if="item.msg_content_type === '商品'&&item.attribute"
               @click="toGoods(item)">
               <view class="goods-image">
-                <image lazy-load class="goods-image" :src="getImagePath(item.attribute.goods_img,true)" mode="aspectFit"></image>
+                <image lazy-load class="goods-image" :src="getImagePath(item.attribute.goods_img,true)"
+                  mode="aspectFit"></image>
               </view>
               <view class="goods-info">
                 <view class="goods-title" v-if="item.attribute.goods_name">
@@ -140,7 +137,6 @@
                   @{{ item.attribute.name }}
                 </text>
                 <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text>
-                <!-- <uHtmlParse :content="item.msg_content" /> -->
               </view>
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
@@ -216,14 +212,17 @@
                       item.file_type &&
                       (item.file_type == 'docx' || item.file_type == 'doc')
                     " src="/static/img/word.png" mode=""></image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'xlsx'" src="/static/img/excel.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'xlsx'" src="/static/img/excel.png"
+                    mode="">
                   </image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'pdf'" src="/static/img/pdf.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'pdf'" src="/static/img/pdf.png"
+                    mode="">
                   </image>
                   <image lazy-load v-else-if="
                       item.file_type && ['ppt', 'pptx'].includes(item.file_type)
                     " src="/static/img/ppt.png" mode=""></image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'file'" src="/static/img/file1.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'file'" src="/static/img/file1.png"
+                    mode="">
                   </image>
                   <image lazy-load v-else-if="
                       item.file_type && ['mp3', 'mp4'].includes(item.file_type)
@@ -232,13 +231,6 @@
               </view>
               <view class="documents-item img" v-else @click.stop="">
                 <image lazy-load :src="item.pic_url" @click.stop="toPreviewImage(item.pic_url)" mode="scaleToFill" />
-                <!-- <image
-                  @click.stop="toPreviewImage(item.imgs_list)"
-                  :src="img._file_url"
-                  :key="img._file_url"
-                  mode="scaleToFill"
-                  v-for="img in item.img_list"
-                /> -->
               </view>
             </view>
           </view>
@@ -262,12 +254,6 @@
               <text class="cu-tag bg-blue sm"
                 v-else-if="item.identity && item.identity !== '客户'">{{ item.identity }}</text>
             </view>
-            <!--    <text class="unread" v-if="
-                item.msg_state === '未读' &&
-                !groupNo &&
-                (!groupInfo || !groupInfo.gc_no) &&
-                sessionType !== '店铺机构全员'
-              ">{{ item.msg_state }}</text> -->
             <view @click="previewImages(item.img_url)" v-if="item.image && item.img_url"
               class="person-chat-item-right person-chat-item-right-image">
               <image lazy-load :style="{
@@ -294,15 +280,12 @@
                   <image v-else class="image" :src="'../../static/news.png'" mode="scaleToFill" />
                 </view>
               </view>
-              <!-- <text class="border-bottom"
-                >{{ item.msg_content }}
-                <text class="cuIcon-text margin-right-xs"></text
-              ></text> -->
             </view>
             <view class="person-chat-item-right goods-card" v-else-if="item.msg_content_type === '商品'&&item.attribute"
               @click="toGoods(item)">
               <view class="goods-image">
-                <image lazy-load class="goods-image" :src="getImagePath(item.attribute.goods_img,true)" mode="aspectFit"></image>
+                <image lazy-load class="goods-image" :src="getImagePath(item.attribute.goods_img,true)"
+                  mode="aspectFit"></image>
               </view>
               <view class="goods-info">
                 <view class="goods-title" v-if="item.attribute.goods_name">
@@ -321,10 +304,8 @@
                   item.attribute.type &&
                   item.attribute.type === 'remindPerson'
                 ">@{{ item.attribute.name }}</text>
-              <!-- <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{item.msg_content}}</text> -->
-              <text :selectable="true" :user-select="true" space="nbsp" :decode="true">{{renderEmoji(item.msg_content)}}</text>
-              <!-- <uHtmlParse :content="item.msg_content" /> -->
-              <!-- <uHtmlParse :content="renderEmoji(item.msg_content)" /> -->
+              <text :selectable="true" :user-select="true" space="nbsp"
+                :decode="true">{{renderEmoji(item.msg_content)}}</text>
             </view>
             <view v-else-if="item.msg_link && item.msg_content_type === '链接'" @click="clickChatLink(item)"
               class="person-chat-item-right" :class="item.msg_link ? 'person-chat-item-right-link' : ''">
@@ -358,7 +339,6 @@
                       : ''
                   ">
                 </image>
-                <!-- <view class="voice_icon voice_icon_right" :class="currentChat && item.id === currentChat.id && currentChat.anmitionPlay ? 'voice_icon_right_an' : ''"></view> -->
                 <view class="">{{
                   item.voice_time ? item.voice_time : ""
                 }}</view>
@@ -400,11 +380,14 @@
                       item.file_type &&
                       (item.file_type == 'docx' || item.file_type == 'doc')
                     " src="/static/img/word.png" mode=""></image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'xlsx'" src="/static/img/excel.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'xlsx'" src="/static/img/excel.png"
+                    mode="">
                   </image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'pdf'" src="/static/img/pdf.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'pdf'" src="/static/img/pdf.png"
+                    mode="">
                   </image>
-                  <image lazy-load v-else-if="item.file_type && item.file_type === 'file'" src="/static/img/file1.png" mode="">
+                  <image lazy-load v-else-if="item.file_type && item.file_type === 'file'" src="/static/img/file1.png"
+                    mode="">
                   </image>
                   <image lazy-load v-else-if="
                       item.file_type && ['ppt', 'pptx'].includes(item.file_type)
@@ -416,22 +399,14 @@
               </view>
               <view class="documents-item img" v-else>
                 <image :src="item.pic_url" @click.stop="toPreviewImage(item.pic_url)" mode="scaleToFill" />
-                <!-- <image
-                  :src="img._file_url"
-                  :key="img._file_url"
-                  @click.stop="toPreviewImage(item.imgs_list)"
-                  mode="scaleToFill"
-                  v-for="img in item.img_list"
-                /> -->
               </view>
             </view>
             <view class="person-chat-item-left" @tap.stop="clickAvatar(item)" @longpress.stop="remindSomeone(item)">
-              <image lazy-load :src="getImagePath(storeInfo.image)" mode="aspectFill" v-if="identity === '客服'">
+              <image lazy-load
+                :src="storeInfo.logo?getImagePath(storeInfo.logo,true):getImagePath(storeInfo.image,true)"
+                mode="aspectFill" v-if="identity === '客服'&&(storeInfo.image||storeInfo.logo)&&item.identity=='客服'">
               </image>
-              <image lazy-load :src="
-                  currentUserInfo.profile_url
-                    ? currentUserInfo.profile_url
-                    : '/static/img/doctor_default.png'
+              <image lazy-load :src="getSenderProfile(item)
                 " mode="aspectFill" v-else></image>
             </view>
           </view>
@@ -1209,7 +1184,7 @@
         }
         return result;
       },
-      
+
       clickChatLink(item) {
         console.log('点击聊天----', item);
         uni.navigateTo({
@@ -2165,24 +2140,32 @@
           mask: true
         })
         this.$fetch('operate', serviceName, req, 'health').then(res => {
-          if(!res.success){
+          if (!res.success) {
             uni.showToast({
-              title:'消息发送失败',
-              icon:'none'
+              title: '消息发送失败',
+              icon: 'none'
             })
-            if((res.code===6666||res.code==='6666')&&res.msg==='库存不足'){
-              uni.showModal({
-                title:'提示',
-                content:'想豆余额不足,是否前往充值?',
-                confirmText:'去充值',
-                success: (res) => {
-                  if(res.confirm){
-                    uni.navigateTo({
-                      url:  `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
-                    })
+            if ((res.code === 6666 || res.code === '6666') && res.msg === '库存不足') {
+              if (this.identity === '经验主') {
+                uni.showModal({
+                  title: '提示',
+                  content: '对方想豆余额不足！',
+                  showCancel: false
+                })
+              } else {
+                uni.showModal({
+                  title: '提示',
+                  content: '想豆余额不足,是否前往充值?',
+                  confirmText: '去充值',
+                  success: (res) => {
+                    if (res.confirm) {
+                      uni.navigateTo({
+                        url: `/personalPages/chargeCoin/chargeCoin?cardNo=${this.vvipCard?.card_no}`
+                      })
+                    }
                   }
-                }
-              })
+                })
+              }
             }
             return
           }
@@ -3822,8 +3805,8 @@
 
           // margin-right: 30rpx;
           .image-icon {
-            width:25px;
-            height:25px;
+            width: 25px;
+            height: 25px;
             font-size: 25px;
             margin-right: 10rpx;
           }
@@ -3878,8 +3861,8 @@
           .person-chat-rig-add-wrap {
             .person-chat-rig-add {
               margin: 0 auto;
-              width:25px;
-              height:25px;
+              width: 25px;
+              height: 25px;
               display: flex;
               align-items: center;
               justify-content: center;

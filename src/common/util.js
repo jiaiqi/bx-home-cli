@@ -196,10 +196,10 @@ export default {
             return
           }
 
-          if (no === this.vvipCard?.attr_store_user_no) {
-            return this.vvipCard
-          }
-          if(!this.vstoreUser?.member_card_no){
+          // if (no === this.vvipCard?.attr_store_user_no) {
+          //   return this.vvipCard
+          // }
+          if (!this.vstoreUser?.member_card_no) {
             return
           }
           let service = 'srvhealth_store_card_case_select'

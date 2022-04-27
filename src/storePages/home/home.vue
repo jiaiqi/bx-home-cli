@@ -20,7 +20,7 @@
       <view class="page-item-list">
         <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
           :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
-          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" @toConsult="toConsult" :isManage="isManage"
+          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" :isManage="isManage"
           @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode" :before-click="clickStoreItem">
         </store-item>
       </view>
@@ -197,9 +197,6 @@
           this.pageItemList = []
           this.pdNo = curTab?.link_pd_no;
           await this.initPage();
-          // await this.getPageDefine(this.pdNo);
-          // await this.getTabbar(this.pdNo);
-          // await this.getPageComponent(this.pdNo);
         } else if (curTab.link_pd_json) {
           try {
             let jsonStr = JSON.parse(curTab.link_pd_json);
@@ -781,34 +778,18 @@
             this.getThemeCfg(this.StoreInfo?.style_no)
           } else {
             this.$store.commit('SET_THEME_CFG', null)
-            // let style_no = 'FG202204081049460001'
-            // style_no = 'FG202204081050460002'
-            // this.getThemeCfg(style_no)
           }
-
-          // if (this.StoreInfo.type === '健康服务') {
-          // 	this.getGoodsListData();
-          // }
-          // if (this.StoreInfo.is_show === '是') {
           let res1 = await this.getStoreUserInfo(this.StoreInfo.store_no)
-          // .then(res => {
           if (Array.isArray(res1) && res1.length >= 1) {
             // 店铺用户列表中已存在此用户
-
           } else {
-            debugger
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
             this.bindStore();
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
             this.pdNo = this.StoreInfo.home_page_no;
             await this.getPageDefine(this.StoreInfo.home_page_no);
-            await this.getTabbar(this.StoreInfo.home_page_no);
-            debugger
-            await this.getPageComponent(this.StoreInfo.home_page_no);
           }
-          // });
-          // }
         } else {
           if (res && res.code === '0011') {
             await this.toAddPage();
@@ -824,7 +805,7 @@
               success(res) {
                 if (res.confirm) {
                   uni.reLaunch({
-                    url: '/pages/index/index'
+                    url: '/storePages/home/home'
                   });
                 }
               }
@@ -838,9 +819,7 @@
         if (!this.userInfo || !this.userInfo.no) {
           await this.toAddPage();
         }
-        // if (this.hasNotRegInfo) {
-        //   return
-        // }
+
         if (this.bindUserInfo?.member_status === '退出') {
           this.joinStore();
           return;
@@ -900,7 +879,6 @@
       },
       async toDoctorDetail(e) {
         if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
-          debugger
           this.bindUserInfo = await this.bindStore();
           this.$store.commit('SET_STORE_USER', this.bindUserInfo);
         }
@@ -913,18 +891,6 @@
           }
           uni.navigateTo({
             url: url
-          });
-        }
-      },
-      async toConsult() {
-        // 在线咨询
-        if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
-          this.bindUserInfo = await this.bindStore();
-          this.$store.commit('SET_STORE_USER', this.bindUserInfo);
-        }
-        if (this.bindUserInfo && this.bindUserInfo.store_user_no) {
-          uni.navigateTo({
-            url: `/publicPages/chat/chat?type=机构用户客服&identity=客户&storeNo=${this.storeNo}&store_user_no=${this.bindUserInfo.store_user_no}`
           });
         }
       },
@@ -1182,19 +1148,14 @@
         }
         if (this.storeNo) {
           await this.selectStoreInfo(forceUpdate);
-          // await this.selectBindUser();
-
           if (!this.vstoreUser?.id) {
             await this.bindStore();
           }
-
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {
               await this.getPageItem();
             } else {
               await this.getPageDefine(this.pdNo);
-              await this.getTabbar(this.pdNo);
-              await this.getPageComponent(this.pdNo);
             }
           }
 
@@ -1220,11 +1181,12 @@
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
+          await this.getTabbar(home_page_no);
+          await this.getPageComponent(home_page_no);
           // await this.getTabbar()
           // if (this.pageDefine?.bottom_nav_json) {
           //   try {
           //     let tabbarList = JSON.parse(this.pageDefine?.bottom_nav_json)
-          //     debugger
           //     if (Array.isArray(tabbarList) && tabbarList.length > 0) {
           //       this.tabbarList = tabbarList.map(item => {
           //         // item.iconPath = 'https://cdn.uviewui.com/uview/common/min_button.png';
@@ -1505,6 +1467,7 @@
       });
       uni.$on('updateUnread', e => {
         // this.initPage()
+        // 已读状态更新
       });
       uni.$on('networkErr', _ => {
         setTimeout(() => {
