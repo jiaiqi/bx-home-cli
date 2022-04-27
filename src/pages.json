@@ -126,7 +126,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "cascaderList/cascaderList",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": true
+                }
+                
+                }
+            ]
     },
     {
       "root": "storePages",
