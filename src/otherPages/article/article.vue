@@ -3,7 +3,8 @@
     <view class="article-content">
       <!-- <video src=""></video> -->
       <view class="video-box" v-if="videoSrc">
-        <video class="video" :src="videoSrc" :style="[{height:videoHeight}]"></video>
+        <video class="video" :src="videoSrc" :poster="posterSrc" :autoplay="autoplay"
+          :style="[{height:videoHeight}]"></video>
       </view>
       <view class="content-box">
         <mp-html :content="content" />
@@ -25,12 +26,15 @@
         idCol: '',
         idVal: '',
         videoCol: '',
+        posterCol: '',
         textCol: '',
         titleCol: '',
         data: null,
         loading: false,
         videoInfo: null,
-        videoSrc: ''
+        videoSrc: '',
+        posterSrc: "",
+        autoplay: false
       }
     },
     computed: {
@@ -65,7 +69,7 @@
       async getAliyunSrc() {
         const url = `${this.$api.serverURL}/file/getPlayAddress?fileNo=${this.data[this.videoCol]}`
         let res = await this.$http.get(url)
-        if (Array.isArray(res?.data?.data?.playUrl)&&res?.data?.data?.playUrl.length>0) {
+        if (Array.isArray(res?.data?.data?.playUrl) && res?.data?.data?.playUrl.length > 0) {
           return res?.data?.data?.playUrl[0]
         }
       },
@@ -94,6 +98,8 @@
           if (res.success && res.data.length > 0) {
             this.data = res.data[0]
             this.videoSrc = await this.getVideoSrc()
+            this.posterSrc = this.posterCol && this.data[this.posterCol] ? this.getImagePath(this.data[this
+              .posterCol]) : ''
             if (this.videoSrc) {
               uni.getVideoInfo({
                 src: this.videoSrc,
@@ -119,11 +125,16 @@
         idVal,
         textCol,
         videoCol,
+        posterCol,
         titleCol,
-        useAliyun
+        useAliyun,
+        autoplay
       } = option
       if (service) {
         this.service = service
+        if (autoplay) {
+          this.autoplay = true
+        }
         if (app) {
           this.app = app
         }
@@ -138,6 +149,9 @@
         }
         if (videoCol) {
           this.videoCol = videoCol
+        }
+        if (posterCol) {
+          this.posterCol = posterCol
         }
         if (titleCol) {
           this.titleCol = titleCol

@@ -10,11 +10,13 @@
       v-if="swiperList.length>1&&swiperStyle==='卡片'">
       <swiper-item v-for="(item,index) in swiperList" :key="index" :class="current==index?'cur':''">
         <view class="swiper-item">
-          <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
-            <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
+          <view class="swiper-item-box">
+            <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"
+              v-if="item.file_type ==='视频'&&current===index"></video>
+            <image lazy-load :src="item.url" mode="scaleToFill"
+              v-else-if="!item.store_video_file||item.file_type!=='视频'" @click.stop="toDetail(item)">
           </view>
-          <image lazy-load :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
-            @click.stop="toDetail(item)">
+
         </view>
       </swiper-item>
     </swiper>
@@ -23,12 +25,15 @@
       duration="500" @change="swiperChange" v-else-if="swiperList.length>1">
       <swiper-item v-for="(item, index) in swiperList" :key="item.url" :data-id="item.id"
         :class="current==index?'cur':''">
-        <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
-          <video :src="item.url" controls :id="item.store_video_file" :poster="item.videoPoster"></video>
+        <!--   <view class="swiper-item-box" v-if="item.file_type ==='视频'&&current===index">
+          <video :src="item.url" controls :autoplay="true" :id="item.store_video_file" :poster="item.videoPoster"></video>
+        </view> -->
+        <view class="swiper-item-box" @click.stop="toDetail(item)">
+          <image :src="item.videoPoster" mode="scaleToFill" v-if="item.file_type ==='视频'">
+          </image>
+          <image :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'">
+          </image>
         </view>
-        <image lazy-load :src="item.url" mode="scaleToFill" v-else-if="!item.store_video_file||item.file_type!=='视频'"
-          @click.stop="toDetail(item)">
-        </image>
       </swiper-item>
     </swiper>
     <view class="single-media" v-else>
@@ -104,7 +109,7 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-          if (newValue&&newValue!==this.storeNo) {
+          if (newValue && newValue !== this.storeNo) {
             this.getSwiperList()
           }
           this.storeNo = newValue
@@ -127,7 +132,15 @@
         }
       },
       toDetail(item) {
-
+        if (item.file_type == '视频' && item.url && item.id) {
+          let webUrl =
+            `https://login.100xsys.cn/health/#/otherPages/article/article?service=srvhealth_store_banner_video_select&app=health&idCol=id&idVal=${item.id}&videoCol=store_video_file&posterCol=video_poster&autoplay=true`
+          let url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+          uni.navigateTo({
+            url
+          })
+          return
+        }
         if (this.hasNotRegInfo) {
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'
@@ -268,6 +281,8 @@
     min-width: 335px;
 
     .swiper-item-box {
+      width: 100%;
+      height: 100%;
 
       video,
       image {

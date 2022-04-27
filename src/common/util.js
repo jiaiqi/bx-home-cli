@@ -15,7 +15,7 @@ import {
 } from '@/common/api/login.js'
 export default {
   install(Vue, options) {
-
+    
     Vue.prototype.dayjs = dayjs
     Vue.prototype.$uDebounce = uDebounce
     Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
@@ -555,8 +555,8 @@ export default {
           fieldInfo.type = "number"
         } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "Selector"
-          if (item.option_list_v2 ) {
-          // if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
+          // if (item.option_list_v2 ) {
+          if (item.option_list_v2 && (item.option_list_v2.is_tree === true || fieldInfo.column === 'location')) {
             fieldInfo.type = "TreeSelector"
             fieldInfo.srvInfo = item.option_list_v2
             fieldInfo.srvInfo.isTree = item.option_list_v2.is_tree
@@ -564,7 +564,6 @@ export default {
             fieldInfo.srvInfo.parentCol = fieldInfo.srvInfo.parentCol || item.option_list_v2.parent_col
             fieldInfo.srvInfo.showCol = fieldInfo.srvInfo.showCol || item.option_list_v2.key_disp_col
             fieldInfo.srvInfo.appNo = fieldInfo.srvInfo.appNo || item.option_list_v2.srv_app
-
           }
         } else if (item.col_type === "User") {
           fieldInfo.type = "Selector"

@@ -42,7 +42,7 @@
       };
     },
     created() {
-
+      // this.getData()
     },
     methods: {
       clickSelected(e) {
@@ -57,6 +57,7 @@
           this.curNode = ''
           this.curNodeInfo = {}
         }
+        debugger
         this.getData()
       },
       clickNode(e) {
@@ -68,6 +69,7 @@
           this.$emit('confirm', e)
           // }
         }
+        debugger
         this.getData()
       },
       cancel() {
@@ -88,7 +90,7 @@
         // 查找节点数据
         const srvInfo = this.deepClone(this.srvInfo);
         const serviceName = srvInfo.serviceName;
-        const appName = srvInfo.appNo;
+        const appName = srvInfo.appNo || this.srvApp;
         const that = this;
         let url = this.getServiceUrl(appName, serviceName, 'select');
         let condition = [];
@@ -166,25 +168,20 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-          console.log(this.current)
-          console.log(this.srvInfo)
-          if (this.current && this.srvInfo && this.srvInfo.column) {
+          debugger
+          if (this.current && this.srvInfo?.column) {
             this.curNodeInfo = this.deepClone(this.current)
             this.curNode = this.curNodeInfo[this.srvInfo.column] || ''
           }
+
           if (!this.curNode) {
             this.selectedList = []
           }
-          if (this.srvInfo && this.srvInfo.column && this.srvInfo.appNo && this.srvInfo.serviceName) {
+
+          if (this.srvInfo && this.srvInfo.column && this.srvInfo.serviceName) {
             this.getData()
           }
         }
-        // if (this.current && this.current[this.srvInfo.column]) {
-
-        // }else{
-        // 	this.curNodeInfo = {}
-        // 	this.curNode = ''
-        // }
       }
     },
     props: {
@@ -205,15 +202,11 @@
       fieldsModel: {
         type: Object,
       },
+      srvApp: {
+        type: String
+      },
       srvInfo: {
-        type: Object,
-        default: () => {
-          return {
-            serviceName: 'srvdaq_check_area_select',
-            appNo: 'daq',
-            showCol: 'name'
-          };
-        }
+        type: Object
       }
     },
   }

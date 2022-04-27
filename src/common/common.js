@@ -1,11 +1,13 @@
 export default {
 	install(Vue, options) {
+    
 		Vue.prototype.getQueryString = function(name) {
 			var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
 			var r = window.location.search.substr(1).match(reg)
 			if (r != null) return unescape(r[2]);
 			return null
 		}
+    
 		Vue.prototype.getFooterBtns = function(e) {
 			// type : "duplicate" | edit | delete | detail
 			let btns = e
@@ -14,6 +16,7 @@ export default {
 				'deleteproc' || item.button_type === 'startproc' || item.button_type === 'customize'))
 			return footerBtns
 		}
+    
 		Vue.prototype.setImgSize = (content, max) => {
 				// 让图片最长边等于设置的最大长度，短边等比例缩小，图片控件真实改变，区别于aspectFit方式。
 				max = max || 350;

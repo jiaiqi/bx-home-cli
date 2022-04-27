@@ -214,8 +214,8 @@
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
           <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
           </cascader-selector> -->
-          <tree-selector :srvInfo="fieldData.srvInfo" :fields-model="fieldsModel" @cancel="hideModal" :current="selectTreeData"
-            @confirm="getCascaderValue">
+          <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
+            :fields-model="fieldsModel" @cancel="hideModal" :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
         </view>
       </view>
@@ -396,7 +396,11 @@
           result = 'auto';
         }
         if (['images', 'textarea'].includes(this.fieldData.type)) {
-          result = '100%'
+          if(this.pageType==='detail'&&!this.fieldData.value){
+            
+          }else{
+            result = '100%'
+          }
         }
 
         return result;
@@ -956,7 +960,7 @@
         this.hideModal();
         // this.onInput();
         // this.onBlur()
-        this.getDefVal();
+        // this.getDefVal();
       },
       searchFKDataWithKey(e) {
         this.treePageInfo.pageNo = 1
@@ -1462,38 +1466,8 @@
         this.getDefVal();
       }
       this.initSetOptions()
-      if (self.fieldData && ['TreeSelector', 'Selector', 'location'].includes(self.fieldData.type)) {
+      if (self.fieldData && ['Selector', 'location'].includes(self.fieldData.type)) {
         self.getDefVal()
-        // let cond = null;
-        // if (this.fieldData.value && this.fieldData?.option_list_v2?.refed_col && this.formType !== 'add') {
-        //   cond = [{
-        //     colName: this.fieldData.option_list_v2.refed_col,
-        //     value: this.fieldData.value,
-        //     ruleType: 'like'
-        //   }];
-        // }
-        // if (self.fieldData.value) {
-        //   self.getSelectorData(cond).then(_ => {
-        //     if (self.fieldData.value) {
-        //       let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
-        //       if (fkFieldLabel && fkFieldLabel.label) {
-        //         self.fkFieldLabel = fkFieldLabel.label
-        //       } else if (self.fieldData.value) {
-        //         self.fkFieldLabel = self.fieldData.value
-        //       }
-        //     }
-        //   });
-        // }
-        // self.getSelectorData(cond).then(_ => {
-        //   if (self.fieldData.value) {
-        //     let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData.value)
-        //     if (fkFieldLabel && fkFieldLabel.label) {
-        //       self.fkFieldLabel = fkFieldLabel.label
-        //     } else if (self.fieldData.value) {
-        //       self.fkFieldLabel = self.fieldData.value
-        //     }
-        //   }
-        // });
       }
     }
   };
