@@ -200,6 +200,7 @@
     },
     methods: {
       getParentData(parentName = '') {
+        debugger
         // 避免在created中去定义parent变量
         if (!this.parent) this.parent = false;
         // 这里的本质原理是，通过获取父组件实例(也即bx-radio-group的this)
@@ -242,6 +243,9 @@
         if (this.parentData.value != this.name) {
           this.$emit('change', this.name);
         }
+      },
+      updateParentData(value){
+        this.parentData.value = value;
       },
       // 改变组件选中状态
       // 这里的改变的依据是，更改本组件的parentData.value值为本组件的name值，同时通过父组件遍历所有bx-radio实例

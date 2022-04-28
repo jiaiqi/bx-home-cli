@@ -29,7 +29,6 @@
     </view>
 
     <view class="order-detail">
-
       <view class="form-box">
         <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
           :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
@@ -93,7 +92,23 @@
               ￥{{couponMinus||'0'}}
             </view>
           </view>
-    <!--      <view class="detail-info_item" v-else-if="totalMoney">
+          <view class="detail-info_item" v-if="packagingFee">
+            <view class="detail-info_item_label">
+              打包费
+            </view>
+            <view class="detail-info_item_value">
+              ￥{{packagingFee||'0'}}
+            </view>
+          </view>
+          <view class="detail-info_item" v-if="shippingFee">
+            <view class="detail-info_item_label">
+              配送费
+            </view>
+            <view class="detail-info_item_value">
+              ￥{{shippingFee||'0'}}
+            </view>
+          </view>
+          <!--      <view class="detail-info_item" v-else-if="totalMoney">
             <view class="detail-info_item_label">
               商品总价
             </view>
@@ -146,7 +161,7 @@
         </a-form>
       </view>
  -->
-<!--      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
+      <!--      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
         <view class="place-holder" v-if="!room_no">
           点击选择房间号
         </view>
@@ -411,25 +426,10 @@
         couponList: [], //卡券列表
         store_no: "",
         room_no: "",
-        rcv_hotel_room_no:"",
+        rcv_hotel_room_no: "",
         repast_type: "堂食", //就餐方式 堂食，外卖
         rcv_name: "", //联系人
         rcv_telephone: "", // 收货电话
-        repastTypeList: [{
-            name: '堂食'
-          },
-          {
-            name: '外卖'
-          }
-        ],
-        repast_eat: "预约用餐", // 用餐时间
-        repastTimeList: [{
-            name: '预约用餐'
-          },
-          {
-            name: '立即用餐'
-          }
-        ],
         orderNo: '', //订单编号
         orderInfo: {},
         order_remark: "",
@@ -442,9 +442,6 @@
         idNum: '', //身份证号
         modalName: "",
         selectorData: [],
-        roomOptionList: {},
-        roomService: "",
-        roomApp: "",
         roomPageNo: 1,
         roomV2: {
           "refed_col": "room_no",
@@ -468,9 +465,45 @@
         curCouponNo: '',
         disabled: false,
         service_place_no: "", //场地编号、餐桌号、房间号等
+        shippingFee: 0, // 配送费
+        send_amount: 0, // 最小起送金额
       };
     },
     computed: {
+      canPlace() {
+        let result = true;
+        if (this.storeInfo?.order_up && this.storeInfo.order_up.indexOf('休息时间可以下单') > -1) {
+          if (this.storeInfo?.start_time) {
+            const date1 = this.dayjs(`2022-04-28 ${this.storeInfo?.start_time}`)
+            const date2 = this.dayjs()
+            if (date1.diff(date2) > 0) {
+              result = false
+            }
+          }
+          if (this.storeInfo?.end_time) {
+            const date1 = this.dayjs(`2022-04-28 ${this.storeInfo?.end_time}`)
+            const date2 = this.dayjs()
+            if (date1.diff(date2) <= 0) {
+              result = false
+            }
+          }
+        }
+        return result
+      },
+      packagingFee() {
+        // 打包费
+        let result = 0;
+        if (this.mainData.repast_type && ['打包', '外卖'].includes(this.mainData.repast_type) && Array.isArray(this
+            .orderInfo?.goodsList) && this.orderInfo?.goodsList.length > 0) {
+          result = this.orderInfo?.goodsList.reduce((res, cur) => {
+            if (cur.packaging_fee) {
+              res += cur.packaging_fee
+            }
+            return res
+          }, 0)
+        }
+        return result
+      },
       srvType() {
         return this.disabled || this.orderInfo?.order_no ? 'detail' : 'add'
       },
@@ -562,7 +595,11 @@
         if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount) {
           return this.orderInfo?.order_pay_amount
         }
-        return this.totalMoney - this.couponMinus > 0 ? this.totalMoney - this.couponMinus : 0.01
+        let res = this.totalMoney - this.couponMinus > 0 ? this.totalMoney - this.couponMinus : 0.01
+        if (!isNaN(Number(this.shippingFee))) {
+          res += this.shippingFee
+        }
+        return res
       },
       totalMoney() {
         if (Array.isArray(this.orderInfo.goodsList)) {
@@ -700,7 +737,48 @@
         //   let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
         // }
       },
-
+      async getSendMoney() {
+        // 查找最小起送金额
+        let serviceName = 'srvhealth_store_order_distribution_min_select'
+        let req = {
+          "serviceName": serviceName,
+          "condition": [{
+            colName: 'store_no',
+            ruleType: 'eq',
+            value: this.storeInfo.store_no
+          }]
+        }
+        let res = await this.$fetch('select', serviceName, req, 'health')
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          let data = res.data[0]
+          this.send_amount = data.send_amount || 0
+          return this.send_amount
+        }
+      },
+      async getShippingFee() {
+        // 查找配送费
+        let serviceName = 'srvhealth_store_order_distribution_amount_select'
+        let req = {
+          "serviceName": serviceName,
+          "condition": [{
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: this.storeInfo.store_no
+            },
+            {
+              colName: "send_amount",
+              ruleType: 'eq',
+              value: this.totalMoney
+            }
+          ]
+        }
+        let res = await this.$fetch('select', serviceName, req, 'health')
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          let data = res.data[0]
+          this.shippingFee = data.amount || 0
+          return this.shippingFee
+        }
+      },
       async getSrvCols(type = "add", pageType = "") {
         const app = this.fieldsCfg?.app || this.appName || uni.getStorageSync('activeApp');
         const service = this.fieldsCfg?.service
@@ -729,7 +807,7 @@
                 return item;
               });
             }
-            if(!field.value&&this[field.column]){
+            if (!field.value && this[field.column]) {
               field.value = this[field.column]
               this.mainData[field.column] = field.value
             }
@@ -849,12 +927,6 @@
           this.fields = fields
           uni.hideLoading()
           return colVs
-        }
-      },
-      repastEatChange(e) {
-        let value = e?.detail.value;
-        if (value) {
-          this.repast_eat = value
         }
       },
       setCouponMinus(e) {
@@ -1260,7 +1332,7 @@
         let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
-          if(this.orderInfo.coupon_amount){
+          if (this.orderInfo.coupon_amount) {
             this.couponMinus = this.orderInfo.coupon_amount
           }
           this.order_remark = this.orderInfo.order_remark || ''
@@ -1291,6 +1363,14 @@
         }
       },
       async submitOrder() {
+        if (!this.canPlace) {
+          uni.showModal({
+            title: '提示',
+            content: `当前时间段不可下单，请在${this.storeInfo.start_time} - ${this.storeInfo.end_time}下单`,
+            showCancel: false,
+          })
+          return
+        }
         if (!this.isFood && this.needIdNum && !this.idNum) {
           uni.showModal({
             title: '提示',
@@ -1332,6 +1412,19 @@
           })
           return
         }
+
+        if (this.mainData.repast_type && this.mainData.repast_type == '外卖') {
+          // 外卖才需要配送费
+          let qisong = await this.getSendMoney()
+          console.log(this.totalMoney)
+          debugger
+          if (qisong <= this.totalMoney) {
+            let shippingFee = await this.getShippingFee() //查找配送费
+          }
+        }
+
+
+
         let formData = this.$refs.bxForm.getFieldModel();
         if (formData == false) {
           return
@@ -1506,6 +1599,16 @@
           req[0].data[0].coupon_amount = this.couponMinus
         }
 
+        if (this.shippingFee) {
+          // 配送费
+          req[0].data[0].shipping_fee = this.shippingFee
+        }
+
+        if (this.packagingFee) {
+          // 打包费
+          req[0].data[0].packaging_fee = this.packagingFee
+        }
+
         if (this.needIdNum && this.idNum) {
           req[0].data[0].id_num = this.idNum
         }
@@ -1594,7 +1697,9 @@
           this.getSrvCols('add', 'detail')
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
-            this.toPay();
+            if (this.mainData?.pay_config && this.mainData?.pay_config === '先付') {
+              this.toPay();
+            }
           } else {
             // 卡券核销
             if (res.data[0].order_no) {
@@ -1877,6 +1982,8 @@
         this.getCouponList()
       }
       this.getSrvCols('add', this.orderInfo?.order_no ? 'detail' : '')
+
+
     }
   };
 </script>

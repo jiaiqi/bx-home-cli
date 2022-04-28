@@ -451,6 +451,18 @@
       .option-box{
         flex: 1;
         overflow: scroll;
+        .other-val{
+          min-height: 30px;
+          display: flex;
+          align-items: flex-end;
+          margin-left: 10px;
+          .input-value{
+            flex: 1;
+            min-height: 30px;
+            line-height: 30px;
+            border-bottom: 1px solid #ccc;
+          }
+        }
       }
 			.bx-radio-group {
 				margin: 0 20rpx;

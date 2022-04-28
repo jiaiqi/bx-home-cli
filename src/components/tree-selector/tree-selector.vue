@@ -16,6 +16,9 @@
         <view class="node-item round shadow-blur  cu-btn bg-white" v-for="item in nodeList" @click="clickNode(item)">
           <text class="" v-if="item[srvInfo.showCol||'name']">{{item[srvInfo.showCol||'name']}}</text>
         </view>
+   <!--     <view v-if="selectType==='自行输入'" class="other-val">
+          <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它" />
+        </view> -->
       </view>
     </view>
     <view class="foot-button" v-if="!hideButton||needConfirm">
@@ -31,6 +34,7 @@
     name: "tree-selector",
     data() {
       return {
+        otherNodeVal: "",
         selectedList: [],
         curNode: '', //当前节点
         curNodeInfo: {},
@@ -41,10 +45,18 @@
         nodeList: []
       };
     },
+    computed: {
+      selectType() {
+        return this.srvInfo?.select_type
+      }
+    },
     created() {
       // this.getData()
     },
     methods: {
+      onInput(e){
+        this.curNode = ''
+      },
       clickSelected(e) {
         let index = this.selectedList.findIndex(item => item[this.srvInfo.column] === e[this.srvInfo.column])
         if (index !== -1) {
@@ -61,6 +73,7 @@
         this.getData()
       },
       clickNode(e) {
+        this.otherNodeVal = ''
         this.curNode = e[this.srvInfo.column]
         this.curNodeInfo = e
         this.selectedList.push(e)
@@ -69,7 +82,6 @@
           this.$emit('confirm', e)
           // }
         }
-        debugger
         this.getData()
       },
       cancel() {
@@ -153,7 +165,6 @@
           req.order = this.order
         }
         const res = await this.$http.post(url, req);
-        debugger
         if (res && res.data && res.data.state === 'SUCCESS') {
           const page = res.data.page;
           that.page.pageNo = page.pageNo;
@@ -284,7 +295,18 @@
         padding: 20rpx 10rpx;
         padding-right: 0;
         align-items: flex-start;
-
+        .other-val{
+          min-height: 30px;
+          display: flex;
+          align-items: flex-end;
+          margin-left: 10px;
+          .input-value{
+            flex: 1;
+            min-height: 30px;
+            line-height: 30px;
+            border-bottom: 1px solid #ccc;
+          }
+        }
         .node-item {
           margin-right: 10rpx;
           margin-bottom: 10rpx;

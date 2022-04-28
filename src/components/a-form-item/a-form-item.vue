@@ -245,6 +245,9 @@
                 v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
                 <bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
                 </bx-radio>
+   <!--             <view  class="other-val">
+                  <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它" @input="selectorInput"/>
+                </view> -->
                 <view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
               </bx-radio-group>
             </view>
@@ -335,6 +338,10 @@
       }
     },
     computed: {
+      selectType() {
+        // 自行输入 下拉选择 编辑选择
+        return this.option_list_v2?.select_type
+      },
       min() {
         return this.fieldData?.item_type_attr?.min || this.fieldData?.min || this.fieldData?.moreConfig?.min
       },
@@ -396,9 +403,9 @@
           result = 'auto';
         }
         if (['images', 'textarea'].includes(this.fieldData.type)) {
-          if(this.pageType==='detail'&&!this.fieldData.value){
-            
-          }else{
+          if (this.pageType === 'detail' && !this.fieldData.value) {
+
+          } else {
             result = '100%'
           }
         }
@@ -428,6 +435,7 @@
     },
     data() {
       return {
+        otherNodeVal:"",
         focusTextArea: false,
         checkedList: [],
         fieldData: {},
@@ -514,6 +522,9 @@
       }
     },
     methods: {
+      selectorInput(e){
+        this.fieldData.value = e.detail.value
+      },
       toFKLink() {
         // 跳转到fk字段的详情页面
         let serviceName = this.fieldData?.option_list_v2?.serviceName
@@ -1019,6 +1030,7 @@
             this.fkFieldLabel = optionData.label;
             this.fieldData['colData'] = optionData;
           }
+          this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
           this.hideModal();
           // this.onInput();

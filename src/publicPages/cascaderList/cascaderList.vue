@@ -51,7 +51,7 @@
       ">
     </uni-load-more>
 
-    <view class="cu-modal" :class="{show:modalName==='edit'}" @click="hideModal">
+    <view class="cu-modal" :class="{show:modalName==='edit'}" @click="hideModal" @touchmove.stop.prevent="">
       <view class="cu-dialog" @click.stop="">
         <view class="edit-modal" v-if="curFields&&curFields.length>0">
           <a-form :fields="curFields" :srvApp="appName" :pageType="curType" :formType="curType" ref="bxForm"
@@ -69,7 +69,8 @@
       </view>
     </view>
 
-    <view class="cu-modal bottom-modal" :class="{show:modalName==='handler'}" @click="hideModal()">
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='handler'}" @click="hideModal()"
+      @touchmove.stop.prevent="">
       <view class="cu-dialog" @click.stop="" v-if="curData&&handlerTitle">
         <view class="handler-modal">
           <view class="hand-btn text-red text-bold text-lg">
@@ -293,10 +294,10 @@
       },
       async add() {
         let e = {}
-        if(this.filterByStore){
+        if (this.filterByStore) {
           e.store_no = this.storeInfo.store_no
         }
-        let addV2 = this.v2Data?.add || await this.getV2Data(this.addService, 'add',this
+        let addV2 = this.v2Data?.add || await this.getV2Data(this.addService, 'add', this
           .appName, null, e)
         this.v2Data.add = addV2
         this.curV2 = addV2

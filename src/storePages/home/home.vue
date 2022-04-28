@@ -779,7 +779,7 @@
           } else {
             this.$store.commit('SET_THEME_CFG', null)
           }
-          let res1 = await this.getStoreUserInfo(this.StoreInfo.store_no)
+          let res1 = await this.getStoreUserInfo()
           if (Array.isArray(res1) && res1.length >= 1) {
             // 店铺用户列表中已存在此用户
           } else {
@@ -795,7 +795,7 @@
             await this.toAddPage();
             times++;
             if (times < 3) {
-              this.selectStoreInfo(times);
+              this.selectStoreInfo(times, forceUpdate);
             }
           } else {
             uni.showModal({
@@ -932,7 +932,7 @@
           }
         });
       },
-      async getStoreUserInfo(no) {
+      async getStoreUserInfo(forceUpdate) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {
           serviceName: 'srvhealth_store_user_select',
@@ -945,11 +945,11 @@
             {
               colName: 'store_no',
               ruleType: 'eq',
-              value: no
+              value: this.storeNo
             }
           ]
         };
-        if (no && this.vstoreUser?.store_no === no) {
+        if (!forceUpdate && this.vstoreUser?.store_no === this.storeNo) {
           this.bindUserInfo = this.vstoreUser
           return [this.vstoreUser]
         }
@@ -1147,9 +1147,12 @@
           this.checkSubscribeStatus();
         }
         if (this.storeNo) {
-          await this.selectStoreInfo(forceUpdate);
+          await this.selectStoreInfo(null, forceUpdate);
           if (!this.vstoreUser?.id) {
             await this.bindStore();
+          }
+          if (forceUpdate) {
+            this.getStoreUserInfo(forceUpdate)
           }
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {
@@ -1365,7 +1368,8 @@
       },
     },
     async onPullDownRefresh() {
-      await this.initPage();
+      const forceUpdate = true
+      await this.initPage(forceUpdate);
       if (this.pageDefine && this.tabbarList && this.tabbarList.length > 0) {
         this.changeTab(this.currentTab)
       }
@@ -1638,7 +1642,7 @@
         // 查找店铺用户列表
         this.storeNo = option.store_no;
         let StoreInfo = await this.selectStoreInfo();
-        let storeUser = await this.getStoreUserInfo(option.store_no);
+        let storeUser = await this.getStoreUserInfo();
         if (Array.isArray(storeUser) && storeUser.length > 0) {
           // 店铺用户列表中已存在此用户
         } else {
