@@ -146,7 +146,7 @@
         </a-form>
       </view>
  -->
-      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
+<!--      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
         <view class="place-holder" v-if="!room_no">
           点击选择房间号
         </view>
@@ -155,7 +155,7 @@
         </view>
         <text class="cuIcon-right place-holder"></text>
       </view>
-
+ -->
       <!--      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
         v-if="!disabled && needAddress&&orderType!=='团购'&&!isFood">
         <view class="pay-mode-item">
@@ -411,6 +411,7 @@
         couponList: [], //卡券列表
         store_no: "",
         room_no: "",
+        rcv_hotel_room_no:"",
         repast_type: "堂食", //就餐方式 堂食，外卖
         rcv_name: "", //联系人
         rcv_telephone: "", // 收货电话
@@ -728,7 +729,10 @@
                 return item;
               });
             }
-
+            if(!field.value&&this[field.column]){
+              field.value = this[field.column]
+              this.mainData[field.column] = field.value
+            }
             if (field.column === 'store_no') {
               field.value = field.value || this.storeInfo?.store_no
               this.mainData[field.column] = field.value
@@ -1862,9 +1866,10 @@
       if (this?.storeInfo?.type === '酒店') {
         let room_no = getApp().globalData?.room_no
         if (room_no) {
+          this.rcv_hotel_room_no = room_no
           this.room_no = room_no
         }
-        this.getSelectorData()
+        // this.getSelectorData()
       }
       if (option.disabled) {
         this.disabled = true

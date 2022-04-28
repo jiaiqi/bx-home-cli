@@ -492,7 +492,7 @@ export default {
         fieldInfo.section = item.section
         fieldInfo.validators = item.validators
         // col_type 转换 表单组件 type 
-        if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type === 'Email') {
+        if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type === 'Email'||item.col_type==='IdNo') {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "dateTime"

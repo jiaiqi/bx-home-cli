@@ -329,7 +329,6 @@
         }
       },
       setColData(e) {
-        debugger
         if (this.mainData) {
           if (!this.mainData?.colData) {
             this.mainData.colData = {}
@@ -785,12 +784,12 @@
                 }
               }
 
-  debugger
               let reqData = [{
                 serviceName: e.service_name,
                 condition: [],
                 data: [data]
               }];
+              
               let app = this.appName || uni.getStorageSync('activeApp');
               let type = "add"
               if (e.button_type === 'edit') {
