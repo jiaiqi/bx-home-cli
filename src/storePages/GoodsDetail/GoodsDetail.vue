@@ -373,13 +373,25 @@
             value: goods_no
           }];
         }
-        if (this.vstoreUser?.store_user_no) {
+        
+        if(this.placeInfo?.place_no){
+          // 扫码带桌号进入 只查当前桌号的购物车
+          req.condition.push({
+            colName:'service_place_no',
+            ruleType:'eq',
+            value:this.placeInfo?.place_no
+          })
+        } else if (this.vstoreUser?.store_user_no) {
+          // 其他情况 查当前登录用户的购物车
           req.condition.push({
             colName: 'store_user_no',
             ruleType: 'eq',
             value: this.vstoreUser?.store_user_no
           });
+        } else {
+          return
         }
+        
         let res = await this.$fetch('select', service, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
           if (goods_no) {

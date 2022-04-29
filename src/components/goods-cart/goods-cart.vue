@@ -18,10 +18,16 @@
             </view>
           </view>
           <view class="goods-item" v-for="(rowData,index) in cartData" :key="index">
+            
+            <view class="profile-image" v-if="rowData.profile_url">
+              <image lazy-load class="image" :src="getImagePath(rowData.profile_url)" mode="aspectFit"></image>
+            </view>
+            
             <view class="main-image" v-if="setViewTemp.img.col">
               <image lazy-load class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill">
               </image>
             </view>
+            
             <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
               <view class="col-item bg" v-for="(item,index) in setViewTemp.cols" :key="index" :style="{
                 'width':item.cfg.width,
@@ -397,11 +403,26 @@
         }
       }
     }
-
+    .profile-image{
+      width: 100rpx;
+      height: 100rpx;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 10rpx;
+      background-color: #F8F8FA;
+      border-right: 1px solid #f1f1f1;
+      .image {
+        width: 100%;
+        height: 100%;
+      }
+    }
     .main-image {
       width: 100rpx;
       height: 100rpx;
-      margin-right: 20rpx;
+      margin-right: 10px;
+      margin-left: 10px;
       display: flex;
       align-items: center;
       overflow: hidden;
@@ -411,7 +432,6 @@
       .image {
         width: 100%;
         height: 100%;
-        border-radius: 20rpx;
       }
     }
   }
