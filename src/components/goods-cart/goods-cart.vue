@@ -1,15 +1,20 @@
 <template>
-  <view :class="{fixed:fixed,fold:isFold&&!showList}" :style="[{bottom:bottom,margin:margin}]" class="cart-list-wrap">
+  <view :class="{fixed:fixed,fold:isFold&&!showList}" :style="[{bottom:bottom,margin:margin}]" class="cart-list-wrap"
+    @touchmove.prevent.stop="">
     <view class="cart-bottom" @click="changeStatus" :class="['theme-'+theme]">
       <view class="goods-list-container" id="goods-list-container"
         :style="{bottom:listBottom,backgroundColor:showList?'rgba(0, 0, 0, 0.2)':''}">
         <view class="goods-list" :class="['theme-'+theme]" @click.stop="">
           <view class="title">
             <view class="left">
-              已选商品
+              <text>已选商品</text>
+              <text class="cu-btn  bg-white round margin-left-xs text-bold"
+                v-if="placeInfo&&placeInfo.place_name">{{placeInfo.place_name}}</text>
             </view>
+
             <view class="right" @click.stop="clear">
-              清空
+              <text class="cuIcon-delete margin-right-xs"></text>
+              <text> 清空</text>
             </view>
           </view>
           <view class="goods-item" v-for="(rowData,index) in cartData" :key="index">
@@ -78,8 +83,7 @@
           </view>
         </view>
       </view>
-      <view class="cart-icon" @click.stop="changeStatus"
-        :class="{active:cartData&&cartData.length>0,'bx-btn-bg-color':cartData&&cartData.length>0&&theme}">
+      <view class="cart-icon" @click.stop="changeStatus" :class="{active:cartData&&cartData.length>0}">
         <text class="badge" v-if="sumAmount">{{sumAmount}}</text>
         <text class="cuIcon-cart"></text>
       </view>
@@ -87,9 +91,7 @@
         ￥{{sumPrice||'0'}}
       </view>
       <view class="handler" v-if="!isFold||showList">
-        <button class="cu-btn round"
-          :class="{active:cartData&&cartData.length>0,'bx-bg-color':cartData&&cartData.length>0&&theme}"
-          @click.stop="placeOrder">下单</button>
+        <button class="cu-btn round" :class="{active:cartData&&cartData.length>0,}" @click.stop="placeOrder">下单</button>
       </view>
     </view>
   </view>
@@ -193,7 +195,7 @@
             }
             goodsInfo.name = goodsInfo.goods_name
             goodsInfo.image = goodsInfo.store_image
-            goodsInfo.car_num = goodsInfo.goods_count||goodsInfo.goods_amount || 1
+            goodsInfo.car_num = goodsInfo.goods_count || goodsInfo.goods_amount || 1
             goodsInfo.unit_price = goodsInfo.price || goodsInfo.unit_price
             return goodsInfo
           })
@@ -203,7 +205,8 @@
             list: goodsList
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
-          if (this.storeInfo?.moreConfig?.userNewOrderPages === true|| this.storeInfo?.moreConfig?.useNewOrderPages === true) {
+          if (this.storeInfo?.moreConfig?.userNewOrderPages === true || this.storeInfo?.moreConfig?.useNewOrderPages ===
+            true) {
             url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
             let orderType = this.getOrderType(goodsList)
             url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
@@ -300,11 +303,12 @@
       justify-content: space-between;
 
       .right {
-        font-size: 12px;
         font-family: 苹方-简;
         font-weight: normal;
         color: #B8BAC0;
         padding-right: 20rpx;
+        display: flex;
+        align-items: center;
       }
     }
 
@@ -321,8 +325,7 @@
 
     .col-list {
       flex: 1;
-
-      flex: 1;
+      overflow: hidden;
       display: flex;
       flex-wrap: wrap;
 
@@ -334,7 +337,7 @@
         font-size: 28rpx;
         font-family: 苹方-简;
         color: #333333;
-
+        
         &.handler-btn {
           display: flex;
           align-items: center;
@@ -348,15 +351,15 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background-color: #fdca01;
+            background-color: #E95955;
             color: #fff;
 
             &.line-orange {
-              color: #fdca01;
+              color: #E95955;
             }
 
             &.bg-orange {
-              background-color: #fdca01;
+              background-color: #E95955;
             }
           }
 
@@ -452,7 +455,7 @@
       font-size: 28rpx;
       font-family: SF Pro Text;
       font-weight: bold;
-      color: #474849;
+      color: #E95955;
 
       .decimal {
         font-size: 20rpx;
@@ -471,8 +474,9 @@
       position: relative;
 
       &.active {
-        background-color: rgba($color: #F3A250, $alpha: 0.1);
-        color: #F3A250;
+        background-color: rgba($color: #fff, $alpha: 1);
+        color: #E95955;
+        border: 1px solid rgba($color: #E95955, $alpha: 0.1);
       }
 
       .badge {
@@ -500,7 +504,7 @@
         font-family: 苹方-简;
 
         &.active {
-          background-color: #F3A250;
+          background-color: #E95955;
           color: #fff;
         }
 

@@ -421,7 +421,6 @@
           }
         ],
         delivery_type: "", //提货方式:快递、卖家配送、自提、当面交易
-        placeInfo: "",
         payMode: 'wx',
         couponList: [], //卡券列表
         store_no: "",
@@ -1492,11 +1491,8 @@
                 if (item.goods_type) {
                   obj.goods_type = item.goods_type;
                 }
-                if (item.goods_image) {
-                  obj.goods_image = item.goods_image;
-                }
-                if (item.goods_img) {
-                  obj.goods_image = item.goods_img;
+                if (item.goods_image || item.goods_image) {
+                  obj.goods_image = item.goods_image || item.goods_image;
                 }
 
                 if (item.card_case_detail_no) {
@@ -1866,23 +1862,23 @@
           });
         }
       },
-      async getPlaceInfo() {
-        let req = {
-          condition: [{
-            colName: "store_no",
-            ruleType: "eq",
-            value: this.storeInfo?.store_no
-          }, {
-            colName: "place_no",
-            ruleType: "eq",
-            value: this.service_place_no
-          }]
-        };
-        let res = await this.$fetch('select', 'srvhealth_store_place_join_select', req, 'health')
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          this.placeInfo = res.data[0]
-        }
-      },
+      // async getPlaceInfo() {
+      //   let req = {
+      //     condition: [{
+      //       colName: "store_no",
+      //       ruleType: "eq",
+      //       value: this.storeInfo?.store_no
+      //     }, {
+      //       colName: "place_no",
+      //       ruleType: "eq",
+      //       value: this.service_place_no
+      //     }]
+      //   };
+      //   let res = await this.$fetch('select', 'srvhealth_store_place_join_select', req, 'health')
+      //   if (Array.isArray(res.data) && res.data.length > 0) {
+      //     this.placeInfo = res.data[0]
+      //   }
+      // },
     },
     async onLoad(option) {
       if (option.orderType || option.order_type) {
@@ -1908,7 +1904,7 @@
       if (option.service_place_no) {
         this.service_place_no = option.service_place_no
         // this.delivery_type = '当面交易'
-        this.getPlaceInfo()
+        // this.getPlaceInfo()
       }
       if (option.tgNo) {
         // 团购编号

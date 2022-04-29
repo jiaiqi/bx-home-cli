@@ -1435,6 +1435,10 @@
     async onLoad(option) {
       if (option.service_place_no) {
         getApp().globalData.service_place_no = option.service_place_no;
+        let placeInfo = await this.getPlaceInfo(option.service_place_no)
+        if(placeInfo){
+          getApp().globalData.placeInfo = placeInfo
+        }
       }
       if (option?.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', option.bx_auth_ticket)

@@ -450,6 +450,7 @@
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
             goods_type: goods.goods_type,
+
             goods_source: this.enableSku ? '店铺SKU' : '店铺商品',
             child_data_list: [{
               "serviceName": childService,
@@ -503,6 +504,12 @@
               }
             });
           } else if (modalConfirmType === 'addToCart') {
+
+            data.nick_name = this.userInfo?.nick_name || this.userInfo?.name
+            data.service_place_no = this.placeInfo?.place_no
+            data.service_place_name = this.placeInfo?.place_name
+            data.profile_url = this.userInfo?.user_image || this.userInfo?.profile_url
+
             let req = [{
               serviceName: service,
               condition: [],
@@ -565,7 +572,11 @@
                 sum_price: goods.price,
                 goods_desc: goods.goods_desc,
                 goods_image: goods.goods_img,
-                goods_name: goods.goods_name
+                goods_name: goods.goods_name,
+                nick_name: this.userInfo?.nick_name || this.userInfo?.name,
+                service_place_no: this.placeInfo?.place_no,
+                service_place_name: this.placeInfo?.place_name,
+                profile_url: this.userInfo?.user_image || this.userInfo?.profile_url
               }]
             }];
             let res = await this.$fetch('operate', service, req, 'health');
@@ -991,8 +1002,8 @@
           }
         }
         if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount) {
-          let amount = this.inCartGoodsInfo.goods_amount+1;
-          if (this.purchase_limit && amount> this.purchase_limit) {
+          let amount = this.inCartGoodsInfo.goods_amount + 1;
+          if (this.purchase_limit && amount > this.purchase_limit) {
             uni.showModal({
               title: "提示",
               content: `超过购买次数限制,该商品最多只能购买${this.purchase_limit}次`,
@@ -1001,7 +1012,7 @@
             })
             return
           }
-          this.inCartGoodsInfo.goods_amount+1;
+          this.inCartGoodsInfo.goods_amount + 1;
           this.updateCart(this.inCartGoodsInfo);
           // this.getGoodsStock(this.inCartGoodsInfo).then(res => {
           //   if (res && res.id) {

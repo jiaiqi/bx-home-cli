@@ -7,6 +7,7 @@
 			room_no: "", //酒店房间编号
 			pt_no: "", //二维码参数编号
       service_place_no:"", //场地编号
+      placeInfo:"", //场地信息
 			beforeRedirectUrl: "",
 			systemInfo: uni.getSystemInfoSync(),
 			firstSwiperListOrder: null,

@@ -15,7 +15,7 @@ import {
 } from '@/common/api/login.js'
 export default {
   install(Vue, options) {
-    
+
     Vue.prototype.dayjs = dayjs
     Vue.prototype.$uDebounce = uDebounce
     Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
@@ -37,7 +37,8 @@ export default {
           hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
           isLogin: state => state.app.isLogin,
           vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
-          curStoreNo: state => state.app.curStoreNo //当前店铺编号
+          curStoreNo: state => state.app.curStoreNo ,//当前店铺编号
+          placeInfo:state=>state.app.placeInfo
         }),
         $api() {
           return api
@@ -175,6 +176,34 @@ export default {
           }
 
           return order_type
+        },
+        async getPlaceInfo(service_place_no) {
+          // 查找服务场地信息
+          let url = this.getServiceUrl('health', 'srvhealth_store_place_join_select', 'select');
+          const req = {
+            "serviceName": "srvhealth_store_place_join_select",
+            "colNames": ["*"],
+            "condition": [{
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.storeInfo?.store_no
+            }, {
+              "colName": "place_no",
+              "ruleType": "like",
+              "value": service_place_no
+            }],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 1
+            }
+          }
+          const res = await this.$http.post(url, req)
+          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+            
+            this.$store.commit('SET_PLACE',res.data.data[0])
+            
+            return res.data.data[0]
+          }
         },
         toOfficial(mp_no) {
           // 跳转到关注公众号页面
@@ -492,7 +521,8 @@ export default {
         fieldInfo.section = item.section
         fieldInfo.validators = item.validators
         // col_type 转换 表单组件 type 
-        if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type === 'Email'||item.col_type==='IdNo') {
+        if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type === 'Email' || item
+          .col_type === 'IdNo') {
           fieldInfo.type = "text"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "dateTime"

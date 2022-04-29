@@ -664,6 +664,7 @@
                   uni.$emit('goods-cart-change')
                   if (res.data.state === 'SUCCESS') {
                     this.refresh()
+                    
                     uni.showToast({
                       title: '删除成功!',
                       icon: 'none'

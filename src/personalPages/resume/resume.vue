@@ -160,7 +160,7 @@
             break;
         }
         if (url) {
-          uni.redirectTo({
+          uni.navigateTo({
             url
           })
         }
@@ -195,6 +195,8 @@
 
 
         // 1. 检测有没有开通会员卡
+        await this.getVipCard()
+        
         if (!this.vvipCard?.card_no) {
           uni.showModal({
             title: '提示',

@@ -47,7 +47,8 @@ const state = {
   scene: 0, //小程序进入场景
   storeInfo: getItem('storeInfo') || {}, // 当前店铺信息
   showLoginDialog: false,
-  curStoreNo: ""
+  curStoreNo: "",
+  placeInfo: null
 }
 let persistData = {}; //持久化数据
 const mutations = {
@@ -181,6 +182,9 @@ const mutations = {
   },
   SET_CUR_STORE_NO: (state, storeNo) => {
     state.curStoreNo = storeNo
+  },
+  SET_PLACE: (state, info) => {
+    state.placeInfo = info
   }
 }
 

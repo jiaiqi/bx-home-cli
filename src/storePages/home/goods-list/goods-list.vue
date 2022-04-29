@@ -92,7 +92,7 @@
             "show": true,
             "bg_style": "line",
             "bg": "#FFEEDE",
-            "color": "#F3A250",
+            "color": "#E95955",
             "font_size": "18px",
             "radius": "10px",
             "size": "sm",
@@ -126,7 +126,7 @@
             "cfg": {
               "disp_label": false,
               "align": "left",
-              "color": "#F3A250",
+              "color": "#E95955",
               // "width": "100%",
               "font_size": "14px",
               "padding": "0 20rpx",
@@ -179,6 +179,7 @@
 
     created() {
       uni.$on('goods-cart-change', () => {
+        debugger
         setTimeout(_ => {
           this.getGoodsListData()
         }, 1000)
@@ -204,7 +205,7 @@
           })
           if (isConfirm) {
             this.clearOrderCartGoods(ids).then(_ => {
-              
+
               this.getGoodsListData()
               this.$refs.goodsCart.showList = false
               this.$refs.goodsCart.isFold = true
@@ -281,7 +282,6 @@
         let service = 'srvhealth_store_shopping_cart_goods_detail_add';
         let childService = "srvhealth_store_shopping_cart_goods_attr_value_add"
         let depend_key = 'cart_goods_rec_no'
-        debugger
         if (goods?.sku_no) {
           let goodsInfo = await this.getCartDetail(goods.sku_no);
           if (goodsInfo?.goods_no) {
@@ -300,6 +300,10 @@
             goods_image: goods.goods_img,
             goods_name: goods.goods_name,
             goods_type: goods.goods_type,
+            nick_name: this.userInfo?.nick_name || this.userInfo?.name,
+            service_place_no: this.placeInfo?.place_no,
+            service_place_name: this.placeInfo?.place_name,
+            profile_url: this.userInfo?.user_image || this.userInfo?.profile_url,
             goods_source: '店铺SKU',
             child_data_list: [{
               "serviceName": childService,
@@ -314,7 +318,6 @@
           }
 
           if (goods.sku_no) {
-            debugger
             data.father_goods_no = data.goods_no
             data.goods_no = goods.sku_no
           }
@@ -488,7 +491,7 @@
               condition: [],
               data: [{
                 store_user_no: this.vstoreUser?.store_user_no,
-                store_no: this.storeInfo?.storeNo,
+                store_no: this.storeInfo?.store_no,
                 unit_price: goods.price,
                 goods_amount: goodsInfo.goods_amount || 1,
                 goods_no: goods.goods_no,
@@ -496,9 +499,14 @@
                 sum_price: goods.price,
                 goods_desc: goods.goods_desc,
                 goods_image: goods.goods_img,
-                goods_name: goods.goods_name
+                goods_name: goods.goods_name,
+                nick_name: this.userInfo?.nick_name || this.userInfo?.name,
+                service_place_no: this.placeInfo?.place_no,
+                service_place_name: this.placeInfo?.place_name,
+                profile_url: this.userInfo?.user_image || this.userInfo?.profile_url
               }]
             }];
+            
             let res = await this.$fetch('operate', service, req, 'health');
             if (res.success) {
               if (type !== 'minus') {
