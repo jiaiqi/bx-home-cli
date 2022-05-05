@@ -2,7 +2,7 @@
   <view class="pay-order" :class="['theme-'+theme]">
     <!-- <bx-form :fields="colV2._fieldInfo" v-if="colV2&&colV2._fieldInfo"></bx-form> -->
 
-    <view class="address-box" @click="chooseAddress" v-if="needAddress">
+   <!-- <view class="address-box" @click="chooseAddress" v-if="needAddress">
       <view class="left"
         v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
         <text class="cuIcon-locationfill"></text>
@@ -26,7 +26,7 @@
         <view class="center-select"> 请先选择地址 </view>
       </view>
       <view class="right" v-if="!orderInfo||!orderInfo.rcv_addr_str"><text class="cuIcon-right"></text></view>
-    </view>
+    </view> -->
 
     <view class="order-detail">
       <view class="form-box">
@@ -1304,22 +1304,22 @@
           this.getOrderInfo()
         });
       },
-      chooseAddress() {
-        if (this.orderInfo?.rcv_addr_str) {
-          return
-        }
-        let self = this;
-        // #ifdef MP-WEIXIN
-        uni.chooseAddress({
-          success(res) {
-            self.addressInfo = res;
-            self.addressInfo.phone = res.telNumber; // 手机号
-            self.addressInfo.fullAddress = res.provinceName + res.cityName + res.countyName + res
-              .detailInfo;
-          }
-        });
-        // #endif
-      },
+      // chooseAddress() {
+      //   if (this.orderInfo?.rcv_addr_str) {
+      //     return
+      //   }
+      //   let self = this;
+      //   // #ifdef MP-WEIXIN
+      //   uni.chooseAddress({
+      //     success(res) {
+      //       self.addressInfo = res;
+      //       self.addressInfo.phone = res.telNumber; // 手机号
+      //       self.addressInfo.fullAddress = res.provinceName + res.cityName + res.countyName + res
+      //         .detailInfo;
+      //     }
+      //   });
+      //   // #endif
+      // },
       async getOrderInfo() {
         let req = {
           condition: [{

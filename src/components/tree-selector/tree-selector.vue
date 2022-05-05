@@ -16,9 +16,12 @@
         <view class="node-item round shadow-blur  cu-btn bg-white" v-for="item in nodeList" @click="clickNode(item)">
           <text class="" v-if="item[srvInfo.showCol||'name']">{{item[srvInfo.showCol||'name']}}</text>
         </view>
-   <!--     <view v-if="selectType==='自行输入'" class="other-val">
+        <view class="node-item round shadow-blur  cu-btn bg-white" @click="clickNode('__others')">
+          <text>其它</text>
+        </view>
+        <view v-if="selectType==='自行输入'&&curNode==='__others'" class="other-val">
           <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它" />
-        </view> -->
+        </view>
       </view>
     </view>
     <view class="foot-button" v-if="!hideButton||needConfirm">
@@ -50,11 +53,11 @@
         return this.srvInfo?.select_type
       }
     },
-    created() {
-      // this.getData()
-    },
+    // created() {
+    //   this.getData()
+    // },
     methods: {
-      onInput(e){
+      onInput(e) {
         this.curNode = ''
       },
       clickSelected(e) {
@@ -73,6 +76,11 @@
         this.getData()
       },
       clickNode(e) {
+        if (e === '__others') {
+          this.curNodeInfo = e
+          this.curNode = e
+          return
+        }
         this.otherNodeVal = ''
         this.curNode = e[this.srvInfo.column]
         this.curNodeInfo = e
@@ -89,7 +97,14 @@
       },
       confirm() {
         // 确认
-        this.$emit('confirm', this.curNodeInfo)
+        if (this.selectType === '自行输入') {
+          this.$emit('confirm', {
+            value: this.otherNodeVal,
+            type: this.selectType
+          })
+        } else {
+          this.$emit('confirm', this.curNodeInfo)
+        }
       },
       reset() {
         // 重置
@@ -179,18 +194,19 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-          debugger
-          if (this.current && this.srvInfo?.column) {
-            this.curNodeInfo = this.deepClone(this.current)
-            this.curNode = this.curNodeInfo[this.srvInfo.column] || ''
-          }
+          if (newValue && typeof newValue === 'object') {
+            if (this.current && this.srvInfo?.column) {
+              this.curNodeInfo = this.deepClone(this.current)
+              this.curNode = this.curNodeInfo[this.srvInfo.column] || ''
+            }
 
-          if (!this.curNode) {
-            this.selectedList = []
-          }
+            if (!this.curNode) {
+              this.selectedList = []
+            }
 
-          if (this.srvInfo && this.srvInfo.column && this.srvInfo.serviceName) {
-            this.getData()
+            if (this.srvInfo && this.srvInfo.column && this.srvInfo.serviceName) {
+              this.getData()
+            }
           }
         }
       }
@@ -295,18 +311,21 @@
         padding: 20rpx 10rpx;
         padding-right: 0;
         align-items: flex-start;
-        .other-val{
+
+        .other-val {
           min-height: 30px;
           display: flex;
           align-items: flex-end;
           margin-left: 10px;
-          .input-value{
+
+          .input-value {
             flex: 1;
             min-height: 30px;
             line-height: 30px;
             border-bottom: 1px solid #ccc;
           }
         }
+
         .node-item {
           margin-right: 10rpx;
           margin-bottom: 10rpx;

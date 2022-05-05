@@ -212,8 +212,6 @@
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
-          <!--    <cascader-selector :srvApp="srvApp" @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo">
-          </cascader-selector> -->
           <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
             :fields-model="fieldsModel" @cancel="hideModal" :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
@@ -222,9 +220,14 @@
     </view>
     <view class="cu-modal bottom-modal" :class="{
         show: modalName === 'Selector' || modalName === 'MultiSelector',
-      }" @click="hideModal">
+      }" @click="hideModal" @touchmove.prevent.stop="">
       <view class="cu-dialog" @tap.stop="">
-        <view class="tree-selector">
+        <option-selector :has-next="hasNext" :modalName="modalName"
+          :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
+          :selectType="selectType" @load-more="nextPage()" @search="searchFKDataWithKey" @refresh="refresh()"
+          @toFkAdd="toFkAdd" @change="pickerChange">
+        </option-selector>
+        <!-- <view class="tree-selector">
           <view class="content">
             <view class="cu-bar search bg-white" v-if="modalName === 'Selector' && fieldData.showSearch !== false">
               <view class="search-form round">
@@ -241,23 +244,27 @@
                   {{ item.label }}
                 </bx-checkbox>
               </bx-checkbox-group>
-              <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
-                v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
+             <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
+               mode="button" @change="pickerChange" :disabled="fieldData.disabled">
                 <bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
                 </bx-radio>
-   <!--             <view  class="other-val">
-                  <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它" @input="selectorInput"/>
-                </view> -->
+                 <bx-radio name="__others">其它</bx-radio>
+                <view class="other-val" v-if="fieldData.value==='__others'">
+                  <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它"
+                    @input="selectorInput" />
+                </view>
                 <view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
               </bx-radio-group>
             </view>
           </view>
           <view class="dialog-button">
-            <view class="cu-btn bg-blue shadow" @tap="hideModal" v-if="modalName === 'MultiSelector'">确定
+            <view class="cu-btn bg-blue shadow" @tap="hideModal"
+              v-if="modalName === 'MultiSelector'||(modalName === 'Selector'&&otherNodeVal)">确定
             </view>
-            <view class="cu-btn bg-grey shadow" @tap="hideModal" v-if="modalName === 'Selector'">取消</view>
+            <view class="cu-btn bg-grey shadow" @tap="hideModal"
+              v-if="modalName === 'Selector'&&fieldData.value!=='__others'">取消</view>
           </view>
-        </view>
+        </view> -->
       </view>
     </view>
 
@@ -340,7 +347,7 @@
     computed: {
       selectType() {
         // 自行输入 下拉选择 编辑选择
-        return this.option_list_v2?.select_type
+        return this.option_list_v2?.select_type 
       },
       min() {
         return this.fieldData?.item_type_attr?.min || this.fieldData?.min || this.fieldData?.moreConfig?.min
@@ -364,6 +371,9 @@
         }
       },
       radioOptions() {
+        if (this.modalName === 'MultiSelector') {
+          return this.setOptionList
+        }
         const nextRadio = {
           label: '加载更多',
           value: '加载更多',
@@ -435,7 +445,7 @@
     },
     data() {
       return {
-        otherNodeVal:"",
+        otherNodeVal: "",
         focusTextArea: false,
         checkedList: [],
         fieldData: {},
@@ -470,7 +480,7 @@
         longpressTimer: null,
         modalName: '', //当前显示的modal
         selectorListUUID: "",
-        selectTreeData: {}
+        selectTreeData: null
       };
     },
     watch: {
@@ -522,8 +532,8 @@
       }
     },
     methods: {
-      selectorInput(e){
-        this.fieldData.value = e.detail.value
+      selectorInput(e) {
+        this.fkFieldLabel = e?.detail?.value;
       },
       toFKLink() {
         // 跳转到fk字段的详情页面
@@ -848,6 +858,9 @@
         this.modalName = name;
       },
       hideModal() {
+        if (this.fieldData.value === '__others' && !this.otherNodeVal) {
+          return
+        }
         this.modalName = '';
       },
       async getDefVal() {
@@ -959,23 +972,25 @@
         }
       },
       getCascaderValue(e) {
-        if (e) {
-          this.selectTreeData = e
+        if (e?.type == '自行输入') {
+          this.fieldData.value = e.value;
+        } else {
           let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
-          this.fkFieldLabel = srvInfo.show_as_pair === true ?
-            `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
-          this.fieldData['colData'] = e;
-          this.fieldData.value = e[srvInfo.refed_col];
-          this.$emit('setColData', this.fieldData)
+          if (!this.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== this.selectTreeData[srvInfo
+              .refed_col])) {
+            this.selectTreeData = e
+            this.fkFieldLabel = srvInfo.show_as_pair === true ?
+              `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
+            this.fieldData['colData'] = e;
+            this.fieldData.value = e[srvInfo.refed_col];
+            this.$emit('setColData', this.fieldData)
+          }
         }
         this.hideModal();
-        // this.onInput();
-        // this.onBlur()
-        // this.getDefVal();
       },
       searchFKDataWithKey(e) {
         this.treePageInfo.pageNo = 1
-        if (e && e.detail && e.detail.value) {
+        if (e?.detail?.value) {
           let option = this.fieldData.option_list_v2;
           let relation_condition = {
             relation: 'OR',
@@ -1023,7 +1038,11 @@
         this.$emit('on-value-change', this.fieldData);
       },
       pickerChange(e) {
-        if (this.fieldData.type === 'Selector') {
+        if (e?.type === '__others') {
+          this.fieldData.value = e.value
+          this.fkFieldLabel = e.value;
+        }else  if (this.fieldData.type === 'Selector') {
+          this.fieldData.value = e
           let selectorData = this.radioOptions || this.selectorData
           let optionData = selectorData.find(item => item.value === e);
           if (optionData?.label) {
@@ -1032,10 +1051,10 @@
           }
           this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
-          this.hideModal();
           // this.onInput();
           // this.onBlur()
         }
+        this.hideModal();
       },
       toFkAdd() {
         const option_list_v2 = this.fieldData?.option_list_v2
@@ -1368,6 +1387,7 @@
           case 'TreeSelector':
             // await this.getSelectorData(null, null, null)
             this.modalName = 'TreeSelector';
+            this.selectTreeData = this.selectTreeData || {}
             break;
         }
       },

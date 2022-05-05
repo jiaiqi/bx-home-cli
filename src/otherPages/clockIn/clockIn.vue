@@ -370,36 +370,35 @@
         if (!this.isAuthLocation) {
           return
         }
-    
+
         let conds = [{
           colName: 'user_no',
           ruleType: 'eq',
           value: this.vloginUser?.user_no
         }]
 
-     
+
         let latestTime = this.shiftInfo?.shift_latest_punch_time;
         if (this.curType === '上下班打卡') {
           uni.showLoading({
             mask: true,
           })
-          // let result = await this.reverseGeocoder()
           uni.hideLoading()
           let userLat = ''
           let userLng = ''
-          if(this.locationInfo?.longitude&&this.locationInfo?.latitude){
+          if (this.locationInfo?.longitude && this.locationInfo?.latitude) {
             userLat = this.locationInfo?.latitude
             userLng = this.locationInfo?.longitude
-          }else {
-            let result  = await new Promise(resolve=>{
+          } else {
+            let result = await new Promise(resolve => {
               wx.getLocation({
-               type: 'gcj02',
-               success (res) {
-                 resolve(res)
-               }
+                type: 'gcj02',
+                success(res) {
+                  resolve(res)
+                }
               })
             })
-            if(result?.latitude&&result?.longitude){
+            if (result?.latitude && result?.longitude) {
               userLat = result?.latitude
               userLng = result?.longitude
             }
@@ -425,8 +424,6 @@
             hasClockAddress.forEach(item => {
               let clockLat = item?.location_latitude
               let clockLng = item?.location_longitude
-              // let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
-              // let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
               let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
               this.distance = distance
               if (item.clock_in_scope - distance >= 0) {
@@ -436,8 +433,6 @@
           } else if (typeof hasClockAddress === 'object' && hasClockAddress?.location_no) {
             let clockLat = hasClockAddress?.location_latitude
             let clockLng = hasClockAddress?.location_longitude
-            // let userLat = this.locationInfo?.latitude || this.addressInfo?.location?.lat
-            // let userLng = this.locationInfo?.longitude || this.addressInfo?.location?.lng
             let distance = this.getDistance(userLat, userLng, clockLat, clockLng)
             this.distance = distance
             if (hasClockAddress.clock_in_scope - distance >= 0) {
@@ -467,7 +462,7 @@
             }
             // }
           } else {}
-          
+
           if (latestTime) {
             latestTime = new Date(`${dayjs().format('YYYY-MM-DD')} ${latestTime}`)
             if (new Date() - new Date(latestTime) > 0) {
@@ -488,8 +483,8 @@
               content: '请在上方选择打卡类型后再进行打卡',
               // confirmText: '上班打卡',
               // cancelText: '下班打卡',
-              confirmText:'知道了',
-              
+              confirmText: '知道了',
+
               // cancelColor: "#0081FF",
               // success: (res) => {
               //   if (res.confirm) {
@@ -751,15 +746,15 @@
         this.locationNo = option.locationNo
       }
       await this.initPageData()
-      wx.onLocationChange((res) => {
-        console.log('location change', res)
-        if (res?.latitude) {
-          this.locationInfo.latitude = res.latitude
-        }
-        if (res?.longitude) {
-          this.locationInfo.longitude = res.longitude
-        }
-      })
+      // wx.onLocationChange((res) => {
+      //   console.log('location change', res)
+      //   if (res?.latitude) {
+      //     this.locationInfo.latitude = res.latitude
+      //   }
+      //   if (res?.longitude) {
+      //     this.locationInfo.longitude = res.longitude
+      //   }
+      // })
       interVal = setInterval(() => {
         this.curTime = dayjs().format("HH:mm")
       }, 1000)
