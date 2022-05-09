@@ -110,12 +110,15 @@
       },
       consultJyzSum() {
         // 经验主佣金
+        let res= 0
         if (this.sessionType === '专题咨询' && this.identity == '经验主') {
           if (this.totalMsg && this.groupInfo?.unit_price) {
-            return this.totalMsg * this.groupInfo?.unit_price
+            res = this.totalMsg * this.groupInfo?.unit_price
           }
-          return this.sessionInfo?.answer_amount || '0'
+          res = this.sessionInfo?.answer_amount || '0'
         }
+        res = Number((res*10000/1000).toFixed(2))
+        return res
       },
       consultFeeSum() {
         let res = 0

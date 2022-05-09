@@ -171,6 +171,7 @@
       beforeSwitch(index) {
         let curTab = this.tabbarList[index];
         if (index !== this.pageDefine.active_nav_index) {
+          
           if (!curTab?.link_pd_no) {
             if (curTab.link_pd_json) {
               let data = this;
@@ -193,11 +194,12 @@
       },
       async changeTab(index) {
         let curTab = this.tabbarList[index];
+        debugger
         if (curTab?.link_pd_no) {
           this.pageItemList = []
           this.pdNo = curTab?.link_pd_no;
           await this.initPage();
-        } else if (curTab.link_pd_json) {
+        } else if (curTab?.link_pd_json) {
           try {
             let jsonStr = JSON.parse(curTab.link_pd_json);
             if (jsonStr.url) {
@@ -787,7 +789,9 @@
             this.bindStore();
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
-            this.pdNo = this.StoreInfo.home_page_no;
+            if(!this.pdNo){
+              this.pdNo = this.StoreInfo.home_page_no;
+            }
             await this.getPageDefine(this.StoreInfo.home_page_no);
           }
         } else {

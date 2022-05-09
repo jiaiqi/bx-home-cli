@@ -495,11 +495,11 @@
 
             let url =
               `/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}`;
-            if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+            // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
               url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
               let orderType = this.getOrderType([goodsInfo])
               url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-            }
+            // }
             if (this.wxMchId) {
               url += `&wxMchId=${this.wxMchId}`;
             }
@@ -602,6 +602,28 @@
           }
         }
         return;
+      },
+      async deleteFromCart(goodsInfo){
+        if(goodsInfo?.id){
+          let serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete';
+          let req = [{
+            serviceName: serviceName,
+            condition: [{
+              colName: 'id',
+              ruleType: 'eq',
+              value: goodsInfo.id
+            }]
+          }];
+          await this.$fetch('operate', serviceName, req, 'health').then(res => {
+            if (res.success) {
+              this.getCartList();
+              uni.showToast({
+                title: '操作成功',
+                icon:'none'
+              });
+            }
+          });
+        }
       },
       async updateCart(goodsInfo) {
         if (this.onLimit) {
@@ -787,11 +809,11 @@
 
         let url =
           `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
-        if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+        // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
           url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
           let orderType = this.getOrderType([goodsInfo])
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-        }
+        // }
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`;
         }
@@ -993,6 +1015,16 @@
         if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount > 1) {
           this.inCartGoodsInfo.goods_amount--;
           this.updateCart(this.inCartGoodsInfo);
+        }else if(this.inCartGoodsInfo.goods_amount==1){
+          uni.showModal({
+            title:'提示',
+            content:'确认从购物车中删除此商品？',
+            success: (res) => {
+              if(res.confirm){
+                this.deleteFromCart(this.inCartGoodsInfo)
+              }
+            }
+          })
         }
       },
       add(e) {
@@ -1024,8 +1056,9 @@
             })
             return
           }
-          this.inCartGoodsInfo.goods_amount + 1;
-          this.updateCart(this.inCartGoodsInfo);
+          let goods = this.inCartGoodsInfo
+          goods.goods_amount++
+          this.updateCart(goods);
           // this.getGoodsStock(this.inCartGoodsInfo).then(res => {
           //   if (res && res.id) {
           //     if (res.amount > this.inCartGoodsInfo.goods_amount - 1) {

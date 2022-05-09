@@ -20,10 +20,11 @@
     </view>
 
     <view class="handler-bar">
-      <button class="cu-btn round"
-        :class="{'shadow-blur bg-blue':curGoods&&config&&config.goodsNoCol&&curGoods[config.goodsNoCol]}"
-        @click="createOrder"><text v-if="curGoods&&curGoods.price"
-          class="margin-right-xs">￥{{curGoods.price}}</text>立即支付</button>
+      <debounce-view @onThrottle="createOrder" type="throttle" v-else>
+        <button class="cu-btn round"
+          :class="{'shadow-blur bg-blue':curGoods&&config&&config.goodsNoCol&&curGoods[config.goodsNoCol]}"><text
+            v-if="curGoods&&curGoods.price" class="margin-right-xs">￥{{curGoods.price}}</text>立即支付</button>
+      </debounce-view>
     </view>
   </view>
 </template>
@@ -32,6 +33,7 @@
   export default {
     data() {
       return {
+        onHandler: false,
         cardInfo: null,
         goodsList: [],
         curGoods: {},
@@ -168,6 +170,10 @@
       },
       // 创建订单
       async createOrder() {
+        if (this.onHandler === true) {
+          return
+        }
+        this.onHandler = true
         let req = [{
           serviceName: this.config.addOrderService,
           condition: [],
@@ -210,7 +216,12 @@
             }]
           }]
         }];
+        uni.showLoading({
+          mask: true
+        })
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
+        uni.hideLoading()
+        this.onHandler = false
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -262,7 +273,7 @@
 
         let totalMoney = orderData.order_amount || this.curGoods?.price
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER')|| this.vloginUser.roles.includes('bx_rd'))) {
+            .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd'))) {
           totalMoney = 0.01
         }
         if (typeof totalMoney !== 'number' || isNaN(Number(totalMoney))) {

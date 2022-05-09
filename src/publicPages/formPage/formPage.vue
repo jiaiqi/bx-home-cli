@@ -466,8 +466,8 @@
                     res.data.response[0].response.effect_data.length > 0
                   ) {
                     this.params.submitData = res.data.response[0].response.effect_data[0];
-                
-                
+
+
                   }
                   let resData = res.data
                   uni.showModal({
@@ -789,7 +789,7 @@
                 condition: [],
                 data: [data]
               }];
-              
+
               let app = this.appName || uni.getStorageSync('activeApp');
               let type = "add"
               if (e.button_type === 'edit') {
@@ -819,8 +819,8 @@
                   res.data.response[0].response.effect_data.length > 0
                 ) {
                   this.params.submitData = res.data.response[0].response.effect_data[0];
-               
-               
+
+
                   effect_data = res.data.response[0].response.effect_data[0];
                 }
                 let afterSubmit = self.moreConfig?.after_submit;
@@ -1549,12 +1549,28 @@
       }
 
       if (option.fieldsCond) {
+        let fieldsCond = []
         try {
-          let fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
-          this.fieldsCond = fieldsCond
+          option = this.deepClone(option)
+          console.log(option)
+          let str = decodeURIComponent(option.fieldsCond)
+          console.log(str)
+          str = JSON.stringify(str)
+          console.log(str)
+          str = JSON.parse(str)
+          console.log(str)
+          debugger
+          fieldsCond = JSON.parse(str);
+          
         } catch (e) {
-          //TODO handle the exception
+          console.log(e)
+          try{
+            let str = decodeURIComponent(encodeURIComponent(decodeURIComponent(option.fieldsCond)))
+            fieldsCond = JSON.parse(str);
+          }catch(e){
+          }
         }
+        this.fieldsCond = fieldsCond
       }
       if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
           .length ===

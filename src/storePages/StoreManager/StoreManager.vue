@@ -319,6 +319,7 @@
     },
     methods: {
       toPages() {
+        debugger
         let url = this.countConfig?.rightBtn?.target || this.countConfig?.rightBtn?.url;
         url = this.renderStr(url, this)
         if (url.indexOf('http') == 0) {

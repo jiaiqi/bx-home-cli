@@ -59,7 +59,6 @@ let conf = {
     customQrcodeFolder: 'mymm',
     wxMchId:"1617830911",//微信商户号
     miniProgramName: "弥月妈妈母婴智慧创业圈",
-    
   }
 }
 

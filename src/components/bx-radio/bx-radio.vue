@@ -200,7 +200,6 @@
     },
     methods: {
       getParentData(parentName = '') {
-        debugger
         // 避免在created中去定义parent变量
         if (!this.parent) this.parent = false;
         // 这里的本质原理是，通过获取父组件实例(也即bx-radio-group的this)

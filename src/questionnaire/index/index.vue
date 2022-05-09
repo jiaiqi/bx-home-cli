@@ -1001,6 +1001,7 @@
         this.planNo = option.planNo;
       }
       if (option.params) {
+        debugger
         try {
           // #ifdef MP-WEIXIN
           this.params = JSON.parse(option.params);

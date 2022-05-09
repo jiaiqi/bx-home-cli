@@ -626,11 +626,11 @@
             list: list
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
-          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
+          // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
             url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
             let orderType = this.getOrderType(list)
             url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          }
+          // }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
@@ -1231,6 +1231,17 @@
             list = res.data.data
           } else {
             list = list.concat(res.data.data);
+            // if(list.find(item=>!!item.id)){
+            //   let ids = list.map(item=>item.id)
+            //   let arr = []
+            //   list.forEach(item=>{
+            //     if(ids.indexOf(item.id)>-1){
+            //       arr.push(item)
+            //       ids = ids.splice(ids.indexOf(item.id),1)
+            //     }
+            //   })
+            //   list = arr
+            // }
           }
           let viewTemp = this.colV2?.moreConfig?.list_config
           if (Array.isArray(viewTemp?.cols) && viewTemp.cols.length > 0 && Array.isArray(this.list)) {
