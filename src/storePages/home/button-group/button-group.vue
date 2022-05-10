@@ -46,10 +46,10 @@
         <view class="right text-gray">
           <view class="cu-tag badge" v-if="item.num===true"></view>
           <view class="cu-tag badge" v-else-if="item.num">{{
-				  item.num || ""
+				  setNumber(item.num) || ""
 				}}</view>
           <view class="cu-tag badge-left" v-if="item.unbacknum">{{
-				  item.unbacknum || ""
+				   setNumber(item.unbacknum) || ""
 				}}</view>
           <text class="cuIcon-right"></text>
         </view>
@@ -86,10 +86,10 @@
             v-for="(item, index) in swiperItem" :key="index">
             <view class="cu-tag badge" v-if="item.num===true"></view>
             <view class="cu-tag badge" v-else-if="item.num">{{
-              item.num || ""
+             setNumber(item.num)  || ""
             }}</view>
             <view class="cu-tag badge-left" v-if="item.unbacknum">{{
-              item.unbacknum || ""
+              setNumber(item.unbacknum )|| ""
             }}</view>
             <u-icon :name="item.icon" size="60" color="#00aaff" v-if="item.iconType === 'uicon' && !item.custonIcon">
             </u-icon>
@@ -113,9 +113,9 @@
           'list-style': pageItem.button_style === 'list',
           'last-row': isLastRow(menuList[0], index),
         }" @click="toPages(item)" v-for="(item, index) in menuList[0]" :key="index">
-        <view class="cu-tag badge" v-if="item.num">{{ item.num || "" }}</view>
+        <view class="cu-tag badge" v-if="item.num">{{ setNumber(item.num )|| "" }}</view>
         <view class="cu-tag badge-left" v-if="item.unbacknum">{{
-          item.unbacknum || ""
+          setNumber(item.unbacknum) || ""
         }}</view>
         <!-- <view class="cu-tag badge-left" v-if="item.unbacknum">未回复:{{item.unbacknum||''}}</view> -->
         <u-icon :name="item.icon" size="60" color="#00aaff" v-if="item.iconType === 'uicon' && !item.custonIcon">
@@ -435,6 +435,15 @@
       }
     },
     methods: {
+      setNumber(num) {
+        let res = num
+        if (typeof num === 'number') {
+          if (num > 99) {
+            res = '99+'
+          }
+        }
+        return res||''
+      },
       getImageStyle(item) {
         let style = {
           width: item?.imgWidth ? `${item.imgWidth}px` : '100%',

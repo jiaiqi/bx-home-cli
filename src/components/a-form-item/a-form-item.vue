@@ -347,7 +347,7 @@
     computed: {
       selectType() {
         // 自行输入 下拉选择 编辑选择
-        return this.option_list_v2?.select_type 
+        return this.fieldData?.option_list_v2?.select_type 
       },
       min() {
         return this.fieldData?.item_type_attr?.min || this.fieldData?.min || this.fieldData?.moreConfig?.min
