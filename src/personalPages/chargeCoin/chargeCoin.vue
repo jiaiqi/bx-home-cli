@@ -20,7 +20,7 @@
     </view>
 
     <view class="handler-bar">
-      <debounce-view @onThrottle="createOrder" type="throttle" v-else>
+      <debounce-view @onThrottle="createOrder" type="throttle">
         <button class="cu-btn round"
           :class="{'shadow-blur bg-blue':curGoods&&config&&config.goodsNoCol&&curGoods[config.goodsNoCol]}"><text
             v-if="curGoods&&curGoods.price" class="margin-right-xs">￥{{curGoods.price}}</text>立即支付</button>
