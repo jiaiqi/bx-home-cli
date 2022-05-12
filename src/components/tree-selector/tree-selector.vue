@@ -97,7 +97,7 @@
       },
       confirm() {
         // 确认
-        if (this.selectType === '自行输入') {
+        if (this.selectType === '自行输入' && this.otherNodeVal) {
           this.$emit('confirm', {
             value: this.otherNodeVal,
             type: this.selectType

@@ -972,8 +972,10 @@
         }
       },
       getCascaderValue(e) {
+        debugger
         if (e?.type == '自行输入') {
           this.fieldData.value = e.value;
+           this.fkFieldLabel = e.value
         } else {
           let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
           if (!this.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== this.selectTreeData[srvInfo
