@@ -213,7 +213,7 @@
       },
       getQrcode(e) {
         this.StoreInfo.store_qr_code = e;
-        this.$store.commit('SET_STORE_INFO', this.StoreInfo);
+        this.$store.commit('setStateAttr', {key:'storeInfo',val:this.StoreInfo});
       },
       savePushSet(data) {
         // 保存通知设置
@@ -760,7 +760,8 @@
         serviceName = 'srvhealth_store_cus_niming_detail_select'
         let res = await this.$fetch('select', serviceName, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
-          this.$store.commit('SET_STORE_INFO', res.data[0]);
+          
+          this.$store.commit('setStateAttr', {key:'storeInfo',val:res.data[0]});
           let theme = 'blue';
           if (res.data[0].para_cfg) {
             try {
@@ -773,7 +774,8 @@
               console.log(err);
             }
           }
-          this.$store.commit('SET_THEME', theme);
+          
+          this.$store.commit('setStateAttr', {key:'theme',val:theme});
           this.StoreInfo = res.data[0];
           if (this.StoreInfo?.style_no) {
             this.getThemeCfg(this.StoreInfo?.style_no)

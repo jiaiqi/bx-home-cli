@@ -31,7 +31,10 @@ export default {
   },
   onLoad(option) {
     if (option.storeNo || option.store_no) {
-      this.$store.commit('SET_CUR_STORE_NO', option.storeNo || option.store_no)
+      this.$store.commit('setStateAttr', {
+        key: "curStoreNo",
+        val: option.storeNo || option.store_no
+      })
     }
   },
   methods: {
@@ -68,7 +71,7 @@ export default {
       serviceName = 'srvhealth_store_cus_niming_detail_select'
       let res = await this.$fetch('select', serviceName, req, 'health');
       if (Array.isArray(res.data) && res.data.length > 0) {
-        this.$store.commit('SET_STORE_INFO', res.data[0]);
+        this.$store.commit('setStateAttr', {key:'storeInfo',val:res.data[0]});
         let theme = 'blue';
         if (res.data[0].para_cfg) {
           try {
@@ -81,7 +84,10 @@ export default {
             console.log(err);
           }
         }
-        this.$store.commit('SET_THEME', theme);
+        this.$store.commit('setStateAttr', {
+          key: 'theme',
+          val: theme
+        });
         return res.data[0]
       }
       return false

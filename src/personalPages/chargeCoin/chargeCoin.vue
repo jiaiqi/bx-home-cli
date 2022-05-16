@@ -312,11 +312,8 @@
                 showCancel: false,
                 success: (res) => {
                   if (res.confirm) {
-                    this.getVipCard()
-                    // uni.setStorageSync('forceUpdate', true)
-                    uni.navigateBack({
-
-                    })
+                    self.getVipCard()
+                    uni.navigateBack()
                   }
                 }
               })
@@ -338,7 +335,6 @@
           this.config[key] = option[key]
         }
       })
-
       this.getCard().then(res => {
         if (res !== false) {
           this.getGoods()

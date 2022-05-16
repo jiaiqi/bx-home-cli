@@ -334,9 +334,11 @@
         let app = 'health';
         let res = await this.$fetch('select', service, req, app);
         if (Array.isArray(res.data) && res.data.length > 0) {
-          // this.storeInfo = res.data[0];
-          this.$store.commit('SET_STORE_INFO', res.data[0]);
-          if (this.storeInfo.type === '健康服务') {}
+          this.$store.commit('setStateAttr', {
+            key: 'storeInfo',
+            val: res.data[0]
+          });
+          
         } else {
           uni.showModal({
             title: '未查找到机构信息',
@@ -373,13 +375,13 @@
             value: goods_no
           }];
         }
-        
-        if(this.placeInfo?.place_no){
+
+        if (this.placeInfo?.place_no) {
           // 扫码带桌号进入 只查当前桌号的购物车
           req.condition.push({
-            colName:'service_place_no',
-            ruleType:'eq',
-            value:this.placeInfo?.place_no
+            colName: 'service_place_no',
+            ruleType: 'eq',
+            value: this.placeInfo?.place_no
           })
         } else if (this.vstoreUser?.store_user_no) {
           // 其他情况 查当前登录用户的购物车
@@ -391,7 +393,7 @@
         } else {
           return
         }
-        
+
         let res = await this.$fetch('select', service, req, 'health');
         if (Array.isArray(res.data) && res.data.length > 0) {
           if (goods_no) {
@@ -496,9 +498,9 @@
             let url =
               `/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}`;
             // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-              url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
-              let orderType = this.getOrderType([goodsInfo])
-              url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+            let orderType = this.getOrderType([goodsInfo])
+            url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
             // }
             if (this.wxMchId) {
               url += `&wxMchId=${this.wxMchId}`;
@@ -603,8 +605,8 @@
         }
         return;
       },
-      async deleteFromCart(goodsInfo){
-        if(goodsInfo?.id){
+      async deleteFromCart(goodsInfo) {
+        if (goodsInfo?.id) {
           let serviceName = 'srvhealth_store_shopping_cart_goods_detail_delete';
           let req = [{
             serviceName: serviceName,
@@ -619,7 +621,7 @@
               this.getCartList();
               uni.showToast({
                 title: '操作成功',
-                icon:'none'
+                icon: 'none'
               });
             }
           });
@@ -810,9 +812,9 @@
         let url =
           `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
         // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-          url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
-          let orderType = this.getOrderType([goodsInfo])
-          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+        url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+        let orderType = this.getOrderType([goodsInfo])
+        url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
         // }
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`;
@@ -1015,12 +1017,12 @@
         if (this.inCartGoodsInfo && this.inCartGoodsInfo.goods_amount > 1) {
           this.inCartGoodsInfo.goods_amount--;
           this.updateCart(this.inCartGoodsInfo);
-        }else if(this.inCartGoodsInfo.goods_amount==1){
+        } else if (this.inCartGoodsInfo.goods_amount == 1) {
           uni.showModal({
-            title:'提示',
-            content:'确认从购物车中删除此商品？',
+            title: '提示',
+            content: '确认从购物车中删除此商品？',
             success: (res) => {
-              if(res.confirm){
+              if (res.confirm) {
                 this.deleteFromCart(this.inCartGoodsInfo)
               }
             }

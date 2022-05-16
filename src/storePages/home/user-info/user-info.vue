@@ -23,7 +23,7 @@
     <view class="left" v-else>
       <button class="cu-btn bg-white" @click="toLogin">请点击登录</button>
     </view>
-    <view class="right"><text class="cuIcon-message"></text></view>
+    <!-- <view class="right"><text class="cuIcon-message"></text></view> -->
   </view>
 </template>
 

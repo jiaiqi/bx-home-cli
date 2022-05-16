@@ -46,10 +46,6 @@ const state = {
 }
 let persistData = {}; //持久化数据
 const mutations = {
-  SET_THEME: (state, theme) => {
-    state.theme = theme
-    setItem('theme', state.theme)
-  },
   SET_THEME_CFG: (state, cfg) => {
     state.themeConfig = cfg
     setItem('themeConfig', cfg)
@@ -145,13 +141,6 @@ const mutations = {
   SET_INTO_HOSPITAL_STATUS: (state, status) => {
     state.hasIntoHospital = status
   },
-  SET_STORE_INFO: (state, info) => {
-    state.storeInfo = info
-    setItem('storeInfo', info)
-  },
-  SET_CUR_STORE_NO: (state, storeNo) => {
-    state.curStoreNo = storeNo
-  },
   SET_PLACE: (state, info) => {
     state.placeInfo = info
   },
@@ -164,9 +153,11 @@ const mutations = {
     if (param instanceof Array) {
       for (let item of param) {
         state[item.key] = item.val;
+        setItem(item.key, item.val)
       }
     } else {
       state[param.key] = param.val;
+      setItem(param.key, param.val)
     }
   }
 }
@@ -176,22 +167,7 @@ const actions = {
     commit
   }, srvCol) => {
     commit('setSrvCol', srvCol)
-  },
-  setBackUrl: ({
-    commit
-  }, url) => {
-    commit('SET_BACK_URL', url)
-  },
-  setGlobalTextSize: ({
-    commit
-  }, fontSize) => {
-    commit('SET_GLOBAL_TEXT_SIZE', fontSize)
-  },
-  setGloballabelSize: ({
-    commit
-  }, fontSize) => {
-    commit('SET_GLOBAL_LABEL_SIZE', fontSize)
-  },
+  }
 }
 
 export default {

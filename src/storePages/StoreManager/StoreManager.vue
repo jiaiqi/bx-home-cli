@@ -1204,7 +1204,8 @@
           this.unreadNum = StoreInfo.data[0].kefu_unread_msg
           this.unreadNumber = StoreInfo.data[0].kefu_unack_msg
           this.StoreInfo = StoreInfo.data[0];
-          this.$store.commit('SET_STORE_INFO', StoreInfo.data[0])
+          
+          this.$store.commit('setStateAttr', {key:'storeInfo',val:StoreInfo.data[0]});
           if (this.StoreInfo?.name) {
             uni.setNavigationBarTitle({
               title: this.StoreInfo?.name || ''
