@@ -224,12 +224,15 @@ export default {
           if (!no) {
             return
           }
+          
           // if (no === this.vvipCard?.attr_store_user_no) {
           //   return this.vvipCard
           // }
           if (!this.vstoreUser?.member_card_no) {
-            return
+            await this.getStoreUser_()
+            // return
           }
+          
           let service = 'srvhealth_store_card_case_select'
           const req = {
             "serviceName": service,

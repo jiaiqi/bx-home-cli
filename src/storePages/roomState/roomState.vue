@@ -1,9 +1,13 @@
 <template>
   <view>
-    <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
+ <!--   <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
       :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" placholder="输入桌号进行搜索"
       @search="onSearch">
-    </list-bar>
+    </list-bar> -->
+    <!-- 桌号搜索 -->
+    
+    
+    
   </view>
 </template>
 

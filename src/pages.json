@@ -125,17 +125,15 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "cascaderList/cascaderList",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": true
+          }
+
         }
-          ,{
-                    "path" : "cascaderList/cascaderList",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": true
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "storePages",
@@ -340,17 +338,14 @@
             "navigationBarTitleText": "订单",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "roomState/roomState",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": true
+          }
         }
-          ,{
-                    "path" : "roomState/roomState",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": true
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",

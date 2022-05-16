@@ -438,6 +438,7 @@
 
   .fixed {
     position: fixed;
+    pointer-events: none;
   }
 
   .cart-list-wrap {
@@ -467,6 +468,7 @@
       align-items: center;
       position: relative;
       padding: 0 20rpx;
+      pointer-events: auto;
     }
 
     .price {
