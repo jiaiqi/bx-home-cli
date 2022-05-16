@@ -34,7 +34,7 @@
           </text>
         </view>
         <view class="statis-list " :style="[{background:countConfig.contentBg}]">
-          <view class="statis-item" v-for="(item,index) in countData" :key="index">
+          <view class="statis-item" v-for="(item,index) in countData" :key="index" :style="[{background:item.bg}]">
             <view class="item-label" :style="[{color:item.labelColor}]" v-if="labelPosition==='top'">
               {{item.label||'0'}}
             </view>
@@ -162,6 +162,37 @@
         StoreInfo: {},
         modalName: '',
         storeNo: '',
+        filterList: [{
+            id: 0,
+            name: '综合',
+          },
+          {
+            id: 1,
+            name: '价格',
+            sort: true
+          },
+          {
+            id: 2,
+            name: '年龄',
+            sort: true
+          },
+          {
+            id: 3,
+            name: '经验',
+            sort: true
+          },
+          {
+            id: 4,
+            name: '不要排序',
+            sort: false
+          },
+          {
+            id: 5,
+            name: '最后一项',
+            sort: false
+          }
+        ],
+        
         gridList: [{
             label: '店铺商品',
             icon: 'goods',
@@ -324,15 +355,15 @@
         url = this.renderStr(url, this)
         if (url.indexOf('http') == 0) {
           // #ifdef H5
-          if(url.indexOf('https://login.100xsys.cn/health/#/')==0){
-            url=url.split('https://login.100xsys.cn/health/#')[1]
+          if (url.indexOf('https://login.100xsys.cn/health/#/') == 0) {
+            url = url.split('https://login.100xsys.cn/health/#')[1]
           }
           // #endif
           // #ifdef MP-WEIXIN
           url = "/publicPages/webviewPage/webviewPage?webUrl=" + encodeURIComponent(url);
           // #endif
         }
-        
+
         uni.navigateTo({
           url,
           fail(e) {
@@ -341,6 +372,7 @@
         })
       },
       toDashboard() {
+        return
         uni.navigateTo({
           url: '/otherPages/dashboard/dashboard'
         })
@@ -1344,7 +1376,6 @@
     // background-color: #f1f1f1;
     min-height: calc(100vh - var(--window-top));
     background-color: #fff;
-    // border-radius: 50rpx 50rpx 0 0;
     overflow: hidden;
     color: #333;
   }
@@ -1370,24 +1401,24 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-around;
-      background-color: #ffe7ba;
+      // background-color: #ffe7ba;
       border-radius: 5px;
     }
 
     .statis-item {
-      padding: 30rpx 20rpx;
+      padding: 15px 10px;
       min-width: 30%;
       text-align: center;
       // background-image: linear-gradient(to right, #EAF9F9, #ECF1FE);
-      border-radius: 20rpx;
+      border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      min-height: 200rpx;
+      min-height: 100px;
 
       .item-label {
-        // margin-top: 10rpx;
+        // margin-top: 5px;
         height: 16px;
         font-size: 11px;
         font-family: 苹方-简;
@@ -1399,7 +1430,7 @@
 
       .item-value {
         font-weight: bold;
-        font-size: 36rpx;
+        font-size: 18px;
         margin: 10px;
       }
     }
@@ -1407,25 +1438,25 @@
 
 
   .head {
-    margin-top: 20rpx;
+    margin-top: 10px;
     background-color: #fff;
-    padding: 20rpx 30rpx;
+    padding: 10px 15px;
     display: flex;
     flex-wrap: wrap;
     max-width: 720px;
-    margin: 20rpx 0;
+    margin: 10px 0;
 
     .store-address {
       flex: 1;
-      padding: 20rpx;
+      padding: 10px;
       color: #9092A5;
-      font-size: 32rpx;
+      font-size: 16px;
       font-family: 苹方-简;
 
       .location {
         margin: 0;
-        padding-right: 10rpx;
-        font-size: 36rpx;
+        padding-right: 5px;
+        font-size: 18px;
       }
     }
 
@@ -1441,77 +1472,65 @@
       justify-content: space-between;
 
       .name {
-        font-size: 34rpx;
+        font-size: 17px;
         display: flex;
         align-items: center;
-        margin-bottom: 20rpx;
+        margin-bottom: 10px;
       }
 
       .phone {
-        width: 76rpx;
-        height: 76rpx;
+        width: 38px;
+        height: 38px;
         background: #FFBD37;
         box-shadow: 0px 3px 7px #FFE8BF;
         opacity: 1;
         border-radius: 20px;
         text-align: center;
-        line-height: 76rpx;
+        line-height: 38px;
         color: #fff;
-        font-size: 36rpx;
+        font-size: 18px;
 
         .image {
-          width: 50rpx;
-          height: 50rpx;
+          width: 25px;
+          height: 25px;
         }
       }
 
       .address {
-        max-width: 400rpx;
+        max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
         margin-top: 5px;
         color: #666;
       }
     }
-
-    // .phone {
-    // 	flex: 1;
-    // 	display: flex;
-    // 	justify-content: flex-end;
-    // 	align-items: center;
-
-    // 	image {
-    // 		width: 50rpx;
-    // 		height: 50rpx;
-    // 	}
-    // }
   }
 
   .logo {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 20rpx;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
     border: 1px solid #f1f1f1;
   }
 
   .manager-view {
     background-color: #fff;
-    padding: 0 20rpx;
+    padding: 0 10px;
 
     .title {
       display: flex;
-      padding: 20rpx 20rpx 10rpx;
+      padding: 10px 10px 5px;
       align-items: center;
       justify-content: space-between;
 
       .cu-btn {
         background-image: linear-gradient(to right, #EAF9F8, #ECF1FE);
-        font-size: 24rpx;
+        font-size: 12px;
 
         [class*="cuIcon-"] {
           color: #DC84FB;
-          font-size: 36rpx;
-          margin-right: 10rpx;
+          font-size: 18px;
+          margin-right: 5px;
         }
       }
     }
@@ -1521,10 +1540,10 @@
     display: flex;
     flex-wrap: wrap;
     background-color: #fff;
-    margin-bottom: 10rpx;
+    margin-bottom: 5px;
 
     .cu-bar {
-      margin: 20rpx 0;
+      margin: 10px 0;
       width: 100%;
     }
 
@@ -1561,7 +1580,7 @@
 
 
     .box-item {
-      padding: 40rpx 20rpx;
+      padding: 20px 10px;
       box-sizing: border-box;
       // border: 1px solid #f1f1f1;
       // background-color: #fff;
@@ -1570,7 +1589,7 @@
       justify-content: center;
       position: relative;
       width: 25%;
-      padding: 10rpx;
+      padding: 5px;
 
       .amount {
         position: absolute;
@@ -1621,20 +1640,20 @@
         align-items: center;
         background-color: #FAFBFC;
         width: 100%;
-        min-height: 180rpx;
+        min-height: 90px;
         text-align: center;
-        border-radius: 20rpx;
+        border-radius: 10px;
 
         .label-icon {
           margin: auto;
-          padding: 15rpx;
-          width: 120rpx;
-          height: 120rpx;
+          padding: 7px;
+          width: 60px;
+          height: 60px;
           display: flex;
           flex-wrap: wrap;
           justify-content: space-between;
           align-items: center;
-          border-radius: 20rpx;
+          border-radius: 10px;
 
           // background: #1488CC;  /* fallback for old browsers */
           .image {
@@ -1644,7 +1663,7 @@
 
           .text {
             // font-weight: bold;
-            font-size: 32rpx;
+            font-size: 16px;
             width: 50%;
             text-align: center;
           }
@@ -1658,8 +1677,8 @@
       }
 
       .icon {
-        width: 80rpx;
-        height: 80rpx;
+        width: 40px;
+        height: 40px;
         font-size: 30px;
         display: inline-flex;
         justify-content: center;
@@ -1667,7 +1686,7 @@
       }
 
       .label {
-        margin-top: 10rpx;
+        margin-top: 5px;
       }
     }
   }

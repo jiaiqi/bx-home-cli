@@ -194,7 +194,6 @@
       },
       async changeTab(index) {
         let curTab = this.tabbarList[index];
-        debugger
         if (curTab?.link_pd_no) {
           this.pageItemList = []
           this.pdNo = curTab?.link_pd_no;

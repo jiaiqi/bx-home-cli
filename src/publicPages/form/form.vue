@@ -735,7 +735,6 @@
         return serviceName;
       },
       async getDefaultVal() {
-        debugger
         if (this.use_type === 'detail' || this.use_type === 'update') {
           let serviceName = this.colsV2Data?.select_service_name || this.service || this.serviceName.replace(
               '_update',

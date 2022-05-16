@@ -2,7 +2,7 @@
   <view class="pay-order" :class="['theme-'+theme]">
     <!-- <bx-form :fields="colV2._fieldInfo" v-if="colV2&&colV2._fieldInfo"></bx-form> -->
 
-   <!-- <view class="address-box" @click="chooseAddress" v-if="needAddress">
+    <!-- <view class="address-box" @click="chooseAddress" v-if="needAddress">
       <view class="left"
         v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
         <text class="cuIcon-locationfill"></text>
@@ -1416,13 +1416,10 @@
           // 外卖才需要配送费
           let qisong = await this.getSendMoney()
           console.log(this.totalMoney)
-          debugger
           if (qisong <= this.totalMoney) {
             let shippingFee = await this.getShippingFee() //查找配送费
           }
         }
-
-
 
         let formData = this.$refs.bxForm.getFieldModel();
         if (formData == false) {
@@ -1509,60 +1506,6 @@
           }]
         }];
 
-        // if (this.isFood) {
-        //   // 立即用餐、预约用餐
-        //   this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
-
-        //   // 预约用餐时间
-        //   this.service_time ? req[0].data[0].service_time = this.service_time : '';
-
-        //   req[0].data[0].order_type = '餐饮'
-
-        //   req[0].data[0].repast_type = this.repast_type
-
-        //   this.delivery_type = this.delivery_type || '当面交易'
-
-        //   if (!this.service_place_no) {
-        //     if (!this.rcv_name) {
-        //       uni.showModal({
-        //         title: '提示',
-        //         content: '请填写联系人',
-        //         showCancel: false
-        //       })
-        //       return
-        //     }
-        //     if (!this.rcv_telephone) {
-        //       uni.showModal({
-        //         title: '提示',
-        //         content: '请填写手机号',
-        //         showCancel: false
-        //       })
-        //       return
-        //     }
-        //   }
-        //   req[0].data[0].order_method = '实时'
-        //   if (!this.service_place_no) {
-        //     // req[0].data[0].order_method = '预约'
-        //     req[0].data[0].service_date = this.dayjs().format("YYYY-MM-DD")
-        //     // req[0].data[0].repast_status = '未到店'
-        //   } else {
-        //     // req[0].data[0].order_method = '实时'
-        //     // req[0].data[0].repast_status = '待出餐'
-        //   }
-        //   req[0].data[0].repast_status = '待出餐'
-        // }
-
-        // if (this.service_place_no) { // 场地号、餐桌号
-        //   req[0].data[0].service_place_no = this.service_place_no
-        // }
-
-
-
-        // // 立即用餐、预约用餐
-        // this.repast_eat ? req[0].data[0].repast_eat = this.repast_eat : '';
-
-        // // 预约用餐时间
-        // this.service_time ? req[0].data[0].service_time = this.service_time : '';
 
         // 提交订单时带上表单的值
         if (this.includesColumns) {
@@ -1640,12 +1583,7 @@
         if (this.couponInfo?.card_no && this.pay_method) {
           req[0].data[0].pay_state = '已支付'
         }
-        // if (!this.needAddress && this.delivery_type !== '自提') {
-        //   // 非快递非自提
-        //   this.delivery_type = '当面交易'
-        //   this.curDelivery = 3
-        //   req[0].data[0].delivery_type = '当面交易'
-        // }
+
 
         if (this.tgNo) {
           // 团长开团编号
@@ -1706,7 +1644,7 @@
               await this.addPayRecord(res.data[0].order_no, childData)
               // 更新订单状态和支付状态
               if (this.delivery_type !== '当面交易') {
-                this.updateOrderState('待发货', '已支付');
+                this.updateOrderState('', '已支付');
               } else {
                 // this.updateOrderState('', '已支付');
               }
@@ -1774,10 +1712,9 @@
         }
       },
       async toPay() {
-        // if (this.storeInfo?.wx_mch_id) {
-        // 	this.wxMchId = this.storeInfo?.wx_mch_id
-        // }
+     
         this.wxMchId = this.getwxMchId()
+        
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -1790,6 +1727,7 @@
           });
           return;
         }
+        
         if (this.payMode == 'coupon') {
           if (this.couponInfo?.card_no && orderData.order_no) {
             this.payByCoupon(orderData, this.couponInfo?.card_no)

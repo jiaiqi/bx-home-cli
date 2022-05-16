@@ -293,7 +293,7 @@
           return item
         })
         if (Array.isArray(this.orderCols) && this.orderCols.length > 0) {
-          res.push({
+          res.unshift({
             button_type: 'order',
             icon: 'cuIcon-order',
             label: '排序',

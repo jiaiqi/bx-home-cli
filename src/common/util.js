@@ -37,8 +37,8 @@ export default {
           hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
           isLogin: state => state.app.isLogin,
           vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
-          curStoreNo: state => state.app.curStoreNo ,//当前店铺编号
-          placeInfo:state=>state.app.placeInfo
+          curStoreNo: state => state.app.curStoreNo, //当前店铺编号
+          placeInfo: state => state.app.placeInfo
         }),
         $api() {
           return api
@@ -199,9 +199,9 @@ export default {
           }
           const res = await this.$http.post(url, req)
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-            
-            this.$store.commit('SET_PLACE',res.data.data[0])
-            
+
+            this.$store.commit('SET_PLACE', res.data.data[0])
+
             return res.data.data[0]
           }
         },
@@ -224,7 +224,6 @@ export default {
           if (!no) {
             return
           }
-
           // if (no === this.vvipCard?.attr_store_user_no) {
           //   return this.vvipCard
           // }
@@ -1556,8 +1555,12 @@ export default {
       // #ifdef APP-PLUS
       client_env = 'app';
       // #endif
+      const systemInfo = uni.getSystemInfoSync();
+      if(systemInfo?.screenWidth){
+        uni.setStorageSync('screenWidth',systemInfo?.screenWidth)
+      }
       let client_type = '';
-      switch (uni.getSystemInfoSync().platform) {
+      switch (systemInfo?.platform) {
         case 'android':
           console.log('运行Android上');
           client_type = 'android';
@@ -1573,6 +1576,10 @@ export default {
         case 'mac':
           console.log('运行mac上');
           client_type = 'mac';
+          break;
+        case 'linux':
+          console.log('运行linux上');
+          client_type = 'linux';
           break;
         case 'devtools':
           console.log('运行devtools上');

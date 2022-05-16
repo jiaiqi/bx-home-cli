@@ -173,6 +173,7 @@
         if (this.onHandler === true) {
           return
         }
+        let orderType = this.getOrderType([this.curGoods])
         this.onHandler = true
         let req = [{
           serviceName: this.config.addOrderService,
@@ -193,6 +194,7 @@
             user_role: this.userInfo.user_role,
             order_amount: this.curGoods?.price,
             delivery_type: '当面交易',
+            order_type: orderType,
             // order_remark: this.order_remark || '',
             pay_state: '待支付',
             order_state: '待支付',
@@ -252,9 +254,9 @@
             pay_state: pay_state
           }]
         }];
-        if (order_state) {
-          req[0].data[0].order_state = order_state
-        }
+        // if (order_state) {
+        //   req[0].data[0].order_state = order_state
+        // }
         if (prepay_id) {
           req[0].data[0].prepay_id = prepay_id
         }
@@ -310,6 +312,8 @@
                 showCancel: false,
                 success: (res) => {
                   if (res.confirm) {
+                    this.getVipCard()
+                    // uni.setStorageSync('forceUpdate', true)
                     uni.navigateBack({
 
                     })

@@ -20,8 +20,7 @@ let conf = {
     appId: "wxa3c50c8177ef6739",
     ws: "wss://srvms.100xsys.cn:8081",
     file: "https://file.100xsys.cn",
-    // serviceAddress: "http://192.168.0.241:8080", // 内网
-    frontPath: "https://wx2.100xsys.cn/health/#/",
+    frontPath: "https://login.100xsys.cn/health/#/",
   },
   'test': {
     //测试环境

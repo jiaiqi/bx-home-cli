@@ -376,7 +376,6 @@
       buildConditions(e) {
         let self = this
         let condsModel = self.formModel
-        debugger
         let relation_Conditions = {
           "relation": "AND",
           "data": []
