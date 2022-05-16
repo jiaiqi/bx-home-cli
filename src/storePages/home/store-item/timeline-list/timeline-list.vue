@@ -5,7 +5,6 @@
         <button
           class="cu-btn"
           @click="toPublish"
-          type="primary"
           v-if="showPublish"
         >
           发表
