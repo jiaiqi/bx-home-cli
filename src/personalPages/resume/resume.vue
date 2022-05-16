@@ -192,8 +192,6 @@
           }
         }
 
-
-
         // 1. 检测有没有开通会员卡
         await this.getVipCard()
         

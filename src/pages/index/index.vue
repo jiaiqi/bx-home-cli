@@ -334,7 +334,6 @@
             this.checkSubscribeStatus()
           }
           // 自动更新头像昵称
-          this.$store.commit('SET_REGIST_STATUS', false)
           if (this.$api && this.$api.singleStore && this.$api.storeNo) {
             uni.redirectTo({
               url: '/storePages/home/home?store_no=' + this.$api.storeNo,

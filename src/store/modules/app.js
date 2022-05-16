@@ -15,7 +15,6 @@ const state = {
   theme: getItem('theme') || 'blue',
   themeConfig: getItem('themeConfig') || {},
   env: env,
-  homePath: '', //默认主页
   globalTextFontSize: 16,
   globalLabelFontSize: 16,
   srvCol: [], // 组件共享的srv_col
@@ -25,8 +24,6 @@ const state = {
   authSetting: {}, //微信授权信息
   authUserInfo: getItem('authUserInfo') ? getItem('authUserInfo') : {}, //微信授权信息
   hasNotRegInfo: getItem('hasNotRegInfo') ? getItem('hasNotRegInfo') : false, //未注册用户信息
-  sickItem: "",
-  symptomArr: [],
   doctorInfo: {},
   hospitalInfo: {},
   storeList: [], //当前账号所在单位机构的列表
@@ -34,19 +31,16 @@ const state = {
   pageInfo: getItem('pageInfo') ? getItem('pageInfo') : {},
   currentPage: '',
   inviterInfo: {}, //邀请人
-  areRegistering: false, //是否正在注册
   payParams: {}, //支付相关参数
   prePayInfo: {}, //预支付信息
   subscsribeStatus: false, //是否关注公众号
   shareType: '', //分享页面的类型 seeDoctor-邀请就诊登记 bindOrganization-邀请成为诊所用户
   xhrNum: 0, //正在发送的请求的数量
   xhrTimestamp: 0,
-  previousPageUrl: "",
   systemInfo: wx.getSystemInfoSync(),
   hasIntoHospital: false, //是否在初次打开app时进入过被邀请诊所的诊所主页
   scene: 0, //小程序进入场景
   storeInfo: getItem('storeInfo') || {}, // 当前店铺信息
-  showLoginDialog: false,
   curStoreNo: "",
   placeInfo: null
 }
@@ -62,9 +56,6 @@ const mutations = {
   },
   SET_SCENE: (state, scene) => {
     state.scene = scene
-  },
-  SET_HOME_PATH: (state, path) => {
-    state.homePath = path
   },
   SET_XHR_NUM: (state, num) => {
     state.xhrNum = num
@@ -98,9 +89,6 @@ const mutations = {
       }
     }
   },
-  SET_REGIST_STATUS: (state, status) => {
-    state.areRegistering = status
-  },
   SET_CURRENT_PAGE: (state, url) => {
     state.currentPage = url
   },
@@ -121,35 +109,23 @@ const mutations = {
     state.backUrl = url
     setItem('backUrl', url)
   },
-  SET_SICK_ITEM: (state, sick) => {
-    state.sickItem = sick
-  },
-  SET_SYMPTOM_ARR: (state, symptom) => {
-    state.symptomArr = symptom
-  },
   SET_DOCTOR_INFO: (state, info) => {
     state.doctorInfo = info
-    // setItem('doctorInfo', info)
   },
   SET_HOSPITAL_INFO: (state, info) => {
     state.hospitalInfo = info
-    // setItem('doctorInfo', info)
   },
   SET_STORE_LIST: (state, list) => {
     state.storeList = list
-    // setItem('doctorInfo', info)
   },
   SET_DIET_RECORD: (state, record) => {
     state.dietRecord = record
-    // setItem('dietRecord', record)
   },
   SET_PAGE_INFO: (state, pageInfo) => {
     state.pageInfo = pageInfo
-    // setItem('pageInfo', pageInfo)
   },
   SET_INVITER_INFO: (state, inviterInfo) => {
     state.inviterInfo = inviterInfo
-    // setItem('inviterInfo', inviterInfo)
   },
   SET_PAY_PARAMS: (state, payParams) => {
     state.payParams = payParams
@@ -166,9 +142,6 @@ const mutations = {
   SET_SHARE_TYPE: (state, shareType) => {
     state.shareType = shareType
   },
-  SET_PRE_PAGE_URL: (state, previousPageUrl) => {
-    state.previousPageUrl = previousPageUrl
-  },
   SET_INTO_HOSPITAL_STATUS: (state, status) => {
     state.hasIntoHospital = status
   },
@@ -176,15 +149,25 @@ const mutations = {
     state.storeInfo = info
     setItem('storeInfo', info)
   },
-  SET_LOGIN_DIALOG: (state, show) => {
-    // 显示登录弹框
-    state.showLoginDialog = show
-  },
   SET_CUR_STORE_NO: (state, storeNo) => {
     state.curStoreNo = storeNo
   },
   SET_PLACE: (state, info) => {
     state.placeInfo = info
+  },
+  /**
+   * 更新state数据
+   * param Object/Array {key:"xxx",val:"xxx"}
+   * key为要更新的state，val为更新的值
+   */
+  setStateAttr(state, param) {
+    if (param instanceof Array) {
+      for (let item of param) {
+        state[item.key] = item.val;
+      }
+    } else {
+      state[param.key] = param.val;
+    }
   }
 }
 

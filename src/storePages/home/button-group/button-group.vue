@@ -442,7 +442,7 @@
             res = '99+'
           }
         }
-        return res||''
+        return res || ''
       },
       getImageStyle(item) {
         let style = {
@@ -868,6 +868,7 @@
       },
 
       toPages(e) {
+        let url = "";
         if (this.hasNotRegInfo && navType !== "takePhone") {
           // 除了打电话外 其他操作必须先授权访问用户信息
           uni.navigateTo({
@@ -878,7 +879,14 @@
         if (e.$orig) {
           e = e.$orig;
         }
-        if (e?.navType === 'scanCode') {
+        if (e?.navType === 'livePlayer') {
+          if (e.dest_page.indexOf('plugin-private:') == -1) {
+            url = `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.dest_page}`
+            uni.navigateTo({
+              url
+            })
+          }
+        } else if (e?.navType === 'scanCode') {
           //#ifdef MP-WEIXIN
           // 只允许通过相机扫码
           uni.scanCode({
@@ -930,12 +938,10 @@
           });
           //#endif
           return
-        }
-        if (e && e.eventType === "toGroup") {
+        } else if (e && e.eventType === "toGroup") {
           this.toGroup(e.type);
-          return;
+          return
         }
-        let url = "";
         if (
           e &&
           (!this.bindUserInfo || !this.bindUserInfo.store_user_no) &&

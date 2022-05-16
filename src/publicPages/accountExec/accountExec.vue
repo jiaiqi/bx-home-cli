@@ -25,8 +25,8 @@
                 password data-key="password" @input="inputChange" @confirm="userLogined" v-if="!eye_show" />
               <input type="mobile" v-model="user.pwd" placeholder="请输入密码" placeholder-class="input-empty" maxlength="50"
                 data-key="password" @input="inputChange" @confirm="userLogined" v-if="eye_show" />
-              <image src="./hi_eye.png" mode="" v-if="eye_show" @click="eycClick"></image>
-              <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eycClick"></image>
+              <image src="./hi_eye.png" mode="" v-if="eye_show" @click="eyeClick"></image>
+              <image src="./show_eye.png" mode="" v-if="!eye_show" @click="eyeClick"></image>
             </view>
           </view>
 
@@ -199,7 +199,7 @@
     },
     methods: {
       initPage(e) {
-        
+
         uni.navigateBack()
       },
       changeLoginType(e) {
@@ -214,7 +214,7 @@
           }
         }
       },
-      eycClick() {
+      eyeClick() {
         this.eye_show = !this.eye_show
       },
       checkboxChange(e) {
@@ -222,6 +222,10 @@
         console.log(this.checkValue)
       },
       async getScanQrCode() {
+        let sysInfo = uni.getSystemInfoSync()
+        if (sysInfo?.model === 'PC') {
+          return
+        }
         let pages = getCurrentPages();
         let fullPath = ''
         if (pages.length > 1) {
@@ -703,46 +707,6 @@
           }
         });
       },
-      judgeClientEnviroment() {
-        let client_env = '';
-        // #ifdef H5
-        const isWeixin = this.isWeixinClient();
-        console.log('isWeixin', isWeixin);
-        client_env = isWeixin ? 'wxh5' : 'web';
-        if (client_env === 'web') {
-          this.isShowUserLogin = true;
-        }
-        // #endif
-        // #ifdef MP-WEIXIN
-        client_env = 'wxmp';
-        //#endif
-        // #ifdef APP-PLUS
-        client_env = 'app';
-        this.isShowUserLogin = true;
-        // #endif
-        let client_type = '';
-        switch (uni.getSystemInfoSync().platform) {
-          case 'android':
-            console.log('运行Android上');
-            client_type = 'android';
-            break;
-          case 'ios':
-            console.log('运行iOS上');
-            client_type = 'ios';
-            break;
-          default:
-            client_type = 'web';
-        }
-        this.client_type = client_type;
-        this.client_env = client_env;
-        uni.setStorageSync('client_env', client_env);
-        uni.setStorageSync('client_type', client_type);
-        this.client_env = client_env;
-        return {
-          client_env: client_env,
-          client_type: client_type
-        };
-      },
 
       async userLogined() {
         let that = this;
@@ -751,7 +715,7 @@
           serviceName: 'srvuser_login',
           data: [that.user]
         }];
-        
+
         if (that.isInvalid(that.user.user_no) && that.isInvalid(this.user.pwd)) {
           let response = await that.$http.post(url, req);
           console.log('srvuser_login', response);
@@ -789,7 +753,7 @@
             let pages = getCurrentPages()
             url2 = pages[pages.length - 2] ? pages[pages.length - 2].__page__?.fullPath : ''
             if (url2) {
-              if(url2.indexOf('/publicPages/accountExec/accountExec')!==-1){
+              if (url2.indexOf('/publicPages/accountExec/accountExec') !== -1) {
                 url2 = that.$api.homePath
               }
               uni.reLaunch({
@@ -820,7 +784,7 @@
             // #ifdef MP-WEIXIN
             url2 = url2 || that.$api.homePath
             // #endif
-   
+
 
             uni.reLaunch({
               url: ` /${url2}`

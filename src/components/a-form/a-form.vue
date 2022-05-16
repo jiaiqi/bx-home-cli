@@ -368,14 +368,7 @@
               }
             }
           }
-
-
-          if (Array.isArray(item.isShowExp) && item.isShowExp.length > 0) {
-            item.display = this.colItemShowExps(item, this.fieldModel)
-          }
-          //  else if (item.formulaShow) {
-          //   item.display = evaluatorTo(fieldModel, item.formulaShow);
-          // }
+          
           if (item.display !== false) {
             item.display = true
           }

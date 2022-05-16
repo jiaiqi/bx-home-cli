@@ -1,6 +1,7 @@
 import store from '@/store'
 import api from '@/common/api.js'
 import _http from '@/common/http.js'
+import globalMixin from '@/common/mixins/global'
 const mpAppNo = api.appNo.wxmp
 
 const dayjs = require('dayjs');
@@ -18,248 +19,248 @@ export default {
 
     Vue.prototype.dayjs = dayjs
     Vue.prototype.$uDebounce = uDebounce
-    Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
+    
+    Vue.mixin(globalMixin)
+    // // 混入
+    // Vue.mixin({
+    //   computed: {
+    //     ...mapState({
+    //       themeConfig: state => state.app.themeConfig,
+    //       globalTextFontSize: state => state.app['globalTextFontSize'],
+    //       globalLabelFontSize: state => state.app.globalLabelFontSize,
+    //       isAttention: state => state.app.subscsribeStatus, //是否关注公众号
+    //       userInfo: state => state.user.userInfo,
+    //       storeInfo: state => state.app.storeInfo,
+    //       vcart: state => state.order.cartInfo,
+    //       vstoreUser: state => state.user.storeUserInfo,
+    //       vloginUser: state => state.user.loginUserInfo,
+    //       scene: state => state.app.scene,
+    //       hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
+    //       isLogin: state => state.app.isLogin,
+    //       vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
+    //       curStoreNo: state => state.app.curStoreNo, //当前店铺编号
+    //       placeInfo: state => state.app.placeInfo
+    //     }),
+    //     $api() {
+    //       return api
+    //     },
+    //     hasVipCard() {
+    //       return !!this.vvipCard?.card_no
+    //     }
+    //   },
+    //   onLoad(option) {
+    //     if (option.storeNo || option.store_no) {
+    //       this.$store.commit('SET_CUR_STORE_NO', option.storeNo || option.store_no)
+    //     }
+    //   },
+    //   methods: {
+    //     async initApp() {
+    //       // 初始化小程序
+    //       // 1. 登录检测、用户信息查找
+    //       await this.toAddPage()
+    //       // 2. 店铺信息查找
+    //       let storeInfo = await this.getStore_()
+    //       if (storeInfo?.store_no) {
+    //         // 3. 店铺用户信息查找
+    //         await this.getStoreUser_()
+    //         // 4. vipcard信息查找
+    //         await this.getVipCard()
+    //       }
 
-    // 混入
-    Vue.mixin({
-      computed: {
-        ...mapState({
-          themeConfig: state => state.app.themeConfig,
-          globalTextFontSize: state => state.app['globalTextFontSize'],
-          globalLabelFontSize: state => state.app.globalLabelFontSize,
-          isAttention: state => state.app.subscsribeStatus, //是否关注公众号
-          userInfo: state => state.user.userInfo,
-          storeInfo: state => state.app.storeInfo,
-          vcart: state => state.order.cartInfo,
-          vstoreUser: state => state.user.storeUserInfo,
-          vloginUser: state => state.user.loginUserInfo,
-          scene: state => state.app.scene,
-          hasNotRegInfo: state => state.app.hasNotRegInfo, //授权访问用户信息
-          isLogin: state => state.app.isLogin,
-          vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
-          curStoreNo: state => state.app.curStoreNo, //当前店铺编号
-          placeInfo: state => state.app.placeInfo
-        }),
-        $api() {
-          return api
-        },
-        hasVipCard() {
-          return !!this.vvipCard?.card_no
-        }
-      },
-      onLoad(option) {
-        if (option.storeNo || option.store_no) {
-          this.$store.commit('SET_CUR_STORE_NO', option.storeNo || option.store_no)
-        }
-      },
-      methods: {
-        async initApp() {
-          // 初始化小程序
-          // 1. 登录检测、用户信息查找
-          await this.toAddPage()
-          // 2. 店铺信息查找
-          let storeInfo = await this.getStore_()
-          if (storeInfo?.store_no) {
-            // 3. 店铺用户信息查找
-            await this.getStoreUser_()
-            // 4. vipcard信息查找
-            await this.getVipCard()
-          }
+    //     },
+    //     async getStore_() {
+    //       if (!this.curStoreNo) {
+    //         return
+    //       }
+    //       let req = {
+    //         condition: [{
+    //           colName: 'store_no',
+    //           ruleType: 'eq',
+    //           value: this.curStoreNo
+    //         }],
+    //         page: {
+    //           pageNo: 1,
+    //           rownumber: 1
+    //         }
+    //       };
+    //       let serviceName = 'srvhealth_store_list_select';
+    //       // serviceName = 'srvhealth_store_mgmt_select'
+    //       serviceName = 'srvhealth_store_cus_niming_detail_select'
+    //       let res = await this.$fetch('select', serviceName, req, 'health');
+    //       if (Array.isArray(res.data) && res.data.length > 0) {
+    //         this.$store.commit('SET_STORE_INFO', res.data[0]);
+    //         let theme = 'blue';
+    //         if (res.data[0].para_cfg) {
+    //           try {
+    //             let moreConfig = JSON.parse(res.data[0].para_cfg);
+    //             res.data[0].moreConfig = moreConfig;
+    //             if (moreConfig.theme) {
+    //               theme = moreConfig.theme;
+    //             }
+    //           } catch (err) {
+    //             console.log(err);
+    //           }
+    //         }
+    //         this.$store.commit('SET_THEME', theme);
+    //         return res.data[0]
+    //       }
+    //       return false
+    //     },
+    //     async getStoreUser_() {
+    //       let storeNo = this.curStoreNo
+    //       if (this.userInfo?.no && storeNo) {
+    //         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
+    //         let req = {
+    //           serviceName: 'srvhealth_store_user_select',
+    //           colNames: ['*'],
+    //           condition: [{
+    //               colName: 'person_no',
+    //               ruleType: 'eq',
+    //               value: this.userInfo.no
+    //             },
+    //             {
+    //               colName: 'store_no',
+    //               ruleType: 'eq',
+    //               value: storeNo
+    //             }
+    //           ]
+    //         };
+    //         if (this.vstoreUser?.store_no === storeNo) {
+    //           this.bindUserInfo = this.vstoreUser
+    //           return [this.vstoreUser]
+    //         }
+    //         let res = await this.$http.post(url, req);
+    //         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+    //           this.bindUserInfo = res.data.data[0]
+    //           this.$store.commit('SET_STORE_USER', res.data.data[0]);
+    //           return res.data.data;
+    //         }
+    //         return res
+    //       }
+    //     },
+    //     getwxMchId() {
+    //       // 获取商户号
+    //       return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
+    //     },
+    //     getOrderShowParams(orderType = '') {
+    //       let showParams = ''
+    //       if (orderType) {
+    //         if (orderType.indexOf('餐饮') > -1) {
+    //           showParams = '服务场地'
+    //         }
+    //       }
+    //       return showParams
+    //     },
+    //     getOrderType(list = []) {
+    //       // list-商品列表
+    //       let order_type = ''
+    //       switch (this.storeInfo?.type) {
+    //         case '饭馆':
+    //           order_type = '餐饮'
+    //           break;
+    //         case '酒店':
+    //           order_type = '酒店'
+    //           break;
+    //         default:
+    //           order_type = '普通商品'
+    //       }
+    //       let goodsType = Array.from(new Set(list.map(item => item.goods_type)))
 
-        },
-        async getStore_() {
-          if (!this.curStoreNo) {
-            return
-          }
-          let req = {
-            condition: [{
-              colName: 'store_no',
-              ruleType: 'eq',
-              value: this.curStoreNo
-            }],
-            page: {
-              pageNo: 1,
-              rownumber: 1
-            }
-          };
-          let serviceName = 'srvhealth_store_list_select';
-          // serviceName = 'srvhealth_store_mgmt_select'
-          serviceName = 'srvhealth_store_cus_niming_detail_select'
-          let res = await this.$fetch('select', serviceName, req, 'health');
-          if (Array.isArray(res.data) && res.data.length > 0) {
-            this.$store.commit('SET_STORE_INFO', res.data[0]);
-            let theme = 'blue';
-            if (res.data[0].para_cfg) {
-              try {
-                let moreConfig = JSON.parse(res.data[0].para_cfg);
-                res.data[0].moreConfig = moreConfig;
-                if (moreConfig.theme) {
-                  theme = moreConfig.theme;
-                }
-              } catch (err) {
-                console.log(err);
-              }
-            }
-            this.$store.commit('SET_THEME', theme);
-            return res.data[0]
-          }
-          return false
-        },
-        async getStoreUser_() {
-          let storeNo = this.curStoreNo
-          if (this.userInfo?.no && storeNo) {
-            let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
-            let req = {
-              serviceName: 'srvhealth_store_user_select',
-              colNames: ['*'],
-              condition: [{
-                  colName: 'person_no',
-                  ruleType: 'eq',
-                  value: this.userInfo.no
-                },
-                {
-                  colName: 'store_no',
-                  ruleType: 'eq',
-                  value: storeNo
-                }
-              ]
-            };
-            if (this.vstoreUser?.store_no === storeNo) {
-              this.bindUserInfo = this.vstoreUser
-              return [this.vstoreUser]
-            }
-            let res = await this.$http.post(url, req);
-            if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-              this.bindUserInfo = res.data.data[0]
-              this.$store.commit('SET_STORE_USER', res.data.data[0]);
-              return res.data.data;
-            }
-            return res
-          }
-        },
-        getwxMchId() {
-          // 获取商户号
-          return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'
-        },
-        getOrderShowParams(orderType = '') {
-          let showParams = ''
-          if (orderType) {
-            if (orderType.indexOf('餐饮') > -1) {
-              showParams = '服务场地'
-            }
-          }
-          return showParams
-        },
-        getOrderType(list = []) {
-          // list-商品列表
-          let order_type = ''
-          switch (this.storeInfo?.type) {
-            case '饭馆':
-              order_type = '餐饮'
-              break;
-            case '酒店':
-              order_type = '酒店'
-              break;
-            default:
-              order_type = '普通商品'
-          }
-          let goodsType = Array.from(new Set(list.map(item => item.goods_type)))
+    //       if (goodsType.includes('现制餐饮') && order_type.indexOf('餐饮') == -1) {
+    //         order_type += ',餐饮'
+    //       }
 
-          if (goodsType.includes('现制餐饮') && order_type.indexOf('餐饮') == -1) {
-            order_type += ',餐饮'
-          }
+    //       if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程') || goodsType
+    //         .includes('活动') || goodsType.includes('提货卡') || goodsType.includes('套餐卡') || goodsType.includes(
+    //           '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
+    //         order_type = '虚拟商品'
+    //       }
 
-          if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程') || goodsType
-            .includes('活动') || goodsType.includes('提货卡') || goodsType.includes('套餐卡') || goodsType.includes(
-              '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
-            order_type = '虚拟商品'
-          }
+    //       return order_type
+    //     },
+    //     async getPlaceInfo(service_place_no) {
+    //       // 查找服务场地信息
+    //       let url = this.getServiceUrl('health', 'srvhealth_store_place_join_select', 'select');
+    //       const req = {
+    //         "serviceName": "srvhealth_store_place_join_select",
+    //         "colNames": ["*"],
+    //         "condition": [{
+    //           "colName": "store_no",
+    //           "ruleType": "eq",
+    //           "value": this.storeInfo?.store_no
+    //         }, {
+    //           "colName": "place_no",
+    //           "ruleType": "like",
+    //           "value": service_place_no
+    //         }],
+    //         "page": {
+    //           "pageNo": 1,
+    //           "rownumber": 1
+    //         }
+    //       }
+    //       const res = await this.$http.post(url, req)
+    //       if (Array.isArray(res.data.data) && res.data.data.length > 0) {
 
-          return order_type
-        },
-        async getPlaceInfo(service_place_no) {
-          // 查找服务场地信息
-          let url = this.getServiceUrl('health', 'srvhealth_store_place_join_select', 'select');
-          const req = {
-            "serviceName": "srvhealth_store_place_join_select",
-            "colNames": ["*"],
-            "condition": [{
-              "colName": "store_no",
-              "ruleType": "eq",
-              "value": this.storeInfo?.store_no
-            }, {
-              "colName": "place_no",
-              "ruleType": "like",
-              "value": service_place_no
-            }],
-            "page": {
-              "pageNo": 1,
-              "rownumber": 1
-            }
-          }
-          const res = await this.$http.post(url, req)
-          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+    //         this.$store.commit('SET_PLACE', res.data.data[0])
 
-            this.$store.commit('SET_PLACE', res.data.data[0])
+    //         return res.data.data[0]
+    //       }
+    //     },
+    //     toOfficial(mp_no) {
+    //       // 跳转到关注公众号页面
+    //       const frontEndAddress = this.$api.frontEndAddress
+    //       mp_no = mp_no || 'MP2201210021'
+    //       if (mp_no) {
+    //         let webUrl =
+    //           `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
+    //         let url =
+    //           `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+    //         uni.navigateTo({
+    //           url
+    //         })
+    //       }
+    //     },
+    //     async getVipCard(no) {
+    //       no = no || this.vstoreUser?.store_user_no
+    //       if (!no) {
+    //         return
+    //       }
 
-            return res.data.data[0]
-          }
-        },
-        toOfficial(mp_no) {
-          // 跳转到关注公众号页面
-          const frontEndAddress = this.$api.frontEndAddress
-          mp_no = mp_no || 'MP2201210021'
-          if (mp_no) {
-            let webUrl =
-              `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
-            let url =
-              `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-            uni.navigateTo({
-              url
-            })
-          }
-        },
-        async getVipCard(no) {
-          no = no || this.vstoreUser?.store_user_no
-          if (!no) {
-            return
-          }
-          
-          // if (no === this.vvipCard?.attr_store_user_no) {
-          //   return this.vvipCard
-          // }
-          if (!this.vstoreUser?.member_card_no) {
-            await this.getStoreUser_()
-            // return
-          }
-          
-          let service = 'srvhealth_store_card_case_select'
-          const req = {
-            "serviceName": service,
-            "colNames": ["*"],
-            "condition": [{
-              "colName": "attr_store_user_no",
-              "ruleType": "eq",
-              "value": no
-            }, {
-              "colName": "card_type",
-              "ruleType": "eq",
-              "value": "充值卡"
-            }],
-            "page": {
-              "pageNo": 1,
-              "rownumber": 1
-            }
-          }
-          let url = this.getServiceUrl('health', service, 'select');
-          let res = await this.$http.post(url, req);
-          if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-            this.$store.commit('SET_VIP_CARD', res.data.data[0])
-          }
-          return
-        },
-      }
-    })
+    //       // if (no === this.vvipCard?.attr_store_user_no) {
+    //       //   return this.vvipCard
+    //       // }
+    //       if (!this.vstoreUser?.member_card_no) {
+    //         await this.getStoreUser_()
+    //         // return
+    //       }
+
+    //       let service = 'srvhealth_store_card_case_select'
+    //       const req = {
+    //         "serviceName": service,
+    //         "colNames": ["*"],
+    //         "condition": [{
+    //           "colName": "attr_store_user_no",
+    //           "ruleType": "eq",
+    //           "value": no
+    //         }, {
+    //           "colName": "card_type",
+    //           "ruleType": "eq",
+    //           "value": "充值卡"
+    //         }],
+    //         "page": {
+    //           "pageNo": 1,
+    //           "rownumber": 1
+    //         }
+    //       }
+    //       let url = this.getServiceUrl('health', service, 'select');
+    //       let res = await this.$http.post(url, req);
+    //       if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+    //         this.$store.commit('SET_VIP_CARD', res.data.data[0])
+    //       }
+    //       return
+    //     },
+    //   }
+    // })
 
     // 初始化查询
     Vue.prototype.selectRequestObjs = function(srv, cond, order) { // 给自定义方法起个名
@@ -1213,223 +1214,6 @@ export default {
       }
     }
     // 表单
-    Vue.prototype.getCoulmnConfig = function(e) {
-      let cnCol = {
-        // "activity_no": "20200208002600000007",
-        // "item_no":"000001",
-        "item_seq": 1,
-        "item_title": e.item_title,
-        "item_type": e.item_type,
-        "is_require": e.is_require,
-        // "column":e.column,
-        "item_type_attr": {},
-        "is_public": "否",
-        "show_cfg": "",
-        points: e.points,
-        option_img_explain: e.option_img_explain,
-        ref_type: e.ref_type,
-        srv_app: e.srv_app,
-        serviceName: e.serviceName,
-        refed_col: e.refed_col,
-        key_disp_col: e.key_disp_col,
-      }
-      switch (e.item_type) {
-        case "文本":
-          cnCol.item_type_attr['view_model'] = e.view_model
-          cnCol.item_type_attr['max_len'] = e.max_len
-          break;
-        case "选项":
-          cnCol.item_type_attr['radioType'] = e.option_type === '单选' ? 'single' : e.option_type === '多选' ?
-            'multi' : '',
-            console.log(cnCol.item_type_attr['radioType'])
-          break;
-        case "时间日期":
-          cnCol.item_type_attr['dateType'] = e.format
-          break;
-        case "数字":
-          cnCol.item_type_attr['numberType'] = e.decimal_places
-          cnCol.item_type_attr['max'] = e.max
-          cnCol.item_type_attr['min'] = e.min
-          break;
-        case "图片":
-          cnCol.item_type_attr['fileNum'] = e.max_num
-          break;
-        case "地址":
-          break;
-        case "引用":
-          cnCol.item_type_attr['ref_type'] = e.ref_type
-          cnCol.item_type_attr['srv_app'] = e.srv_app
-          cnCol.item_type_attr['serviceName'] = e.serviceName
-          cnCol.item_type_attr['refed_col'] = e.refed_col
-          cnCol.item_type_attr['key_disp_col'] = e.key_disp_col
-          cnCol.item_type_attr['option_list_v2'] = e.option_list_v2
-          break;
-        default:
-          ''
-      }
-      cnCol.item_type_attr = JSON.stringify(cnCol.item_type_attr)
-      // cnCol.show_cfg = JSON.stringify(cnCol.show_cfg)
-      cnCol.option_data = JSON.stringify(cnCol.option_data)
-      return cnCol
-    }
-    /**
-     * QUsHE inputs inputsArray 数据构造
-     * 
-     * */
-    Vue.prototype.getInputsArray = function(e) {
-      let viewCfg = e
-      let inputTemp = function() {
-        let a = {
-          type: "", //input textarea pics  radio checkbox picker-date（picker-dateTime| String| 日期加时间| | picker-date| String| 日期| | picker-time| String| 时间|） picker-city text  infinitePics
-          title: "名称", //
-          inputType: "", // text number
-          maxlength: "", // 最大长度
-          // ignore:false,// 是否为空
-          defaultValue: "", // 默认值
-          itemArray: [], // 选项值和名称 name value
-          column: "",
-        }
-        return a
-      }
-      let inputsDatas = viewCfg.map((item, index) => {
-        let inputData = inputTemp()
-        inputData.title = item.item_title
-        inputData.column = item.column
-        inputData.no = item.item_no
-        inputData.width = "100"
-        switch (item.item_type) {
-          case "string":
-            if (item.item_type_attr.hasOwnProperty("view_model")) {
-              if (item.item_type_attr.view_model === "单行") {
-                inputData.type = "input"
-                return inputData
-              } else if (item.item_type_attr.view_model === "多行") {
-                inputData.type = "textarea"
-                return inputData
-              }
-            } else {
-              inputData.type = "input"
-              return inputData
-            }
-            break;
-          case "checkbox":
-            if (item.item_type_attr.hasOwnProperty("option_type")) {
-
-              if (item.item_type_attr.option_type === "单选") {
-                inputData.type = "radio"
-                inputData.itemArray = item.option_data.map((item, index) => {
-                  let a = {
-                    name: item.option_value,
-                    value: item.option_no
-                  }
-                  return a
-                })
-                return inputData
-              } else if (item.item_type_attr.option_type === "多选") {
-                inputData.type = "checkbox"
-                inputData.itemArray = item.option_data.map((item, index) => {
-                  let a = {
-                    name: item.option_value,
-                    value: item.option_no
-                  }
-                  return a
-                })
-                return inputData
-              }
-            }
-            break;
-          case "date":
-            inputData.type = "picker-date"
-            if (item.item_type_attr.hasOwnProperty("format")) {
-              if (item.item_type_attr.format === 'date') {
-                inputData.mode = "picker-date"
-              } else if (item.item_type_attr.format === 'time') {
-                inputData.mode = "picker-time"
-              } else if (item.item_type_attr.format === 'datetime') {
-                inputData.mode = "picker-datetime"
-              }
-            }
-            return inputData
-            break;
-          case "number":
-            inputData.type = "input"
-            inputData.inputType = "number"
-            if (item.item_type_attr.hasOwnProperty("decimal_places")) {
-              if (item.item_type_attr.decimal_places === "decimal") {
-                inputData.verifyType = "Number"
-                inputData.filterType = "twoDecimalPlaces"
-              } else if (item.item_type_attr.decimal_places === "Int") {
-                inputData.verifyType = "Int"
-              }
-            }
-            return inputData
-            break;
-          case "image":
-            if (item.item_type_attr.hasOwnProperty("max_num")) {
-              inputData.type = "infinitePics"
-              inputData.max = item.item_type_attr.max_num
-              return inputData
-            }
-            break;
-          default:
-            return inputData
-        }
-      })
-      return inputsDatas
-    }
-    // eval 替代方案
-    Vue.prototype.evalInTo = function(e, q) {
-        let item = q
-        let exp = e.isShowExp
-        let showExp = false
-        let isShowNum = 0
-        if (exp && exp.length > 0) {
-
-          for (let i = 0; i < exp.length; i++) {
-            if (exp[i].type === 'eq') {
-              if (item[exp[i].column] === exp[i].value) {
-                isShowNum++
-              }
-            } else if (exp[i].type === 'neq') {
-              if (item[exp[i].column] !== exp[i].value) {
-                isShowNum++
-              }
-            }
-          }
-          return exp.length === isShowNum
-        } else {
-          return true
-        }
-      },
-      /**
-       * 是否显示item
-       * @param {Object} e 
-       * @param {Object} q 
-       */
-      Vue.prototype.colItemShowExps = function(e, q) {
-        let data = e
-        let obj = q
-        let exp = e.isShowExp
-        let showExp = false
-        let isShowNum = 0
-        if (exp && exp.length > 0) {
-          exp.forEach(item => {
-            if (item.ruleType === 'eq') {
-              if (obj[item.colName] === item.value) {
-                isShowNum++
-              }
-            } else if (item.ruleType === 'neq') {
-
-              if (obj[item.colName] !== item.value) {
-                isShowNum++
-              }
-            }
-          })
-          return exp.length === isShowNum
-        } else {
-          return true
-        }
-      }
     /**
      * @description 根据file_no查找文件列表
      * @param {String} file_no - 文件编号
@@ -1544,7 +1328,7 @@ export default {
       }
       return arr.sort(compare(col))
     }
-    Vue.prototype.judgeClientEnviroment = function() {
+    Vue.prototype.initClientEnv = function() {
       let client_env = '';
       // #ifdef H5
       const isWeixin = Vue.prototype.isWeixinClient();
@@ -1559,38 +1343,33 @@ export default {
       client_env = 'app';
       // #endif
       const systemInfo = uni.getSystemInfoSync();
-      if(systemInfo?.screenWidth){
-        uni.setStorageSync('screenWidth',systemInfo?.screenWidth)
+      if (systemInfo?.screenWidth) {
+        uni.setStorageSync('screenWidth', systemInfo?.screenWidth)
       }
       let client_type = '';
       switch (systemInfo?.platform) {
         case 'android':
-          console.log('运行Android上');
           client_type = 'android';
           break;
         case 'ios':
-          console.log('运行iOS上');
           client_type = 'ios';
           break;
         case 'windows':
-          console.log('运行windows上');
           client_type = 'windows';
           break;
         case 'mac':
-          console.log('运行mac上');
           client_type = 'mac';
           break;
         case 'linux':
-          console.log('运行linux上');
           client_type = 'linux';
           break;
         case 'devtools':
-          console.log('运行devtools上');
           client_type = 'devtools';
           break;
         default:
           client_type = 'web';
       }
+      console.log(`运行${client_type}上`);
       uni.setStorageSync('client_env', client_env);
       uni.setStorageSync('client_type', client_type);
 
@@ -1622,7 +1401,7 @@ export default {
     Vue.prototype.iArray = function(e) {
       if (e) {
         // return Array.isArray(e)
-        return Object.prototype.toString.call(e) === "[object Array]"
+        return Object.prototype.toString.call(e) === "[object Array]" ? true : false
       } else {
         return false
       }
@@ -1633,18 +1412,7 @@ export default {
     Vue.prototype.isArray = function(e) {
       return Array.isArray(e)
     }
-    Vue.prototype.setCodeUrl = function(obj) {
-      if (obj) {
-        let url = ""
-        for (let key in obj) {
-          url += ("&" + key + "=" + (Vue.prototype.iObject(obj[key]) || Vue.prototype.iArray(obj[key]) ?
-            encodeURIComponent(JSON.stringify(obj[key])) : encodeURIComponent(obj[key])))
-        }
-        return url
-      } else {
-        return false
-      }
-    }
+
     Vue.prototype.setFieldsDefaultVal = function(field, values) {
       if (Vue.prototype.iArray(field) && Vue.prototype.iObject(values)) {
         for (let i = 0; i < field.length; i++) {
@@ -1655,7 +1423,6 @@ export default {
             }
           }
         }
-        console.log('1111', field, values)
         return field
       } else {
         return false
@@ -1904,15 +1671,7 @@ export default {
       }
 
     }
-    Vue.prototype.strReplace = function(str, before, after) {
-      console.log(str, before, after)
-      if (str && before) {
-        let a = before
-        return str.replace(/[a]/g, after)
-      } else {
-        return false
-      }
-    }
+
     Vue.prototype.html2text = (str) => {
       if (str && typeof str === 'string') {
         return str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
@@ -1922,31 +1681,13 @@ export default {
         return str
       }
     }
+
     Vue.prototype.getFixedNum = (num) => {
       if (num) {
         return num.toFixed(1)
       } else {
         return 0
       }
-    }
-
-    Vue.prototype.getWxUserInfo = async (e) => {
-      // #ifdef MP-WEIXIN
-      const user = e.mp.detail;
-      if (user && user.userInfo) {
-        let rawData = {
-          nickname: user.userInfo.nickName,
-          sex: user.userInfo.gender,
-          country: user.userInfo.country,
-          province: user.userInfo.province,
-          city: user.userInfo.city,
-          headimgurl: user.userInfo.avatarUrl
-        };
-        Vue.prototype.setWxUserInfo(rawData);
-        store.commit('SET_WX_USERINFO', rawData);
-        store.commit('SET_AUTH_USERINFO', true);
-      }
-      // #endif
     }
 
     Vue.prototype.updateUserInfo = async (e) => {
@@ -1983,7 +1724,6 @@ export default {
         // 	Vue.prototype.checkSubscribeStatus()
         // }
         // 自动更新头像昵称
-        store.commit('SET_REGIST_STATUS', false)
         return true
       } else if (data?.no) {
         // 未查到用户信息
@@ -2013,7 +1753,6 @@ export default {
         if ((wxUserInfo && (!wxUserInfo.nickname || wxUserInfo.nickname === '微信用户')) || !wxUserInfo) {
           // 未授权获取用户信息
           store.commit('SET_AUTH_USERINFO', false)
-          store.commit('SET_REGIST_STATUS', false)
           // return
           // 未授权不进行注册
         } else if (wxUserInfo?.nickname) {
@@ -2104,9 +1843,7 @@ export default {
           req[0].data[0].add_store_no = api.storeNo
           req[0].data[0].home_store_no = api.storeNo
         }
-        store.commit('SET_REGIST_STATUS', true)
         let res = await _http.post(url, req)
-        store.commit('SET_REGIST_STATUS', false)
         if (res.data && res.data.resultCode === "SUCCESS") {
           console.log("信息登记成功")
           if (
@@ -2117,7 +1854,6 @@ export default {
             res.data.response[0].response.effect_data.length > 0
           ) {
             store.commit('SET_AUTH_USERINFO', true)
-            store.commit('SET_REGIST_STATUS', true)
             store.commit('SET_USERINFO', res.data.response[0].response.effect_data[0])
           }
 
@@ -2307,15 +2043,7 @@ export default {
         }
         return op
       })
-
-      // conditions = conditions.filter(item => {
-      // 	if (item.ruleType === 'like' && !item.value) {
-      // 		return false
-      // 	} else {
-      // 		return true
-      // 	}
-      // })
-
+      
       return conditions
     }
 
@@ -2387,12 +2115,10 @@ export default {
       for (let key in cols) {
         if (cols[key].col_type == 'Dict' || cols[key].col_type == 'User' || cols[key].col_type == 'fk') {
           if (col == `_${cols[key].columns}_disp` || cols[key].columns == col) {
-            // console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
             res = cols[key].label
           }
         } else {
           if (cols[key].columns == col) {
-            // console.log("colNameToLabel",col,cols[key].columns,cols[key].label)
             res = cols[key].label
           }
         }
@@ -2563,14 +2289,9 @@ export default {
         title = params?.title
       }
       let sysInfo = uni.getSystemInfoSync();
-      // if (sysInfo?.model === 'PC') {
-      // params.url = '/health/#' + params.url
-      //   Vue.prototype.addTab(params?.url, params?.title)
-      // } else {
       uni.navigateTo({
         ...params
       })
-      // }
       //#endif
     }
 

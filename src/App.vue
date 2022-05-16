@@ -37,7 +37,7 @@
 			console.log(process.env, '---process.env')
 			this.checkUpdate()
 			this.checkOptionParams(options?.query)
-			this.judgeClientEnviroment();
+			this.initClientEnv();
 			uni.setStorageSync('isThirdParty', this.$api.isThirdParty);
 			uni.getSystemInfo({
 				success: function(e) {

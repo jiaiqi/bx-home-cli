@@ -4,7 +4,7 @@
       :type="theme" :color="color" :duration="duration" @click="clickNotice">
     </u-notice-bar>
   </view>
-  <view class="notice-wrap" :style="[calcStyle]" v-else-if="pageItem&&noticeList&&noticeList.length>0">
+  <view class="notice-wrap" v-else-if="pageItem&&noticeList&&noticeList.length>0">
     <view class="notice-item" v-for="item in noticeList" :key="item.id" @click="handelClick(item)" :style="{
         'font-size': item.style_config.fontSize,
         'justify-content': item.style_config.align,
@@ -47,13 +47,6 @@
       duration() {
         return 3000
       },
-      calcStyle() {
-        // if (this.pageItem && (this.pageItem.margin || this.pageItem.margin == 0)) {
-        //   return {
-        //     margin: this.pageItem.margin
-        //   }
-        // }
-      },
       setList() {
         if (Array.isArray(this.noticeList)) {
           return this.noticeList.map(item => item.label).filter(item => item && item)
@@ -91,8 +84,12 @@
           return
         }
         if (e.target_link) {
+          let url = e.target_link.trim()
+          if (e?.type === '直播' && e.target_link.indexOf('plugin-private:') == -1) {
+            url = `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.target_link}`
+          }
           uni.navigateTo({
-            url: e.target_link.trim()
+            url
           })
         } else if (e.content_no) {
           uni.navigateTo({
@@ -177,6 +174,7 @@
     overflow: hidden;
     background-color: #fff;
     color: #333;
+
     @media screen and (min-width: 1300px) {
       width: 400px;
       margin: auto;
