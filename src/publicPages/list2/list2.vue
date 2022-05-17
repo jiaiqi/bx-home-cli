@@ -1344,7 +1344,6 @@
           if (moreConfig.prepay_id_col && rowData[moreConfig.prepay_id_col]) {
             prepay_id = rowData[moreConfig.prepay_id_col]
           }
-          debugger
           if (!prepay_id) {
             const result = await this.toPlaceOrder(totalMoney * 100, '', orderData,
               wxMchId);
@@ -1652,8 +1651,6 @@
                   });
                 }
               }
-
-
             } else if (buttonInfo?.moreConfig?.type === 'showQrcode') {
               // 展示二维码弹框
               if (buttonInfo?.moreConfig?.qrcode_content) {
@@ -1784,9 +1781,7 @@
             if (this.disabled === true) {
               url += '&disabled=true'
             }
-            // uni.navigateTo({
-            //   url
-            // });
+            
             let title = buttonInfo?.service_view_name || buttonInfo?.button_name
             this.navigateTo({
               url,
@@ -1874,7 +1869,6 @@
             };
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
-            debugger
             if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
               let condition = buttonInfo?.operate_params?.condition
               let fieldsCond = [{

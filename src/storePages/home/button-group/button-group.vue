@@ -2,18 +2,18 @@
   <view class="menu-list" :style="[calcStyle]" v-if="buttons&&buttons.length>0">
     <view class="template-1" v-if="pageItem.button_style==='模板1'&&buttonsIcon.length>=4">
       <view class="left">
-        <image lazy-load :src="getImagePath(buttonsIcon[0].icon,true)" mode="aspectFit"></image>
+        <image lazy-load :src="buttonsIcon[0].imgSrc" mode="aspectFit"></image>
       </view>
       <view class="right">
         <view class="top">
-          <image lazy-load :src="getImagePath(buttonsIcon[1].icon,true)" mode="aspectFit"></image>
+          <image lazy-load :src="buttonsIcon[1].imgSrc" mode="aspectFit"></image>
         </view>
         <view class="bottom">
           <view class="bottom-item">
-            <image lazy-load :src="getImagePath(buttonsIcon[2].icon,true)" mode="aspectFit"></image>
+            <image lazy-load :src="buttonsIcon[2].imgSrc" mode="aspectFit"></image>
           </view>
           <view class="bottom-item">
-            <image lazy-load :src="getImagePath(buttonsIcon[3].icon,true)" mode="aspectFit"></image>
+            <image lazy-load :src="buttonsIcon[3].imgSrc" mode="aspectFit"></image>
           </view>
         </view>
       </view>
@@ -21,20 +21,10 @@
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
       <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight}]"
         v-for="item in buttonsIcon">
-        <u-image widht="100%" height="100%" :src="getImagePath(item.icon,true)" @click="toPages(item)">
-          <!-- <u-loading slot="loading"></u-loading> -->
+        <u-image widht="100%" height="100%" :src="item.imgSrc" @click="toPages(item)">
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
         </u-image>
       </view>
-      <!-- <u-image :width="item.imgWidth" :height="item.imgHeight" :src="getImagePath(item.icon,true)" mode="aspectFit"
-        @click="toPages(item)" v-for="item in buttonsIcon">
-        <u-loading slot="loading"></u-loading>
-        <view slot="error" style="font-size: 24rpx;">加载失败</view>
-      </u-image> -->
-      <!--     <image :src="getImagePath(item.icon,true)" mode="aspectFit" :lazy-load="true" :style="{
-						width: item.imgWidth + 'px',
-						height: item.imgHeight + 'px'
-					}" v-for="item in buttonsIcon" @click="toPages(item)"></image> -->
     </view>
     <view class="menu-list-box" v-else-if="pageItem.button_style === 'list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
@@ -58,11 +48,8 @@
     <view class="menu-list-box" v-else-if="pageItem.button_style === 'info-list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">
-          <image lazy-load class="image" :src="getImagePath(item.icon,true)" mode="aspectFit">
+          <image lazy-load class="image" :src="item.imgSrc" mode="aspectFit">
           </image>
-          <!--   <button :open-type="item.openType" v-if="item.openType" @getphonenumber="getPhoneNumber"
-            class="cu-btn bg-white text">{{item.button_label}}</button>
-          <text v-else>{{item.button_label||''}}</text> -->
         </view>
         <view class="right">
           <view class="title">
@@ -96,7 +83,8 @@
             <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
               v-else-if="item.iconType === 'uicon' && item.custonIcon">
             </u-icon>
-            <image lazy-load class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
+            <image lazy-load class="icon image" :src="item.imgSrc" mode="aspectFit"
+              v-if="item.iconType === 'image'&&item.imgSrc">
               <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
               <text class="title">{{ item.label }}</text>
             </image>
@@ -117,13 +105,13 @@
         <view class="cu-tag badge-left" v-if="item.unbacknum">{{
           setNumber(item.unbacknum) || ""
         }}</view>
-        <!-- <view class="cu-tag badge-left" v-if="item.unbacknum">未回复:{{item.unbacknum||''}}</view> -->
         <u-icon :name="item.icon" size="60" color="#00aaff" v-if="item.iconType === 'uicon' && !item.custonIcon">
         </u-icon>
         <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
           v-else-if="item.iconType === 'uicon' && item.custonIcon">
         </u-icon>
-        <image lazy-load class="icon image" :src="item.icon" mode="aspectFit" v-if="item.iconType === 'image'">
+        <image lazy-load class="icon image" :src="item.imgSrc" mode="aspectFit"
+          v-if="item.iconType === 'image'&&item.imgSrc">
           <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
           <text class="title">{{ item.label }}</text>
         </image>
@@ -135,7 +123,6 @@
           <!-- <view class="title">
             我的推广码
           </view> -->
-          <!-- <image :src="getImagePath(storeInfo.logo)" mode="aspectFill" class="store-logo"></image> -->
           <image lazy-load :src="qrcodePath" mode="aspectFit" class="qr-code-image" v-if="storeInfo&&qrcodePath"
             @click="toPreviewImage(qrcodePath)">
           </image>
@@ -262,6 +249,7 @@
           appoint_remark: ''
         },
         buttonsIcon: [],
+        menuList: [],
         noticeNum: {}
       };
     },
@@ -286,25 +274,20 @@
         immediate: true,
         deep: true,
         handler(newValue, oldValue) {
-          this.setButtonsIcon()
+          if (Array.isArray(newValue) && newValue.length > 0) {
+            if (['模板1', '仅图片', 'info-list'].includes(this.pageItem?.button_style)) {
+              this.setButtonsIcon()
+            } else {
+              this.setMenuList()
+            }
+          }
         }
       },
-      storeNo: {
-        immediate: true,
-        handler(newValue, oldValue) {
-          if (
-            this.pageItem &&
-            this.showPublic &&
-            this.pageItem.show_related_group === "是" &&
-            this.pageItem.type === "按钮组"
-          ) {
-            // 查找关联群组
-            this.seletGroupList();
-          } else {
-            this.groupList = [];
-          }
-        },
-      },
+      // storeNo: {
+      //   immediate: true,
+      //   handler(newValue, oldValue) {
+      //   },
+      // },
     },
     computed: {
       buttons() {
@@ -314,17 +297,6 @@
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
             }
-            // this.getImageInfo({
-            //   url: this.getImagePath(item.icon, true)
-            // }).then(picInfo => {
-            //   if (picInfo.w && picInfo.h) {
-            //     let res = this.setPicHeight(picInfo);
-            //     if (res.w && res.h) {
-            //       this.$set(item, 'imgWidth', res.w);
-            //       this.$set(item, 'imgHeight', res.h);
-            //     }
-            //   }
-            // });
             return item
           });
         } else {
@@ -335,11 +307,7 @@
         let style = {
 
         }
-        // if (
-        //   this.pageItem?.margin || this.pageItem?.margin == 0
-        // ) {
-        //   style.margin = this.pageItem.margin
-        // }
+     
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
           if (this.pageItem?.is_radius === '是') {
@@ -377,64 +345,25 @@
           }
         }
       },
-      menuList() {
-        let list = [];
-        if (Array.isArray(this.groupList)) {
-          let groupList = this.groupList.map((item) => {
-            return {
-              icon: this.getImagePath(item.icon, true),
-              iconType: "image",
-              label: item.name,
-              eventType: "toGroup",
-              type: item.gc_no,
-              num: item.unreadNum || 0,
-            };
-          });
-          list = [...list, ...groupList];
-        }
-        if (Array.isArray(this.buttons) && this.buttons.length > 0) {
-          this.buttons.forEach((btn) => {
-            let num = 0;
-            if (btn.notice_attr) {
-              const data = this;
-              num = Number(this.renderStr(btn.notice_attr, data));
-              if (isNaN(num)) {
-                num = true;
-              }
-            }
-            list.push({
-              prompt: btn.prompt,
-              navType: btn.navigate_type,
-              icon: this.getImagePath(btn.icon, true),
-              iconType: "image",
-              label: btn.button_label,
-              eventType: "toPage",
-              num: num || 0,
-              type: "navPage",
-              url: btn.dest_page,
-              appid: btn.appid,
-              phone_number: btn.phone_number,
-            });
-          });
-        }
-        let rownumber = this.pageItem.row_number || 1;
-        if (Array.isArray(list)) {
-          return list.reduce((pre, item) => {
-            if (pre.length === 0) {
-              pre = [
-                [item]
-              ];
-            } else if (pre[pre.length - 1].length >= rownumber * 4) {
-              pre.push([item]);
-            } else {
-              pre[pre.length - 1].push(item);
-            }
-            return pre;
-          }, []);
-        }
-      }
     },
     methods: {
+      getImgSrc(url) {
+        return new Promise(resolve => {
+          // #ifdef MP-WEIXIN
+          uni.downloadFile({
+            url: url,
+            success: (res) => {
+              if (res.statusCode === 200) {
+                resolve(res.tempFilePath)
+              }
+            }
+          });
+          // #endif
+          // #ifdef H5
+          resolve(url)
+          // #endif
+        })
+      },
       setNumber(num) {
         let res = num
         if (typeof num === 'number') {
@@ -451,13 +380,57 @@
         }
         return style
       },
-      getImgButtonStyle(item) {
-        let style = {
-          backgroundImage: `url(${this.getImagePath(item.icon,true)})`,
-          width: item.imgWidth + 'px',
-          height: item.imgHeight + 'px'
+      async setMenuList() {
+        let list = [];
+        if (Array.isArray(this.buttons) && this.buttons.length > 0) {
+          for (let btn of this.buttons) {
+
+            let num = 0;
+            if (btn.notice_attr) {
+              const data = this;
+              num = Number(this.renderStr(btn.notice_attr, data));
+              if (isNaN(num)) {
+                num = true;
+              }
+            }
+            let obj = {
+              prompt: btn.prompt,
+              navType: btn.navigate_type,
+              icon: '',
+              iconType: "image",
+              label: btn.button_label,
+              eventType: "toPage",
+              num: num || 0,
+              type: "navPage",
+              url: btn.dest_page,
+              appid: btn.appid,
+              phone_number: btn.phone_number,
+            }
+            if (btn.icon) {
+              const icon = this.getImagePath(btn.icon, true)
+              obj.imgSrc = icon
+              // const res = await this.getImgSrc(icon)
+              // obj.imgSrc = res
+            }
+            list.push(obj);
+          }
         }
-        return style
+        let rownumber = this.pageItem.row_number || 1;
+        if (Array.isArray(list)) {
+          list = list.reduce((pre, item) => {
+            if (pre.length === 0) {
+              pre = [
+                [item]
+              ];
+            } else if (pre[pre.length - 1].length >= rownumber * 4) {
+              pre.push([item]);
+            } else {
+              pre[pre.length - 1].push(item);
+            }
+            return pre;
+          }, []);
+        }
+        this.menuList = list
       },
       async setButtonsIcon() {
         this.buttonsIcon = []
@@ -473,6 +446,8 @@
             if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
               item.openType = 'getPhoneNumber'
             }
+            item.imgSrc = await this.getImgSrc(this.getImagePath(item.icon, true))
+            // item.imgSrc = this.getImagePath(item.icon, true)
             if (item.icon_origin_width && item.icon_origin_height && item.icon_origin_width !== '100%' && item
               .icon_origin_height !== '100%' && false) {
               let picInfo = {
@@ -490,29 +465,32 @@
                 this.$set(item, 'imgHeight', `${res.h}px`);
               }
             } else {
-              this.getImageInfo({
-                url: this.getImagePath(item.icon, true)
-              }).then(picInfo => {
-                if (picInfo && picInfo.w && picInfo.h) {
-                  let res = this.setPicHeight(picInfo);
-                  if (res.w && res.h) {
-                    if (item.button_width && item.button_width.indexOf('%') !== -1) {
-                      let ratio = item.button_width.replace('%', '') * 0.01
-                      res.w = res.w * ratio
-                      res.h = res.h * ratio
-                    }
-                    this.$set(item, 'imgWidth', `${ res.w}px`);
-                    this.$set(item, 'imgHeight', `${res.h}px`);
-                  }
-                }
+              const picInfo = await this.getImageInfo({
+                url: item.imgSrc
               })
+
+              // this.getImageInfo({
+              //   url: item.imgSrc 
+              // }).then(picInfo => {
+              if (picInfo && picInfo.w && picInfo.h) {
+                let res = this.setPicHeight(picInfo);
+                if (res.w && res.h) {
+                  if (item.button_width && item.button_width.indexOf('%') !== -1) {
+                    let ratio = item.button_width.replace('%', '') * 0.01
+                    res.w = res.w * ratio
+                    res.h = res.h * ratio
+                  }
+                  this.$set(item, 'imgWidth', `${ res.w}px`);
+                  this.$set(item, 'imgHeight', `${res.h}px`);
+                }
+              }
+              // })
             }
 
             item = {
               ...item,
               prompt: item.prompt,
               navType: item.navigate_type,
-              icon: this.getImagePath(item.icon, true),
               iconType: "image",
               label: item.button_label,
               eventType: "toPage",
@@ -754,119 +732,6 @@
           }
         }
       },
-      getButtons() {
-        if (
-          this.pageItem &&
-          this.showPublic &&
-          this.pageItem.show_related_group === "是" &&
-          this.pageItem.type === "按钮组"
-        ) {
-          // 查找关联群组
-          this.seletGroupList();
-        } else {
-          this.groupList = [];
-        }
-        let req = {
-          serviceName: "srvhealth_page_item_buttons_select",
-          colNames: ["*"],
-          condition: [{
-              colName: "item_no",
-              ruleType: "eq",
-              value: this.pageItem.component_no,
-            },
-            {
-              colName: "button_usage",
-              ruleType: "ne",
-              value: "管理人员",
-            },
-          ],
-          page: {
-            pageNo: 1,
-            rownumber: 99,
-          },
-        };
-        this.$fetch(
-          "select",
-          "srvhealth_page_item_buttons_select",
-          req,
-          "health"
-        ).then((res) => {
-          if (res.success) {
-            this.buttons = res.data.filter(
-              (item) => item.display !== "否" && item.display !== "隐藏"
-            );
-          }
-        });
-      },
-      async getGroupList() {
-        // 查找店铺关联群组
-        let req = {
-          condition: [{
-              colName: "circle_visible",
-              ruleType: "ne",
-              value: "不开放",
-            },
-            {
-              colName: "store_no",
-              ruleType: "eq",
-              value: this.storeNo,
-            },
-          ],
-        };
-        let res = await this.$fetch(
-          "select",
-          "srvhealth_group_circle_select",
-          req,
-          "health"
-        );
-        if (res.success) {
-          return res.data;
-        }
-      },
-      async seletGroupList() {
-        // 查找店铺关联群组 - 群成员信息
-        if (!this.storeNo) {
-          return;
-        }
-        let groupList = await this.getGroupList();
-        if (Array.isArray(groupList) && groupList.length > 0) {
-          let groupNoList = groupList.map((item) => item.gc_no);
-          let req = {
-            condition: [{
-                colName: "gc_no",
-                ruleType: "in",
-                value: groupNoList.toString(),
-              },
-              {
-                colName: "person_no",
-                value: this.userInfo.no,
-                ruleType: "eq",
-              },
-            ],
-          };
-          let res = await this.$fetch(
-            "select",
-            "srvhealth_person_group_circle_select",
-            req,
-            "health"
-          );
-          if (res.success) {
-            groupList.forEach((item) => {
-              let userInfo = res.data.find((data) => data.gc_no === item.gc_no);
-              if (userInfo) {
-                item.userInfo = userInfo;
-                item.latest_sign_in_time = userInfo.latest_sign_in_time;
-                item.unreadNum = userInfo.user_unread_msg;
-              }
-            });
-          }
-          this.groupList = groupList;
-          return groupList;
-        } else {
-          this.groupList = [];
-        }
-      },
-
       toPages(e) {
         let url = "";
         if (this.hasNotRegInfo && navType !== "takePhone") {
@@ -1112,7 +977,6 @@
             });
           }
           // #endif
-
         } else if (navType === "takePhone") {
           if (e.phone_number) {
             uni.makePhoneCall({
@@ -1141,7 +1005,6 @@
             });
           }
         }
-
       },
       addToStore() {
         this.$emit("addToStore");
@@ -1216,14 +1079,7 @@
       },
       async toGroup(e) {
         if (!this.bindUserInfo || !this.bindUserInfo.store_user_no) {
-          // this.bindUserInfo = await this.bindStore()
           this.addToStore()
-          // uni.showModal({
-          //   title: "提示",
-          //   content: "请先绑定为当前机构用户，点击右上方加入按钮进行绑定",
-          //   showCancel: false,
-          //   confirmText: "知道了",
-          // });
           return;
         }
         let data = await this.selectPersonInGroup(e);
@@ -1249,9 +1105,6 @@
   .menu-list {
     display: flex;
     flex-wrap: wrap;
-    // margin: 0 20rpx;
-    // margin-bottom: 20rpx;
-    // background: #FAFBFC;
     border-radius: 20rpx;
     min-width: 300px;
 

@@ -14,7 +14,7 @@
             </view>
           </view>
           <view class="store-button">
-            <button class="image-btn margin-right bg-white" style="background-color: #fff;"
+            <button class="image-btn margin-right"
               @click.stop="showModal('showQrCode')">
               <image class="image"
                 :src=" pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode: require('../../static/qrcode1.png')"
@@ -338,7 +338,7 @@
         // this.modalName = 'shareStore'
       },
       async getButtonGroup() {
-        if(this.isManage){
+        if (this.isManage) {
           this.hasManageBtn = true;
           return
         }
@@ -408,7 +408,7 @@
           this.showNoticeModal = true;
         }
       },
-      
+
       makeQrCode() {
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make();
@@ -497,6 +497,14 @@
       margin: auto;
     }
 
+    .store-button {
+      top: -10%;
+      .image-btn{
+        border-radius: 50%;
+        background-color: #fff;
+      }
+    }
+
     .image-bg {
       width: 100%;
       height: 100%;
@@ -525,6 +533,7 @@
         .store-icon {
           width: 160rpx;
           height: 160rpx;
+          border-radius: 50%;
         }
 
         .store-intro {
@@ -567,7 +576,7 @@
 
   .store-button {
     position: absolute;
-    top: -10%;
+    // top: -10%;
     right: 0;
     display: flex;
 

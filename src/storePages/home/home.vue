@@ -1,7 +1,5 @@
 <template>
-  <!-- 简介、导航、科室列表、名医介绍、就诊通知、在线预约挂号链接 -->
-  <view :style="themeVariable" class="page-wrap" v-if="(!showAuthBox || client_env === 'web')"
-    :class="['theme-' + theme]">
+  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
     <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
@@ -16,39 +14,45 @@
       </view>
     </cu-custom-navbar>
 
-    <view class="" v-if="pageItemList&&pageItemList.length>0">
-      <view class="page-item-list">
-        <store-item v-for="pageItem in pageItemList" :goodsListData="goodsListData" :key="pageItem.component_no"
-          :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
-          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" :isManage="isManage"
-          @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode" :before-click="clickStoreItem">
+    <view class="">
+      <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
+        <store-item v-for="pageItem in pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
+          :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"
+          @toDoctorDetail="toDoctorDetail" :isManage="isManage" @bindStore="bindStore" @setHomePage="setHomePage"
+          @getQrcode="getQrcode">
         </store-item>
       </view>
-
-      <view class="copyright-box">
-        <view class="row">
-          声明：图文信息均来源合作方，如有侵权请联系删除
+      <view class="page-item-list" v-for="(tab,index) in pageDefineList" v-show="currentTab===index">
+        <view class="" v-if="tab&&tab.pageItemList">
+          <store-item v-for="pageItem in tab.pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
+            :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"
+            @toDoctorDetail="toDoctorDetail" :isManage="isManage" @bindStore="bindStore" @setHomePage="setHomePage"
+            @getQrcode="getQrcode">
+          </store-item>
+          <view class="copyright-box">
+            <view class="row">
+              声明：图文信息均来源合作方，如有侵权请联系删除
+            </view>
+            <view class="row">
+              由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
+                @click="toHome">百想首页</text> 提供技术支持
+            </view>
+          </view>
         </view>
-        <view class="row">
-          由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
-            @click="toHome">百想首页</text> 提供技术支持
+        <view class="cu-load load-modal" v-else @click.stop="">
+          <text>加载中...</text>
         </view>
       </view>
     </view>
 
-    <view class="cu-load load-modal" v-else @click.stop="">
-      <!-- <image src="/static/basicprofile.jpg" mode="aspectFit"></image> -->
-      <text>加载中...</text>
-    </view>
+
+
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
       :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" :inactive-color="labelColor"
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
   </view>
-
-  </view>
-  <bx-auth v-else @auth-complete="initPage"></bx-auth>
 
 </template>
 
@@ -70,28 +74,22 @@
         pdNo: '', // 页面定义编号
         tabbarList: [],
         pageDefine: {},
+        pageDefineList: [],
         unread_num: 0,
         networkErrTimes: 0,
         showHomeBtn: true,
         client_env: uni.getStorageSync('client_env'),
         isBind: true, //当前用户是否绑定此诊所
         bindUserInfo: {},
-        goodsListData: [],
         storeNo: '',
         StoreInfo: {},
-        kefuSessionInfo: {},
         pageItemList: [],
         manageButtonGroup: [],
-        storeList: [],
-        modalName: '',
-        push_msg_set: '',
-        member_status: '',
         globalData: {},
         pt_no: '', // 二维码参数编号
         ptInfo: null,
         rowData: {},
         invite_user_no: '',
-        showAuthBox: false
       };
     },
     computed: {
@@ -115,6 +113,11 @@
       currentTab() {
         if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0) {
           return this.tabbarList.findIndex(item => item.link_pd_no === this.pdNo);
+        }
+      },
+      currentPageDefine() {
+        if (this.currentTab !== -1 && this.pageDefineList.length > 0 && this.pageDefineList[this.currentTab]) {
+          return this.pageDefineList[this.currentTab]
         }
       },
       showBackHome() {
@@ -163,15 +166,9 @@
           url: '/storePages/home/home?store_no=S0000000000'
         })
       },
-      clickStoreItem(e) {
-        if (this.hasNotRegInfo) {
-          debugger
-        }
-      },
       beforeSwitch(index) {
         let curTab = this.tabbarList[index];
         if (index !== this.pageDefine.active_nav_index) {
-          
           if (!curTab?.link_pd_no) {
             if (curTab.link_pd_json) {
               let data = this;
@@ -213,23 +210,15 @@
       },
       getQrcode(e) {
         this.StoreInfo.store_qr_code = e;
-        this.$store.commit('setStateAttr', {key:'storeInfo',val:this.StoreInfo});
-      },
-      savePushSet(data) {
-        // 保存通知设置
-        this.updateStoreUser(data, true);
+        this.$store.commit('setStateAttr', {
+          key: 'storeInfo',
+          val: this.StoreInfo
+        });
       },
       joinStore() {
         // 加入店铺 店铺用户状态改为正常
         let data = {
           member_status: '正常'
-        };
-        this.updateStoreUser(data, true);
-      },
-      exitStore() {
-        // 退出店铺 店铺用户状态改为退出
-        let data = {
-          member_status: '退出'
         };
         this.updateStoreUser(data, true);
       },
@@ -255,15 +244,6 @@
         }
       },
 
-      hideModal() {
-        this.modalName = null;
-      },
-      checkUserAuth() {
-        if (this.hasNotRegInfo) {
-          this.showAuthBox = true
-          return
-        }
-      },
       openSwitchHomePage() {
         if (this.singleStore) {
           return
@@ -365,7 +345,6 @@
         if (res.success) {
           let setFirstSwiper = false;
           this.pageItemList = []
-          // this.pageItemList = 
           let pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
             .map(item => {
               try {
@@ -383,7 +362,8 @@
               return item;
             });
           this.manageButtonGroup = res.data.filter(item => item.display !== '否' && item.button_usage == '管理人员')
-          this.getComponentData();
+          await this.getComponentData();
+          return pageItemList
         }
       },
       async getComponentData() {
@@ -681,8 +661,6 @@
                 this.updateStoreUser(data);
               }
             }
-            // this.push_msg_set = this.bindUserInfo.push_msg_set;
-            // this.member_status = this.bindUserInfo.member_status;
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           } else {
             this.isBind = false;
@@ -758,10 +736,20 @@
         let serviceName = 'srvhealth_store_list_select';
         // serviceName = 'srvhealth_store_mgmt_select'
         serviceName = 'srvhealth_store_cus_niming_detail_select'
-        let res = await this.$fetch('select', serviceName, req, 'health');
+        let res = null;
+        if (forceUpdate || this.storeNo !== this.StoreInfo?.store_no) {
+          res = await this.$fetch('select', serviceName, req, 'health')
+        } else {
+          res = {
+            data: [this.StoreInfo]
+          }
+        }
         if (Array.isArray(res.data) && res.data.length > 0) {
-          
-          this.$store.commit('setStateAttr', {key:'storeInfo',val:res.data[0]});
+
+          this.$store.commit('setStateAttr', {
+            key: 'storeInfo',
+            val: res.data[0]
+          });
           let theme = 'blue';
           if (res.data[0].para_cfg) {
             try {
@@ -774,8 +762,11 @@
               console.log(err);
             }
           }
-          
-          this.$store.commit('setStateAttr', {key:'theme',val:theme});
+
+          this.$store.commit('setStateAttr', {
+            key: 'theme',
+            val: theme
+          });
           this.StoreInfo = res.data[0];
           if (this.StoreInfo?.style_no) {
             this.getThemeCfg(this.StoreInfo?.style_no)
@@ -790,7 +781,7 @@
             this.bindStore();
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
-            if(!this.pdNo){
+            if (!this.pdNo) {
               this.pdNo = this.StoreInfo.home_page_no;
             }
             await this.getPageDefine(this.StoreInfo.home_page_no);
@@ -872,8 +863,6 @@
           this.isBind = true;
           if (res.data.length > 0) {
             this.bindUserInfo = res.data[0];
-            this.push_msg_set = this.bindUserInfo.push_msg_set;
-            this.member_status = this.bindUserInfo.member_status;
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
             return this.bindUserInfo;
           }
@@ -1147,6 +1136,7 @@
       async initPage(forceUpdate = false) {
         // forceUpdate - 是否强制更新店铺组件
         await this.toAddPage();
+        this.pageItemList = false
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
           this.checkSubscribeStatus();
@@ -1163,18 +1153,24 @@
             if (!this.pdNo) {
               await this.getPageItem();
             } else {
-              await this.getPageDefine(this.pdNo);
+              await this.getPageDefine(this.pdNo, forceUpdate);
             }
           }
 
           this.getQuery();
           this.initSocket()
           if (this.bindUserInfo?.store_user_no) {
-            await this.getVipCard(this.bindUserInfo?.store_user_no)
+            if (forceUpdate || (!this.vvipCard?.card_no || this.vvipCard?.useing_store_user_no !== this.vstoreUser
+                ?.store_user_no))
+              await this.getVipCard(this.bindUserInfo?.store_user_no)
           }
         }
       },
-      async getPageDefine(home_page_no) {
+      async getPageDefine(home_page_no, forceUpdate = false) {
+        if (Array.isArray(this.pageDefineList) && this.pageDefineList.length > 0 && this.currentTab !== -1 && this
+          .pageDefineList[this.currentTab]?.id && forceUpdate !== true) {
+          return
+        }
         const service = 'srvsys_page_def_select';
         let url = this.getServiceUrl('health', service, 'select');
         const req = {
@@ -1190,33 +1186,13 @@
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
           await this.getTabbar(home_page_no);
-          await this.getPageComponent(home_page_no);
-          // await this.getTabbar()
-          // if (this.pageDefine?.bottom_nav_json) {
-          //   try {
-          //     let tabbarList = JSON.parse(this.pageDefine?.bottom_nav_json)
-          //     if (Array.isArray(tabbarList) && tabbarList.length > 0) {
-          //       this.tabbarList = tabbarList.map(item => {
-          //         // item.iconPath = 'https://cdn.uviewui.com/uview/common/min_button.png';
-          //         // item.selectedIconPath = 'https://cdn.uviewui.com/uview/common/min_button_select.png';
-          //         item.text = item.label;
-          //         if (item.nav_icon) {
-          //           item.iconPath = this.getImagePath(item.nav_icon, true);
-          //         }
-          //         if (item.nav_icon_selected) {
-          //           item.selectedIconPath = this.getImagePath(item.nav_icon_selected, true);
-          //         }
-          //         return item;
-          //       });
-          //     }
-
-          //   } catch (e) {
-          //     console.log(e)
-          //     debugger
-          //     //TODO handle the exception
-          //   }
-          // }
-          // this.currentTab = this.pageDefine.active_nav_index;
+          let pageItemList = await this.getPageComponent(home_page_no);
+          let curTab = this.tabbarList.findIndex(item => item.link_pd_no === home_page_no);
+          if (curTab > -1) {
+            let data = res.data.data[0]
+            data.pageItemList = pageItemList
+            this.$set(this.pageDefineList, curTab, res.data.data[0])
+          }
         }
       },
       async getPageComponent(home_page_no) {
@@ -1240,11 +1216,9 @@
           order: []
         };
         let res = await this.$http.post(url, req);
-        // this.pageItemList = []
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
-          // this.pageItemList = res.data.data;
           let setFirstSwiper = false;
-          this.pageItemList = res.data.data
+          let pageItemList = res.data.data
             .filter(item => item.display !== '否' && item.button_usage !== '管理人员')
             .map(item => {
               if (!setFirstSwiper && item.type === '轮播图') {
@@ -1254,12 +1228,18 @@
               return item;
             });
           this.manageButtonGroup = res.data.data.filter(item => item.display !== '否' && item.button_usage == '管理人员')
-          this.getComponentData();
+          this.pageItemList = pageItemList
+          await this.getComponentData();
+          return pageItemList
         } else {
           this.pageItemList = []
         }
       },
       async getTabbar(home_page_no) {
+        if (Array.isArray(this.tabbarList) && this.tabbarList.length > 0 && this.tabbarList.find(item => item
+            .store_no === this.storeNo)) {
+          return
+        }
         let url = this.getServiceUrl('health', 'srvhealth_page_bottom_navigation_select', 'select');
         let req = {
           serviceName: 'srvhealth_page_bottom_navigation_select',
@@ -1292,6 +1272,7 @@
             }
             return item;
           });
+          this.pageDefineList = new Array(res.data.data.length)
         }
       },
       async getCouponInfo(option = {}) {
@@ -1441,7 +1422,7 @@
       if (option.service_place_no) {
         getApp().globalData.service_place_no = option.service_place_no;
         let placeInfo = await this.getPlaceInfo(option.service_place_no)
-        if(placeInfo){
+        if (placeInfo) {
           getApp().globalData.placeInfo = placeInfo
         }
       }
@@ -1474,10 +1455,7 @@
         this.selectBindUser();
         // this.selectUnreadAmount()
       });
-      uni.$on('updateKefuSessionLastLookTime', e => {
-        this.kefuSessionInfo = e;
-        // this.selectUnreadAmount()
-      });
+
       uni.$on('updateUnread', e => {
         // this.initPage()
         // 已读状态更新
