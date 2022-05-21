@@ -10,7 +10,8 @@ import store from '@/store/index.js'
 // //设置超时
 // fly.config.timeout = 30000;
 const fly = request({
-  timeout: 30 * 1000
+  timeout: 30 * 1000,
+  baseURL: api.serverURL
 })
 let FormateDate = function(date) {
   let o = {

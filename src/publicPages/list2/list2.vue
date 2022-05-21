@@ -2282,6 +2282,7 @@
         }
       }
       if (option.cond) {
+        debugger
         let cond = option.cond
         try {
           // #ifdef MP-WEIXIN

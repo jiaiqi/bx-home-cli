@@ -434,7 +434,25 @@
             "enablePullDownRefresh": false
           }
         }
-      ]
+          ,{
+                    "path" : "serveRecord/serveRecord",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "服务记录",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+                ,{
+                    "path" : "serveDetail/serveDetail",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "otherPages",

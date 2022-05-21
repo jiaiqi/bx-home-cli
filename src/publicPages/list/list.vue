@@ -1174,7 +1174,7 @@
                 return item;
                 break;
               case 'customize':
-                if (item.application === 'zhxq' && item.button_name === '住户录入') {
+                if (item.button_name === '住户录入') {
                   if (self.queryOption && self.queryOption.hasOwnProperty(
                       'showAdd')) {
                     self.showAdd = self.queryOption.showAdd === 'false' ? false :
