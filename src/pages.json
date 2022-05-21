@@ -440,13 +440,13 @@
           "path": "serveRecord/serveRecord",
           "style": {
             "navigationBarTitleText": "服务记录",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
         }, {
           "path": "serveDetail/serveDetail",
           "style": {
             "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
+            "enablePullDownRefresh": true
           }
         }
         //#endif

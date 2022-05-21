@@ -63,7 +63,6 @@
         if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
           this.info = res.data.data[0]
         }
-
       },
       async getList() {
         const url = '/health/select/srvhealth_store_serve_report_index_record_select'
@@ -85,6 +84,18 @@
           this.list = res.data.data
         }
       },
+    },
+    onPullDownRefresh() {
+      if(this.rp_no){
+        this.getData().then(_=>{
+          this.getList().then(_=>{
+            uni.stopPullDownRefresh()
+          })
+        })
+      }
+      setTimeout(_=>{
+        uni.stopPullDownRefresh()
+      },5000)
     },
     onLoad(e) {
       if (e.rp_no) {

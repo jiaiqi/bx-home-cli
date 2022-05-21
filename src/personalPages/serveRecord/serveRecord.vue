@@ -143,6 +143,18 @@
         }
       },
     },
+    onPullDownRefresh() {
+      if (this.srNo) {
+        this.getData().then(_ => {
+          this.getList().then(_=>{
+            uni.stopPullDownRefresh()
+          })
+        })
+      }
+      setTimeout(_=>{
+        uni.stopPullDownRefresh()
+      },5000)
+    },
     onLoad(option) {
       if (option.no || option.sr_no) {
         this.srNo = option.no || option.sr_no
@@ -216,7 +228,8 @@
         color: #c7c7cc;
         font-size: 16px;
       }
-      .right{
+
+      .right {
         flex: 1;
         display: flex;
         justify-content: flex-end;
