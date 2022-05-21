@@ -434,25 +434,23 @@
             "enablePullDownRefresh": false
           }
         }
-          ,{
-                    "path" : "serveRecord/serveRecord",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "服务记录",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "serveDetail/serveDetail",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+        //#ifdef H5
+        ,
+        {
+          "path": "serveRecord/serveRecord",
+          "style": {
+            "navigationBarTitleText": "服务记录",
+            "enablePullDownRefresh": false
+          }
+        }, {
+          "path": "serveDetail/serveDetail",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        }
+        //#endif
+      ]
     },
     {
       "root": "otherPages",
