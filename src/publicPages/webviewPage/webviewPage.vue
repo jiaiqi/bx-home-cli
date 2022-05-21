@@ -78,7 +78,7 @@
         if(userInfo?.userno){
           url += `&userInfo=${encodeURIComponent(JSON.stringify(userInfo))}`
         }
-        
+        url+='&from=inweapp'
         this.webUrl = url
       } else {
         uni.showModal({
