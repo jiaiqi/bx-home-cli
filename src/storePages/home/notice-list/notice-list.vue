@@ -188,21 +188,21 @@
     display: flex;
     align-items: center;
 
+    &:last-child {
+      border-bottom: none;
+    }
+
     .label {
       flex: 1;
     }
-  }
 
-  .notice-item:last-child {
-    border-bottom: none;
-  }
-
-  .notice-item .icon {
-    width: 50rpx;
-    height: 50rpx;
-    font-size: 50rpx;
-    align-items: center;
-    line-height: 50rpx;
-    margin-right: 20rpx;
+    .icon {
+      width: 25px;
+      height: 25px;
+      font-size: 25px;
+      line-height: 25px;
+      margin-right: 10px;
+      align-items: center;
+    }
   }
 </style>

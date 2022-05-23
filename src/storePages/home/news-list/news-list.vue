@@ -79,7 +79,7 @@
       </view>
       <u-empty v-if="list.length === 0 && loadstatus[current] === 'noMore'" mode="news" text="暂无内容"></u-empty>
       <uni-load-more :status="loadstatus[current]" v-else-if="loadstatus[current] === 'loading'"></uni-load-more>
-      <view @click="this.getTabs()" v-if="loadstatus[current] === 'fail'" :style="{
+      <view @click="getTabs()" v-if="loadstatus[current] === 'fail'" :style="{
           display: 'flex',
           'justify-content': 'center',
           padding: '20rpx 0',

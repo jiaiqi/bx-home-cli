@@ -19,7 +19,7 @@ export default {
 
     Vue.prototype.dayjs = dayjs
     Vue.prototype.$uDebounce = uDebounce
-    
+
     Vue.mixin(globalMixin)
     // // 混入
     // Vue.mixin({
@@ -490,11 +490,17 @@ export default {
             userInfo: store?.state?.user?.userInfo, // 健康app下的人员基本信息
             storeInfo: store?.state.app.storeInfo // 店铺信息
           }
+          let login_user_info = uni.getStorageSync('login_user_info')
           item.init_expr = Vue.prototype.renderStr(item.init_expr, data)
+          
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
-            let login_user_info = uni.getStorageSync('login_user_info')
             item.init_expr = login_user_info?.user_no || '';
           }
+          
+          if (item.init_expr && item.init_expr.indexOf('top.user.real_name') !== -1) {
+            item.init_expr = login_user_info?.real_name || '';
+          }
+          
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
             if (item.col_type === 'Date') {
               item.init_expr = dayjs().format('YYYY-MM-DD')
@@ -2043,7 +2049,7 @@ export default {
         }
         return op
       })
-      
+
       return conditions
     }
 

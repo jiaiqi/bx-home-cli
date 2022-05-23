@@ -1,5 +1,5 @@
 // 文本格式化超出省略号  参数：宽度，单行/多行
-@mixin text-overflow($width: null, $row: 1){
+@mixin textOverflow($width: null, $row: 1){
     @if $width != null{
         width: $width;
     }

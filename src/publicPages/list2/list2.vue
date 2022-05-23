@@ -1868,6 +1868,7 @@
               bindUserInfo
             };
             obj = this.deepClone(obj)
+            debugger
             targetUrl = this.renderStr(this.customDetailUrl, obj)
             if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
               let condition = buttonInfo?.operate_params?.condition
@@ -2282,7 +2283,6 @@
         }
       }
       if (option.cond) {
-        debugger
         let cond = option.cond
         try {
           // #ifdef MP-WEIXIN

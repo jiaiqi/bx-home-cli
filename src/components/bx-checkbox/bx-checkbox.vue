@@ -6,7 +6,7 @@
 			<text v-if="serialChar">{{ serialChar }}</text>
 			<text class="cuIcon-check" v-if="checked && !serialChar"></text>
 		</view>
-		<view class="bx-checkbox__label " hover-class="active" :class="{ checked: checked, disabled: disabled,'bx-btn-light-bg-color':checkboxClass&&checkboxClass.indexOf('button-mode')>-1&&checked }">
+		<view class="bx-checkbox__label " hover-class="active" :class="{ checked: checked, disabled: disabled,'bx-btn-light-bg-color123':checkboxClass&&checkboxClass.indexOf('button-mode')>-1&&checked }">
 			<slot />
 		</view>
 	</view>

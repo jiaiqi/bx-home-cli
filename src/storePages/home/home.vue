@@ -15,6 +15,7 @@
     </cu-custom-navbar>
 
     <view class="">
+      
       <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
         <store-item v-for="pageItem in pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
           :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"

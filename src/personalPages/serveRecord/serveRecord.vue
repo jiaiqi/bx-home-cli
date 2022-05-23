@@ -17,7 +17,7 @@
         </view>
       </view>
     </view>
-    <view class="detail-box">
+    <view class="detail-box" v-if="abnormalList&&abnormalList.length>0">
       <view class="detail-box_title">
         <text class="cuIcon-titles text-green"></text>
         <text>异常数据</text>
@@ -29,13 +29,13 @@
           {{item.report_type||''}}
         </view>
         <view class="right">
-          <text></text>
-          <text class="cuIcon-right text-gray"></text>
+          <text class="red" v-if="item.index_count_abnormal">{{item.index_count_abnormal}}项指标异常</text>
+          <text class="cuIcon-right text-gray margin-left"></text>
         </view>
       </view>
 
     </view>
-    <view class="detail-box">
+    <view class="detail-box" v-if="list&&list.length>0">
       <view class="detail-box_title">
         <text class="cuIcon-titles text-green"></text>
         <text>检查项目</text>

@@ -224,7 +224,7 @@
       <view class="cu-dialog" @tap.stop="">
         <option-selector :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
-          :selectType="selectType" @load-more="nextPage()" @search="searchFKDataWithKey" @refresh="refresh()"
+          :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey" @refresh="refresh()"
           @toFkAdd="toFkAdd" @change="pickerChange">
         </option-selector>
         <!-- <view class="tree-selector">
@@ -972,7 +972,6 @@
         }
       },
       getCascaderValue(e) {
-        debugger
         if (e?.type == '自行输入') {
           this.fieldData.value = e.value;
            this.fkFieldLabel = e.value

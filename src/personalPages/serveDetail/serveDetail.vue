@@ -22,12 +22,37 @@
       </view>
     </view>
     <view class="list-box">
-      <view class="list-item" v-for="item in list">
-        <view class="">
+      <view class="list-item" :class="{
+          'value-red':item.index_trend&&item.index_trend=='偏高',
+          'value-green':item.index_trend&&item.index_trend=='偏低',
+          'mulit-line':item.index_type&&item.index_type.indexOf('描述')!==-1
+          }" v-for="item in list">
+        <view class="list-item-label">
           {{item.index_name||''}}{{item.val_unit||''}}
         </view>
-        <view class="">
-          {{item.index_val}}({{item.val_min}}~{{item.val_max}})
+        <view class="list-item-value">
+          <text class="trend" v-if="item.index_trend=='偏低'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"
+              width="18" height="18" style="border-color: rgba(0,0,0,0);border-width: bpx;border-style: undefined"
+              filter="none">
+              <path d="M17.333 16h9.333l-10.667 10.667-10.667-10.667h9.333v-10.667h2.667z" fill="rgba(67, 198, 142, 1)">
+              </path>
+            </svg></text>
+          <text class="trend" v-if="item.index_trend=='偏高'"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"
+              width="18" height="18" style="border-color: rgba(0,0,0,0);border-width: bpx;border-style: undefined"
+              filter="none">
+              <path d="M17.333 16v10.667h-2.667v-10.667h-9.333l10.667-10.667 10.667 10.667z" fill="rgba(243, 90, 7, 1)">
+              </path>
+            </svg></text>
+          <text class="value"> {{item.index_val}}</text>
+          <text class="range">
+            ({{item.val_min}}~{{item.val_max}})
+          </text>
+        </view>
+        <view class="list-item-result" v-if="item.index_type&&item.index_type.indexOf('结论')!==-1">
+          {{item.item.index_result||''}}
+        </view>
+        <view class="list-item-desc" v-if="item.index_type&&item.index_type.indexOf('描述')!==-1">
+          {{item.index_desc}}
         </view>
       </view>
     </view>
@@ -86,16 +111,16 @@
       },
     },
     onPullDownRefresh() {
-      if(this.rp_no){
-        this.getData().then(_=>{
-          this.getList().then(_=>{
+      if (this.rp_no) {
+        this.getData().then(_ => {
+          this.getList().then(_ => {
             uni.stopPullDownRefresh()
           })
         })
       }
-      setTimeout(_=>{
+      setTimeout(_ => {
         uni.stopPullDownRefresh()
-      },5000)
+      }, 5000)
     },
     onLoad(e) {
       if (e.rp_no) {
@@ -108,6 +133,8 @@
 </script>
 
 <style lang="scss" scoped>
+  @import "@/common/css/mixin/text-overflow.scss";
+
   .header {
     padding: 32rpx;
     display: flex;
@@ -136,7 +163,7 @@
 
   .label {
     display: flex;
-    padding:  24rpx;
+    padding: 24rpx;
     justify-content: space-between;
     color: #aeaeb2;
     font-size: 24rpx;
@@ -153,6 +180,34 @@
       align-items: center;
       flex-wrap: wrap;
       margin-bottom: 1px;
+
+      &-value {
+        display: flex;
+        align-items: center;
+      }
+
+      &.value-red {
+        color: #f35a07;
+      }
+
+      &.value-green {
+        color: #43c68e;
+      }
+
+      .range {
+        color: #616161;
+        margin-left: 5px;
+      }
+
+      &.mulit-line {
+        .list-item-desc {
+          width: 100%;
+          padding: 10px;
+          background-color: #f8f8f8;
+          border-radius: 5px;
+          margin-top: 10px;
+        }
+      }
     }
   }
 </style>
