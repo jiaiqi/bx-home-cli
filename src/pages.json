@@ -450,6 +450,21 @@
           }
         }
         //#endif
+        , {
+          "path": "healthReport/healthReport",
+          "style": {
+            "navigationBarTitleText": "健康评估报告",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "healthReportDetail/healthReportDetail",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
+        }
       ]
     },
     {
@@ -544,8 +559,14 @@
             "enablePullDownRefresh": true
           }
         }
-
         //#endif
+        , {
+          "path": "tVideoPlayer/tVideoPlayer",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        }
       ]
     }
   ],

@@ -492,15 +492,15 @@ export default {
           }
           let login_user_info = uni.getStorageSync('login_user_info')
           item.init_expr = Vue.prototype.renderStr(item.init_expr, data)
-          
+
           if (item.init_expr && item.init_expr.indexOf('top.user.user_no') !== -1) {
             item.init_expr = login_user_info?.user_no || '';
           }
-          
+
           if (item.init_expr && item.init_expr.indexOf('top.user.real_name') !== -1) {
             item.init_expr = login_user_info?.real_name || '';
           }
-          
+
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
             if (item.col_type === 'Date') {
               item.init_expr = dayjs().format('YYYY-MM-DD')
@@ -1903,9 +1903,9 @@ export default {
           no = no.split('&bx_auth_ticket')[0]
         }
         let url = `${api.downloadFile}${no}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
-        if (notThumb !== true) {
-          url += `&thumbnailType=fwsu_100`
-        }
+        // if (notThumb === false) {
+        //   url += `&thumbnailType=fwsu_100`
+        // }
         return url
       } else {
         return ''
@@ -2081,6 +2081,18 @@ export default {
       return str
     }
 
+    String.prototype.renderStr = function(obj) {
+      return this.replace(/\$\{(.*?)\}/g, splitStr => {
+        let keyArr = splitStr.slice(2, splitStr.length - 1).split('.')
+        let result = ''
+        let i = 0;
+        while (i < keyArr.length) {
+          result = keyArr[i]
+          i++
+        }
+        return result
+      })
+    }
     Vue.prototype.renderEmoji = (str) => {
       if (str) {
         try {

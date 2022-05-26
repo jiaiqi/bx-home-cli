@@ -1,7 +1,7 @@
 <template>
   <view class="" v-if="goods">
     <view class="goods-item">
-      <image lazy-load class="goods-image" :src="getGoodsImageUrl()" mode=""
+      <image lazy-load class="goods-image" :src="getGoodsImageUrl()" mode="aspectFill"
         v-if="!['想豆卡','充值卡'].includes(goods.goods_type)"></image>
       <view class="content">
         <view class="goods-name">{{ goods.name||goods.goods_name||goods.goods_desc||'' }}
@@ -23,7 +23,7 @@
     </view>
     <view class="goods-item-list" v-if="list&&list.length>0">
       <view class="goods-item" v-for="(item,index) in list" :key="index">
-        <image lazy-load class="goods-image" :src="getGoodsImageUrl(item)" mode=""></image>
+        <image lazy-load class="goods-image" :src="getGoodsImageUrl(item)" mode="aspectFill"></image>
         <view class="content">
           <view class="goods-name">{{ item.name||item.goods_name||item.goods_desc||'' }}
           </view>

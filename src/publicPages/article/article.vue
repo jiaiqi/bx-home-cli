@@ -20,13 +20,13 @@
           <text v-if="articleData.create_time">{{ dayjs(articleData.create_time).format("YYYY-MM-DD") }}</text>
         </view>
       </view>
-      <view class="right qr-code">
+<!--      <view class="right qr-code">
         <uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" v-if="qrCodeText" :size="codeSize" class="qrcode-canvas"
           foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete">
         </uni-qrcode>
         <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrCodeText && qrcodePath"
           @click="toPreviewImage(qrcodePath)"></image>
-      </view>
+      </view> -->
     </view>
 
     <view class="content" v-if="articleData.content">

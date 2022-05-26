@@ -366,7 +366,9 @@
 
         // 更新 dateStr
         if (this.defaultValue) this.setDateStr(dtDefault);
-
+        if(!dtDefault){
+          return
+        }
         // 默认值相关数据
         let dfYear = dtDefault.getFullYear();
         let dfMonth = dtDefault.getMonth() + 1;

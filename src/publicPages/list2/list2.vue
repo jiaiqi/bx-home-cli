@@ -627,9 +627,9 @@
           });
           let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
           // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
-            let orderType = this.getOrderType(list)
-            url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+          url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+          let orderType = this.getOrderType(list)
+          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           // }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
@@ -664,7 +664,7 @@
                   uni.$emit('goods-cart-change')
                   if (res.data.state === 'SUCCESS') {
                     this.refresh()
-                    
+
                     uni.showToast({
                       title: '删除成功!',
                       icon: 'none'
@@ -1586,19 +1586,123 @@
             })
             return
           } else if (buttonInfo.operate_type === "URL跳转") {
+            let storeInfo = this.$store?.state?.app?.storeInfo
+            let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+            let globalData = {
+              userInfo: this.userInfo,
+              data: rowData,
+              rowData,
+              storeInfo,
+              bindUserInfo,
+              storeUser: bindUserInfo
+            };
             if (buttonInfo?.moreConfig?.navUrl) {
               // 跳转到自定义页面
-              let storeInfo = this.$store?.state?.app?.storeInfo
-              let bindUserInfo = this.$store?.state?.user?.storeUserInfo
-              let obj = {
-                userInfo: this.userInfo,
-                data: rowData,
-                rowData,
-                storeInfo,
-                bindUserInfo,
-                storeUser: bindUserInfo
-              };
-              let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj)
+              if (buttonInfo?.moreConfig?.click_validate) {
+                let click_validate = buttonInfo?.moreConfig?.click_validate
+                if (Array.isArray(click_validate) && click_validate.length > 0) {
+                  let num = 0;
+                  for (let i = 0; i < click_validate.length; i++) {
+                    const item = click_validate[i]
+                    if (['data-empty', 'no-repeat'].includes(item.type)) {
+                      // 校验重复数据及空数据
+                      // data-empty:没有数据时不通过；no-repeat：有数据时不通过
+                      if (num > 0) {
+                        return
+                      }
+                      const service = item.service
+                      let condition = []
+                      if (Array.isArray(item.condition)) {
+                        condition = item.condition.map(cond => {
+                          let obj = {
+                            colName: cond.colName,
+                            ruleType: cond.ruleType,
+                            value: ''
+                          }
+                          if (cond?.value?.value_type === 'variable' && cond?.value?.value) {
+                            obj.value = this.renderStr(cond?.value?.value, globalData)
+                          } else if (cond?.value?.value_type === 'rowData') {
+                            obj.value = data[cond?.value?.value_key]
+                          } else if (cond?.value?.value_type === 'constant') {
+                            obj.value = cond?.value?.value
+                          }
+                          return obj
+                        })
+                      }
+                      let url = this.getServiceUrl(item?.app || this.appName || uni
+                        .getStorageSync('activeApp'), service, 'select');
+                      let req = {
+                        "serviceName": service,
+                        "condition": condition,
+                        colNames: ['*'],
+                        page: {
+                          pageNo: 1,
+                          rownumber: 1
+                        }
+                      }
+                      let res = await this.$http.post(url, req)
+                      debugger
+                      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+                        let noPass = false
+                        if (item.type === 'no-repeat') {
+                          if (res.data.data.length > 0) {
+                            num++
+                            noPass = true
+                          }
+                        } else {
+                          if (res.data.data.length <= 0) {
+                            num++
+                            noPass = true
+                          }
+                        }
+                        debugger
+                        if (noPass && item.fail_tip) {
+                          uni.showModal({
+                            title: '提示',
+                            content: item.fail_tip,
+                            showCancel: false
+                          })
+                        }
+                      }
+                    } else if (item.type === 'followOfficial') {
+                      // 检查是否关注公众号
+                      let res = await this.checkSubscribeStatus()
+                      if (!res) {
+                        num++
+                        let confirm = await new Promise((resolve) => {
+                          uni.showModal({
+                            title: '提示',
+                            content: '请先关注百想助理公众号，以便及时收到新消息通知',
+                            confirmText: '去关注',
+                            success: (res) => {
+                              if (res.confirm) {
+                                resolve(true)
+                              } else {
+                                resolve(false)
+                              }
+                            }
+                          })
+                        })
+                        if (confirm === true) {
+                          if (this.$api?.env === 'prod') {
+                            this.toOfficial()
+                            return
+                          }
+                        } else {
+                          return
+                        }
+                      }
+                    }
+
+                  }
+                  if (num > 0) {
+                    return
+                  }
+                }
+              }
+
+
+              let url = this.renderStr(buttonInfo.moreConfig.navUrl, globalData)
 
               let title = buttonInfo?.service_view_name || buttonInfo?.button_name
               this.navigateTo({
@@ -1781,7 +1885,7 @@
             if (this.disabled === true) {
               url += '&disabled=true'
             }
-            
+
             let title = buttonInfo?.service_view_name || buttonInfo?.button_name
             this.navigateTo({
               url,
@@ -1868,7 +1972,6 @@
               bindUserInfo
             };
             obj = this.deepClone(obj)
-            debugger
             targetUrl = this.renderStr(this.customDetailUrl, obj)
             if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {
               let condition = buttonInfo?.operate_params?.condition
@@ -2327,9 +2430,14 @@
       }
     },
     onShareAppMessage(e) {
+      let imgUrl = ''
       let title = e?.target?.dataset?.sharetitle
       let path = e?.target?.dataset?.shareurl
       let row = e?.target?.dataset?.row
+      let btn = e?.target?.dataset?.btn
+      if (btn?.moreConfig?.shareImgCol && row[btn?.moreConfig?.shareImgCol]) {
+        imgUrl = this.getImagePath(row[btn?.moreConfig?.shareImgCol])
+      }
       let _data = {
         rowData: {
           share_user_no: this.$store?.state?.user?.userInfo?.userno,
@@ -2350,11 +2458,12 @@
       //   delete _data.rowData._buttons
       //   path += `&rowData=${JSON.stringify(_data.rowData)}`
       // }
-      let imageUrl = this.getImagePath(this.storeInfo?.image, true);
+      imgUrl = imgUrl || this.getImagePath(this.storeInfo?.logo || this.storeInfo?.image, true);
+
       this.saveSharerInfo(this.userInfo, path);
       title = this.renderEmoji(title)
       return {
-        imageUrl: imageUrl,
+        imageUrl: imgUrl,
         title: title,
         path: path
       };

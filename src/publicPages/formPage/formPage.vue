@@ -73,7 +73,8 @@
     </view>
     <view class="button-box" v-if="!orderMode&&!loading&&srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
       <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
-        :key='btnIndex' :style="[btn.style]" @click="onButton(btn)">
+        :key='btnIndex' :open-type="btn.type" :data-btn="btn" :data-shareurl="btn.shareUrl" :style="[btn.style]"
+        @click="onButton(btn)">
         {{ btn.button_name}}
       </button>
     </view>
@@ -932,7 +933,7 @@
                           url = this.renderStr(item.custom_url, globalData);
                         }
                         if (item.view_cfg) {
-                          url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
+                          url += `&view_cfg=${encodeURIComponent(JSON.stringify(item.view_cfg))}`
                         }
                         uni.redirectTo({
                           url
@@ -1476,6 +1477,56 @@
 
       },
     },
+    onShareAppMessage(e) {
+      let pages = getCurrentPages();
+      let title = ``;
+      let path = pages[pages.length - 1]?.$page?.fullPath;
+      path += '&from=share';
+      path += '&type=default';
+      if (this.userInfo?.userno) {
+        path += `&invite_user_no=${this.userInfo?.userno}`;
+      }
+      if (this.storeNo) {
+        path += `&store_no=${this.storeNo}`;
+      }
+      let url = this.moreConfig?.customDetailUrl;
+      if (e?.target?.dataset?.shareurl) {
+        url = e?.target?.dataset?.shareurl
+      }
+      let query = {
+        data: this.mainData || {},
+        rowData: this.mainData || {},
+        storeUser: this.vstoreUser,
+        ...this
+      }
+
+      if (url) {
+        url = this.renderStr(url, query)
+        if (url) {
+          path = url
+        }
+      }
+
+      if (e?.target?.dataset?.sharetitle) {
+        title = this.renderStr(e?.target?.dataset?.sharetitle, query)
+      }
+      let imageUrl = '';
+      let btn = e?.target?.dataset?.btn;
+      if (btn?.shareImgCol && this.mainData[btn?.shareImgCol]) {
+        imageUrl = this.getImagePath(this.mainData[btn?.shareImgCol])
+      }
+
+      if (this.storeInfo?.logo) {
+        imageUrl = imageUrl || this.getImagePath(this.storeInfo.logo || this.storeInfo?.image, true);
+      }
+      this.saveSharerInfo(this.userInfo, path, 'appMessage');
+      title = this.renderEmoji(title)
+      return {
+        imageUrl: imageUrl,
+        title: title,
+        path: path
+      };
+    },
     async onLoad(option) {
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)
@@ -1505,8 +1556,14 @@
       }
       if (option.view_cfg) {
         // 详情页面自定义展示效果
+        debugger
         try {
-          this.view_cfg = JSON.parse(option.view_cfg)
+          try {
+            this.view_cfg = JSON.parse(option.view_cfg)
+          } catch (e) {
+            //TODO handle the exception
+            this.view_cfg = JSON.parse(decodeURIComponent(option.view_cfg))
+          }
           if (this.view_cfg.hideColumn) {
             this.hideColumn = this.view_cfg.hideColumn
           }
@@ -1561,14 +1618,13 @@
           console.log(str)
           debugger
           fieldsCond = JSON.parse(str);
-          
+
         } catch (e) {
           console.log(e)
-          try{
+          try {
             let str = decodeURIComponent(encodeURIComponent(decodeURIComponent(option.fieldsCond)))
             fieldsCond = JSON.parse(str);
-          }catch(e){
-          }
+          } catch (e) {}
         }
         this.fieldsCond = fieldsCond
       }

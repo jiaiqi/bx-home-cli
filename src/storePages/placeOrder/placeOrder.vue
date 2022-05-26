@@ -329,7 +329,7 @@
 
     <view class="handler-bar">
       <text class="amount margin-right-xs"
-        v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ totalMoney - actualMoney }}元</text>
+        v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ (totalMoney*10000 - actualMoney*10000)/10000 }}元</text>
       <text class="amount">共{{ totalAmount }}件</text>
       <text class="text" v-if="totalMoney&&!pay_method">合计:</text>
       <text class="money-amount" v-if="totalMoney&&!pay_method">
@@ -814,14 +814,25 @@
               field.value = field.value || this.storeInfo?.store_no
               this.mainData[field.column] = field.value
             }
+            
             if (field.column === 'show_params_config' && this.show_params_config) {
               field.value = this.show_params_config
+              this.mainData[field.column] = field.value
+            }
+            if(field.column==='delivery_type'&&this.delivery_type){
+              field.value = this.delivery_type
               this.mainData[field.column] = field.value
             }
             if (field.column === 'order_type' && this.orderType) {
               field.value = this.orderType
               this.mainData[field.column] = field.value
             }
+            
+            if(field.column==='regimental_dumpling_no' &&  this.tgNo){
+              field.value = this.tgNo
+              this.mainData[field.column] = field.value
+            }
+            
             if (field.column === 'store_user_no') {
               field.value = field.value || this.vstoreUser?.store_user_no
               this.mainData[field.column] = field.value
@@ -1838,6 +1849,9 @@
       this.globalData = getApp().globalData
       if (getApp().globalData?.service_place_no) {
         option.service_place_no = getApp().globalData.service_place_no
+      }
+      if(option.delivery_type){
+        this.delivery_type = option.delivery_type
       }
       if (option.service_place_no) {
         this.service_place_no = option.service_place_no

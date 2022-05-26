@@ -50,8 +50,11 @@
           <view class="count-down" v-if="countDown===0">
             当前团购已结束
           </view>
-          <view class="count-down" v-else-if="countDown!==0">
+          <view class="count-down" v-else-if="countDown!==0&&countDown!=='团购已经结束'">
             距离团购结束还有 <text class="text-red margin-left-xs text-bold">{{countDown||''}}</text>
+          </view>
+          <view class="count-down" v-else-if="countDown">
+            {{countDown}}
           </view>
         </view>
       </view>
@@ -62,7 +65,7 @@
       </view>
       <view class="goods-list">
         <view class="goods-item" v-for=" (item,index) in goodsList" :key="index" @click="changeCheck(index)">
-          <view class="check-box" v-if="type==='default'">
+          <view class="check-box" v-if="type==='default'&&countDown!==0&&countDown!=='团购已经结束'">
             <radio :checked="item.checked" /><text></text>
           </view>
           <image :src="getImagePath(item.goods_img)" class="goods-image" mode=""></image>
@@ -88,7 +91,7 @@
                 <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
-              <view class="number-box">
+              <view class="number-box" v-if="countDown!==0&&countDown!=='团购已经结束'">
                 <u-number-box v-model="item.amount" :min="0" :index="index" @change="changeAmount"></u-number-box>
               </view>
             </view>
@@ -123,7 +126,7 @@
       </view>
     </view>
 
-    <view class="handler-bar" v-if="type==='default'">
+    <view class="handler-bar" v-if="type==='default' && countDown!=='团购已经结束'">
       <view class="left">
         合计 <text class="text-red text-bold">￥{{totalPrice||'0'}}</text>
       </view>
@@ -141,6 +144,7 @@
       return {
         type: "default", // manage -管理员查看页面，view -团长查看页面,default -消费者进行团购的页面，detail-消费者团购成功后查看的页面
         no: '',
+        id: "",
         tgInfo: null,
         goodsList: [],
         haveBoughtGoods: [], // 消费者点详情进来, 已购商品
@@ -150,6 +154,8 @@
         wxMchId: "", //自定义商户号
         storeNo: "",
         orderNo: "", //消费者点详情进来 传入订单编号
+        shareStoreUser: null, // 分享人店铺用户信息
+        share_store_user_no: '', //分享人店铺用户编号
       }
     },
     computed: {
@@ -172,6 +178,9 @@
       }
     },
     methods: {
+      getShareStoreUser() {
+
+      },
       toOrder() {
         // 跳转到下单页面
         let list = this.goodsList.filter(item => item.checked === true && item.amount);
@@ -190,15 +199,18 @@
             list: list
           });
           let url =
-            `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&orderType=团购&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
-          if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+            `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
+          url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+          let orderType = this.getOrderType(list)
+          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
+          debugger
+          if(this.tgInfo?.goods_way){
+            let delivery_type = this.tgInfo?.goods_way==='快递'?'快递':'自提'
+            url+= `&delivery_type=${delivery_type}`
           }
-
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
-
           uni.navigateTo({
             url
           });
@@ -315,6 +327,13 @@
             "rownumber": 1
           },
         }
+        if (!this.no && this.id) {
+          req.condition = [{
+            colName: 'id',
+            ruleType: 'eq',
+            value: this.id
+          }]
+        }
         let url = this.getServiceUrl('health', service, 'select');
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
@@ -405,11 +424,17 @@
         path += `&store_no=${this.storeNo}`;
       }
 
-      let title = `【${this.tgInfo.name}】`;
+      let title = `${this.tgInfo.name||'团购分享'}`;
       let imageUrl = '';
+      
       if (this.storeInfo?.logo) {
         imageUrl = this.getImagePath(this.storeInfo.logo, true);
       }
+      
+      if(this.tgInfo?.wx_share_icon){
+        imageUrl = this.getImagePath(this.tgInfo.wx_share_icon, true);
+      }
+      
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
       title = this.renderEmoji(title)
       return {
@@ -424,6 +449,9 @@
     },
 
     onLoad(option) {
+      if (option.share_store_user_no) {
+        this.share_store_user_no = option.share_store_user_no
+      }
       if (option.orderNo) {
         this.orderNo = option.orderNo
         this.type = 'detail'
@@ -433,6 +461,10 @@
       }
       if (option.type) {
         this.type = option.type
+      }
+      if (option.id) {
+        this.id = option.id;
+        this.getTgInfo()
       }
       if (option.no) {
         this.no = option.no;
