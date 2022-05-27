@@ -1161,6 +1161,7 @@
               }],
               data: this.orderInfo.goodsList.map(item => {
                 let obj = {
+                  is_remark:'待评价',
                   goods_no: item.meal_no || item.goods_no,
                   goods_amount: item.car_num,
                   goods_desc: item.name,

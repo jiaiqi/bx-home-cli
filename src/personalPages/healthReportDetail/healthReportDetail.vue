@@ -101,9 +101,9 @@
     <!--    <view class="title " v-if="childService&&childService.service_view_name">
       <text class="cuIcon-titles text-blue"></text> {{childService.service_view_name}}
     </view> -->
-    <view class="page-item" v-if="type==='疾病风险评估汇总'">
+    <view class="page-item" v-if="pageTitle==='疾病风险评估汇总'">
       <view class="title">
-        <text class="cuIcon-titles text-blue"></text>本次{{type}}
+        <text class="cuIcon-titles text-blue"></text>本次{{pageTitle}}
       </view>
       <view class="cur-disease-list" v-if="data">
         <view class="disease-item" v-for="item in  diseaseTypeList">
@@ -117,25 +117,25 @@
       </view>
     </view>
 
-    <view class="page-item" v-if="type==='重要指标检查结果'">
+    <view class="page-item" v-else-if="!illList.includes(type)">
       <view class="title">
-        <text class="cuIcon-titles text-blue"></text>重要指标检查结果
+        <text class="cuIcon-titles text-blue"></text>{{type}}
       </view>
-      <view class="table-box" v-if="cols&&cols['重要指标检查结果']">
+      <view class="table-box" v-if="fields&&fields.length>0">
         <view class="tr">
-          <view class="td th" v-for="item in ['指标','理想目标','当前数据']">
+          <view class="td th" v-for="item in otherCols">
             {{item}}
           </view>
         </view>
-        <view class="tr" v-for="col in cols['重要指标检查结果']">
+        <view class="tr" v-for="col in fields">
           <view class="td">
             {{col.label}}
           </view>
           <view class="td">
-            {{col.origin||'-'}}
+            {{data[col.columns]}}
           </view>
-          <view class="td">
-            {{data[col.column]}}
+          <view class="td" v-if="showOrigin">
+            {{col.origin||'-'}}
           </view>
         </view>
       </view>
@@ -148,25 +148,31 @@
       </view>
       <view class="table-box">
         <view class="tr">
-          <view class="td th" v-for="item in childCols">
+          <view class="td th" v-for="item in childCols.filter(item=>!['ideal','result'].includes(item.columns))">
             {{item.label}}
           </view>
         </view>
         <view class="tr" v-for="data in list">
-          <view class="td" v-for="col in childCols">
+          <view class="td" :class="{'bg-red':col.column==='val'&&data['result']&&data['result']==='异常'}"
+            v-for="col in childCols.filter(item=>!['ideal','result'].includes(item.columns))">
             {{data[col.column]}}
           </view>
         </view>
       </view>
 
     </view>
-    <view class="page-item" v-if="illList.includes(type)">
+    <!--    <view class="page-item" v-else-if="type==='重要指标检测结果查询'">
+
+    </view> -->
+    <view class="page-item bg-transparent" v-if="illList.includes(type)&&gaishan&&gaishan.length>0">
       <view class="title">
         <text class="cuIcon-titles text-blue"></text>
         <text>改善以下因素，降低发病风险</text>
       </view>
-      <view class="padding-lr-xs ">
-        <text v-html="data.improvement_factors"></text>
+      <view class="padding-lr-xs text-blue ">
+        <view class="gaishan-item padding-tb-sm" v-for="item in gaishan">
+          ※ {{item}}
+        </view>
       </view>
     </view>
   </view>
@@ -185,76 +191,95 @@
         data: {},
         list: [],
         childService: {},
-        cols: {
-          "重要指标检查结果": [{
-              column: 'blood_pressure',
-              label: '血压',
-              origin: "<120/80mmHg"
-            },
-            {
-              column: 'blood_glucose',
-              label: '空腹血糖',
-              origin: '3.9~5.9mmol/L'
-            },
-            {
-              column: 'waistline',
-              label: '腰围',
-              origin: '<85cm'
-            },
-            {
-              column: 'user_bmi',
-              label: '体重指数（BMI）',
-              origin: '18.5<=BMI<24'
-            },
-            {
-              column: 'total_cholesterol',
-              label: '总胆固醇',
-              origin: '2.9~5.17mmol/L'
-            },
-            {
-              column: 'triglyceride',
-              label: '甘油三酯',
-              origin: '0.57~1.69mmol/L'
+        fields: [],
+        colsOriginMap: {
+          tijian_diastolic: "<80mmHg", //'舒张压'
+          tijian_systolic: "<120mmHg", //'收缩压',
+          tijian_fbs: "3.9~5.9mmol/L", //'空腹血糖',
+          yiban_blood_sugar: "<85cm", // '腰围（厘米）',
+          yiban_bmi: "18.5<=BMI<24", //'体重指数（BMI）',
+          tijian_cholesterol: "2.9~5.17mmol/L", //'总胆固醇',
+          tijian_triglyceride: "0.57~1.69mmol/L", //'甘油三酯',
+          tijian_hdl_cholesterol: ">1.04mmol/L", //'高密度脂蛋白胆固醇',
+          tijian_ldl_cholesterol: "0~3.36mmol/L", //'低密度脂蛋白胆固醇',
+          tijian_bmdi_t: ">=-1", //'骨密度检查指标-T值',
+          tijian_uric_acid: '150~360mmol/L', //'血尿酸',
+          tijian_creatinine: "44~97 μmol/L", //血肌酐
 
-            },
-            {
-              column: 'hdlc',
-              label: '高密度脂蛋白胆固醇',
-              origin: '>1.04mmol/L'
-            },
-            {
-              column: 'ldlc',
-              label: '低密度脂蛋白胆固醇',
-              origin: '0~3.36mmol/L'
-            },
-            {
-              column: 'bone_mdi_t',
-              label: '骨密度检查指标-T值',
-              origin: '>=-1'
-            },
-            {
-              column: 'dietary_structure',
-              label: '膳食结构',
-              origin: '合理'
-            },
-            {
-              column: 'physical_activity',
-              label: '体力活动',
-              origin: '充足'
-            },
-            {
-              column: 'blood_uric_acid',
-              label: '血尿酸',
-              origin: '150~360mmol/L'
-            },
-
-            {
-              column: 'serum_creatinine',
-              label: '血肌酐',
-              origin: '44~97 μmol/L'
-            }
-          ]
         },
+        cols: [{
+            column: 'tijian_diastolic',
+            label: '舒张压',
+            origin: "<80mmHg"
+          },
+          {
+            column: 'tijian_systolic',
+            label: '收缩压',
+            origin: "<120mmHg"
+          },
+          {
+            column: 'tijian_fbs',
+            label: '空腹血糖',
+            origin: '3.9~5.9mmol/L'
+          },
+          {
+            column: 'yiban_blood_sugar',
+            label: '腰围（厘米）',
+            origin: '<85cm'
+          },
+          {
+            column: 'yiban_bmi',
+            label: '体重指数（BMI）',
+            origin: '18.5<=BMI<24'
+          },
+          {
+            column: 'tijian_cholesterol',
+            label: '总胆固醇',
+            origin: '2.9~5.17mmol/L'
+          },
+          {
+            column: 'tijian_triglyceride',
+            label: '甘油三酯',
+            origin: '0.57~1.69mmol/L'
+
+          },
+          {
+            column: 'tijian_hdl_cholesterol',
+            label: '高密度脂蛋白胆固醇',
+            origin: '>1.04mmol/L'
+          },
+          {
+            column: 'tijian_ldl_cholesterol',
+            label: '低密度脂蛋白胆固醇',
+            origin: '0~3.36mmol/L'
+          },
+          {
+            column: 'tijian_bmdi_t',
+            label: '骨密度检查指标-T值',
+            origin: '>=-1'
+          },
+          // {
+          //   column: 'dietary_structure',
+          //   label: '膳食结构',
+          //   origin: '合理'
+          // },
+          // {
+          //   column: 'physical_activity',
+          //   label: '体力活动',
+          //   origin: '充足'
+          // },
+          {
+            column: 'tijian_uric_acid',
+            label: '血尿酸',
+            origin: '150~360mmol/L'
+          },
+
+          {
+            column: 'tijian_creatinine',
+            label: '血肌酐',
+            origin: '44~97 μmol/L'
+          }
+        ],
         childV2: null,
         diseaseTypeList: [{
             col: 'present_disease',
@@ -285,6 +310,29 @@
       }
     },
     computed: {
+      gaishan() {
+        let result = []
+        if (Array.isArray(this.list) && this.list.length > 0) {
+          let cols = this.list.filter(item => item.result === '异常')
+          if (Array.isArray(cols) && cols.length > 0) {
+            result = cols.filter(item => item.label && item.val && (item.ideal || item.index_col_dest_val)).map(
+              item => {
+                return `目前状况: ${item.label}:${item.val}, 努力目标: ${item.ideal||item.index_col_dest_val||''}`;
+              })
+          }
+        }
+        return result
+      },
+      showOrigin() {
+        return Array.isArray(this.fields) && this.fields.length > 0 && this.fields.some(item => !!item.origin)
+      },
+      otherCols() {
+        let cols = ['指标', '当前数据']
+        if (this.showOrigin) {
+          cols.push(('理想目标'))
+        }
+        return cols
+      },
       type() {
         let res = ''
         let text = this.childV2?.service_view_name || this.fk?.section_name
@@ -301,7 +349,8 @@
         return this.fk?.section_name
       },
       childCols() {
-        return this.childV2?._fieldInfo.filter(item => item.column !== 'sr_no')
+        return this.childV2?._fieldInfo.filter(item => item.column !== 'sr_no' && (item.in_detail === 1 || item
+          .in_list === 1))
       }
     },
     methods: {
@@ -348,6 +397,7 @@
         }
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
+
           if (Array.isArray(res?.data?.data?.child_service) && res?.data?.data?.child_service.length > 0) {
             this.childService = res?.data?.data?.child_service[0]
             // if (this.childService?.service_view_name) {
@@ -355,14 +405,26 @@
             //     title: this.childService.service_view_name
             //   })
             // }
-            this.getChildV2()
+            await this.getChildV2()
             this.getList()
+          }
+          this.fields = res?.data?.data?.srv_cols.filter(item => item.in_detail === 1 && item.in_list === 1 && ![
+            'create_time', 'create_user_disp', 'sr_no'
+          ].includes(item.columns))
+          if (Array.isArray(this.fields) && this.fields.length > 0) {
+            this.fields = this.fields.map(item => {
+              if (this.colsOriginMap[item.columns]) {
+                item.origin = this.colsOriginMap[item.columns]
+              }
+              return item
+            })
           }
         }
       },
       async getChildV2() {
         let colVs = await this.getServiceV2(this.childService.service_name, 'list', 'detaillist', 'health');
         this.childV2 = colVs
+        return colVs
         // const url =
         //   `/health/select/srvsys_service_columnex_v2_select?colsel_v2=${this.childService.service_name}`
         // const req = {
@@ -448,6 +510,27 @@
       background-color: #fff;
       padding: 12px;
       margin-bottom: 10px;
+
+      &.bg-transparent {
+
+        // background-color: transparent;
+        .padding-lr-xs {
+          padding: 0;
+
+          .gaishan-item {
+            border-radius: 0;
+            padding: 5px 10px;
+            background-color: #fff;
+            margin-bottom: 1px;
+            min-height: 40px;
+            border-bottom: 1px solid #f8f8f8;
+
+            &:last-child {
+              border-bottom: none;
+            }
+          }
+        }
+      }
 
       .desc-content {
         background-color: #f8f8f8;
@@ -549,7 +632,11 @@
           flex: 1;
           padding: 5px;
           border-left: 1px solid #f1f1f1;
-
+          display: flex;
+          align-items: center;
+          &:first-child{
+            border-left: none;
+          }
           &.th {
             background-color: #f8f8f8;
           }

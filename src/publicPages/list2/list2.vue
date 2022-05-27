@@ -1714,7 +1714,7 @@
               // 调起支付接口
               let total_col = 'order_amount'
               let order_no_col = 'order_no'
-
+              debugger
               if (buttonInfo?.moreConfig?.total_col) {
                 total_col = buttonInfo?.moreConfig?.total_col
               }

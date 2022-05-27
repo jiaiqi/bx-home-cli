@@ -82,7 +82,7 @@
                 <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
-              <view class="text-lg text-gray" v-if="item.amount">
+              <view class="text-lg text-gray" v-if="item.amount&&type!=='default'">
                 x {{item.amount}}
               </view>
             </view>
@@ -106,7 +106,7 @@
         </view>
         <view class="cu-form-group ">
           <view class="title">团长收货地址</view>
-          <input :placeholder="''" name="input" v-model="tgInfo.community_name" :disabled="true"></input>
+          <input :placeholder="''" name="input" v-model="tgInfo.address_no" :disabled="true"></input>
         </view>
       </view>
 
@@ -174,10 +174,16 @@
           }
           return res
         }, 0)
+        if (total) {
+          total = Number(total.toFixed(2))
+        }
         return total || '0'
       }
     },
     methods: {
+      getAddress() {
+
+      },
       getShareStoreUser() {
 
       },
@@ -192,7 +198,6 @@
             goodsInfo.goods_image = goodsInfo.goods_img
             return goodsInfo
           })
-
           this.$store.commit('SET_STORE_CART', {
             storeInfo: this.storeInfo,
             store_no: this.storeInfo?.store_no,
@@ -203,10 +208,9 @@
           url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          debugger
-          if(this.tgInfo?.goods_way){
-            let delivery_type = this.tgInfo?.goods_way==='快递'?'快递':'自提'
-            url+= `&delivery_type=${delivery_type}`
+          if (this.tgInfo?.goods_way) {
+            let delivery_type = this.tgInfo?.goods_way === '快递' ? '快递' : '自提'
+            url += `&delivery_type=${delivery_type}`
           }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
@@ -221,7 +225,9 @@
         let item = this.goodsList[index]
         this.goodsList[index].checked = !item.checked
         if (item.amount <= 0) {
-          this.goodsList[index].amount = 1
+          item.amount = 1
+          // this.goodsList[index].amount = 1
+          this.$set(this.goodsList,index,item)
         }
       },
       changeAmount(e) {
@@ -233,9 +239,11 @@
       },
       getCountDown() {
         // 团购倒计时
-        const start = this.tgInfo?.activity_statr_datetime
-        const end = this.tgInfo?.activity_end_datetime
+        let start = this.tgInfo?.activity_statr_datetime
+        let end = this.tgInfo?.activity_end_datetime
         if (start && end) {
+          start = start.replace(/-/g, '/')
+          end = end.replace(/-/g, '/')
           let seconds = new Date(end) - new Date()
           seconds = seconds / 1000
           let startFromNow = new Date(start) - new Date()
@@ -426,15 +434,15 @@
 
       let title = `${this.tgInfo.name||'团购分享'}`;
       let imageUrl = '';
-      
+
       if (this.storeInfo?.logo) {
         imageUrl = this.getImagePath(this.storeInfo.logo, true);
       }
-      
-      if(this.tgInfo?.wx_share_icon){
+
+      if (this.tgInfo?.wx_share_icon) {
         imageUrl = this.getImagePath(this.tgInfo.wx_share_icon, true);
       }
-      
+
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
       title = this.renderEmoji(title)
       return {
@@ -597,6 +605,10 @@
 
             .price {
               @include flex-between-center;
+              .number-box{
+                flex: 1;
+                text-align: right;
+              }
             }
           }
 

@@ -160,6 +160,9 @@
         purchase_limit: 0, // 商品限购次数
         purchaseTimes: 0, //商品购买次数
         purchasedGoods: [], //商品购买记录
+        group_price: "",
+        pageType: "",
+        dumpling_no: "", //团购编号
       };
     },
 
@@ -216,6 +219,9 @@
               target_url: `/publicPages/list2/list2?pageType=list&serviceName=srvhealth_store_my_shopping_cart_goods_detail_select&disabled=true&destApp=health&cond=[{"colName":"store_no","ruleType":"eq","value":"${this.storeNo||this.storeInfo?.store_no}"},{"colName":"store_user_no","ruleType":"eq","value":"${this.vstoreUser.store_user_no}"}]&detailType=custom&customDetailUrl=%252FstorePages%252FGoodsDetail%252FGoodsDetail%253Fgoods_no%253D%2524%257Bdata.goods_no%257D%2526storeNo%253D%2524%257BstoreInfo.store_no%257D&listType=cartList`
             }
           ]
+          if (this.pageType === '秒杀') {
+             right.splice(0, 1)
+          }
           let obj = {
             left: left.filter(item => btns.includes(item.name)),
             right: right.filter(item => btns.includes(item.name))
@@ -338,7 +344,7 @@
             key: 'storeInfo',
             val: res.data[0]
           });
-          
+
         } else {
           uni.showModal({
             title: '未查找到机构信息',
@@ -504,6 +510,9 @@
             // }
             if (this.wxMchId) {
               url += `&wxMchId=${this.wxMchId}`;
+            }
+            if (this.dumpling_no) {
+              url += `&tgNo=${this.dumpling_no}`
             }
             if (Array.isArray(otherGoods) && otherGoods.length > 0) {
               url += `&otherGoods=${encodeURIComponent(JSON.stringify(otherGoods))}`
@@ -819,6 +828,9 @@
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`;
         }
+        if (this.dumpling_no) {
+          url += `&tgNo=${this.dumpling_no}`
+        }
 
         uni.navigateTo({
           url
@@ -987,6 +999,13 @@
         if (Array.isArray(res.data) && res.data.length > 0) {
           res.data[0].goods_amount = 1
           this.goodsInfo = res.data[0];
+          if (this.group_price) {
+            if (!isNaN(Number(this.group_price))) {
+              this.goodsInfo.origin_price = this.goodsInfo.price
+              this.goodsInfo.price = Number(this.group_price)
+
+            }
+          }
           if (this.goodsInfo?.purchase_limit) {
             let purchase_limit = Number(this.goodsInfo?.purchase_limit)
             if (!isNaN(purchase_limit)) {
@@ -1137,6 +1156,15 @@
     async onLoad(option) {
       if (option.hideButton) {
         this.hideButton = true;
+      }
+      if (option.dumpling_no) {
+        this.dumpling_no = option.dumpling_no
+      }
+      if (option.pageType) {
+        this.pageType = option.pageType
+      }
+      if (option.group_price) {
+        this.group_price = option.group_price
       }
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId;

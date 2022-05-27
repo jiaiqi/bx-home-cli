@@ -345,7 +345,25 @@
             "enablePullDownRefresh": true
           }
         }
-      ]
+          ,{
+                    "path" : "msList/msList",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "秒杀",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+                ,{
+                    "path" : "msDetail/msDetail",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "秒杀",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "questionnaire",
