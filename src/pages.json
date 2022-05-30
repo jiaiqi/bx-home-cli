@@ -344,26 +344,22 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
+        }, {
+          "path": "msList/msList",
+          "style": {
+            "navigationBarTitleText": "秒杀",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "msDetail/msDetail",
+          "style": {
+            "navigationBarTitleText": "秒杀",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "msList/msList",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "秒杀",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "msDetail/msDetail",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "秒杀",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",
@@ -494,15 +490,15 @@
             "enablePullDownRefresh": true
           }
         },
-        {
-          "path": "activity/activity",
-          "style": {
-            // "navigationStyle": "custom",
-            "navigationBarBackgroundColor": "#8a1b1f"
-            // ,
-            // "navigationBarTitleText": "建党100周年祝福接力"
-          }
-        },
+        // {
+        //   "path": "activity/activity",
+        //   "style": {
+        //     // "navigationStyle": "custom",
+        //     "navigationBarBackgroundColor": "#8a1b1f"
+        //     // ,
+        //     // "navigationBarTitleText": "建党100周年祝福接力"
+        //   }
+        // },
         // {
         //   "path": "publish/publish",
         //   "style": {
@@ -515,13 +511,13 @@
         //     "navigationBarTitleText": "朋友圈"
         //   }
         // },
-        {
-          "path": "dashboard/dashboard",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
+        // {
+        //   "path": "dashboard/dashboard",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // },
         {
           "path": "schedule/schedule",
           "style": {
@@ -567,7 +563,6 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
         }
         // #ifdef H5
         , {

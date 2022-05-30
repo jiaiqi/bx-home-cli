@@ -6,7 +6,7 @@
     <view class="goods-list">
       <view class="goods-list-item" v-for="item in list">
         <view class="goods-img">
-          <image :src="getImagePath(item.goods_img)" mode=""></image>
+          <image :src="getImagePath(item.goods_img)" mode="aspectFill" class="image"></image>
           <view class="bottom-tip" v-if="timeOutObj">
             <view class="left">
               <text class="cuIcon-timefill margin-right-xs"></text>
@@ -210,7 +210,10 @@
         width: 100%;
         height: 340rpx;
         position: relative;
-
+        .image{
+          width: 100%;
+          height: 100%;
+        }
         .bottom-tip {
           position: absolute;
           bottom: 0;

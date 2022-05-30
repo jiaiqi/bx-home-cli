@@ -1,33 +1,5 @@
 <template>
   <view class="pay-order" :class="['theme-'+theme]">
-    <!-- <bx-form :fields="colV2._fieldInfo" v-if="colV2&&colV2._fieldInfo"></bx-form> -->
-
-    <!-- <view class="address-box" @click="chooseAddress" v-if="needAddress">
-      <view class="left"
-        v-if="(addressInfo && addressInfo.userName && addressInfo.telNumber)||orderInfo&&orderInfo.rcv_addr_str">
-        <text class="cuIcon-locationfill"></text>
-      </view>
-      <view class="left" v-else><text class="cuIcon-warnfill"></text></view>
-      <view class="center" v-if="orderInfo&&orderInfo.rcv_addr_str">
-        <view class="">
-          <text class="name">{{ orderInfo.rcv_name || "-" }}</text>
-          <text class="phone">{{ orderInfo.rcv_telephone || "-" }}</text>
-        </view>
-        <view class="address">{{ orderInfo.rcv_addr_str|| "-" }}</view>
-      </view>
-      <view class="center" v-else-if="addressInfo && addressInfo.userName && addressInfo.telNumber">
-        <view class="">
-          <text class="name">{{ addressInfo.userName || "-" }}</text>
-          <text class="phone">{{ addressInfo.phone || "-" }}</text>
-        </view>
-        <view class="address">{{ addressInfo.fullAddress || "-" }}</view>
-      </view>
-      <view class="center" v-else>
-        <view class="center-select"> 请先选择地址 </view>
-      </view>
-      <view class="right" v-if="!orderInfo||!orderInfo.rcv_addr_str"><text class="cuIcon-right"></text></view>
-    </view> -->
-
     <view class="order-detail">
       <view class="form-box">
         <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
@@ -108,22 +80,6 @@
               ￥{{shippingFee||'0'}}
             </view>
           </view>
-          <!--      <view class="detail-info_item" v-else-if="totalMoney">
-            <view class="detail-info_item_label">
-              商品总价
-            </view>
-            <view class="detail-info_item_value text-red">
-              ￥{{totalMoney}}
-            </view>
-          </view> -->
-          <!--          <view class="detail-info_item" v-if="orderInfo.order_pay_amount">
-            <view class="detail-info_item_label">
-              支付金额
-            </view>
-            <view class="detail-info_item_value text-red">
-              ￥{{orderInfo.order_pay_amount}}
-            </view>
-          </view> -->
           <view class="detail-info_item" v-if="totalMoney&&actualMoney">
             <view class="detail-info_item_label">
               <!-- 应付金额 -->
@@ -144,53 +100,6 @@
           </view>
         </view>
       </view>
-      <!-- 
-      <view class="field-list" v-if="!disabled&&!orderInfo.order_no">
-        <view class="field-item">
-          <view class="label">订单备注</view>
-          <text v-if="orderInfo&&orderInfo.order_no">{{order_remark}}</text>
-          <textarea class="value text-area" :auto-height="true" placeholder="选填,建议填写前与商家沟通确认" name="input"
-            v-model="order_remark" placeholder-style="fontSize:24rpx;" v-else></textarea>
-        </view>
-      </view> -->
-      <!-- 点餐 -->
-      <!--      <view class="form-box">
-        <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
-          :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
-          @value-blur="valueChange">
-        </a-form>
-      </view>
- -->
-      <!--      <view class="room-selector" v-if="!disabled&&storeInfo&&storeInfo.type==='酒店'" @click="showSelector">
-        <view class="place-holder" v-if="!room_no">
-          点击选择房间号
-        </view>
-        <view class="" v-else>
-          {{room_no||''}}
-        </view>
-        <text class="cuIcon-right place-holder"></text>
-      </view>
- -->
-      <!--      <view class="pay-mode" style="margin-top: 10px;margin-bottom: 10px;"
-        v-if="!disabled && needAddress&&orderType!=='团购'&&!isFood">
-        <view class="pay-mode-item">
-          <view class="">
-            <text class="cuIcon-deliver text-yellow icon"></text>
-            提货方式
-          </view>
-          <view class="" v-if="orderInfo.delivery_type">
-            <text>{{orderInfo.delivery_type||''}}</text>
-          </view>
-        </view>
-        <view class="pay-mode-item" v-if="!orderInfo.delivery_type">
-          <view class="" style="width: 100%;">
-            <u-subsection :list="deliveryList" :current="curDelivery" @change="changeDelivery">
-            </u-subsection>
-          </view>
-        </view>
-      </view> -->
-
-
 
       <!-- 优惠券 -->
       <view class="order-other-info" v-if="!orderInfo.order_no&&!isHexiao">
@@ -199,7 +108,6 @@
             优惠券
           </view>
           <view class="info-value">
-            <!-- <text class="text-red margin-right-xs">-￥100</text> -->
             <coupon-selector ref='couponSelectorRef' :max="totalMoney" @update="setCouponMinus" @close="setCouponMinus">
             </coupon-selector>
             <text class="cuIcon-right text-gray"></text>
@@ -225,7 +133,6 @@
                   剩余金额:{{couponInfo.card_last_amount||''}}
                 </view>
               </view>
-              <!-- <radio :checked="payMode==='coupon'" value="coupon" @change="payModeChange('coupon')" /> -->
               <text class="cuIcon-right"></text>
             </view>
           </view>
@@ -242,32 +149,7 @@
         </radio-group>
       </view>
 
-      <!-- <view class="detail-info" v-if="disabled&&orderInfo&&orderInfo.order_no">
-        <view class="detail-info_item" v-if="orderInfo.rcv_name">
-          <view class="detail-info_item_label">
-            联系人
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_name}}
-          </view>
-        </view>
-        <view class="detail-info_item" v-if="orderInfo.rcv_telephone">
-          <view class="detail-info_item_label">
-            手机号
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_telephone}}
-          </view>
-        </view>
-        <view class="detail-info_item" v-if="orderInfo.rcv_addr_str">
-          <view class="detail-info_item_label">
-            收货地址
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.rcv_addr_str}}
-          </view>
-        </view>
-      </view> -->
+
 
       <view class="detail-info" v-if="orderInfo&&orderInfo.order_no">
         <!--        <view class="detail-info-title">
@@ -306,16 +188,6 @@
             {{orderInfo.pay_method}}
           </view>
         </view>
-
-        <!--   <view class="detail-info_item" v-if="orderInfo.order_remark">
-          <view class="detail-info_item_label">
-            订单备注
-          </view>
-          <view class="detail-info_item_value">
-            {{orderInfo.order_remark}}
-          </view>
-        </view>
- -->
         <view class="detail-info_item" v-if="orderInfo.create_time">
           <view class="detail-info_item_label">
             下单时间
@@ -642,7 +514,6 @@
         if (Array.isArray(xIfCols) && xIfCols.length > 0) {
           //#ifdef MP-WEIXIN
           xIfResult = await this.evalX_IF(table_name, xIfCols, fieldModel, this.appName)
-          debugger
           //#endif
           //#ifdef H5
           xIfResult = {
@@ -675,9 +546,7 @@
 
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           //#ifdef H5
-          calcCols.forEach(col => {
-            debugger
-          })
+          calcCols.forEach(col => {})
           //#endif
 
           //#ifdef MP-WEIXIN
@@ -814,12 +683,12 @@
               field.value = field.value || this.storeInfo?.store_no
               this.mainData[field.column] = field.value
             }
-            
+
             if (field.column === 'show_params_config' && this.show_params_config) {
               field.value = this.show_params_config
               this.mainData[field.column] = field.value
             }
-            if(field.column==='delivery_type'&&this.delivery_type){
+            if (field.column === 'delivery_type' && this.delivery_type) {
               field.value = this.delivery_type
               this.mainData[field.column] = field.value
             }
@@ -827,12 +696,12 @@
               field.value = this.orderType
               this.mainData[field.column] = field.value
             }
-            
-            if(field.column==='regimental_dumpling_no' &&  this.tgNo){
+
+            if (field.column === 'regimental_dumpling_no' && this.tgNo) {
               field.value = this.tgNo
               this.mainData[field.column] = field.value
             }
-            
+
             if (field.column === 'store_user_no') {
               field.value = field.value || this.vstoreUser?.store_user_no
               this.mainData[field.column] = field.value
@@ -873,7 +742,6 @@
           const table_name = colVs.main_table
           let result = null
 
-          debugger
 
           if (Array.isArray(cols) && cols.length > 0) {
             // #ifdef MP-WEIXIN
@@ -1366,9 +1234,6 @@
         let goodsList = await this.$fetch('select', 'srvhealth_store_order_goods_detail_select', req,
           'health');
         if (goodsList.success) {
-          for (let item in goodsList.data) {
-            debugger
-          }
           this.$set(this.orderInfo, 'goodsList', goodsList.data);
         }
       },
@@ -1472,7 +1337,7 @@
               }],
               data: this.orderInfo.goodsList.map(item => {
                 let obj = {
-                  is_remark:'待评价',
+                  is_remark: '待评价',
                   goods_no: item.meal_no || item.goods_no,
                   goods_amount: item.car_num,
                   goods_desc: item.name,
@@ -1617,18 +1482,10 @@
           // }
         }
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
+        debugger
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
-          // this.orderInfo = res.data[0]
-
-
-          // this.fields = this.fields.map(item => {
-          //   if (res.data[0][item.column]) {
-          //     item.value = this.orderInfo[item.column]
-          //   }
-          //   return item
-          // })
 
           let childData = res.childData
           let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
@@ -1641,12 +1498,14 @@
           const orderData = await this.getOrderInfo()
           uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
+          debugger
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
-            if (this.mainData?.pay_config && this.mainData?.pay_config === '先付') {
+            if ( this.mainData?.pay_config !== '后付' ) {
               this.toPay();
             }
           } else {
+
             // 卡券核销
             if (res.data[0].order_no) {
               // 创建核销记录
@@ -1724,9 +1583,9 @@
         }
       },
       async toPay() {
-     
+
         this.wxMchId = this.getwxMchId()
-        
+
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -1739,7 +1598,7 @@
           });
           return;
         }
-        
+
         if (this.payMode == 'coupon') {
           if (this.couponInfo?.card_no && orderData.order_no) {
             this.payByCoupon(orderData, this.couponInfo?.card_no)
@@ -1851,7 +1710,7 @@
       if (getApp().globalData?.service_place_no) {
         option.service_place_no = getApp().globalData.service_place_no
       }
-      if(option.delivery_type){
+      if (option.delivery_type) {
         this.delivery_type = option.delivery_type
       }
       if (option.service_place_no) {
