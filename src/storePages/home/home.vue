@@ -15,7 +15,6 @@
     </cu-custom-navbar>
 
     <view class="">
-      
       <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
         <store-item v-for="pageItem in pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
           :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"
@@ -779,7 +778,7 @@
             // 店铺用户列表中已存在此用户
           } else {
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
-            this.bindStore();
+           await this.bindStore();
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
             if (!this.pdNo) {
@@ -1148,7 +1147,7 @@
             await this.bindStore();
           }
           if (forceUpdate) {
-            this.getStoreUserInfo(forceUpdate)
+           await this.getStoreUserInfo(forceUpdate)
           }
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {
@@ -1158,7 +1157,7 @@
             }
           }
 
-          this.getQuery();
+         await this.getQuery();
           this.initSocket()
           if (this.bindUserInfo?.store_user_no) {
             if (forceUpdate || (!this.vvipCard?.card_no || this.vvipCard?.useing_store_user_no !== this.vstoreUser
