@@ -91,19 +91,6 @@
           await this.toAddPage(rawData)
 					this.$emit('auth-complete')
           return
-					let url = '/storePages/home/home'
-					let pageStack = getCurrentPages();
-					if (Array.isArray(pageStack) && pageStack.length >= 1) {
-					  let currentPage = pageStack[pageStack.length - 1]
-					  store.commit('SET_CURRENT_PAGE', currentPage.route)
-					  if(currentPage?.$page?.fullpath){
-						  url = currentPage?.$page?.fullpath
-					  }
-					}
-					uni.reLaunch({
-						url: url
-					})
-					return rawData
 				}
 			},
 			toAuthPage(e) {

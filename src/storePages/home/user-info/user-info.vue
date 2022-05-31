@@ -13,6 +13,7 @@
           <image src="./has_audit.png" mode="" class="audit-status" v-else-if="auditStatus==='通过'"></image>
           <image src="./answer.png" mode="" class="audit-status" v-else></image> -->
         </view>
+      
         <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
         <view class="text-orange" v-if="config&&config.showSubscribe&&!isAttention" @click="toOfficial(true)">
           点击关注公众号,及时获取消息通知!
@@ -23,11 +24,21 @@
     <view class="left" v-else>
       <button class="cu-btn bg-white" @click="toLogin">请点击登录</button>
     </view>
-    <!-- <view class="right"><text class="cuIcon-message"></text></view> -->
+    <view class="right">
+      <!-- #ifdef MP-WEIXIN -->
+      <button class="cu-btn  light round sm line-orange border" @click="getUserProfile">
+        <text class="cuIcon-refresh"></text>
+        更新头像昵称
+      </button>
+      <!-- #endif -->
+    </view>
   </view>
 </template>
 
 <script>
+  import {
+    selectPersonInfo
+  } from '@/common/api/login.js'
   export default {
     props: {
       config: {
@@ -44,6 +55,43 @@
       this.getAuditStatus()
     },
     methods: {
+      getUserProfile(e) {
+      	// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
+      	// 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
+      	// #ifdef MP-WEIXIN
+      	wx.getUserProfile({
+      		desc: '用于完善用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+      		success: (res) => {
+      			this.$store.commit('SET_AUTH_USER', res)
+      			this.handleUserInfo(res)
+      		}
+      	})
+      	// #endif
+      },
+      async handleUserInfo(res) {
+      	let self = this
+      	if (typeof res === 'object' && Object.keys(res).length > 0 && res.userInfo) {
+      		let rawData = {
+      			nickname: res.userInfo.nickName,
+      			sex: res.userInfo.gender,
+      			country: res.userInfo.country,
+      			province: res.userInfo.province,
+      			city: res.userInfo.city,
+      			headimgurl: res.userInfo.avatarUrl
+      		};
+      		self.$store.commit('SET_WX_USERINFO', rawData);
+      		self.$store.commit('SET_AUTH_USERINFO', true);
+      		await self.setWxUserInfo(rawData);
+      		await self.updateUserInfo(rawData);
+          await this.toAddPage()
+          selectPersonInfo()
+          uni.$emit('userInfoUpdated')
+          uni.startPullDownRefresh({
+            
+          })
+          return
+      	}
+      },
       getAuditStatus() {
         const serviceName = 'srvperson_single_basic_info_select'
         const req = {

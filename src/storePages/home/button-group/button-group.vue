@@ -733,6 +733,7 @@
         }
       },
       toPages(e) {
+        debugger
         let url = "";
         if (this.hasNotRegInfo && navType !== "takePhone") {
           // 除了打电话外 其他操作必须先授权访问用户信息
@@ -852,6 +853,7 @@
             }
             e.url = this.renderStr(e.url, data);
             e.url = e.url.trim();
+            url = e.url
           } catch (e) {
             //TODO handle the exception
           }

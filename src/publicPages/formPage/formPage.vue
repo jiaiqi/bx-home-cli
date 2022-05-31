@@ -1605,6 +1605,7 @@
         this.use_type = option.type;
       }
 
+      debugger
       if (option.fieldsCond) {
         let fieldsCond = []
         try {
