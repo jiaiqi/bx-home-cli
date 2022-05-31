@@ -192,6 +192,17 @@
         <view class="operate" hover-class="active" @click="numberChange('add')" @longpress="longpressNumChange('add')"
           @touchend="longpressNumEnd">+</view>
       </view>
+      <bx-media-upload class="form-item-content_value image" :value="imagesUrl"
+        :enable-del="fieldData.disabled ? !fieldData.disabled : true"
+        :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
+        @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"
+        :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum" v-else-if="'media' === fieldData.type">
+      </bx-media-upload>
+      <!--    <view class="image-video-box" v-else-if="'media' === fieldData.type">
+        <view class="media-select-box" @click="chooseMedia">
+          <text class="cuIcon-pic"></text>
+        </view>
+      </view> -->
       <robby-image-upload class="form-item-content_value image" v-else-if="fieldData.type === 'images'"
         :value="imagesUrl" :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
@@ -224,8 +235,8 @@
       <view class="cu-dialog" @tap.stop="">
         <option-selector :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
-          :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey" @refresh="refresh()"
-          @toFkAdd="toFkAdd" @change="pickerChange">
+          :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey"
+          @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange">
         </option-selector>
         <!-- <view class="tree-selector">
           <view class="content">
@@ -347,7 +358,7 @@
     computed: {
       selectType() {
         // 自行输入 下拉选择 编辑选择
-        return this.fieldData?.option_list_v2?.select_type 
+        return this.fieldData?.option_list_v2?.select_type
       },
       min() {
         return this.fieldData?.item_type_attr?.min || this.fieldData?.min || this.fieldData?.moreConfig?.min
@@ -412,7 +423,7 @@
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
-        if (['images', 'textarea'].includes(this.fieldData.type)) {
+        if (['images', 'textarea', 'media'].includes(this.fieldData.type)) {
           if (this.pageType === 'detail' && !this.fieldData.value) {
 
           } else {
@@ -524,7 +535,7 @@
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
             this.textareaValue = newValue.value;
           }
-          if (newValue.type === 'images') {
+          if (newValue.type === 'images' || newValue.type === 'media') {
             this.getDefVal()
           }
           this.fieldData = newValue;
@@ -594,6 +605,43 @@
         }
         this.modalName = '';
         this.onBlur()
+      },
+      chooseMedia() {
+        return new Promise(resolve => {
+          uni.chooseMedia({
+            count: 9,
+            mediaType: ['image', 'video'],
+            sourceType: ['album', 'camera'],
+            maxDuration: 30,
+            camera: 'back',
+            success(res) {
+              console.log(res.type) // 文件类型，有效值有 image 、video、mix
+              console.log(res.tempFiles) // 文件类型，有效值有 image 、video、mix
+              resolve(res.tempFiles) // 数组 
+              // tempFilePath	String	本地临时文件路径 (本地路径)
+              // size	Number	本地临时文件大小，单位 B
+              // duration	Number	视频的时间长度
+              // height	Number	视频的高度
+              // width	Number	视频的宽度
+              // thumbTempFilePath	String	视频缩略图临时文件路径
+              // fileType	String	文件类型 video\image
+              // {
+              //   fileType: "image",
+              //   size: 6818,
+              //   tempFilePath: "http://tmp/Ad0n2V0SSMDJcda5cf3699b2bfbade62efb7446242aa.png"
+              // }
+              // {
+              //   duration: 219.077,
+              //   fileType: "video",
+              //   height: 720,
+              //   size: 22462913,
+              //   tempFilePath: "http://tmp/FWs024LIDinb87685224f5ed6ae2b52fae4659b81055.mp4",
+              //   thumbTempFilePath: "http://tmp/M9Kfqg4vEsMTafbc481c67752caa696bb023c13e45f4.jpg",
+              //   width: 1280
+              // }
+            }
+          })
+        })
       },
       longpressNumEnd() {
         clearInterval(this.longpressTimer);
@@ -950,6 +998,7 @@
         } catch (e) {
           //TODO handle the exception
         }
+        debugger
         this.fieldData.value = res.file_no;
         if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
           this.uploadFormData['file_no'] = this.fieldData.value;
@@ -974,7 +1023,7 @@
       getCascaderValue(e) {
         if (e?.type == '自行输入') {
           this.fieldData.value = e.value;
-           this.fkFieldLabel = e.value
+          this.fkFieldLabel = e.value
         } else {
           let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
           if (!this.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== this.selectTreeData[srvInfo
@@ -1042,7 +1091,7 @@
         if (e?.type === '__others') {
           this.fieldData.value = e.value
           this.fkFieldLabel = e.value;
-        }else  if (this.fieldData.type === 'Selector') {
+        } else if (this.fieldData.type === 'Selector') {
           this.fieldData.value = e
           let selectorData = this.radioOptions || this.selectorData
           let optionData = selectorData.find(item => item.value === e);
@@ -1478,8 +1527,7 @@
     },
     created() {
       let self = this;
-      if (this.fieldData.type === 'images' || this.fieldData.type ===
-        'RichText') {
+      if (['images', 'media', 'RichText'].includes(this.fieldData.type)) {
         this.uploadFormData = {
           serviceName: 'srv_bxfile_service',
           interfaceName: 'add',

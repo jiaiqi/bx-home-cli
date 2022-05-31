@@ -37,7 +37,9 @@
         </view>
         <view class="goods-list">
           <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
-            @attrChange="attrChange($event,idx)"></goods-item>
+            @attrChange="attrChange($event,idx)">
+
+          </goods-item>
         </view>
         <view class="detail-info">
           <view class="detail-info_item" v-if="goodsAmount">
@@ -1501,7 +1503,7 @@
           debugger
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
-            if ( this.mainData?.pay_config !== '后付' ) {
+            if (this.mainData?.pay_config !== '后付') {
               this.toPay();
             }
           } else {

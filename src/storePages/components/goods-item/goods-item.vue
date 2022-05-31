@@ -9,7 +9,7 @@
         <view class="attr" v-if="goods.attr">{{goods.attr}}</view>
         <view class="attr" v-else-if="skuAttrStr">{{skuAttrStr}}</view>
       </view>
-      <view class="num">
+      <view class="num bottom-button">
         <view class="price" v-if="goods.unit_price ||goods.price">
           <text class="money-operate">￥</text>
           {{ goods.unit_price || goods.price || "" }}
@@ -19,6 +19,8 @@
 		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
 		  }}</text>
         </view>
+        <button class="cu-btn round sm border" v-if="goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
+          @click="toEvaluate">评价</button>
       </view>
     </view>
     <view class="goods-item-list" v-if="list&&list.length>0">
@@ -41,6 +43,7 @@
 			  }}
           </view>
         </view>
+
       </view>
     </view>
   </view>
@@ -87,6 +90,32 @@
       }
     },
     methods: {
+      toEvaluate(e) {
+        // 跳转到评价页面
+        let fieldsCond = [{
+          "column": "store_no",
+          "value": "${storeInfo.store_no}"
+        }, {
+          "column": "goods_no",
+          "value": "${data.goods_no}"
+        }, {
+          "column": "order_no",
+          "value": "${data.order_no}"
+        }]
+        const data = {
+          data: this.goods,
+          storeInfo: this.storeInfo,
+          userInfo: this.userInfo,
+          storeUser: this.vstoreUser
+        }
+        fieldsCond = this.renderStr(JSON.stringify(fieldsCond), data)
+        debugger
+        let url =
+          `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${fieldsCond}`
+        uni.navigateTo({
+          url
+        })
+      },
       getGoodsImageUrl(goods) {
         goods = goods || this.goods;
         let imgNo = goods?.goods_image || goods?.goods_img || goods?.image
@@ -153,6 +182,7 @@
     padding: 10px;
     border-radius: 5px;
     background-color: #f8f8fa;
+
     .goods-item {
       display: flex;
 
@@ -165,6 +195,22 @@
   .goods-item {
     display: flex;
     margin-top: 10px;
+    flex-wrap: wrap;
+
+    .bottom-button {
+      // width: 100%;
+      // display: flex;
+      // padding: 0 0 5px;
+
+      .cu-btn {
+        min-width: 60px;
+        background-color: #f8f8f8;
+        border: 1px solid #e8e8e8;
+      }
+
+      justify-content: flex-end;
+    }
+
     // &+.goods-item {
     //   margin-top: 20px;
     // }
@@ -195,7 +241,7 @@
 
       .price {
         // font-weight: bold;
-        color:#FE5A3F;
+        color: #FE5A3F;
         font-size: 18px;
         margin-bottom: 5px;
 
