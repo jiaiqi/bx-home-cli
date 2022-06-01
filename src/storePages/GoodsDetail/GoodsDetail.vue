@@ -81,7 +81,7 @@
       <view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
-    <evaluate-card></evaluate-card>
+    <evaluate-card :goods_no="goodsInfo.goods_no" v-if="goodsInfo&&goodsInfo.goods_no"></evaluate-card>
     <view class="detail" v-if="goodsInfo&&goodsDetailImage&&goodsDetailImage.length>0">
       <view class="title">图文详情</view>
       <view class="image-box">
@@ -134,7 +134,7 @@
     mapState
   } from 'vuex';
   import skuSelector from '../components/sku-selector/sku-selector.vue'
-  import evaluateCard from './evaluate-card.vue'
+  import evaluateCard from '../components/evaluate-card.vue'
   export default {
     components: {
       skuSelector,

@@ -39,7 +39,10 @@
             <view class="value" :style="{ 'white-space': item.valueWhiteSpace }"
               v-if="item.event&&item.event.type==='location_fk'" @click.stop="openLocation(item.event)">
               <text v-if="item.prefix">{{ item.prefix }}</text>
-              <text>{{ excludeEnter(item.value)}}</text>
+              <text v-if="item.mode==='rate'">
+                <uni-rate v-model="item.value" :readonly="true" :max="item.max||5" :allowHalf="item.allowHalf||false" />
+              </text>
+              <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
               <text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
             </view>
@@ -49,6 +52,14 @@
                 <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;"
                   v-for=" tag in formatText(item)">{{tag}}</text>
               </view>
+              <view class="media-box" v-else-if="item.type=='media'">
+                <bx-media-upload class="media-box-content" :file-no="item.value" :enable-del="false"
+                  :enable-add="false">
+                </bx-media-upload>
+              </view>
+              <text v-else-if="item.mode==='rate'">
+                <uni-rate v-model="item.value" :readonly="true" :max="item.max||5" :allowHalf="item.allowHalf||false" />
+              </text>
               <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
 
@@ -502,6 +513,21 @@
                   'line-gray': cfg?.border_color === 'gray'
               }
             };
+
+            if (cfg?.mode) {
+              obj.mode = cfg.mode
+              obj.max = cfg.max
+              obj.allowHalf = cfg.allowHalf
+            }
+            if (col?.type === 'media') {
+              // 图片、视频
+              obj.type = col.type;
+              obj.imgStyle = {
+                width: cfg?.imgStyle?.width,
+                height: cfg?.imgStyle?.height,
+                'border-radius': cfg?.imgStyle?.radius,
+              }
+            }
             if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
               obj.style['background-color'] = cfg.bg;
             }
@@ -705,11 +731,12 @@
         if ((cfg?.format?.type === 'date' || cfg?.format?.type === 'dateTime') && res.value && cfg?.format?.rule) {
           res.value = this.dayjs(res.value).format(cfg?.format?.rule)
         }
-        
-        if (cfg?.format?.type === 'time' && res.value && cfg?.format?.rule && cfg?.format?.rule.indexOf('Y')==-1 && cfg?.format?.rule.indexOf('M')==-1 && cfg?.format?.rule.indexOf('D')==-1) {
+
+        if (cfg?.format?.type === 'time' && res.value && cfg?.format?.rule && cfg?.format?.rule.indexOf('Y') == -1 &&
+          cfg?.format?.rule.indexOf('M') == -1 && cfg?.format?.rule.indexOf('D') == -1) {
           res.value = this.dayjs(this.dayjs().format("YYYY-MM-DD") + ' ' + res.value).format(cfg?.format?.rule)
         }
-        
+
         return res;
       },
       del: throttle(function() {

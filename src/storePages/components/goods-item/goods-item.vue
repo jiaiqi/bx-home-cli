@@ -94,25 +94,29 @@
         // 跳转到评价页面
         let fieldsCond = [{
           "column": "store_no",
-          "value": "${storeInfo.store_no}"
+          "value":this.storeInfo.store_no
+        }, {
+          "column": "store_user_no",
+          "value": this.vstoreUser?.store_user_no
         }, {
           "column": "goods_no",
-          "value": "${data.goods_no}"
+          "value": this.goods.goods_no
         }, {
           "column": "order_no",
-          "value": "${data.order_no}"
+          "value": this.goods?.order_no
+        }, {
+          "column": "person_name",
+          "value": this.userInfo.name
+        }, {
+          "column": "person_photo",
+          "value": this.userInfo.profile_url || this.userInfo.user_image
+        }, {
+          "column": "order_goods_rec_no",
+          "value": this.goods?.order_goods_rec_no
         }]
-        const data = {
-          data: this.goods,
-          storeInfo: this.storeInfo,
-          userInfo: this.userInfo,
-          storeUser: this.vstoreUser
-        }
-        fieldsCond = this.renderStr(JSON.stringify(fieldsCond), data)
-        debugger
         let url =
-          `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${fieldsCond}`
-        uni.navigateTo({
+          `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+        uni.redirectTo({
           url
         })
       },

@@ -66,8 +66,8 @@
         "setting" : {
             "ignoreUploadUnusedFiles" : false,
             "urlCheck" : true,
-            "postcss" : true,
-            "es6" : false,
+            "postcss" : false,
+            "es6" : true,
             "minified" : true
         },
         "permission" : {

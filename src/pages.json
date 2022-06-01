@@ -359,6 +359,13 @@
           }
 
         }
+        , {
+          "path": "evaluateList/evaluateList",
+          "style": {
+            "navigationBarTitleText": "评价列表",
+            "enablePullDownRefresh": true
+          }
+        }
       ]
     },
     {

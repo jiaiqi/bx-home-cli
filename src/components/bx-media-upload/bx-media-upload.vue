@@ -1,13 +1,26 @@
 <template>
   <view class="image-video-box">
-    <view class="media-select-box" v-for="item in tempFiles">
-      <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
-      <image class="media" :src="item.thumbTempFilePath" :poster="item.thumbTempFilePath" v-else
-        @click.stop="toOpenVideo(item)">
-      </image>
-      <text class="cuIcon-playfill icon" v-if="item.fileType==='video'" @click.stop="toOpenVideo(item)"></text>
-    </view>
-    <view class="media-select-box" @click="chooseMedia">
+    <template class="" v-if="enableAdd||enableDel">
+      <view class="media-select-box" v-for="item in tempFiles">
+        <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
+        <image class="media" :src="item.thumbTempFilePath" :poster="item.thumbTempFilePath" v-else
+          @click.stop="toOpenVideo(item)">
+        </image>
+        <text class="cuIcon-playfill icon" v-if="item.fileType==='video'" @click.stop="toOpenVideo(item)"></text>
+      </view>
+    </template>
+    <template v-else>
+      <view class="media-select-box" v-for="item in uploadFiles">
+        <image class="media" :src="item.fileUrl" mode="aspectFill"
+          v-if="['png','jpg','gif'].includes(item.file_type)"  @click.stop=" toPreviewImage(item.fileUrl)">
+        </image>
+        <video class="media" :controls="false" :show-center-play-btn="false" @click.stop="toOpenVideo(item)"
+          :src="item.fileUrl" mode="aspectFill" v-if="['mp4'].includes(item.file_type) "></video>
+        <text class="cuIcon-playfill icon" v-if="['mp4'].includes(item.file_type) "
+          @click.stop="toOpenVideo(item)"></text>
+      </view>
+    </template>
+    <view class="media-select-box" @click="chooseMedia" v-if="enableAdd">
       <text class="cuIcon-pic "></text>
     </view>
   </view>
@@ -17,20 +30,51 @@
   export default {
     name: "bx-media-upload",
     props: ['value', 'enableDel', 'enableAdd', 'enableDrag', 'serverUrl', 'formData', 'header', 'limit', 'fileKeyName',
-      'showUploadProgress', 'serverUrlDeleteImage', 'eventType'
+      'showUploadProgress', 'serverUrlDeleteImage', 'eventType', 'fileNo'
     ],
     data() {
       return {
         uploadFiles: [], // 已上传文件
         tempFiles: [], // 本地读取的文件
-        fileNo: ''
       };
     },
+    mounted() {
+      if (this.fileNo) {
+        this.getFiles()
+      }
+    },
     methods: {
+      async getFiles() {
+        let url = this.getServiceUrl('file', 'srvfile_attachment_select', 'select')
+        let req = {
+          "serviceName": "srvfile_attachment_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "file_no",
+            "value": this.fileNo,
+            "ruleType": "in",
+          }]
+        }
+        if (this.fileNo) {
+          let response = await this.$http.post(url, req);
+          if (response.data.state === 'SUCCESS' && response.data.data.length > 0) {
+
+            let data = response.data.data.map(item => {
+              item.fileUrl =
+                `${this.$api.getFilePath}${item.fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+              return item
+            })
+            this.uploadFiles = data
+          }
+        }
+
+
+      },
       toOpenVideo(e) {
         let {
           tempFilePath
         } = e;
+        tempFilePath = tempFilePath || e.fileUrl
         if (tempFilePath) {
           uni.navigateTo({
             url: `/otherPages/tVideoPlayer/tVideoPlayer?src=${encodeURIComponent(tempFilePath)}`
@@ -101,9 +145,9 @@
           Promise.all(promiseWorkList).then(result => {
             uni.hideLoading()
             for (let i = 0; i < result.length; i++) {
-              try{
+              try {
                 result[i] = JSON.parse(result[i])
-              }catch(e){
+              } catch (e) {
                 //TODO handle the exception
               }
               _self.uploadFiles.push(result[i]);

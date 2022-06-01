@@ -1641,7 +1641,6 @@
                         }
                       }
                       let res = await this.$http.post(url, req)
-                      debugger
                       if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
                         let noPass = false
                         if (item.type === 'no-repeat') {
@@ -1655,7 +1654,6 @@
                             noPass = true
                           }
                         }
-                        debugger
                         if (noPass && item.fail_tip) {
                           uni.showModal({
                             title: '提示',
@@ -1714,7 +1712,6 @@
               // 调起支付接口
               let total_col = 'order_amount'
               let order_no_col = 'order_no'
-              debugger
               if (buttonInfo?.moreConfig?.total_col) {
                 total_col = buttonInfo?.moreConfig?.total_col
               }
@@ -1732,7 +1729,7 @@
                     prepay_id: rowData?.prepay_id
                   }
                 } else {
-                  await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type, rowData, wx_mch_id);
+                  result = await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type, rowData, wx_mch_id);
                 }
                 if (result && result.prepay_id) {
                   let res = await this.getPayParams(result.prepay_id, wx_mch_id);
