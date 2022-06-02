@@ -133,7 +133,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "previewimg/previewimg",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "storePages",

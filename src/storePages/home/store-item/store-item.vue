@@ -30,8 +30,8 @@
     <news-list :pageItem="pageItem" :website_no="storeInfo && storeInfo.website_no" ref="articleList"
       :article-style="pageItem.article_style" :rownumber="pageItem.row_number" :cateNo="pageItem.category_no"
       :storeInfo="storeInfo" :beforeClick="beforeClick" v-else-if="pageItem.type === '文章列表'"></news-list>
-    <notice-list v-else-if="pageItem.type === '通知横幅'&&(!pageItem.store_no||pageItem.store_no===storeInfo.store_no)" :beforeClick="beforeClick" ref="noticeList" :storeNo="storeNo"
-      :pageItem="pageItem">
+    <notice-list v-else-if="pageItem.type === '通知横幅'&&(!pageItem.store_no||pageItem.store_no===storeInfo.store_no)"
+      :beforeClick="beforeClick" ref="noticeList" :storeNo="storeNo" :pageItem="pageItem">
     </notice-list>
     <relation-store v-else-if="pageItem && pageItem.type === '关联店铺'" :beforeClick="beforeClick" ref="relationStore"
       :storeNo="storeNo" :pageItem="pageItem"></relation-store>
@@ -207,10 +207,15 @@
     },
     data() {
       return {
-        avatarList: []
+        avatarList: [],
+        total: ""
       };
     },
     created() {
+      uni.$on('setTotal', (e) => {
+        this.total = e
+      })
+
       uni.$on('updateStoreItemData', () => {
         this.onRefresh();
       });

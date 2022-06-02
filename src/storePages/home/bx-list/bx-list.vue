@@ -10,39 +10,24 @@
       <filter-tags :tabs="tags" ref="filterTabs" :mode="'fold'" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
       </filter-tags>
-      <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'">
+      <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'&&showEmptyData">
         <text>{{ pageItem.component_label || '' }}</text>
         <view @click="toAll" v-if="isShowToAll">
           <text>更多</text>
           <text class="cuIcon-right"></text>
         </view>
       </view>
-      <!-- <scroll-list ref="scrollList" :option="scrollListOption" @load="loadMore" @refresh="refresh"> -->
-      <view class="list-content" v-if="list&&list.length>0">
+      <view class="list-content" v-if="showEmptyData">
         <view class="list-view">
           <list-next class="list-next" :nowrap="nowrap" :itemWidth="itemWidth" :cartData="cartData"
             :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
             @click-foot-btn="clickFootBtn" />
         </view>
       </view>
-      <!-- </scroll-list> -->
-      <!--   <view class="list-content" :style="{
-					backgroundColor: list_config.bg
-				}" v-if="list&&list.length>0">
-        <view class="list-view">
-          <list-next class="list-next" :nowrap="nowrap" :itemWidth="itemWidth" :cartData="cartData"
-            :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2" :appName="appName"
-            @click-foot-btn="clickFootBtn" />
-        </view>
-      </view> -->
-      <view class="data-empty" style="text-align: center;" v-if="list && list.length === 0&&total===0">
+<!--      <view class="data-empty" style="text-align: center;" v-if="showEmptyData&&list.length===0&&loadStatus==='noMore'">
         <u-empty></u-empty>
-      </view>
-      <uni-load-more :status="loadStatus" v-if="loadOnReachBottom"></uni-load-more>
-      <!-- <u-loading mode="flower" size="40" :show="loadStatus==='loading'"></u-loading> -->
-      <!-- <view class="data-empty" style="text-align: center;" v-else-if="loading">
-        <u-loading mode="flower" size="80" :show="loading"></u-loading>
       </view> -->
+      <uni-load-more :status="loadStatus" v-if="loadOnReachBottom"></uni-load-more>
     </view>
     <view class="tabs-list list-box" v-else-if="tabs.length > 0">
       <u-tabs :list="tabs" :is-scroll="true" :current="curTab" style="margin: 0 10px 5px;" @change="changeTab">
@@ -157,6 +142,13 @@
       },
       tabs() {
         return Array.isArray(this.config?.tabs) && this.config.tabs.length > 0 ? this.config.tabs : [];
+      },
+      showEmptyData() {
+        if (this.config?.showEmptyData == false && this.list.length === 0 && this.loadStatus === 'noMore') {
+          return false;
+        } else {
+          return true;
+        }
       },
       isShowToAll() {
         if (this.config?.showSeeAll == false) {
@@ -808,6 +800,7 @@
           this.list = this.list.concat(res.data.data);
           this.pageNo = res.data.page.pageNo;
           this.total = res.data.page.total;
+          uni.$emit('setTotal', this.total)
           let page = res.data.page;
           if (this.listType === 'proc') {
             for (let i = 0; i < this.tabList.length; i++) {
@@ -829,7 +822,7 @@
             return callBackData;
           } else {
             if (page.rownumber * page.pageNo >= page.total) {
-              this.loadStatus = 'norMore';
+              this.loadStatus = 'noMore';
             } else {
               this.loadStatus = 'more';
             }
@@ -978,7 +971,7 @@
               rowData,
               storeInfo,
               bindUserInfo,
-              storeUser:bindUserInfo
+              storeUser: bindUserInfo
             };
             if (buttonInfo?.moreConfig?.navUrl) {
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, obj);

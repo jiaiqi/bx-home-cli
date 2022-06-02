@@ -16,13 +16,13 @@
               活动还未开始
             </view>
             <view class="right" v-else-if="timeOutObj.stoped">
-              活动还未开始
+              活动已经结束
             </view>
             <view class="right" v-else>
               <text> 距离本场结束还有</text>
               <text class="date-time">
-                <text class="num">{{timeOutObj.Day}}</text>
-                <text class="symbol">天</text>
+                <text class="num" v-if="timeOutObj.Day&&timeOutObj.Day!=='00'">{{timeOutObj.Day}}</text>
+                <text class="symbol" v-if="timeOutObj.Day&&timeOutObj.Day!=='00'">天</text>
                 <text class="num">{{timeOutObj.Hour}}</text>
                 <text class="symbol">:</text>
                 <text class="num">{{timeOutObj.Minute}}</text>
@@ -51,7 +51,7 @@
 
               </view>
             </view>
-            <view class="right">
+            <view class="right" v-if="timeOutObj&&!timeOutObj.notStart&&!timeOutObj.stoped">
               <button class="cu-btn round bg-red" @click="toDetail(item)">立即抢</button>
             </view>
           </view>
@@ -210,10 +210,12 @@
         width: 100%;
         height: 340rpx;
         position: relative;
-        .image{
+
+        .image {
           width: 100%;
           height: 100%;
         }
+
         .bottom-tip {
           position: absolute;
           bottom: 0;

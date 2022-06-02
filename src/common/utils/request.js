@@ -107,6 +107,7 @@ export default function({
 						},
 						fail: async res => {
 							clearTimeout(timer);
+              console.log(res)
 							!overtime && await this.onerror(method, url, data, aborted ? '网络请求失败：主动取消' :
 								'网络请求失败：（URL无效|无网络|DNS解析失败）')
 							aborted ? reject('网络请求失败：主动取消') : reject('网络请求失败：（URL无效|无网络|DNS解析失败）')
@@ -172,6 +173,7 @@ export default function({
 						},
 						fail: async res => { // 网络请求失败
 							clearTimeout(timer) // 清除检测超时定时器
+              console.log(res)
 							uni.hideLoading()
 								!overtime && await this.onerror(method, url, data, aborted ? '网络请求失败：主动取消' :
 									'网络请求失败：（URL无效|无网络|DNS解析失败）')

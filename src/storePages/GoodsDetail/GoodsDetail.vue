@@ -81,7 +81,7 @@
       <view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
-    <evaluate-card :goods_no="goodsInfo.goods_no" v-if="goodsInfo&&goodsInfo.goods_no"></evaluate-card>
+    <evaluate-card :eval_show_way="goodsInfo.eval_show_way" :goods_no="goodsInfo.goods_no" v-if="goodsInfo&&goodsInfo.goods_no"></evaluate-card>
     <view class="detail" v-if="goodsInfo&&goodsDetailImage&&goodsDetailImage.length>0">
       <view class="title">图文详情</view>
       <view class="image-box">

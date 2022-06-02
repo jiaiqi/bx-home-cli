@@ -78,31 +78,58 @@ fly.interceptors.request.use(async (request) => {
       // #endif
       // #ifdef MP-WEIXIN
       let option = wx.getLaunchOptionsSync()
-      if (option && option.scene !== 1154) {
-      }
+      if (option && option.scene !== 1154) {}
       // #endif
     }
   }
 
-  // if (request.url && ignoreServiceName(request.url)) {
-  //   if (store.state.app.xhrNum === 0 && new Date().getTime() - store.state.app.xhrTimestamp > 1000) {
-  //     uni.showLoading({
-  //       // mask: true,
-  //       title: '加载中...'
-  //     })
-  //   }
-  // }
 
   store.commit('SET_XHR_NUM', store.state.app.xhrNum + 1)
   console.log(store.state.app.xhrNum)
   // 如果是浏览器运行的记录 请求的页面path和参数
-  if (uni.getStorageSync('client_env') === 'wxh5' || uni.getStorageSync('client_env') === 'web') {
-    let requrl = window.location.pathname + window.location.search
-    if (requrl && requrl.length > 300) {
-      requrl = requrl.substr(0, 300)
-    }
-    request.headers["requrl"] = requrl
+  // if (uni.getStorageSync('client_env') === 'wxh5' || uni.getStorageSync('client_env') === 'web') {
+  //   let requrl = window.location.pathname + window.location.search
+  //   if (requrl && requrl.length > 300) {
+  //     requrl = requrl.substr(0, 300)
+  //   }
+  //   request.headers["requrl"] = requrl
+  // }
+
+  let pageStack = getCurrentPages()
+  let currentPage = ''
+
+  if (Array.isArray(pageStack) && pageStack.length >= 1) {
+    currentPage = pageStack[pageStack.length - 1]
+    request.headers["bx-page-url"] = currentPage?.$page?.fullPath || currentPage?.route
+    request.headers["bx-page-instance"] = currentPage?.$vm?.pageUUID
   }
+  let terminalType = ''
+  const sysInfo = uni.getSystemInfoSync()
+  const client_env = uni.getStorageSync('client_env')
+  console.log('sysInfo', sysInfo)
+  console.log('currentPage', currentPage)
+
+  if (client_env === 'wxh5') {
+    terminalType = 'wxh5'
+    request['headers']['bx-terminal-app_no'] = api?.appNo?.wxh5
+  } else if (client_env === 'wxmp') {
+    terminalType = 'wxmp'
+    request['headers']['bx-terminal-app_no'] = api?.appNo?.wxmp
+  } else {
+    if (sysInfo) {
+
+      if (['ios', 'android'].includes(sysInfo?.platform)) {
+        terminalType = sysInfo?.platform
+      } else {
+        terminalType = 'pc'
+      }
+    }
+  }
+  request['headers']['bx-terminal-type'] = terminalType ? encodeURIComponent(terminalType) : ''
+
+  request['headers']['bx-terminal-ua'] =
+    `brand:${sysInfo?.brand};model:${sysInfo.model};platform:${sysInfo?.platform};system:${sysInfo?.system};version:${sysInfo?.version};SDKVersion:${sysInfo?.SDKVersion};`
+
   let bxAuthTicket = uni.getStorageSync("bx_auth_ticket")
   if (store.state.app.bx_auth_ticket) {
     bxAuthTicket = store.state.app.bx_auth_ticket
@@ -121,46 +148,26 @@ fly.interceptors.request.use(async (request) => {
       delete request.headers["bx_auth_ticket"]
     }
   }
-  const outTime = uni.getStorageSync("expire_timestamp") //过期时间
-  const date = parseInt(new Date().getTime() / 1000)
-  // if (request.url && request.url !== 'srvwx_app_login_verify') {
-  // 	// #ifdef MP-WEIXIN
-  // 	try {
-  // 		let sessionStatus = await wx.checkSession()
-  // 	} catch (err) {
-  // 		// session_key 已经失效 需要重新执行登录流程
-  // 		if (err) {
-  // 			uni.showToast({
-  // 				title: err,
-  // 				icon: false
-  // 			})
-  // 		}
-  // 		let result = await wx.login()
-  // 		if (result.code) {
-  // 			await Vue.prototype.wxLogin({
-  // 				code: result.code
-  // 			})
-  // 		}
-  // 	}
-  // 	// #endif
+  // const outTime = uni.getStorageSync("expire_timestamp") //过期时间
+  // const date = parseInt(new Date().getTime() / 1000)
+
+
+  // if (outTime) {
+  //   const isExpired = outTime < date
+  //   console.log('登录是否过期:', isExpired, '\n过期时间:', FormateDate(new Date(outTime * 1000)), outTime, date)
+  //   // if (isExpired) {
+  //   //   uni.setStorageSync('isLogin', false)
+  //   //   request.headers["USERlOGIN"] = "noneLogin" // normal || noneLogin
+  //   //   return request
+  //   // } else {
+  //   request.headers["USERlOGIN"] = "normal" // normal || noneLogin
+  //   return request
+  //   // }
+  // } else {
+  //   request.USERlOGIN = "normal"
+  //   return request
   // }
-
-  if (outTime) {
-    const isExpired = outTime < date
-    console.log('登录是否过期:', isExpired, '\n过期时间:', FormateDate(new Date(outTime * 1000)), outTime, date)
-    // if (isExpired) {
-    //   uni.setStorageSync('isLogin', false)
-    //   request.headers["USERlOGIN"] = "noneLogin" // normal || noneLogin
-    //   return request
-    // } else {
-    request.headers["USERlOGIN"] = "normal" // normal || noneLogin
-    return request
-    // }
-  } else {
-    request.USERlOGIN = "normal"
-    return request
-  }
-
+  return request
 })
 //添加响应拦截器，响应拦截器会在then/catch处理之前执行
 fly.interceptors.response.use(
@@ -168,7 +175,7 @@ fly.interceptors.response.use(
       store.commit('SET_XHR_NUM', store.state.app.xhrNum - 1)
       console.log(store.state.app.xhrNum)
       // if (store.state.app.xhrNum === 0) {
-        uni.hideLoading()
+      uni.hideLoading()
       // }
       if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
         try {

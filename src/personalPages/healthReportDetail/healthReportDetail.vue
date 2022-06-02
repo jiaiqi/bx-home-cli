@@ -159,12 +159,28 @@
           </view>
         </view>
       </view>
-
     </view>
-    <!--    <view class="page-item" v-else-if="type==='重要指标检测结果查询'">
-
-    </view> -->
-    <view class="page-item bg-transparent" v-if="illList.includes(type)&&gaishan&&gaishan.length>0">
+    <view class="page-item" v-else-if="['疾病风险评估汇总'].includes(pageTitle)&&childCols&&childCols.length>0">
+      <view class="title" v-if="childService&&childService.service_view_name">
+        <text class="cuIcon-titles text-blue"></text>
+        <text> {{childService.service_view_name}}</text>
+      </view>
+      <view class="table-box">
+        <view class="tr">
+          <view class="td th" v-for="item in childCols.filter(item=>!['ideal','result'].includes(item.columns))">
+            {{item.label}}
+          </view>
+        </view>
+        <view class="tr" v-for="data in list">
+          <view class="td" :class="{'bg-red':col.column==='val'&&data['result']&&data['result']==='异常'}"
+            v-for="col in childCols.filter(item=>!['ideal','result'].includes(item.columns))">
+            {{data[col.column]}}
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="page-item bg-transparent"
+      v-if="(illList.includes(type)||['疾病风险评估汇总'].includes(pageTitle))&&gaishan&&gaishan.length>0">
       <view class="title">
         <text class="cuIcon-titles text-blue"></text>
         <text>改善以下因素，降低发病风险</text>
@@ -172,6 +188,23 @@
       <view class="padding-lr-xs text-blue ">
         <view class="gaishan-item padding-tb-sm" v-for="item in gaishan">
           ※ {{item}}
+        </view>
+      </view>
+    </view>
+    <view class="page-item bg-transparent" v-if="['疾病风险评估汇总'].includes(pageTitle)">
+      <view class="title">
+        <text class="cuIcon-titles text-blue"></text>
+        <text v-if="childService1V2&&childService1V2.service_view_name">{{childService1V2.service_view_name}}</text>
+        <text v-else> 如果达到了上述理想目标，疾病风险的下降率为</text>
+      </view>
+      <view class=" single-row">
+        <view class="table-item" v-for="item in child2List">
+          <view class="label" v-if="item&&item.label">
+            {{item.label}}
+          </view>
+          <view class="value" v-if="item&&item.value">
+            {{item.value}}
+          </view>
         </view>
       </view>
     </view>
@@ -191,6 +224,10 @@
         data: {},
         list: [],
         childService: {},
+        childService1: {},
+        childService1V2: {},
+        child2List: [],
+        childServiceList: [],
         fields: [],
         colsOriginMap: {
           tijian_diastolic: "<80mmHg", //'舒张压'
@@ -207,79 +244,6 @@
           tijian_creatinine: "44~97 μmol/L", //血肌酐
 
         },
-        cols: [{
-            column: 'tijian_diastolic',
-            label: '舒张压',
-            origin: "<80mmHg"
-          },
-          {
-            column: 'tijian_systolic',
-            label: '收缩压',
-            origin: "<120mmHg"
-          },
-          {
-            column: 'tijian_fbs',
-            label: '空腹血糖',
-            origin: '3.9~5.9mmol/L'
-          },
-          {
-            column: 'yiban_blood_sugar',
-            label: '腰围（厘米）',
-            origin: '<85cm'
-          },
-          {
-            column: 'yiban_bmi',
-            label: '体重指数（BMI）',
-            origin: '18.5<=BMI<24'
-          },
-          {
-            column: 'tijian_cholesterol',
-            label: '总胆固醇',
-            origin: '2.9~5.17mmol/L'
-          },
-          {
-            column: 'tijian_triglyceride',
-            label: '甘油三酯',
-            origin: '0.57~1.69mmol/L'
-
-          },
-          {
-            column: 'tijian_hdl_cholesterol',
-            label: '高密度脂蛋白胆固醇',
-            origin: '>1.04mmol/L'
-          },
-          {
-            column: 'tijian_ldl_cholesterol',
-            label: '低密度脂蛋白胆固醇',
-            origin: '0~3.36mmol/L'
-          },
-          {
-            column: 'tijian_bmdi_t',
-            label: '骨密度检查指标-T值',
-            origin: '>=-1'
-          },
-          // {
-          //   column: 'dietary_structure',
-          //   label: '膳食结构',
-          //   origin: '合理'
-          // },
-          // {
-          //   column: 'physical_activity',
-          //   label: '体力活动',
-          //   origin: '充足'
-          // },
-          {
-            column: 'tijian_uric_acid',
-            label: '血尿酸',
-            origin: '150~360mmol/L'
-          },
-
-          {
-            column: 'tijian_creatinine',
-            label: '血肌酐',
-            origin: '44~97 μmol/L'
-          }
-        ],
         childV2: null,
         diseaseTypeList: [{
             col: 'present_disease',
@@ -400,13 +364,35 @@
 
           if (Array.isArray(res?.data?.data?.child_service) && res?.data?.data?.child_service.length > 0) {
             this.childService = res?.data?.data?.child_service[0]
+            this.childServiceList = res?.data?.data?.child_service
+
             // if (this.childService?.service_view_name) {
             //   uni.setNavigationBarTitle({
             //     title: this.childService.service_view_name
             //   })
             // }
-            await this.getChildV2()
-            this.getList()
+            this.childV2 = await this.getServiceV2(this.childService.service_name, 'list', 'detaillist', 'health');
+            this.list = await this.getList(this.childService.service_name)
+
+            //疾病风险的下降率
+            let childService1 = this.childServiceList.find(item => item.main_table ===
+              'bxhealth_store_disease_risk_all')
+            if (childService1) {
+              this.childService1 = childService1
+              this.childService1V2 = await this.getServiceV2(childService1.service_name, 'list', 'detaillist',
+                'health');
+              let list = await this.getList(childService1.service_name)
+              let cols = this.childService1V2?._fieldInfo.filter(col => col.in_list === 1 && !['create_time']
+                .includes(col.column))
+              if (Array.isArray(list) && list.length > 0) {
+                let data = list[0]
+                this.child2List = cols.map(item => {
+                  item.value = data[item.column]
+                  return item
+                })
+              }
+
+            }
           }
           this.fields = res?.data?.data?.srv_cols.filter(item => item.in_detail === 1 && item.in_list === 1 && ![
             'create_time', 'create_user_disp', 'sr_no'
@@ -421,38 +407,8 @@
           }
         }
       },
-      async getChildV2() {
-        let colVs = await this.getServiceV2(this.childService.service_name, 'list', 'detaillist', 'health');
-        this.childV2 = colVs
-        return colVs
-        // const url =
-        //   `/health/select/srvsys_service_columnex_v2_select?colsel_v2=${this.childService.service_name}`
-        // const req = {
-        //   "serviceName": "srvsys_service_columnex_v2_select",
-        //   "colNames": ["*"],
-        //   "condition": [{
-        //     "colName": "service_name",
-        //     "value": this.childService.service_name,
-        //     "ruleType": "eq"
-        //   }, {
-        //     "colName": "use_type",
-        //     "value": "detail",
-        //     "ruleType": "eq"
-        //   }],
-        //   "order": [{
-        //     "colName": "seq",
-        //     "orderType": "asc"
-        //   }]
-        // }
-        // const res = await this.$http.post(url, req)
-        // if (res?.data?.state === 'SUCCESS') {
-
-        //   this.childV2 = res.data.data
-        // }
-
-      },
-      async getList() {
-        const service = this.childService?.service_name
+      async getList(service) {
+        // const service = this.childService?.service_name
         if (service) {
           const url = `/health/select/${service}`
           const req = {
@@ -470,9 +426,10 @@
             },
           }
           const res = await this.$http.post(url, req)
-          if (res?.data?.state === 'SUCCESS') {
-            this.list = res.data.data
-          }
+          // if (res?.data?.state === 'SUCCESS') {
+          //   this.list = res.data.data
+          // }
+          return res?.data?.data
         }
 
       },
@@ -617,6 +574,38 @@
       }
     }
 
+    .single-row {
+      display: flex;
+      flex-wrap: wrap;
+      border: 1px solid #43c68e;
+
+      .table-item {
+        min-width: 25%;
+        text-align: center;
+        border-left: #43c68e 1px solid;
+
+        &:nth-child(4n+1) {
+          border-left: none;
+        }
+
+        .label,
+        .value {
+          height: 40px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .label {
+          color: #43c68e;
+          background-color: #e1f6ed;
+        }
+
+        .value {}
+      }
+    }
+
+
     .table-box {
       width: 100%;
       overflow-x: scroll;
@@ -634,9 +623,11 @@
           border-left: 1px solid #f1f1f1;
           display: flex;
           align-items: center;
-          &:first-child{
+
+          &:first-child {
             border-left: none;
           }
+
           &.th {
             background-color: #f8f8f8;
           }

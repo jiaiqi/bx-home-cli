@@ -1,6 +1,6 @@
-import http from './http.js'
+// import http from './http.js'
 import Vue from 'vue'
-// import http from '@/common/http.js'
+import http from '@/common/http.js'
 import store from '@/store/index.js'
 import api from '@/common/api.js'
 const mpAppNo = api.appNo.wxmp
@@ -36,14 +36,7 @@ const checkIsAttention = async () => {
 const wxVerifyLogin = (userInfo) => {
   // #ifdef MP-WEIXIN
   return new Promise(resolve => {
-    // let wxAuthUserInfo = store?.state?.user?.wxAuthUserInfo
-    // if (!wxAuthUserInfo) {
-    // 	uni.showToast({
-    // 		title: '请先授权获取用户信息',
-    // 		icon: 'none'
-    // 	})
-    // 	resolve(true)
-    // }
+
     if (store?.state?.user?.userInfo?.nick_name) {
       store.commit('SET_AUTH_USERINFO', true)
     }

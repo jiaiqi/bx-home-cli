@@ -20,12 +20,12 @@
         v-if="setListView && setListView.cols">
         <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
           :class="[item.class]">
-          <template v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
+          <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
             <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
               listType="list" :appName="appName" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
             </list-item>
-          </template>
-          <template v-else>
+          </view>
+          <view v-else>
             <view class="label" v-if="item.label">{{ item.label }}:</view>
             <!-- 前置图标 -->
             <image class="icon" :class="item.preIcon.name" v-if="item.preIcon&&item.preIcon.name"
@@ -40,7 +40,8 @@
               v-if="item.event&&item.event.type==='location_fk'" @click.stop="openLocation(item.event)">
               <text v-if="item.prefix">{{ item.prefix }}</text>
               <text v-if="item.mode==='rate'">
-                <uni-rate v-model="item.value" :readonly="true" :max="item.max||5" :allowHalf="item.allowHalf||false" />
+                <uni-rate :value="Number(item.value)" :readonly="true" :max="item.max||5"
+                  :allowHalf="item.allowHalf||false" />
               </text>
               <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
@@ -58,7 +59,8 @@
                 </bx-media-upload>
               </view>
               <text v-else-if="item.mode==='rate'">
-                <uni-rate v-model="item.value" :readonly="true" :max="item.max||5" :allowHalf="item.allowHalf||false" />
+                <uni-rate :value="Number(item.value)" :readonly="true" :max="item.max||5"
+                  :allowHalf="item.allowHalf||false" />
               </text>
               <text v-else>{{ excludeEnter(item.value)}}</text>
               <text v-if="item.suffix">{{ item.suffix }}</text>
@@ -70,7 +72,7 @@
             </image>
             <image class="icon" :class="item.sufIcon.fileNo" v-else-if="item.sufIcon&&item.sufIcon.fileNo"
               :style="[item.sufIcon.style]" :src="getImagePath(item.sufIcon.fileNo,true)" mode="aspectFit"></image>
-          </template>
+          </view>
         </view>
         <view class="col-item text-right flex-1" v-if="listType === 'cartList' && rowData && rowData.goods_amount">
           <view class="cu-btn sm radius cart-handler" :style="{
@@ -152,15 +154,6 @@
     <view class="foot-button-box"
       v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
     </view>
-    <!--   <view class="foot-button-box" v-else-if="listType!=='selectorList'">
-      <button class="cu-btn" :class="[setListView.btnClass]"
-        :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
-        v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
-        :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
-        :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
-        {{ btn.button_name }}
-      </button>
-    </view> -->
   </view>
 </template>
 

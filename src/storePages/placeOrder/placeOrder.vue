@@ -36,7 +36,7 @@
             }}</text>
         </view>
         <view class="goods-list">
-          <goods-item :goods="goods" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
+          <goods-item :goods="goods" :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
             @attrChange="attrChange($event,idx)">
 
           </goods-item>
@@ -1303,6 +1303,10 @@
         if (formData == false) {
           return
         }
+
+        uni.showLoading({
+          mask: true
+        })
         let req = [{
           serviceName: 'srvhealth_store_order_add',
           condition: [],
@@ -1484,7 +1488,7 @@
           // }
         }
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
-        debugger
+
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1500,11 +1504,11 @@
           const orderData = await this.getOrderInfo()
           uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
-          debugger
+
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             if (this.mainData?.pay_config !== '后付') {
-              this.toPay();
+              await this.toPay();
             }
           } else {
 
@@ -1523,6 +1527,7 @@
               }
             }
           }
+
         } else if (res.success == false && res.msg) {
           uni.showModal({
             title: '提示',
@@ -1530,6 +1535,7 @@
             showCancel: false
           })
         }
+        uni.hideLoading()
         // });
       },
       async clearOrderCartGoods(ids) {
@@ -1639,57 +1645,30 @@
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
-          wx.requestPayment({
-            timeStamp: res.timeStamp.toString(),
-            nonceStr: res.nonceStr,
-            package: res.package,
-            signType: 'MD5',
-            paySign: res.paySign,
-            success(res) {
-              // 支付成功
-              self.orderInfo.order_state = '待发货';
-              self.updateOrderState('待发货', '已支付', result.prepay_id);
-              self.orderInfo.pay_state = '已支付';
-              // let webUrl =
-              //   'https://login.100xsys.cn/health/#/storePages/successPay/successPay?order_no=' +
-              //   orderData
-              //   .order_no + '&totalMoney=' + totalMoney
-              // let url =
-              //   `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
-              // uni.redirectTo({
-              //   url
-              // });
-              // uni.redirectTo({
-              //   url: '/storePages/successPay/successPay?order_no=' + orderData
-              //     .order_no + '&totalMoney=' + self.totalMoney
-              // });
-
-            },
-            fail(res) {
-              // 支付失败/取消支付
-              self.orderInfo.pay_state = '取消支付';
-              self.updateOrderState('待支付', '取消支付', result.prepay_id);
-            }
-          });
+          return new Promise((resolve) => {
+            wx.requestPayment({
+              timeStamp: res.timeStamp.toString(),
+              nonceStr: res.nonceStr,
+              package: res.package,
+              signType: 'MD5',
+              paySign: res.paySign,
+              success(res) {
+                // 支付成功
+                self.orderInfo.order_state = '待发货';
+                self.updateOrderState('待发货', '已支付', result.prepay_id);
+                self.orderInfo.pay_state = '已支付';
+                resolve(res)
+              },
+              fail(res) {
+                // 支付失败/取消支付
+                self.orderInfo.pay_state = '取消支付';
+                self.updateOrderState('待支付', '取消支付', result.prepay_id);
+                resolve(res)
+              }
+            });
+          })
         }
       },
-      // async getPlaceInfo() {
-      //   let req = {
-      //     condition: [{
-      //       colName: "store_no",
-      //       ruleType: "eq",
-      //       value: this.storeInfo?.store_no
-      //     }, {
-      //       colName: "place_no",
-      //       ruleType: "eq",
-      //       value: this.service_place_no
-      //     }]
-      //   };
-      //   let res = await this.$fetch('select', 'srvhealth_store_place_join_select', req, 'health')
-      //   if (Array.isArray(res.data) && res.data.length > 0) {
-      //     this.placeInfo = res.data[0]
-      //   }
-      // },
     },
     async onLoad(option) {
       if (option.orderType || option.order_type) {

@@ -29,7 +29,13 @@ export default {
       return !!this.vvipCard?.card_no
     }
   },
+  data() {
+    return {
+      pageUUID: ''
+    }
+  },
   onLoad(option) {
+    this.pageUUID = uni.$u.guid(20)
     if (option.storeNo || option.store_no) {
       this.$store.commit('setStateAttr', {
         key: "curStoreNo",
@@ -71,7 +77,10 @@ export default {
       serviceName = 'srvhealth_store_cus_niming_detail_select'
       let res = await this.$fetch('select', serviceName, req, 'health');
       if (Array.isArray(res.data) && res.data.length > 0) {
-        this.$store.commit('setStateAttr', {key:'storeInfo',val:res.data[0]});
+        this.$store.commit('setStateAttr', {
+          key: 'storeInfo',
+          val: res.data[0]
+        });
         let theme = 'blue';
         if (res.data[0].para_cfg) {
           try {

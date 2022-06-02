@@ -19,8 +19,10 @@
 		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
 		  }}</text>
         </view>
-        <button class="cu-btn round sm border" v-if="goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
+        <button class="cu-btn round sm border"
+          v-if="orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
           @click="toEvaluate">评价</button>
+        <button class="cu-btn round sm border" v-if="goods.is_remark!='待评价'" @click="toEvaluate('detail')">查看评价</button>
       </view>
     </view>
     <view class="goods-item-list" v-if="list&&list.length>0">
@@ -52,6 +54,9 @@
 <script>
   export default {
     props: {
+      orderInfo: {
+        type: Object
+      },
       goods: {
         type: Object
       },
@@ -94,7 +99,7 @@
         // 跳转到评价页面
         let fieldsCond = [{
           "column": "store_no",
-          "value":this.storeInfo.store_no
+          "value": this.storeInfo.store_no
         }, {
           "column": "store_user_no",
           "value": this.vstoreUser?.store_user_no
@@ -116,6 +121,9 @@
         }]
         let url =
           `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+        if(e=='detail'){
+          url = `/storePages/evaluateList/evaluateList?no=${this.goods.goods_no}&order_goods_rec_no=${this.goods.order_goods_rec_no}`
+        }    
         uni.redirectTo({
           url
         })

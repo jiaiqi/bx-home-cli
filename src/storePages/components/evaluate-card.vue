@@ -6,7 +6,7 @@
     <view class="" v-else>
       <view class="title" v-if="showAll===false">
         <text class="text">商品评价<text class="text-sm" v-if="numberShow">({{numberShow||''}})</text> </text>
-        <text class="right"><text class="" @click="toList">查看全部 </text> <text
+        <text class="right" @click="toList"><text class="">查看全部 </text> <text
             class="cuIcon-right margin-left-xs"></text>
         </text>
       </view>
@@ -19,7 +19,7 @@
                 <text>
                   {{item.person_name||''}}
                 </text>
-                <uni-rate v-model="item.goods_remark" :readonly="true" :max="5" :allowHalf="false" />
+                <uni-rate :value="Number(item.goods_remark)" :readonly="true" :max="5" :allowHalf="false" />
               </view>
               <view class="time">
                 {{item.create_time}}
@@ -44,7 +44,7 @@
         </view>
       </view>
       <uni-load-more class="load-more" :status="loadStatus" :contentText="loadText" @clickLoadMore="loadMore"
-        v-if="showAll">
+        v-if="showAll&&!order_goods_rec_no">
       </uni-load-more>
       <view class="bottom-button" v-if="showAll===false">
         <button class="cu-btn bg-white sm" @click="toList">查看全部评价</button>
@@ -103,6 +103,13 @@
         type: String,
         default: ''
       },
+      eval_show_way: {
+        type: String,
+        default: '全部' //全部、精选
+      },
+      order_goods_rec_no: { // 订单商品明细编号 查看自己的评价时传入
+        type: String
+      }
     },
     mounted() {
       if (this.goods_no) {
@@ -173,9 +180,9 @@
               value: this.goodsNo
             },
             {
-              colName: 'audit_state',
+              colName: 'is_featured',
               ruleType: 'eq',
-              value: '审核通过'
+              value: this.eval_show_way === '全部' ? '否' : '是'
             }
           ],
           "page": {
@@ -183,6 +190,19 @@
             "rownumber": this.page.rownumber
           },
           // "order": [],
+        }
+        if (this.order_goods_rec_no) {
+          req.condition.push({
+            colName: 'order_goods_rec_no',
+            ruleType: 'eq',
+            value: this.order_goods_rec_no
+          })
+        } else {
+          req.condition.push({
+            colName: 'audit_state',
+            ruleType: 'eq',
+            value: '审核通过'
+          })
         }
         this.loadStatus = 'loading'
         const res = await this.$http.post(url, req)
@@ -219,6 +239,8 @@
           } = res.data.page
           if (total && pageNo && rownumber) {
             this.loadStatus = pageNo * rownumber >= total ? 'noMore' : 'more'
+          }else if(total===0&&pageNo===1){
+            this.loadStatus = 'noMore'
           }
         }
       }
