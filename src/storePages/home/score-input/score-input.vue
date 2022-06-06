@@ -298,8 +298,9 @@
         if (detailUrl) {
           detailUrl = this.renderStr(detailUrl, data)
           detailUrl = `${detailUrl}?query=${JSON.stringify(newGaokaoInfo)}`
+          const url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://login.100xsys.cn/health/#'+detailUrl)}`
           uni.navigateTo({
-            url: detailUrl,
+            url: url,
             success: () => {
               // if ((gaokaoInfo?.region && (gaokaoInfo.region !== newGaokaoInfo.region || gaokaoInfo.level !== newGaokaoInfo
               //     .level || gaokaoInfo.tank !== newGaokaoInfo.tank)) || !gaokaoInfo?.region) {

@@ -40,30 +40,31 @@
     data() {
       return {
         query: null,
-        list: [{
-            bg: 'red',
-            text: '冲',
-            title: '可冲击的大学',
-            desc: '大学录取可能性低',
-            needVip: false,
-            amount: 3,
-          },
-          {
-            bg: 'blue',
-            text: '稳',
-            title: '较稳妥的大学',
-            desc: '大学录取可能性较高',
-            needVip: true,
-            amount: 21,
-          },
-          {
-            bg: 'green',
-            text: '保',
-            title: '可保底的大学',
-            desc: '大学录取可能性非常高',
-            needVip: true,
-            amount: 317,
-          }
+        list: [
+          // {
+          //   bg: 'red',
+          //   text: '冲',
+          //   title: '可冲击的大学',
+          //   desc: '大学录取可能性低',
+          //   needVip: false,
+          //   amount: 3,
+          // },
+          // {
+          //   bg: 'blue',
+          //   text: '稳',
+          //   title: '较稳妥的大学',
+          //   desc: '大学录取可能性较高',
+          //   needVip: true,
+          //   amount: 21,
+          // },
+          // {
+          //   bg: 'green',
+          //   text: '保',
+          //   title: '可保底的大学',
+          //   desc: '大学录取可能性非常高',
+          //   needVip: true,
+          //   amount: 317,
+          // }
         ]
       }
     },
@@ -92,6 +93,7 @@
     },
     methods: {
       toDetail(e) {
+        
         let condition = [
           {
             colName:'score_status',
@@ -202,6 +204,7 @@
                   item.amount = item.result_cnt
                   break;
               }
+              item.score_status = item.score_status
               return item
             })
           }

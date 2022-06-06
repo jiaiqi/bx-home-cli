@@ -2418,6 +2418,7 @@
     onReachBottom() {
       if (this.loadStatus === 'more') {
         this.pageNo++;
+        debugger
         this.getList(null, this.initCond)
       }
     },
@@ -2477,7 +2478,7 @@
 
 <style lang="scss" scoped>
   .page-wrap {
-    height: calc(100vh - var(--window-top) + 30px);
+    // height: calc(100vh - var(--window-top) + 30px);
     // min-height: calc(100vh - var(--window-top));
     display: flex;
     flex-direction: column;

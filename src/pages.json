@@ -132,17 +132,15 @@
             "enablePullDownRefresh": true
           }
 
+        }, {
+          "path": "previewimg/previewimg",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "previewimg/previewimg",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "storePages",
@@ -175,14 +173,6 @@
         {
           "path": "payOrder/payOrder"
         },
-        //#ifdef H5
-        {
-          "path": "successPay/successPay"
-        },
-        {
-          "path": "DoctorIntro/DoctorIntro"
-        },
-        //#endif
         {
           "path": "VaccineList/VaccineList",
           "style": {
@@ -264,6 +254,13 @@
           }
         },
         // #ifdef H5
+        
+        {
+          "path": "successPay/successPay"
+        },
+        {
+          "path": "DoctorIntro/DoctorIntro"
+        },
         {
           "path": "appointmentCheckIn/appointmentCheckIn",
           "style": {
@@ -294,6 +291,13 @@
             "enablePullDownRefresh": false
           }
         },
+        {
+          "path": "scoreInputDetail/scoreInputDetail",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        }, 
         // #endif
         {
           "path": "ProductItem/ProductItem",
@@ -367,32 +371,21 @@
             "enablePullDownRefresh": false
           }
 
-        }
-        , {
+        }, {
           "path": "evaluateList/evaluateList",
           "style": {
             "navigationBarTitleText": "评价列表",
             "enablePullDownRefresh": true
           }
+        }, {
+          "path": "schoolDetails/schoolDetails",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "scoreInputDetail/scoreInputDetail",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                },{
-                    "path" : "schoolDetails/schoolDetails",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     },
     {
       "root": "questionnaire",
