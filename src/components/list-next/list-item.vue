@@ -25,7 +25,7 @@
               listType="list" :appName="appName" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
             </list-item>
           </view>
-          <view v-else>
+          <template v-else>
             <view class="label" v-if="item.label">{{ item.label }}:</view>
             <!-- 前置图标 -->
             <image class="icon" :class="item.preIcon.name" v-if="item.preIcon&&item.preIcon.name"
@@ -72,7 +72,7 @@
             </image>
             <image class="icon" :class="item.sufIcon.fileNo" v-else-if="item.sufIcon&&item.sufIcon.fileNo"
               :style="[item.sufIcon.style]" :src="getImagePath(item.sufIcon.fileNo,true)" mode="aspectFit"></image>
-          </view>
+          </template>
         </view>
         <view class="col-item text-right flex-1" v-if="listType === 'cartList' && rowData && rowData.goods_amount">
           <view class="cu-btn sm radius cart-handler" :style="{

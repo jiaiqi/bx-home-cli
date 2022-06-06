@@ -13,7 +13,6 @@
         <text class="cuIcon-unfold margin-left-xs" v-if="!singleStore"></text>
       </view>
     </cu-custom-navbar>
-
     <view class="">
       <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
         <store-item v-for="pageItem in pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
@@ -44,7 +43,7 @@
         </view>
       </view>
     </view>
-
+    
 
 
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
@@ -1252,7 +1251,13 @@
             colName: 'owner_pd_no',
             ruleType: 'eq',
             value: home_page_no
-          }],
+          },
+          {
+            colName:'disp_flag',
+            ruleType:'eq',
+            value:'是'
+          }
+          ],
           page: {
             pageNo: 1,
             rownumber: 5

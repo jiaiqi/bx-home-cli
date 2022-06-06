@@ -63,6 +63,7 @@
     <multistep-picker :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '通用预约'" />
     <queue-info :config="pageItem.more_config.queueCfg"
       v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
+    <score-input :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '根据高考总分推荐学校'" />
   </view>
 </template>
 
@@ -85,6 +86,7 @@
   import couponList from '../coupon-list/coupon-list.vue'
   import multistepPicker from '../multistep-picker/multistep-picker.vue'
   import queueInfo from '../queue-info/queue-info.vue'
+  import scoreInput from '../score-input/score-input.vue'
   export default {
     components: {
       slideList,
@@ -104,7 +106,8 @@
       userCard,
       couponList,
       multistepPicker,
-      queueInfo
+      queueInfo,
+      scoreInput
     },
     props: {
       pageItem: {

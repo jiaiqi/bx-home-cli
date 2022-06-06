@@ -375,7 +375,16 @@
             "enablePullDownRefresh": true
           }
         }
-      ]
+          ,{
+                    "path" : "scoreInputDetail/scoreInputDetail",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "questionnaire",
