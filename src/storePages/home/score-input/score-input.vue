@@ -183,7 +183,7 @@
         region: 0,
         score: null,
         level: 0,
-        levelData: ['全部', '本科一批', '本科二批', '专科']
+        levelData: [ '本科一批', '本科二批', '专科']
       }
     },
     props: {
@@ -234,7 +234,32 @@
           return res.data
         }
       },
-      toDetail() {
+      async toDetail() {
+        // 检查是否关注公众号
+        let res = await this.checkSubscribeStatus()
+        if (!res) {
+          let confirm = await new Promise((resolve) => {
+            uni.showModal({
+              title: '提示',
+              content: '请先关注百想助理公众号，以便及时收到新消息通知',
+              confirmText: '去关注',
+              showCancel: false,
+              success: (res) => {
+                if (res.confirm) {
+                  resolve(true)
+                } else {
+                  resolve(false)
+                }
+              }
+            })
+          })
+          if (confirm === true) {
+            if (this.$api?.env === 'prod') {
+              this.toOfficial()
+              return
+            }
+          }
+        }
         if (!this.score) {
           uni.showModal({
             title: '提示',
@@ -257,7 +282,9 @@
           region: this.regionData[this.region].code,
           regionName: this.regionData[this.region].name,
           level: this.levelData[this.level],
-          rank: this.rank
+          rank: this.rank,
+          score:this.score,
+          subject:this.subject
         }
         const data = {
           ...newGaokaoInfo,

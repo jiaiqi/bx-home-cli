@@ -1,15 +1,15 @@
 <template>
   <view>
-    <view class="title">
+    <view class="page-title">
       <view class="left">
-
+        {{leftText||''}}
       </view>
       <view class="right">
-
+        {{rightText||''}}
       </view>
     </view>
     <view class="card-list">
-      <view class="card-item" v-for="item in list">
+      <view class="card-item" v-for="item in list" @click="toDetail(item)">
         <view class="left" :class="[item.bg]">
           {{item.text}}
         </view>
@@ -39,7 +39,7 @@
   export default {
     data() {
       return {
-        query:null,
+        query: null,
         list: [{
             bg: 'red',
             text: '冲',
@@ -67,28 +67,157 @@
         ]
       }
     },
+    computed: {
+      leftText() {
+        if (this.query) {
+          if (this.query?.regionName && this.query?.score && this.query?.subject) {
+            return `${this.query?.regionName}/${this.query?.subject}科/${this.query?.score}分`
+          }
+        }
+        return ''
+      },
+      rightText() {
+        return this.query?.level || ''
+      },
+    },
     onLoad(option) {
-      if(option.query){
-        try{
+      if (option.query) {
+        try {
           this.query = JSON.parse(option.query)
-        }catch(e){
+          this.getList()
+        } catch (e) {
           //TODO handle the exception
         }
       }
     },
     methods: {
-      toDetail() {
+      toDetail(e) {
+        let condition = [
+          {
+            colName:'score_status',
+            "ruleType": "eq",
+            "value": e?.score_status
+          },
+          {
+            "colName": "user_province",
+            "ruleType": "eq",
+            "value": this.query.regionName
+          },
+          {
+            "colName": "score_postiton",
+            "ruleType": "eq",
+            "value": this.query.rank
+          },
+          {
+            "colName": "user_score",
+            "ruleType": "eq",
+            "value": this.query.score
+          },
+          {
+            "colName": "user_branch",
+            "ruleType": "eq",
+            "value": this.query.subject + '科'
+          }
+        ]
+        // if (this.query.level !== '全部') {
+        condition.push({
+          "colName": "user_batch",
+          "ruleType": "eq",
+          "value": this.query.level || '全部'
+          // .query.level
+        })
+        // }
 
+        let url =
+          `/publicPages/list2/list2?destApp=person&disabled=true&serviceName=srvuee_college_score_ana_list_select&cond=${JSON.stringify(condition)}`
+        uni.navigateTo({
+          url
+        })
       },
-      getList(){
+      async getList() {
         const url = `/person/select/srvuee_college_score_ana_sum_select `
-        const req = ''
+        const req = {
+          "serviceName": "srvuee_college_score_ana_sum_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "user_province",
+              "ruleType": "eq",
+              "value": this.query.regionName
+            },
+            {
+              "colName": "score_postiton",
+              "ruleType": "eq",
+              "value": this.query.rank
+            },
+            {
+              "colName": "user_score",
+              "ruleType": "eq",
+              "value": this.query.score
+            },
+            {
+              "colName": "user_branch",
+              "ruleType": "eq",
+              "value": this.query.subject + '科'
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 5
+          }
+        }
+        // if (this.query.level !== '全部') {
+        req.condition.push({
+          "colName": "user_batch",
+          "ruleType": "eq",
+          // "value": '全部'
+          value: this.query.level||'全部'
+        })
+        // }
+        const res = await this.$http.post(url, req);
+        if (res?.data?.state === 'SUCCESS') {
+          if (Array.isArray(res.data?.data) && res.data.data.length > 0) {
+            this.list = res.data.data.map(item => {
+              switch (item.score_status) {
+                case '可保底':
+                  item.text = '保'
+                  item.bg = 'green'
+                  item.needVip = true
+                  item.desc = '大学录取可能性非常高'
+                  item.title = "可保底的大学"
+                  item.amount = item.result_cnt
+                  break;
+                case '较稳妥':
+                  item.text = '稳'
+                  item.bg = 'blue'
+                  item.desc = '大学录取可能性较高'
+                  item.title = "较稳妥的大学"
+                  item.amount = item.result_cnt
+                  item.needVip = true
+                  break;
+                case '需冲刺':
+                  item.text = '冲'
+                  item.bg = 'red'
+                  item.desc = '大学录取可能性低'
+                  item.title = "可冲击的大学"
+                  item.amount = item.result_cnt
+                  break;
+              }
+              return item
+            })
+          }
+        }
       },
     }
   }
 </script>
 
 <style lang="scss" scoped>
+  .page-title {
+    display: flex;
+    padding: 10px;
+    justify-content: space-between;
+  }
+
   .card-item {
     display: flex;
     justify-content: space-between;
@@ -140,7 +269,7 @@
       color: #fff;
       border-radius: 0 20px 20px 0;
       background: linear-gradient(#f4c7c3, #ff5c73);
-      width: 50px;
+      width: 40px;
       height: 30px;
       line-height: 30px;
 

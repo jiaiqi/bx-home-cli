@@ -383,6 +383,14 @@
                     "enablePullDownRefresh": false
                 }
                 
+                },{
+                    "path" : "schoolDetails/schoolDetails",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
                 }
             ]
     },

@@ -361,7 +361,6 @@
         }
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
-
           if (Array.isArray(res?.data?.data?.child_service) && res?.data?.data?.child_service.length > 0) {
             this.childService = res?.data?.data?.child_service[0]
             this.childServiceList = res?.data?.data?.child_service
