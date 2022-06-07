@@ -224,7 +224,7 @@
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
           <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
-            :fields-model="fieldsModel" @cancel="hideModal" :current="selectTreeData" @confirm="getCascaderValue">
+            :fields-model="fieldsModel" @cancel="hideModal"  :pageType="pageType" :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
         </view>
       </view>
@@ -515,6 +515,13 @@
                 return
               }
             }
+            let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
+            if (srvInfo?.key_disp_col) {
+              if (!this.fieldData.value) {
+                this.fkFieldLabel = ''
+              }
+            }
+
             this.$emit('on-value-change', this.deepClone(this.fieldData));
             this.$nextTick(() => {
               this.onBlur()

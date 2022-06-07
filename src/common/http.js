@@ -106,22 +106,23 @@ fly.interceptors.request.use(async (request) => {
   let terminalType = ''
   const sysInfo = uni.getSystemInfoSync()
   const client_env = uni.getStorageSync('client_env')
-  console.log('sysInfo', sysInfo)
-  console.log('currentPage', currentPage)
 
   if (client_env === 'wxh5') {
-    terminalType = 'wxh5'
+    terminalType = 'H5'
+    // terminalType = 'wxh5'
     request['headers']['bx-terminal-app_no'] = api?.appNo?.wxh5
   } else if (client_env === 'wxmp') {
-    terminalType = 'wxmp'
+    terminalType = 'WXMP'
+    // terminalType = 'wxmp'
     request['headers']['bx-terminal-app_no'] = api?.appNo?.wxmp
   } else {
     if (sysInfo) {
 
       if (['ios', 'android'].includes(sysInfo?.platform)) {
-        terminalType = sysInfo?.platform
+        terminalType = 'H5'
+        // sysInfo?.platform
       } else {
-        terminalType = 'pc'
+        terminalType = 'PC'
       }
     }
   }

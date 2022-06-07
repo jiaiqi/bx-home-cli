@@ -6,11 +6,10 @@
         v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
         <text class="label">
           <text
-            v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{formModel[tab.list_tab_no].value}}</text>
+            v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{fkFieldLabel||formModel[tab.list_tab_no].value}}</text>
           <text v-else>{{tab.label||''}}</text>
         </text>
         <text class="cuIcon-right margin-left-xs" style="transform: rotate(90deg);"></text>
-        <!-- <text class="cuIcon-triangledownfill"></text> -->
       </button>
     </view>
 
@@ -37,10 +36,10 @@
             </view>
           </view>
           <view v-if="tab._type === 'select'">
-            <!--  <el-select v-model="formModel[tab.list_tab_no]" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select> -->
+
+          </view>
+          <view v-if="tab._type === 'tree'">
+            
           </view>
           <view v-if="tab._type === 'checkbox'">
             <bx-checkbox-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData">
@@ -50,7 +49,8 @@
             </bx-checkbox-group>
           </view>
           <view v-if="tab._type === 'radio'&&tab._colSrvData" v-show="tab&&tab.options && tab.options.length > 0">
-            <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F" v-model="formModel[tab.list_tab_no].value">
+            <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
+              v-model="formModel[tab.list_tab_no].value">
               <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
                 {{item.label||''}}
               </bx-radio>
@@ -62,10 +62,13 @@
 
     <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
       <view class="cu-dialog" @click.stop=""
-        v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no">
+        v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no&&formModel&&formModel[setTabs[curTag].list_tab_no]">
         <view class="label">
           {{setTabs[curTag].label}}
         </view>
+        <tree-selector :srvInfo="srvInfo" :srvApp="srvApp" @cancel="showModal()" :current="selectTreeData"
+          @confirm="getCascaderValue" @reset="onreset" v-if="setTabs[curTag]._type=='tree'&&srvInfo">
+        </tree-selector>
         <bx-radio-group mode="button" v-model="formModel[setTabs[curTag].list_tab_no].value" @change="radioChange">
           <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in setTabs[curTag].options">
             <view class="radio-label">
@@ -90,7 +93,7 @@
     name: "filter-tags",
     data() {
       return {
-        formModel: {},
+        selectTreeData: {},
         inputMoreConfig: {
           value: "",
           options: [{
@@ -107,10 +110,18 @@
         curTagButtons: [],
         formModel: {},
         onInputValue: false, // 是否有输入值
-        showTagsModal: false
+        showTagsModal: false,
+        fkFieldLabel: ''
       };
     },
     computed: {
+      srvInfo() {
+        return this?.setTabs?. [this.curTag]?.more_config?.srvInfo || this?.setTabs?. [this.curTag]?._colSrvData?. [0]
+          ?.option_list_v2
+      },
+      srvApp() {
+        return this.srvInfo?.appNo || this?.setTabs[this.curTag]?.app || uni.getStorageSync('activeApp')
+      },
       sysModel() {
         return getApp().globalData.systemInfo?.model
       },
@@ -142,6 +153,51 @@
       }
     },
     methods: {
+      
+      onreset() {
+        let curTag = this.setTabs[this.curTag]
+        this.fkFieldLabel = ''
+        this.selectTreeData = {}
+        // this.formModel[curTag.list_tab_no] = ''
+        this.formModel[curTag.list_tab_no].value = ''
+        this.showTagsModal =false
+        this.$emit('on-change', true)
+      },
+      getCascaderValue(e) {
+        let value = ''
+        if (e?.type == '自行输入') {
+          value = e.value;
+          this.fkFieldLabel = e.value
+        } else {
+          let srvInfo = this.srvInfo;
+          if (!this.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== this.selectTreeData[srvInfo
+              .refed_col])) {
+            this.selectTreeData = e
+            this.fkFieldLabel = srvInfo.show_as_pair === true ?
+              `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
+            value = e[srvInfo.refed_col];
+          }
+        }
+        if(this.srvInfo?.outputCol||this.srvInfo?.output_col){
+          value = e?.[this.srvInfo?.outputCol||this.srvInfo?.output_col]
+        }
+        let curTag = this.setTabs[this.curTag]
+
+        let col = {
+          colName: curTag._colName,
+          value: value,
+          inputType: curTag.inputType,
+          default: curTag.default
+        }
+
+        col.formType = curTag._type
+        col.tags = curTag.more_config.tags || []
+        if (e == '_unlimited_') {
+          col.value = ''
+        }
+        this.formModel[curTag.list_tab_no] = col
+        this.showTagsModal = !this.showTagsModal
+      },
       radioChange(e) {
         let curTag = this.setTabs[this.curTag]
         let col = {
@@ -205,6 +261,9 @@
             model[item.list_tab_no] = col
           } else if (item._type === 'input') {
             col.value = item.default
+            model[item.list_tab_no] = col
+          } else if (item._type === 'tree') {
+            col.value = item.default || null
             model[item.list_tab_no] = col
           }
         })
@@ -399,8 +458,7 @@
             "ruleType": "",
             "value": ""
           }
-          if ((condsModel[tabs[i]].formType === 'checkbox' ||
-              condsModel[tabs[i]].formType === 'radio') && condsModel[tabs[i]].value &&
+          if (['checkbox', 'radio', 'tree'].includes(condsModel[tabs[i]].formType) && condsModel[tabs[i]].value &&
             condsModel[tabs[i]].value.length !== 0 && condsModel[tabs[i]].value !== '_unlimited_' && condsModel[tabs[i]]
             .value[0] !== '_unlimited_') {
             if (condsModel[tabs[i]].inputType === 'BetweenNumber' || condsModel[tabs[i]].inputType === 'Date' ||
@@ -448,14 +506,39 @@
                   relation.data.push(self.deepClone(child_relation))
                 }
               }
-            } else if (condsModel[tabs[i]].inputType === 'Enum' || condsModel[tabs[i]].inputType === 'Dict' ||
-              condsModel[tabs[i]].inputType === 'group') {
+            } else if (['Enum', 'Dict', 'group'].includes(condsModel[tabs[i]].inputType)) {
+              let value = ''
+              if (['tree', 'radio'].includes(condsModel[tabs[i]].formType)) {
+                value = condsModel[tabs[i]].value
+              } else if (Array.isArray(condsModel[tabs[i]].value) && condsModel[tabs[i]].value.length > 0) {
+                value = condsModel[tabs[i]].value.join(",")
+              }
               relation.relation = 'OR'
+
               colData.colName = condsModel[tabs[i]].colName[0]
-              colData.value = (condsModel[tabs[i]].formType == 'radio' ? condsModel[tabs[i]].value : condsModel[tabs[i]]
-                .value.join(","))
-              colData.ruleType = "in"
+              colData.value = value
+              // colData.ruleType = "in"
+              if(value&&value.indexOf(',')!==-1){
+                colData.ruleType = "in"
+              }else{
+                colData.ruleType = "like"
+              }
               relation.data.push(self.deepClone(colData))
+              
+              // relation.data.push({
+              //   colName: condsModel[tabs[i]].colName[0],
+              //   ruleType: 'like',
+              //   value: value
+              // })
+              
+              // if (this.fkFieldLabel) {
+              //   relation.data.push({
+              //     colName: condsModel[tabs[i]].colName[0],
+              //     ruleType: 'like',
+              //     value: this.fkFieldLabel
+              //   })
+              // }
+              
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
               // let rt = 
@@ -560,6 +643,7 @@
               this.onInputValue = false
               this.$emit('on-input-value', false)
             }
+            debugger
             this.$emit('on-change', true)
           }
 
@@ -575,6 +659,7 @@
 <style lang="scss" scoped>
   .filter-tags-view {
     position: relative;
+    background-color: #fff;
   }
 
   .cur-tag-model {
@@ -605,7 +690,7 @@
 
   .filter-tags-box {
     padding: 10px;
-    border: 1rpx solid #f1f1f1;
+    // border: 1rpx solid #f1f1f1;
 
     .cu-btn {
       min-width: 80px;

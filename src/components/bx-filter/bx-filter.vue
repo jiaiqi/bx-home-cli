@@ -91,6 +91,10 @@
               item.startVal = ''
               item.endVal = ''
             }
+            if (item.type === 'TreeSelector') {
+              item.value = ''
+              item.colData = null
+            }
             return item
           })
           let ignoreType = ['images', 'input', 'text', 'number']
@@ -100,7 +104,7 @@
             1 && !ignoreType
             .includes(item.type) && !/^\_.*\_disp$/.test(item.column))
         }
-        this.$refs.filterForm.onReset()
+        // this.$refs.filterForm.onReset()
       }
     },
     mounted() {
@@ -110,8 +114,6 @@
 </script>
 
 <style scoped lang="scss">
-
-
   .bx-filter {
     max-height: calc(100vh - var(--window-bottom) - var(--window-top) - 150rpx);
     overflow-y: hidden;

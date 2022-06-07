@@ -31,7 +31,8 @@ export default {
   },
   data() {
     return {
-      pageUUID: ''
+      pageUUID: '',
+      pageScrollTop:0
     }
   },
   onLoad(option) {
@@ -44,6 +45,15 @@ export default {
     }
   },
   methods: {
+    toTop() {
+      uni.pageScrollTo({
+        scrollTop: 0,
+        duration: 300,
+        success: () => {
+          this.reachBottomnum = 1
+        },
+      });
+    },
     async initApp() {
       // 初始化小程序
       // 1. 登录检测、用户信息查找

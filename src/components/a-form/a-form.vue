@@ -422,10 +422,17 @@
               if (item.defaultValue) {
                 item.value = item.defaultValue
               } else if (item.type === 'Selector') {
-                item.value = '全部'
+                item.value = ''
                 if (this.fieldModel[item.columns]) {
-                  this.fieldModel[item.columns] = '全部'
+                  this.fieldModel[item.columns] = ''
                 }
+              }else if (item.type === 'TreeSelector'){
+                item.value = ''
+                item.colData = null
+                if (this.fieldModel[item.columns]) {
+                  this.fieldModel[item.columns] = ''
+                }
+                this.$refs.fitem[index]?.reset?.()
               }
             }
             if (item.type === 'Set') {

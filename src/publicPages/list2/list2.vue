@@ -6,17 +6,22 @@
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="true" :top="0" :readonly="listBarReadonly">
+        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="true" :top="0"
+        :readonly="listBarReadonly">
       </list-bar>
 
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
       </filter-tags>
-      <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter"
-        v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
-      </filter-tags>
+      <u-sticky>
+        <!-- 只能有一个根元素 -->
+        <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+          @on-input-value="onFilterChange" @on-change="getListWithFilter"
+          v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
+        </filter-tags>
+      </u-sticky>
+
     </view>
     <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
       <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
@@ -65,10 +70,16 @@
         </view>
       </view>
     </view>
+    <view class="upper-icon" v-if="showUpper" @click.stop.prevent="toTop">
+      <text class="cuIcon-top"></text>
+    </view>
   </view>
 </template>
 
 <script>
+  import {
+    debounce
+  } from '@/common/func/util.js'
   import listNext from '@/components/list-next/list-next.vue';
   // import listBar from '../components/list-bar/list-bar.vue'
   import countBar from '../components/count-bar/count-bar.vue'
@@ -97,6 +108,9 @@
       }
     },
     computed: {
+      showUpper() {
+        return this.pageScrollTop > 100
+      },
       tagsMode() {
         return this.moreConfig?.tagsMode || 'unfold'
       },
@@ -455,7 +469,8 @@
         selectorUUID: "",
         curTabVal: "",
         curTab: 0,
-        v2Params: ""
+        v2Params: "",
+        pageTop: 0,
       }
     },
     methods: {
@@ -1377,6 +1392,17 @@
           this.handleAfterSubmit(rowData)
         }
       },
+      setPageScrollTop(e) {
+        let self = this;
+        // (debounce(() => {
+        debugger
+        if (e?.scrollTop > 500) {
+          self.pageScrollTop = e?.scrollTop
+        } else {
+          self.pageScrollTop = 0
+        }
+        // }, 1000))()
+      },
       async handleAfterSubmit(rowData) {
         const globalData = {
           data: rowData || {},
@@ -2235,8 +2261,6 @@
             }
           });
         }
-        console.log('clickFootBtn:', data);
-
       }
     },
     onLoad(option) {
@@ -2466,6 +2490,11 @@
         path: path
       };
     },
+    onPageScroll(e) {
+      // debounce(()=>{
+      this.setPageScrollTop(e)
+      // },0)
+    },
     onPullDownRefresh() {
       this.refresh()
       setTimeout(_ => {
@@ -2594,5 +2623,24 @@
       padding: 10px;
       // border-radius: 20rpx;
     }
+  }
+
+  .upper-icon {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    transition: background-color .3s, color .3s;
+    color: #909090;
+    background-color: #fff;
+    border: 1px solid #f1f1f1;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(50, 50, 50, .04);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
   }
 </style>

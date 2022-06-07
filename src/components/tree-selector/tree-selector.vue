@@ -2,9 +2,9 @@
   <view class="tree-selector-wrap">
     <view class="selected-node-wrap">
       <view class="selected-node-list">
-        <view class="selected-node" :class="{'active':curNode==item[srvInfo.column||'no']}" v-for="item in selectedList"
+        <view class="selected-node" :class="{'active':curNode==item[valCol||'no']}" v-for="item in selectedList"
           @click="clickSelected(item)">
-          <text class="" v-if="item[srvInfo.showCol||'name']">{{item[srvInfo.showCol||'name']}}</text>
+          <text class="" v-if="item[showCol]">{{item[showCol]}}</text>
         </view>
         <view class="selected-node text-orange" v-if="!curNode||curNodeInfo&&curNodeInfo.is_leaf!=='是'">
           请选择
@@ -14,12 +14,12 @@
     <view class="node-list-wrap">
       <view class="node-list">
         <view class="node-item round shadow-blur  cu-btn bg-white" v-for="item in nodeList" @click="clickNode(item)">
-          <text class="" v-if="item[srvInfo.showCol||'name']">{{item[srvInfo.showCol||'name']}}</text>
+          <text class="" v-if="item[showCol]">{{item[showCol]}}</text>
         </view>
-        <view class="node-item round shadow-blur  cu-btn bg-white" @click="clickNode('__others')">
+        <view class="node-item round shadow-blur cu-btn bg-white" @click="clickNode('__others')"  v-if="pageType!=='filter'&&selectType==='自行输入'">
           <text>其它</text>
         </view>
-        <view v-if="selectType==='自行输入'&&curNode==='__others'" class="other-val">
+        <view v-if="pageType!=='filter'&&selectType==='自行输入'&&curNode==='__others'" class="other-val">
           <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它" />
         </view>
       </view>
@@ -49,6 +49,15 @@
       };
     },
     computed: {
+      valCol(){
+        return this.srvInfo?.column
+      },
+      parentCol(){
+        return this.srvInfo?.parent_col||this.parentCol||'parent_no'
+      },
+      showCol(){
+        return this.srvInfo?.key_disp_col||this.srvInfo?.showCol||'name'
+      },
       selectType() {
         return this.srvInfo?.select_type
       }
@@ -61,18 +70,17 @@
         this.curNode = ''
       },
       clickSelected(e) {
-        let index = this.selectedList.findIndex(item => item[this.srvInfo.column] === e[this.srvInfo.column])
+        let index = this.selectedList.findIndex(item => item[this.valCol] === e[this.valCol])
         if (index !== -1) {
           this.selectedList = this.selectedList.slice(0, index)
         }
         if (index > 0) {
-          this.curNode = this.selectedList[index - 1][this.srvInfo.column]
+          this.curNode = this.selectedList[index - 1][this.valCol]
           this.curNodeInfo = this.selectedList[index - 1]
         } else {
           this.curNode = ''
           this.curNodeInfo = {}
         }
-        debugger
         this.getData()
       },
       clickNode(e) {
@@ -82,7 +90,7 @@
           return
         }
         this.otherNodeVal = ''
-        this.curNode = e[this.srvInfo.column]
+        this.curNode = e[this.valCol]
         this.curNodeInfo = e
         this.selectedList.push(e)
         if (e.is_leaf === '是') {
@@ -103,6 +111,7 @@
             type: this.selectType
           })
         } else {
+          
           this.$emit('confirm', this.curNodeInfo)
         }
       },
@@ -112,6 +121,7 @@
         this.curNodeInfo = ''
         this.selectedList = []
         this.getData()
+        this.$emit('reset')
       },
       async getData(cond) {
         // 查找节点数据
@@ -129,8 +139,8 @@
         } else {
           if (this.curNode) {
             condition = [{
-              colName: this.srvInfo?.parentCol || 'parent_no',
-              ruleType: 'eq',
+              colName: this.parentCol || 'parent_no',
+              ruleType: 'like',
               value: this.curNode
             }];
           } else {
@@ -161,7 +171,7 @@
               });
             } else {
               condition = [{
-                colName: this.srvInfo?.parentCol || 'parent_no',
+                colName: this.parentCol || 'parent_no',
                 ruleType: 'isnull'
               }];
             }
@@ -195,16 +205,16 @@
         deep: true,
         handler(newValue, oldValue) {
           if (newValue && typeof newValue === 'object') {
-            if (this.current && this.srvInfo?.column) {
+            if (this.current && this.valCol) {
               this.curNodeInfo = this.deepClone(this.current)
-              this.curNode = this.curNodeInfo[this.srvInfo.column] || ''
+              this.curNode = this.curNodeInfo[this.valCol] || ''
             }
 
             if (!this.curNode) {
               this.selectedList = []
             }
 
-            if (this.srvInfo && this.srvInfo.column && this.srvInfo.serviceName) {
+            if (this.srvInfo && this.valCol && this.srvInfo.serviceName) {
               this.getData()
             }
           }
@@ -234,6 +244,9 @@
       },
       srvInfo: {
         type: Object
+      },
+      pageType: {
+        type: String
       }
     },
   }
@@ -244,7 +257,7 @@
     height: 80vh;
     display: flex;
     flex-direction: column;
-    background-color: #f1f1f1;
+    // background-color: #f1f1f1;
     overflow-y: scroll;
 
     .selected-node-wrap {

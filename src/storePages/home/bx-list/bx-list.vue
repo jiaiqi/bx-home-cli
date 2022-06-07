@@ -433,6 +433,7 @@
       },
       getListWithFilter(e) {
         let self = this;
+        debugger
         let tabsConds = this.$refs.filterTabs.buildConditions();
         this.relationCondition = tabsConds;
         setTimeout(() => {
