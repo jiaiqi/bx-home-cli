@@ -9,18 +9,19 @@
       </view>
     </view>
     <view class="card-list">
+      <u-empty v-if="isLoad&&list.length==0" text="暂无数据" style="margin-top: 20vh;"></u-empty>
       <view class="card-item" v-for="item in list" @click="toDetail(item)">
         <view class="left" :class="[item.bg]">
           {{item.text}}
         </view>
         <view class="content">
           <view class="title">
-            <view class="">
+            <view class="" :class="[item.bg]">
               {{item.title}}
             </view>
-            <view class="tips" v-if="item.needVip">
+         <!--   <view class="tips" v-if="item.needVip">
               VIP可查看
-            </view>
+            </view> -->
           </view>
 
           <view class="desc">
@@ -40,6 +41,7 @@
     data() {
       return {
         query: null,
+        isLoad:false,
         list: [
           // {
           //   bg: 'red',
@@ -176,8 +178,13 @@
         })
         // }
         const res = await this.$http.post(url, req);
+        this.isLoad = true
         if (res?.data?.state === 'SUCCESS') {
           if (Array.isArray(res.data?.data) && res.data.data.length > 0) {
+            // uni.showToast({
+            //   title:'加载成功',
+              
+            // })
             this.list = res.data.data.map(item => {
               switch (item.score_status) {
                 case '可保底':
@@ -251,7 +258,15 @@
         font-weight: bold;
         display: flex;
         align-items: center;
-
+        .blue {
+          color:  #348ff5;
+        }
+        .red{
+          color:#ff5c73;
+        }
+        .green {
+          color:  #20a768;
+        }
         .tips {
           font-weight: normal;
           font-size: 14px;
@@ -275,7 +290,9 @@
       width: 40px;
       height: 30px;
       line-height: 30px;
-
+      &.red{
+        background: linear-gradient(#f4c7c3, #ff5c73);
+      }
       &.blue {
         background: linear-gradient(#44acf9, #348ff5);
       }

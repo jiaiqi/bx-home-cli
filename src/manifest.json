@@ -64,11 +64,13 @@
         "appid" : "wxa3c50c8177ef6739",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
-            "ignoreUploadUnusedFiles" : false,
+            "minifyWXSS" : true, //上传代码时是否自动压缩样式文件
+            "minifyWXML" : true, //上传代码时是否自动压缩 WXML 文件
+            "ignoreUploadUnusedFiles" : true, // 上传时是否过滤无依赖文件
             "urlCheck" : true,
             "postcss" : false,
-            "es6" : true,
-            "minified" : true
+            "es6" : false,
+            "minified" : true // 上传代码时是否自动压缩脚本文件
         },
         "permission" : {
             "scope.userLocation" : {

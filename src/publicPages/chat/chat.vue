@@ -313,7 +313,7 @@
         if (type === 'groupAnnouncement') {
           // 跳转到群公告列表
           uni.navigateTo({
-            url: `/publicPages/groupAC/groupAC?session_no=${this.session_no}&store_no=${this.storeNo}&store_user_no=${this.store_user_no}`
+            url: `/publicPages/groupAC/groupAC?session_no=${this.session_no}&store_no=${this.storeNo||this.vstoreUser?.store_no}&store_user_no=${this.vstoreUser?.store_user_no}`
           })
           return
         }

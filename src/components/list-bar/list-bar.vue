@@ -1,7 +1,7 @@
 <template>
-  <view class="search-bar" style="--home-bg-color:#fff;" :class="['theme-'+theme]">
-    
-    <view class="cu-bar search" :class="[{'pc-model':sysModel=='PC'},backgroundClass]">
+  <view class="search-bar" style="--home-bg-color:#fff;" :style="[{'padding-top':fixed?top+50+'px':''}]" :class="['theme-'+theme]">
+    <view class="cu-bar search bg-white" :style="[{top:top}]"
+      :class="[{'pc-model':sysModel=='PC','fixed':fixed},backgroundClass]">
       <view class="search-form round">
         <text class="cuIcon-search"></text>
         <input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal"
@@ -20,7 +20,7 @@
         </button>
       </view>
     </view>
-    
+
 
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'orderModal' }" @click.stop="hideModal">
       <view class="cu-dialog" @click.stop="">
@@ -109,6 +109,13 @@
       backgroundClass: {
         type: String,
         default: 'bg-white'
+      },
+      fixed: {
+        type: Boolean,
+        default: false
+      },
+      top: {
+        type: [String, Number]
       }
     },
     computed: {
@@ -291,13 +298,13 @@
 
     .cu-bar {
       z-index: 1 !important;
-      background-color: initial;
+      // background-color: initial;
     }
 
     // height: 100px;
     .search-form {
       transition: all 0.5s ease-in-out;
-      margin: 0 15px 0 0;
+      margin: 0 15px 0 5px;
     }
 
     .action {

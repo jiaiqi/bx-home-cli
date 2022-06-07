@@ -298,6 +298,14 @@
             "enablePullDownRefresh": false
           }
         }, 
+        {
+          "path": "schoolDetails/schoolDetails",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        
+        },
         // #endif
         {
           "path": "ProductItem/ProductItem",
@@ -377,13 +385,6 @@
             "navigationBarTitleText": "评价列表",
             "enablePullDownRefresh": true
           }
-        }, {
-          "path": "schoolDetails/schoolDetails",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-
         }
       ]
     },

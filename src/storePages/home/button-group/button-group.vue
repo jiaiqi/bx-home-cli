@@ -733,7 +733,6 @@
         }
       },
       toPages(e) {
-        debugger
         let url = "";
         if (this.hasNotRegInfo && navType !== "takePhone") {
           // 除了打电话外 其他操作必须先授权访问用户信息

@@ -4,9 +4,9 @@
       <view class="top">
         <view class="area-select">
           <!-- <text>陕西</text> -->
-          <picker @change="regionChange" mode="selector" :value="region" :range-key="'name'" :range="regionData">
+          <!-- <picker @change="regionChange" mode="selector" :value="region" :range-key="'name'" :range="regionData"> -->
             <text class="cuIcon-locationfill"></text>{{regionData[region].name}}
-          </picker>
+          <!-- </picker> -->
           <picker @change="levleChange" mode="selector" :value="level" :range="levelData">
             <text class="margin-left text-blue"> {{levelData[level]}}</text>
           </picker>
@@ -29,8 +29,8 @@
       </view>
     </view>
     <view class="button-area" @click="toDetail">
-      <text> 智能</text>
-      <text> 推荐</text>
+      <text>智能</text>
+      <text>查询</text>
     </view>
   </view>
 </template>
@@ -178,12 +178,12 @@
       return {
         rank: null,
         regionData: regionData,
-        subject: '文',
-        showSubject: false,
-        region: 0,
+        subject: '理',
+        showSubject: true,
+        region: 26,
         score: null,
         level: 0,
-        levelData: [ '本科一批', '本科二批', '专科']
+        levelData: ['全部','本科一批', '本科二批', '专科']
       }
     },
     props: {
@@ -283,8 +283,8 @@
           regionName: this.regionData[this.region].name,
           level: this.levelData[this.level],
           rank: this.rank,
-          score:this.score,
-          subject:this.subject
+          score: this.score,
+          subject: this.subject
         }
         const data = {
           ...newGaokaoInfo,
@@ -298,7 +298,8 @@
         if (detailUrl) {
           detailUrl = this.renderStr(detailUrl, data)
           detailUrl = `${detailUrl}?query=${JSON.stringify(newGaokaoInfo)}`
-          const url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://login.100xsys.cn/health/#'+detailUrl)}`
+          const url =
+            `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent('https://login.100xsys.cn/health/#'+detailUrl)}`
           uni.navigateTo({
             url: url,
             success: () => {
@@ -353,6 +354,7 @@
 
       .area-select {
         display: flex;
+        align-items: center;
       }
     }
 

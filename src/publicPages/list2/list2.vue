@@ -6,7 +6,7 @@
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :readonly="listBarReadonly">
+        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="true" :top="0" :readonly="listBarReadonly">
       </list-bar>
 
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
@@ -70,13 +70,13 @@
 
 <script>
   import listNext from '@/components/list-next/list-next.vue';
-  import listBar from '../components/list-bar/list-bar.vue'
+  // import listBar from '../components/list-bar/list-bar.vue'
   import countBar from '../components/count-bar/count-bar.vue'
   import cartBottom from '../components/cart-bottom/cart-bottom.vue'
   export default {
     components: {
       listNext,
-      listBar,
+      // listBar,
       countBar,
       cartBottom
     },
@@ -222,7 +222,8 @@
         return []
       },
       placeholder() {
-        return ''
+        return this.listConfig?.searchHint || this.colV2?.moreConfig?.searchHint || this.colV2?.moreConfig?.list_config
+          ?.searchHint || ''
       },
       moreConfig() {
         return this.colV2?.moreConfig || {}
@@ -871,6 +872,7 @@
       toSearch(e) {
         let keywords = e || this.searchVal;
         this.searchVal = keywords
+        uni.setStorageSync(this.serviceName + '_searchVal', this.searchVal)
         this.pageNo = 1
         this.getList()
       },
@@ -1867,7 +1869,6 @@
             }
             return
           } else if (buttonInfo.operate_type === '列表跳转') {
-            // debugger
             // let serviceName = buttonInfo.service_name;
             // let 
             let app = buttonInfo.application
@@ -2418,7 +2419,6 @@
     onReachBottom() {
       if (this.loadStatus === 'more') {
         this.pageNo++;
-        debugger
         this.getList(null, this.initCond)
       }
     },
