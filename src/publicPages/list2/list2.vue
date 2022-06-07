@@ -1,26 +1,25 @@
 <template>
-  <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}">
-    <view class="top-bar">
+  <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}" :style="[{'padding-top':topHeight + 'px'}]">
+    <view class="top-bar" id="top-bar" >
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
+
       <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="true" :top="0"
+        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false" :top="topHeight"
         :readonly="listBarReadonly">
       </list-bar>
+
+      <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
+      </filter-tags>
 
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
       </filter-tags>
-      <u-sticky>
-        <!-- 只能有一个根元素 -->
-        <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
-          @on-input-value="onFilterChange" @on-change="getListWithFilter"
-          v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
-        </filter-tags>
-      </u-sticky>
 
     </view>
     <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
@@ -424,6 +423,7 @@
     },
     data() {
       return {
+        topHeight: 0,
         modalName: "",
         codeSize: uni.upx2px(750),
         qrcodePath: "",
@@ -471,9 +471,18 @@
         curTab: 0,
         v2Params: "",
         pageTop: 0,
+        filterVal:'',
       }
     },
     methods: {
+      setTopHeight() {
+        const query = uni.createSelectorQuery().in(this);
+        query.select('#top-bar').boundingClientRect(data => {
+          console.log("得到布局位置信息:", data);
+          console.log("节点离页面顶部的距离为" + data.top);
+          this.topHeight = data.height || 0
+        }).exec();
+      },
       makeQrCode() {
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make();
@@ -750,8 +759,9 @@
       },
       getListWithFilter(e) {
         let self = this
-        let tabsConds = this.$refs.filterTabs.buildConditions()
-        this.relationCondition = tabsConds
+        let tabsConds = this.$refs.filterTabs.buildConditions(true)
+        this.relationCondition = tabsConds?.relation_condition
+        this.filterVal = tabsConds?.value
         setTimeout(() => {
           this.pageNo = 1;
           this.getList(null, this.initCond)
@@ -760,8 +770,9 @@
       },
       onFilterChange(e) {
         if (e) {
-          let tabsConds = this.$refs.filterTabs.buildConditions()
-          this.relationCondition = tabsConds
+          let tabsConds = this.$refs.filterTabs.buildConditions(true)
+          this.relationCondition = tabsConds?.relation_condition
+          this.filterVal = tabsConds?.value
         }
       },
       clearCart() {
@@ -1319,6 +1330,9 @@
           }
 
           this.list = list
+          this.$nextTick().then(() => {
+            this.setTopHeight()
+          })
           return this.list;
         }
       },
@@ -1395,7 +1409,6 @@
       setPageScrollTop(e) {
         let self = this;
         // (debounce(() => {
-        debugger
         if (e?.scrollTop > 500) {
           self.pageScrollTop = e?.scrollTop
         } else {
@@ -1993,7 +2006,8 @@
               data: rowData,
               rowData,
               storeInfo,
-              bindUserInfo
+              bindUserInfo,
+              filterVal:this.filterVal
             };
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
@@ -2439,6 +2453,9 @@
           this.refresh()
         })
       }
+      this.$nextTick().then(() => {
+        this.setTopHeight()
+      })
     },
     onReachBottom() {
       if (this.loadStatus === 'more') {
@@ -2515,11 +2532,18 @@
     overflow: auto;
     background-color: #F8F8FA;
 
+    .sticky {
+      width: 750rpx;
+      background-color: #2979ff;
+      color: #fff;
+    }
+
     .top-bar {
-      // position: fixed;
+      width: 100%;
+      position: fixed;
       background-color: #fff;
       top: 0;
-      top: var(--window-top);
+      // top: var(--window-top);
       z-index: 10;
     }
 

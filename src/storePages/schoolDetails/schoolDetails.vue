@@ -48,7 +48,7 @@
 		},
 		onLoad(option) {
 			this.schoolId = option.id
-			
+			this.searchVal = option.searchVal
 		},
 		onShow() {
 			this.selectDetail(this.schoolId)
@@ -83,7 +83,7 @@
 				let self = this
 				let service = 'srvuee_pro_score_select'
 				let url = this.getServiceUrl('person', service, 'select');
-				self.searchVal = uni.getStorageSync('srvuee_college_by_pro_select_searchVal')
+				// self.searchVal = uni.getStorageSync('srvuee_college_by_pro_select_searchVal')
 				let req = {
 				  "serviceName": service,
 				  "colNames": ["*"],
@@ -92,11 +92,11 @@
 				    "ruleType": "in",
 				    "value": self.detail.name
 				  }
-				  // ,{
-				  //   "colName": "pro_name",
-				  //   "ruleType": "[like]",
-				  //   "value": self.searchVal
-				  // }
+				  ,{
+				    "colName": "pro_name_path",
+				    "ruleType": "like]",
+				    "value": self.searchVal
+				  }
 				  
 				  ],
 				  }

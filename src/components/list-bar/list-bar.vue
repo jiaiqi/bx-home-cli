@@ -1,6 +1,6 @@
 <template>
-  <view class="search-bar" style="--home-bg-color:#fff;" :style="[{'padding-top':fixed?top+50+'px':''}]" :class="['theme-'+theme]">
-    <view class="cu-bar search bg-white" :style="[{top:top}]"
+  <view class="search-bar" style="--home-bg-color:#fff;"  :class="['theme-'+theme]">
+    <view class="cu-bar search bg-white" 
       :class="[{'pc-model':sysModel=='PC','fixed':fixed},backgroundClass]">
       <view class="search-form round">
         <text class="cuIcon-search"></text>

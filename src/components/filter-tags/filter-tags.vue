@@ -432,7 +432,7 @@
           })
         })
       },
-      buildConditions(e) {
+      buildConditions(returnVal=false) {
         let self = this
         let condsModel = self.formModel
         let relation_Conditions = {
@@ -579,6 +579,12 @@
             relation_Conditions.data.push(self.deepClone(relation))
           }
         }
+        if(returnVal==true){
+          return {
+            relation_condition:relation_Conditions,
+            value:this.formModel?.[this.tabs?.[this.curTag]?.list_tab_no]?.value
+          }
+        }
         return relation_Conditions
 
       },
@@ -643,7 +649,6 @@
               this.onInputValue = false
               this.$emit('on-input-value', false)
             }
-            debugger
             this.$emit('on-change', true)
           }
 
