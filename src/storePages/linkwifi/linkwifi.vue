@@ -127,7 +127,6 @@
           type,
           current
         } = e;
-        debugger
         this.currentNo = current
       },
       toConnect(e) {

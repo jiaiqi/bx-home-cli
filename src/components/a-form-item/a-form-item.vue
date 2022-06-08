@@ -1005,7 +1005,6 @@
         } catch (e) {
           //TODO handle the exception
         }
-        debugger
         this.fieldData.value = res.file_no;
         if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
           this.uploadFormData['file_no'] = this.fieldData.value;

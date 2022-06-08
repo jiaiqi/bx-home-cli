@@ -983,7 +983,6 @@
         let res = await this.$fetch('select', service, req, app)
         if (Array.isArray(res?.data) && res.data.length > 0) {
           this.purchasedGoods = res.data
-          debugger
           this.purchaseTimes = res?.page?.total || 0
         }
       },

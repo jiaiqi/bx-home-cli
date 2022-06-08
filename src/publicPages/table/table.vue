@@ -237,7 +237,6 @@
 							more_config: null,
 							inputType: null
 						}
-            debugger
 						let mc = JSON.parse(t.more_config)
 						tab.more_config = mc
 						tab.service = t.service

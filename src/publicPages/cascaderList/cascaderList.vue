@@ -212,7 +212,6 @@
         uni.showLoading()
         let res = await this.$http.post(url, reqData);
         uni.hideLoading()
-        debugger
         if (res.data.state === 'SUCCESS') {
           this.pageNo = 1;
           await this.getList()

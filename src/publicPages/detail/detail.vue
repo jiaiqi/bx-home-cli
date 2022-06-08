@@ -300,7 +300,6 @@
         return this.appName || uni.getStorageSync('activeApp')
       },
       publicButton() {
-        debugger
         if (Array.isArray(this.v2Data?.formButton)) {
           return this.v2Data.formButton.filter((item, index) => {
             if (this.formButtonDisp && this.formButtonDisp[item.button_type] === false) {
@@ -660,7 +659,6 @@
             this.isOnButton = false;
             break;
           case 'customize':
-            debugger
             console.log(this.deepClone(e))
             let buttonInfo = this.deepClone(e)
             if (Array.isArray(buttonInfo.operate_params.condition) && buttonInfo.operate_params

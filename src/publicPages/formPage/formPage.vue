@@ -839,7 +839,6 @@
                     console.log(i)
                     console.log(actionResult)
                     console.log((i > 0 && actionResult[i - 1]) || i == 0)
-                    debugger
                     if ((i > 0 && actionResult[i - 1]) || i == 0) {
                       if (effect_data && effect_data.id && ['redirectTo', 'navigateTo'].includes(item.type)) {
                         if (item.url) {
@@ -1556,7 +1555,6 @@
       }
       if (option.view_cfg) {
         // 详情页面自定义展示效果
-        debugger
         try {
           try {
             this.view_cfg = JSON.parse(option.view_cfg)
@@ -1616,7 +1614,6 @@
           console.log(str)
           str = JSON.parse(str)
           console.log(str)
-          debugger
           fieldsCond = JSON.parse(str);
 
         } catch (e) {

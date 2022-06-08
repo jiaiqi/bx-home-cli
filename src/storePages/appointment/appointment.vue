@@ -464,8 +464,7 @@
               }
             }
           }
-		  console.log(dayjs,this.dayjs)
-		  debugger
+          console.log(dayjs,this.dayjs)
           this.timeArr = arr
           let timeArr = res.data
 
@@ -683,7 +682,7 @@
           ...req[0].data[0],
           ...this.formModel
         }
-        debugger
+        
         let timeStart = req[0].data[0].app_time_start
         let timeEnd = req[0].data[0].app_time_end
         let app_time_slot = null

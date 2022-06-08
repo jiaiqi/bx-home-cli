@@ -582,7 +582,6 @@
             ]
           }
           this.$http.post(url, req).then(res => {
-            debugger
             console.log("srvwx_app_user_phone_select", res.data)
           })
         }

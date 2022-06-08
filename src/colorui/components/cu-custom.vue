@@ -60,11 +60,9 @@
     },
     methods: {
       clickContent() {
-        debugger
         this.$emit('clickContent')
       },
       BackPage() {
-        debugger
         this.$emit('onBack')
         uni.navigateBack({
           delta: 1,

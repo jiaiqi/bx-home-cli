@@ -179,7 +179,6 @@
 
     created() {
       uni.$on('goods-cart-change', () => {
-        debugger
         setTimeout(_ => {
           this.getGoodsListData()
         }, 1000)

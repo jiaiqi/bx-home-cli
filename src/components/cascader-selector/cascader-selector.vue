@@ -149,7 +149,6 @@
         }
       },
       clickTag(e) {
-        debugger
         this.currentClick = e;
         this.current_no = e[this.srvInfo?.column || 'no'];
         if (this.srvInfo.isTree === false) {

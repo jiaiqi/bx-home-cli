@@ -307,7 +307,6 @@
           let arr = this.$refs.batchAdd.getBatchList()
           this.batchSubmit(arr)
           let res = this.getChildDataList()
-          debugger
           return res
         }
       },
@@ -559,7 +558,6 @@
       },
       async add2List(e) {
         let data = this.$refs.childForm.getFieldModel();
-        debugger
         if (!data) {
           return
         }
@@ -942,7 +940,6 @@
         this.v2Data = colVs;
         this.getList()
         let btn = this.publicButton.find(item => item.button_type === 'batchAdd')
-        debugger
         if (btn?.button_type) {
           this.onButton(btn)
         }

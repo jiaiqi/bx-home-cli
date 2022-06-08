@@ -1078,11 +1078,7 @@
         };
         let goodsList = await this.$fetch('select', 'srvhealth_store_order_goods_detail_select', req,
           'health');
-        debugger
         if (goodsList.success) {
-          for (let item in goodsList.data) {
-            debugger
-          }
           this.$set(this.orderInfo, 'goodsList', goodsList.data);
         }
       },

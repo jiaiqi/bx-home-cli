@@ -280,7 +280,6 @@
             return true
           }
         }
-        debugger
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
             // 还没到可以提前预约的时间

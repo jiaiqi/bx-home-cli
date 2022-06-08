@@ -386,7 +386,6 @@
 				}
 			},
 			changeSchedule(operate) {
-				debugger
 				if (this.scheduleConfig.col_head_disp_col === 'day_of_week_cn') {
 					let cond = {};
 					if (operate === 'prev') {

@@ -1427,7 +1427,6 @@
         // let calcCols = allFields.filter(item => item.redundant?.func && item.display).map(item => item.column)
         // let willCalc = calcCols.every(col => fieldModel[col] !== undefined && fieldModel[col] !== null)
         if (Array.isArray(calcCols) && calcCols.length > 0) {
-          debugger
           // if(willCalc){
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
           // }

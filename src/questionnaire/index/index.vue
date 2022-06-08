@@ -490,7 +490,6 @@
       submitForm() {
         let self = this;
         let itemData = self.$refs.bxform.getFieldModel();
-        debugger
         if (itemData !== false) {
           uni.showModal({
             title: '提示',
@@ -520,7 +519,6 @@
                   });
                   console.log(self.dialogContent, 'dialogContent')
                   let survey_result = self.calcScore(itemData)
-                  debugger
                   let serviceName = 'srvdaq_activity_result_submit';
                   const url = self.getServiceUrl(self.appName ? self.appName : 'daq',
                     serviceName, 'operate');
@@ -546,7 +544,6 @@
 
                         self.formType = 'detail';
                         self.getQuestionnaireData(self.formData);
-                        debugger
 
                         if (Array.isArray(res.data.response) && res.data
                           .response.length > 0 && res.data.response[0]
@@ -554,7 +551,6 @@
                           .fill_batch_no) {
                           self.params.fill_batch_no = res.data.response[0]
                             .response.fill_batch_no;
-                          debugger
                         }
                         if (self.params.to && self.params.fill_batch_no) {
                           self.showNextBtn = true;
@@ -1001,7 +997,6 @@
         this.planNo = option.planNo;
       }
       if (option.params) {
-        debugger
         try {
           // #ifdef MP-WEIXIN
           this.params = JSON.parse(option.params);
@@ -1157,11 +1152,13 @@
       border-bottom: 1px solid #0bc99d;
     }
   }
-  .text-content-text1{
+
+  .text-content-text1 {
     background-color: #f8f8f8;
     padding: 20rpx;
     border-radius: 5px;
   }
+
   .text-content-text {
     color: #666;
     width: 100%;

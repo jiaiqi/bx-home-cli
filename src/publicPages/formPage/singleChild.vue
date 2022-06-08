@@ -322,7 +322,6 @@
 							console.log(this.childService)
 							if (Array.isArray(this.childService) && this.childService.length == 1) {
 								data.child_data_list = self.$refs.childList[0].onSubmit()
-								debugger
 							} else if (Array.isArray(this.childService) && this.childService.length > 0) {
 								this.childService.forEach((item, index) => {
 									data.child_data_list = this.$refs.childList[index].getChildDataList()
@@ -690,7 +689,6 @@
 					if (item.x_if) {
 						if (Array.isArray(item.xif_trigger_col)) {
 							if (item.table_name !== table_name) {
-								debugger
 								result = await this.evalX_IF(item.table_name, [item.column], defaultVal, this.appName)
 							}
 							if (result?.response && result.response[item.column]) {

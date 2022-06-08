@@ -549,7 +549,6 @@
 						.length > 0) {
 						let hasRecordDates = res.data.data.map(item => item.walk_date)
 						let noRecordDates = stepList.filter(item => !hasRecordDates.includes(item.date))
-						debugger
 						// this.addStepRecord(stepList)
 						this.addStepRecord(noRecordDates)
 						let todayRecord = res.data.data.find(item => item.walk_date === this.formateDate())

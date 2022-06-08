@@ -195,7 +195,6 @@
         this.show = false
       },
       change(e) {
-        debugger
         if (this.mode === 'dateTime' && e?.f3) {
           this.$emit('change', {
             detail: {
@@ -203,7 +202,6 @@
             }
           })
         } else if (e.startDate && e.endDate) {
-          debugger
           this.$emit('change', [e.startDate, e.endDate])
           // this.$emit('change', [e.startDate, e.endDate])
         } else if (e.time) {
@@ -247,7 +245,6 @@
         this.show = false
       },
       showModal() {
-        debugger
         if (this.mode === 'date_time_linkage') {
           let cfg = this.field?.moreConfig;
           if (cfg && typeof cfg === 'object') {

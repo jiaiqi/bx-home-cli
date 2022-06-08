@@ -192,7 +192,6 @@
           value = e.value;
           curTag.fkFieldLabel = e.value
         } else {
-          debugger
           if (!curTag.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== curTag.selectTreeData[srvInfo
               .refed_col])) {
             curTag.selectTreeData = e

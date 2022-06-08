@@ -907,7 +907,6 @@
                       data[item] = this.renderStr(data[item].value_key,
                         globalVariable)
                     } else {
-                      debugger
                     }
                   });
                 }
@@ -1065,7 +1064,6 @@
               let fieldsCond = [];
               let condition = buttonInfo?.operate_params?.condition;
               let defaultVal = buttonInfo?.operate_params?.data;
-              debugger;
               if (Array.isArray(defaultVal) && defaultVal.length > 0) {
                 let obj = defaultVal[0];
                 if (this.iObject(obj)) {

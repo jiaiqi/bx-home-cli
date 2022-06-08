@@ -455,7 +455,6 @@
         this.modalName = 'realname'
       },
       showModal(e) {
-        debugger
         if (this.userInfo && (!this.userInfo.id_no || !this.userInfo.phone || !this.userInfo.phone_xcx)) {
           this.showRealNameModal()
         } else {

@@ -390,7 +390,6 @@
                   })
                 }
               }
-              debugger
               let url =
                 `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
