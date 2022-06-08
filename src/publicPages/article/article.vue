@@ -52,12 +52,7 @@
   import {
     mapState
   } from 'vuex'
-  // import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
-  // import parseHtml from '@/publicPages/static/js/html-parser.js'
   export default {
-    components: {
-      // uHtmlParse
-    },
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo

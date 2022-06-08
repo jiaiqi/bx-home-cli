@@ -551,14 +551,11 @@
   import {
     mapState
   } from 'vuex';
-  // import parseHtml from '@/publicPages/static/js/html-parser.js'
   import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
-  // import uHtmlParse from '@/publicPages/components/html-parse/parse.vue'
   export default {
     name: 'personchat',
     components: {
       robbyImageUpload,
-      // uHtmlParse
     },
     props: {
       showGoodsCard: {

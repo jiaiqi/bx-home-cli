@@ -20,14 +20,14 @@
 
 <script>
   import bxList from '../components/bx-list/bx-list.vue';
-  import listBar from '../components/list-bar/list-bar.vue'
+  // import listBar from '../components/list-bar/list-bar.vue'
   import {
     mapState
   } from 'vuex';
   export default {
     components: {
       bxList,
-      listBar
+      // listBar
     },
     computed: {
       ...mapState({

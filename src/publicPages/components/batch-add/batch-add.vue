@@ -63,12 +63,12 @@
 </template>
 
 <script>
-  import listBar from '@/publicPages/components/list-bar/list-bar.vue'
+  // import listBar from '@/publicPages/components/list-bar/list-bar.vue'
   // import bxList from '@/publicPages/list/list.vue'
   export default {
     components: {
       // bxList
-      listBar
+      // listBar
     },
     data() {
       return {

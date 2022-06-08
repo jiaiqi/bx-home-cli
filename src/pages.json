@@ -119,13 +119,6 @@
           }
 
         }, {
-          "path": "successTip/successTip",
-          "style": {
-            "navigationBarTitleText": "成功提示",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
           "path": "cascaderList/cascaderList",
           "style": {
             "navigationBarTitleText": "",
@@ -138,8 +131,17 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
         }
+        //#ifdef H5
+        ,
+        {
+          "path": "successTip/successTip",
+          "style": {
+            "navigationBarTitleText": "成功提示",
+            "enablePullDownRefresh": false
+          }
+        }
+        // #endif
       ]
     },
     {
@@ -254,7 +256,7 @@
           }
         },
         // #ifdef H5
-        
+
         {
           "path": "successPay/successPay"
         },
@@ -297,14 +299,14 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        }, 
+        },
         {
           "path": "schoolDetails/schoolDetails",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        
+
         },
         // #endif
         {
