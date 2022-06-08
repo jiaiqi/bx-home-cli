@@ -154,7 +154,6 @@
           } catch (e) {
             //TODO handle the exception
             console.log(e)
-            debugger
           }
           return more_config
         }

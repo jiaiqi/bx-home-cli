@@ -251,7 +251,6 @@ export default {
           context: true
         },
           res => {
-            debugger
             this.editorCtx = res.context;
             this.editorCtx.setContents({
               html: this.html

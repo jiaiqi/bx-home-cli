@@ -544,7 +544,6 @@
         this.curWifi = e
         // this.showModal()
         if (type === 'share') {
-          debugger
           if (this.qrCodeText) {
             this.makeQrCode()
             this.showModal('wifi-qrcode');
