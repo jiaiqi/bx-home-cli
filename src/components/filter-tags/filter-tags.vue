@@ -39,7 +39,7 @@
 
           </view>
           <view v-if="tab._type === 'tree'">
-            
+
           </view>
           <view v-if="tab._type === 'checkbox'">
             <bx-checkbox-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData">
@@ -60,14 +60,35 @@
       </view>
     </view>
 
-    <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
+    <view class="cu-modal bottom-modal" :class="{show:showTagsModal&&index===curTag}" @click="showModal()"
+      v-for="(item,index) in setTabs">
+      <view class="cu-dialog" @click.stop=""
+        v-if="item&&item.list_tab_no&&formModel&&formModel[item.list_tab_no]">
+        <view class="label">
+          {{item.label}}
+        </view>
+        <tree-selector :srvInfo="item.more_config.srvInfo" :srvApp="srvApp" @cancel="showModal()"
+          :current="selectTreeData" @confirm="getCascaderValue" @reset="onreset" ref="treeSelector"
+          v-if="item&&item&&item._type=='tree'&&item.more_config&&item.more_config.srvInfo">
+        </tree-selector>
+        <bx-radio-group mode="button" v-model="formModel[item.list_tab_no].value" @change="radioChange" v-else>
+          <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in item.options">
+            <view class="radio-label">
+              {{item.label||''}}
+            </view>
+          </bx-radio>
+        </bx-radio-group>
+      </view>
+    </view>
+
+ <!--   <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
       <view class="cu-dialog" @click.stop=""
         v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no&&formModel&&formModel[setTabs[curTag].list_tab_no]">
         <view class="label">
           {{setTabs[curTag].label}}
         </view>
         <tree-selector :srvInfo="srvInfo" :srvApp="srvApp" @cancel="showModal()" :current="selectTreeData"
-          @confirm="getCascaderValue" @reset="onreset" v-if="setTabs[curTag]._type=='tree'&&srvInfo">
+          @confirm="getCascaderValue" @reset="onreset" v-if="setTabs[curTag]._type=='tree'&&srvInfo" ref="treeSelector">
         </tree-selector>
         <bx-radio-group mode="button" v-model="formModel[setTabs[curTag].list_tab_no].value" @change="radioChange">
           <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in setTabs[curTag].options">
@@ -77,7 +98,7 @@
           </bx-radio>
         </bx-radio-group>
       </view>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -153,35 +174,36 @@
       }
     },
     methods: {
-      
+
       onreset() {
         let curTag = this.setTabs[this.curTag]
-        this.fkFieldLabel = ''
-        this.selectTreeData = {}
+        curTag.fkFieldLabel = ''
+        curTag.selectTreeData = {}
         // this.formModel[curTag.list_tab_no] = ''
         this.formModel[curTag.list_tab_no].value = ''
-        this.showTagsModal =false
+        this.showTagsModal = false
         this.$emit('on-change', true)
       },
       getCascaderValue(e) {
+        let curTag = this.setTabs[this.curTag]
+        let srvInfo = curTag?.more_config?.srvInfo;
         let value = ''
         if (e?.type == '自行输入') {
           value = e.value;
-          this.fkFieldLabel = e.value
+          curTag.fkFieldLabel = e.value
         } else {
-          let srvInfo = this.srvInfo;
-          if (!this.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== this.selectTreeData[srvInfo
+          debugger
+          if (!curTag.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== curTag.selectTreeData[srvInfo
               .refed_col])) {
-            this.selectTreeData = e
-            this.fkFieldLabel = srvInfo.show_as_pair === true ?
+            curTag.selectTreeData = e
+            curTag.fkFieldLabel = srvInfo?.show_as_pair === true ?
               `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
             value = e[srvInfo.refed_col];
           }
         }
-        if(this.srvInfo?.outputCol||this.srvInfo?.output_col){
-          value = e?.[this.srvInfo?.outputCol||this.srvInfo?.output_col]
+        if (srvInfo?.outputCol || srvInfo?.output_col) {
+          value = e?. [srvInfo?.outputCol || srvInfo?.output_col]
         }
-        let curTag = this.setTabs[this.curTag]
 
         let col = {
           colName: curTag._colName,
@@ -217,10 +239,24 @@
         this.showTagsModal = !this.showTagsModal
       },
       showModal(tag, index) {
+        let oldTag = this.curTag
         this.showTagsModal = !this.showTagsModal
         if (this.showTagsModal) {
           this.curTag = index
-          this.curTagButtons = tag?.options
+          if (this.setTabs[index]?._type === 'tree') {
+            // if (index !== oldTag) {
+            //   this.$nextTick(_ => {
+            //     this.$refs?.treeSelector?.reset?.()
+            //     this.showTagsModal = true
+            //   })
+            // }
+            // this.$nextTick(_ => {
+            //   this.$refs?.treeSelector?.getData?.()
+            // })
+          } else {
+            this.curTagButtons = tag?.options
+          }
+
         } else {
           this.curTagSelected = ''
           this.curTagButtons = []
@@ -236,8 +272,12 @@
             value: "",
             inputType: item.inputType,
             formType: "",
-            default: item.default
+            default: item.default,
+            selectTreeData:null,
+            fkFieldLabel:"",
+            srvInfo:item?.more_config?.srvInfo
           }
+          
 
           item.options = self.getTabOptions(item)
           col.colName = item._colName
@@ -267,6 +307,7 @@
             model[item.list_tab_no] = col
           }
         })
+        
         this.setTabs = tabs
         if (tabs.length > 0) {
           this.curTagButtons = tabs[0]?.options
@@ -432,7 +473,7 @@
           })
         })
       },
-      buildConditions(returnVal=false) {
+      buildConditions(returnVal = false) {
         let self = this
         let condsModel = self.formModel
         let relation_Conditions = {
@@ -518,19 +559,19 @@
               colData.colName = condsModel[tabs[i]].colName[0]
               colData.value = value
               // colData.ruleType = "in"
-              if(value&&value.indexOf(',')!==-1){
+              if (value && value.indexOf(',') !== -1) {
                 colData.ruleType = "in"
-              }else{
+              } else {
                 colData.ruleType = "like"
               }
               relation.data.push(self.deepClone(colData))
-              
+
               // relation.data.push({
               //   colName: condsModel[tabs[i]].colName[0],
               //   ruleType: 'like',
               //   value: value
               // })
-              
+
               // if (this.fkFieldLabel) {
               //   relation.data.push({
               //     colName: condsModel[tabs[i]].colName[0],
@@ -538,7 +579,7 @@
               //     value: this.fkFieldLabel
               //   })
               // }
-              
+
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
               // let rt = 
@@ -579,10 +620,10 @@
             relation_Conditions.data.push(self.deepClone(relation))
           }
         }
-        if(returnVal==true){
+        if (returnVal == true) {
           return {
-            relation_condition:relation_Conditions,
-            value:this.formModel?.[this.tabs?.[this.curTag]?.list_tab_no]?.value
+            relation_condition: relation_Conditions,
+            value: this.formModel?. [this.tabs?. [this.curTag]?.list_tab_no]?.value
           }
         }
         return relation_Conditions

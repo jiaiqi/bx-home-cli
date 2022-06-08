@@ -122,6 +122,7 @@
         this.selectedList = []
         this.getData()
         this.$emit('reset')
+        
       },
       async getData(cond) {
         // 查找节点数据

@@ -5,7 +5,7 @@
         <view class="area-select">
           <!-- <text>陕西</text> -->
           <!-- <picker @change="regionChange" mode="selector" :value="region" :range-key="'name'" :range="regionData"> -->
-            <text class="cuIcon-locationfill"></text>{{regionData[region].name}}
+          <text class="cuIcon-locationfill"></text>{{regionData[region].name}}
           <!-- </picker> -->
           <picker @change="levleChange" mode="selector" :value="level" :range="levelData">
             <text class="margin-left text-blue"> {{levelData[level]}}</text>
@@ -24,7 +24,7 @@
       </view>
       <view class="bottom">
         <input type="digit" placeholder-class="hint" class="input" :placeholder="'请输入'+placeholder"
-          v-model.number="score">
+          v-model.number="score" @confirm="queryRank">
         <input type="digit" placeholder-class="hint" class="input" :placeholder="'预估排名'" v-model.number="rank">
       </view>
     </view>
@@ -183,7 +183,7 @@
         region: 26,
         score: null,
         level: 0,
-        levelData: ['全部','本科一批', '本科二批', '专科']
+        levelData: ['全部', '本科一批', '本科二批', '专科']
       }
     },
     props: {
@@ -200,6 +200,31 @@
       }
     },
     methods: {
+      async queryRank(e) {
+        let value = e?.detail?.value;
+        if (value && !isNaN(Number(value))) {
+          value = Number(value)
+          let between = [value - 3, value + 3]
+          const url = `/person/select/srvuee_pro_score_select`
+          const req = {
+            "serviceName": "srvuee_pro_score_select",
+            "colNames": ["*"],
+            "condition": [{
+              "colName": "avg_score",
+              "ruleType": "between",
+              "value": between
+            }],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 1
+            }
+          }
+          const res = await this.$http.post(url, req);
+          if (res?.data?.state === 'SUCCESS' && Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
+            this.rank = res.data.data[0].lowest_quantile
+          }
+        }
+      },
       levleChange(e) {
         this.level = e?.detail?.value
       },

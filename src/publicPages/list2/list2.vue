@@ -1,19 +1,20 @@
 <template>
-  <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}" :style="[{'padding-top':topHeight + 'px'}]">
-    <view class="top-bar" id="top-bar" >
+  <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}"
+    :style="[{'padding-top':topHeight + 'px'}]">
+    <view class="top-bar" id="top-bar">
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
 
       <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false" :top="topHeight"
-        :readonly="listBarReadonly">
+        @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false"
+        :top="topHeight" :readonly="listBarReadonly">
       </list-bar>
 
       <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
-        v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
+        v-if="colV2&&colV2.srv_cols&&tags&&filterTags!==false&&sysModel!=='PC'">
       </filter-tags>
 
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
@@ -36,9 +37,9 @@
           :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig"
           :list="list" :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn"
           @add2Cart="add2Cart" @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
-        <u-empty text="列表为空" mode="list" v-if="loadStatus==='norMore'&&list.length==0"></u-empty>
+        <u-empty text="列表为空" mode="list" v-if="loadStatus==='noMore'&&list.length==0"></u-empty>
+        <uni-load-more :status="loadStatus" v-else></uni-load-more>
       </view>
-
     </view>
     <goods-cart :cartData="cartData" :fixed="true" bottom="50rpx" :list_config="list_config" :wxMchId="wxMchId"
       @changeAmount="changeAmount" @clear="clearCart" v-if="listType==='cart'"></goods-cart>
@@ -233,6 +234,10 @@
           return this.colV2.gridButton
         }
         return []
+      },
+      filterTags() {
+        return this.listConfig?.filterTags ?? this.colV2?.moreConfig?.filterTags ?? this.colV2?.moreConfig?.list_config
+          ?.filterTags ?? ''
       },
       placeholder() {
         return this.listConfig?.searchHint || this.colV2?.moreConfig?.searchHint || this.colV2?.moreConfig?.list_config
@@ -471,7 +476,7 @@
         curTab: 0,
         v2Params: "",
         pageTop: 0,
-        filterVal:'',
+        filterVal: '',
       }
     },
     methods: {
@@ -1303,7 +1308,7 @@
             return callBackData;
           } else if (page) {
             if (page.rownumber * page.pageNo >= page.total) {
-              this.loadStatus = 'norMore'
+              this.loadStatus = 'noMore'
             } else {
               this.loadStatus = 'more'
             }
@@ -2007,7 +2012,7 @@
               rowData,
               storeInfo,
               bindUserInfo,
-              filterVal:this.filterVal
+              filterVal: this.filterVal
             };
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
@@ -2543,6 +2548,7 @@
       position: fixed;
       background-color: #fff;
       top: 0;
+      left: 0;
       // top: var(--window-top);
       z-index: 10;
     }
