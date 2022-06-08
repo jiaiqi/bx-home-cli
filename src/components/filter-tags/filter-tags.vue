@@ -72,7 +72,7 @@
           v-if="item&&item&&item._type=='tree'&&item.more_config&&item.more_config.srvInfo">
         </tree-selector>
         <bx-radio-group mode="button" v-model="formModel[item.list_tab_no].value" @change="radioChange" v-else>
-          <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in item.options">
+          <bx-radio :name="item.value" :key="item.value" v-for="(item,rIndex) in item.options">
             <view class="radio-label">
               {{item.label||''}}
             </view>
@@ -486,6 +486,7 @@
           "relation": "OR",
           "data": []
         }
+        
         for (let i = 0; i < tabs.length; i++) {
           relation.data = []
           let child_relation = {

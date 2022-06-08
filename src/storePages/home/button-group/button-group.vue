@@ -307,7 +307,7 @@
         let style = {
 
         }
-     
+
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
           if (this.pageItem?.is_radius === '是') {
@@ -394,6 +394,7 @@
               }
             }
             let obj = {
+
               prompt: btn.prompt,
               navType: btn.navigate_type,
               icon: '',
@@ -404,7 +405,14 @@
               type: "navPage",
               url: btn.dest_page,
               appid: btn.appid,
-              phone_number: btn.phone_number,
+              phone_number: btn.phone_number
+            }
+            if (btn.before_click_action) {
+              try {
+                obj.before_click = JSON.parse(btn.before_click_action)
+              } catch (e) {
+                //TODO handle the exception
+              }
             }
             if (btn.icon) {
               const icon = this.getImagePath(btn.icon, true)
@@ -731,81 +739,141 @@
           }
         }
       },
-      toPages(e) {
-        let url = "";
-        if (this.hasNotRegInfo && navType !== "takePhone") {
+      async handlerBeforeClick(e) {
+
+        let res = true
+        if (!e?.url && e?.prompt) {
+          // 未配置url，提示
+          uni.showModal({
+            title: '提示',
+            content: e.prompt,
+            showCancel: false
+          })
+          debugger
+        }else  if (this.hasNotRegInfo && navType !== "takePhone") {
           // 除了打电话外 其他操作必须先授权访问用户信息
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'
           })
-          return
+          res = false
+        }else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+          switch (e.navType) {
+            case 'livePlayer':
+              // 小程序直播
+              if (e.dest_page.indexOf('plugin-private:') == -1) {
+                url = `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.dest_page}`
+                uni.navigateTo({
+                  url
+                })
+              }
+              break;
+            case "scanCode":
+              this.scanCode()
+              break;
+            case "toGroup":
+              this.toGroup(e.type)
+              break;
+          }
+          res = false
+        }else  if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
+          if (e.url.split('q=').length > 1) {
+            let data = {
+              storeInfo: this.storeInfo,
+              userInfo: this.userInfo,
+              bindUserInfo: this.bindUserInfo,
+              storeUserInfo: this.bindUserInfo,
+
+            }
+            this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
+            this.showQrcode = true
+          }
+          res = false
+        }else if (e?.before_click) {
+          if (Array.isArray(e?.before_click?.validate) && e?.before_click?.validate.length > 0) {
+            let failedNum = 0
+            e.before_click.validate.forEach(item => {
+              switch (item.type) {
+                case 'id_no':
+                  break;
+                case 'phone':
+                  if (!this.userInfo?.phone_xcx) {
+                    res = false
+                    this.showRealNameModal()
+                  }
+                  break;
+                case 'name':
+                  this.showRealNameModal()
+                  break;
+                case 'officialAccount':
+                  break;
+              }
+            })
+          }
         }
-        if (e.$orig) {
-          e = e.$orig;
-        }
-        if (e?.navType === 'livePlayer') {
-          if (e.dest_page.indexOf('plugin-private:') == -1) {
-            url = `plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=${e.dest_page}`
+        return res
+      },
+      scanCode() {
+        //#ifdef MP-WEIXIN
+        // 只允许通过相机扫码
+        uni.scanCode({
+          onlyFromCamera: true,
+          success: function(res) {
+            console.log('条码类型：' + res.scanType);
+            console.log('条码内容：' + res.result);
+            const text = res.result
+            // 通用二维码参数
+            let option = {}
+            if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
+              let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
+              let arr = result.split('/');
+              if (arr.length > 0 && arr[0] === 'food') {
+                //扫码点餐
+                // /store_no/food/餐桌号/
+                option.store_no = arr[1];
+                option.service_place_no = arr[2]
+                if (arr[3]) {
+                  option.link_pd_no = arr[3]
+                }
+                if (arr[4]) {
+                  option.invite_user_no = arr[4]
+                }
+              }
+            } else if (text && text.indexOf('service_place_no:') !== -1) {
+              option.service_place_no = text.slice(text.indexOf('service_place_no:'))
+            } else {
+              uni.showModal({
+                title: '提示',
+                content: `二维码内容：${res.result}`,
+                showCancel: false
+              })
+            }
+            let url = `/storePages/home/home?store_no=${option.store_no || this.storeInfo?.store_no}`
+            if (option.service_place_no) {
+              url += `&service_place_no=${option.service_place_no}`
+            }
+            if (option.link_pd_no) {
+              url += `&link_pd_no=${option.link_pd_no}`
+            }
+            if (option.invite_user_no) {
+              url += `&invite_user_no=${option.invite_user_no}`
+            }
             uni.navigateTo({
               url
             })
           }
-        } else if (e?.navType === 'scanCode') {
-          //#ifdef MP-WEIXIN
-          // 只允许通过相机扫码
-          uni.scanCode({
-            onlyFromCamera: true,
-            success: function(res) {
-              console.log('条码类型：' + res.scanType);
-              console.log('条码内容：' + res.result);
-              const text = res.result
-              // 通用二维码参数
-              let option = {}
-              if (text && text.indexOf('https://wx2.100xsys.cn/qrcode/') !== -1) {
-                let result = text.split('https://wx2.100xsys.cn/qrcode/')[1];
-                let arr = result.split('/');
-                if (arr.length > 0 && arr[0] === 'food') {
-                  //扫码点餐
-                  // /store_no/food/餐桌号/
-                  option.store_no = arr[1];
-                  option.service_place_no = arr[2]
-                  if (arr[3]) {
-                    option.link_pd_no = arr[3]
-                  }
-                  if (arr[4]) {
-                    option.invite_user_no = arr[4]
-                  }
-                }
-              } else if (text && text.indexOf('service_place_no:') !== -1) {
-                option.service_place_no = text.slice(text.indexOf('service_place_no:'))
-              } else {
-                uni.showModal({
-                  title: '提示',
-                  content: `二维码内容：${res.result}`,
-                  showCancel: false
-                })
-              }
-              let url = `/storePages/home/home?store_no=${option.store_no || this.storeInfo?.store_no}`
-              if (option.service_place_no) {
-                url += `&service_place_no=${option.service_place_no}`
-              }
-              if (option.link_pd_no) {
-                url += `&link_pd_no=${option.link_pd_no}`
-              }
-              if (option.invite_user_no) {
-                url += `&invite_user_no=${option.invite_user_no}`
-              }
-              uni.navigateTo({
-                url
-              })
-            }
-          });
-          //#endif
-          return
-        } else if (e && e.eventType === "toGroup") {
-          this.toGroup(e.type);
+        });
+        //#endif
+      },
+      async toPages(e) {
+        if (e.$orig) {
+          e = e.$orig;
+        }
+        let canNext = await this.handlerBeforeClick(e)
+        if (!canNext) {
           return
         }
+        let url = "";
+
         if (
           e &&
           (!this.bindUserInfo || !this.bindUserInfo.store_user_no) &&
@@ -855,13 +923,6 @@
           } catch (e) {
             //TODO handle the exception
           }
-        } else if (!e.url && e.prompt) {
-          uni.showModal({
-            title: '提示',
-            content: e.prompt,
-            showCancel: false
-          })
-          return
         }
 
         if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
@@ -956,6 +1017,7 @@
             }
             break;
         }
+
         if (!url && e?.dest_page) {
           url = e.dest_page;
         }
