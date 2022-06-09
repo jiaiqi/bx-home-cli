@@ -106,7 +106,6 @@
 </script>
 
 <style lang="scss">
-	// @import "./static/iconfont.css"; //引入字体文件
 	@import "colorui/main.css";
 	@import "colorui/icon.css";
 	@import "uview-ui/index.scss";
@@ -117,7 +116,6 @@
 	/* #endif */
 
 	/*每个页面公共css */
-	// --page-height:calc(100vh - var(--window-top) - var(--window-bottom))
 	#app,
 	uni-page-body,
 	uni-page-wrapper {

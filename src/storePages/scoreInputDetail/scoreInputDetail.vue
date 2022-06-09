@@ -77,7 +77,7 @@
 <script>
   import {
     regionData
-  } from '../static/province.js'
+  } from '@/storePages/static/province.js'
   export default {
     data() {
       return {

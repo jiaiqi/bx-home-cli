@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  import VODUpload from '@/static/js/aliyun-upload-sdk-1.0.0.min.js'
+  // import VODUpload from '@/static/js/aliyun-upload-sdk-1.0.0.min.js'
   export default {
     name: "bx-media-upload",
     props: ['value', 'enableDel', 'enableAdd', 'enableDrag', 'serverUrl', 'formData', 'header', 'limit', 'fileKeyName',
