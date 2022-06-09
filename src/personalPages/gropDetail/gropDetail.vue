@@ -33,12 +33,12 @@
             v-if="getProfilePath(item)"
           >
           </image>
-          <image
+  <!--        <image
             src="/static/icon/sport.png"
             mode="aspectFit"
             class="image"
             v-else
-          ></image>
+          ></image> -->
           <text class="label" v-if="storeNo">{{
             item.person_name || "无效用户"
           }}</text>

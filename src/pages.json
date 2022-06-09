@@ -354,7 +354,7 @@
             "navigationBarTitleText": "订单",
             "enablePullDownRefresh": false
           }
-        },{
+        }, {
           "path": "msList/msList",
           "style": {
             "navigationBarTitleText": "秒杀",
@@ -429,14 +429,7 @@
     },
     {
       "root": "personalPages",
-      "pages": [
-        // {
-        //   "path": "ArchiveHistory/ArchiveHistory",
-        //   "style": {
-        //     "navigationBarTitleText": ""
-        //   }
-        // },
-        {
+      "pages": [{
           "path": "switchAccount/switchAccount",
           "style": {
             "navigationBarTitleText": "切换账号",

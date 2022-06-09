@@ -17,7 +17,7 @@
         <view class="content-item" v-for="item in memberList" :key="item.person_no">
           <image :src="getProfilePath(item)" mode="aspectFit" class="image" v-if="getProfilePath(item)">
           </image>
-          <image src="/static/icon/sport.png" mode="aspectFit" class="image" v-else></image>
+          <!-- <image src="/static/icon/sport.png" mode="aspectFit" class="image" v-else></image> -->
           <text class="label" v-if="storeNo">{{
             item.person_name || "无效用户"
           }}</text>

@@ -13,8 +13,6 @@
         <image class="icon" v-else-if="setListView.imgIcon&&setListView.imgIcon.fileNo"
           :style="[setListView.imgIcon.style]" :src="getImagePath(setListView.imgIcon.fileNo,true)" mode="aspectFit">
         </image>
-        <!--     <image class="icon famale" v-if="setListView.imgIcon==='famale'" :style="[setListView.imgIconStyle]"
-          :src="require('@/static/icon/female.png')" mode="aspectFit"></image> -->
       </view>
       <view class="list-item-content" :style="{ maxWidth: setListView.listContentMaxWidth }"
         v-if="setListView && setListView.cols">
