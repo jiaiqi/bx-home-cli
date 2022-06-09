@@ -81,7 +81,8 @@
       <view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
-    <evaluate-card :eval_show_way="goodsInfo.eval_show_way" :goods_no="goodsInfo.goods_no" v-if="goodsInfo&&goodsInfo.goods_no"></evaluate-card>
+    <evaluate-card :eval_show_way="goodsInfo.eval_show_way" :goods_no="goodsInfo.goods_no"
+      v-if="goodsInfo&&goodsInfo.goods_no"></evaluate-card>
     <view class="detail" v-if="goodsInfo&&goodsDetailImage&&goodsDetailImage.length>0">
       <view class="title">图文详情</view>
       <view class="image-box">
@@ -223,7 +224,7 @@
             }
           ]
           if (this.pageType === '秒杀') {
-             right.splice(0, 1)
+            right.splice(0, 1)
           }
           let obj = {
             left: left.filter(item => btns.includes(item.name)),
@@ -505,12 +506,9 @@
             });
 
             let url =
-              `/storePages/payOrder/payOrder?store_no=${this.storeInfo.store_no}`;
-            // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+              `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo.store_no}`;
             let orderType = this.getOrderType([goodsInfo])
             url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-            // }
             if (this.wxMchId) {
               url += `&wxMchId=${this.wxMchId}`;
             }
@@ -822,12 +820,9 @@
         });
 
         let url =
-          `/storePages/payOrder/payOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
-        // if (this.storeInfo?.moreConfig?.userNewOrderPages === true) {
-        url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+          `/storePages/placeOrder/placeOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
         let orderType = this.getOrderType([goodsInfo])
         url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-        // }
         if (this.wxMchId) {
           url += `&wxMchId=${this.wxMchId}`;
         }

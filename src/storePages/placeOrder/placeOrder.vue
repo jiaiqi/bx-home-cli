@@ -258,12 +258,10 @@
   } from 'vuex';
   import goodsItem from '../components/goods-item/goods-item.vue'
   import couponSelector from '../components/coupon-selector/coupon-selector.vue'
-  import bxForm from './bx-form/bx-form.vue'
   export default {
     components: {
       goodsItem,
       couponSelector,
-      bxForm
     },
     data() {
       return {

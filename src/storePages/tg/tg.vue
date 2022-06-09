@@ -204,8 +204,7 @@
             list: list
           });
           let url =
-            `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no}&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
-          url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
+            `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo?.store_no}&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           if (this.tgInfo?.goods_way) {

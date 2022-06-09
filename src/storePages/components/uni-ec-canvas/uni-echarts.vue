@@ -6,8 +6,8 @@
 </template>
 
 <script>
-	import * as echarts from "./echarts.min.js";
-	// import * as echarts from "./echarts.js";
+	// import * as echarts from "./echarts.min.js";
+	import * as echarts from "./echarts.js";
 	export default {
 		data() {
 			return {

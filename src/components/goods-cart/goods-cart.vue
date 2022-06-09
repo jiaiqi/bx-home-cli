@@ -18,16 +18,16 @@
             </view>
           </view>
           <view class="goods-item" v-for="(rowData,index) in cartData" :key="index">
-            
+
             <view class="profile-image" v-if="rowData.profile_url">
               <image lazy-load class="image" :src="getImagePath(rowData.profile_url)" mode="aspectFit"></image>
             </view>
-            
+
             <view class="main-image" v-if="setViewTemp.img.col">
               <image lazy-load class="image" :src="getImagePath(rowData[setViewTemp.img.col])" mode="scaleToFill">
               </image>
             </view>
-            
+
             <view class="col-list" v-if="setViewTemp&&setViewTemp.cols">
               <view class="col-item bg" v-for="(item,index) in setViewTemp.cols" :key="index" :style="{
                 'width':item.cfg.width,
@@ -210,13 +210,9 @@
             store_no: this.storeInfo?.store_no,
             list: goodsList
           });
-          let url = `/storePages/payOrder/payOrder?store_no=${this.storeInfo?.store_no }`
-          // if (this.storeInfo?.moreConfig?.userNewOrderPages === true || this.storeInfo?.moreConfig?.useNewOrderPages ===
-          //   true) {
-            url = url.replace('/payOrder/payOrder', '/placeOrder/placeOrder')
-            let orderType = this.getOrderType(goodsList)
-            url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          // }
+          let url = `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo?.store_no }`;
+          let orderType = this.getOrderType(goodsList)
+          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
@@ -343,7 +339,7 @@
         font-size: 28rpx;
         font-family: 苹方-简;
         color: #333333;
-        
+
         &.handler-btn {
           display: flex;
           align-items: center;
@@ -403,7 +399,8 @@
         }
       }
     }
-    .profile-image{
+
+    .profile-image {
       width: 100rpx;
       height: 100rpx;
       padding: 10px;
@@ -413,11 +410,13 @@
       border-radius: 10rpx;
       background-color: #F8F8FA;
       border-right: 1px solid #f1f1f1;
+
       .image {
         width: 100%;
         height: 100%;
       }
     }
+
     .main-image {
       width: 100rpx;
       height: 100rpx;
