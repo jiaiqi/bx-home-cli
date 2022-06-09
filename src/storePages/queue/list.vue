@@ -308,7 +308,7 @@ export default {
         },
       ];
       let url =
-        "/publicPages/form/form?serviceName=srvhealth_store_queue_up_cfg_add&type=add&addType=onwer&fieldsCond=" +
+        "/publicPages/formPage/formPage?serviceName=srvhealth_store_queue_up_cfg_add&type=add&addType=onwer&fieldsCond=" +
         decodeURIComponent(JSON.stringify(fieldsCond));
       uni.navigateTo({ url });
     },

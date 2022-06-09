@@ -141,7 +141,9 @@
               "rownumber": 1
             }
           }
+          uni.showLoading()
           const res = await this.$http.post(url, req);
+          uni.hideLoading()
           if (res?.data?.state === 'SUCCESS' && Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
             this.form.rank = res.data.data[0].lowest_quantile
           }
@@ -247,7 +249,9 @@
           value: this.query.level || '全部'
         })
         // }
+        uni.showLoading({})
         const res = await this.$http.post(url, req);
+        uni.hideLoading()
         this.isLoad = true
         if (res?.data?.state === 'SUCCESS') {
           if (Array.isArray(res.data?.data) && res.data.data.length > 0) {

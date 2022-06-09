@@ -985,7 +985,7 @@
               },
             ];
             url =
-              "/publicPages/form/form?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=" +
+              "/publicPages/formPage/formPage?serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=" +
               JSON.stringify(fieldsCond);
             break;
           case 2:

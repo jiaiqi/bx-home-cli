@@ -21,9 +21,9 @@
         {
           "path": "list/list"
         },
-        {
-          "path": "form/form"
-        },
+        // {
+        //   "path": "form/form"
+        // },
         {
           "path": "gropDetail/gropDetail"
         },
@@ -320,13 +320,6 @@
           "path": "appointment/appointment",
           "style": {
             "navigationBarTitleText": "预约",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "cart/cart",
-          "style": {
-            "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
 

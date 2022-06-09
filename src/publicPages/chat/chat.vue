@@ -303,7 +303,7 @@
               "create_user_disp"
             ]
             uni.navigateTo({
-              url: `/publicPages/form/form?type=detail&serviceName=srvhealth_store_user_select&fieldsCond=${JSON.stringify(fieldsCond)}&hideColumn=${JSON.stringify(hideColumn)}`
+              url: `/publicPages/formPage/formPage?type=detail&serviceName=srvhealth_store_user_select&fieldsCond=${JSON.stringify(fieldsCond)}&hideColumn=${JSON.stringify(hideColumn)}`
             })
           }
         }

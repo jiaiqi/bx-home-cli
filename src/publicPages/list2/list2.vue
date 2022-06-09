@@ -1005,7 +1005,7 @@
           }
 
           let url =
-            `/publicPages/form/form?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
+            `/publicPages/formPage/formPage?service=${e.service}&serviceName=${e.service_name}&type=${e.servcie_type}&fieldsCond=` +
             encodeURIComponent(JSON.stringify(fieldsCond));
           if (this.appName) {
             url += `&appName=${this.appName}`
@@ -1045,7 +1045,7 @@
             });
           }
           let url =
-            `/publicPages/form/form?type=add&serviceName=${e.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+            `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
 
           url =
             `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name.replace('_select', '_add')}&fieldsCond=${JSON.stringify(fieldsCond)}`;
@@ -1523,6 +1523,7 @@
             console.log(e);
           }
         }
+        debugger
         if (!buttonInfo?.button_type) {
           uni.showModal({
             title: '提示',
@@ -1898,7 +1899,7 @@
                 }]
               }
               let url =
-                `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.appName) {
                 url += `&appName=${this.appName}`
@@ -1949,7 +1950,7 @@
               })
             }
             let url =
-              `/publicPages/form/form?type=detail&disabled=true&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+              `/publicPages/formPage/formPage?type=detail&disabled=true&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
             uni.navigateTo({
               url
             })
@@ -2023,7 +2024,7 @@
                 value: rowData.id
               }]
               let url =
-                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=detail&fieldsCond=` +
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.service_name}&type=detail&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
 
               // if (this.list_config?.detailPage === 'childTableList' || this.moreConfig?.detailPage ===
@@ -2033,7 +2034,7 @@
               // }
               if (this.hideChildList) {
                 url =
-                  `/publicPages/form/form?type=detail&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  `/publicPages/formPage/formPage?type=detail&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
               if (Array.isArray(condition) && condition.length > 0) {
                 url += `&condition=${JSON.stringify(condition)}`
@@ -2112,7 +2113,7 @@
               // }
               if (this.hideChildList) {
                 url =
-                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
               if (this.appName) {
                 url += `&appName=${this.appName}`
@@ -2214,7 +2215,7 @@
                   })
                 }
                 let url =
-                  `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                  `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
                 if (this.appName) {
                   url += `&appName=${this.appName}`
@@ -2254,7 +2255,7 @@
               })
 
               let url =
-                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
               if (self.appName) {
                 url += `&appName=${self.appName}`
               }

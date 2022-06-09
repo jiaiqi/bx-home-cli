@@ -1,6 +1,5 @@
 <template>
   <view class=" cu-modal bottom-modal" :class="{show:display}" @click="">
-    <!-- <bx-login></bx-login> -->
     <view class="cu-dialog">
       <view class="public-module">
 

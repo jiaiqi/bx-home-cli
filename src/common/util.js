@@ -5,7 +5,7 @@ import globalMixin from '@/common/mixins/global'
 const mpAppNo = api.appNo.wxmp
 
 const dayjs = require('dayjs');
-import uDebounce from '@/common/utils/debounce.js'
+
 import {
   mapState
 } from 'vuex'
@@ -16,9 +16,9 @@ import {
 } from '@/common/api/login.js'
 export default {
   install(Vue, options) {
-
+    Vue.prototype.$api = api
+    Vue.prototype.$http = _http
     Vue.prototype.dayjs = dayjs
-    Vue.prototype.$uDebounce = uDebounce
 
     Vue.mixin(globalMixin)
 
@@ -95,9 +95,7 @@ export default {
           if (response.data.data) {
             console.log('=====2', response.data.data)
             response.data.data.use_type = pageType
-            // if ('rowButton' in response.data.data) {
-            // response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
-            // }
+        
             // 第一次拿到，缓存
             let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
             if (pageconfig?.more_config && typeof pageconfig.more_config === 'string') {
@@ -314,7 +312,7 @@ export default {
           // #ifdef MP-WEIXIN
           fieldInfo.type = "media"
           // #endif
-          
+
           fieldInfo.srvInfo = {
             tableName: item.table_name,
             appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
@@ -1351,7 +1349,7 @@ export default {
                   display: false
                 }]
                 let url =
-                  `/publicPages/form/form?type=detail&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${encodeURIComponent(
+                  `/publicPages/formPage/formPage?type=detail&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${encodeURIComponent(
 									JSON.stringify(fieldsCond)
 								)}`;
                 if (appName) {
@@ -1931,7 +1929,7 @@ export default {
         cols = cols.toString()
       }
       const app = appName || uni.getStorageSync('activeApp')
-      const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_srv_col_validate`
+      const url = `${api.serverURL}/${app}/operate/srvsys_srv_col_validate`
       const req = [{
         serviceName: "srvsys_srv_col_validate",
         condition: [{
@@ -1969,7 +1967,7 @@ export default {
         cols = cols.toString()
       }
       const app = appName || uni.getStorageSync('activeApp')
-      const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_table_col_calc_result`
+      const url = `${api.serverURL}/${app}/operate/srvsys_table_col_calc_result`
       const req = [{
         serviceName: "srvsys_table_col_calc_result",
         condition: [{
@@ -2007,7 +2005,7 @@ export default {
         cols = cols.toString()
       }
       const app = appName || uni.getStorageSync('activeApp')
-      const url = `${Vue.prototype.$api.serverURL}/${app}/operate/srvsys_table_col_show_hide_result`
+      const url = `${api.serverURL}/${app}/operate/srvsys_table_col_show_hide_result`
       const req = [{
         serviceName: "srvsys_table_col_show_hide_result",
         condition: [{
@@ -2220,6 +2218,26 @@ export default {
           `${api.serverURL}/file/adv/download?imgFileNo=${background_img}&logoFileNo=${logfile}&qrcontent=${text}&xp=${xp}&yp=${yp}&qrwidth=${qrwidth}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
         return url
       }
+    }
+
+    Vue.prototype.getQueryString = function(name) {
+      var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i')
+      var r = window.location.search.substr(1).match(reg)
+      if (r != null) return unescape(r[2]);
+      return null
+    }
+
+    Vue.prototype.setImgSize = (content, max) => {
+      // 让图片最长边等于设置的最大长度，短边等比例缩小，图片控件真实改变，区别于aspectFit方式。
+      max = max || 350;
+      let maxW = uni.upx2px(max); //max是定义消息图片最大宽度
+      let maxH = uni.upx2px(max); //max是定义消息图片最大高度
+      if (content.width > maxW || content.height > maxH) {
+        let scale = content.width / content.height;
+        content.width = scale > 1 ? maxW : maxH * scale;
+        content.height = scale > 1 ? maxW / scale : maxH;
+      }
+      return content;
     }
   }
 }

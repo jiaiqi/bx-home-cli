@@ -26,13 +26,9 @@
 </template>
 
 <script>
-  // import evaluatorTo from '@/common/evaluator.js';
   export default {
     name: 'aForm',
     props: {
-      // defaultVal: {
-      // 	type: [Array, Object],
-      // },
       mainData: {
         type: [Object, Boolean]
       },

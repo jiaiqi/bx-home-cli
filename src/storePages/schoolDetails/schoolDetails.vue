@@ -63,6 +63,7 @@
     data() {
       return {
         schoolId: null,
+        schoolName:null,
         detail: {},
         major: [],
         searchVal: '',
@@ -73,6 +74,7 @@
     },
     onLoad(option) {
       this.schoolId = option.id
+      this.schoolName = option.name
       this.searchVal = option.searchVal === 'null' ? null : option.searchVal
     },
     onShow() {
@@ -144,6 +146,13 @@
             "ruleType": "in",
             "value": id
           }],
+        }
+        if(this.schoolName){
+          req.condition = [{
+            "colName": "name",
+            "ruleType": "in",
+            "value": this.schoolName
+          }]
         }
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS') {

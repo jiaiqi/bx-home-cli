@@ -154,7 +154,7 @@
           }
         ];
         path =
-          `/publicPages/form/form?invite_user_no=${this.userInfo.userno}&store_no=${this.hospitalNo}&doctor_no=${
+          `/publicPages/formPage/formPage?invite_user_no=${this.userInfo.userno}&store_no=${this.hospitalNo}&doctor_no=${
 					this.userInfo.no
 				}&share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=` + encodeURIComponent(JSON
             .stringify(fieldsCond));

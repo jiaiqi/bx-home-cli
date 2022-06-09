@@ -343,7 +343,7 @@ export default {
     toDeviceDetail (e) {
       const fieldsCond = [ { "column": "ud_no", "value": e.ud_no, "display": false } ]
       uni.navigateTo({
-        url: `/publicPages/form/form?fieldsCond=${JSON.stringify(fieldsCond)}&serviceName=srvhealth_store_user_device_select&type=detail`
+        url: `/publicPages/formPage/formPage?fieldsCond=${JSON.stringify(fieldsCond)}&serviceName=srvhealth_store_user_device_select&type=detail`
       })
     },
     showUpdateDeviceName (e) {

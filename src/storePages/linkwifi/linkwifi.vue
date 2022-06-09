@@ -251,7 +251,7 @@
         ]
         let serviceName = 'srvstore_wifi_config_update'
         let url =
-          `/publicPages/form/form?type=update&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=bxportal`
+          `/publicPages/formPage/formPage?type=update&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=bxportal`
         uni.navigateTo({
           url
         })
@@ -264,7 +264,7 @@
         }]
         let serviceName = 'srvstore_wifi_config_add'
         let url =
-          `/publicPages/form/form?type=add&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=bxportal`
+          `/publicPages/formPage/formPage?type=add&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=bxportal`
 
         url = `/otherPages/wifiConfig/wifiConfig?store_no=${this.store_no}`
         uni.navigateTo({

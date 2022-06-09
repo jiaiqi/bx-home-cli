@@ -567,7 +567,7 @@
           }]
 
           let url =
-            `/publicPages/form/form?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
+            `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${JSON.stringify(fieldsCond)}`
           if (app) {
             url += `&appName=${app}`
           }
@@ -1116,7 +1116,7 @@
         const option_list_v2 = this.fieldData?.option_list_v2
         if (option_list_v2?.serviceName) {
           let serviceName = option_list_v2.serviceName.replace('_select', '_add')
-          let url = `/publicPages/form/form?serviceName=${serviceName}&type=add`
+          let url = `/publicPages/formPage/formPage?serviceName=${serviceName}&type=add`
           if (option_list_v2.srv_app) {
             url += `&destApp=${option_list_v2.srv_app}`
           }

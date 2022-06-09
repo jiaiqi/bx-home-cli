@@ -141,6 +141,7 @@
   import {
     mapState
   } from 'vuex'
+  import uDebounce from '@/common/utils/debounce.js'
   let timer = null
   export default {
     computed: {
@@ -483,7 +484,7 @@
             }
           }
         }
-        this.$uDebounce.canDoFunction({
+        uDebounce.canDoFunction({
           key: "startQue", //基于此值判断是否可以操作，如两个方法传入了同样的key，则会混淆，建议传入调用此事件的方法名，简单好梳理
           time: 3000, //如果传入time字段，则为定时器后，自动解除锁定状态，单位（毫秒）
           success: async () => { //成功中调用应该操作的方法，被锁定状态不会执行此代码块内的方法

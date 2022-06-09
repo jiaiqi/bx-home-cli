@@ -21,18 +21,16 @@
     </view>
     <view class="list-box" v-if="config.unfold !==false">
       <view class="list-item table-head">
-        <view class="col-item" v-for="col in showColumn"
-		:key="col.columns"
+        <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
         <text class="cuIcon-add  more-btn hidden" v-if="showHandle"></text>
         <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'" 
+      <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'"
         @click="onButton({button_type:'edit'},index)">
-        <view class="col-item" v-for="col in showColumn"
-		:key="col.columns"
+        <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
@@ -41,7 +39,7 @@
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
-      <view class="list-item" v-for="(item,index) in initData"  @click="onButton({button_type:'editInit'},index)">
+      <view class="list-item" v-for="(item,index) in initData" @click="onButton({button_type:'editInit'},index)">
         <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
@@ -50,8 +48,7 @@
           @click.stop="onChildFormBtn({button_type:'delete_init'},index,true)"></text>
       </view>
       <view class="list-item" v-for="(item,index) in memoryListData" @click="onButton({button_type:'editMem'},index)">
-        <view class="col-item" v-for="col in showColumn"
-		:key="col.columns"
+        <view class="col-item" v-for="col in showColumn" :key="col.columns"
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
@@ -95,12 +92,14 @@
         </view>
         <view class="" style="max-height: 80vh;overflow-y: scroll;">
           <view class="child-form-wrap">
-            <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields" :main-data="mainData"
-              :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName" @value-blur="updateValueChange">
+            <a-form class="bx-form-wrap" v-if="allFields && isArray(allFields)" :fields="allFields"
+              :main-data="mainData" :pageType="use_type" :formType="'update'" ref="childForm" :key="modalName"
+              @value-blur="updateValueChange">
             </a-form>
           </view>
           <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-            <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,idx) in updateV2.formButton" :key="idx"
+            <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme"
+              v-for="(btn,idx) in updateV2.formButton" :key="idx"
               @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
           </view>
         </view>
@@ -111,7 +110,6 @@
 </template>
 
 <script>
-  
   const dayjs = require('dayjs');
   import batchAdd from '@/publicPages/components/batch-add/batch-add.vue'
   export default {
@@ -217,7 +215,7 @@
           console.log(newValue)
           this.$emit('child-list-change', {
             calcRelations: this.config?.calcRelations,
-            key: this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no,
+            key: this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no,
             data: newValue
           })
         }
@@ -226,7 +224,7 @@
     computed: {
       showHandle() {
         // 是否显示操作按钮
-        let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no 
+        let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
           return false
@@ -256,7 +254,7 @@
         if (this.fkMoreConfig?.gridButtonDisp?.seeAll === false) {
           return false
         }
-        let constraint_name = this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no
+        let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (this.srvGridButtonDisp && constraint_name && this.srvGridButtonDisp[constraint_name]) {
           if (this.srvGridButtonDisp[constraint_name]['seeAll'] === false) {
             return false
@@ -382,7 +380,7 @@
               return false
             }
             // 主表服务上配置的隐藏按钮
-            let constraint_name = this.config?.foreign_key?.constraint_name||this.config?.foreign_key?.key_no
+            let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
             if (constraint_name && this.srvGridButtonDisp && this.srvGridButtonDisp[constraint_name] && this
               .srvGridButtonDisp[constraint_name][item.button_type] === false) {
               return false
@@ -737,7 +735,7 @@
                 }]
               }
               let url =
-                `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.srvApp) {
                 url += `&appName=${this.srvApp}`
@@ -867,7 +865,7 @@
               // }
               if (this.hideChildList) {
                 url =
-                  `/publicPages/form/form?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                  `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
               if (this.srvApp) {
                 url += `&appName=${this.srvApp}`
@@ -970,7 +968,7 @@
                   })
                 }
                 let url =
-                  `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                  `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
                 if (this.srvApp) {
                   url += `&appName=${this.srvApp}`
@@ -1006,7 +1004,7 @@
               })
 
               let url =
-                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
               if (self.srvApp) {
                 url += `&appName=${self.srvApp}`
               }
@@ -1580,7 +1578,7 @@
 
                   if (this.config?.foreign_key?.moreConfig?.detailType === 'form-detail') {
                     url =
-                      `/publicPages/form/form?type=detail&serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+                      `/publicPages/formPage/formPage?type=detail&serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
                   }
                   if (this.config?.foreign_key?.moreConfig?.detailDisabled == true) {
                     url += '&disabled=true'

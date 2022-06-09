@@ -20,29 +20,10 @@
           <text v-if="articleData.create_time">{{ dayjs(articleData.create_time).format("YYYY-MM-DD") }}</text>
         </view>
       </view>
-<!--      <view class="right qr-code">
-        <uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" v-if="qrCodeText" :size="codeSize" class="qrcode-canvas"
-          foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete">
-        </uni-qrcode>
-        <image :src="qrcodePath" class="qr-code-image" mode="aspectFit" v-if="qrCodeText && qrcodePath"
-          @click="toPreviewImage(qrcodePath)"></image>
-      </view> -->
     </view>
 
     <view class="content" v-if="articleData.content">
-<!--      <view class="" v-html="articleData.content">
-      </view> -->
       <mp-html :content="articleData.content.replace(/\<img/gi, '<img width=100%')" />
-      <!-- <rich-text :nodes="richTextNodes" space="nbsp"></rich-text> -->
-      <!-- <rich-text :nodes="articleData.content" space="nbsp"></rich-text> -->
-      <!-- <uHtmlParse :content="richTextNodes" /> -->
-      <!-- <uHtmlParse :content="articleData.content" /> -->
-    </view>
-
-    <view class="footer">
-      <!-- #ifdef MP-WEIXIN -->
-      <!-- <ad unit-id="adunit-7318fe2284dd9c26" ad-type="video" ad-theme="white"></ad> -->
-      <!-- #endif -->
     </view>
   </view>
 
@@ -56,19 +37,7 @@
     computed: {
       ...mapState({
         userInfo: state => state.user.userInfo
-      }),
-      clientEnv() {
-        return uni.getStorageSync('client_env')
-      },
-      // richTextNodes() {
-      //   if (this.articleData) {
-      //     if (this.articleData.content && typeof this.articleData.content === 'string') {
-      //       return parseHtml(this.articleData.content.replace(/\<img/gi, '<img width=100% height=100%'))
-      //     } else if (this.articleData.introduce && typeof this.articleData.content === 'introduce') {
-      //       return parseHtml(this.articleData.introduce.replace(/\<img/gi, '<img width=100% height=100%'))
-      //     }
-      //   }
-      // }
+      })
     },
     data() {
       return {
@@ -228,7 +197,6 @@
           option.from = 'share'
         }
       }
-      // await this.toAddPage()
       this.checkOptionParams(option);
 
       if (option.content_no) {
@@ -249,23 +217,6 @@
 </script>
 
 <style lang="scss">
-  .qr-code {
-    background-color: #fff;
-    width: 150rpx;
-    height: 150rpx;
-    margin: 0 auto;
-
-    .qrcode-canvas {
-      position: fixed;
-      top: -999999px;
-    }
-
-    .qr-code-image {
-      width: 150rpx;
-      height: 150rpx;
-    }
-  }
-
   .article-wrap {
     background-color: #fff;
     display: flex;

@@ -586,7 +586,7 @@
               })
 
               let url =
-                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
               if (this.appName) {
                 url += `&destApp=${this.appName}`
               }

@@ -391,7 +391,7 @@
                 }
               }
               let url =
-                `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (Array.isArray(condition) && condition.length > 0) {
                 url += `&condition=${JSON.stringify(condition)}`
@@ -609,7 +609,7 @@
                   })
                 }
                 let url =
-                  `/publicPages/form/form?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                  `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
                   encodeURIComponent(JSON.stringify(fieldsCond));
                 if (this.appName) {
                   url += `&appName=${this.appName}`
@@ -645,7 +645,7 @@
               })
 
               let url =
-                `/publicPages/form/form?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                `/publicPages/formPage/formPage?serviceName=${buttonInfo.service_name}&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
               if (self.appName) {
                 url += `&appName=${self.appName}`
               }

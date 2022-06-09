@@ -447,7 +447,7 @@
                   });
                 }
                 let url =
-                  `/publicPages/form/form?type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
+                  `/publicPages/formPage/formPage?type=update&serviceName=${e.service_name}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`;
                 uni.navigateTo({
                   url: url
                 });
@@ -467,7 +467,7 @@
                           value: formData[e.foreign_key.column_name]
                         });
                       }
-                      let url = `/publicPages/form/form?type=add&serviceName=${e.service_name.replace('_select', '_add')}&fieldsCond=${encodeURIComponent(
+                      let url = `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name.replace('_select', '_add')}&fieldsCond=${encodeURIComponent(
                       JSON.stringify(fieldsCond)
                     )}`;
                       uni.navigateTo({
@@ -1118,7 +1118,7 @@
             value: e.website_no
           }
         ];
-        const url = '/publicPages/form/form?serviceName=srvhealth_store_mgmt_select&type=detail&fieldsCond=' +
+        const url = '/publicPages/formPage/formPage?serviceName=srvhealth_store_mgmt_select&type=detail&fieldsCond=' +
           JSON.stringify(
             fieldsCond)
         uni.navigateTo({

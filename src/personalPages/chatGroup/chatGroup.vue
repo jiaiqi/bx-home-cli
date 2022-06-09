@@ -172,7 +172,7 @@
             value: '不开放'
           }]
           let url =
-            `/publicPages/form/form?serviceName=srvhealth_group_circle_select&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
+            `/publicPages/formPage/formPage?serviceName=srvhealth_group_circle_select&type=add&fieldsCond=${JSON.stringify(fieldsCond)}`;
           uni.navigateTo({
             url: url
           });

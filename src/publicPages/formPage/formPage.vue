@@ -522,7 +522,7 @@
                           }
                         }
                         let path =
-                          '/publicPages/form/form?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
+                          '/publicPages/formPage/formPage?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
                           encodeURIComponent(JSON.stringify(fieldsCond));
                         uni.redirectTo({
                           url: path
@@ -1160,7 +1160,7 @@
         } else {
           let serviceName = e?.service_name || this.getServiceName(this.serviceName)
           let url =
-            `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+            `/publicPages/formPage/formPage?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
           if (type === 'update' || type == 'detail') {
             if (this.params?.submitData?.id) {
               let fieldsCond = [{
@@ -1169,7 +1169,7 @@
                 display: false
               }]
               url =
-                `/publicPages/form/form?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+                `/publicPages/formPage/formPage?type=${type}&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
 
             }
           }
