@@ -354,13 +354,7 @@
             "navigationBarTitleText": "订单",
             "enablePullDownRefresh": false
           }
-        }, {
-          "path": "roomState/roomState",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": true
-          }
-        }, {
+        },{
           "path": "msList/msList",
           "style": {
             "navigationBarTitleText": "秒杀",

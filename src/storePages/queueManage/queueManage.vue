@@ -90,12 +90,6 @@
             v-if="item.profile_url"
             @click.stop="toPreviewImage(item.profile_url)"
           />
-       <!--   <image
-            class="image"
-            v-else
-            :src="require('@/static/man-profile.png')"
-            mode="scaleToFill"
-          /> -->
         </view>
         <view
               style="
