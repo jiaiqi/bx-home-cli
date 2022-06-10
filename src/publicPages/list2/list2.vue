@@ -1520,7 +1520,7 @@
             console.log(e);
           }
         }
-        debugger
+        
         if (!buttonInfo?.button_type) {
           uni.showModal({
             title: '提示',
@@ -1529,6 +1529,7 @@
           })
           return
         }
+        
         if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
           // 序列化操作参数
           try {

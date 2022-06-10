@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class="page-title bg-white" v-if="query">
+    <view class="page-title bg-white">
       <view class="left text-blue" @click="changeModal('editInfo')">
         {{leftText||''}}
       </view>
@@ -35,8 +35,11 @@
         </view>
       </view>
     </view>
-
-
+    
+    <view class=" flex justify-center align-center margin-tb-lg padding-tb-lg" style="height: 60vh;"  v-if="!query">
+      <button @click="changeModal('editInfo')" class="cu-btn bg-blue margin-tb-lg">点击完善信息</button>
+    </view>
+  
     <view class="cu-modal bottom-modal" :class="{show:modalName ==='editInfo'}" @click="changeModal()">
       <view class="cu-dialog" @click.stop="">
         <view class="title text-lg text-bold bg-white text-black padding-tb">
@@ -59,8 +62,8 @@
         </view>
         <view class="cu-form-group ">
           <view class="title text-bold">高考分数</view>
-          <input class="align-start flex" placeholder="输入分数" name="input" v-model="form.score"
-            @confirm="queryRank" @blur="queryRank"></input>
+          <input class="align-start flex" placeholder="输入分数" name="input" v-model="form.score" @confirm="queryRank"
+            @blur="queryRank"></input>
           <text class="cuIcon-edit"></text>
         </view>
         <view class="cu-form-group ">
@@ -71,6 +74,7 @@
         <button class="cu-btn bg-blue margin-tb" style="width: 50%;" @click="confirmInfo">完成</button>
       </view>
     </view>
+
   </view>
 </template>
 
@@ -82,9 +86,12 @@
     data() {
       return {
         form: {
-          regionName: "", //省份
+          level: '',
+          rank: 0,
+          region: 26,
+          regionName: "陕西", //省份
           score: "",
-          subject: "", //文、理
+          subject: "理", //文、理
         },
         subjectData: ['文', '理'],
         regionData: regionData,
@@ -102,11 +109,15 @@
           if (this.query?.regionName && this.query?.score && this.query?.subject) {
             return `${this.query?.regionName}/${this.query?.subject}科/${this.query?.score}分`
           }
+        } else if (this.form) {
+          if (this.form?.regionName && this.form?.score && this.form?.subject) {
+            return `${this.form?.regionName}/${this.form?.subject}科/${this.form?.score}分`
+          }
         }
-        return ''
+        return '点击完善信息'
       },
       rightText() {
-        return this.query?.level || ''
+        return this.query?.level || this.form?.level || this.levelData[this.level] || '点击选择批次'
       },
     },
     onLoad(option) {
@@ -151,9 +162,14 @@
       },
       confirmInfo() {
         this.form.regionName = this.regionData[this.form.region].name
+        if (!this.query) {
+          this.query = {}
+        }
+        
         Object.keys(this.form).forEach(key => {
           this.query[key] = this.form[key]
         })
+
         this.changeModal()
         this.getList()
       },
@@ -177,29 +193,30 @@
           {
             "colName": "user_province",
             "ruleType": "eq",
-            "value": this.query.regionName
+            "value": this.query?.regionName || this?.form?.regionName
+
           },
           {
             "colName": "score_postiton",
             "ruleType": "eq",
-            "value": this.query.rank
+            "value": this.query?.rank || this.form?.rank
           },
           {
             "colName": "user_score",
             "ruleType": "eq",
-            "value": this.query.score
+            "value": this.query?.score || this.form?.score
           },
           {
             "colName": "user_branch",
-            "ruleType": "eq",
-            "value": this.query.subject + '科'
+            "ruleType": "like",
+            "value": (this.query?.subject || this.form?.subject) + '科'
           }
         ]
         // if (this.query.level !== '全部') {
         condition.push({
           "colName": "user_batch",
           "ruleType": "eq",
-          "value": this.query.level || '全部'
+          "value": this.query?.level || this.form?.level || '全部'
           // .query.level
         })
         // }
@@ -218,22 +235,22 @@
           "condition": [{
               "colName": "user_province",
               "ruleType": "eq",
-              "value": this.query.regionName
+              "value": this.query?.regionName || this.form?.regionName
             },
             {
               "colName": "score_postiton",
               "ruleType": "eq",
-              "value": this.query.rank
+              "value": this.query?.rank || this.form?.rank
             },
             {
               "colName": "user_score",
               "ruleType": "eq",
-              "value": this.query.score
+              "value": this.query?.score || this.form?.score
             },
             {
               "colName": "user_branch",
               "ruleType": "eq",
-              "value": this.query.subject + '科'
+              "value": (this.query?.subject || this.form?.subject) + '科'
             }
           ],
           "page": {
@@ -246,7 +263,7 @@
           "colName": "user_batch",
           "ruleType": "eq",
           // "value": '全部'
-          value: this.query.level || '全部'
+          value: this.query?.level || this.form?.level || '全部'
         })
         // }
         uni.showLoading({})

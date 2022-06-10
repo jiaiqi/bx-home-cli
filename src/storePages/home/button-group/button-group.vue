@@ -749,14 +749,13 @@
             content: e.prompt,
             showCancel: false
           })
-          debugger
-        }else  if (this.hasNotRegInfo && navType !== "takePhone") {
+        } else if (this.hasNotRegInfo && navType !== "takePhone") {
           // 除了打电话外 其他操作必须先授权访问用户信息
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'
           })
           res = false
-        }else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -775,7 +774,7 @@
               break;
           }
           res = false
-        }else  if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
+        } else if (e.url && e.url.indexOf('showStoreQrcode') !== -1) {
           if (e.url.split('q=').length > 1) {
             let data = {
               storeInfo: this.storeInfo,
@@ -788,7 +787,7 @@
             this.showQrcode = true
           }
           res = false
-        }else if (e?.before_click) {
+        } else if (e?.before_click) {
           if (Array.isArray(e?.before_click?.validate) && e?.before_click?.validate.length > 0) {
             let failedNum = 0
             e.before_click.validate.forEach(item => {
