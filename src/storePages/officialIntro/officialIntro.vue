@@ -13,7 +13,7 @@
         长按识别下方二维码，进行关注
       </view>
       <view class="qrcode-box">
-        <image :src="getImagePath(mpInfo.app_qrcode,true)" mode="aspectFit" class="qr-code"></image>
+        <image :src="getImagePath(mpInfo.app_qrcode,true)" :show-menu-by-longpress="true" mode="aspectFit" class="qr-code"></image>
       </view>
       <view class="bottom-tips text-blue">
         关注我们，获取更多资讯

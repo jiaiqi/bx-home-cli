@@ -10,7 +10,6 @@ import {
   mapState
 } from 'vuex'
 import {
-  checkIsAttention,
   wxVerifyLogin,
   selectPersonInfo
 } from '@/common/api/login.js'

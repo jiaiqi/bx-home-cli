@@ -172,7 +172,7 @@
             <text v-if="!formModel.phone_xcx">点击右侧按钮获取手机号</text>
             <input class="text-right" placeholder="请先授权获取手机号" name="input" type="number"
               v-model="formModel.customer_phone" v-else></input>
-            <view class="cu-capsule radius" v-if="!formModel.phone_xcx">
+            <view class="cu-capsule radius">
               <button class="cu-tag bg-blue" type="primary" open-type="getPhoneNumber"
                 @getphonenumber="decryptPhoneNumber">
                 获取手机号
@@ -749,13 +749,15 @@
             content: e.prompt,
             showCancel: false
           })
-        } else if (this.hasNotRegInfo && navType !== "takePhone") {
-          // 除了打电话外 其他操作必须先授权访问用户信息
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          res = false
-        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+        } 
+        // else if (e?.navType !== "takePhone") {
+        //   // 除了打电话外 其他操作必须先授权访问用户信息
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   res = false
+        // }
+         else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -789,24 +791,52 @@
           res = false
         } else if (e?.before_click) {
           if (Array.isArray(e?.before_click?.validate) && e?.before_click?.validate.length > 0) {
+            // 点击操作前校验
             let failedNum = 0
-            e.before_click.validate.forEach(item => {
+            for (let item of e.before_click.validate) {
+              if (res === false) {
+                break
+              }
               switch (item.type) {
                 case 'id_no':
+                  if (!this.userInfo?.id_no) {
+                    res = false
+                    this.showRealNameModal()
+                  }
                   break;
                 case 'phone':
-                  if (!this.userInfo?.phone_xcx) {
+                  if (!this.userInfo?.phone_xcx || !this.userInfo?.phone) {
                     res = false
                     this.showRealNameModal()
                   }
                   break;
                 case 'name':
-                  this.showRealNameModal()
+                  if (!this.userInfo?.name) {
+                    res = false
+                    this.showRealNameModal()
+                  }
                   break;
                 case 'officialAccount':
+                  res = await this.checkSubscribeStatus()
+                  if (res === false) {
+                    uni.showModal({
+                      title: '提示',
+                      content: item.hint ,
+                      showCancel: false,
+                      success: (res) => {
+                        if (res.confirm) {
+                          uni.navigateTo({
+                            url:`/storePages/officialIntro/officialIntro?mp_no=${item.mp_no||'MP2201210021'}`
+                          })
+                        }
+                      }
+                    })
+                  }
                   break;
               }
-            })
+
+            }
+            // e.before_click.validate.forEach(item => {})
           }
         }
         return res
@@ -864,10 +894,12 @@
         //#endif
       },
       async toPages(e) {
+        debugger
         if (e.$orig) {
           e = e.$orig;
         }
         let canNext = await this.handlerBeforeClick(e)
+        debugger
         if (!canNext) {
           return
         }
