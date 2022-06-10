@@ -157,8 +157,8 @@ const wxOpenLogin = async (openCode) => {
   })
 }
 
-const selectPersonInfo = async () => {
-  const user_no = uni.getStorageSync('login_user_info')?.user_no
+const selectPersonInfo = async (user_no) => {
+   user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
   try {
     if (store.state.user.loginUserInfo) {
       user_no = store.state.user.loginUserInfo.user_no

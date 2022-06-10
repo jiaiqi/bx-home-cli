@@ -350,7 +350,6 @@
     },
     methods: {
       toPages() {
-        debugger
         let url = this.countConfig?.rightBtn?.target || this.countConfig?.rightBtn?.url;
         url = this.renderStr(url, this)
         if (url.indexOf('http') == 0) {
@@ -808,7 +807,11 @@
         }
         if (e.url) {
           try {
-            const data = this
+            const data = {
+              ...this.$data,
+              storeInfo:this.StoreInfo,
+              userInfo:this.userInfo
+            }
             e.url = this.renderStr(e.url, data)
             e.url = e.url.trim()
           } catch (e) {
@@ -816,6 +819,9 @@
           }
         }
         let url = e.url
+        if (e.url && e.url.indexOf('https') == 0) {
+          url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(e.url)}`
+        }
         let navType = 'navigateTo'
         if (e.navType) {
           navType = e.navType
@@ -853,6 +859,7 @@
         }
       },
       clickGrid(item) {
+        debugger
         let url = item.url || '';
         let cond = [{
           colName: 'store_no',
@@ -1066,6 +1073,7 @@
         this.modalName = ''
       },
       toDetail(e) {
+        debugger
         let fieldsCond = [{
             column: 'store_no',
             display: false,

@@ -172,7 +172,7 @@
             "navigationBarTextStyle": "black"
           }
         },
-     
+
         {
           "path": "VaccineList/VaccineList",
           "style": {
@@ -286,7 +286,7 @@
             "enablePullDownRefresh": false
           }
         },
-      
+
         {
           "path": "storeStatement/storeStatement",
           "style": {
@@ -592,6 +592,19 @@
         }
       ]
     }
+    //#ifdef H5
+    ,
+    {
+      "root": "pages/h5",
+      "pages": [{
+        "path": "tzpc/tzpc",
+        "style": {
+          "navigationBarTitleText": "体质评测",
+          "enablePullDownRefresh": true
+        }
+      }]
+    }
+    //#endif
   ],
   // "leftWindow": {
   //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件

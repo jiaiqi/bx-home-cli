@@ -894,12 +894,10 @@
         //#endif
       },
       async toPages(e) {
-        debugger
         if (e.$orig) {
           e = e.$orig;
         }
         let canNext = await this.handlerBeforeClick(e)
-        debugger
         if (!canNext) {
           return
         }

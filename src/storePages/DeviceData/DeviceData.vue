@@ -128,7 +128,7 @@
 </template>
 
 <script>
-  import uniEcCharts from '@/storePages/components/uni-ec-canvas/uni-echart.vue'
+  import uniEcCharts from '@/components/uni-ec-canvas/uni-echart.vue'
 
   const dayjs = require('dayjs');
 

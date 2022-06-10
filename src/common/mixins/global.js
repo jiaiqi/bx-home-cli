@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       pageUUID: '',
-      pageScrollTop:0
+      pageScrollTop: 0
     }
   },
   onLoad(option) {
@@ -53,6 +53,19 @@ export default {
           this.reachBottomnum = 1
         },
       });
+    },
+    async setSessionInfo(storeNo) {
+      const url = `/health/operate/srvsys_session_info_set`
+      const req = [{
+        "serviceName": "srvsys_session_info_set",
+        "data": [{
+          "info_type": "store_info",
+          "info_value": storeNo
+        }]
+      }]
+      if (storeNo) {
+        return await this.$http.post(url, req)
+      }
     },
     async initApp() {
       // 初始化小程序
@@ -85,6 +98,7 @@ export default {
       let serviceName = 'srvhealth_store_list_select';
       // serviceName = 'srvhealth_store_mgmt_select'
       serviceName = 'srvhealth_store_cus_niming_detail_select'
+      await this.setSessionInfo(this.curStoreNo)
       let res = await this.$fetch('select', serviceName, req, 'health');
       if (Array.isArray(res.data) && res.data.length > 0) {
         this.$store.commit('setStateAttr', {

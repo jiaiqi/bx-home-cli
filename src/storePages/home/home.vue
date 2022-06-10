@@ -737,6 +737,7 @@
         serviceName = 'srvhealth_store_cus_niming_detail_select'
         let res = null;
         if (forceUpdate || this.storeNo !== this.StoreInfo?.store_no) {
+          await this.setSessionInfo(this.storeNo)
           res = await this.$fetch('select', serviceName, req, 'health')
         } else {
           res = {
