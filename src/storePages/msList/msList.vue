@@ -40,7 +40,7 @@
             <view class="left">
               <view class="goods-price">
                 <view class="new">
-                  <text class="label">活动价￥</text>
+                  <text class="label">{{data.act_type==='秒杀活动'?'秒杀价':'体验价'}}￥</text>
                   <text class="value">{{item.group_price||''}}</text>
                 </view>
                 <view class="old">

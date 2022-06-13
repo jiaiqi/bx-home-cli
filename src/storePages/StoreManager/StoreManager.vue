@@ -192,7 +192,7 @@
             sort: false
           }
         ],
-        
+
         gridList: [{
             label: '店铺商品',
             icon: 'goods',
@@ -590,7 +590,7 @@
       },
       async getButtonGroup() {
         const req = {
-          "serviceName": "srvhealth_store_home_component_user_select",
+          "serviceName": "srvhealth_store_home_component_select",
           "colNames": ["*"],
           "condition": [{
               "colName": "store_no",
@@ -605,10 +605,10 @@
           ],
           "page": {
             "pageNo": 1,
-            "rownumber": 5
+            "rownumber": 10
           }
         }
-        const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health')
+        const res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
           const buttonGroup = res.data[0]
           if (buttonGroup?.component_label) {
@@ -809,8 +809,8 @@
           try {
             const data = {
               ...this.$data,
-              storeInfo:this.StoreInfo,
-              userInfo:this.userInfo
+              storeInfo: this.StoreInfo,
+              userInfo: this.userInfo
             }
             e.url = this.renderStr(e.url, data)
             e.url = e.url.trim()
@@ -1212,8 +1212,11 @@
           this.unreadNum = StoreInfo.data[0].kefu_unread_msg
           this.unreadNumber = StoreInfo.data[0].kefu_unack_msg
           this.StoreInfo = StoreInfo.data[0];
-          
-          this.$store.commit('setStateAttr', {key:'storeInfo',val:StoreInfo.data[0]});
+
+          this.$store.commit('setStateAttr', {
+            key: 'storeInfo',
+            val: StoreInfo.data[0]
+          });
           if (this.StoreInfo?.name) {
             uni.setNavigationBarTitle({
               title: this.StoreInfo?.name || ''

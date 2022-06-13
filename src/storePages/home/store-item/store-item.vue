@@ -64,6 +64,7 @@
     <queue-info :config="pageItem.more_config.queueCfg"
       v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
     <score-input :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '根据高考总分推荐学校'" />
+    <float-button :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '悬浮按钮'" />
   </view>
 </template>
 
@@ -87,6 +88,7 @@
   import multistepPicker from '../multistep-picker/multistep-picker.vue'
   import queueInfo from '../queue-info/queue-info.vue'
   import scoreInput from '../score-input/score-input.vue'
+  import floatButton from '../float-button/float-button.vue'
   export default {
     components: {
       slideList,
@@ -107,7 +109,8 @@
       couponList,
       multistepPicker,
       queueInfo,
-      scoreInput
+      scoreInput,
+      floatButton
     },
     props: {
       pageItem: {

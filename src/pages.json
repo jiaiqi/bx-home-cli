@@ -602,7 +602,16 @@
           "navigationBarTitleText": "体质评测",
           "enablePullDownRefresh": true
         }
-      }]
+      }    ,{
+                    "path" : "jmsq/jmsq",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "加盟申请",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#endif
   ],

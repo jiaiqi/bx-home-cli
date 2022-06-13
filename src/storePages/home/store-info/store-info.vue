@@ -343,7 +343,7 @@
           return
         }
         const req = {
-          serviceName: 'srvhealth_store_home_component_user_select',
+          serviceName: 'srvhealth_store_home_component_select',
           colNames: ['*'],
           condition: [{
               colName: 'store_no',
@@ -358,10 +358,10 @@
           ],
           page: {
             pageNo: 1,
-            rownumber: 5
+            rownumber: 10
           }
         };
-        const res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health');
+        const res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health');
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
           this.hasManageBtn = true;
         }

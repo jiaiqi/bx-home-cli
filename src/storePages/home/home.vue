@@ -43,7 +43,7 @@
         </view>
       </view>
     </view>
-    
+
 
 
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
@@ -51,6 +51,7 @@
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
+
   </view>
 
 </template>
@@ -778,7 +779,7 @@
             // 店铺用户列表中已存在此用户
           } else {
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
-           await this.bindStore();
+            await this.bindStore();
           }
           if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
             if (!this.pdNo) {
@@ -1147,7 +1148,7 @@
             await this.bindStore();
           }
           if (forceUpdate) {
-           await this.getStoreUserInfo(forceUpdate)
+            await this.getStoreUserInfo(forceUpdate)
           }
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {
@@ -1157,7 +1158,7 @@
             }
           }
 
-         await this.getQuery();
+          await this.getQuery();
           this.initSocket()
           if (this.bindUserInfo?.store_user_no) {
             if (forceUpdate || (!this.vvipCard?.card_no || this.vvipCard?.useing_store_user_no !== this.vstoreUser
@@ -1186,7 +1187,7 @@
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
           await this.getTabbar(home_page_no);
-          let pageItemList = await this.getPageComponent(home_page_no);
+          let pageItemList = await this.getPageComponent(home_page_no, 'srvhealth_store_home_ceshi_component_select');
           let curTab = this.tabbarList.findIndex(item => item.link_pd_no === home_page_no);
           if (curTab > -1) {
             let data = res.data.data[0]
@@ -1195,10 +1196,10 @@
           }
         }
       },
-      async getPageComponent(home_page_no) {
-        let url = this.getServiceUrl('health', 'srvhealth_store_home_component_user_select', 'select');
+      async getPageComponent(home_page_no, service = 'srvhealth_store_home_component_user_select') {
+        let url = this.getServiceUrl('health', service, 'select');
         let req = {
-          serviceName: 'srvhealth_store_home_component_user_select',
+          serviceName: service,
           colNames: ['*'],
           condition: [{
             colName: 'pd_no',
@@ -1249,15 +1250,15 @@
             orderType: 'asc'
           }],
           condition: [{
-            colName: 'owner_pd_no',
-            ruleType: 'eq',
-            value: home_page_no
-          },
-          {
-            colName:'disp_flag',
-            ruleType:'eq',
-            value:'是'
-          }
+              colName: 'owner_pd_no',
+              ruleType: 'eq',
+              value: home_page_no
+            },
+            {
+              colName: 'disp_flag',
+              ruleType: 'eq',
+              value: '是'
+            }
           ],
           page: {
             pageNo: 1,

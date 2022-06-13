@@ -1842,15 +1842,16 @@ export default {
     String.prototype.renderStr = function(obj) {
       return this.replace(/\$\{(.*?)\}/g, splitStr => {
         let keyArr = splitStr.slice(2, splitStr.length - 1).split('.')
-        let result = ''
+        let result = obj
         let i = 0;
         while (i < keyArr.length) {
-          result = keyArr[i]
+          result =result[keyArr[i]]
           i++
         }
         return result
       })
     }
+    
     Vue.prototype.renderEmoji = (str) => {
       if (str) {
         try {
