@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       pageUUID: '',
-      pageScrollTop: 0
+      _pageScrollTop: 0
     }
   },
   onLoad(option) {

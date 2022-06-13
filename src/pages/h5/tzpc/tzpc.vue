@@ -5,10 +5,9 @@
         <text></text>
         <text>体质健康评测</text>
       </view>
-      <uni-echarts class="uni-ec-canvas" canvas-id="nutrients-canvas" :ec="radarOption"></uni-echarts>
-      <!-- 	<view class="text-center margin-tb-sm text-gray">
-				请在下方体质测试问卷选择一个问卷进行评测
-			</view> -->
+      <view class="charts-box">
+        <qiun-data-charts type="radar" :opts="opts" :chartData="chartData" />
+      </view>
       <view class="text-center margin-tb-sm text-gray"
         v-if="corporeity.find(item=>item.grade>=40)&&corporeity.find(item=>item.grade>=40).name">
         <text> 经评测您的体制为</text><text class="text-bold text-black">【{{corporeity.find(item=>item.grade>=40).name}}】</text>
@@ -42,7 +41,6 @@
   import {
     selectPersonInfo
   } from '@/common/api/login.js'
-  import uniEcharts from '@/components/uni-ec-canvas/uni-echart.vue'
   export default {
     components: {
       uniEcharts
@@ -111,6 +109,30 @@
         ],
         scoreInfo: {},
         currentItem: {},
+        chartData: {},
+        opts: {
+          color: ["#1890FF", "#91CB74", "#FAC858", "#EE6666", "#73C0DE", "#3CA272", "#FC8452", "#9A60B4", "#ea7ccc"],
+          padding: [5, 5, 5, 5],
+          dataLabel: false,
+          legend: {
+            show: false,
+            position: "right",
+            lineHeight: 25
+          },
+          extra: {
+            radar: {
+              gridType: "radar",
+              gridCount:5,
+              gridColor: "#CCCCCC",
+              axisLabel: true,
+              gridCount: 3,
+              opacity: 0.5,
+              linearType:'custom',
+              max: 50,
+              border: true
+            }
+          }
+        }
       };
     },
     filters: {
@@ -123,11 +145,6 @@
       }
     },
     computed: {
-      bmi() {
-        if (this.userInfo.weight && this.userInfo.height) {
-          return (Number(this.userInfo.weight) / Math.pow(Number(this.userInfo.height) / 100, 2)).toFixed(1);
-        }
-      },
       age() {
         if (this.userInfo.birthday) {
           let age = new Date().getFullYear() - new Date(this.userInfo.birthday).getFullYear();
@@ -137,96 +154,29 @@
     },
 
     methods: {
-      buildRadar() {
-
-      },
-      buildRadarData(corporeity) {
-        let data = corporeity.map(item => item.grade);
-        let indicator = corporeity.map(item => {
-          if (item.name === '阴虚质') {
-            return {
-              axisTick: {
-                show: true,
-                inside: true,
-                lineStyle: {
-                  color: "#000"
-                }
+      buildRadar(e) {
+        //模拟从服务器获取数据时的延时
+        let cates = e.map(item => item.name);
+        let datas = e.map(item => item.grade)
+        setTimeout(() => {
+          //模拟服务器返回数据，如果数据格式和标准格式不同，需自行按下面的格式拼接
+          let res = {
+            categories: cates,
+            series: [{
+                name: "成交量1",
+                data: datas
               },
-              axisLabel: {
-                show: true,
-                inside: true,
-                fontSize: 12
-              },
-              name: item.name,
-              max: this.deepClone(data).sort(function(a, b) {
-                return b - a;
-              })[0] + 3
-            };
-          }
-          return {
-            name: item.name,
-            max: this.deepClone(data).sort(function(a, b) {
-              return b - a;
-            })[0] + 3
+              // {
+              //   name: "成交量2",
+              //   data: [190, 210, 105, 35, 27, 102]
+              // }
+            ]
           };
-        });
-        let option = {
-          normal: {
-            top: 200,
-            left: 300,
-            width: 500,
-            height: 400,
-            zIndex: 6,
-            backgroundColor: ''
-          },
-          color: ['rgba(245, 166, 35, 1)', 'rgba(19, 173, 255, 1)'],
-          radar: {
-            // shape: 'circle',
-            name: {
-              textStyle: {
-                color: '#fff',
-                backgroundColor: '#999',
-                borderRadius: 3,
-                padding: [3, 5]
-              }
-            },
-            nameGap: 10,
-            center: ['50%', '50%'],
-            radius: '70%',
-            startAngle: 90,
-            splitNumber: 4,
-            splitArea: {
-              areaStyle: {
-                // color: ['transparent']
-              }
-            },
-            axisLabel: {
-              show: false,
-              fontSize: 14,
-              color: '#333',
-              fontStyle: 'normal',
-              fontWeight: 'normal'
-            },
-
-            indicator: indicator
-          },
-          series: [{
-            type: 'radar',
-            // areaStyle: {normal: {}},
-            data: [data],
-            symbol: 'circle',
-            label: {
-              normal: {
-                show: true,
-                formatter: params => {
-                  return params.value;
-                },
-                fontSize: 12
-              }
-            }
-          }]
-        };
-        this.radarOption.option = option;
+          this.opts.extra.radar.max = this.deepClone(datas).sort(function(a, b) {
+            return b - a;
+          })[0] + 3
+          this.chartData = JSON.parse(JSON.stringify(res));
+        }, 500);
       },
       toQuestionnaire(item) {
         if (item && item.no) {
@@ -315,7 +265,7 @@
             }
           }
         }
-        return this.buildRadarData(corporeity);
+       return this.buildRadar(corporeity)
       },
       clickItem(item) {
         if (item.name === this.currentItem.name) {
@@ -352,7 +302,7 @@
       }
     },
     async onLoad(option) {
-      if(!option.user_no){
+      if (!option.user_no) {
         option.user_no = this.userInfo?.userno
       }
       if (option.user_no) {
@@ -360,14 +310,14 @@
         let userInfo = await selectPersonInfo(option.user_no);
         console.log(userInfo, 'userInfo')
         if (userInfo && userInfo.userno) {
-          this.userInfo = userInfo;
+          // this.userInfo = userInfo;
           this.getCorporeityScore();
         }
       }
     },
     onPullDownRefresh() {
-      if(this.userInfo?.userno){
-        selectPersonInfo(this.userInfo?.userno).then(userInfo => {
+      if (this.user_no) {
+        selectPersonInfo(this.user_no).then(userInfo => {
           if (userInfo && userInfo.userno) {
             this.userInfo = userInfo;
             this.getCorporeityScore().then(() => {
@@ -376,6 +326,9 @@
           }
         })
       }
+    },
+    onReady() {
+      // this.buildRadar();
     },
     onShow() {
       if (this.userInfo && this.userInfo.userno) {
@@ -386,6 +339,11 @@
 </script>
 
 <style lang="scss" scoped>
+  .charts-box {
+    width: 100%;
+    height: 300px;
+  }
+
   .couple-wrap {
     background-color: white;
     min-height: 100vh;

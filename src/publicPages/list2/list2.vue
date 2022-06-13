@@ -109,7 +109,7 @@
     },
     computed: {
       showUpper() {
-        return this.pageScrollTop > 100
+        return this._pageScrollTop > 100
       },
       tagsMode() {
         return this.moreConfig?.tagsMode || 'unfold'
@@ -1412,9 +1412,9 @@
         let self = this;
         // (debounce(() => {
         if (e?.scrollTop > 500) {
-          self.pageScrollTop = e?.scrollTop
+          self._pageScrollTop = e?.scrollTop
         } else {
-          self.pageScrollTop = 0
+          self._pageScrollTop = 0
         }
         // }, 1000))()
       },

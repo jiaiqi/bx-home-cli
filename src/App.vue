@@ -18,7 +18,7 @@
     },
     onLaunch(options) {
       if (options?.query?.user_no) {
-        selectPersonInfo(option.user_no);
+        selectPersonInfo(options?.query?.user_no);
       }
       if (options?.query?.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', options.query.bx_auth_ticket)

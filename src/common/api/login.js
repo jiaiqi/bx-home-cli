@@ -99,9 +99,9 @@ const wxOpenLogin = async (openCode) => {
   let wxAuthUserInfo = store?.state?.user?.wxAuthUserInfo
 
   if (!wxAuthUserInfo) {
-    uni.redirectTo({
-      url: '/publicPages/accountExec/accountExec'
-    })
+    // uni.redirectTo({
+    //   url: '/publicPages/accountExec/accountExec'
+    // })
     store.commit('SET_AUTH_USERINFO', false)
     return
   }
@@ -160,7 +160,7 @@ const wxOpenLogin = async (openCode) => {
 const selectPersonInfo = async (user_no) => {
    user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
   try {
-    if (store.state.user.loginUserInfo) {
+    if (store.state.user.loginUserInfo?.user_no) {
       user_no = store.state.user.loginUserInfo.user_no
     }
   } catch (e) {

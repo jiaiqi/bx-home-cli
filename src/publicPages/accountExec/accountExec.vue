@@ -331,6 +331,7 @@
         console.log('是否微信环境', isWeixinClient);
         if (!isLogin) {
           if (isWeixinClient) {
+            return
             //微信环境(小程序或者公众号)
             if (code || client_env === 'wxmp') {
               // 已经得到code,进行验证登录
