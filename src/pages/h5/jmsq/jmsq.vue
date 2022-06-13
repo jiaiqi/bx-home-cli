@@ -23,8 +23,7 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" v-model="form.address" placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室
-">
+            <input type="text" placeholder-class="placeholder" v-model="form.address" placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室">
           </view>
         </view>
       </view>

@@ -23,8 +23,7 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" v-model="form.address" placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室
-">
+            <input type="text" placeholder-class="placeholder" v-model="form.address" placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室">
           </view>
         </view>
       </view>
@@ -51,16 +50,6 @@
               <text class="cuIcon-add"></text>
             </view>
           </u-upload>
-          <!--      <u-upload :custom-btn="true">
-            <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
-              <text class="cuIcon-add"></text>
-            </view>
-          </u-upload>
-          <u-upload :custom-btn="true">
-            <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
-              <text class="cuIcon-add"></text>
-            </view>
-          </u-upload> -->
         </view>
       </view>
 
@@ -79,55 +68,7 @@
         </view>
       </view>
     </view>
-    <!--  <view class="form-box">
-      <view class="title">
-        营业资质
-      </view>
 
-      <view class="form-item">
-        <view class="form-item-label">
-          营业执照<text class="text-red">*</text></text>
-        </view>
-        <view class="form-item-content">
-          <u-upload :custom-btn="true">
-            <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
-              <text class="cuIcon-add"></text>
-            </view>
-          </u-upload>
-        </view>
-      </view>
-
-      <view class="form-item">
-        <view class="form-item-label">
-          法人身份证<text class="text-red">*</text></text>
-        </view>
-        <view class="form-item-content">
-
-          <u-upload :custom-btn="true" :max-count="1" :source-type="['camera']" :multiple="false">
-            <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
-              <view class="title">
-                请上传身份证正面(国徽面)
-              </view>
-              <image src="../static/img/b.jpg" mode="aspectFit"></image>
-              <view class="cu-btn bg-blue ">
-                拍照
-              </view>
-            </view>
-          </u-upload>
-          <u-upload :custom-btn="true" :max-count="1" :source-type="['camera']" :multiple="false">
-            <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
-              <view class="title">
-                请上传身份证反面(人像面)
-              </view>
-              <image src="../static/img/a.jpg" mode="aspectFit"></image>
-              <view class="cu-btn bg-blue margin-bottom-xs">
-                拍照
-              </view>
-            </view>
-          </u-upload>
-        </view>
-      </view>
-    </view> -->
     <view class="form-box">
       <view class="title">
         营业信息
@@ -164,26 +105,13 @@
       <view class="form-item">
         <view class="form-item-label">
           微信商户号<text class="text-red">*</text>
-          <!-- <text class="text-blue underline">查看示范</text> -->
         </view>
         <view class="form-item-content">
           <view class="input">
             <input type="text" placeholder-class="placeholder" v-model="form.wx_mch_id">
           </view>
-
         </view>
       </view>
-      <!--    <view class="form-item">
-        <view class="form-item-label">
-          浴桶数量<text class="text-red">*</text>
-        </view>
-        <view class="form-item-content">
-          <view class="input">
-            <input type="number" placeholder-class="placeholder">
-          </view>
-
-        </view>
-      </view> -->
     </view>
 
     <view class="bottom-btn">
@@ -209,7 +137,7 @@
         },
         form: {
           name: "", //店铺名称
-          address: '', //店铺地址
+          address:"", //店铺地址
           introduction: '', //店铺介绍
           image: "", //店铺照片
           logo: '', //店铺logo
