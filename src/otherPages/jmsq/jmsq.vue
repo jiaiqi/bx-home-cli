@@ -273,6 +273,7 @@
           "data": [this.form]
         }]
         req[0].data[0].type = this.storeInfo?.type
+        req[0].data[0].home_page_no = this.storeInfo?.home_page_no
         req[0].data[0].parent_no = this.storeInfo?.store_no
         req[0].data[0].audit_status = '待审核'
         req[0].data[0].online_status = '上线'

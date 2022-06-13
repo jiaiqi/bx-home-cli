@@ -590,7 +590,16 @@
             "enablePullDownRefresh": false
           }
         }
-      ]
+          ,{
+                    "path" : "jmsq/jmsq",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "加盟申请",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#ifdef H5
     ,
