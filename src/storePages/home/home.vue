@@ -44,8 +44,6 @@
       </view>
     </view>
 
-
-
     <u-tabbar :value="currentTab" :list="tabbarList" :border-top="false"
       :bg-color="themeConfig&&themeConfig.style_bg_color?themeConfig.style_bg_color:'#fff'" :inactive-color="labelColor"
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"

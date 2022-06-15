@@ -1140,16 +1140,16 @@
           }
         }
       },
-      getServiceName(srv) {
-        let len = srv.lastIndexOf('_');
-        let serviceName = srv.slice(0, len) + '_';
-        if (this.srvType === 'list' || this.srvType === 'detail') {
-          serviceName += 'select';
-        } else {
-          serviceName += this.srvType;
-        }
-        return serviceName;
-      },
+      // getServiceName(srv) {
+      //   let len = srv.lastIndexOf('_');
+      //   let serviceName = srv.slice(0, len) + '_';
+      //   if (this.srvType === 'list' || this.srvType === 'detail') {
+      //     serviceName += 'select';
+      //   } else {
+      //     serviceName += this.srvType;
+      //   }
+      //   return serviceName;
+      // },
       toPages(type, e) {
         this.srvType = type;
         if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this
@@ -1333,6 +1333,9 @@
               }
               return field;
             }).filter(item => !this.hideColumn.includes(item.column))
+            if(this.hideColumn.find(item=>item==='hideAllColumn')){
+              fields = []
+            }
             break;
           case 'add':
             if (!this.mainData) {

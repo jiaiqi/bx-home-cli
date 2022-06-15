@@ -1094,7 +1094,6 @@
         this.$emit('on-value-change', this.fieldData);
       },
       pickerChange(e) {
-        debugger
         if (e?.type === '__others') {
           this.fieldData.value = e.value
           this.fkFieldLabel = e.value;

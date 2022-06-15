@@ -14,8 +14,7 @@
             </view>
           </view>
           <view class="store-button">
-            <button class="image-btn margin-right"
-              @click.stop="showModal('showQrCode')">
+            <button class="image-btn margin-right" @click.stop="showModal('showQrCode')">
               <image class="image"
                 :src=" pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode: require('../../static/qrcode1.png')"
                 mode=""></image>
@@ -499,7 +498,8 @@
 
     .store-button {
       top: -10%;
-      .image-btn{
+
+      .image-btn {
         border-radius: 50%;
         background-color: #fff;
       }

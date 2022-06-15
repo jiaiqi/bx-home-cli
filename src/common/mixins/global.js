@@ -278,6 +278,18 @@ export default {
       }
       return
     },
+    
+    getServiceName(srv) {
+      let len = srv.lastIndexOf('_');
+      let serviceName = srv.slice(0, len) + '_';
+      if (this.srvType === 'list' || this.srvType === 'detail') {
+        serviceName += 'select';
+      } else {
+        serviceName += this.srvType;
+      }
+      return serviceName;
+    },
+    
     async handleAfterSubmit(handler, effect_data) {
       const self = this
       const afterSubmit = handler;
@@ -288,7 +300,6 @@ export default {
           userInfo: self.userInfo,
           storeUser: self.vstoreUser
         }
-
         const actionResult = new Array(afterSubmit.length)
         for (let i = 0; i < afterSubmit.length; i++) {
           let item = afterSubmit[i];
@@ -364,9 +375,28 @@ export default {
                 }
               }
             } else if (item.type === 'toDetail') {
+              if (item.trigger) {
+                if (item.trigger.type == 'condition') {
+                  let isPass = true;
+                  if (Array.isArray(item.trigger?.rule) && item.trigger.rule.length > 0) {
+                    item.trigger.rule.forEach(a => {
+                      a = JSON.parse(this.renderStr(JSON.stringify(a), globalData))
+                      if (a.result && a.value === a.result) {
+
+                      } else {
+                        isPass = false
+                      }
+                    })
+                  }
+                  if (isPass === false) {
+                    return
+                  }
+                }
+              }
+              
               this.srvType = 'detail'
-              let serviceName = this.addV2?.select_service_name || this
-                .getServiceName(this.serviceName)
+              
+              let serviceName = this.addV2?.select_service_name || this.colV2?.select_service_name || this.getServiceName(this.serviceName)
               let fieldsCond = [{
                 column: 'id',
                 value: effect_data.id,
@@ -381,12 +411,15 @@ export default {
               if (item.hideChildTable) {
                 url += `&hideChildTable=true`
               }
+              
               if (item.custom_url) {
                 url = this.renderStr(item.custom_url, globalData);
               }
+              
               if (item.view_cfg) {
                 url += `&view_cfg=${encodeURIComponent(JSON.stringify(item.view_cfg))}`
               }
+              
               uni.redirectTo({
                 url
               })

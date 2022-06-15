@@ -338,6 +338,8 @@
         service_place_no: "", //场地编号、餐桌号、房间号等
         shippingFee: 0, // 配送费
         send_amount: 0, // 最小起送金额
+        hideColumn: "",
+        view_cfg: null
       };
     },
     computed: {
@@ -444,10 +446,7 @@
       needAddress() {
         const state = !this.room_no && this.storeInfo?.type !== '酒店' && !this.orderInfo?.order_no && ['快递', '卖家配送']
           .includes(this.delivery_type) && !this.isFood
-
         return state
-        // || this.orderInfo?.goodsList && this.orderInfo.goodsList.length > 0 && this.orderInfo.goodsList.find(
-        //  item => ['产品'].includes(item.goods_type)) && !this.isFood
       },
       totalAmount() {
         if (Array.isArray(this.orderInfo.goodsList)) {
@@ -1486,7 +1485,6 @@
           // }
         }
         let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
-
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1506,7 +1504,10 @@
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             if (this.mainData?.pay_config !== '后付') {
-              await this.toPay();
+              let payRes = await this.toPay();
+              if (!payRes) {
+                return
+              }
             }
           } else {
 
@@ -1524,6 +1525,12 @@
                 // this.updateOrderState('', '已支付');
               }
             }
+          }
+          debugger
+          let afterSubmit = this.moreConfig?.after_submit;
+          let effect_data = res.data[0]
+          if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+            await this.handleAfterSubmit(afterSubmit, effect_data)
           }
 
         } else if (res.success == false && res.msg) {
@@ -1643,7 +1650,7 @@
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
-          return new Promise((resolve) => {
+          let payResult = new Promise((resolve) => {
             wx.requestPayment({
               timeStamp: res.timeStamp.toString(),
               nonceStr: res.nonceStr,
@@ -1665,7 +1672,10 @@
               }
             });
           })
+          debugger
+          return payResult
         }
+        return
       },
     },
     async onLoad(option) {
@@ -1770,7 +1780,22 @@
       }
       this.getSrvCols('add', this.orderInfo?.order_no ? 'detail' : '')
 
-
+      if (option.view_cfg) {
+        // 详情页面自定义展示效果
+        try {
+          try {
+            this.view_cfg = JSON.parse(option.view_cfg)
+          } catch (e) {
+            //TODO handle the exception
+            this.view_cfg = JSON.parse(decodeURIComponent(option.view_cfg))
+          }
+          if (this.view_cfg.hideColumn) {
+            this.hideColumn = this.view_cfg.hideColumn
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
     }
   };
 </script>
