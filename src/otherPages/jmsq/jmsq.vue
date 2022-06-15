@@ -23,7 +23,8 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" v-model="form.address" placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室">
+            <input type="text" placeholder-class="placeholder" v-model="form.address"
+              placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室">
           </view>
         </view>
       </view>
@@ -59,7 +60,7 @@
         </view>
         <view class="form-item-content">
           <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
-            :form-data="setFormData('image')" index="image" :header="header" :action="actionUrl" @on-success="onSuccess"
+            :form-data="setFormData('logo')" index="logo" :header="header" :action="actionUrl" @on-success="onSuccess"
             @on-remove="onRemove">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
@@ -113,7 +114,31 @@
         </view>
       </view>
     </view>
-
+    <view class="form-box">
+      <view class="title">
+        分佣设置
+      </view>
+      <view class="form-item">
+        <view class="form-item-label">
+          一级分佣比例
+        </view>
+        <view class="form-item-content">
+          <view class="input">
+            <input type="digit" placeholder-class="placeholder" v-model="form.one_money_than">
+          </view>
+        </view>
+      </view>
+      <view class="form-item">
+        <view class="form-item-label">
+          二级分佣比例
+        </view>
+        <view class="form-item-content">
+          <view class="input">
+            <input type="digit" placeholder-class="placeholder" v-model="form.two_money_than">
+          </view>
+        </view>
+      </view>
+    </view>
     <view class="bottom-btn">
       <button class="cu-btn lg" @click="onsubmit">提交</button>
     </view>
@@ -137,7 +162,7 @@
         },
         form: {
           name: "", //店铺名称
-          address:"", //店铺地址
+          address: "", //店铺地址
           introduction: '', //店铺介绍
           image: "", //店铺照片
           logo: '', //店铺logo
@@ -147,6 +172,10 @@
           wx_mch_id: '', //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
+          one_money_than: "", //一级分佣比例
+          two_money_than: "", //二级分佣比例
+          order_up: "分享赚钱", //下单设置，set
+          mgmt_button_type: "配置", //管理入口按钮类型
         },
         required: {
           name: true, //店铺名称
@@ -254,7 +283,7 @@
             console.log('经度：' + res.longitude);
             this.form.longitude = res.longitude
             this.form.latitude = res.latitude
-            this.form.address =  `${res.address}(${res.name})`
+            this.form.address = `${res.address}(${res.name})`
             // this.form.name = res.name
           }
         });
@@ -276,7 +305,7 @@
 
     .cu-btn {
       background-color: #ddc185;
-      min-width: 100px;
+      min-width: 150px;
     }
   }
 
