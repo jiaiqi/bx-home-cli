@@ -68,6 +68,7 @@
     data() {
       return {
         id: "",
+        activeNo: '',
         data: {},
         list: [],
         pageNo: 1,
@@ -138,6 +139,13 @@
           }],
           "colNames": ["*"]
         }
+        if (this.activeNo) {
+          req.condition = [{
+            "colName": "dumpling_no",
+            "ruleType": "eq",
+            "value": this.activeNo
+          }]
+        }
         const res = await this.$http.post(url, req)
         if (Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
           this.data = res.data.data[0]
@@ -176,8 +184,9 @@
       clearInterval(timer)
     },
     onLoad(option) {
-      if (option.id) {
+      if (option.id || option.activeNo) {
         this.id = option.id;
+        this.activeNo = option.activeNo
         this.getData()
       }
     }

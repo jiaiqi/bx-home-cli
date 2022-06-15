@@ -10,7 +10,10 @@
           v-else-if="!item.store_video_file || item.file_type !== '视频'"></image>
       </swiper-item>
     </swiper>
-
+    <view class="share-banner" v-if="shareBonus" @click="changeModal('showShareTips')">
+      <image src="../static/bonus.png" mode="aspectFill" style="width: 30px;height: 30px;" class="margin-right-xs">
+      </image> 分享赚￥<text class="text-lg text-bold">{{shareBonus}}</text>
+    </view>
     <view class="goods-info" v-if="goodsInfo">
       <view class="goods-name">{{ goodsInfo.goods_name || '' }}</view>
       <view class="handler-bar margin-top-xs">
@@ -127,6 +130,26 @@
     </view>
     <skuSelector ref="skuSelector" :goodsInfo="goodsInfo" :modalConfirmType="modalConfirmType"
       @confirm="confirmAdd2Cart" @selected="selectedSku" v-if="enableSku" />
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='showShareTips'}" @touchmove="" @click.stop.prevent="changeModal()">
+      <view class="cu-dialog" @click.prevent.stop="" >
+        <view class="share-tips">
+          <view class="title">
+            分享赚￥{{shareBonus}}
+          </view>
+          <view class="content">
+            邀请好友成功购买本商品，每单最高得<text class="text-orange">￥{{shareBonus}}</text>现金奖励
+          </view>
+          <view class="bottom-buttons">
+            <!-- <button class="cu-btn bg-blue margin-right">
+              分享到微信好友
+            </button> -->
+            <button class="cu-btn bg-blue" open-type="share">
+              立即分享
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -171,6 +194,22 @@
     },
 
     computed: {
+      shareBonus() {
+        // 分享后的奖金
+        let res = 0
+        if (this.showShareBanner && this.goodsInfo?.one_money_than && this.goodsInfo?.price) {
+          let num = this.goodsInfo?.price * this.goodsInfo?.one_money_than
+          if (num && !isNaN(Number(num))) {
+            res = Number(num.toFixed(2))
+          }
+        }
+        return res
+      },
+      showShareBanner() {
+        if (this.storeInfo?.order_up && this.storeInfo?.order_up.indexOf('分享赚钱') !== -1) {
+          return true
+        }
+      },
       cartAmount() {
         // 购物车数量
         let res = this.cartList.reduce((res, cur) => {
@@ -1198,6 +1237,20 @@
     min-height: 100vh;
     overflow-y: scroll;
     padding-bottom: 50px;
+    position: relative;
+
+    .share-banner {
+      position: fixed;
+      top: 30px;
+      right: 0;
+      padding: 0 10px;
+      color: #fff;
+      border-radius: 20px 0 0 20px;
+      background: linear-gradient(to right, #476eff, #56aaff, #7696ff);
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
   }
 
   .goods-info {
@@ -1469,6 +1522,23 @@
 
   .bottom-modal {
     z-index: 1050;
+  }
+
+  .share-tips {
+    padding: 10px 20px;
+
+    .title {
+      padding: 5px;
+      font-weight: bold;
+    }
+
+    .content {
+      text-align: left;
+    }
+
+    .bottom-buttons {
+      padding: 20px 0;
+    }
   }
 
   .modal-content {

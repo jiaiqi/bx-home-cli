@@ -91,13 +91,13 @@
         <view class="form-item-content">
           <view class="input">
             <picker mode="time" :value="form.start_time" @change="timeChange($event,'start_time')">
-              <view class="uni-input">{{form.start_time}}</view>
+              <view class="uni-input">{{form.start_time||'请选择'}}</view>
             </picker>
           </view>
           <text class="margin-lr-xs">至</text>
           <view class="input">
             <picker mode="time" :value="form.end_time" @change="timeChange($event,'end_time')">
-              <view class="uni-input">{{form.end_time}}</view>
+              <view class="uni-input">{{form.end_time||'请选择'}}</view>
             </picker>
           </view>
         </view>
@@ -254,8 +254,8 @@
             console.log('经度：' + res.longitude);
             this.form.longitude = res.longitude
             this.form.latitude = res.latitude
-            this.form.address = res.address
-            this.form.name = res.name
+            this.form.address =  `${res.address}(${res.name})`
+            // this.form.name = res.name
           }
         });
       },

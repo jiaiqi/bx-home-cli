@@ -118,6 +118,9 @@
           } else {
             url += '&identity=经验主'
           }
+          if (e?.group_no) {
+            url += `&groupNo=${e.group_no}`
+          }
         } else {
           url += '&identity=客服'
         }

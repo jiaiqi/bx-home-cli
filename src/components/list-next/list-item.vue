@@ -208,9 +208,7 @@
       childData: {
         type: [Object, Array]
       },
-      childDataCfg: {
-
-      }
+      disabled: [String,Boolean]
     },
     data() {
       return {
@@ -370,6 +368,9 @@
             background: this.setViewTemp?.bg || this.setViewTemp?.background,
           }
         };
+        if(this.listType=='selectorList'&&this.disabled===true){
+          result.rootClass += `disabled `;
+        }
         if (this.setViewTemp?.lp_style === '宫格') {
           let gridSpan = Number(this.setViewTemp?.grid_span);
           result.rootClass += `grid_span${gridSpan}`;

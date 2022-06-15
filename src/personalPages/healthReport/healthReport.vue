@@ -58,7 +58,9 @@
         if (res?.data?.state === 'SUCCESS') {
           let childService = res?.data?.data?.child_service || []
           // childService = childService.filter(item => !item.table_type)
-          this.childService = childService
+          this.childService = childService.filter(item => item.main_table !==
+            'bxhealth_store_report_important_indicator' && item.service_name !==
+            'srvhealth_store_report_important_indicator_select')
           // this.childService = res?.data?.data?.child_service.filter(item=>!item.table_type) || []
           return childService
         }

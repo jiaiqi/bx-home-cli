@@ -1381,12 +1381,18 @@
               }
               return item;
             });
+            
             let url =
               `/publicPages/list2/list2?selectCol=${this.fieldData.column}&destApp=${option_list_v2.srv_app}&listType=selectorList&serviceName=${option_list_v2.serviceName}&cond=${JSON.stringify(condition)}`
             if (this.fieldData?.moreConfig?.listConfig && typeof this.fieldData?.moreConfig?.listConfig ===
               'object') {
               url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
             }
+            debugger
+            if(this.fieldData?.moreConfig?.disabledCol){
+              url+=`&disabledCol=${this.fieldData?.moreConfig?.disabledCol}`
+            }
+            
             let idCol = this.fieldData?.moreConfig?.option_id_col || this.fieldData.option_list_v2
               ?.refed_col || 'id'
             if (idCol) {

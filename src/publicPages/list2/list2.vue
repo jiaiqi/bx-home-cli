@@ -33,10 +33,11 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags> -->
       <view class="list-view">
-        <list-next class="list-next" ref="listRef" :id-col="idCol" :gridButtonDisp="gridButtonDisp"
-          :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig"
-          :list="list" :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn"
-          @add2Cart="add2Cart" @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
+        <list-next class="list-next" ref="listRef" :disabledCol="disabledCol" :id-col="idCol"
+          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
+          :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
+          :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart"
+          @checkboxChange="checkboxChange" />
         <u-empty text="列表为空" mode="list" v-if="loadStatus==='noMore'&&list.length==0"></u-empty>
         <uni-load-more :status="loadStatus" v-else></uni-load-more>
       </view>
@@ -477,6 +478,7 @@
         v2Params: "",
         pageTop: 0,
         filterVal: '',
+        disabledCol: '', // selectorList时用来判断是否禁止选择的字段
       }
     },
     methods: {
@@ -1501,6 +1503,10 @@
       },
       async clickFootBtn(data) {
         if (this.listType === 'selectorList') {
+          if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
+            
+            return false
+          }
           this.checkboxChange(data.row)
           return
         }
@@ -1520,7 +1526,7 @@
             console.log(e);
           }
         }
-        
+
         if (!buttonInfo?.button_type) {
           uni.showModal({
             title: '提示',
@@ -1529,7 +1535,7 @@
           })
           return
         }
-        
+
         if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
           // 序列化操作参数
           try {
@@ -2370,6 +2376,9 @@
       }
       if (option.listType) {
         this.listType = option.listType
+        if (option.disabledCol) {
+          this.disabledCol = option.disabledCol
+        }
       }
       if (option.selectCol) {
         this.selectCol = option.selectCol

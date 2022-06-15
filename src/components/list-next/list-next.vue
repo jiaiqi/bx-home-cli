@@ -5,22 +5,25 @@
         'no-wrap':nowrap
 			}">
       <view class="check-box-item " :class="{
+          'disabled':listType==='selectorList'&&setRadioDisabled(item),
 					'check-box_item':listType==='selectorList',
 					grid_span2: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '2' || setViewTemp.grid_span === 2),
 					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
 					grid_span5: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '5' || setViewTemp.grid_span === 5)
-				}" v-for="(item, index) in setList"  :style="setItemStyle">
+				}" v-for="(item, index) in setList" :style="setItemStyle">
         <view class="" style="display: flex;align-items: center;">
           <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
             style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
         </view>
-        <list-item class="list-item-wrap" :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData"
-          :childData="colV2._childData" :childDataCfg="childDataCfg" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
-          @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
-          :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
+        <list-item class="list-item-wrap" :disabled="setRadioDisabled(item)" :viewTemp="setViewTemp"
+          :labelMap="labelMap" :cartData="cartData" :childData="colV2._childData" :childDataCfg="childDataCfg"
+          :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
+          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
+          @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
         <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
-          style="transform:scale(1);margin-right:5px;" @click="checkboxChange(item)" />
+          style="transform:scale(1);margin-right:5px;" :disabled="setRadioDisabled(item)"
+          @click="checkboxChange(item)" />
       </view>
     </view>
   </view>
@@ -70,7 +73,8 @@
       },
       itemWidth: {
         type: String
-      }
+      },
+      disabledCol: String
     },
     watch: {
       list: {
@@ -84,8 +88,8 @@
       },
     },
     computed: {
-      setList(){
-        return this.list||[]
+      setList() {
+        return this.list || []
       },
       setListStyle() {
         let style = ""
@@ -97,12 +101,12 @@
       setItemStyle() {
         let str = 'flex:none;'
         if (this.itemWidth) {
-          str+= `width:${this.itemWidth}!important;`
+          str += `width:${this.itemWidth}!important;`
         }
         // if(this.setViewTemp?.background){
         //   str += `background-color:${this.setViewTemp?.background}!important;`
         // }
-        if(this.setViewTemp?.borderRadius){
+        if (this.setViewTemp?.borderRadius) {
           str += `border-radius:${this.setViewTemp?.borderRadius}!important;`
         }
         // if(this.setViewTemp?.padding){
@@ -134,7 +138,7 @@
       viewTemp() {
         return this.moreConfig?.list_config;
       },
-      childDataCfg(){
+      childDataCfg() {
         return this.moreConfig?.list_config?.child_config
       },
       setViewTemp() {
@@ -206,7 +210,9 @@
 
     methods: {
       checkboxChange(e) {
-        this.$emit('checkboxChange', e);
+        if (this.setRadioDisabled(e) !== true) {
+          this.$emit('checkboxChange', e);
+        }
       },
       add2Cart(e) {
         this.$emit('add2Cart', e);
@@ -216,19 +222,31 @@
       },
       clickFootBtn(e) {
         this.$emit('click-foot-btn', e);
-      }
+      },
+      setRadioDisabled(e) {
+        if (!this.disabledCol) {
+          return false
+        }
+        if (e && (e[this.disabledCol] === true || e[this.disabledCol] === 1)) {
+          return true
+        } else {
+          return false
+        }
+      },
     }
   };
 </script>
 
 <style lang="scss" scoped>
   .list-wrap {
+
     // margin-bottom: 10px;
     // padding: 10px;
-    &.no-wrap{
+    &.no-wrap {
       display: flex;
       flex-wrap: wrap;
     }
+
     .check-box-group {
       display: flex;
       flex-wrap: wrap;
@@ -250,6 +268,9 @@
         align-items: center;
         // margin: 10px;
         // width: calc(100% - 20px);
+        &.disabled{
+          opacity: 0.5;
+        }
       }
 
       .list-item-wrap {

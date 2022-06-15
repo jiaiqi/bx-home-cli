@@ -8,7 +8,7 @@
         </view>
       </view>
       <view class="progress-box" v-if="data&&data.result_level">
-        <view class="progress-item " :class="{'active':data.result_level==='低风险'}">
+        <view class="progress-item " :class="{'active':data.result_level==='低'}">
           <!-- 低风险 -->
           <view class="content bg-green">
 
@@ -17,7 +17,7 @@
             低
           </view>
         </view>
-        <view class="progress-item " :class="{'active':data.result_level==='较低风险'}">
+        <view class="progress-item " :class="{'active':data.result_level==='较低'}">
           <!--    <text>较低</text>
           <text>风险</text> -->
           <view class="content bg-olive">
@@ -27,7 +27,7 @@
             较低
           </view>
         </view>
-        <view class="progress-item " :class="{'active':data.result_level==='中等风险'}">
+        <view class="progress-item " :class="{'active':data.result_level==='中等'}">
           <!--  <text>中等</text>
           <text>风险</text> -->
           <view class="content bg-blue">
@@ -37,7 +37,7 @@
             中
           </view>
         </view>
-        <view class="progress-item " :class="{'active':data.result_level==='较高风险'}">
+        <view class="progress-item " :class="{'active':data.result_level==='较高'}">
           <!--        <text>较高</text>
           <text>风险</text> -->
           <view class="content bg-yellow">
@@ -47,7 +47,7 @@
             较高
           </view>
         </view>
-        <view class="progress-item " :class="{'active':data.result_level==='高风险'}">
+        <view class="progress-item " :class="{'active':data.result_level==='高'}">
           <!-- 高风险 -->
           <view class="content bg-orange">
 
@@ -56,7 +56,7 @@
             高
           </view>
         </view>
-        <view class="progress-item " :class="{'active':data.result_level==='疑似已患'}">
+        <view class="progress-item " :class="{'active':data.result_level==='疑似'}">
           <!--   <text>疑似</text>
           <text>已患</text> -->
           <view class="content bg-red">

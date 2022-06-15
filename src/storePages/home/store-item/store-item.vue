@@ -6,7 +6,7 @@
 			'noMargin noPadding': pageItem && ['店铺信息2', '通知横幅', '通用列表', '会员卡片'].includes(pageItem.type)
 		}">
     <view class="title" :style="titleStyle"
-      v-if="pageItem && pageItem.show_label === '是' && ['通用列表','疫苗列表','商品列表'].indexOf(pageItem.type)==-1"
+      v-if="pageItem && pageItem.show_label === '是' && ['通用列表','疫苗列表','商品列表','海报弹窗','悬浮按钮'].indexOf(pageItem.type)==-1"
       @click="toMore">
       <text>{{ pageItem.component_label || '' }}</text>
     </view>
@@ -65,6 +65,7 @@
       v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
     <score-input :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '根据高考总分推荐学校'" />
     <float-button :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '悬浮按钮'" />
+    <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'"></poster-popup>
   </view>
 </template>
 
@@ -89,6 +90,7 @@
   import queueInfo from '../queue-info/queue-info.vue'
   import scoreInput from '../score-input/score-input.vue'
   import floatButton from '../float-button/float-button.vue'
+  import posterPopup from '../poster-popup/poster-popup.vue'
   export default {
     components: {
       slideList,
@@ -110,7 +112,8 @@
       multistepPicker,
       queueInfo,
       scoreInput,
-      floatButton
+      floatButton,
+      posterPopup
     },
     props: {
       pageItem: {

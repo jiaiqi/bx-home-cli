@@ -588,14 +588,14 @@
         }
 
       },
-      async getButtonGroup() {
+      async getButtonGroup(storeNo) {
         const req = {
           "serviceName": "srvhealth_store_home_component_select",
           "colNames": ["*"],
           "condition": [{
               "colName": "store_no",
               "ruleType": "eq",
-              "value": this.storeNo
+              "value": storeNo || this.storeNo
             },
             {
               "colName": "button_usage",
@@ -609,29 +609,33 @@
           }
         }
         const res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
-        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          const buttonGroup = res.data[0]
-          if (buttonGroup?.component_label) {
-            this.buttonTitle = buttonGroup.component_label
-          }
-          this.manageGroup = res.data.map(item => {
-            item.buttonGroup = []
-            if (item.more_config) {
-              try {
-                item.moreConfig = JSON.parse(item.more_config)
-                if (item.moreConfig?.noticeNumConfig) {
-                  let noticeNumConfig = item.moreConfig.noticeNumConfig;
-                  this.getNoticeNum(noticeNumConfig)
-                }
-              } catch (e) {
-                //TODO handle the exception
-              }
+        if (res.success && Array.isArray(res.data)) {
+          if (res.data.length > 0) {
+            const buttonGroup = res.data[0]
+            if (buttonGroup?.component_label) {
+              this.buttonTitle = buttonGroup.component_label
             }
-            return item
-          });
-          for (let item of res.data) {
-            const buttons = await this.getButtons(item)
-            item.buttonGroup = buttons
+            this.manageGroup = res.data.map(item => {
+              item.buttonGroup = []
+              if (item.more_config) {
+                try {
+                  item.moreConfig = JSON.parse(item.more_config)
+                  if (item.moreConfig?.noticeNumConfig) {
+                    let noticeNumConfig = item.moreConfig.noticeNumConfig;
+                    this.getNoticeNum(noticeNumConfig)
+                  }
+                } catch (e) {
+                  //TODO handle the exception
+                }
+              }
+              return item
+            });
+            for (let item of res.data) {
+              const buttons = await this.getButtons(item)
+              item.buttonGroup = buttons
+            }
+          } else if (this.storeInfo?.parent_no) {
+            this.getButtonGroup(this.storeInfo?.parent_no)
           }
         }
       },
