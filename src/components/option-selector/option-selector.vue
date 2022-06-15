@@ -17,7 +17,8 @@
             {{ item.label }}
           </bx-checkbox>
         </bx-checkbox-group>
-        <bx-radio-group class="form-item-content_value radio-group" mode="button" @change="onChange" v-model="curVal">
+        <bx-radio-group class="form-item-content_value radio-group" mode="button" @change="onChange" v-model="curVal"
+          v-else-if="modalName === 'Selector'">
           <bx-radio v-for="item in options" :key="item.value" :name="item.value">{{ item.label }}
           </bx-radio>
           <bx-radio name="__others" v-if="selectType==='自行输入'">其它</bx-radio>
@@ -69,16 +70,16 @@
       };
     },
     created() {
-      console.log('selectType,',this.selectType)
+      console.log('selectType,', this.selectType)
     },
     methods: {
-      hideModal(){
-        if(this.selectType==='自行输入'&&this.curVal==='__others'){
+      hideModal() {
+        if (this.selectType === '自行输入' && this.curVal === '__others') {
           this.$emit('change', {
-            type:"__others",
-            value:this.otherNodeVal
+            type: "__others",
+            value: this.otherNodeVal
           })
-        }else{
+        } else {
           this.$emit('hide')
         }
       },
@@ -120,57 +121,57 @@
     flex-direction: column;
     padding: 20rpx 10rpx;
 
-  //   &.cascader {
-  //     background-color: #f1f1f1;
-  //     padding: 0;
-  //   }
+    //   &.cascader {
+    //     background-color: #f1f1f1;
+    //     padding: 0;
+    //   }
 
-  .content {
-    flex: 1;
-    background-color: #fff;
-    min-height: 30vh;
-    position: inherit;
-    width: 100%;
-    pointer-events: auto;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-
-    .option-box {
+    .content {
       flex: 1;
-      overflow: scroll;
+      background-color: #fff;
+      min-height: 30vh;
+      position: inherit;
+      width: 100%;
+      pointer-events: auto;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
 
-      .other-val {
-        min-height: 30px;
-        display: flex;
-        align-items: flex-end;
-        margin-left: 10px;
+      .option-box {
+        flex: 1;
+        overflow: scroll;
 
-        .input-value {
-          flex: 1;
+        .other-val {
           min-height: 30px;
-          line-height: 30px;
-          border-bottom: 1px solid #ccc;
+          display: flex;
+          align-items: flex-end;
+          margin-left: 10px;
+
+          .input-value {
+            flex: 1;
+            min-height: 30px;
+            line-height: 30px;
+            border-bottom: 1px solid #ccc;
+          }
         }
       }
+
+      .bx-radio-group {
+        margin: 0 20rpx;
+        max-height: 60vh;
+        overflow-y: scroll;
+      }
+
+
     }
 
-    .bx-radio-group {
-      margin: 0 20rpx;
-      max-height: 60vh;
-      overflow-y: scroll;
+    .dialog-button {
+      padding: 10px;
+
+      .cu-btn {
+        min-width: 40%;
+      }
     }
-
-
-  }
-
-  .dialog-button {
-    padding: 10px;
-
-    .cu-btn {
-      min-width: 40%;
-    }
-  }
 
   }
 </style>

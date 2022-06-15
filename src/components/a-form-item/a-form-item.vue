@@ -1094,6 +1094,7 @@
         this.$emit('on-value-change', this.fieldData);
       },
       pickerChange(e) {
+        debugger
         if (e?.type === '__others') {
           this.fieldData.value = e.value
           this.fkFieldLabel = e.value;
@@ -1109,6 +1110,11 @@
           // this.$emit('setColData', this.fieldData)
           // this.onInput();
           // this.onBlur()
+        }else if(this.fieldData.type === 'Set'){
+          if(Array.isArray(e)){
+            e = e.toString()
+          }
+          this.fieldData.value = e
         }
         this.hideModal();
       },
