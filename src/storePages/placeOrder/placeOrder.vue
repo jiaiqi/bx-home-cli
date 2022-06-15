@@ -216,8 +216,8 @@
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
-      <button class="cu-btn bg-gradual-orange round" @click="toPay" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&
-            ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'
+      <button class="cu-btn bg-gradual-orange round" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&
+            ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'&&!onPay
           ">
         付款
       </button>
@@ -339,7 +339,8 @@
         shippingFee: 0, // 配送费
         send_amount: 0, // 最小起送金额
         hideColumn: "",
-        view_cfg: null
+        view_cfg: null,
+        onPay: false
       };
     },
     computed: {
@@ -1157,7 +1158,7 @@
           self.selectorData = []
         }
       },
-      updateOrderState(order_state, pay_state, prepay_id, order_no) {
+      async updateOrderState(order_state, pay_state, prepay_id, order_no) {
         let serviceName = 'srvhealth_store_order_state_update'
         // srvhealth_store_order_update
         let req = [{
@@ -1177,10 +1178,9 @@
         if (prepay_id) {
           req[0].data[0].prepay_id = prepay_id
         }
-        this.$fetch('operate', serviceName, req, 'health').then(res => {
-          // 支付成功后修改订单状态和支付状态
-          this.getOrderInfo()
-        });
+        await this.$fetch('operate', serviceName, req, 'health')
+        // 支付成功后修改订单状态和支付状态
+        await this.getOrderInfo()
       },
       // chooseAddress() {
       //   if (this.orderInfo?.rcv_addr_str) {
@@ -1504,7 +1504,10 @@
           if (!this.pay_method) {
             // 微信支付、充值卡、面额卡支付
             if (this.mainData?.pay_config !== '后付') {
+              this.onPay = true
               let payRes = await this.toPay();
+              console.log('payResult', payRes)
+              this.onPay = false
               if (!payRes) {
                 return
               }
@@ -1520,13 +1523,12 @@
               await this.addPayRecord(res.data[0].order_no, childData)
               // 更新订单状态和支付状态
               if (this.delivery_type !== '当面交易') {
-                this.updateOrderState('', '已支付');
+                await this.updateOrderState('', '已支付');
               } else {
                 // this.updateOrderState('', '已支付');
               }
             }
           }
-          debugger
           let afterSubmit = this.moreConfig?.after_submit;
           let effect_data = res.data[0]
           if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
@@ -1583,9 +1585,9 @@
             }
           })
           if (this.delivery_type !== '当面交易') {
-            this.updateOrderState('待发货', '已支付');
+            await this.updateOrderState('待发货', '已支付');
           } else {
-            this.updateOrderState('', '已支付');
+            await this.updateOrderState('', '已支付');
           }
         } else {
           uni.showModal({
@@ -1595,10 +1597,10 @@
           })
         }
       },
-      async toPay() {
+      async toPay(onClickbutton=false) {
 
         this.wxMchId = this.getwxMchId()
-
+        
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -1616,7 +1618,7 @@
           if (this.couponInfo?.card_no && orderData.order_no) {
             this.payByCoupon(orderData, this.couponInfo?.card_no)
           }
-          return
+          return true
         }
 
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
@@ -1642,6 +1644,10 @@
             return res
           }, '')
         }
+        uni.showLoading({
+          mask: true,
+          title: '请稍后..'
+        })
         if (orderData.prepay_id) {
           result.prepay_id = orderData.prepay_id;
         } else {
@@ -1650,7 +1656,11 @@
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
-          let payResult = new Promise((resolve) => {
+          uni.showLoading({
+            title:'请稍后...',
+            mask:true
+          })
+          let payResult = await new Promise((resolve) => {
             wx.requestPayment({
               timeStamp: res.timeStamp.toString(),
               nonceStr: res.nonceStr,
@@ -1660,19 +1670,28 @@
               success(res) {
                 // 支付成功
                 self.orderInfo.order_state = '待发货';
-                self.updateOrderState('待发货', '已支付', result.prepay_id);
-                self.orderInfo.pay_state = '已支付';
-                resolve(res)
+                self.updateOrderState('待发货', '已支付', result.prepay_id).then(_ => {
+                  self.orderInfo.pay_state = '已支付';
+                  resolve(true)
+                })
               },
               fail(res) {
                 // 支付失败/取消支付
                 self.orderInfo.pay_state = '取消支付';
-                self.updateOrderState('待支付', '取消支付', result.prepay_id);
-                resolve(res)
+                self.updateOrderState('待支付', '取消支付', result.prepay_id).then(_ => {
+                  resolve(false)
+                })
               }
             });
           })
-          debugger
+          uni.hideLoading()
+          if(payResult==true&&onClickbutton==true){
+            let afterSubmit = this.moreConfig?.after_submit;
+            let effect_data = this.orderInfo
+            if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
+              await this.handleAfterSubmit(afterSubmit, effect_data)
+            }
+          }
           return payResult
         }
         return
