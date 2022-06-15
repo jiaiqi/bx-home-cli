@@ -1407,7 +1407,7 @@
         }
         let afterSubmit = moreConfig?.after_submit;
         if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
-          this.handleAfterSubmit(rowData)
+          this.handleAfterSubmit(afterSubmit, rowData)
         }
       },
       setPageScrollTop(e) {
@@ -1420,91 +1420,91 @@
         }
         // }, 1000))()
       },
-      async handleAfterSubmit(rowData) {
-        const globalData = {
-          data: rowData || {},
-          storeInfo: self.storeInfo,
-          userInfo: self.userInfo,
-          storeUser: self.vstoreUser
-        }
-        const actionResult = new Array(afterSubmit.length)
-        for (let i = 0; i < afterSubmit.length; i++) {
-          let item = afterSubmit[i];
-          if ((i > 0 && actionResult[i - 1]) || i == 0) {
-            if (item.type === 'update_call_back') {
-              if (item.service && item.app && Array.isArray(item.data) &&
-                item.cond) {
-                let url = this.getServiceUrl(item.app, item.service,
-                  'operate');
-                let req = [{
-                  serviceName: item.service,
-                  condition: [],
-                  data: item.data
-                }]
-                if (Array.isArray(item.cond)) {
-                  req[0].condition = item.cond.map(c => {
-                    c.value = self.renderStr(c.value,
-                      globalData)
-                    return c
-                  })
-                }
-                const res = await self.$http.post(url, req);
-                if (res.data.state == 'SUCCESS') {
-                  actionResult[i] = true
-                } else {
-                  actionResult[i] = res.data.resultMessage
-                }
-              }
-            } else if (item.type === 'toDetail') {
-              this.srvType = 'detail'
-              let serviceName = this.addV2?.select_service_name || this
-                .getServiceName(this.serviceName)
-              let fieldsCond = [{
-                column: 'id',
-                value: rowData.id,
-                display: false
-              }]
-              let url =
-                `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
-              if (this.appName) {
-                url += `&appName=${this.appName}`
-              }
-              if (item.custom_url) {
-                url = this.renderStr(item.custom_url, globalData);
-              }
-              if (item.view_cfg) {
-                url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
-              }
-              uni.redirectTo({
-                url
-              })
-            }
-          }
+      // async handleAfterSubmit(rowData) {
+      //   const globalData = {
+      //     data: rowData || {},
+      //     storeInfo: self.storeInfo,
+      //     userInfo: self.userInfo,
+      //     storeUser: self.vstoreUser
+      //   }
+      //   const actionResult = new Array(afterSubmit.length)
+      //   for (let i = 0; i < afterSubmit.length; i++) {
+      //     let item = afterSubmit[i];
+      //     if ((i > 0 && actionResult[i - 1]) || i == 0) {
+      //       if (item.type === 'update_call_back') {
+      //         if (item.service && item.app && Array.isArray(item.data) &&
+      //           item.cond) {
+      //           let url = this.getServiceUrl(item.app, item.service,
+      //             'operate');
+      //           let req = [{
+      //             serviceName: item.service,
+      //             condition: [],
+      //             data: item.data
+      //           }]
+      //           if (Array.isArray(item.cond)) {
+      //             req[0].condition = item.cond.map(c => {
+      //               c.value = self.renderStr(c.value,
+      //                 globalData)
+      //               return c
+      //             })
+      //           }
+      //           const res = await self.$http.post(url, req);
+      //           if (res.data.state == 'SUCCESS') {
+      //             actionResult[i] = true
+      //           } else {
+      //             actionResult[i] = res.data.resultMessage
+      //           }
+      //         }
+      //       } else if (item.type === 'toDetail') {
+      //         this.srvType = 'detail'
+      //         let serviceName = this.addV2?.select_service_name || this
+      //           .getServiceName(this.serviceName)
+      //         let fieldsCond = [{
+      //           column: 'id',
+      //           value: rowData.id,
+      //           display: false
+      //         }]
+      //         let url =
+      //           `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
+      //         if (this.appName) {
+      //           url += `&appName=${this.appName}`
+      //         }
+      //         if (item.custom_url) {
+      //           url = this.renderStr(item.custom_url, globalData);
+      //         }
+      //         if (item.view_cfg) {
+      //           url += `&view_cfg=${JSON.stringify(item.view_cfg)}`
+      //         }
+      //         uni.redirectTo({
+      //           url
+      //         })
+      //       }
+      //     }
 
-        }
-        if (actionResult.length === afterSubmit.length && !actionResult.every(
-            item =>
-            item == true)) {
-          self.srvType === 'detail'
-          self.srvType === 'use_type'
-          self.formButtons = []
-        } else {
-          actionResult.forEach(item => {
-            if (item && typeof item === 'string') {
-              uni.showModal({
-                title: "提示",
-                content: item,
-                showCancel: false
-              })
-            }
-          })
-        }
-        return
-      },
+      //   }
+      //   if (actionResult.length === afterSubmit.length && !actionResult.every(
+      //       item =>
+      //       item == true)) {
+      //     self.srvType === 'detail'
+      //     self.srvType === 'use_type'
+      //     self.formButtons = []
+      //   } else {
+      //     actionResult.forEach(item => {
+      //       if (item && typeof item === 'string') {
+      //         uni.showModal({
+      //           title: "提示",
+      //           content: item,
+      //           showCancel: false
+      //         })
+      //       }
+      //     })
+      //   }
+      //   return
+      // },
       async clickFootBtn(data) {
         if (this.listType === 'selectorList') {
           if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
-            
+
             return false
           }
           this.checkboxChange(data.row)
