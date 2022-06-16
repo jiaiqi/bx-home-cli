@@ -124,7 +124,7 @@
         }
         let status = this.StoreInfo?.audit_status;
         if (status) {
-          if (status === '仅本店' || status === '双向隔离') {
+          if (['非公开', '仅本店', '双向隔离'].includes(status)) {
             return false;
           }
           return true;
@@ -164,23 +164,34 @@
           url: '/storePages/home/home?store_no=S0000000000'
         })
       },
+      handlerSwitch(link_pd_json) {
+        let data = this;
+        try {
+          curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
+          let jsonStr = JSON.parse(curTab.link_pd_json);
+          if (jsonStr.url) {
+            if (jsonStr.appid) {
+              // 跳转到小程序
+              uni.navigateToMiniProgram({
+                appId: jsonStr.appid,
+                path: jsonStr.url
+              });
+            } else {
+              uni.navigateTo({
+                url: jsonStr.url
+              });
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      },
       beforeSwitch(index) {
         let curTab = this.tabbarList[index];
         if (index !== this.pageDefine.active_nav_index) {
           if (!curTab?.link_pd_no) {
             if (curTab.link_pd_json) {
-              let data = this;
-              try {
-                curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
-                let jsonStr = JSON.parse(curTab.link_pd_json);
-                if (jsonStr.url) {
-                  uni.navigateTo({
-                    url: jsonStr.url
-                  });
-                }
-              } catch (err) {
-                console.log(err);
-              }
+              this.handlerSwitch(curTab.link_pd_json)
             }
             return false;
           }
@@ -194,16 +205,7 @@
           this.pdNo = curTab?.link_pd_no;
           await this.initPage();
         } else if (curTab?.link_pd_json) {
-          try {
-            let jsonStr = JSON.parse(curTab.link_pd_json);
-            if (jsonStr.url) {
-              uni.navigateTo({
-                url: jsonStr.url
-              });
-            }
-          } catch (err) {
-            console.log(err);
-          }
+          this.handlerSwitch(curTab.link_pd_json)
         }
       },
       getQrcode(e) {

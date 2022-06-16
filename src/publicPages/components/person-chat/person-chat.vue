@@ -676,7 +676,8 @@
           if (this.sessionInfo?.bottom_btn_set) {
             bottom_btn_set = this.sessionInfo.bottom_btn_set
           } else {
-            bottom_btn_set = ['问卷记录', '饮食记录', '图片', '文章', '文档', '微信文件', '视频', '位置', '商品'].toString()
+            bottom_btn_set = [ '图片', '文章', '微信文件', '视频', '位置'].toString()
+            // bottom_btn_set = ['问卷记录', '饮食记录', '图片', '文章', '文档', '微信文件', '视频', '位置', '商品'].toString()
           }
           if (bottom_btn_set) {
             return bottom_btn_set.split(',').reduce((res, cur) => {
@@ -3434,7 +3435,7 @@
           display: flex;
           margin: 0 10rpx 20rpx;
           justify-content: flex-end;
-          align-items: center;
+          align-items: flex-start;
           min-width: 40%;
           max-width: 100%;
           flex-wrap: wrap;

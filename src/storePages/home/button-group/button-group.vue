@@ -83,7 +83,7 @@
             <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
               v-else-if="item.iconType === 'uicon' && item.custonIcon">
             </u-icon>
-            <image lazy-load class="icon image" :src="item.imgSrc" mode="aspectFit"
+            <image lazy-load class="icon image" :class="buttonSize" :src="item.imgSrc" mode="aspectFit"
               v-if="item.iconType === 'image'&&item.imgSrc">
               <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
               <text class="title">{{ item.label }}</text>
@@ -110,7 +110,7 @@
         <u-icon custom-prefix="custom-icon" :name="item.icon" size="60" color="#00aaff"
           v-else-if="item.iconType === 'uicon' && item.custonIcon">
         </u-icon>
-        <image lazy-load class="icon image" :src="item.imgSrc" mode="aspectFit"
+        <image lazy-load class="icon image" :class="buttonSize" :src="item.imgSrc" mode="aspectFit"
           v-if="item.iconType === 'image'&&item.imgSrc">
           <text :class="item.icon" style="font-size: 30px; color: #00aaff" v-if="item.iconType === 'font'"></text>
           <text class="title">{{ item.label }}</text>
@@ -290,6 +290,24 @@
       // },
     },
     computed: {
+      buttonSize() {
+        let size = ''
+        switch (this.pageItem?.button_size) {
+          case '小':
+            size = "btn-sm"
+            break;
+          case '中':
+            size = "btn-normal"
+            break;
+          case '大':
+            size = "btn-lg"
+            break;
+          case '特大':
+            size = "btn-lg-lg"
+            break;
+        }
+        return size
+      },
       buttons() {
         if (Array.isArray(this.buttonList)) {
           return this.buttonList.map(item => {
@@ -749,7 +767,7 @@
             content: e.prompt,
             showCancel: false
           })
-        } 
+        }
         // else if (e?.navType !== "takePhone") {
         //   // 除了打电话外 其他操作必须先授权访问用户信息
         //   uni.navigateTo({
@@ -757,7 +775,7 @@
         //   })
         //   res = false
         // }
-         else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+        else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -821,12 +839,12 @@
                   if (res === false) {
                     uni.showModal({
                       title: '提示',
-                      content: item.hint ,
+                      content: item.hint,
                       showCancel: false,
                       success: (res) => {
                         if (res.confirm) {
                           uni.navigateTo({
-                            url:`/storePages/officialIntro/officialIntro?mp_no=${item.mp_no||'MP2201210021'}`
+                            url: `/storePages/officialIntro/officialIntro?mp_no=${item.mp_no||'MP2201210021'}`
                           })
                         }
                       }
@@ -1405,6 +1423,21 @@
         font-size: 30px;
         text-align: center;
         line-height: 50px;
+
+        &.btn-sm {
+          width: 30px;
+          height: 30px;
+        }
+
+        &.btn-lg {
+          width: 50px;
+          height: 50px;
+        }
+
+        &.btn-lg-lg {
+          width: 60px;
+          height: 60px;
+        }
       }
 
       .title,

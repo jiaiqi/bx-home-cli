@@ -254,11 +254,12 @@ fly.interceptors.response.use(
         // }
       } else if (res.data.resultCode === '0000' && res.data.state === 'FAILURE') {
         // 没有访问权限
-        uni.setStorageSync('isLogin', false)
-        uni.showToast({
-          title: res.data.resultMessage,
-          icon: "none"
-        })
+        console.error(res.data.resultMessage)       
+        // uni.setStorageSync('isLogin', false)
+        // uni.showToast({
+        //   title: res.data.resultMessage,
+        //   icon: "none"
+        // })
       } else {
         uni.setStorageSync('stophttp', false)
       }

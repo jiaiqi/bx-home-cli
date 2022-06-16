@@ -72,6 +72,61 @@
 
     <view class="form-box">
       <view class="title">
+        营业资质
+      </view>
+
+      <view class="form-item">
+        <view class="form-item-label">
+          营业执照<text class="text-red">*</text></text>
+        </view>
+        <view class="form-item-content">
+          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
+            :form-data="setFormData('business_license')" index="business_license" :header="header" :action="actionUrl"
+            @on-success="onSuccess" @on-remove="onRemove">
+            <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
+              <text class="cuIcon-add"></text>
+            </view>
+          </u-upload>
+        </view>
+      </view>
+
+      <view class="form-item">
+        <view class="form-item-label">
+          法人身份证<text class="text-red">*</text></text>
+        </view>
+        <view class="form-item-content">
+          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
+            :form-data="setFormData('legal_person_id_card')" index="legal_person_id_card" :header="header" :action="actionUrl" @on-success="onSuccess"
+            @on-remove="onRemove">
+            <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
+              <view class="title">
+                请上传身份证正面(国徽面)
+              </view>
+              <image src="../static/img/b.jpg" mode="aspectFit"></image>
+              <view class="cu-btn bg-blue ">
+                拍照
+              </view>
+            </view>
+          </u-upload>
+          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
+            :form-data="setFormData('legal_person_id_card_reverse')" index="legal_person_id_card_reverse"
+            :header="header" :action="actionUrl" @on-success="onSuccess" @on-remove="onRemove">
+            <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
+              <view class="title">
+                请上传身份证反面(人像面)
+              </view>
+              <image src="../static/img/a.jpg" mode="aspectFit"></image>
+              <view class="cu-btn bg-blue margin-bottom-xs">
+                拍照
+              </view>
+            </view>
+          </u-upload>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-box">
+      <view class="title">
         营业信息
       </view>
       <view class="form-item">
@@ -169,6 +224,9 @@
           telephone: '', //联系电话
           start_time: "", //营业开始时间
           end_time: "", // 营业结束时间
+          business_license: "", //营业执照
+          legal_person_id_card: "", //法人身份证
+          legal_person_id_card_reverse: "", //法人身份证反面
           wx_mch_id: '', //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
@@ -182,13 +240,17 @@
           address: true, //店铺地址
           introduction: '', //店铺介绍
           image: "", //店铺照片
-          logo: '', //店铺logo
+          logo: true, //店铺logo
           telephone: true, //联系电话
           start_time: true, //营业开始时间
           end_time: true, // 营业结束时间
+          legal_person_id_card: true, // 法人身份证
+          legal_person_id_card_reverse: true,
+          business_license: true, //营业执照
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
+
         },
         imageUrl: {
           image: [],
@@ -374,6 +436,7 @@
 
         .placeholder {
           font-size: 12px;
+          color: #ccc;
         }
 
         .input {

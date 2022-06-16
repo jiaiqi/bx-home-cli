@@ -39,21 +39,28 @@
       </view>
     </scroll-view>
     <!-- 三级节点 -->
-    <scroll-view scroll-x="true">
+    <view class="child-node flex-wrap">
+      <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
+        @click="selectDate(item,'third')">
+        {{item[thirdLevelDispCol]||''}}
+      </text>
+    </view>
+<!--    <scroll-view scroll-x="true">
       <view class="child-node">
         <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
           @click="selectDate(item,'third')">
           {{item[thirdLevelDispCol]||''}}
         </text>
       </view>
-      <view class="handler-bar" v-if="curSelect&&showHandler">
-        <view class="subscribe-money" v-if="handlerCfg&&handlerCfg.showText!==false">
-          <text>￥</text>
-          <text class="money">{{curSelect.subscribe_money}}</text>
-        </view>
-        <button class="cu-btn round" @click="onHandler" v-if="handlerCfg&&handlerCfg.showBtn!==false">预约</button>
+  
+    </scroll-view> -->
+    <view class="handler-bar" v-if="curSelect&&showHandler">
+      <view class="subscribe-money" v-if="handlerCfg&&handlerCfg.showText!==false">
+        <text>￥</text>
+        <text class="money">{{curSelect.subscribe_money}}</text>
       </view>
-    </scroll-view>
+      <button class="cu-btn round" @click="onHandler" v-if="handlerCfg&&handlerCfg.showBtn!==false">预约</button>
+    </view>
     <!-- 子孙节点 -->
     <cascader-item></cascader-item>
   </view>
@@ -576,9 +583,11 @@
     // overflow-x: scroll;
     display: block;
     white-space: nowrap;
-
+    &.flex-wrap{
+      white-space: pre-wrap;
+    }
     .child-node-item {
-      padding: 5px;
+      // padding: 5px;
       text-align: center;
       margin-right: 5px;
       min-width: calc(25% - 5px);
