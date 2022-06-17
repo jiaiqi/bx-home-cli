@@ -340,7 +340,7 @@
     methods: {
       async loadInitImages() {
         let imgList = await this.getFilePath(this.value);
-        if (Array.isArray(imgList)&&imgList.length>0) {
+        if (Array.isArray(imgList) && imgList.length > 0) {
           imgList = imgList.reverse()
           this.lists = [];
           for (let i = 0; i < imgList.length; i++) {
@@ -348,6 +348,7 @@
               `${this.$api.getFilePath}${imgList[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
             this.lists.push({
               url: url,
+              response: imgList[i],
               progress: 100,
               error: false,
               file: url
@@ -504,7 +505,7 @@
         }
         this.lists[index].error = false;
         this.uploading = true;
-        
+
         // 创建上传对象
         const task = uni.uploadFile({
           url: this.action,
@@ -594,7 +595,7 @@
           typeof this.lists[index].uploadTask != 'undefined' && this.lists[index].uploadTask.abort();
         }
         const deleteAction = `${this.$api.srvHost}/file/delete`
-        const fileUrl = this.lists[index]?.response?.fileurl
+        const fileUrl = this.lists[index]?.response?.fileurl || this.lists[index]?.url
         const req = {
           "fileurl": fileUrl
         }
