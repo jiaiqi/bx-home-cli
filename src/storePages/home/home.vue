@@ -49,7 +49,6 @@
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
-
   </view>
 
 </template>
@@ -164,7 +163,7 @@
           url: '/storePages/home/home?store_no=S0000000000'
         })
       },
-      handlerSwitch(link_pd_json) {
+      handlerSwitch(curTab) {
         let data = this;
         try {
           curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
@@ -191,7 +190,7 @@
         if (index !== this.pageDefine.active_nav_index) {
           if (!curTab?.link_pd_no) {
             if (curTab.link_pd_json) {
-              this.handlerSwitch(curTab.link_pd_json)
+              this.handlerSwitch(curTab)
             }
             return false;
           }
@@ -205,7 +204,7 @@
           this.pdNo = curTab?.link_pd_no;
           await this.initPage();
         } else if (curTab?.link_pd_json) {
-          this.handlerSwitch(curTab.link_pd_json)
+          this.handlerSwitch(curTab)
         }
       },
       getQrcode(e) {

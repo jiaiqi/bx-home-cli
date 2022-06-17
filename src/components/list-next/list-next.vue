@@ -151,6 +151,8 @@
           borderRadius: this.listConfig?.borderRadius ?? viewTemp?.borderRadius,
           background: this.listConfig?.bg || this.listConfig?.background || viewTemp?.bg || viewTemp?.background,
           btn_cfg: {
+            wrap_row: this.listConfig?.btn_cfg?.wrap_row ?? this.listConfig
+              ?.wrap_row ?? viewTemp?.btn_cfg?.wrap_row ?? null,
             show_custom_btn: this.listConfig?.btn_cfg?.show_custom_btn ?? this.listConfig
               ?.show_custom_btn ?? viewTemp?.btn_cfg?.show_custom_btn ?? null,
             show_public_btn: this.listConfig?.btn_cfg?.show_public_btn ?? this.listConfig
@@ -164,7 +166,7 @@
             font_size: this.listConfig?.btn_cfg?.font_size || viewTemp?.btn_cfg?.font_size,
             radius: this.listConfig?.btn_cfg?.radius || this.listConfig?.btn_cfg?.radius || viewTemp?.btn_cfg
               ?.radius || '10px',
-            size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || 'sm',
+            size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || '',
             margin: this.listConfig?.btn_cfg?.margin ?? viewTemp?.btn_cfg
               ?.margin,
             padding: this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
@@ -266,9 +268,10 @@
         background-color: #fff;
         border-radius: 10px;
         align-items: center;
+
         // margin: 10px;
         // width: calc(100% - 20px);
-        &.disabled{
+        &.disabled {
           opacity: 0.5;
         }
       }

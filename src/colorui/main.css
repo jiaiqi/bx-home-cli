@@ -11,7 +11,7 @@
         初始化
  ==================== */
 body {
-	background-color: #f1f1f1;
+	background-color: #f8f8fa;
 	font-size: 28upx;
 	color: #333333;
 	font-family: Helvetica Neue, Helvetica, sans-serif;
@@ -752,7 +752,7 @@ button.cuIcon.lg {
 }
 
 .cu-tag:not([class*="bg"]):not([class*="line"]) {
-	background-color: #f1f1f1;
+	background-color: #f8f8fa;
 }
 
 .cu-tag[class*="line-"]::after {
@@ -2039,7 +2039,7 @@ button.cuIcon.lg {
 }
 
 .cu-timeline>.cu-item>.content:not([class*="bg-"]) {
-	background-color: #f1f1f1;
+	background-color: #f8f8fa;
 	color: #333333;
 }
 

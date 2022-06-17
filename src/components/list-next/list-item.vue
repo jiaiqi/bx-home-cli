@@ -122,7 +122,7 @@
             {{ btn.button_name }}
           </button>
         </view>
-        <view class="foot-button-box" v-else-if="hasShowButton&&listType!=='selectorList'">
+        <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}" v-else-if="hasShowButton&&listType!=='selectorList'">
           <button class="cu-btn" :class="[setListView.btnClass]"
             :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
             v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
@@ -149,9 +149,9 @@
 					}"></image>
       </view>
     </view>
-    <view class="foot-button-box"
+<!--    <view class="foot-button-box"
       v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -377,6 +377,9 @@
         }
         // 按钮配置
         let btnCfg = this.setViewTemp?.btn_cfg;
+        if(btnCfg?.wrap_row){
+          result.btnWrapRow = true
+        }
         result.btnClass = '';
         if (btnCfg?.style === 'line_button' || btnCfg?.style === 'line') {
           result.btnClass += ' border';
@@ -980,7 +983,10 @@
       justify-content: flex-end;
       // width: 100%;
       flex: 1;
-
+      &.wrap-row{
+        width: 100%;
+        flex: none;
+      }
       .bg-orange {
         background-color: #f3a250;
       }

@@ -1,5 +1,6 @@
 <template>
   <view>
+
     <view class="layout-2" :style="[calcStyle]" v-if="pageItem && pageItem.type === '店铺信息2'">
       <view class="image-bg" :style="{ 'background-image': backgroundImage }">
         <view class="store-info" v-if="setStoreInfo">
@@ -30,6 +31,26 @@
               </image>
             </button>
           </view>
+        </view>
+      </view>
+    </view>
+    <view class="layout-3" :style="[calcStyle]" v-else-if="pageItem && pageItem.type === '店铺信息3'">
+      <image class="logo" mode="aspectFit" :src="getImagePath(setStoreInfo.logo)" v-if="setStoreInfo.logo">
+      </image>
+      <view class="info ">
+        <view class=" text-bold">
+          {{ setStoreInfo.name || '' }}
+        </view>
+        <view class="">
+          {{ setStoreInfo.address || '' }}
+        </view>
+        <view class="bottom-buttons">
+          <image :src="pageItem.icon_a" mode="aspectFit" class="button-image" v-if="pageItem.icon_a"
+            @click="toPages('icon_a')"></image>
+          <image :src="pageItem.icon_b" mode="aspectFit" class="button-image" v-if="pageItem.icon_b"
+            @click="toPages('icon_b')"></image>
+          <image :src="pageItem.icon_c" mode="aspectFit" class="button-image" v-if="pageItem.icon_c"
+            @click="toPages('icon_c')"></image>
         </view>
       </view>
     </view>
@@ -418,7 +439,7 @@
         // this.qrcodePath = this.setStoreInfo?.barcode_pic || e;
         this.$emit('getQrcode', e);
       },
-      makePhoneCall() {
+      makePhoneCall(telephone) {
         if (this.hasNotRegInfo) {
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'
@@ -426,7 +447,8 @@
           return
         }
         uni.makePhoneCall({
-          phoneNumber: this.setStoreInfo && this.setStoreInfo.telephone ? this.setStoreInfo.telephone : '10086'
+          phoneNumber: telephone || this.setStoreInfo && this.setStoreInfo.telephone ? this.setStoreInfo.telephone :
+            '10086'
         });
       },
       getCurrentLocation() {
@@ -455,6 +477,11 @@
           })
           return
         }
+        const globalData = {
+          userInfo: this.userInfo,
+          storeUser: this.vstoreUser,
+          storeInfo: this.setStoreInfo
+        }
         let url = '';
         if ((!this.bindUserInfo || !this.bindUserInfo.store_user_no) && e !== 'health-manager') {
           this.$emit('addToStore');
@@ -463,6 +490,54 @@
         switch (e) {
           case 'instroduce':
             url = '/storePages/StoreIntroduce/StoreIntroduce?store_no=' + this.setStoreInfo.store_no;
+            break;
+          case 'icon_a':
+          case 'icon_b':
+          case 'icon_c':
+            let cfg = this.pageItem[`${e}_url`]
+            try {
+              cfg = this.renderStr(cfg, globalData)
+              cfg = JSON.stringify(cfg)
+              if (cfg?.type) {
+                switch (cfg.type) {
+                  // 路由跳转
+                  case 'navigateTo':
+                    url = cfg.url
+                    break;
+                    // 打开地图到目标定位
+                  case 'openLocation':
+                    if (cfg?.longitude && cfg?.latitude) {
+                      uni.openLocation({
+                        latitude: cfg.latitude,
+                        longitude: cfg.longitude,
+                        success: function() {
+                          console.log('success');
+                        }
+                      });
+                    } else {
+                      uni.showToast({
+                        title: '未配置经纬度...',
+                        icon: 'none'
+                      })
+                    }
+                    break;
+                    // 打电话
+                  case 'makePhoneCall':
+                    if (cfg?.phoneNumber) {
+                      this.makePhoneCall(cfg.phoneNumber)
+                    } else {
+                      uni.showToast({
+                        title: '未配置电话号码...',
+                        icon: 'none'
+                      })
+                    }
+                    break;
+                }
+              }
+            } catch (err) {
+              console.log(err)
+            }
+            debugger
             break;
         }
         if (url) {
@@ -1006,5 +1081,33 @@
     -webkit-line-clamp: 4;
     /**指定行数*/
     -webkit-box-orient: vertical;
+  }
+
+  .layout-3 {
+    display: flex;
+
+    .logo {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      margin-right: 10px;
+      border: 2px solid #fff;
+    }
+
+    .info {
+      flex: 1;
+    }
+
+    .bottom-buttons {
+      padding: 10rpx 0 0;
+      text-align: right;
+
+      .button-image {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-left: 10px;
+      }
+    }
   }
 </style>

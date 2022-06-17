@@ -1,30 +1,31 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" :class="{'detail-page':pageType==='detail'}">
     <view class="form-box">
       <view class="title">
         店铺信息
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          店铺名称<text class="text-red">*</text>
+          店铺名称<text class="text-red" v-if="pageType!=='detail'">*</text>
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" placeholder="隆德堂本草药浴馆(恒大绿洲店)" v-model="form.name">
+            <input :disabled="pageType==='detail'" type="text" placeholder-class="placeholder" @blur="onFocus('')"
+              @focus="onFocus('name')" :placeholder="focusField==='name'?'':'隆德堂本草药浴馆(恒大绿洲店)'" v-model="form.name">
           </view>
-
         </view>
       </view>
 
       <view class="form-item">
         <view class="form-item-label">
-          <text> 店铺地址<text class="text-red">*</text></text>
+          <text> 店铺地址<text class="text-red" v-if="pageType!=='detail'">*</text></text>
           <text class="text-blue underline" @click="chooseLocation">添加导航</text>
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" v-model="form.address"
-              placeholder="陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室">
+            <input :disabled="pageType==='detail'" type="text" placeholder-class="placeholder" v-model="form.address"
+              @blur="onFocus('')" @focus="onFocus('address')"
+              :placeholder="focusField==='address'?'':'陕西省西安市灞桥区田家湾恒大绿洲24号楼1单元101室'">
           </view>
         </view>
       </view>
@@ -35,7 +36,8 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <textarea cols="30" class="textarea" :auto-height="true" v-model="form.introduction"></textarea>
+            <textarea :disabled="pageType==='detail'" cols="30" class="textarea" :auto-height="true"
+              v-model="form.introduction"></textarea>
           </view>
         </view>
       </view>
@@ -45,27 +47,28 @@
           店铺照片（900x450px）
         </view>
         <view class="form-item-content">
-          <u-upload :custom-btn="true" name="file" image-mode="aspectFit" :form-data="setFormData('image')"
-            index="image" :header="header" :action="actionUrl" @on-success="onSuccess" @on-remove="onRemove">
+          <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" :clipWidth="900" :clipHeight="450"
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.image" index="image"
+            :action="actionUrl">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
-          </u-upload>
+          </bx-image-upload>
         </view>
       </view>
 
       <view class="form-item">
         <view class="form-item-label">
-          店铺LOGO（350x350px）
+          店铺LOGO（350x350px）<text class="text-red" v-if="pageType!=='detail'">*</text></text>
         </view>
         <view class="form-item-content">
-          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
-            :form-data="setFormData('logo')" index="logo" :header="header" :action="actionUrl" @on-success="onSuccess"
-            @on-remove="onRemove">
+          <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" :clipWidth="350" :clipHeight="350"
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.logo" index="logo"
+            :action="actionUrl">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
-          </u-upload>
+          </bx-image-upload>
         </view>
       </view>
     </view>
@@ -77,50 +80,52 @@
 
       <view class="form-item">
         <view class="form-item-label">
-          营业执照<text class="text-red">*</text></text>
+          营业执照<text class="text-red" v-if="pageType!=='detail'">*</text></text>
         </view>
         <view class="form-item-content">
-          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
-            :form-data="setFormData('business_license')" index="business_license" :header="header" :action="actionUrl"
-            @on-success="onSuccess" @on-remove="onRemove">
+          <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" interfaceName="add" :appName="appName"
+            tableName="bxhealth_store_mgmt" v-model="form.business_license" index="business_license"
+            :action="actionUrl">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
-          </u-upload>
+          </bx-image-upload>
         </view>
       </view>
 
       <view class="form-item">
         <view class="form-item-label">
-          法人身份证<text class="text-red">*</text></text>
+          法人身份证<text class="text-red" v-if="pageType!=='detail'">*</text></text>
         </view>
         <view class="form-item-content">
-          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
-            :form-data="setFormData('legal_person_id_card')" index="legal_person_id_card" :header="header" :action="actionUrl" @on-success="onSuccess"
-            @on-remove="onRemove">
+          <bx-image-upload :disabled="pageType==='detail'" :width="300" :height="300" :max-count="1" :custom-btn="true"
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.legal_person_id_card"
+            index="legal_person_id_card" :action="actionUrl">
             <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
               <view class="title">
                 请上传身份证正面(国徽面)
               </view>
-              <image src="../static/img/b.jpg" mode="aspectFit"></image>
+              <image class="image" src="../static/img/b.jpg" mode="aspectFit"></image>
               <view class="cu-btn bg-blue ">
                 拍照
               </view>
             </view>
-          </u-upload>
-          <u-upload :max-count="1" :custom-btn="true" name="file" image-mode="aspectFit"
-            :form-data="setFormData('legal_person_id_card_reverse')" index="legal_person_id_card_reverse"
-            :header="header" :action="actionUrl" @on-success="onSuccess" @on-remove="onRemove">
+          </bx-image-upload>
+
+          <bx-image-upload :disabled="pageType==='detail'" :width="300" :height="300" :max-count="1" :custom-btn="true"
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt"
+            v-model="form.legal_person_id_card_reverse" index="legal_person_id_card_reverse" :action="actionUrl">
             <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
               <view class="title">
                 请上传身份证反面(人像面)
               </view>
-              <image src="../static/img/a.jpg" mode="aspectFit"></image>
+              <image class="image" src="../static/img/a.jpg" mode="aspectFit"></image>
               <view class="cu-btn bg-blue margin-bottom-xs">
                 拍照
               </view>
             </view>
-          </u-upload>
+          </bx-image-upload>
+
         </view>
       </view>
     </view>
@@ -131,40 +136,43 @@
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          联系电话<text class="text-red">*</text>
+          联系电话<text class="text-red" v-if="pageType!=='detail'">*</text>
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="number" placeholder-class="placeholder" v-model="form.telephone">
+            <input :disabled="pageType==='detail'" type="number" placeholder-class="placeholder"
+              v-model="form.telephone">
           </view>
 
         </view>
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          营业时间<text class="text-red">*</text>
+          营业时间<text class="text-red" v-if="pageType!=='detail'">*</text>
         </view>
         <view class="form-item-content">
           <view class="input">
-            <picker mode="time" :value="form.start_time" @change="timeChange($event,'start_time')">
-              <view class="uni-input">{{form.start_time||'请选择'}}</view>
+            <picker :disabled="pageType==='detail'" mode="time" :value="form.start_time"
+              @change="timeChange($event,'start_time')">
+              <view class="uni-input">{{form.start_time||'-'}}</view>
             </picker>
           </view>
           <text class="margin-lr-xs">至</text>
           <view class="input">
-            <picker mode="time" :value="form.end_time" @change="timeChange($event,'end_time')">
-              <view class="uni-input">{{form.end_time||'请选择'}}</view>
+            <picker :disabled="pageType==='detail'" mode="time" :value="form.end_time"
+              @change="timeChange($event,'end_time')">
+              <view class="uni-input">{{form.end_time||'-'}}</view>
             </picker>
           </view>
         </view>
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          微信商户号<text class="text-red">*</text>
+          微信商户号<text class="text-red" v-if="pageType!=='detail'">*</text>
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="text" placeholder-class="placeholder" v-model="form.wx_mch_id">
+            <input :disabled="pageType==='detail'" type="text" placeholder-class="placeholder" v-model="form.wx_mch_id">
           </view>
         </view>
       </view>
@@ -179,7 +187,8 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="digit" placeholder-class="placeholder" v-model="form.one_money_than">
+            <input :disabled="pageType==='detail'" type="digit" placeholder-class="placeholder"
+              v-model="form.one_money_than">
           </view>
         </view>
       </view>
@@ -189,12 +198,13 @@
         </view>
         <view class="form-item-content">
           <view class="input">
-            <input type="digit" placeholder-class="placeholder" v-model="form.two_money_than">
+            <input :disabled="pageType==='detail'" type="digit" placeholder-class="placeholder"
+              v-model="form.two_money_than">
           </view>
         </view>
       </view>
     </view>
-    <view class="bottom-btn">
+    <view class="bottom-btn" v-if="pageType!=='detail'">
       <button class="cu-btn lg" @click="onsubmit">提交</button>
     </view>
   </view>
@@ -204,22 +214,12 @@
   export default {
     data() {
       return {
-        header: {
-          bx_auth_ticket: uni.getStorageSync('bx_auth_ticket')
-        },
-        formData: {
-          // 上传文件时携带的参数
-          "serviceName": "srv_bxfile_service",
-          "interfaceName": "add",
-          "app_no": "health",
-          "table_name": "",
-          "columns": "user_image"
-        },
+        appName: uni.getStorageSync('activeApp'),
         form: {
           name: "", //店铺名称
           address: "", //店铺地址
           introduction: '', //店铺介绍
-          image: "", //店铺照片
+          image: "20220617163010983100", //店铺照片
           logo: '', //店铺logo
           telephone: '', //联系电话
           start_time: "", //营业开始时间
@@ -244,9 +244,9 @@
           telephone: true, //联系电话
           start_time: true, //营业开始时间
           end_time: true, // 营业结束时间
+          business_license: true, //营业执照
           legal_person_id_card: true, // 法人身份证
           legal_person_id_card_reverse: true,
-          business_license: true, //营业执照
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
@@ -254,9 +254,16 @@
         },
         imageUrl: {
           image: [],
-          logo: []
+          logo: [],
+          business_license: [],
+          legal_person_id_card: [],
+          legal_person_id_card_reverse: []
         },
-        isOnSubmit: false
+        isOnSubmit: false,
+        focusField: '',
+        pageType: 'detail', //add,update,detail
+        id: "",
+        serviceName: "",
       }
     },
     computed: {
@@ -264,7 +271,55 @@
         return `${this.$api.srvHost}/file/upload`
       }
     },
+    onLoad(option) {
+      if (option.type) {
+        this.pageType = option.type
+
+      }
+      if (option.fieldsCond) {
+        try {
+          let fieldsCond = JSON.parse(option.fieldsCond)
+          if (Array.isArray(fieldsCond) && fieldsCond.length > 0) {
+            fieldsCond.forEach(field => {
+              if (field.column && this.form.hasOwnProperty(field.column)) {
+                this.form[field.column] = field.value
+              }
+            })
+          }
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.id && option.serviceName) {
+        this.id = option.id
+        this.serviceName = option.serviceName
+        this.getDetail()
+      }
+    },
     methods: {
+      async getDetail() {
+        const req = {
+          "condition": [{
+            "colName": "id",
+            "ruleType": "eq",
+            "value": this.id
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1
+          },
+          "colNames": ["*"],
+          "serviceName": "srvhealth_store_cus_niming_detail_select"
+        }
+        const url = `/health/select/srvhealth_store_cus_niming_detail_select`
+        const res = await this.$http.post(url, req)
+        if (Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
+          this.form = res.data.data[0]
+        }
+      },
+      onFocus(key) {
+        this.focusField = key
+      },
       async onsubmit() {
         this.isOnSubmit = true
         let keys = Object.keys(this.form)
@@ -285,17 +340,30 @@
           this.isOnSubmit = false
           return
         }
-        const url = `/health/operate/srvhealth_store_mgmt_join_add`
+        const service = this.serviceName || 'srvhealth_store_mgmt_join_add'
+
+        const url = `/health/operate/${service}`
         const req = [{
-          "serviceName": "srvhealth_store_mgmt_join_add",
+          "serviceName": service,
           "condition": [],
           "data": [this.form]
         }]
-        req[0].data[0].type = this.storeInfo?.type
-        req[0].data[0].home_page_no = this.storeInfo?.home_page_no
-        req[0].data[0].parent_no = this.storeInfo?.store_no
+
+        if (this.pageType === 'update' && this.id && this.serviceName) {
+          req[0].condition = [{
+            colName: 'id',
+            ruleType: 'eq',
+            value: this.id
+          }]
+        } else {
+          req[0].data[0].type = this.storeInfo?.type
+          req[0].data[0].home_page_no = this.storeInfo?.home_page_no
+          req[0].data[0].parent_no = this.storeInfo?.store_no
+          req[0].data[0].online_status = '上线'
+        }
+
         req[0].data[0].audit_status = '待审核'
-        req[0].data[0].online_status = '上线'
+
         const res = await this.$http.post(url, req);
         this.isOnSubmit = false
         if (res?.data?.state === 'SUCCESS') {
@@ -305,32 +373,10 @@
             showCancel: false,
             success: (res) => {
               if (res.confirm) {
-                uni.navigateBack({
-
-                })
+                uni.navigateBack()
               }
             }
           })
-        }
-      },
-      onSuccess(data, index, lists, name) {
-        if (data?.file_no) {
-          this.form[name] = data.file_no
-          this.imageUrl[name].push(data)
-        }
-      },
-      onRemove(index, lists, name) {
-        this.imageUrl[name].splice(index, 1)
-      },
-      setFormData(column) {
-        return {
-          // 上传文件时携带的参数
-          "serviceName": "srv_bxfile_service",
-          "interfaceName": "add",
-          "app_no": "health",
-          "table_name": "bxhealth_store_mgmt",
-          "columns": column,
-          file_no: this.form[column] ? this.form[column] : ''
         }
       },
       timeChange(e, key) {
@@ -346,7 +392,6 @@
             this.form.longitude = res.longitude
             this.form.latitude = res.latitude
             this.form.address = `${res.address}(${res.name})`
-            // this.form.name = res.name
           }
         });
       },
@@ -359,6 +404,13 @@
     min-height: 100vh;
     background-color: #f8f8f8;
     padding: 12px;
+
+    &.detail-page {
+      .form-box .form-item .form-item-content .input {
+        border-color: #fff;
+        padding: 5px 0;
+      }
+    }
   }
 
   .bottom-btn {
@@ -406,8 +458,8 @@
         align-items: center;
 
         .slot-btn {
-          width: 100px;
-          height: 100px;
+          width: 200rpx;
+          height: 200rpx;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -417,14 +469,28 @@
 
           &.id-card {
             width: 320rpx;
-            height: 300rpx;
-            padding: 5px;
+            height: auto;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+
+            .image {
+              width: 300rpx;
+              height: 160rpx;
+            }
 
             .title {
+              width: 100%;
               font-size: 12px;
-              text-align: left;
+              text-align: center;
+              padding: 10rpx 10rpx 20rpx;
+              border-bottom: none;
+            }
+
+            .cu-btn {
+              width: 60px;
+              height: 20px;
+              margin: 20rpx 0;
             }
           }
 

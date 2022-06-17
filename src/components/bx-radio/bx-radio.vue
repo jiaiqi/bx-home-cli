@@ -338,7 +338,7 @@
 
       .bx-radio__label {
         color: #333;
-        background-color: #f1f1f1;
+        background-color: #f8f8fa;
         border: 1px solid #f1f1f1;
         padding: 5rpx 10rpx;
         border-radius: 30rpx;
