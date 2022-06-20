@@ -29,8 +29,9 @@
       </view>
     </view>
 
-    <ksp-cropper :mode="clipMode" :width="clipWidth" :height="clipHeight" :maxWidth="clipMaxWidth"
-      :maxHeight="clipMaxHeight" :url="curClipUrl" @cancel="oncancel" @ok="oncliped"></ksp-cropper>
+  <view class="">
+    <ksp-cropper :mode="clipMode" :width="clipWidth" :height="clipHeight"  :url="curClipUrl" @cancel="oncancel" @ok="oncliped"></ksp-cropper>
+  </view>
   </view>
 </template>
 
@@ -282,6 +283,15 @@
           this.$emit('change', val)
         }
       },
+      value:{
+        immediate: true,
+        handler(val) {
+          if(val){
+            this.fileNo = val;
+            this.loadInitImages()
+          }
+        }
+      },
       fileList: {
         immediate: true,
         handler(val) {
@@ -358,6 +368,7 @@
       },
       oncliped(val) {
         // 裁剪完成
+        debugger
         this.curClipUrl = "";
         const listOldLength = this.lists.length
         this.lists.push({
@@ -671,6 +682,7 @@
     @include vue-flex;
     flex-wrap: wrap;
     align-items: center;
+    position: relative;
   }
 
   .u-list-item {

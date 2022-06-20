@@ -515,7 +515,6 @@
                 }
               }
               this.thirdLevelData = list
-
             }
           }
         }

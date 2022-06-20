@@ -92,6 +92,9 @@
                 }" :src="item.img_url">
               </image>
             </view>
+            <view class="person-chat-item-right order-content" v-else-if="item.msg_content_type === '订单'">
+              <order-info :orderInfo="item.attribute"></order-info>
+            </view>
             <view class="person-chat-item-right article-content" v-else-if="item.msg_content_type === '文章'"
               @click="toArticle(item)">
               <view class="article-title">{{
@@ -261,6 +264,9 @@
                   height: item.imgHeight + 'px',
                 }" :src="item.img_url">
               </image>
+            </view>
+            <view class="person-chat-item-right order-content" v-else-if="item.msg_content_type === '订单'">
+              <order-info :orderInfo="item.attribute"></order-info>
             </view>
             <view class="person-chat-item-right article-content" v-else-if="item.msg_content_type === '文章'"
               @click="toArticle(item)">
@@ -496,38 +502,92 @@
           </view>
           <view class="person-chat-bot-bot-item-b"><text>图片</text></view>
         </view>
-        <view @click="openMenuPoup('article')" class="person-chat-bot-bot-item" v-if="bottomBtnList['文章']">
-          <view class="person-chat-bot-bot-item-top">
-            <image src="/static/img/article.png" mode=""></image>
-          </view>
-          <view class="person-chat-bot-bot-item-b"><text>文章</text></view>
-        </view>
         <view @click="openMenuPoup('word')" class="person-chat-bot-bot-item" v-if="bottomBtnList['文档']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/file.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>文档</text></view>
         </view>
-        <view @click="openMenuPoup('wx_word')" class="person-chat-bot-bot-item" v-if="bottomBtnList['微信文件']">
-          <view class="person-chat-bot-bot-item-top">
-            <image src="/static/img/paper.png" mode=""></image>
-          </view>
-          <view class="person-chat-bot-bot-item-b"><text>微信文件</text></view>
-        </view>
+
         <view @click="openMenuPoup('video')" class="person-chat-bot-bot-item" v-if="bottomBtnList['视频']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/video.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>视频</text></view>
         </view>
+
+        <view @click="openMenuPoup('wx_word')" class="person-chat-bot-bot-item" v-if="bottomBtnList['微信文件']">
+          <view class="person-chat-bot-bot-item-top">
+            <image src="/static/img/paper.png" mode=""></image>
+          </view>
+          <view class="person-chat-bot-bot-item-b"><text>微信文件</text></view>
+        </view>
+
+
+        <view @click="openMenuPoup('article')" class="person-chat-bot-bot-item" v-if="bottomBtnList['文章']">
+          <view class="person-chat-bot-bot-item-top">
+            <image src="/static/img/article.png" mode=""></image>
+          </view>
+          <view class="person-chat-bot-bot-item-b"><text>文章</text></view>
+        </view>
+
         <view @click="openMenuPoup('location')" class="person-chat-bot-bot-item" v-if="bottomBtnList['位置']">
           <view class="person-chat-bot-bot-item-top">
             <image src="/static/img/address.png" mode=""></image>
           </view>
           <view class="person-chat-bot-bot-item-b"><text>位置</text></view>
         </view>
+
+        <view @click="openMenuPoup('order')" class="person-chat-bot-bot-item" v-if="bottomBtnList['订单']">
+          <view class="person-chat-bot-bot-item-top">
+            <image src="/static/img/order.png" mode=""></image>
+          </view>
+          <view class="person-chat-bot-bot-item-b"><text>订单</text></view>
+        </view>
+
       </view>
     </view>
+
+    <view class="cu-modal" :class="{show:modalName=='orderModal'}" @touchmove.prevent="">
+      <view class="cu-dialog">
+        <order-info :orderInfo="orderInfo"></order-info>
+        <!-- <view class="order-modal padding" v-if="orderInfo">
+          <view class="top-bar flex justify-between align-center">
+            <view class="">
+              <text>订单号：</text>
+              <text>{{orderInfo.order_no}}</text>
+            </view>
+            <view class="">
+              {{ dayjs(orderInfo.create_time).format("MM-DD HH:mm")}}
+            </view>
+          </view>
+          <view class="goods-list" v-if="orderInfo._childData">
+            <view class="goods-item flex" v-for="item in orderInfo._childData">
+              <image class="goods-image" :src="getImagePath(item.goods_image)" mode=""></image>
+              <view class="content padding-lr-xs">
+                <view class="name">
+                  {{item.goods_name}}
+                </view>
+                <view class="bottom flex justify-between">
+                  <view class="">
+                    x1
+                  </view>
+                  <view class="" v-if="orderInfo.order_pay_amount">
+                    合计<text class="text-sm text-red">￥</text> <text
+                      class="text-lg text-red">{{orderInfo.order_pay_amount}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view> -->
+        <view class="padding-tb">
+          <button class="cu-btn bg-blue  " @click="sendOrder">发送</button>
+          <button  class="cu-btn bg-gray margin-left  " @click="hideModal">取消</button>
+        </view>
+      </view>
+    </view>
+
     <view class="cu-modal bottom-modal" :class="showBottom ? 'show' : ''">
       <view class="cu-dialog">
         <view class="cu-bar bg-white">
@@ -551,11 +611,11 @@
   import {
     mapState
   } from 'vuex';
-  import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
+  import orderInfo from '@/publicPages/components/order-info/order-info.vue'
   export default {
     name: 'personchat',
     components: {
-      robbyImageUpload,
+      orderInfo
     },
     props: {
       showGoodsCard: {
@@ -676,7 +736,7 @@
           if (this.sessionInfo?.bottom_btn_set) {
             bottom_btn_set = this.sessionInfo.bottom_btn_set
           } else {
-            bottom_btn_set = [ '图片', '文章', '微信文件', '视频', '位置'].toString()
+            bottom_btn_set = ['图片', '文章', '微信文件', '视频', '位置', '订单'].toString()
             // bottom_btn_set = ['问卷记录', '饮食记录', '图片', '文章', '文档', '微信文件', '视频', '位置', '商品'].toString()
           }
           if (bottom_btn_set) {
@@ -745,6 +805,9 @@
         remindPersonList: [],
         remindText: "", // 
         refreshMessageTimer: null, // 定时刷新消息的定时器
+        orderList: [], //在当前店铺的订单列表
+        modalName: "", //
+        orderInfo: null,
       };
     },
 
@@ -1205,6 +1268,40 @@
               self.sendMessageLanguageInfo('位置', res);
             }
           });
+        } else if ('order' === type) {
+          // 订单列表
+          let condition = [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo?.store_no
+          }, {
+            "colName": "person_no",
+            "ruleType": "eq",
+            "value": this.userInfo?.no
+          }]
+          let url =
+            `/publicPages/list2/list2?selectCol=order_no&destApp=health&listType=selectorList&serviceName=srvhealth_youx_store_order_select&cond=${JSON.stringify(condition)}&disabled=true`
+
+          let idCol = 'id'
+          if (idCol) {
+            url += `&idCol=${idCol}`
+          }
+
+          const uuid = uni.$u.guid()
+          url += `&uuid=${uuid}`
+          uni.$on('confirmSelect', (e) => {
+            if (e.uuid === uuid) {
+              const srvInfo = this.fieldData?.option_list_v2 || {}
+              const refed_col = srvInfo?.refed_col
+              const key_disp_col = srvInfo?.key_disp_col
+              // 发送订单到聊天框 
+              this.orderInfo = e?.data
+              this.modalName = 'orderModal'
+            }
+          })
+          uni.navigateTo({
+            url: url
+          })
         } else if (type == 'article') {
           let option = this.queryOption
           uni.navigateTo({
@@ -1517,6 +1614,7 @@
       },
       hideModal() {
         this.showBottom = false;
+        this.modalName = ''
       },
       /*查询问卷列表**/
       async getRecorderManagerList() {
@@ -2602,6 +2700,10 @@
           });
         }
       },
+      async sendOrder() {
+       await this.sendArticle([this.orderInfo], '订单')
+        this.modalName = ''
+      },
       async sendArticle(data, cardType) {
         let serviceName = 'srvhealth_consultation_chat_record_add'
         if (this.sessionType === '机构用户客服') {
@@ -3339,7 +3441,9 @@
                 margin-top: 10rpx;
               }
             }
-
+            &.order-content{
+              background-color: #fff;
+            }
             &.article-content {
               color: #333;
 
@@ -3630,7 +3734,14 @@
                 margin-top: 10rpx;
               }
             }
-
+            &.order-content{
+              background-color: #fff;
+              color: #333;
+              padding: 0;
+              &::after {
+                border-left: 8px solid #fff;
+              }
+            }
             &.article-content {
               background-color: #fff;
               color: #333;
@@ -4190,4 +4301,5 @@
     width: 100vw;
     height: 20px;
   }
+
 </style>

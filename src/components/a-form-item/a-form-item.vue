@@ -1392,7 +1392,7 @@
               'object') {
               url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
             }
-            debugger
+            
             if (this.fieldData?.moreConfig?.disabledCol) {
               url += `&disabledCol=${this.fieldData?.moreConfig?.disabledCol}`
             }

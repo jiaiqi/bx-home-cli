@@ -524,14 +524,24 @@
       },
       confirmSelect() {
         if (this.selectoDataId) {
+
           const idCol = this.idCol || 'id'
-          uni.$emit('confirmSelect', {
+          const emitData = {
             uuid: this.selectorUUID,
             val: this.selectoDataId,
             service: this.serviceName,
             col: this.selectCol,
             data: this.list.find(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
-          })
+          }
+          let viewTemp = this.colV2?.moreConfig?.list_config
+          if (Array.isArray(viewTemp?.cols)&&emitData.data) {
+            let related_col = viewTemp?.cols.find(item => item.type === 'childData')?.related_col
+            if (related_col && Array.isArray(this.colV2?._childData)) {
+             emitData.data._childData = this.colV2?._childData.filter(item => item[related_col] === emitData.data[
+                related_col])
+            }
+          }
+          uni.$emit('confirmSelect',emitData )
         }
         uni.navigateBack({})
       },

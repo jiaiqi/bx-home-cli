@@ -275,7 +275,6 @@
     onLoad(option) {
       if (option.type) {
         this.pageType = option.type
-
       }
       if (option.fieldsCond) {
         try {
@@ -299,6 +298,8 @@
     },
     methods: {
       async getDetail() {
+        let serviceName = 'srvhealth_store_mgmt_select'
+        serviceName = 'srvhealth_store_cus_niming_detail_select'
         const req = {
           "condition": [{
             "colName": "id",
@@ -310,12 +311,23 @@
             "rownumber": 1
           },
           "colNames": ["*"],
-          "serviceName": "srvhealth_store_cus_niming_detail_select"
+          "serviceName":serviceName
         }
-        const url = `/health/select/srvhealth_store_cus_niming_detail_select`
+        const url = `/health/select/${serviceName}`
         const res = await this.$http.post(url, req)
         if (Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
           this.form = res.data.data[0]
+        }else{
+          uni.showModal({
+            title:'提示',
+            content:'数据加载失败',
+            showCancel:false,
+            success() {
+              uni.navigateBack({
+                
+              })
+            }
+          })
         }
       },
       onFocus(key) {

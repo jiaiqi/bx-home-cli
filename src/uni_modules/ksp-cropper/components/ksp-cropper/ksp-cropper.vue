@@ -803,11 +803,10 @@ export default {
 	position: fixed;
 	width: 100%;
 	height: 100%;
+  left: 0;
 	top: 0;
 	bottom: 0;
-  left: 0;
-  right: 0;
-	z-index: 1000;
+	z-index: 10086;
 	overflow: hidden;
 }
 .canvas {

@@ -42,9 +42,6 @@
     selectPersonInfo
   } from '@/common/api/login.js'
   export default {
-    components: {
-      uniEcharts
-    },
     data() {
       return {
         user_no: "",
