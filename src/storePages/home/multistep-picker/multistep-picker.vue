@@ -2,6 +2,9 @@
   <view class="cascader-selector__wrap" :style="styleVariable">
     <!-- 顶级节点 -->
     <view class="top-level-node" v-if="topLevelData.length>0">
+      <view class="sub-title" v-if="topLevelCfg&&topLevelCfg.title">
+        {{topLevelCfg.title}}
+      </view>
       <view class="date-box">
         <scroll-view scroll-x="true" class="scroll-view_H" :class="{'full':fullDate}" :scroll-left="scrollLeft"
           :scroll-with-animation="true" @scrolltolower="scrolltolower" @scrolltoupper="scrolltoupper">
@@ -25,27 +28,37 @@
 
     </view>
     <!-- 二级节点 -->
-    <scroll-view scroll-x="true">
-      <view class="child-node">
-        <view class="child-node-item" :class="{active:item.selected}" v-for="item in secondLevelData"
-          @click="selectDate(item,'second')">
-          <text class="">
-            {{item[secondLevelDispCol]||''}}
-          </text>
-          <view class="">
-            <!-- {{item.place_name||''}} -->
+    <view class="top-level-node">
+      <view class="sub-title" v-if="secondLevelCfg&&secondLevelCfg.title">
+        {{secondLevelCfg.title}}
+      </view>
+      <scroll-view scroll-x="true">
+        <view class="child-node" :class="{'flex-wrap':secondLevelCfg&&secondLevelCfg.autowrap===true}">
+          <view class="child-node-item" :style="[{minHeight:secondLevelCfg.minHeight}]" :class="{active:item.selected}" v-for="item in secondLevelData"
+            @click="selectDate(item,'second')">
+            <text class="">
+              {{item[secondLevelDispCol]||''}}
+            </text>
+            <view class="">
+              <!-- {{item.place_name||''}} -->
+            </view>
           </view>
         </view>
-      </view>
-    </scroll-view>
-    <!-- 三级节点 -->
-    <view class="child-node flex-wrap">
-      <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
-        @click="selectDate(item,'third')">
-        {{item[thirdLevelDispCol]||''}}
-      </text>
+      </scroll-view>
     </view>
-<!--    <scroll-view scroll-x="true">
+    <!-- 三级节点 -->
+    <view class="top-level-node">
+      <view class="sub-title" v-if="thirdLevelCfg&&thirdLevelCfg.title">
+        {{thirdLevelCfg.title}}
+      </view>
+      <view class="child-node" :class="{'flex-wrap':thirdLevelCfg&&thirdLevelCfg.autowrap===true}">
+        <text class="child-node-item" :style="[{minHeight:thirdLevelCfg.minHeight}]"  :class="{active:item.selected}" v-for="item in thirdLevelData"
+          @click="selectDate(item,'third')">
+          {{item[thirdLevelDispCol]||''}}
+        </text>
+      </view>
+    </view>
+    <!--    <scroll-view scroll-x="true">
       <view class="child-node">
         <text class="child-node-item" :class="{active:item.selected}" v-for="item in thirdLevelData"
           @click="selectDate(item,'third')">
@@ -467,7 +480,7 @@
       },
     },
     created() {
-      this.getTopData().then(_=>{
+      this.getTopData().then(_ => {
         this.getSecondData()
       })
     }
@@ -481,12 +494,21 @@
 
   .top-level-node {
     width: 100%;
-    padding: 0;
-    padding-right: 0;
-    margin-bottom: 10px;
+    padding: 10rpx 0;
     overflow: hidden;
     // box-shadow: 0px 3px 6px rgba(216, 217, 223, 0.26);
     position: relative;
+    border-top: 1px solid #f1f1f1;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    .sub-title {
+      padding: 5px 0 5px 2px;
+      font-weight: bold;
+      
+    }
 
     .right-icon {
       width: 30px;
@@ -577,21 +599,28 @@
     }
   }
 
+
+
   .child-node {
     // display: flex;
     // flex-wrap: nowrap;
     // overflow-x: scroll;
     display: block;
     white-space: nowrap;
-    &.flex-wrap{
+    padding: 5px 0;
+
+    &.flex-wrap {
       white-space: pre-wrap;
     }
+
     .child-node-item {
-      // padding: 5px;
+      box-sizing: border-box;
+      padding: 5px;
       text-align: center;
       margin-right: 5px;
       min-width: calc(25% - 5px);
       min-height: 50px;
+      
       display: inline-flex;
       flex-direction: column;
       align-items: center;
@@ -600,7 +629,7 @@
       background-color: var(--second-bg);
       margin-bottom: 5px;
       border: 1px solid var(--second-border-color);
-      border-radius: 8px;
+      border-radius: 5px;
 
       &:nth-child(4n) {
         // margin-right: 0;
