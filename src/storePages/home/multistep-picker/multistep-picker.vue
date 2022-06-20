@@ -34,7 +34,8 @@
       </view>
       <scroll-view scroll-x="true">
         <view class="child-node" :class="{'flex-wrap':secondLevelCfg&&secondLevelCfg.autowrap===true}">
-          <view class="child-node-item" :style="[{minHeight:secondLevelCfg.minHeight}]" :class="{active:item.selected}" v-for="item in secondLevelData"
+          <view class="child-node-item" :style="[{minHeight:secondLevelCfg.minHeight}]"
+            :class="{active:item.selected,disabled:isDisabled('second',item)}" v-for="item in secondLevelData"
             @click="selectDate(item,'second')">
             <text class="">
               {{item[secondLevelDispCol]||''}}
@@ -52,7 +53,8 @@
         {{thirdLevelCfg.title}}
       </view>
       <view class="child-node" :class="{'flex-wrap':thirdLevelCfg&&thirdLevelCfg.autowrap===true}">
-        <text class="child-node-item" :style="[{minHeight:thirdLevelCfg.minHeight}]"  :class="{active:item.selected}" v-for="item in thirdLevelData"
+        <text class="child-node-item" :style="[{minHeight:thirdLevelCfg.minHeight}]"
+          :class="{active:item.selected,disabled:isDisabled('third',item)}" v-for="item in thirdLevelData"
           @click="selectDate(item,'third')">
           {{item[thirdLevelDispCol]||''}}
         </text>
@@ -187,6 +189,32 @@
       }
     },
     methods: {
+      isDisabled(level, item) {
+        let disabled = false
+        let cfg = this[`${level}LevelCfg`]
+        if (cfg) {
+          let disabledCol = cfg?.disabledCol;
+          if (disabledCol && (item[disabledCol] == true || item[disabledCol] == 1)) {
+            disabled = true
+          }
+          if (cfg?.timeoutDisabled && cfg?.dateTime) {
+            let globalData = {
+              data: item,
+              data1: this.topLevelData.find(item => item.selected === true) || {},
+              data2: this.secondLevelData.find(item => item.selected === true) || {},
+              data3: this.thirdLevelData.find(item => item.selected === true) || {},
+              storeInfo: this.storeInfo,
+              storeUser: this.vstoreUser,
+              bindUserInfo: this.vstoreUser,
+            }
+            let time = this.renderStr(cfg?.dateTime, globalData)
+            if (time) {
+              disabled = this.dayjs() - this.dayjs(time) > 0
+            }
+          }
+        }
+        return disabled
+      },
       onHandler() {
         // 点击了预约按钮
         let fieldsCond = [{
@@ -394,15 +422,21 @@
             }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
-              this.secondLevelData = res.data.map((item, index) => {
+              let list = res.data.map((item, index) => {
+                item.disabled = this.isDisabled('second',item)
                 item.selected = false
-                if (index === 0) {
-                  item.selected = true
-                }
+                // if (index === 0) {
+                //   item.selected = true
+                // }
                 return item
               })
+              this.secondLevelData = list
               if (Array.isArray(res.data) && res.data.length > 0) {
-                this.getThirdData(res.data[0])
+                let curIndex = res.data.findIndex(e=>e.disabled!==true)
+                if(curIndex!==-1){
+                  list[curIndex].selected = true;
+                  this.getThirdData(list[curIndex])
+                }
               }
             }
           }
@@ -432,18 +466,18 @@
             if (e && pidCol && e[pidCol]) {
               this.secondLevelData = this.secondLevelData.map(item => {
                 item.selected = false
-                if (item[pidCol] === e[pidCol]) {
+                if (item[pidCol] === e[pidCol]&&e.disabled!==true) {
                   item.selected = true
                 }
                 return item
               })
+             
               req.condition.push({
                 colName: pidCol,
                 ruleType: 'eq',
                 value: e[pidCol]
               })
             }
-
             if (Array.isArray(this.thirdLevelCfg?.customCond) && this.thirdLevelCfg?.customCond.length > 0) {
               let str = JSON.stringify(this.thirdLevelCfg?.customCond)
               let data = {
@@ -454,6 +488,7 @@
                 storeUser: this.vstoreUser,
                 bindUserInfo: this.vstoreUser,
               }
+              console.log(this.secondLevelData)
               str = this.renderStr(str, data)
               try {
                 let cond = JSON.parse(str)
@@ -466,13 +501,20 @@
             }
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
-              this.thirdLevelData = res.data.map((item, index) => {
+              let list = res.data.map((item, index) => {
                 item.selected = false;
                 if (index === 0) {
                   item.selected = true
                 }
                 return item
               })
+              if (Array.isArray(res.data) && res.data.length > 0) {
+                let curIndex = res.data.findIndex(e=>e.disabled!==true)
+                if(curIndex!==-1){
+                  list[curIndex].selected = true;
+                }
+              }
+              this.thirdLevelData = list
 
             }
           }
@@ -507,7 +549,7 @@
     .sub-title {
       padding: 5px 0 5px 2px;
       font-weight: bold;
-      
+
     }
 
     .right-icon {
@@ -620,7 +662,7 @@
       margin-right: 5px;
       min-width: calc(25% - 5px);
       min-height: 50px;
-      
+
       display: inline-flex;
       flex-direction: column;
       align-items: center;
@@ -638,6 +680,10 @@
       &.active {
         color: var(--second-active-color);
         background-color: var(--second-active-bg);
+      }
+      &.disabled{
+        pointer-events: none;
+        opacity: 0.5;
       }
     }
   }

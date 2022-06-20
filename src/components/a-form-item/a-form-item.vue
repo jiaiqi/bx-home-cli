@@ -143,24 +143,23 @@
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'addr'">
-        <input type="text" v-model="fieldData.value" placeholder="选择或填写位置" />
+        <input type="text" @change="textareaInput" placeholder="选择或填写位置" />
       </view>
       <view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'" @click="showModal('RichEditor')">
         <view class="value rich-text" v-if="!fieldData.value">请输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
-      <input type="text" class="" style="width: 100%" @input="onInput"
-        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @blur="onBlur"
-        :maxlength="max_len" v-model="fieldData.value" :disabled="fieldData.disabled|| false"
-        v-else-if="fieldData.type === 'text'" />
+      <input type="text" class="" style="width: 100%"
+        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @change="textareaInput"
+        :maxlength="max_len" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
       <uni-rate v-model="fieldData.value" :readonly="fieldData.disabled"
         :max="fieldData.moreConfig&&fieldData.moreConfig.max?fieldData.moreConfig.max:5"
         :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
         v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
-      <input class="" style="width: 100%" @blur="onBlur"
+      <input class="" style="width: 100%" @change="textareaInput"
         :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+(fieldData.customLabel||fieldData.label)"
-        :type="fieldData.type" @input="onInput" :maxlength="max_len" :max="max" :min="min"
-        v-model.number="fieldData.value" :disabled="fieldData.disabled || false" v-else-if="
+        :type="fieldData.type" :maxlength="max_len" :max="max" :min="min" :disabled="fieldData.disabled || false"
+        v-else-if="
           (fieldData.type === 'number' || fieldData.type === 'digit') &&
           !fieldData.max
         " />
@@ -188,7 +187,7 @@
               : null
           " :value="
             fieldData.value < fieldData.min ? fieldData.min : fieldData.value
-          " v-model="fieldData.value" show-value />
+          " v-model.lazy="fieldData.value" show-value />
         <view class="operate" hover-class="active" @click="numberChange('add')" @longpress="longpressNumChange('add')"
           @touchend="longpressNumEnd">+</view>
       </view>
@@ -224,7 +223,8 @@
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
           <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
-            :fields-model="fieldsModel" @cancel="hideModal"  :pageType="pageType" :current="selectTreeData" @confirm="getCascaderValue">
+            :fields-model="fieldsModel" @cancel="hideModal" :pageType="pageType" :current="selectTreeData"
+            @confirm="getCascaderValue">
           </tree-selector>
         </view>
       </view>
@@ -1107,10 +1107,9 @@
           }
           this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
-          // this.onInput();
           // this.onBlur()
-        }else if(this.fieldData.type === 'Set'){
-          if(Array.isArray(e)){
+        } else if (this.fieldData.type === 'Set') {
+          if (Array.isArray(e)) {
             e = e.toString()
           }
           this.fieldData.value = e
@@ -1386,7 +1385,7 @@
               }
               return item;
             });
-            
+
             let url =
               `/publicPages/list2/list2?selectCol=${this.fieldData.column}&destApp=${option_list_v2.srv_app}&listType=selectorList&serviceName=${option_list_v2.serviceName}&cond=${JSON.stringify(condition)}`
             if (this.fieldData?.moreConfig?.listConfig && typeof this.fieldData?.moreConfig?.listConfig ===
@@ -1394,10 +1393,10 @@
               url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
             }
             debugger
-            if(this.fieldData?.moreConfig?.disabledCol){
-              url+=`&disabledCol=${this.fieldData?.moreConfig?.disabledCol}`
+            if (this.fieldData?.moreConfig?.disabledCol) {
+              url += `&disabledCol=${this.fieldData?.moreConfig?.disabledCol}`
             }
-            
+
             let idCol = this.fieldData?.moreConfig?.option_id_col || this.fieldData.option_list_v2
               ?.refed_col || 'id'
             if (idCol) {
@@ -1471,13 +1470,6 @@
         this.fieldData.value = e.detail.value
         this.getValid();
       },
-      onInput() {
-        // input事件
-        console.log('on-input');
-        // this.getValid();
-        // this.$emit('on-value-change', this.fieldData);
-      },
-
       getValid() {
         if (this.fieldData.display === false) {
           this.fieldData.valid = {
