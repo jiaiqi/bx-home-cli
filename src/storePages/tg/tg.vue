@@ -78,11 +78,14 @@
               <!--    <view class="">
                 规格：100g
               </view> -->
-              <view class="" v-if=" (type==='view'||type==='detail')">
+              <view class="" v-if="(type==='view'||type==='detail')">
                 <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
-              <view class="text-lg text-gray" v-if="item.amount&&type!=='default'">
+              <view class="text-sm text-gray" v-if="type==='view'">
+                已团7件
+              </view>
+              <view class="text-lg text-gray" v-else-if="item.amount&&type!=='default'">
                 x {{item.amount}}
               </view>
             </view>
@@ -92,7 +95,7 @@
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
               <view class="number-box" v-if="countDown!==0&&countDown!=='团购已经结束'">
-                <u-number-box v-model="item.amount" :min="0" :index="index" @change="changeAmount"></u-number-box>
+                <u-number-box v-model="item.amount" :min="1" :index="index" @change="changeAmount"></u-number-box>
               </view>
             </view>
           </view>
@@ -102,22 +105,23 @@
       <view class="tg-form" v-if="tgInfo && (type==='view'||type==='detail')">
         <view class="cu-form-group ">
           <view class="title">收货方式</view>
-          <input :placeholder="''" name="input" v-model="tgInfo.goods_way" :disabled="true"></input>
+          <input :placeholder="''" name="input" :value="tgInfo.goods_way" :disabled="true"></input>
         </view>
         <view class="cu-form-group ">
           <view class="title">团长收货地址</view>
-          <input :placeholder="''" name="input" v-model="tgInfo.address_no" :disabled="true"></input>
+          <input :placeholder="''" name="input" :value="tgInfo.address_str|| tgInfo.addr_str||tgInfo.address_no"
+            :disabled="true"></input>
         </view>
       </view>
 
       <view class="tg-form" v-if="tgInfo && (type==='view'||type==='detail')">
         <view class="cu-form-group ">
           <view class="title">开团时间</view>
-          <input :placeholder="''" name="input" v-model="tgInfo.activity_statr_datetime" :disabled="true"></input>
+          <input :placeholder="''" name="input" :value="tgInfo.activity_statr_datetime" :disabled="true"></input>
         </view>
         <view class="cu-form-group ">
           <view class="title">结束时间</view>
-          <input :placeholder="''" name="input" v-model="tgInfo.activity_end_datetime" :disabled="true"></input>
+          <input :placeholder="''" name="input" :value="tgInfo.activity_end_datetime" :disabled="true"></input>
         </view>
       </view>
 
@@ -206,11 +210,11 @@
           let url =
             `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo?.store_no}&goodsWay=${this.tgInfo.goods_way}&tgNo=${this.tgInfo.regimental_dumpling_no}`
           let orderType = this.getOrderType(list)
-          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          if (this.tgInfo?.goods_way) {
-            let delivery_type = this.tgInfo?.goods_way === '快递' ? '快递' : '自提'
-            url += `&delivery_type=${delivery_type}`
-          }
+          url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}&delivery_type=快递`
+          // if (this.tgInfo?.goods_way) {
+          //   let delivery_type = this.tgInfo?.goods_way === '快递' ? '快递' : '自提'
+          //   url += `&delivery_type=${delivery_type}`
+          // }
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
@@ -226,7 +230,7 @@
         if (item.amount <= 0) {
           item.amount = 1
           // this.goodsList[index].amount = 1
-          this.$set(this.goodsList,index,item)
+          this.$set(this.goodsList, index, item)
         }
       },
       changeAmount(e) {
@@ -379,17 +383,19 @@
         let url = this.getServiceUrl('health', 'srvhealth_store_dumpling_goods_select', 'select');
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS') {
-            this.goodsList = res.data.data.map(item => {
-              item.amount = 0
+            let data = res.data.data.map(item => {
+              item.amount = item.amount || 1
               item.checked = false
               return item
             })
+            this.goodsList = data
             if (this.orderNo) {
               this.getBoughtGoods()
             }
           }
         })
       },
+
       getBoughtGoods() {
         // 查找订单中的商品列表
         const req = {
@@ -410,9 +416,7 @@
           if (res.data.state === 'SUCCESS') {
             this.goodsList = this.goodsList.map(item => {
               let goods = res.data.data.find(e => e.goods_no === item.goods_no)
-              if (goods?.goods_amount) {
-                item.amount = goods.goods_amount
-              }
+              item.amount = goods?.goods_amount || 1
               return item
             })
           }
@@ -455,24 +459,30 @@
       clearInterval(coundDownTimer)
     },
 
-    onLoad(option) {
+    async onLoad(option) {
+
       if (option.share_store_user_no) {
         this.share_store_user_no = option.share_store_user_no
       }
+
       if (option.orderNo) {
         this.orderNo = option.orderNo
         this.type = 'detail'
       }
+
       if (option.storeNo) {
         this.storeNo = option.storeNo
       }
+
       if (option.type) {
         this.type = option.type
       }
+
       if (option.id) {
         this.id = option.id;
         this.getTgInfo()
       }
+
       if (option.no) {
         this.no = option.no;
         this.getTgInfo()
@@ -604,7 +614,8 @@
 
             .price {
               @include flex-between-center;
-              .number-box{
+
+              .number-box {
                 flex: 1;
                 text-align: right;
               }

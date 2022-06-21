@@ -826,140 +826,6 @@
                 if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
                   return await self.handleAfterSubmit(afterSubmit, effect_data)
                 }
-                // if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
-                //   const globalData = {
-                //     data: effect_data || {},
-                //     storeInfo: self.storeInfo,
-                //     userInfo: self.userInfo,
-                //     storeUser: self.vstoreUser
-                //   }
-
-                //   const actionResult = new Array(afterSubmit.length)
-                //   for (let i = 0; i < afterSubmit.length; i++) {
-                //     let item = afterSubmit[i];
-                //     console.log(i)
-                //     console.log(actionResult)
-                //     console.log((i > 0 && actionResult[i - 1]) || i == 0)
-                //     if ((i > 0 && actionResult[i - 1]) || i == 0) {
-                //       if (effect_data && effect_data.id && ['redirectTo', 'navigateTo'].includes(item.type)) {
-                //         if (item.url) {
-                //           let url = this.renderStr(item.url, globalData)
-                //           uni[item.type]({
-                //             url: url,
-                //             success: () => {
-                //               actionResult[i] = true
-                //             }
-                //           })
-                //         }
-                //       } else if (item.type === 'wx_pay') {
-                //         if (item.money_col && item.order_no_col && effect_data && effect_data[
-                //             item.order_no_col]) {
-                //           const totalMoney = effect_data[item.money_col] || 0
-                //           if (totalMoney == 0) {
-                //             actionResult[i] = true
-                //           } else {
-                //             const wxMchId = this.getwxMchId()
-                //             const orderData = {
-                //               order_no: effect_data[item.order_no_col]
-                //             }
-                //             const result = await this.toPlaceOrder(totalMoney * 100, '',
-                //               orderData, wxMchId);
-                //             if (result && result.prepay_id) {
-                //               let res = await this.getPayParams(result.prepay_id, wxMchId);
-                //               const resData = await new Promise((resolve) => {
-                //                 wx.requestPayment({
-                //                   timeStamp: res.timeStamp.toString(),
-                //                   nonceStr: res.nonceStr,
-                //                   package: res.package,
-                //                   signType: 'MD5',
-                //                   paySign: res.paySign,
-                //                   success(res) {
-                //                     // 支付成功
-                //                     resolve(true)
-                //                   },
-                //                   fail(res) {
-                //                     // 支付失败/取消支付
-                //                     resolve('支付失败/取消支付')
-                //                   }
-                //                 });
-                //               })
-                //               actionResult[i] = resData
-                //             }
-                //           }
-                //         } else {
-                //           actionResult[i] === true
-                //         }
-                //       } else if (item.type === 'update_call_back') {
-                //         if (item.service && item.app && Array.isArray(item.data) && item
-                //           .cond) {
-                //           let url = this.getServiceUrl(item.app, item.service, 'operate');
-                //           let req = [{
-                //             serviceName: item.service,
-                //             condition: [],
-                //             data: item.data
-                //           }]
-                //           if (Array.isArray(item.cond)) {
-                //             req[0].condition = item.cond.map(c => {
-                //               c.value = self.renderStr(c.value, globalData)
-                //               return c
-                //             })
-                //           }
-                //           const res = await self.$http.post(url, req);
-                //           if (res.data.state == 'SUCCESS') {
-                //             actionResult[i] = true
-                //           } else {
-                //             actionResult[i] = res.data.resultMessage
-                //           }
-                //         }
-                //       } else if (item.type === 'toDetail') {
-                //         this.srvType = 'detail'
-                //         let serviceName = this.addV2?.select_service_name || this
-                //           .getServiceName(this.serviceName)
-                //         let fieldsCond = [{
-                //           column: 'id',
-                //           value: effect_data.id,
-                //           display: false
-                //         }]
-                //         let url =
-                //           `/publicPages/formPage/formPage?type=detail&serviceName=${serviceName}&fieldsCond=${encodeURIComponent(JSON.stringify(this.fieldsCond))}`
-                //         if (this.appName) {
-                //           url += `&appName=${this.appName}`
-                //         }
-
-                //         if (item.hideChildTable) {
-                //           url += `&hideChildTable=true`
-                //         }
-                //         if (item.custom_url) {
-                //           url = this.renderStr(item.custom_url, globalData);
-                //         }
-                //         if (item.view_cfg) {
-                //           url += `&view_cfg=${encodeURIComponent(JSON.stringify(item.view_cfg))}`
-                //         }
-                //         uni.redirectTo({
-                //           url
-                //         })
-                //         actionResult[i] = true
-                //       }
-                //     }
-                //   }
-                //   if (actionResult.length === afterSubmit.length && !actionResult.every(item =>
-                //       item == true)) {
-                //     self.srvType === 'detail'
-                //     self.srvType === 'use_type'
-                //     self.formButtons = []
-                //   } else {
-                //     actionResult.forEach(item => {
-                //       if (item && typeof item === 'string') {
-                //         uni.showModal({
-                //           title: "提示",
-                //           content: item,
-                //           showCancel: false
-                //         })
-                //       }
-                //     })
-                //   }
-                //   return
-                // }
                 uni.showModal({
                   title: '提示',
                   content: res.data.resultMessage,
@@ -1204,6 +1070,10 @@
             });
           if (condition.find(item => item.colName === 'id')) {
             condition = condition.filter(item => item.colName === 'id')
+          }
+          
+          if(Array.isArray(this.condition)&&this.condition.length>0){
+            condition = this.condition
           }
 
           let app = this.appName || uni.getStorageSync('activeApp');
@@ -1579,6 +1449,7 @@
       if (option.afterSubmit) {
         this.afterSubmit = option.afterSubmit
       }
+     
       if (option.disabledChildButton) {
         this.disabledChildButton = true
       }
@@ -1606,7 +1477,8 @@
         this.srvType = option.type;
         this.use_type = option.type;
       }
-
+      
+ 
       if (option.fieldsCond) {
         let fieldsCond = []
         try {
@@ -1627,6 +1499,25 @@
             fieldsCond = JSON.parse(str);
           } catch (e) {}
         }
+        if(option.condition){
+          try{
+            let cond = JSON.parse(option.condition)
+            this.condition = cond
+            if(Array.isArray(cond)&&cond.length>0){
+              cond.forEach(item=>{
+                if(item.value){
+                  fieldsCond.push({
+                    column:item.colName,
+                    value:item.value
+                  })
+                }
+              })
+            }
+          }catch(e){
+            //TODO handle the exception
+          }
+        }
+        
         this.fieldsCond = fieldsCond
       }
       if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond

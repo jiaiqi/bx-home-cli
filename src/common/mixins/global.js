@@ -35,7 +35,7 @@ export default {
       _pageScrollTop: 0
     }
   },
-  onLoad(option) {
+  async onLoad(option) {
     this.pageUUID = uni.$u.guid(20)
     if (option.storeNo || option.store_no) {
       this.$store.commit('setStateAttr', {
@@ -43,6 +43,7 @@ export default {
         val: option.storeNo || option.store_no
       })
     }
+    await this.initApp()
   },
   methods: {
     toTop() {
@@ -95,6 +96,9 @@ export default {
           rownumber: 1
         }
       };
+      if (this.storeInfo?.store_no === this.curStoreNo) {
+        return
+      }
       let serviceName = 'srvhealth_store_list_select';
       // serviceName = 'srvhealth_store_mgmt_select'
       serviceName = 'srvhealth_store_cus_niming_detail_select'
@@ -278,7 +282,7 @@ export default {
       }
       return
     },
-    
+
     getServiceName(srv) {
       let len = srv.lastIndexOf('_');
       let serviceName = srv.slice(0, len) + '_';
@@ -289,7 +293,7 @@ export default {
       }
       return serviceName;
     },
-    
+
     async handleAfterSubmit(handler, effect_data) {
       const self = this
       const afterSubmit = handler;
@@ -393,10 +397,11 @@ export default {
                   }
                 }
               }
-              
+
               this.srvType = 'detail'
-              
-              let serviceName = this.addV2?.select_service_name || this.colV2?.select_service_name || this.getServiceName(this.serviceName)
+
+              let serviceName = this.addV2?.select_service_name || this.colV2?.select_service_name || this
+                .getServiceName(this.serviceName)
               let fieldsCond = [{
                 column: 'id',
                 value: effect_data.id,
@@ -411,15 +416,15 @@ export default {
               if (item.hideChildTable) {
                 url += `&hideChildTable=true`
               }
-              
+
               if (item.custom_url) {
                 url = this.renderStr(item.custom_url, globalData);
               }
-              
+
               if (item.view_cfg) {
                 url += `&view_cfg=${encodeURIComponent(JSON.stringify(item.view_cfg))}`
               }
-              
+
               uni.redirectTo({
                 url
               })

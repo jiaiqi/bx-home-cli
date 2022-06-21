@@ -136,27 +136,28 @@
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
         <textarea class="textarea-content" :adjust-position="true" :value="fieldData.value" :show-confirm-bar="false"
-          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @blur="textareaInput"
+          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @blur="inputChange"
           :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'addr'">
-        <input type="text" @change="textareaInput" placeholder="选择或填写位置" />
+        <input type="text" @blur="inputChange" :value="fieldData.value" placeholder="选择或填写位置" />
       </view>
       <view class="form-item-content_value" v-else-if="fieldData.type === 'RichText'" @click="showModal('RichEditor')">
         <view class="value rich-text" v-if="!fieldData.value">请输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
       <input type="text" class="" style="width: 100%"
-        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" @change="textareaInput"
-        :maxlength="max_len" :disabled="fieldData.disabled|| false" v-else-if="fieldData.type === 'text'" />
+        :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" :value="fieldData.value"
+        @blur="inputChange" :maxlength="max_len" :disabled="fieldData.disabled|| false"
+        v-else-if="fieldData.type === 'text'" />
       <uni-rate v-model="fieldData.value" :readonly="fieldData.disabled"
         :max="fieldData.moreConfig&&fieldData.moreConfig.max?fieldData.moreConfig.max:5"
         :allowHalf="fieldData.moreConfig&&fieldData.moreConfig.allowHalf?fieldData.moreConfig.allowHalf:false"
         v-else-if="(fieldData.type === 'number' || fieldData.type === 'digit')&&fieldData.moreConfig&&fieldData.moreConfig.mode==='rate'" />
-      <input class="" style="width: 100%" @change="textareaInput"
+      <input class="" style="width: 100%" :value="fieldData.value" @blur="inputChange"
         :placeholder="fieldData.disabled ?'当前字段不支持编辑':'请输入'+(fieldData.customLabel||fieldData.label)"
         :type="fieldData.type" :maxlength="max_len" :max="max" :min="min" :disabled="fieldData.disabled || false"
         v-else-if="
@@ -242,7 +243,7 @@
           <view class="content">
             <view class="cu-bar search bg-white" v-if="modalName === 'Selector' && fieldData.showSearch !== false">
               <view class="search-form round">
-                <input @input="searchFKDataWithKey" type="text" placeholder="搜索" confirm-type="search" />
+                <input@blur="searchFKDataWithKey" type="text" placeholder="搜索" confirm-type="search" />
               </view>
               <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs" @click="refresh()"></text>
               <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
@@ -262,7 +263,7 @@
                  <bx-radio name="__others">其它</bx-radio>
                 <view class="other-val" v-if="fieldData.value==='__others'">
                   <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它"
-                    @input="selectorInput" />
+                   @blur="selectorInput" />
                 </view>
                 <view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
               </bx-radio-group>
@@ -1225,7 +1226,7 @@
           }
           appName = 'sso';
         }
-        if (self.fieldData.value && self.fieldData.disabled && self.fieldData.option_list_v2?.refed_col && !
+        if (self.fieldData.value  && self.fieldData.option_list_v2?.refed_col && !
           self
           .fieldData?.redundant) {
           if (Array.isArray(req.condition) !== true) {
@@ -1392,7 +1393,7 @@
               'object') {
               url += `&listConfig=${JSON.stringify(this.fieldData?.moreConfig?.listConfig)}`
             }
-            
+
             if (this.fieldData?.moreConfig?.disabledCol) {
               url += `&disabledCol=${this.fieldData?.moreConfig?.disabledCol}`
             }
@@ -1466,7 +1467,7 @@
         // this.$emit('on-value-change', this.fieldData);
         // }
       },
-      textareaInput(e) {
+      inputChange(e) {
         this.fieldData.value = e.detail.value
         this.getValid();
       },

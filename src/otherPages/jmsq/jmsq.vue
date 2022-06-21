@@ -251,7 +251,6 @@
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
-
         },
         imageUrl: {
           image: [],
@@ -311,20 +310,27 @@
             "rownumber": 1
           },
           "colNames": ["*"],
-          "serviceName":serviceName
+          "serviceName": serviceName
         }
         const url = `/health/select/${serviceName}`
         const res = await this.$http.post(url, req)
         if (Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
-          this.form = res.data.data[0]
-        }else{
+          let data = res.data.data[0]
+          if (data?.id) {
+            Object.keys(data).forEach(key => {
+              if (data[key]) {
+                this.form[key] = data[key]
+              }
+            })
+          }
+        } else {
           uni.showModal({
-            title:'提示',
-            content:'数据加载失败',
-            showCancel:false,
+            title: '提示',
+            content: '数据加载失败',
+            showCancel: false,
             success() {
               uni.navigateBack({
-                
+
               })
             }
           })
@@ -340,9 +346,21 @@
         for (let key of keys) {
           if (!this.form[key] && this.required[key]) {
             unpass++
+            let requiredLabel = {
+              name: '店铺名称', //店铺名称
+              address: '店铺地址', //店铺地址
+              logo: '店铺logo', //店铺logo
+              telephone: '联系电话', //联系电话
+              start_time: '营业开始时间', //营业开始时间
+              end_time: '营业结束时间', // 营业结束时间
+              business_license: '营业执照', //营业执照
+              legal_person_id_card: '法人身份证', // 法人身份证
+              legal_person_id_card_reverse: '法人身份证（反）',
+              wx_mch_id: '微信商户号', //微信商户号
+            }
             uni.showModal({
               title: '提示',
-              content: '请检查表单是否填写完整!',
+              content: `请填写/上传【${requiredLabel[key]}】`,
               showCancel: false
             })
             this.isOnSubmit = false
@@ -353,6 +371,7 @@
           this.isOnSubmit = false
           return
         }
+        debugger
         const service = this.serviceName || 'srvhealth_store_mgmt_join_add'
 
         const url = `/health/operate/${service}`
@@ -375,7 +394,7 @@
           req[0].data[0].online_status = '上线'
         }
 
-        req[0].data[0].audit_status = '待审核'
+        // req[0].data[0].audit_status = '待审核'
 
         const res = await this.$http.post(url, req);
         this.isOnSubmit = false

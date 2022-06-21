@@ -260,13 +260,14 @@
             "enablePullDownRefresh": false
           }
         },
+        {
+          "path": "successPay/successPay"
+        },
         // #ifdef H5
         {
           "path": "payOrder/payOrder"
         },
-        {
-          "path": "successPay/successPay"
-        },
+        
         {
           "path": "DoctorIntro/DoctorIntro"
         },

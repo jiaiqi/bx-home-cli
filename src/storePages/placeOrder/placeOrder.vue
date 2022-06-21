@@ -521,10 +521,17 @@
           }
           xIfCols.forEach(col => {
             let x_if = col?.x_if;
-            if (x_if) {
-              x_if = `(${x_if})(data)`
-              xIfResult.response[col.column] = eval(x_if)
+            try {
+              if (x_if) {
+                x_if = `(${x_if})(data)`
+                xIfResult.response[col.column] = eval(x_if)
+              }
+            } catch (e) {
+              //TODO handle the exception
+              console.log(e)
+              debugger
             }
+
           })
           //#endif
         }
@@ -756,9 +763,15 @@
             let data = defaultVal
             cols.forEach(col => {
               let x_if = col?.x_if;
-              if (x_if) {
-                x_if = `(${x_if})(data)`
-                result.response[col.column] = eval(x_if)
+              try {
+                if (x_if) {
+                  x_if = `(${x_if})(data)`
+                  result.response[col.column] = eval(x_if)
+                }
+              } catch (e) {
+                //TODO handle the exception
+                console.log(e)
+                debugger
               }
             })
             // #endif
@@ -1263,29 +1276,30 @@
           })
           return
         }
-        if (!this.isFood && !this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this
-            .delivery_type) &&
-          this.needAddress) {
-          uni.showToast({
-            title: '请先选择您的地址信息',
-            icon: 'none',
-            mask: true
-          })
-          return
-        }
 
-        if (!this.isFood && (!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递',
-            '卖家配送'
-          ]
-          .includes(this.delivery_type) && this.needAddress) {
-          uni.showToast({
-            title: '请确认您的姓名、地址、手机号是否填写完善',
-            icon: 'none',
-            duration: 3000,
-            mask: true
-          })
-          return
-        }
+        // if (!this.isFood && !this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this
+        //     .delivery_type) &&
+        //   this.needAddress && !this.tgNo) {
+        //   uni.showToast({
+        //     title: '请先选择您的地址信息',
+        //     icon: 'none',
+        //     mask: true
+        //   })
+        //   return
+        // }
+
+        // if (!this.isFood && (!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递',
+        //     '卖家配送'
+        //   ]
+        //   .includes(this.delivery_type) && this.needAddress) {
+        //   uni.showToast({
+        //     title: '请确认您的姓名、地址、手机号是否填写完善',
+        //     icon: 'none',
+        //     duration: 3000,
+        //     mask: true
+        //   })
+        //   return
+        // }
 
         if (this.mainData.repast_type && this.mainData.repast_type == '外卖') {
           // 外卖才需要配送费
@@ -1468,12 +1482,13 @@
         if (this.tgNo) {
           // 团长开团编号
           req[0].data[0].regimental_dumpling_no = this.tgNo
-          if (this.goodsWay === '快递') {
-            req[0].data[0].delivery_type = '快递'
-          } else {
-            // 团长代收
-            req[0].data[0].delivery_type = '自提'
-          }
+          req[0].data[0].delivery_type = '快递'
+          // if (this.goodsWay === '快递') {
+          //   req[0].data[0].delivery_type = '快递'
+          // } else {
+          //   // 团长代收
+          //   req[0].data[0].delivery_type = '自提'
+          // }
         }
 
         let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
@@ -1597,10 +1612,10 @@
           })
         }
       },
-      async toPay(onClickbutton=false) {
+      async toPay(onClickbutton = false) {
 
         this.wxMchId = this.getwxMchId()
-        
+
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
@@ -1657,8 +1672,8 @@
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
           uni.showLoading({
-            title:'请稍后...',
-            mask:true
+            title: '请稍后...',
+            mask: true
           })
           let payResult = await new Promise((resolve) => {
             wx.requestPayment({
@@ -1672,6 +1687,10 @@
                 self.orderInfo.order_state = '待发货';
                 self.updateOrderState('待发货', '已支付', result.prepay_id).then(_ => {
                   self.orderInfo.pay_state = '已支付';
+                  uni.redirectTo({
+                    url: '/storePages/successPay/successPay?order_no=' + self.orderInfo.order_no +
+                      '&totalMoney=' + self.totalMoney
+                  });
                   resolve(true)
                 })
               },
@@ -1685,7 +1704,7 @@
             });
           })
           uni.hideLoading()
-          if(payResult==true&&onClickbutton==true){
+          if (payResult == true && onClickbutton == true) {
             let afterSubmit = this.moreConfig?.after_submit;
             let effect_data = this.orderInfo
             if (Array.isArray(afterSubmit) && afterSubmit.length > 0) {
@@ -1732,9 +1751,11 @@
         this.addressInfo.telNumber = this.userInfo?.phone || this.userInfo?.phone_xcx || ''
         this.addressInfo.userName = this.userInfo?.name || ''
       }
+
       if (option.goodsWay) {
         this.goodsWay = option.goodsWay
       }
+
       if (option.orderType) {
         this.orderType = option.orderType
       }

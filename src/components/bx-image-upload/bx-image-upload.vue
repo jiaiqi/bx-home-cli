@@ -29,9 +29,10 @@
       </view>
     </view>
 
-  <view class="">
-    <ksp-cropper :mode="clipMode" :width="clipWidth" :height="clipHeight"  :url="curClipUrl" @cancel="oncancel" @ok="oncliped"></ksp-cropper>
-  </view>
+    <view class="cropper-box" v-if="curClipUrl">
+      <ksp-cropper :mode="clipMode" :width="clipWidth" :maxHeight="clipMaxHeight" :maxWidth="clipMaxWidth"
+        :height="clipHeight" :url="curClipUrl" @cancel="oncancel" @ok="oncliped"></ksp-cropper>
+    </view>
   </view>
 </template>
 
@@ -77,6 +78,10 @@
    */
   export default {
     name: 'bx-image-upload',
+    model: {
+      prop: 'value',
+      event: 'change'
+    },
     props: {
       // 组件绑定的值,一般为上传文件编号（file_no）
       value: {
@@ -260,10 +265,12 @@
       // 裁剪最大宽度 
       clipMaxWidth: {
         type: Number,
+        default: 1024
       },
       // 裁剪最大高度
       clipMaxHeight: {
         type: Number,
+        default: 1024
       }
     },
     data() {
@@ -283,10 +290,10 @@
           this.$emit('change', val)
         }
       },
-      value:{
+      value: {
         immediate: true,
         handler(val) {
-          if(val){
+          if (val) {
             this.fileNo = val;
             this.loadInitImages()
           }
@@ -368,7 +375,6 @@
       },
       oncliped(val) {
         // 裁剪完成
-        debugger
         this.curClipUrl = "";
         const listOldLength = this.lists.length
         this.lists.push({
@@ -615,6 +621,9 @@
             this.lists.splice(index, 1);
             this.$forceUpdate();
             this.$emit('on-remove', index, this.lists, this.index);
+            if(this.lists.length===0){
+              this.fileNo = ''
+            }
             this.showToast(res?.data?.state || '移除成功');
           } else {
             this.showToast('移除失败,请重试');
@@ -771,5 +780,14 @@
     right: 0;
     z-index: 9;
     line-height: 1;
+  }
+
+  .cropper-box {
+    // width: 100vw;
+    // height: 100vh;
+    // position: fixed;
+    // left: 0;
+    // top: 0;
+    // z-index: 9999999;
   }
 </style>
