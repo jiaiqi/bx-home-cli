@@ -1169,6 +1169,22 @@
         if (this.moreConfig?.count_config) {
           this.getCountData(this.moreConfig?.count_config)
         }
+        
+        if (Array.isArray(this.moreConfig?.relation_condition) && this.moreConfig.relation_condition.length > 0 && this
+          .tabs.length < 1) {
+          let data = {
+            userInfo: this.$store?.state?.user?.userInfo,
+            storeInfo: this.$store?.state?.app?.storeInfo,
+            bindUserInfo: this.$store?.state?.user?.storeUserInfo
+          };
+          try {
+            this.relationCondition= JSON.parse(this.renderStr(JSON.stringify(this.moreConfig
+              ?.relation_condition), data));
+          } catch (err) {
+            console.log(err);
+          }
+        }
+        
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');

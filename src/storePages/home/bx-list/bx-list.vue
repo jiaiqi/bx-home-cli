@@ -649,6 +649,7 @@
         // if(this.rownumber===0){
         // 	return
         // }
+        
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -687,8 +688,7 @@
             req.condition.push(obj);
           });
         }
-
-        if (Array.isArray(this.config?.relation_condition) && this.config.relation_condition.length > 0 && this
+        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 && this
           .tabs.length < 1) {
           let data = {
             userInfo: this.$store?.state?.user?.userInfo,

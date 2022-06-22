@@ -48,8 +48,8 @@
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" :clipWidth="900" :clipHeight="450"
-            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.image" index="image"
-            :action="actionUrl">
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" :value="form.image" index="image"
+            :action="actionUrl" @change="imgChange($event,'image')">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
@@ -63,8 +63,8 @@
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" :clipWidth="350" :clipHeight="350"
-            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.logo" index="logo"
-            :action="actionUrl">
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" :value="form.logo" index="logo"
+            :action="actionUrl" @change="imgChange($event,'logo')">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
@@ -84,8 +84,8 @@
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" interfaceName="add" :appName="appName"
-            tableName="bxhealth_store_mgmt" v-model="form.business_license" index="business_license"
-            :action="actionUrl">
+            tableName="bxhealth_store_mgmt" :value="form.business_license" index="business_license" :action="actionUrl"
+            @change="imgChange($event,'business_license')">
             <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
               <text class="cuIcon-add"></text>
             </view>
@@ -99,8 +99,8 @@
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :width="300" :height="300" :max-count="1" :custom-btn="true"
-            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" v-model="form.legal_person_id_card"
-            index="legal_person_id_card" :action="actionUrl">
+            interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt" :value="form.legal_person_id_card"
+            index="legal_person_id_card" :action="actionUrl" @change="imgChange($event,'legal_person_id_card')">
             <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
               <view class="title">
                 请上传身份证正面(国徽面)
@@ -114,7 +114,8 @@
 
           <bx-image-upload :disabled="pageType==='detail'" :width="300" :height="300" :max-count="1" :custom-btn="true"
             interfaceName="add" :appName="appName" tableName="bxhealth_store_mgmt"
-            v-model="form.legal_person_id_card_reverse" index="legal_person_id_card_reverse" :action="actionUrl">
+            :value="form.legal_person_id_card_reverse" index="legal_person_id_card_reverse" :action="actionUrl"
+            @change="imgChange($event,'legal_person_id_card_reverse')">
             <view slot="addBtn" class="slot-btn id-card" hover-class="slot-btn__hover" hover-stay-time="150">
               <view class="title">
                 请上传身份证反面(人像面)
@@ -251,6 +252,8 @@
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
+          // one_money_than: true, //一级分佣比例
+          // two_money_than: true, //二级分佣比例
         },
         imageUrl: {
           image: [],
@@ -296,6 +299,9 @@
       }
     },
     methods: {
+      imgChange(val, col) {
+        this.form[col] = val
+      },
       async getDetail() {
         let serviceName = 'srvhealth_store_mgmt_select'
         serviceName = 'srvhealth_store_cus_niming_detail_select'
@@ -357,6 +363,8 @@
               legal_person_id_card: '法人身份证', // 法人身份证
               legal_person_id_card_reverse: '法人身份证（反）',
               wx_mch_id: '微信商户号', //微信商户号
+              one_money_than: '一级分佣比例', //
+              two_money_than: '二级分佣比例', //
             }
             uni.showModal({
               title: '提示',
@@ -388,6 +396,12 @@
             value: this.id
           }]
         } else {
+          req[0].data[0] = Object.keys(this.form).reduce((pre, cur) => {
+            if (this.form[cur]) {
+              pre[cur] = this.form[cur]
+            }
+            return pre
+          }, {})
           req[0].data[0].type = this.storeInfo?.type
           req[0].data[0].home_page_no = this.storeInfo?.home_page_no
           req[0].data[0].parent_no = this.storeInfo?.store_no
@@ -408,6 +422,12 @@
                 uni.navigateBack()
               }
             }
+          })
+        } else {
+          uni.showModal({
+            title: '提示',
+            content: res?.data?.resultMessage,
+            showCancel: false
           })
         }
       },
@@ -520,7 +540,7 @@
             }
 
             .cu-btn {
-              width: 60px;
+              min-width: 60px;
               height: 20px;
               margin: 20rpx 0;
             }
