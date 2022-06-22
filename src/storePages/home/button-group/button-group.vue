@@ -145,21 +145,35 @@
     <view class="cu-modal" :class="{'show':modalName==='realname'}" @click="hideModal" @touchmove.prevent>
       <view class="cu-dialog" @click.stop>
         <!-- 实名登记信息 -->
-        <view class="modal-title text-bold text-cyan bg-white">
-          请先完善实名信息
+        <view class="modal-title text-bold text-cyan bg-white padding-tb">
+          请先完善用户基本信息
         </view>
         <form class="realname-form">
-          <view class="cu-form-group">
-            <view class="title">姓名</view>
+          <view class="cu-form-group" v-if="!validateMap||(validateMap&&validateMap.name&&!formModel.customer_name)">
+            <view class="title">姓名 <text class="text-red" v-if="validateMap&&validateMap.name">*</text> </view>
             <input class="text-right" placeholder="请输入您的真实姓名" name="input" v-model="formModel.customer_name"></input>
           </view>
-          <view class="cu-form-group" v-if="realNameHideId!==true">
-            <view class="title">身份证号</view>
+          <view class="cu-form-group" v-if="!validateMap||(validateMap&&validateMap.sex&&!validateMap.sex)">
+            <view class="title">性别<text class="text-red" v-if="validateMap&&validateMap.sex">*</text> </view>
+            <radio-group @change="sexChange" style="flex: 1;text-align: right;">
+              <label class="radio">
+                <radio value="男" :checked="formModel.sex==='男'" class="margin-lr-xs" />男
+              </label>
+              <label class="radio">
+                <radio value="女" :checked="formModel.sex==='女'" class="margin-lr-xs" />女
+              </label>
+            </radio-group>
+            <!-- <input class="text-right" placeholder="请输入您的真实姓名" name="input" v-model="formModel.sex"></input> -->
+          </view>
+          
+          <view class="cu-form-group" v-if="realNameHideId!==true||!validateMap||(validateMap&&validateMap.id_no&&!validateMap.id_no)">
+            <view class="title">身份证号<text class="text-red" v-if="validateMap&&validateMap.id_no">*</text> </view>
             <input class="text-right" placeholder="请输入您的身份证号" name="input" type="idcard"
               v-model="formModel.id_no"></input>
           </view>
-          <view class="cu-form-group" v-if="realNameHideBirth!==true">
-            <view class="title">出生日期</view>
+          
+          <view class="cu-form-group" v-if="realNameHideBirth!==true||!validateMap||(validateMap&&validateMap.customer_birth_day&&!validateMap.customer_birth_day)">
+            <view class="title">出生日期<text class="text-red" v-if="validateMap&&validateMap.birth">*</text> </view>
             <picker mode="date" v-model="formModel.customer_birth_day" start="1930-09-01" end="2022-09-01"
               @change="DateChange">
               <view class="picker birthday text-right">
@@ -167,8 +181,8 @@
               </view>
             </picker>
           </view>
-          <view class="cu-form-group">
-            <view class="title">手机号码</view>
+          <view class="cu-form-group"  v-if="!validateMap||(validateMap&&validateMap.phone&&!formModel.phone_xcx)">
+            <view class="title">手机号码<text class="text-red" v-if="validateMap&&validateMap.phone">*</text> </view>
             <text v-if="!formModel.phone_xcx">点击右侧按钮获取手机号</text>
             <input class="text-right" placeholder="请先授权获取手机号" name="input" type="number"
               v-model="formModel.customer_phone" v-else></input>
@@ -241,8 +255,9 @@
         modalName: null,
         tip: '',
         formModel: {
-          id_no: '',
-          phone_xcx: '',
+          id_no: '', //身份证号码
+          sex: "", //性别
+          phone_xcx: '', //小程序绑定手机号
           customer_name: "",
           customer_birth_day: "",
           customer_phone: '',
@@ -250,7 +265,8 @@
         },
         buttonsIcon: [],
         menuList: [],
-        noticeNum: {}
+        noticeNum: {},
+        validateMap:null
       };
     },
 
@@ -365,6 +381,9 @@
       },
     },
     methods: {
+      sexChange(e) {
+        this.formModel.sex = e.detail.value
+      },
       getImgSrc(url) {
         return new Promise(resolve => {
           // #ifdef MP-WEIXIN
@@ -412,7 +431,6 @@
               }
             }
             let obj = {
-
               prompt: btn.prompt,
               navType: btn.navigate_type,
               icon: '',
@@ -639,8 +657,17 @@
       hideModal() {
         this.modalName = null
       },
-      showRealNameModal() {
+      showRealNameModal(e) {
+        this.validateMap = null
+        if (Array.isArray(e)) {
+          let validateMap = e.reduce((pre, cur) => {
+            pre[cur.type] = true;
+            return pre
+          }, {})
+          this.validateMap = validateMap
+        }
         this.formModel.customer_name = this.userInfo.name || this.userInfo.nick_name
+        this.formModel.sex = this.userInfo.sex
         this.formModel.customer_phone = this.userInfo.phone
         this.formModel.customer_birth_day = this.userInfo.birthday
         this.formModel.id_no = this.userInfo.id_no
@@ -677,6 +704,9 @@
         }
         if (this.formModel.customer_name) {
           data.name = this.formModel.customer_name
+        }
+        if (this.formModel.sex) {
+          data.sex = this.formModel.sex
         }
         let req = [{
           "serviceName": "srvhealth_person_info_real_identity_update",
@@ -819,19 +849,31 @@
                 case 'id_no':
                   if (!this.userInfo?.id_no) {
                     res = false
-                    this.showRealNameModal()
+                    this.showRealNameModal(e.before_click.validate)
                   }
                   break;
                 case 'phone':
                   if (!this.userInfo?.phone_xcx || !this.userInfo?.phone) {
                     res = false
-                    this.showRealNameModal()
+                    this.showRealNameModal(e.before_click.validate)
                   }
                   break;
                 case 'name':
                   if (!this.userInfo?.name) {
                     res = false
-                    this.showRealNameModal()
+                    this.showRealNameModal(e.before_click.validate)
+                  }
+                  break;
+                case 'sex':
+                  if (!this.userInfo?.sex) {
+                    res = false
+                    this.showRealNameModal(e.before_click.validate)
+                  }
+                  break;
+                case 'birth':
+                  if (!this.userInfo?.birthday) {
+                    res = false
+                    this.showRealNameModal(e.before_click.validate)
                   }
                   break;
                 case 'officialAccount':
