@@ -100,6 +100,9 @@ export default {
       if (total_fee) {
         total_fee = Number(total_fee.toFixed(2))
       }
+      if(description&&description.length>40){
+        description = description.slice(0,40) + '...'
+      }
       let url = Vue.prototype.getServiceUrl('wx', 'srvwx_order', 'operate');
       let req = [{
         "serviceName": "srvwx_order",

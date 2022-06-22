@@ -82,10 +82,10 @@
                 <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
-              <view class="text-sm text-gray" v-if="type==='view'">
-                已团7件
+              <view class="text-sm text-gray" v-if="type==='view'&&item.boughtNum">
+                已团{{item.boughtNum||'-'}}件
               </view>
-              <view class="text-lg text-gray" v-else-if="item.amount&&type!=='default'">
+              <view class="text-lg text-gray" v-else-if="item.amount&&type!=='default'&&type!=='view'">
                 x {{item.amount}}
               </view>
             </view>
@@ -94,8 +94,8 @@
                 <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
               </view>
-              <view class="number-box" v-if="countDown!==0&&countDown!=='团购已经结束'">
-                <u-number-box v-model="item.amount" :min="1" :index="index" @change="changeAmount"></u-number-box>
+              <view class="number-box" v-if="countDown!==0&&countDown!=='团购已经结束'&&item.amount">
+                <u-number-box :value="item.amount" :min="1" :index="index" @change="changeAmount($event,index)"></u-number-box>
               </view>
             </view>
           </view>
@@ -109,8 +109,12 @@
         </view>
         <view class="cu-form-group ">
           <view class="title">团长收货地址</view>
-          <input :placeholder="''" name="input" :value="tgInfo.address_str|| tgInfo.addr_str||tgInfo.address_no"
-            :disabled="true"></input>
+          <view class="input" style="flex: 1;">
+            {{tgInfo.address_name||tgInfo.address_str|| tgInfo.addr_str||tgInfo.address_no}}
+          </view>
+         <!-- <input :placeholder="''" name="input"
+            :value="tgInfo.address_name||tgInfo.address_str|| tgInfo.addr_str||tgInfo.address_no"
+            :disabled="true"></input> -->
         </view>
       </view>
 
@@ -233,7 +237,8 @@
           this.$set(this.goodsList, index, item)
         }
       },
-      changeAmount(e) {
+      changeAmount(e,index) {
+        this.goodsList[index].amount = e.value
         if (e.value === 0) {
           this.goodsList[e.index].checked = false
         } else {
@@ -365,6 +370,40 @@
           }
         })
       },
+      async getGoodsBoughtNum() {
+        // 查找团购商品已团次数
+        
+        const req = {
+          "serviceName": "srvhealth_store_order_goods_num_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": "regimental_dumpling_no",
+              "ruleType": "eq",
+              "value": this.tgInfo?.regimental_dumpling_no
+            },
+            {
+              "colName": "dumpling_no",
+              "ruleType": "eq",
+              "value": this.tgInfo?.dumpling_no
+            }
+          ],
+          "page": {
+            "rownumber": 100,
+            "pageNo": 1
+          },
+        }
+        const url = this.getServiceUrl('health', 'srvhealth_store_order_goods_num_select', 'select');
+        const res = await this.$http.post(url,req)
+        if(res?.data?.state==='SUCCESS'){
+          this.goodsList = this.goodsList.map(item=>{
+            let goods = res.data.data.find(e=>item.goods_no===e.goods_no)
+            if(goods?.goods_amount){
+              item.boughtNum = goods?.goods_amount
+            }
+            return item
+          })
+        }
+      },
       getTgGoods() {
         // 查找团购商品列表
         const req = {
@@ -388,7 +427,9 @@
               item.checked = false
               return item
             })
+            
             this.goodsList = data
+            this.getGoodsBoughtNum()
             if (this.orderNo) {
               this.getBoughtGoods()
             }

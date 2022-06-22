@@ -141,7 +141,7 @@
           if (this.curNode) {
             condition = [{
               colName: this.parentCol || 'parent_no',
-              ruleType: 'like',
+              ruleType: 'eq',
               value: this.curNode
             }];
           } else {

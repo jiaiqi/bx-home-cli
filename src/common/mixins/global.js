@@ -43,7 +43,9 @@ export default {
         val: option.storeNo || option.store_no
       })
     }
+    // #ifdef MP-WEIXIN
     await this.initApp()
+    //#endif
   },
   methods: {
     toTop() {
