@@ -464,7 +464,10 @@
 				uni.stopPullDownRefresh()
 			}, 1000)
 		},
-		onLoad(option) {
+		async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
 			if (option.appName) {
 				this.appName = option.appName
 

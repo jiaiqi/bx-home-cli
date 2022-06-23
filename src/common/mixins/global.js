@@ -44,7 +44,7 @@ export default {
       })
     }
     // #ifdef MP-WEIXIN
-    await this.initApp()
+    // await this.initApp()
     //#endif
   },
   methods: {

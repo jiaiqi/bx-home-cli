@@ -1401,6 +1401,9 @@
       };
     },
     async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)
       // })

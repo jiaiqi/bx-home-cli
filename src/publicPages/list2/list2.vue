@@ -2313,7 +2313,10 @@
         }
       }
     },
-    onLoad(option) {
+   async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
       if (option.v2Params) {
         try {
           this.v2Params = JSON.parse(option.v2Params)

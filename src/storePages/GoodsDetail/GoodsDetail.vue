@@ -1190,6 +1190,9 @@
       };
     },
     async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
       if (option.hideButton) {
         this.hideButton = true;
       }

@@ -158,7 +158,7 @@ const wxOpenLogin = async (openCode) => {
 }
 
 const selectPersonInfo = async (user_no) => {
-   user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
+  user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
   try {
     if (store.state.user.loginUserInfo?.user_no) {
       user_no = store.state.user.loginUserInfo.user_no
@@ -180,7 +180,15 @@ const selectPersonInfo = async (user_no) => {
       "rownumber": 2
     },
   }
-
+  const uerInfo = store.state?.user?.userInfo
+  if (user_no && user_no === uerInfo.userno) {
+    store.commit('SET_USERINFO', userInfo)
+    store.commit('SET_USERLIST', [userInfo])
+    store.commit('SET_AUTH_USERINFO', true);
+    uni.setStorageSync('current_user_info', userInfo);
+    uni.setStorageSync('current_user', userInfo.name);
+    return userInfo
+  }
   let res = {}
   if (user_no) {
     if (store?.state?.user?.userInfo?.userno === user_no) {
@@ -200,7 +208,7 @@ const selectPersonInfo = async (user_no) => {
     store.commit('SET_USERINFO', res.data.data[0])
     store.commit('SET_USERLIST', res.data.data)
     uni.setStorageSync('current_user_info', res.data.data[0]);
-    uni.setStorageSync('current_user',  res.data.data[0].name);
+    uni.setStorageSync('current_user', res.data.data[0].name);
     // #ifdef MP-WEIXIN
     if (res.data.data[0].home_store_no && !store.state.app.hasIntoHospital) {
       // 有home_store 此次打开小程序未进入过医院/餐馆主页

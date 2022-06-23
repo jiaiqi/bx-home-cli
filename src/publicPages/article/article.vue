@@ -163,6 +163,9 @@
       };
     },
     async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
       if (option.article) {
         this.articleData = JSON.parse(decodeURIComponent(option.article));
       }

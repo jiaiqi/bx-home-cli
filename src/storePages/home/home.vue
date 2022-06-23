@@ -1135,7 +1135,10 @@
       },
       async initPage(forceUpdate = false) {
         // forceUpdate - 是否强制更新店铺组件
-        await this.toAddPage();
+        // await this.toAddPage();
+        // #ifdef MP-WEIXIN
+        await this.initApp()
+        //#endif
         this.pageItemList = false
         if (!this.subscsribeStatus) {
           // 检测是否已关注公众号
@@ -1425,6 +1428,9 @@
       // })
     },
     async onLoad(option) {
+      // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
       if (option.service_place_no) {
         getApp().globalData.service_place_no = option.service_place_no;
         let placeInfo = await this.getPlaceInfo(option.service_place_no)
@@ -1599,7 +1605,8 @@
       if (option.invite_user_no) {
         this.invite_user_no = option.invite_user_no;
       }
-      await this.toAddPage();
+
+      // await this.toAddPage();
 
       if (option.pt_no) {
         this.pt_no = option.pt_no;

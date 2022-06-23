@@ -988,6 +988,9 @@
     },
     async onLoad(option) {
       // #ifdef MP-WEIXIN
+      await this.initApp()
+      //#endif
+      // #ifdef MP-WEIXIN
       wx.showShareMenu({
         withShareTicket: true,
         menus: ['shareAppMessage']

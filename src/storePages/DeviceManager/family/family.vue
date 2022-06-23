@@ -376,7 +376,10 @@ export default {
   },
   // 页面周期函数--监听页面加载
   async onLoad (option) {
-    await this.toAddPage()
+    // await this.toAddPage()
+    // #ifdef MP-WEIXIN
+    await this.initApp()
+    //#endif
     if (option.store_no) {
       this.store_no = option.store_no
       if (this.userInfo?.userno) {
