@@ -1185,6 +1185,10 @@
           }
         }
         
+        if((Array.isArray(this.moreConfig?.group) && this.moreConfig.group.length > 0)){
+          req.group = this.moreConfig.group
+        }
+        
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -2487,6 +2491,14 @@
             }
           });
           this.condition = cond;
+        }
+      }
+      if(option.rCond){
+        try{
+          let relationCondition = JSON.parse(option.rCond)
+          this.relationCondition = relationCondition
+        }catch(e){
+          //TODO handle the exception
         }
       }
 

@@ -508,8 +508,8 @@
                   case 'openLocation':
                     if (cfg?.longitude && cfg?.latitude) {
                       uni.openLocation({
-                        latitude: cfg.latitude,
-                        longitude: cfg.longitude,
+                        latitude: Number(cfg.latitude),
+                        longitude: Number(cfg.longitude),
                         success: function() {
                           console.log('success');
                         }

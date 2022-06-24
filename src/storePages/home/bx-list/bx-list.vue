@@ -24,7 +24,7 @@
             @click-foot-btn="clickFootBtn" />
         </view>
       </view>
-<!--      <view class="data-empty" style="text-align: center;" v-if="showEmptyData&&list.length===0&&loadStatus==='noMore'">
+      <!--      <view class="data-empty" style="text-align: center;" v-if="showEmptyData&&list.length===0&&loadStatus==='noMore'">
         <u-empty></u-empty>
       </view> -->
       <uni-load-more :status="loadStatus" v-if="loadOnReachBottom"></uni-load-more>
@@ -427,6 +427,28 @@
 
           url += `&cond=${JSON.stringify(conds)}`
         }
+
+        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 &&
+          this
+          .tabs.length < 1) {
+          let data = {
+            userInfo: this.$store?.state?.user?.userInfo,
+            storeInfo: this.$store?.state?.app?.storeInfo,
+            bindUserInfo: this.$store?.state?.user?.storeUserInfo
+          };
+          try {
+            let relation_condition = JSON.parse(this.renderStr(JSON.stringify(this.config
+              ?.relation_condition), data));
+            url += `&rCond=${JSON.stringify(relation_condition)}`
+          } catch (err) {
+            console.log(err);
+          }
+        }
+        
+        if(Array.isArray(this.config?.group)&&this.config?.group.length>0){
+          url += `&group=${JSON.stringify(this.config?.group)}`
+        }
+
         uni.navigateTo({
           url: url
         });
@@ -649,7 +671,7 @@
         // if(this.rownumber===0){
         // 	return
         // }
-        
+
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -688,7 +710,8 @@
             req.condition.push(obj);
           });
         }
-        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 && this
+        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 &&
+          this
           .tabs.length < 1) {
           let data = {
             userInfo: this.$store?.state?.user?.userInfo,
@@ -701,6 +724,9 @@
           } catch (err) {
             console.log(err);
           }
+        }
+        if((Array.isArray(this.config?.group) && this.config.group.length > 0)){
+          req.group = this.config.group
         }
         if (Array.isArray(this.tabs) && this.tabs.length > 0) {
           let cur = this.tabs[this.curTab]
@@ -906,8 +932,7 @@
                       }
                       data[item] = this.renderStr(data[item].value_key,
                         globalVariable)
-                    } else {
-                    }
+                    } else {}
                   });
                 }
               });
