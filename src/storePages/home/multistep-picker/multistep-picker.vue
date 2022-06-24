@@ -197,6 +197,7 @@
           if (disabledCol && (item[disabledCol] == true || item[disabledCol] == 1)) {
             disabled = true
           }
+          debugger
           if (cfg?.timeoutDisabled && cfg?.dateTime) {
             let globalData = {
               data: item,
@@ -209,7 +210,7 @@
             }
             let time = this.renderStr(cfg?.dateTime, globalData)
             if (time) {
-              disabled = this.dayjs() - this.dayjs(time) > 0
+              disabled = this.dayjs() - this.dayjs(time) > 0||disabled
             }
           }
         }
@@ -423,7 +424,7 @@
             const res = await this.$fetch('select', service, req, app)
             if (res.success) {
               let list = res.data.map((item, index) => {
-                item.disabled = this.isDisabled('second',item)
+                // item.disabled = this.isDisabled('second', item)
                 item.selected = false
                 // if (index === 0) {
                 //   item.selected = true
@@ -432,8 +433,8 @@
               })
               this.secondLevelData = list
               if (Array.isArray(res.data) && res.data.length > 0) {
-                let curIndex = res.data.findIndex(e=>e.disabled!==true)
-                if(curIndex!==-1){
+                let curIndex = res.data.findIndex(e => e.disabled !== true)
+                if (curIndex !== -1) {
                   list[curIndex].selected = true;
                   this.getThirdData(list[curIndex])
                 }
@@ -466,12 +467,13 @@
             if (e && pidCol && e[pidCol]) {
               this.secondLevelData = this.secondLevelData.map(item => {
                 item.selected = false
-                if (item[pidCol] === e[pidCol]&&e.disabled!==true) {
+                let disabled = this.isDisabled('second', item)
+                if (item[pidCol] === e[pidCol] && disabled !== true) {
                   item.selected = true
                 }
                 return item
               })
-             
+
               req.condition.push({
                 colName: pidCol,
                 ruleType: 'eq',
@@ -503,14 +505,15 @@
             if (res.success) {
               let list = res.data.map((item, index) => {
                 item.selected = false;
-                if (index === 0) {
+                let disabled = this.isDisabled('third', item)
+                if (item[pidCol] === e[pidCol] && disabled !== true) {
                   item.selected = true
                 }
                 return item
               })
               if (Array.isArray(res.data) && res.data.length > 0) {
-                let curIndex = res.data.findIndex(e=>e.disabled!==true)
-                if(curIndex!==-1){
+                let curIndex = res.data.findIndex(e => e.disabled !== true)
+                if (curIndex !== -1) {
                   list[curIndex].selected = true;
                 }
               }
@@ -680,7 +683,8 @@
         color: var(--second-active-color);
         background-color: var(--second-active-bg);
       }
-      &.disabled{
+
+      &.disabled {
         pointer-events: none;
         opacity: 0.5;
       }
