@@ -258,7 +258,7 @@
             value: '正常'
           }
         ];
-        if (this.userInfo?.no) {
+        if (this.userInfo?.userno) {
           let listConfig = {
             navTitle: '切换店铺',
             listBarReadonly: true,

@@ -127,7 +127,7 @@
         if (this.session_type) {
           url += `&type=${this.session_type}&store_user_no=${e.store_user_no}`
         } else {
-          url += `&type=${this.session_type}`
+          url += `&type=机构用户客服`
         }
 
         uni.navigateTo({

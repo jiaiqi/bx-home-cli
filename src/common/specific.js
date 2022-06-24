@@ -112,7 +112,7 @@ export default {
           "out_trade_no": orderData ? orderData.order_no : new Date().getTime(),
           "total_fee": total_fee, // 单位是分
           "spbill_create_ip": "192.168.0.21",
-          "notify_url": "http://wx2.100xsys.cn/wx/notify/payment",
+          "notify_url": "https://srvms.100xsys.cn/wx/notify/payment",
           "body": description || "test producet",
           "user_no": store.state.user.userInfo.userno,
           "login_user_type": login_user_type || "user"

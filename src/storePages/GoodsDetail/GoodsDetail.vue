@@ -130,8 +130,9 @@
     </view>
     <skuSelector ref="skuSelector" :goodsInfo="goodsInfo" :modalConfirmType="modalConfirmType"
       @confirm="confirmAdd2Cart" @selected="selectedSku" v-if="enableSku" />
-    <view class="cu-modal bottom-modal" :class="{show:modalName==='showShareTips'}" @touchmove="" @click.stop.prevent="changeModal()">
-      <view class="cu-dialog" @click.prevent.stop="" >
+    <view class="cu-modal bottom-modal" :class="{show:modalName==='showShareTips'}" @touchmove=""
+      @click.stop.prevent="changeModal()">
+      <view class="cu-dialog" @click.prevent.stop="">
         <view class="share-tips">
           <view class="title">
             分享赚￥{{shareBonus}}
@@ -853,13 +854,14 @@
         }
 
         this.$store.commit('SET_STORE_CART', {
-          storeInfo: goodsInfo,
-          store_no: goodsInfo.store_no,
+          storeInfo: this.storeInfo,
+          store_no: this.storeInfo?.store_no || goodsInfo.store_no,
           list: [goodsInfo]
         });
 
         let url =
-          `/storePages/placeOrder/placeOrder?store_no=${goodsInfo.store_no}&goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
+          `/storePages/placeOrder/placeOrder?goods_info=${encodeURIComponent(JSON.stringify(goodsInfo))}`;
+        url += `&store_no=${this.storeInfo?.store_no}`
         let orderType = this.getOrderType([goodsInfo])
         url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
         if (this.wxMchId) {

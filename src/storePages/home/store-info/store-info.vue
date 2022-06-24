@@ -497,7 +497,7 @@
             let cfg = this.pageItem[`${e}_url`]
             try {
               cfg = this.renderStr(cfg, globalData)
-              cfg = JSON.stringify(cfg)
+              cfg = JSON.parse(cfg)
               if (cfg?.type) {
                 switch (cfg.type) {
                   // 路由跳转
@@ -523,8 +523,8 @@
                     break;
                     // 打电话
                   case 'makePhoneCall':
-                    if (cfg?.phoneNumber) {
-                      this.makePhoneCall(cfg.phoneNumber)
+                    if (cfg?.phoneNumber || this.storeInfo?.telephone) {
+                      this.makePhoneCall(cfg.phoneNumber || this.storeInfo?.telephone)
                     } else {
                       uni.showToast({
                         title: '未配置电话号码...',
@@ -537,7 +537,6 @@
             } catch (err) {
               console.log(err)
             }
-            debugger
             break;
         }
         if (url) {

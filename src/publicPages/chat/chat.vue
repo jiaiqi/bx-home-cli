@@ -77,7 +77,7 @@
         @msgSendSuccess="msgSendSuccess" @onRefresh="onRefreshMsg" :groupInfo="groupInfo" :rowInfo="rowInfo"
         :storeInfo="storeInfo" :sessionType="sessionType" :storeNo="storeNo" :topHeight="topHeight" :group-no="groupNo"
         :receiverInfo="receiverInfo" :banSend="banSend||stopConsult" :band-post="bandPost"
-        v-if="session_no&&storeUserInfo" :storeUserInfo="vstoreUser" :queryOption="queryOption"></person-chat>
+        v-if="session_no&&storeUserInfo" :store_user_no="store_user_no" :storeUserInfo="vstoreUser" :queryOption="queryOption"></person-chat>
     </view>
   </view>
 </template>
@@ -665,6 +665,7 @@
               self.getGroup()
               break;
             case '机构用户客服':
+             
               if (self.identity === '客户') {
                 if (!self.receiver_person_no) {
                   self.pageTitle = self.storeInfo.name

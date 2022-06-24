@@ -95,6 +95,20 @@
             <view class="person-chat-item-right order-content" v-else-if="item.msg_content_type === '订单'">
               <order-info :orderInfo="item.attribute"></order-info>
             </view>
+            <view class="person-chat-item-right" v-else-if="item.msg_content_type === '自动回复'||item.link_no">
+              <view class="msg-content margin-bottom-xs">
+                {{item.msg_content}}
+              </view>
+              <view class="child-link  " v-if="isArray(item.childList)&&item.childList.length>0">
+                <view class="child-link-item text-blue u-border-top padding-tb-xs" :data-linkdata="linkItem" :key="linkItem.link_no"
+                  v-for="linkItem in item.childList" @click="sendReplay">
+                  {{linkItem.rsp_content_title||''}}
+                </view>
+              </view>
+              <view class="text-sm text-gray padding-top-xs u-border-top ">
+                此消息由机器人发送
+              </view>
+            </view>
             <view class="person-chat-item-right article-content" v-else-if="item.msg_content_type === '文章'"
               @click="toArticle(item)">
               <view class="article-title">{{
@@ -583,7 +597,7 @@
         </view> -->
         <view class="padding-tb">
           <button class="cu-btn bg-blue  " @click="sendOrder">发送</button>
-          <button  class="cu-btn bg-gray margin-left  " @click="hideModal">取消</button>
+          <button class="cu-btn bg-gray margin-left  " @click="hideModal">取消</button>
         </view>
       </view>
     </view>
@@ -666,6 +680,9 @@
       },
       storeUserInfo: {
         type: Object
+      },
+      store_user_no: {
+        type: String
       },
       banSend: {
         type: [Boolean, String], //是否禁言
@@ -1813,7 +1830,8 @@
             receiver_account: this.groupInfo.gc_no,
             receiver_person_no: this.groupInfo.gc_no,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             msg_content_type: type,
             identity: this.groupInfo.group_role
           };
@@ -1827,7 +1845,8 @@
             sender_account: this.currentUserInfo.userno,
             sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             sender_profile_url: this.currentUserInfo.profile_url,
             sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
               .currentUserInfo.profile_url,
@@ -1909,7 +1928,8 @@
             receiver_person_no: this.doctor_info.usera_person_no ? this.doctor_info.usera_person_no : this.userInfo
               .no,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             msg_content_type: type,
             identity: this.pageType ? '患者' : '医生'
           }
@@ -2060,7 +2080,8 @@
             // receiver_account: this.groupInfo.gc_no,
             // receiver_person_no: this.groupInfo.gc_no,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             msg_content_type: !this.isSendLink ? '文本' : '链接',
             identity: this.groupInfo.group_role
           };
@@ -2074,7 +2095,8 @@
             sender_account: this.currentUserInfo.userno,
             sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             sender_profile_url: this.currentUserInfo.profile_url,
             sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo.user_image : this
               .currentUserInfo.profile_url,
@@ -2161,7 +2183,8 @@
             receiver_person_no: this.doctor_info.usera_person_no ? this.doctor_info.usera_person_no : this.userInfo
               .no,
             sender_person_no: this.currentUserInfo.no,
-            sender_store_user_no: this.storeUserInfo?.store_user_no,
+            sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+              ?.store_user_no,
             msg_content_type: !this.isSendLink ? '文本' : '链接',
             identity: this.pageType ? '患者' : '医生'
           }
@@ -2301,6 +2324,112 @@
             .recordList[index -
               1].create_time,
             'normal');
+        }
+      },
+      sendReplay(e, msg) {
+        debugger
+        let data = e?.target?.dataset?.linkdata
+        if (data?.rsp_content_title) {
+          let req = [{
+            "serviceName": "srvhealth_consultation_chat_record_kefu_user_add",
+            "colNames": ["*"],
+            "data": [{
+              "sender_account": this.userInfo?.userno,
+              "sender_name": this.userInfo.name || this.userInfo.nick_name,
+              "sender_person_no": this.userInfo?.no,
+              "sender_store_user_no": this.store_user_no || this.vstoreUser?.store_user_no,
+              "sender_profile_url": this.userInfo?.user_image || this.userInfo?.profile_url,
+              "sender_user_image": this.userInfo?.user_image,
+              "msg_content_type": "文本",
+              "session_no": this.sessionNo || this.sessionInfo?.session_no,
+              "identity": "客户",
+              "msg_content": data.rsp_content_title,
+              "msg_state": "未读",
+              "link_no": data?.link_no
+            }]
+          }]
+          const url = `/health/operate/srvhealth_consultation_chat_record_kefu_user_add`
+          uni.showLoading({
+            title: '发送中...',
+            mask: true
+          })
+          this.$http.post(url, req).then(res => {
+            uni.hideLoading()
+            this.$nextTick().then(_ => {
+              this.initMessageList('refresh')
+            })
+          })
+        }
+      },
+      async getAutoReplayMsg() {
+        // 查找自动回复消息
+        const url = `/health/select/srvhealth_automatic_response_content_select`
+        const req = {
+          "serviceName": "srvhealth_automatic_response_content_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName: 'store_no',
+            ruleType: 'eq',
+            value: this.storeInfo?.store_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 10
+          },
+        }
+        const res = await this.$http.post(url, req)
+        if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
+          let list = res.data.data
+          let hasDetailNo = res.data.data.filter(item => !item.content_type || item.content_type === '文本').map(item =>
+            item.rsp_content_no)
+          if (hasDetailNo.length > 0) {
+            let detailList = await this.getAutoReplayMsgDetail(hasDetailNo.toString())
+            if (Array.isArray(detailList) && detailList.length > 0) {
+              list = list.map(item => {
+                let detail = detailList.filter(e => e.rsp_content_no == item.rsp_content_no)
+                if (Array.isArray(detail) && detail.length > 0) {
+                  item.childList = detail
+                }
+                return item
+              })
+            }
+          }
+          return list.map(item => {
+            let obj = {
+              "create_time": this.dayjs().format("YYYY-MM-DD HH:mm:ss"),
+              "type": "autoReplay",
+              "autoReplayType": item.content_type,
+              "sender_account": "客服",
+              "sender_name": "客服",
+              "sender_person_no": "",
+              "sender_store_user_no": "",
+              "sender_profile_url": this.getImagePath(this.storeInfo?.logo),
+              "sender_user_image": this.getImagePath(this.storeInfo?.logo),
+              "msg_content_type": "自动回复",
+              "session_no": "DS2206151116280003",
+              "identity": "客服",
+              "msg_content": item.rsp_content_title,
+              "msg_state": "已读",
+              "childList": item.childList
+            }
+            return obj
+          })
+        }
+      },
+      async getAutoReplayMsgDetail(no) {
+        const url = `/health/select/srvhealth_automatic_response_content_link_select`
+        const req = {
+          "serviceName": "srvhealth_automatic_response_content_link_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "rsp_content_no",
+            "ruleType": "in",
+            "value": no
+          }],
+        }
+        const res = await this.$http.post(url, req)
+        if (res?.data?.state === 'SUCCESS') {
+          return res.data.data
         }
       },
       // 初始化聊天记录
@@ -2462,7 +2591,7 @@
           return;
         }
         this.pageInfo.total = res.data.page.total;
-        if (resData.length > 0) {
+        if (resData.length >= 0) {
           resData.forEach((item, i) => {
             if (item.msg_content_type === '语音') {
               this.$set(resData[i], 'anmitionPlay', false);
@@ -2572,6 +2701,21 @@
           });
           if (type === 'refresh') {
             resData = resData;
+            if (this.sessionType === '机构用户客服' && this.identity === '客户') {
+              if (this.recordList.length === 0) {
+                let autoReplayMsg = await this.getAutoReplayMsg()
+                if (Array.isArray(autoReplayMsg)) {
+                  resData = [...autoReplayMsg, ...resData]
+                }
+              } else {
+                let autoReplay = this.recordList.filter(item => item.type === 'autoReplay');
+                if (Array.isArray(autoReplay) && autoReplay.length > 0) {
+                  resData = [...autoReplay, ...resData]
+                }
+              }
+
+            }
+
           } else {
             resData = [...resData, ...this.recordList];
           }
@@ -2701,7 +2845,7 @@
         }
       },
       async sendOrder() {
-       await this.sendArticle([this.orderInfo], '订单')
+        await this.sendArticle([this.orderInfo], '订单')
         this.modalName = ''
       },
       async sendArticle(data, cardType) {
@@ -2734,7 +2878,8 @@
               receiver_account: this.groupInfo.gc_no,
               receiver_person_no: this.groupInfo.gc_no,
               sender_person_no: this.currentUserInfo.no,
-              sender_store_user_no: this.storeUserInfo?.store_user_no,
+              sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+                ?.store_user_no,
               msg_content_type: type,
               identity: this.groupInfo.group_role
             };
@@ -2748,7 +2893,8 @@
               sender_account: this.currentUserInfo.userno,
               sender_name: this.currentUserInfo.name || this.currentUserInfo.nick_name,
               sender_person_no: this.currentUserInfo.no,
-              sender_store_user_no: this.storeUserInfo?.store_user_no,
+              sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+                ?.store_user_no,
               sender_profile_url: this.currentUserInfo.profile_url,
               sender_user_image: this.currentUserInfo.user_image ? this.currentUserInfo
                 .user_image : this
@@ -2827,7 +2973,8 @@
                 .usera_person_no : this
                 .userInfo.no,
               sender_person_no: this.currentUserInfo.no,
-              sender_store_user_no: this.storeUserInfo?.store_user_no,
+              sender_store_user_no: this.store_user_no || this.vstoreUser?.store_user_no || this.storeUserInfo
+                ?.store_user_no,
               msg_content_type: type,
               identity: this.pageType ? '患者' : '医生'
             }
@@ -3441,9 +3588,11 @@
                 margin-top: 10rpx;
               }
             }
-            &.order-content{
+
+            &.order-content {
               background-color: #fff;
             }
+
             &.article-content {
               color: #333;
 
@@ -3734,14 +3883,17 @@
                 margin-top: 10rpx;
               }
             }
-            &.order-content{
+
+            &.order-content {
               background-color: #fff;
               color: #333;
               padding: 0;
+
               &::after {
                 border-left: 8px solid #fff;
               }
             }
+
             &.article-content {
               background-color: #fff;
               color: #333;
@@ -4301,5 +4453,4 @@
     width: 100vw;
     height: 20px;
   }
-
 </style>

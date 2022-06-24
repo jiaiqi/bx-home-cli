@@ -180,8 +180,8 @@ const selectPersonInfo = async (user_no) => {
       "rownumber": 2
     },
   }
-  const uerInfo = store.state?.user?.userInfo
-  if (user_no && user_no === uerInfo.userno) {
+  const userInfo = store.state?.user?.userInfo
+  if (user_no && user_no === userInfo?.userno) {
     store.commit('SET_USERINFO', userInfo)
     store.commit('SET_USERLIST', [userInfo])
     store.commit('SET_AUTH_USERINFO', true);
