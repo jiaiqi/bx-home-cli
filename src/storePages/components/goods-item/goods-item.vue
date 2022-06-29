@@ -19,7 +19,8 @@
 		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
 		  }}</text>
         </view>
-        <button class="cu-btn round sm margin-right-xs" @click="toAfterSale" v-if="goods.pay_state==='已支付'">退款</button>
+        <button class="cu-btn round sm margin-right-xs" @click="toAfterSale"
+          v-if="goods.pay_state==='已支付'&&(!goods.return_num||goods.return_num<goods.goods_amount)">退款</button>
         <button class="cu-btn round sm border"
           v-if="orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
           @click="toEvaluate">评价</button>
@@ -108,6 +109,19 @@
           return res
         }, {})
 
+        if (this.goods.return_num) {
+          goods.goods_amount = goods.goods_amount - this.goods.return_num
+        }
+        
+        
+        if (!goods.goods_amount || goods.goods_amount < 1) {
+          uni.showModal({
+            title:'提示',
+            content:'已退数量大于已购数量',
+            showCancel:false
+          })
+          return
+        }
         let url =
           `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&goodsInfo=${JSON.stringify(goods)}&storeUserNo=${this.vstoreUser.store_user_no}`
 

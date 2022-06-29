@@ -132,10 +132,10 @@
           "serviceName": "srvhealth_store_return_order_add",
           "condition": [],
           "data": [{
-            "order_state":this.orderInfo.order_state,
-            "person_name":this.userInfo?.name,
-            "store_user_no":this.vstoreUser?.store_user_no,
-            "nick_name":this.userInfo.nick_name,
+            "order_state":"未收货",
+            "person_name": this.userInfo?.name,
+            "store_user_no": this.vstoreUser?.store_user_no,
+            "nick_name": this.userInfo.nick_name,
             "user_address_no": this.orderInfo.rcv_addr_no,
             "rcv_name": this.orderInfo.rcv_name,
             "rcv_telephone": this.orderInfo.rcv_telephone,
@@ -145,27 +145,28 @@
             "type": this.type,
             "return_amount": this.backMoney,
             "audit_state": "申请中",
-            picture:this.form.picture
+            picture: this.form.picture
           }]
         }]
 
-        if (this.type !== '仅退款') {
-          req[0].child_data_list = [{
-            "serviceName": "srvhealth_store_return_order_goods_add",
-            "condition": [],
-            "depend_keys": [{
-              "type": "column",
-              "add_col": "return_no",
-              "depend_key": "return_no"
-            }],
-            "data": [{
-              "goods_no": this.goodsInfo.goods_no,
-              "goods_name": this.goodsInfo.goods_name,
-              "return_num": this.goodsInfo.goods_amount,
-              "real_amount": this.backMoney
-            }]
+        // if (this.type !== '仅退款') {
+        req[0].data[0].child_data_list = [{
+          "serviceName": "srvhealth_store_return_order_goods_add",
+          "condition": [],
+          "depend_keys": [{
+            "type": "column",
+            "add_col": "return_no",
+            "depend_key": "return_no"
+          }],
+          "data": [{
+            "goods_no": this.goodsInfo.goods_no,
+            "goods_name": this.goodsInfo.goods_name,
+            "return_num": this.goodsInfo.goods_amount,
+            "real_amount": this.backMoney,
+            "price": this.goodsInfo.unit_price,
           }]
-        }
+        }]
+        // }
         const url = `/health/operate/srvhealth_store_return_order_add`
         this.$http.post(url, req).then(res => {
           if (res?.data?.state === "SUCCESS") {

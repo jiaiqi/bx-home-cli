@@ -97,10 +97,9 @@
         语音合成
       </view> -->
       <view class="menu-item" :class="{
-          'grid-style': pageItem.button_style === 'grid',
-          'list-style': pageItem.button_style === 'list',
-          'last-row': isLastRow(menuList[0], index),
-        }" @click="toPages(item)" v-for="(item, index) in menuList[0]" :key="index">
+          'five-column':pageItem.row_number===5||pageItem.row_number==='5', 'grid-style' :
+        pageItem.button_style==='grid' , 'list-style' : pageItem.button_style==='list' , 'last-row' :
+        isLastRow(menuList[0], index), }" @click="toPages(item)" v-for="(item, index) in menuList[0]" :key="index">
         <view class="cu-tag badge" v-if="item.num">{{ setNumber(item.num )|| "" }}</view>
         <view class="cu-tag badge-left" v-if="item.unbacknum">{{
           setNumber(item.unbacknum) || ""
@@ -165,14 +164,16 @@
             </radio-group>
             <!-- <input class="text-right" placeholder="请输入您的真实姓名" name="input" v-model="formModel.sex"></input> -->
           </view>
-          
-          <view class="cu-form-group" v-if="realNameHideId!==true||!validateMap||(validateMap&&validateMap.id_no&&!validateMap.id_no)">
+
+          <view class="cu-form-group"
+            v-if="realNameHideId!==true||!validateMap||(validateMap&&validateMap.id_no&&!validateMap.id_no)">
             <view class="title">身份证号<text class="text-red" v-if="validateMap&&validateMap.id_no">*</text> </view>
             <input class="text-right" placeholder="请输入您的身份证号" name="input" type="idcard"
               v-model="formModel.id_no"></input>
           </view>
-          
-          <view class="cu-form-group" v-if="realNameHideBirth!==true||!validateMap||(validateMap&&validateMap.customer_birth_day&&!validateMap.customer_birth_day)">
+
+          <view class="cu-form-group"
+            v-if="realNameHideBirth!==true||!validateMap||(validateMap&&validateMap.customer_birth_day&&!validateMap.customer_birth_day)">
             <view class="title">出生日期<text class="text-red" v-if="validateMap&&validateMap.birth">*</text> </view>
             <picker mode="date" v-model="formModel.customer_birth_day" start="1930-09-01" end="2022-09-01"
               @change="DateChange">
@@ -181,7 +182,7 @@
               </view>
             </picker>
           </view>
-          <view class="cu-form-group"  v-if="!validateMap||(validateMap&&validateMap.phone&&!formModel.phone_xcx)">
+          <view class="cu-form-group" v-if="!validateMap||(validateMap&&validateMap.phone&&!formModel.phone_xcx)">
             <view class="title">手机号码<text class="text-red" v-if="validateMap&&validateMap.phone">*</text> </view>
             <text v-if="!formModel.phone_xcx">点击右侧按钮获取手机号</text>
             <input class="text-right" placeholder="请先授权获取手机号" name="input" type="number"
@@ -266,7 +267,7 @@
         buttonsIcon: [],
         menuList: [],
         noticeNum: {},
-        validateMap:null
+        validateMap: null
       };
     },
 
@@ -1412,14 +1413,23 @@
       &.single-layout {
         padding: 20rpx 0;
 
-        .menu-item.last-row {
-          margin-bottom: 0;
-        }
+        // .menu-item.last-row {
+        //   margin-bottom: 0;
+        // }
       }
     }
 
     .menu-item {
       width: calc(25% - 15px / 4);
+
+      &.five-column {
+        width: auto;
+        flex: 1;
+        max-width: calc(25% - 15px / 4);
+        min-width: calc(20% - 15px / 4);
+      }
+
+
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -1429,7 +1439,8 @@
       padding: 20rpx;
       margin-bottom: 10px;
       position: relative;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
+      0 0 6px rgba(0, 0, 0, 0.04);
 
       &:nth-child(4n + 1) {
         margin-left: 0;
