@@ -24,7 +24,7 @@
         <u-th>最低位</u-th>
         <u-th>人数</u-th>
       </u-tr>
-      <u-tr v-for="(item,index) in major" :key="index" v-show="Number(index) < 10">
+      <u-tr v-for="(item,index) in major" :key="index" >
         <u-td :width="'50%'">{{item.pro_name}}</u-td>
         <u-td>{{item.highest_score}}</u-td>
         <u-td>{{item.lowest_score}}</u-td>
@@ -32,7 +32,7 @@
         <u-td>{{item.enroll_number}}</u-td>
       </u-tr>
     </u-table>
-    <view>*注：完整数据暂未开放</view>
+    <!-- <view>*注：完整数据暂未开放</view> -->
 
     <view class="person-list-box" v-if="personList&&personList.length>0">
       <view class="padding-top-lg text-black text-bold title flex justify-between align-center">

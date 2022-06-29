@@ -19,6 +19,7 @@
 		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
 		  }}</text>
         </view>
+        <button class="cu-btn round sm margin-right-xs" @click="toAfterSale" v-if="goods.pay_state==='已支付'">退款</button>
         <button class="cu-btn round sm border"
           v-if="orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
           @click="toEvaluate">评价</button>
@@ -95,6 +96,25 @@
       }
     },
     methods: {
+      toAfterSale() {
+        // 跳转到售后页面
+        const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
+          'origin_price', 'sum_price', 'unit_price', 'packaging_fee', 'goods_name', 'goods_image', 'goods_desc',
+          'goods_amount', 'delivery_status', 'goods_type', 'goods_source'
+        ]
+
+        const goods = cols.reduce((res, cur) => {
+          res[cur] = this.goods[cur];
+          return res
+        }, {})
+
+        let url =
+          `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&goodsInfo=${JSON.stringify(goods)}&storeUserNo=${this.vstoreUser.store_user_no}`
+
+        uni.navigateTo({
+          url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+        })
+      },
       toEvaluate(e) {
         // 跳转到评价页面
         let fieldsCond = [{
@@ -121,9 +141,10 @@
         }]
         let url =
           `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
-        if(e=='detail'){
-          url = `/storePages/evaluateList/evaluateList?no=${this.goods.goods_no}&order_goods_rec_no=${this.goods.order_goods_rec_no}`
-        }    
+        if (e == 'detail') {
+          url =
+            `/storePages/evaluateList/evaluateList?no=${this.goods.goods_no}&order_goods_rec_no=${this.goods.order_goods_rec_no}`
+        }
         uni.redirectTo({
           url
         })

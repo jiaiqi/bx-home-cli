@@ -197,7 +197,6 @@
           if (disabledCol && (item[disabledCol] == true || item[disabledCol] == 1)) {
             disabled = true
           }
-          debugger
           if (cfg?.timeoutDisabled && cfg?.dateTime) {
             let globalData = {
               data: item,

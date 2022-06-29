@@ -25,7 +25,7 @@
         <view class="title-bar text-bold" v-if="orderType==='团购'">
           已选商品
         </view>
-        <view class="title-bar" v-else>
+<!--        <view class="title-bar" v-else>
           <image class="store-logo" :src="getImagePath(storeInfo.logo)" mode="aspectFill" v-if="storeInfo.logo">
           </image>
           <image class="store-logo" :src="getImagePath(orderInfo.image)" mode="aspectFill" v-else-if="orderInfo.image">
@@ -34,7 +34,7 @@
           <text class="store-name">{{
               orderInfo.store_name ? orderInfo.store_name : orderInfo.name || ""
             }}</text>
-        </view>
+        </view> -->
         <view class="goods-list">
           <goods-item :goods="goods" :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
             @attrChange="attrChange($event,idx)">

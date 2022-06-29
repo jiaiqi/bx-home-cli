@@ -91,7 +91,13 @@
         if (userInfo?.userno) {
           url += `&userInfo=${encodeURIComponent(JSON.stringify(userInfo))}`
         }
+        
         url += '&from=inweapp'
+        
+        if(url&&url.indexOf('storeUserNo')==-1){
+          url+=`&storeUserNo=${this.vstoreUser.store_user_no}`
+        }
+        
         this.webUrl = url
       } else {
         uni.showModal({

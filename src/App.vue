@@ -17,9 +17,8 @@
       scene: ''
     },
     onLaunch(options) {
-      if (options?.query?.user_no) {
-        selectPersonInfo(options?.query?.user_no);
-      }
+
+
       if (options?.query?.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', options.query.bx_auth_ticket)
         uni.setStorageSync('isLogin', true)
@@ -35,6 +34,19 @@
           }
         }
       }
+      
+      
+      
+      if (options?.query?.user_no) {
+        selectPersonInfo(options?.query?.user_no);
+      }
+      
+      if (options?.query?.storeUserNo) {
+        this.getStoreUserByNo(options?.query?.storeUserNo)
+      }
+      
+      
+      
       this.$store.commit('SET_SCENE', options.scene)
       if (options.scene === 1154) {
         // 朋友圈单页模式进入
@@ -71,6 +83,32 @@
       });
     },
     methods: {
+      async getStoreUserByNo(storeUserNo) {
+        let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
+        let req = {
+          serviceName: 'srvhealth_store_user_select',
+          colNames: ['*'],
+          condition: [{
+            colName: 'store_user_no',
+            ruleType: 'eq',
+            value: storeUserNo
+          }]
+        };
+
+        let res = await this.$http.post(url, req);
+        if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+          this.$store.commit('SET_STORE_USER', res.data.data[0]);
+          if (res.data.data[0].store_no) {
+            this.$store.commit('setStateAttr', {
+              key: "curStoreNo",
+              val: res.data.data[0].store_no
+            })
+            this.getStore_()
+          }
+          return res.data.data;
+        }
+        return res
+      },
       checkUpdate() {
         const updateManager = uni.getUpdateManager();
         updateManager.onCheckForUpdate(function(res) {

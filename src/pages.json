@@ -267,7 +267,7 @@
         {
           "path": "payOrder/payOrder"
         },
-        
+
         {
           "path": "DoctorIntro/DoctorIntro"
         },
@@ -609,6 +609,18 @@
         "style": {
           "navigationBarTitleText": "体质评测",
           "enablePullDownRefresh": true
+        }
+      }, {
+        "path": "afterSale/afterSale",
+        "style": {
+          "navigationBarTitleText": "选择售后类型",
+          "enablePullDownRefresh": false
+        }
+      }, {
+        "path": "afterSale/form",
+        "style": {
+          "navigationBarTitleText": "",
+          "enablePullDownRefresh": false
         }
       }]
     }
