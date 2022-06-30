@@ -1326,8 +1326,7 @@
       uni.$emit('updateUnread')
     },
     async onLoad(option) {
-
-      this.setNavBg(this.theme)
+      // this.setNavBg(this.theme)
       uni.$on('updateKefuSessionLastLookTime', () => {
         if (this.storeNo) {
           this.getStoreInfo();

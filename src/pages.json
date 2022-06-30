@@ -347,6 +347,7 @@
         {
           "path": "tg/tg",
           "style": {
+            "navigationStyle": "custom",
             "navigationBarTitleText": "团购详情",
             "enablePullDownRefresh": false
           }

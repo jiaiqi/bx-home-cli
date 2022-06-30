@@ -25,7 +25,7 @@
         <view class="title-bar text-bold" v-if="orderType==='团购'">
           已选商品
         </view>
-<!--        <view class="title-bar" v-else>
+        <!--        <view class="title-bar" v-else>
           <image class="store-logo" :src="getImagePath(storeInfo.logo)" mode="aspectFill" v-if="storeInfo.logo">
           </image>
           <image class="store-logo" :src="getImagePath(orderInfo.image)" mode="aspectFill" v-else-if="orderInfo.image">
@@ -36,7 +36,7 @@
             }}</text>
         </view> -->
         <view class="goods-list">
-          <goods-item :goods="goods" :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
+          <goods-item :goods="goods" :disabledRefund="disabledRefund" :disabledEvaluate="disabledEvaluate" :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
             @attrChange="attrChange($event,idx)">
 
           </goods-item>
@@ -340,7 +340,9 @@
         send_amount: 0, // 最小起送金额
         hideColumn: "",
         view_cfg: null,
-        onPay: false
+        onPay: false,
+        disabledRefund: false, // 禁用退款按钮
+        disabledEvaluate: false // 禁用 评价按钮
       };
     },
     computed: {
@@ -1717,6 +1719,14 @@
       },
     },
     async onLoad(option) {
+      if (option.disabledEvaluate) {
+        this.disabledEvaluate = true
+      }
+
+      if (option.disabledRefund) {
+        this.disabledRefund = true
+      }
+      
       if (option.orderType || option.order_type) {
         this.orderType = option.orderType || option.order_type
       }

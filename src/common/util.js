@@ -94,7 +94,7 @@ export default {
           if (response.data.data) {
             console.log('=====2', response.data.data)
             response.data.data.use_type = pageType
-        
+
             // 第一次拿到，缓存
             let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
             if (pageconfig?.more_config && typeof pageconfig.more_config === 'string') {
@@ -1669,6 +1669,28 @@ export default {
         return ''
       }
     }
+
+    Vue.prototype.url2Base64 = (url)=> {
+      return new Promise((resolve) => {
+        uni.request({
+          url,
+          method: 'GET',
+          responseType: 'arraybuffer',
+          success: async res => {
+            const base64 = uni.arrayBufferToBase64(res.data); //把arraybuffer转成base64
+            const toBase64Url = 'data:image/jpeg;base64,' + base64; //不加上这串字符，在页面无法显示
+            console.log(toBase64Url)
+            resolve(toBase64Url)
+          },
+          fail: (err) => {
+            resolve('')
+            console.log(err)
+          }
+        });
+      })
+    }
+
+
     Vue.prototype.uploadRes2Url = (res) => {
       if (res.errMsg === "uploadFile:ok") {
         let data = {}
@@ -1845,13 +1867,13 @@ export default {
         let result = obj
         let i = 0;
         while (i < keyArr.length) {
-          result =result[keyArr[i]]
+          result = result[keyArr[i]]
           i++
         }
         return result
       })
     }
-    
+
     Vue.prototype.renderEmoji = (str) => {
       if (str) {
         try {

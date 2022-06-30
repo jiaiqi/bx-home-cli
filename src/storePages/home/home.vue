@@ -1274,16 +1274,39 @@
             item.selectedIconPath = 'https://cdn.uviewui.com/uview/common/min_button_select.png';
             item.text = item.label;
             if (item.nav_icon) {
+              // item.iconPath = this.getImagePath(item.nav_icon, true);
               item.iconPath = this.getImagePath(item.nav_icon, true);
+              // #ifdef MP-WEIXIN
+              const iconPath = this.getImagePath(item.nav_icon, true);
+              this.url2Base64(iconPath).then(res => {
+                if (res) {
+                  debugger
+                  item.iconPath = res
+                }
+              })
+              // #endif
+
             }
             if (item.nav_icon_selected) {
               item.selectedIconPath = this.getImagePath(item.nav_icon_selected, true);
+              // #ifdef MP-WEIXIN
+              const selectedIconPath = this.getImagePath(item.nav_icon_selected, true);
+              this.url2Base64(selectedIconPath).then(res => {
+                if (res) {
+                  debugger
+                  item.selectedIconPath = res
+                }
+              })
+              // #endif
             }
             return item;
           });
           this.pageDefineList = new Array(res.data.data.length)
         }
       },
+
+
+
       async getCouponInfo(option = {}) {
         // 查找被赠送的卡券的信息
         const {

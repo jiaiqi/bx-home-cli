@@ -1394,6 +1394,9 @@
       }
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
       title = this.renderEmoji(title)
+      if(path.indexOf('store_no')==-1){
+        path+=`&store_no=${this.storeInfo?.store_no}`
+      }
       return {
         imageUrl: imageUrl,
         title: title,

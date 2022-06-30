@@ -2523,6 +2523,7 @@
       }
     },
     onShareAppMessage(e) {
+      debugger
       let imgUrl = ''
       let title = e?.target?.dataset?.sharetitle
       let path = e?.target?.dataset?.shareurl
@@ -2546,6 +2547,9 @@
       }
       if (path) {
         path = this.renderStr(path, _data)
+      }
+      if(path&&path.indexOf('store_no')==-1){
+        path+=`&store_no=${this.storeInfo?.store_no}`
       }
       // if (typeof _data.rowData === 'object') {
       //   delete _data.rowData._buttons
