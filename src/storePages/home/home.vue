@@ -49,6 +49,7 @@
       :active-color="activeColor" :mid-button="false" v-if="pageDefine && tabbarList && tabbarList.length > 0"
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
+    <starGuide></starGuide>
   </view>
 
 </template>
@@ -58,6 +59,7 @@
     mapState
   } from 'vuex';
   import StoreItem from './store-item/store-item.vue';
+  import starGuide from './star-guide/star-guide.vue'
   var socketOpen = false;
   var socketMsgQueue = [];
   var socketIsLogin = false;
@@ -65,6 +67,7 @@
   export default {
     components: {
       StoreItem,
+      starGuide
     },
     data() {
       return {
