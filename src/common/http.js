@@ -126,6 +126,8 @@ fly.interceptors.request.use(async (request) => {
       }
     }
   }
+  
+ 
   request['headers']['bx-terminal-type'] = terminalType ? encodeURIComponent(terminalType) : ''
 
   request['headers']['bx-terminal-ua'] =
@@ -149,6 +151,15 @@ fly.interceptors.request.use(async (request) => {
       delete request.headers["bx_auth_ticket"]
     }
   }
+  
+  
+  
+  if (request.url.indexOf('?openCode=') !== -1) {
+  	request.headers["bx_open_code"] = request.url.split('?openCode=')[1]
+  	delete request.headers.bx_auth_ticket
+  }
+  
+  
   // const outTime = uni.getStorageSync("expire_timestamp") //过期时间
   // const date = parseInt(new Date().getTime() / 1000)
 

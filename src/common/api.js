@@ -44,20 +44,34 @@ let conf = {
     // storeNo: 'S20210517043',
     // customQrcodeFolder: 'rjxh',
     // miniProgramName: "陕西省软件行业协会",
-    
-    // 弥月妈妈
+
+    // // 弥月妈妈
+    // serviceAddress: "https://srvms.100xsys.cn",
+    // appNo: "APPNO20220401101144",
+    // appId: "wxd1c976c54f57c493",
+    // ws: "wss://srvms.100xsys.cn:8081",
+    // file: "https://file.100xsys.cn",
+    // // serviceAddress: "http://192.168.0.241:8080", // 内网
+    // frontPath: "https://wx2.100xsys.cn/health/#/",
+    // singleStore: true,
+    // storeNo: 'S2203220104',
+    // customQrcodeFolder: 'mymm',
+    // wxMchId:"1617830911",//微信商户号
+    // miniProgramName: "弥月妈妈母婴智慧创业圈",
+
+    // 易企跑
     serviceAddress: "https://srvms.100xsys.cn",
-    appNo: "APPNO20220401101144",
-    appId: "wxd1c976c54f57c493",
+    appNo: "APPNO20220614113855",
+    appId: "wx94525ef9e15a3f28",
     ws: "wss://srvms.100xsys.cn:8081",
     file: "https://file.100xsys.cn",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
     frontPath: "https://wx2.100xsys.cn/health/#/",
     singleStore: true,
-    storeNo: 'S2203220104',
-    customQrcodeFolder: 'mymm',
-    wxMchId:"1617830911",//微信商户号
-    miniProgramName: "弥月妈妈母婴智慧创业圈",
+    storeNo: 'S2207010001',
+    customQrcodeFolder: 'yqpqf',
+    // wxMchId:"1617830911",//微信商户号
+    miniProgramName: "易企跑企服",
   }
 }
 
@@ -90,7 +104,7 @@ if (top?.window?.pathConfig?.ws_gateway) {
 // #endif
 
 let ENV = {
-  env:env,
+  env: env,
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址
   frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
@@ -113,7 +127,7 @@ let ENV = {
     wxh5: 'wx78d1d4139f97ffca', //百想助理公众号
     // wxmp: "wx08876efb5760ca75" //生活能力评估
   },
-  wxMchId:conf[env]['wxMchId']||'1485038452',
+  wxMchId: conf[env]['wxMchId'] || '1485038452',
   isThirdParty: remoteAddress.isThirdParty,
   homePath: remoteAddress.homePath, // 应用业务的入口页面 首页。
   singleApp: remoteAddress.singleApp, // 是否单应用

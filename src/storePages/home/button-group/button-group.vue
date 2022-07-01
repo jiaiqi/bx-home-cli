@@ -29,6 +29,8 @@
     <view class="menu-list-box" v-else-if="pageItem.button_style === 'list'">
       <view class="menu-list-item" v-for="(item, index) in buttons" :key="index" @click="toPages(item)">
         <view class="left">
+          <image lazy-load class="icon" :src="getImagePath(item.icon)" mode="aspectFit" v-if="item.icon">
+          </image>
           <button :open-type="item.openType" v-if="item.openType" @getphonenumber="getPhoneNumber"
             class="cu-btn bg-white text">{{item.button_label}}</button>
           <text v-else>{{item.button_label||''}}</text>
@@ -1333,10 +1335,19 @@
       .menu-list-item {
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
-
+        min-height: 30px;
+        align-items: center;
+        padding: 5px 0;
         .left {
           flex: 1;
+          display: flex;
+          align-items: center;
+
+          .icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+          }
 
           .image {
             width: 50px;

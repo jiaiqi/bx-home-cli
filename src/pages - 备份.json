@@ -21,9 +21,9 @@
         {
           "path": "list/list"
         },
-        {
-          "path": "form/form"
-        },
+        // {
+        //   "path": "form/form"
+        // },
         {
           "path": "gropDetail/gropDetail"
         },
@@ -119,20 +119,29 @@
           }
 
         }, {
-          "path": "successTip/successTip",
-          "style": {
-            "navigationBarTitleText": "成功提示",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
           "path": "cascaderList/cascaderList",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
 
+        }, {
+          "path": "previewimg/previewimg",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
         }
+        //#ifdef H5
+        ,
+        {
+          "path": "successTip/successTip",
+          "style": {
+            "navigationBarTitleText": "成功提示",
+            "enablePullDownRefresh": false
+          }
+        }
+        // #endif
       ]
     },
     {
@@ -163,17 +172,7 @@
             "navigationBarTextStyle": "black"
           }
         },
-        {
-          "path": "payOrder/payOrder"
-        },
-        //#ifdef H5
-        {
-          "path": "successPay/successPay"
-        },
-        {
-          "path": "DoctorIntro/DoctorIntro"
-        },
-        //#endif
+
         {
           "path": "VaccineList/VaccineList",
           "style": {
@@ -254,7 +253,24 @@
             "enablePullDownRefresh": true
           }
         },
+        {
+          "path": "officialIntro/officialIntro",
+          "style": {
+            "navigationBarTitleText": "关注公众号",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "successPay/successPay"
+        },
         // #ifdef H5
+        {
+          "path": "payOrder/payOrder"
+        },
+
+        {
+          "path": "DoctorIntro/DoctorIntro"
+        },
         {
           "path": "appointmentCheckIn/appointmentCheckIn",
           "style": {
@@ -271,19 +287,28 @@
             "enablePullDownRefresh": false
           }
         },
-        {
-          "path": "officialIntro/officialIntro",
-          "style": {
-            "navigationBarTitleText": "关注公众号",
-            "enablePullDownRefresh": false
-          }
-        },
+
         {
           "path": "storeStatement/storeStatement",
           "style": {
             "navigationBarTitleText": "报表",
             "enablePullDownRefresh": false
           }
+        },
+        {
+          "path": "scoreInputDetail/scoreInputDetail",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "schoolDetails/schoolDetails",
+          "style": {
+            "navigationBarTitleText": "",
+            "enablePullDownRefresh": false
+          }
+
         },
         // #endif
         {
@@ -297,13 +322,6 @@
           "path": "appointment/appointment",
           "style": {
             "navigationBarTitleText": "预约",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
-          "path": "cart/cart",
-          "style": {
-            "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
 
@@ -329,6 +347,7 @@
         {
           "path": "tg/tg",
           "style": {
+            "navigationStyle": "custom",
             "navigationBarTitleText": "团购详情",
             "enablePullDownRefresh": false
           }
@@ -339,9 +358,23 @@
             "enablePullDownRefresh": false
           }
         }, {
-          "path": "roomState/roomState",
+          "path": "msList/msList",
           "style": {
-            "navigationBarTitleText": "",
+            "navigationBarTitleText": "秒杀",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "msDetail/msDetail",
+          "style": {
+            "navigationBarTitleText": "秒杀",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "evaluateList/evaluateList",
+          "style": {
+            "navigationBarTitleText": "评价列表",
             "enablePullDownRefresh": true
           }
         }
@@ -399,14 +432,7 @@
     },
     {
       "root": "personalPages",
-      "pages": [
-        // {
-        //   "path": "ArchiveHistory/ArchiveHistory",
-        //   "style": {
-        //     "navigationBarTitleText": ""
-        //   }
-        // },
-        {
+      "pages": [{
           "path": "switchAccount/switchAccount",
           "style": {
             "navigationBarTitleText": "切换账号",
@@ -476,15 +502,15 @@
             "enablePullDownRefresh": true
           }
         },
-        {
-          "path": "activity/activity",
-          "style": {
-            // "navigationStyle": "custom",
-            "navigationBarBackgroundColor": "#8a1b1f"
-            // ,
-            // "navigationBarTitleText": "建党100周年祝福接力"
-          }
-        },
+        // {
+        //   "path": "activity/activity",
+        //   "style": {
+        //     // "navigationStyle": "custom",
+        //     "navigationBarBackgroundColor": "#8a1b1f"
+        //     // ,
+        //     // "navigationBarTitleText": "建党100周年祝福接力"
+        //   }
+        // },
         // {
         //   "path": "publish/publish",
         //   "style": {
@@ -497,13 +523,13 @@
         //     "navigationBarTitleText": "朋友圈"
         //   }
         // },
-        {
-          "path": "dashboard/dashboard",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
-        },
+        // {
+        //   "path": "dashboard/dashboard",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // },
         {
           "path": "schedule/schedule",
           "style": {
@@ -549,7 +575,6 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-
         }
         // #ifdef H5
         , {
@@ -566,9 +591,41 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "jmsq/jmsq",
+          "style": {
+            "navigationBarTitleText": "加盟申请",
+            "enablePullDownRefresh": false
+          }
+
         }
       ]
     }
+    //#ifdef H5
+    ,
+    {
+      "root": "pages/h5",
+      "pages": [{
+        "path": "tzpc/tzpc",
+        "style": {
+          "navigationBarTitleText": "体质评测",
+          "enablePullDownRefresh": true
+        }
+      }, {
+        "path": "afterSale/afterSale",
+        "style": {
+          "navigationBarTitleText": "选择售后类型",
+          "enablePullDownRefresh": false
+        }
+      }, {
+        "path": "afterSale/form",
+        "style": {
+          "navigationBarTitleText": "",
+          "enablePullDownRefresh": false
+        }
+      }]
+    }
+    //#endif
   ],
   // "leftWindow": {
   //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件

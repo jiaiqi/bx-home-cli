@@ -53,6 +53,9 @@
       show(){
         this.showBar = true
         uni.setStorageSync('lastShowStarGuide',new Date().getTime())
+        setTimeout(()=>{
+          this.hide()
+        },60*1000)
       },
       hide() {
         this.showBar = false
@@ -96,7 +99,7 @@
     text-align: center;
     background-color: rgba(0, 0, 0, 0.9);
     position: fixed;
-    top: 100px;
+    top: -100px;
     right: 10px;
     border-radius: 50px;
     z-index: 99;
@@ -107,7 +110,7 @@
     transition: top .2s ease-in-out;
 
     &.show {
-      top: 60px;
+      top: 100px;
     }
 
     &::after {

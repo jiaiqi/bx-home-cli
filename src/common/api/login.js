@@ -97,30 +97,30 @@ const wxOpenLogin = async (openCode) => {
     return true
   }
   let wxAuthUserInfo = store?.state?.user?.wxAuthUserInfo
-
-  if (!wxAuthUserInfo) {
-    // uni.redirectTo({
-    //   url: '/publicPages/accountExec/accountExec'
-    // })
-    store.commit('SET_AUTH_USERINFO', false)
-    return
-  }
-  const userInfo = wxAuthUserInfo.userInfo
+  debugger
+  // if (!wxAuthUserInfo) {
+  //   // uni.redirectTo({
+  //   //   url: '/publicPages/accountExec/accountExec'
+  //   // })
+  //   store.commit('SET_AUTH_USERINFO', false)
+  //   return
+  // }
+  const userInfo = wxAuthUserInfo?.userInfo
   let url = '/wx/operate/srvwx_mini_open_account_login?openCode=' + openCode
   let data = {
     "app_no": mpAppNo,
-    "avatarUrl": userInfo.avatarUrl,
-    "nickname": userInfo.nickName,
-    "headimgurl": userInfo.avatarUrl,
-    "sex": userInfo.gender,
-    "country": userInfo.country,
-    "province": userInfo.province,
-    "city": userInfo.city,
-    "encryptedData": wxAuthUserInfo.encryptedData,
-    "cloudID": wxAuthUserInfo.cloudID,
-    "rawData": wxAuthUserInfo.rawData,
-    "iv": wxAuthUserInfo.iv,
-    "signature": wxAuthUserInfo.signature
+    "avatarUrl": userInfo?.avatarUrl,
+    "nickname": userInfo?.nickName,
+    "headimgurl": userInfo?.avatarUrl,
+    "sex": userInfo?.gender,
+    "country": userInfo?.country,
+    "province": userInfo?.province,
+    "city": userInfo?.city,
+    "encryptedData": wxAuthUserInfo?.encryptedData,
+    "cloudID": wxAuthUserInfo?.cloudID,
+    "rawData": wxAuthUserInfo?.rawData,
+    "iv": wxAuthUserInfo?.iv,
+    "signature": wxAuthUserInfo?.signature
   }
   Object.keys(data).forEach(key => {
     if (!data[key]) {
