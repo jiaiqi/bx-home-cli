@@ -9,6 +9,10 @@
       v-if="pageItem && pageItem.show_label === '是' && ['通用列表','疫苗列表','商品列表','海报弹窗','悬浮按钮'].indexOf(pageItem.type)==-1"
       @click="toMore">
       <text>{{ pageItem.component_label || '' }}</text>
+      <button class="right-btn text-sm text-gray cu-btn bg-white sm" v-if="rightBtn&&rightBtn.label"
+        @click="onRightBtn">
+        {{rightBtn.label}}
+      </button>
     </view>
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
@@ -157,6 +161,9 @@
       }
     },
     computed: {
+      rightBtn() {
+        return this.moreConfig?.rightBtn
+      },
       moreConfig() {
         return this.pageItem?.more_config
       },
@@ -233,6 +240,28 @@
       });
     },
     methods: {
+      onRightBtn() {
+        let url = this.rightBtn?.url
+        let data = {
+          storeNo: this.storeNo,
+          ...this.$data,
+          storeInfo: this.storeInfo,
+          userInfo: this.userInfo,
+          bindUserInfo: this.bindUserInfo,
+          storeUserInfo: this.bindUserInfo
+        }
+
+        url = this.renderStr(url, data);
+
+        if (url && url.indexOf('https') == 0) {
+          url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+        }
+
+        uni.navigateTo({
+          url
+        })
+
+      },
       listLoadMore() {
         if (this.pageItem.type === '通用列表') {
           this.$refs?.normalList?.loadMore?.()

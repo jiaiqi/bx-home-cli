@@ -823,6 +823,9 @@
           this.joinStore();
           return;
         }
+        if(!this.userInfo?.no){
+          return 
+        }
         let req = [{
           serviceName: 'srvhealth_store_user_add',
           condition: [],
@@ -861,6 +864,7 @@
             req[0].data[0].user_image = this.userInfo?.user_image
           }
         }
+        
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health');
         if (res.success) {
           this.isBind = true;

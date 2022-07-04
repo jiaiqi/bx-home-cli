@@ -1607,6 +1607,10 @@ export default {
           req[0].data[0].add_store_no = api.storeNo
           req[0].data[0].home_store_no = api.storeNo
         }
+        
+        if(!req[0].data[0].userno){
+          return
+        }
         let res = await _http.post(url, req)
         if (res.data && res.data.resultCode === "SUCCESS") {
           console.log("信息登记成功")

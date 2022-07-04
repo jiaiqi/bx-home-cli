@@ -490,6 +490,15 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "bpRecord/bpRecord",
+          "style": {
+            "navigationBarTitleText": "我的血压",
+            "enablePullDownRefresh": true,
+            "navigationBarBackgroundColor": "#DCB081",
+            "navigationBarTextStyle": "white"
+          }
+
         }
       ]
     },

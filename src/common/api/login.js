@@ -61,7 +61,7 @@ const wxVerifyLogin = (userInfo) => {
               if (store.state.app.isLogin) {
                 resolve(true)
               }
-              if (resData && resData.bx_open_code) {
+              if (resData && resData.bx_open_code&&!resData?.bx_auth_ticket) {
                 // 后端未获取到unionid 需要通过开放登录接口给后端发送wx.getUserInfo获取到的数据
                 resolve(wxOpenLogin(resData.bx_open_code))
               }
@@ -71,7 +71,7 @@ const wxVerifyLogin = (userInfo) => {
               uni.setStorageSync('bx_auth_ticket', resData
                 .bx_auth_ticket);
 
-              if (resData && resData.login_user_info.user_no) {
+              if (resData && resData?.login_user_info?.user_no) {
                 uni.setStorageSync('login_user_info', resData
                   .login_user_info);
                 store.commit('SET_LOGIN_USER', resData.login_user_info)
