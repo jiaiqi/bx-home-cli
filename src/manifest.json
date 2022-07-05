@@ -1,5 +1,5 @@
 {
-    "name" : "易企跑",
+    "name" : "百想首页",
     "appid" : "__UNI__8D82583",
     "description" : "百想首页",
     "versionName" : "1.0.0",
@@ -61,7 +61,7 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         "usingComponents" : true,
-        "appid" : "wx94525ef9e15a3f28",
+        "appid" : "wxa3c50c8177ef6739",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
             "minifyWXSS" : true, //上传代码时是否自动压缩样式文件

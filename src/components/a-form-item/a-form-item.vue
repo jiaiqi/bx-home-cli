@@ -1070,6 +1070,15 @@
               ruleType: '[like]'
             })
           }
+          if(Array.isArray(this.field?.moreConfig?.searchCol)&&this.field?.moreConfig?.searchCol.length>0){
+            this.field?.moreConfig?.searchCol.forEach(col=>{
+              relation_condition.data.push({
+                colName: col,
+                value: e.detail.value,
+                ruleType: '[like]'
+              })
+            })
+          }
           if (Array.isArray(option.conditions) && option.conditions.length > 0) {
             let fieldModelsData = this.deepClone(this.fieldsModel);
             option.conditions = this.evalConditions(option.conditions, fieldModelsData)

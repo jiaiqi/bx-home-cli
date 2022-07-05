@@ -204,7 +204,7 @@
     <view class="handler-bar">
       <text class="amount margin-right-xs"
         v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ Number(((totalMoney*10000 - actualMoney*10000)/10000).toFixed(2)) }}元</text>
-      <text class="amount">共{{ totalAmount }}件</text>
+      <text class="amount" v-if="totalAmount">共{{ totalAmount }}件</text>
       <text class="text" v-if="totalMoney&&!pay_method">合计:</text>
       <text class="money-amount" v-if="totalMoney&&!pay_method">
         <text class="money-operate">￥</text>

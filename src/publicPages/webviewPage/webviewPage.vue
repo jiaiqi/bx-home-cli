@@ -97,7 +97,9 @@
         if(url&&url.indexOf('storeUserNo')==-1){
           url+=`&storeUserNo=${this.vstoreUser.store_user_no}`
         }
-        
+        if(url.indexOf('mp.weixin.qq.com')!==-1){
+          url = decodeURIComponent(option.webUrl)
+        }
         this.webUrl = url
       } else {
         uni.showModal({

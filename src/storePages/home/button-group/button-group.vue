@@ -793,6 +793,9 @@
       async handlerBeforeClick(e) {
 
         let res = true
+        if (!e.navType && e.navigate_type) {
+          e.navType = e.navigate_type
+        }
         if (!e?.url && e?.prompt) {
           // 未配置url，提示
           uni.showModal({
@@ -932,6 +935,29 @@
               }
             } else if (text && text.indexOf('service_place_no:') !== -1) {
               option.service_place_no = text.slice(text.indexOf('service_place_no:'))
+            } else if (text && text.indexOf('list/')==0) {
+              // list/srvhealth_store_order_medicated_bath_select/${data.id}/
+              let arr = text.split('/');
+              let cond = []
+              let service = ''
+              debugger
+              if (arr.length >= 3) {
+                service = arr[1]
+                cond = [{
+                  colName: 'id',
+                  ruleType: 'eq',
+                  value: arr[2]
+                }]
+              }
+              let url =
+                `/publicPages/list2/list2?pageType=list&serviceName=${service}&${text.indexOf('disabled')!==-1?'disabled=true':''}&cond=${JSON.stringify(cond)}`
+
+              if (service) {
+                uni.navigateTo({
+                  url
+                })
+              }
+
             } else {
               uni.showModal({
                 title: '提示',
@@ -957,10 +983,13 @@
         //#endif
       },
       async toPages(e) {
+        
         if (e.$orig) {
           e = e.$orig;
         }
+        
         let canNext = await this.handlerBeforeClick(e)
+        
         if (!canNext) {
           return
         }
@@ -1338,6 +1367,7 @@
         min-height: 30px;
         align-items: center;
         padding: 5px 0;
+
         .left {
           flex: 1;
           display: flex;

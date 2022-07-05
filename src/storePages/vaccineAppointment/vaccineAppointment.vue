@@ -52,7 +52,7 @@
             <view class="date-item"
               :class="{'line-cyan':(selectedVaccine.sa_no===radio.sa_no),disabled:disabledTime(radio)}"
               v-for="(radio,rIndex) in timeArr" :key="rIndex" @click="selectItem(radio,item)"
-              v-show="radio.app_date===dayjs().format('YYYY-MM-DD')">
+              v-show="radio.app_date===dayjs().format('YYYY/MM/DD')">
               <view class="date">
                 {{dayjs(radio.app_date).format('MM-DD')}}-{{
             				getDayOfWeek(radio.app_date)
@@ -280,18 +280,28 @@
             return true
           }
         }
-        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
-          if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
+
+
+
+
+        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY/MM/DD')) {
+          if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
             // 还没到可以提前预约的时间
             return true
           }
+        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date < dayjs().add(e.predispdays,
+            'day').format('YYYY/MM/DD')) {
+          // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
+          // 还没到可以提前预约的时间
+          return true
+          // }
         }
 
-        let time = new Date(e.app_date + ' ' + e.app_time_start)
+        let time = new Date(e.app_date + ' ' + e.app_time_end)
         let now = new Date()
         if (time.getTime() < now.getTime()) {
           if (e.time_range_appointment_limit && e.time_range) {
-            let time = new Date(e.app_date + ' ' + e.timeStart)
+            let time = new Date(e.app_date + ' ' + e.timeEnd)
             let now = new Date()
             if (time.getTime() < now.getTime()) {
               return true
@@ -382,14 +392,18 @@
             let item = res.data[index]
             let days = (dayjs(item.app_date_end) - dayjs(item.app_date)) / 3600000 / 24
             if (new Date(dayjs().format("YYYY/MM/DD")) - new Date(item.app_date) > 0) {
-              days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY-MM-DD"))) / 3600000 / 24
+              days = (dayjs(item.app_date_end) - dayjs(dayjs().format("YYYY/MM/DD"))) / 3600000 / 24
             }
             for (let i = days; i >= 0; i--) {
-              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY-MM-DD")
+              let date = dayjs(item.app_date_end).subtract(i, 'day').format("YYYY/MM/DD")
               if (item.predays) {
-                let daysDiff = (dayjs(date) - dayjs(dayjs().format('YYYY-MM-DD'))) / 3600000 / 24
+                let daysDiff = (dayjs(date) - dayjs(dayjs().format('YYYY/MM/DD'))) / 3600000 / 24
                 if (daysDiff > item.predays) {
-                  continue;
+                  if (item.predispdays) {
+                    if (daysDiff > item.predispdays) {
+                      continue;
+                    }
+                  }
                 }
               }
               if (item.weekday_set) {
@@ -458,8 +472,8 @@
                   }, 0)
                 }
                 let result = this.deepClone(obj1)
-                let deadline = dayjs().add(res.predays, 'day').format('YYYY-MM-DD')
-                let app_open_time = dayjs(dayjs().format('YYYY-MM-DD') + ' ' + res.app_open_time)
+                let deadline = dayjs().add(res.predays, 'day').format('YYYY/MM/DD')
+                let app_open_time = dayjs(dayjs().format('YYYY/MM/DD') + ' ' + res.app_open_time)
 
                 if (result.predays && result.app_open_time && result._date === deadline && dayjs() - app_open_time <
                   0) {} else {
@@ -488,15 +502,9 @@
         }
       },
       selectItem(e, data) {
-        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY-MM-DD')) {
-          if (dayjs() - dayjs(dayjs().format('YYYY-MM-DD') + ' ' + e.app_open_time) < 0) {
+        if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY/MM/DD')) {
+          if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
             let title = `今天${e.app_open_time.slice(0,5)}后才可以预约${e.predays}天后的疫苗`;
-
-            // uni.showToast({
-            //   title: title,
-            //   icon: 'none'
-            // })
-
             uni.showModal({
               title: '提示',
               content: title,
@@ -505,7 +513,22 @@
             })
             return
           }
+        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date < dayjs().add(e.predispdays,
+            'day').format('YYYY/MM/DD')) {
+          // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
+          // 还没到可以提前预约的时间
+          let title = `还没到可以提前预约的时间`
+          if (e.predays) {
+            title = `只能提前${e.predays}天预约`
+          }
+          uni.showToast({
+            title: title,
+            icon: 'none'
+          })
+          return true
+          // }
         }
+
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (data) {
             if (data.app_count <= data.app_amount) {
@@ -523,7 +546,9 @@
             return
           }
         }
+
         if (this.disabledTime(e)) {
+
           uni.showToast({
             title: '已过期或已约满',
             icon: 'none'

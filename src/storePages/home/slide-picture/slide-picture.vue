@@ -147,8 +147,33 @@
           })
           return
         }
-
-        if (item.mini_program_url) {
+        let jumpUrl = ''
+        switch (item.jump_type) {
+          case '商品':
+            if (item.store_video_product_no || item.goods_no) {
+              jumpUrl =
+                `/storePages/GoodsDetail/GoodsDetail?goods_no=${item.store_video_product_no||item.goods_no}&storeNo=${this.storeInfo?.store_no}`
+            }
+            break;
+          case '文章':
+            if (item.content_no || item.article_no) {
+              jumpUrl =
+                `/publicPages/article/article?destApp=health&serviceName=srvdaq_cms_content_select&content_no=${item.content_no||item.article_no}`
+            }
+            break;
+          case '页面':
+            if(item.page_no){
+              jumpUrl = `/storePages/home/home?store_no=${this.storeInfo?.store_no}&link_pd_no=${item.page_no}`
+            }
+            break;
+          case '链接':
+            break;
+        }
+        if (jumpUrl) {
+          uni.navigateTo({
+            url:jumpUrl
+          })
+        } else if (item.mini_program_url) {
           let url = item.mini_program_url
           let data = {
             userInfo: this.userInfo,
@@ -156,12 +181,17 @@
             bindUserInfo: this.vstoreUser
           }
           url = this.renderStr(url, data)
+
+          if (url && url.indexOf('http') == 0) {
+            url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+          }
+
           uni.navigateTo({
             url: url
           })
-        } else if (item.content_no) {
+        } else if (item.content_no || item.article_no) {
           uni.navigateTo({
-            url: `/publicPages/article/article?destApp=health&serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
+            url: `/publicPages/article/article?destApp=health&serviceName=srvdaq_cms_content_select&content_no=${item.content_no||item.article_no}`
           });
         } else {
           this.toPreviewImage(item.url)
