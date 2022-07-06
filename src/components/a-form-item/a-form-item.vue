@@ -136,8 +136,7 @@
       <view class="form-item-content_value textarea" v-else-if="fieldData.type === 'textarea'"
         :class="{disabled:fieldData.disabled}">
         <textarea class="textarea-content" :adjust-position="true" :value="fieldData.value" :show-confirm-bar="false"
-          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @blur="inputChange"
-          :disabled="fieldData.disabled"></textarea>
+          :placeholder="fieldData.disabled?'不可编辑':'请输入'" @blur="inputChange" :disabled="fieldData.disabled"></textarea>
       </view>
       <view class="form-item-content_value location" v-else-if="fieldData.type === 'location'" @click="getLocation">
         {{ fkFieldLabel||fieldData.value || "点击选择地理位置" }}
@@ -740,7 +739,7 @@
         })
 
         console.log(settings)
-        if (settings?.authSetting?. ['scope.userLocation'] === false) {
+        if (settings?.authSetting?.['scope.userLocation'] === false) {
           uni.showModal({
             title: '提示',
             content: '未授权访问位置信息，请先在权限设置页面授权允许小程序访问您的位置信息',
@@ -1070,8 +1069,9 @@
               ruleType: '[like]'
             })
           }
-          if(Array.isArray(this.field?.moreConfig?.searchCol)&&this.field?.moreConfig?.searchCol.length>0){
-            this.field?.moreConfig?.searchCol.forEach(col=>{
+
+          if (Array.isArray(this.field?.moreConfig?.searchCol) && this.field?.moreConfig?.searchCol.length > 0) {
+            this.field?.moreConfig?.searchCol.forEach(col => {
               relation_condition.data.push({
                 colName: col,
                 value: e.detail.value,
@@ -1079,6 +1079,7 @@
               })
             })
           }
+
           if (Array.isArray(option.conditions) && option.conditions.length > 0) {
             let fieldModelsData = this.deepClone(this.fieldsModel);
             option.conditions = this.evalConditions(option.conditions, fieldModelsData)
@@ -1235,7 +1236,7 @@
           }
           appName = 'sso';
         }
-        if (self.fieldData.value  && self.fieldData.option_list_v2?.refed_col && !
+        if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
           self
           .fieldData?.redundant) {
           if (Array.isArray(req.condition) !== true) {

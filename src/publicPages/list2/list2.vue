@@ -2667,7 +2667,7 @@
 
   .qrcodeCanvas-box {
     position: fixed;
-    top: -9999;
+    top: -9999px;
   }
 
   .qrcode-box {

@@ -502,6 +502,7 @@
                 h: item.icon_origin_height
               }
               let res = this.setPicHeight(picInfo);
+              debugger
               if (res.w && res.h) {
                 if (item.button_width && item.button_width.indexOf('%') !== -1) {
                   let ratio = item.button_width.replace('%', '') * 0.01
@@ -515,7 +516,6 @@
               const picInfo = await this.getImageInfo({
                 url: item.imgSrc
               })
-
               // this.getImageInfo({
               //   url: item.imgSrc 
               // }).then(picInfo => {
@@ -525,9 +525,16 @@
                   if (item.button_width && item.button_width.indexOf('%') !== -1) {
                     let ratio = item.button_width.replace('%', '') * 0.01
                     res.w = res.w * ratio
+                    if (this.pageItem?.margin && this.pageItem?.margin.indexOf('px') !== -1) {
+                      res.w = item.button_width
+                    }
                     res.h = res.h * ratio
                   }
-                  this.$set(item, 'imgWidth', `${ res.w}px`);
+                  if (res.w && res.w.indexOf('%')) {
+                    this.$set(item, 'imgWidth', `${ res.w}`);
+                  } else {
+                    this.$set(item, 'imgWidth', `${ res.w}px`);
+                  }
                   this.$set(item, 'imgHeight', `${res.h}px`);
                 }
               }
@@ -551,7 +558,10 @@
           }
         }
       },
-      setPicHeight(content) {
+      setPicHeight(content, totalWidth = 750) {
+        if (this.pageItem?.margin) {
+
+        }
         let maxW = uni.upx2px(750);
         content.h = ((maxW * content.h) / content.w) * 100 / 100;
         content.w = maxW * 100 / 100;
@@ -935,7 +945,7 @@
               }
             } else if (text && text.indexOf('service_place_no:') !== -1) {
               option.service_place_no = text.slice(text.indexOf('service_place_no:'))
-            } else if (text && text.indexOf('list/')==0) {
+            } else if (text && text.indexOf('list/') == 0) {
               // list/srvhealth_store_order_medicated_bath_select/${data.id}/
               let arr = text.split('/');
               let cond = []
@@ -958,6 +968,23 @@
                 })
               }
 
+            } else if (text && text.indexOf('verification/') == 0) {
+              let arr = text.split('/');
+              let cond = []
+              let service = ''
+              if (arr.length >= 3) {
+                service = arr[1]
+                cond = [{
+                  colName: 'card_no',
+                  ruleType: 'eq',
+                  value: arr[2]
+                }]
+                let url =
+                  `/storePages/verification/verification?serviceName=srvhealth_store_card_case_detail_select&listType=selectorList&cond=[{"colName":"card_no","ruleType":"eq","value":"${arr[2]}"}]&idCol=card_case_detail_no&disabled=true&card_no=${arr[2]}`
+                uni.navigateTo({
+                  url
+                })
+              }
             } else {
               uni.showModal({
                 title: '提示',
@@ -983,13 +1010,13 @@
         //#endif
       },
       async toPages(e) {
-        
+
         if (e.$orig) {
           e = e.$orig;
         }
-        
+
         let canNext = await this.handlerBeforeClick(e)
-        
+
         if (!canNext) {
           return
         }

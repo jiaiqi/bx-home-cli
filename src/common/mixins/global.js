@@ -197,8 +197,12 @@ export default {
 
       if (goodsType.includes('充值卡') || goodsType.includes('想豆卡') || goodsType.includes('课程') || goodsType
         .includes('活动') || goodsType.includes('提货卡') || goodsType.includes('套餐卡') || goodsType.includes(
-          '面额卡') || goodsType.includes('体验产品') || goodsType.includes('线下服务') || goodsType.includes('在线服务')) {
+          '面额卡') || goodsType.includes('体验产品') || goodsType.includes('在线服务')) {
         order_type = '虚拟商品'
+      }
+      
+      if (goodsType.includes('线下服务')) {
+        order_type = '服务'
       }
 
       return order_type
