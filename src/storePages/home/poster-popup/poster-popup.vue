@@ -106,7 +106,7 @@
     justify-content: center;
     flex-direction: column;
     position: relative;
-
+    
     .close-btn {
       font-size: 30px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -128,7 +128,7 @@
         height: 800rpx;
         background-size: contain;
         background-repeat: no-repeat;
-
+        background-position: center;
         .image {
           width: 500rpx;
           height: 800rpx;

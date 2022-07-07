@@ -1,5 +1,14 @@
 <template>
-  <view class="user-card">
+  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]">
+    <view class="top">
+      <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image" mode="aspectFit"></image>
+      <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
+    </view>
+    <view class="bottom" @click="toCardList">
+      我的卡包
+    </view>
+  </view>
+  <view class="user-card" v-else>
     <view class="left" v-if="!hasNotRegInfo">
       <view class="profile-image">
         <!-- <open-data type="userAvatarUrl"></open-data> -->
@@ -9,11 +18,11 @@
         <!-- <open-data type="userNickName"></open-data> -->
         <view class="name">
           <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
-    <!--      <image src="./on_audit.png" mode="" class="audit-status" v-if="auditStatus&&auditStatus!=='通过'"></image>
+          <!--      <image src="./on_audit.png" mode="" class="audit-status" v-if="auditStatus&&auditStatus!=='通过'"></image>
           <image src="./has_audit.png" mode="" class="audit-status" v-else-if="auditStatus==='通过'"></image>
           <image src="./answer.png" mode="" class="audit-status" v-else></image> -->
         </view>
-      
+
         <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
         <view class="text-orange" v-if="config&&config.showSubscribe&&!isAttention" @click="toOfficial(true)">
           点击关注公众号,及时获取消息通知!
@@ -44,6 +53,12 @@
       config: {
         type: [Object, String]
       },
+      pageItem: Object
+    },
+    computed: {
+      cardStyle() {
+        return this.pageItem?.user_card_type
+      }
     },
     data() {
       return {
@@ -55,42 +70,48 @@
       this.getAuditStatus()
     },
     methods: {
+      toCardList() {
+        let url = `/storePages/coupon/coupon?destApp=health&serviceName=srvhealth_store_card_case_select`
+        uni.navigateTo({
+          url
+        })
+      },
       getUserProfile(e) {
-      	// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
-      	// 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-      	// #ifdef MP-WEIXIN
-      	wx.getUserProfile({
-      		desc: '用于完善用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-      		success: (res) => {
-      			this.$store.commit('SET_AUTH_USER', res)
-      			this.handleUserInfo(res)
-      		}
-      	})
-      	// #endif
+        // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
+        // 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
+        // #ifdef MP-WEIXIN
+        wx.getUserProfile({
+          desc: '用于完善用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+          success: (res) => {
+            this.$store.commit('SET_AUTH_USER', res)
+            this.handleUserInfo(res)
+          }
+        })
+        // #endif
       },
       async handleUserInfo(res) {
-      	let self = this
-      	if (typeof res === 'object' && Object.keys(res).length > 0 && res.userInfo) {
-      		let rawData = {
-      			nickname: res.userInfo.nickName,
-      			sex: res.userInfo.gender,
-      			country: res.userInfo.country,
-      			province: res.userInfo.province,
-      			city: res.userInfo.city,
-      			headimgurl: res.userInfo.avatarUrl
-      		};
-      		self.$store.commit('SET_WX_USERINFO', rawData);
-      		self.$store.commit('SET_AUTH_USERINFO', true);
-      		await self.setWxUserInfo(rawData);
-      		await self.updateUserInfo(rawData);
+        let self = this
+        if (typeof res === 'object' && Object.keys(res).length > 0 && res.userInfo) {
+          let rawData = {
+            nickname: res.userInfo.nickName,
+            sex: res.userInfo.gender,
+            country: res.userInfo.country,
+            province: res.userInfo.province,
+            city: res.userInfo.city,
+            headimgurl: res.userInfo.avatarUrl
+          };
+          self.$store.commit('SET_WX_USERINFO', rawData);
+          self.$store.commit('SET_AUTH_USERINFO', true);
+          await self.setWxUserInfo(rawData);
+          await self.updateUserInfo(rawData);
           await this.toAddPage()
           selectPersonInfo()
           uni.$emit('userInfoUpdated')
           uni.startPullDownRefresh({
-            
+
           })
           return
-      	}
+        }
       },
       getAuditStatus() {
         const serviceName = 'srvperson_single_basic_info_select'
@@ -132,6 +153,41 @@
   .user-card {
     display: flex;
     padding: 10px;
+
+    &.card-bag {
+      padding: 10px 10px 0;
+      border-radius: 0 0 50% 50%/0 0 20px 20px;
+      flex-direction: column;
+      overflow: hidden;
+
+      .bottom {
+        background-color: #B34342;
+        width: calc(100% - 40px);
+        flex: 1;
+        min-height: 50px;
+        margin: 0 20px;
+        border-radius: 10px 10px 0 0;
+        padding: 20px;
+        color: #fff
+      }
+    }
+
+    .top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      color: #fff;
+      font-size: 16px;
+
+      .profile-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 50px;
+        margin-right: 10px;
+      }
+    }
 
     .left {
       display: flex;

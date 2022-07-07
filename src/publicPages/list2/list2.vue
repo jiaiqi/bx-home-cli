@@ -1532,6 +1532,24 @@
       //   return
       // },
       async clickFootBtn(data) {
+        if(data?.button?.pre_confirm_msg){
+          let confirm = await new Promise(resolve=>{
+            uni.showModal({
+              title:'提示',
+              content:data?.button?.pre_confirm_msg,
+              success: (res) => {
+                if(res.confirm){
+                  resolve(true)
+                }else{
+                  resolve(false)
+                }
+              }
+            })
+          })
+          if(confirm===false){
+            return
+          }
+        }
         if (this.listType === 'selectorList') {
           if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
 

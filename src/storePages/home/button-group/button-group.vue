@@ -530,7 +530,7 @@
                     }
                     res.h = res.h * ratio
                   }
-                  if (res.w && res.w.indexOf('%')) {
+                  if (res&&res.w &&typeof res.w ==='string'&& res.w.indexOf('%')!==-1) {
                     this.$set(item, 'imgWidth', `${ res.w}`);
                   } else {
                     this.$set(item, 'imgWidth', `${ res.w}px`);

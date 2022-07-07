@@ -115,6 +115,7 @@
     methods: {
       async onHandler() {
         let res = await this.handlerBeforeNav()
+        debugger
         if (res === false) {
           return
         } else {
@@ -141,6 +142,7 @@
         }
       },
       async handlerBeforeNav() {
+        debugger
         if (this.moreConfig?.before_nav_handler) {
           let handler = this.moreConfig?.before_nav_handler;
           let varData = {
@@ -287,6 +289,7 @@
         })
       },
       toOpenVip() {
+        debugger
         if (this.hasNotRegInfo) {
           uni.navigateTo({
             url: '/publicPages/accountExec/accountExec'

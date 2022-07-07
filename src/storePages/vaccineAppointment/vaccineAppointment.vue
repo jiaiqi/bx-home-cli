@@ -266,6 +266,9 @@
         //     }
         //   }
         // }
+        // if(e?._date==='2022/07/12'){
+        //   debugger
+        // }
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (e.time_range_appointment_limit && e.time_range) {
             if (e.app_amount >= e.time_range_appointment_limit) {
@@ -282,22 +285,19 @@
         }
 
 
-
-
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY/MM/DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
             // 还没到可以提前预约的时间
             return true
           }
-        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date < dayjs().add(e.predispdays,
+        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date <= dayjs().add(e.predispdays,
             'day').format('YYYY/MM/DD')) {
           // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
           // 还没到可以提前预约的时间
           return true
           // }
         }
-
-        let time = new Date(e.app_date + ' ' + e.app_time_end)
+        let time = new Date(e.app_date + ' ' + e.timeEnd)
         let now = new Date()
         if (time.getTime() < now.getTime()) {
           if (e.time_range_appointment_limit && e.time_range) {
@@ -513,7 +513,7 @@
             })
             return
           }
-        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date < dayjs().add(e.predispdays,
+        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date <= dayjs().add(e.predispdays,
             'day').format('YYYY/MM/DD')) {
           // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
           // 还没到可以提前预约的时间

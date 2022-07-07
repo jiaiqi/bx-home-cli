@@ -47,7 +47,7 @@
     </link-wifi>
     <bx-list ref="normalList" v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick"
       :pageItem="pageItem" class="bx-list" />
-    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :config="moreConfig"></user-card>
+    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'"  :page-item="pageItem" :config="moreConfig"></user-card>
     <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
     </vip-card>
     <avatar-list :storeNo="storeNo" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
@@ -172,7 +172,9 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-        if (this.pageItem?.component_bg_color) {
+        if(this.pageItem?.type==='用户卡片'&&this.pageItem?.user_card_type==='卡包'){
+          style.background = this.pageItem?.component_bg_color?'transparent':"#fff"
+        } else if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
         } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
           style.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`

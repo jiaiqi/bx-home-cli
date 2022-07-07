@@ -74,7 +74,9 @@
           // }
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-
+          if(orderType&&orderType.indexOf('服务')!==-1){
+            url+=`&show_params_config=服务场地,服务人员`
+          }
           uni.navigateTo({
             url
           });
