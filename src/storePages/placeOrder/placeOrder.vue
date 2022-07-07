@@ -36,7 +36,8 @@
             }}</text>
         </view> -->
         <view class="goods-list">
-          <goods-item :goods="goods" :disabledRefund="disabledRefund" :disabledEvaluate="disabledEvaluate" :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
+          <goods-item :goods="goods" :disabledRefund="disabledRefund" :disabledEvaluate="disabledEvaluate"
+            :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
             @attrChange="attrChange($event,idx)">
 
           </goods-item>
@@ -342,7 +343,8 @@
         view_cfg: null,
         onPay: false,
         disabledRefund: false, // 禁用退款按钮
-        disabledEvaluate: false // 禁用 评价按钮
+        disabledEvaluate: false, // 禁用 评价按钮
+        approval_type: "普通核销", //核销方式
       };
     },
     computed: {
@@ -851,7 +853,18 @@
             "goods_no": item.goods_no,
             "goods_name": item.goods_name,
             "approval_num": item.car_num || item.goods_amount,
-            "store_no": this.store_no || this.storeInfo?.store_no
+            "store_no": this.store_no || this.storeInfo?.store_no,
+            service_person: this.mainData?.service_people_no,
+            approval_type: this.approval_type || '普通核销'
+          }
+          let startTime = this.mainData?.service_start_time
+          let endTime = this.mainData?.service_end_time
+          if (startTime && endTime) {
+            let num = (this.dayjs(new Date() + ' ' + startTime) - this.dayjs(new Date() + ' ' + endTime)) / 1000 /
+              60
+            if (!isNaN(Number(num))) {
+              obj.service_time_len = num
+            }
           }
           return obj
         })
@@ -1719,6 +1732,11 @@
       },
     },
     async onLoad(option) {
+      
+      if(option.approval_type){
+        this.approval_type = option.approval_type
+      }
+      
       if (option.disabledEvaluate) {
         this.disabledEvaluate = true
       }
@@ -1726,7 +1744,7 @@
       if (option.disabledRefund) {
         this.disabledRefund = true
       }
-      
+
       if (option.orderType || option.order_type) {
         this.orderType = option.orderType || option.order_type
       }

@@ -173,6 +173,9 @@ export default {
         if (orderType.indexOf('餐饮') > -1) {
           showParams = '服务场地'
         }
+        if(orderType&&orderType.indexOf('服务')!==-1){
+         showParams=`服务场地,服务人员`
+        }
       }
       return showParams
     },

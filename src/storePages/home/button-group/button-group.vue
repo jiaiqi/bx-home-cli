@@ -980,7 +980,7 @@
                   value: arr[2]
                 }]
                 let url =
-                  `/storePages/verification/verification?serviceName=srvhealth_store_card_case_detail_select&listType=selectorList&cond=[{"colName":"card_no","ruleType":"eq","value":"${arr[2]}"}]&idCol=card_case_detail_no&disabled=true&card_no=${arr[2]}`
+                  `/storePages/verification/verification?serviceName=srvhealth_store_card_case_detail_select&listType=selectorList&cond=[{"colName":"card_no","ruleType":"eq","value":"${arr[2]}"}]&idCol=card_case_detail_no&disabled=true&card_no=${arr[2]}&approval_type=扫码核销`
                 uni.navigateTo({
                   url
                 })

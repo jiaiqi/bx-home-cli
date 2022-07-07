@@ -41,7 +41,8 @@
         appName: "health",
         uuid: "",
         orderInfo: {},
-        cardInfo: {}
+        cardInfo: {},
+        approval_type:""
       }
     },
     computed: {
@@ -74,8 +75,8 @@
           // }
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          if(orderType&&orderType.indexOf('服务')!==-1){
-            url+=`&show_params_config=服务场地,服务人员`
+          if(this.approval_type){
+            url+=`&approval_type=${this.approval_type}`
           }
           uni.navigateTo({
             url
@@ -339,6 +340,9 @@
       }
     },
     async onLoad(option) {
+      if(option.approval_type){
+        this.approval_type = option.approval_type
+      }
       if (option.uuid) {
         this.uuid = option.uuid
       }
