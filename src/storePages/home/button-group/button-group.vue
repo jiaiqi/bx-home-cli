@@ -530,7 +530,7 @@
                     }
                     res.h = res.h * ratio
                   }
-                  if (res&&res.w &&typeof res.w ==='string'&& res.w.indexOf('%')!==-1) {
+                  if (res && res.w && typeof res.w === 'string' && res.w.indexOf('%') !== -1) {
                     this.$set(item, 'imgWidth', `${ res.w}`);
                   } else {
                     this.$set(item, 'imgWidth', `${ res.w}px`);
@@ -803,9 +803,11 @@
       async handlerBeforeClick(e) {
 
         let res = true
+
         if (!e.navType && e.navigate_type) {
           e.navType = e.navigate_type
         }
+
         if (!e?.url && e?.prompt) {
           // 未配置url，提示
           uni.showModal({
@@ -813,15 +815,8 @@
             content: e.prompt,
             showCancel: false
           })
-        }
-        // else if (e?.navType !== "takePhone") {
-        //   // 除了打电话外 其他操作必须先授权访问用户信息
-        //   uni.navigateTo({
-        //     url: '/publicPages/accountExec/accountExec'
-        //   })
-        //   res = false
-        // }
-        else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+           res = false
+        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -846,8 +841,7 @@
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo,
-              storeUserInfo: this.bindUserInfo,
-
+              storeUserInfo: this.bindUserInfo
             }
             this.qrCodeText = this.renderStr(e.url.split('q=')[1], data)
             this.showQrcode = true
@@ -856,7 +850,6 @@
         } else if (e?.before_click) {
           if (Array.isArray(e?.before_click?.validate) && e?.before_click?.validate.length > 0) {
             // 点击操作前校验
-            let failedNum = 0
             for (let item of e.before_click.validate) {
               if (res === false) {
                 break
@@ -910,9 +903,7 @@
                   }
                   break;
               }
-
             }
-            // e.before_click.validate.forEach(item => {})
           }
         }
         return res

@@ -608,7 +608,25 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "addMember/addMember",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "添加会员",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+                ,{
+                    "path" : "yggl/yggl",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "员工管理",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#ifdef H5
     ,

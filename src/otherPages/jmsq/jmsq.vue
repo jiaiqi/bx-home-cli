@@ -18,7 +18,7 @@
 
       <view class="form-item">
         <view class="form-item-label">
-          <text> 店铺地址<text class="text-red" v-if="pageType!=='detail'">*</text></text>
+          <text> 店铺地址</text>
           <text class="text-blue underline" @click="chooseLocation">添加导航</text>
         </view>
         <view class="form-item-content">
@@ -80,7 +80,7 @@
 
       <view class="form-item">
         <view class="form-item-label">
-          营业执照<text class="text-red" v-if="pageType!=='detail'">*</text></text>
+          营业执照</text>
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" interfaceName="add" :appName="appName"
@@ -95,7 +95,7 @@
 
       <view class="form-item">
         <view class="form-item-label">
-          法人身份证<text class="text-red" v-if="pageType!=='detail'">*</text></text>
+          法人身份证</text>
         </view>
         <view class="form-item-content">
           <bx-image-upload :disabled="pageType==='detail'" :width="300" :height="300" :max-count="1" :custom-btn="true"
@@ -137,7 +137,7 @@
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          联系电话<text class="text-red" v-if="pageType!=='detail'">*</text>
+          联系电话
         </view>
         <view class="form-item-content">
           <view class="input">
@@ -239,15 +239,15 @@
         },
         required: {
           name: true, //店铺名称
-          address: true, //店铺地址
+          address: false, //店铺地址
           introduction: '', //店铺介绍
           image: "", //店铺照片
           logo: true, //店铺logo
-          telephone: true, //联系电话
+          telephone: false, //联系电话
           start_time: true, //营业开始时间
           end_time: true, // 营业结束时间
-          business_license: true, //营业执照
-          legal_person_id_card: true, // 法人身份证
+          business_license: false, //营业执照
+          legal_person_id_card: false, // 法人身份证
           legal_person_id_card_reverse: true,
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
@@ -354,13 +354,13 @@
             unpass++
             let requiredLabel = {
               name: '店铺名称', //店铺名称
-              address: '店铺地址', //店铺地址
+              // address: '店铺地址', //店铺地址
               logo: '店铺logo', //店铺logo
-              telephone: '联系电话', //联系电话
+              // telephone: '联系电话', //联系电话
               start_time: '营业开始时间', //营业开始时间
               end_time: '营业结束时间', // 营业结束时间
-              business_license: '营业执照', //营业执照
-              legal_person_id_card: '法人身份证', // 法人身份证
+              // business_license: '营业执照', //营业执照
+              // legal_person_id_card: '法人身份证', // 法人身份证
               legal_person_id_card_reverse: '法人身份证（反）',
               wx_mch_id: '微信商户号', //微信商户号
               one_money_than: '一级分佣比例', //

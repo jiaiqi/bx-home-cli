@@ -173,11 +173,11 @@
 
   /* #ifdef H5 */
   uni-page-head {
-    // display: none !important;
+    display: none !important;
   }
 
   .uni-page-head {
-    // display: none !important;
+    display: none !important;
   }
 
   .bottom-modal {}

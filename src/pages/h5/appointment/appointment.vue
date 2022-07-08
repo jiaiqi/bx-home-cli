@@ -243,7 +243,7 @@
             }],
             "srvInfo": {
               "app": "health",
-              "service": "srvhealth_store_service_join_people_select",
+              "service": "srvhealth_store_service_people_schedule_select",
               "idCol": "service_no",
               "dispCol": "person_name",
               "pidCol": "timearea_no"
@@ -685,7 +685,7 @@
               })
               this.secondLevelData = list
               if (Array.isArray(res.data) && res.data.length > 0) {
-                let curIndex = res.data.findIndex(e => e.disabled !== true)
+                let curIndex = res.data.findIndex(e => e.disabled !== true&&!this.isDisabled('second', e))
                 if (curIndex !== -1) {
                   list[curIndex].selected = true;
                   this.getThirdData(list[curIndex])
@@ -758,14 +758,15 @@
               let list = res.data.map((item, index) => {
                 item.selected = false;
                 let disabled = this.isDisabled('third', item)
-                if (item[pidCol] === e[pidCol] && disabled !== true) {
+                if (item[pidCol] === e[pidCol] && disabled !== true&&this.secondLevelData.find(item=>item.selected)) {
                   item.selected = true
                 }
                 return item
               })
-              if (Array.isArray(res.data) && res.data.length > 0) {
-                let curIndex = res.data.findIndex(e => e.disabled !== true)
-                if (curIndex !== -1) {
+              if (Array.isArray(list) && list.length > 0) {
+                let curIndex = list.findIndex(e => e.disabled !== true)
+                let disabled = this.isDisabled('third', list[curIndex])
+                if (!disabled&&curIndex !== -1&&this.secondLevelData.find(item=>item.selected)) {
                   list[curIndex].selected = true;
                 }
               }
