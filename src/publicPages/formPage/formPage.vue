@@ -221,7 +221,8 @@
       childService() {
         let result = []
         if (['update', 'add'].includes(this.srvType)) {
-          result = this.operateChildService
+          result = this.operateChildService && this.operateChildService.length > 0 ? this.operateChildService : this
+            .detailChildService
         } else {
           result = this.detailChildService
         }
@@ -1071,8 +1072,8 @@
           if (condition.find(item => item.colName === 'id')) {
             condition = condition.filter(item => item.colName === 'id')
           }
-          
-          if(Array.isArray(this.condition)&&this.condition.length>0){
+
+          if (Array.isArray(this.condition) && this.condition.length > 0) {
             condition = this.condition
           }
 
@@ -1203,7 +1204,7 @@
               }
               return field;
             }).filter(item => !this.hideColumn.includes(item.column))
-            if(this.hideColumn.find(item=>item==='hideAllColumn')){
+            if (this.hideColumn.find(item => item === 'hideAllColumn')) {
               fields = []
             }
             break;
@@ -1394,8 +1395,8 @@
       }
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
       title = this.renderEmoji(title)
-      if(path.indexOf('store_no')==-1){
-        path+=`&store_no=${this.storeInfo?.store_no}`
+      if (path.indexOf('store_no') == -1) {
+        path += `&store_no=${this.storeInfo?.store_no}`
       }
       return {
         imageUrl: imageUrl,
@@ -1455,7 +1456,7 @@
       if (option.afterSubmit) {
         this.afterSubmit = option.afterSubmit
       }
-     
+
       if (option.disabledChildButton) {
         this.disabledChildButton = true
       }
@@ -1483,8 +1484,8 @@
         this.srvType = option.type;
         this.use_type = option.type;
       }
-      
- 
+
+
       if (option.fieldsCond) {
         let fieldsCond = []
         try {
@@ -1505,28 +1506,29 @@
             fieldsCond = JSON.parse(str);
           } catch (e) {}
         }
-        if(option.condition){
-          try{
+        if (option.condition) {
+          try {
             let cond = JSON.parse(option.condition)
             this.condition = cond
-            if(Array.isArray(cond)&&cond.length>0){
-              cond.forEach(item=>{
-                if(item.value){
+            if (Array.isArray(cond) && cond.length > 0) {
+              cond.forEach(item => {
+                if (item.value) {
                   fieldsCond.push({
-                    column:item.colName,
-                    value:item.value
+                    column: item.colName,
+                    value: item.value
                   })
                 }
               })
             }
-          }catch(e){
+          } catch (e) {
             //TODO handle the exception
           }
         }
-        
+
         this.fieldsCond = fieldsCond
       }
-      if (option.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
+      if (['detail', 'update'].includes(option.type) && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this
+          .fieldsCond
           .length ===
           0)) && option.id) {
         this.fieldsCond = [{

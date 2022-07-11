@@ -19,12 +19,14 @@
 		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
 		  }}</text>
         </view>
-        <button class="cu-btn round sm margin-right-xs" @click="toAfterSale"
-          v-if="disabledRefund!==true&&goods.pay_state==='已支付'&&(!goods.return_num||goods.return_num<goods.goods_amount)">退款</button>
-        <button class="cu-btn round sm border"
-          v-if="disabledEvaluate!==true&&orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
-          @click="toEvaluate">评价</button>
-        <button class="cu-btn round sm border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'" @click="toEvaluate('detail')">查看评价</button>
+        <view class="" v-if="orderInfo&&orderInfo.order_no">
+          <button class="cu-btn round sm margin-right-xs" @click="toAfterSale"
+            v-if="disabledRefund!==true&&goods.pay_state==='已支付'&&(!goods.return_num||goods.return_num<goods.goods_amount)">退款</button>
+          <button class="cu-btn round sm border"
+            v-if="disabledEvaluate!==true&&orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
+            @click="toEvaluate">评价</button>
+          <button class="cu-btn round sm border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'" @click="toEvaluate('detail')">查看评价</button>
+        </view>
       </view>
     </view>
     <view class="goods-item-list" v-if="list&&list.length>0">

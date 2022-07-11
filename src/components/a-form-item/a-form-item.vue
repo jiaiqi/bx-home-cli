@@ -210,8 +210,9 @@
         :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum">
       </robby-image-upload> -->
 
-      <bx-image-upload :open-type="fieldData.column==='profile_url'?'chooseAvatar':''" :disabled="pageType==='detail'"
-        :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
+      <bx-image-upload :max-count="fieldData.max"
+        :open-type="['profile_url','user_image'].includes(fieldData.column)?'chooseAvatar':''"
+        :disabled="pageType==='detail'" :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
         :tableName="uploadFormData.table_name" :value="fieldData.value" :index="fieldData.column" :action="uploadUrl"
         @change="imgChange" v-else-if="fieldData.type === 'images'">
         <!--     <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">

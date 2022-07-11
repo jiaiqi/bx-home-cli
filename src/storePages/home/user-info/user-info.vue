@@ -1,5 +1,5 @@
 <template>
-  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]">
+  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]" @click="toEdit">
     <view class="top">
       <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image" mode="aspectFit"></image>
       <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
@@ -70,6 +70,12 @@
       this.getAuditStatus()
     },
     methods: {
+      toEdit(){
+        const url = `/publicPages/formPage/formPage?type=update&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}`
+        uni.navigateTo({
+          url
+        })
+      },
       toCardList() {
         let url = `/storePages/coupon/coupon?destApp=health&serviceName=srvhealth_store_card_case_select`
         uni.navigateTo({

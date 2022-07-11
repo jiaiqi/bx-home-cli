@@ -431,6 +431,9 @@ export default {
         fieldInfo.disabled = item.updatable === 0 ? true : false; //字段是否冻结
         if (item.validators) {
           fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
+          if(fieldInfo._validators?.max){
+            fieldInfo.max = fieldInfo._validators?.max
+          }
           fieldInfo.isRequire = fieldInfo._validators.required
         }
 
@@ -1529,6 +1532,7 @@ export default {
             return
           }
         }
+        
       } else {
         // 没有基本信息 创建基本信息
         let login_user_info = uni.getStorageSync('login_user_info')
@@ -1555,6 +1559,7 @@ export default {
               break;
           }
         }
+        
         if (wxUserInfo && wxUserInfo.gender) {
           switch (wxUserInfo.gender) {
             case 0:
@@ -1568,6 +1573,7 @@ export default {
               break;
           }
         }
+        
         let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
         let req = [{
           "serviceName": "srvhealth_person_info_add",
@@ -1576,8 +1582,8 @@ export default {
               .replace(
                 /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "微信用户",
             "userno": user_no,
-            "profile_url": wxUserInfo ? wxUserInfo.headimgurl : defaultProfile,
-            "sex": sex ? sex : null,
+            "profile_url": wxUserInfo?.headimgurl || defaultProfile,
+            "sex": sex || null,
             "is_main": "是",
             "font_size": "中"
           }]

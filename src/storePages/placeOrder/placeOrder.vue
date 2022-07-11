@@ -104,6 +104,19 @@
         </view>
       </view>
 
+      <view class="order-other-info">
+        <view class="info-item">
+          <view class="info-label">
+            订单备注
+          </view>
+          <view class="info-value" style="text-align: right;">
+            <input type="text" placeholder-style="font-size:12px;color:#999;" :disabled="orderInfo&&orderInfo.order_no" v-model="orderInfo.order_remark"
+              placeholder="可填写偏好和要求">
+          </view>
+        </view>
+      </view>
+
+
       <!-- 优惠券 -->
       <view class="order-other-info" v-if="!orderInfo.order_no&&!isHexiao">
         <view class="info-item">
@@ -117,6 +130,8 @@
           </view>
         </view>
       </view>
+
+
 
       <!-- 支付方式 -->
       <view class="pay-mode"
@@ -1732,11 +1747,11 @@
       },
     },
     async onLoad(option) {
-      
-      if(option.approval_type){
+
+      if (option.approval_type) {
         this.approval_type = option.approval_type
       }
-      
+
       if (option.disabledEvaluate) {
         this.disabledEvaluate = true
       }

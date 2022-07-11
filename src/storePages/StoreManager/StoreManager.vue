@@ -65,10 +65,10 @@
           <text class="margin-right">{{ buttonTitle || "管理" }}</text>
           <!-- 		<text class="cuIcon-title text-orange margin-right">未回复</text>
 					<text class="cuIcon-title text-red">未读</text>-->
-          <view class="buttons">
+      <!--    <view class="buttons">
             <button class="cu-btn round" @tap="toDetail(StoreInfo)"><text class="cuIcon-settingsfill"
                 :class="'bx-text-'+theme"></text>设置</button>
-          </view>
+          </view> -->
         </view>
         <view class="manager-box" v-if="StoreInfo.mgmt_button_type === '固定'">
           <view class="box-item" v-for="(item,index) in list" :key="index" @click="clickGrid(item)">
@@ -119,10 +119,10 @@
         <view class="" v-show="manageGroup" v-for="(manage,mIndex) in manageGroup" :key="mIndex">
           <view class="text-bold title">
             <text class="margin-right">{{ manage.component_label || "管理" }}</text>
-            <view class="buttons" v-if="mIndex===0">
+     <!--       <view class="buttons" v-if="mIndex===0">
               <button class="cu-btn round" @tap="toDetail(StoreInfo)"><text :class="'bx-text-'+theme"
                   class="cuIcon-settingsfill"></text>设置</button>
-            </view>
+            </view> -->
           </view>
           <view class="manager-box">
             <view class="box-item" v-for="(item,index) in manage.buttonGroup" :key="index" @click="clickButton(item)">

@@ -32,12 +32,16 @@
       </view>
     </view>
 
-    <view class="cu-modal bottom-modal" :class="{show:modalName==='add'||modalName==='edit'}">
+    <view class="cu-modal bottom-modal" :class="{show:['add','edit'].includes(modalName)}">
       <view class="cu-dialog" @touchmove="">
         <view class="title padding-tb text-bold flex justify-between">
-          <text></text>
-          <text>添加员工</text>
-          <text class="cuIcon-close padding-lr" @click="changeModal()"></text>
+          <text class="padding-lr">
+            <text class="cuIcon-close " style="opacity: 0;"></text>
+          </text>
+          <text>{{modalName=='add'?'添加员工':'编辑员工信息'}}</text>
+          <text class="padding-lr" @click="changeModal()">
+            <text class="cuIcon-close "></text>
+          </text>
         </view>
         <view class="edit-modal">
           <view class="form-item">
@@ -204,6 +208,7 @@
     },
     methods: {
       confirm() {
+        this.modalName = ''
         if (!this.form.schedule_week) {
           this.form.schedule_week = this.weeks.filter(item => item.checked).map(item => item.name).toString()
         }
@@ -218,10 +223,8 @@
           })
           return
         }
-        let service = 'srvhealth_store_service_people_add'
-        if (this.curType === 'edit') {
-          service = 'srvhealth_store_service_people_update'
-        }
+        
+        let service =this.curType === 'edit'?'srvhealth_store_service_people_update':this.curType === 'add'? 'srvhealth_store_service_people_add':""
         const url = `/health/operate/${service}`
         const req = [{
           "serviceName": service,
@@ -243,6 +246,14 @@
             return
           }
         }
+        if(!service){
+          uni.showModal({
+            title: '提示',
+            content: '系统错误，请推出小程序后重新进入页面再试',
+            showCancel: false
+          })
+          return
+        }
         this.$http.post(url, req).then(res => {
           if (res.data.state === "SUCCESS") {
             uni.showToast({
@@ -252,6 +263,11 @@
             this.getList()
             this.cur = ''
             this.curType = ''
+          } else if (res?.data?.resultMessage) {
+            uni.showToast({
+              title: res.data.resultMessage,
+              icon: 'none'
+            })
           }
         })
       },
@@ -263,7 +279,7 @@
           value: this.storeInfo?.store_no
         }]
         let url =
-          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_user_select&cond=${JSON.stringify(condition)}`
+          `/publicPages/list2/list2?disabled=true&selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_user_select&cond=${JSON.stringify(condition)}`
 
         const listConfig = {
           "lp_style": "单行",
@@ -338,6 +354,7 @@
       },
       changeModal(e) {
         this.modalName = e
+        this.curType = e
       },
       toEdit(e) {
         this.cur = e
@@ -346,7 +363,6 @@
             this.form[key] = e[key]
           }
         })
-        this.curType = 'edit'
         if (this.form.schedule_week) {
           this.weeks = this.weeks.map(item => {
             if (this.form.schedule_week.indexOf(item.name) !== -1) {
