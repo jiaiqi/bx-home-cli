@@ -17,7 +17,26 @@
         :src="item.url || item.path" :mode="imageMode"></image>
     </view>
     <slot name="file" :file="lists"></slot>
-    <view style="display: inline-block;" @tap="selectFile" v-if="maxCount > lists.length">
+    <!-- #ifdef MP-WEIXIN -->
+    <button @chooseavatar="chooseavatar" open-type="chooseAvatar"
+      v-if="openType==='chooseAvatar'&&maxCount > lists.length" class="add-btn">
+      <slot name="addBtn"></slot>
+      <view v-if="!customBtn" class="u-list-item u-add-wrap" hover-class="u-add-wrap__hover" hover-stay-time="150"
+        :style="{
+    			width: $u.addUnit(width),
+    			height: $u.addUnit(height)
+    		}">
+        <u-icon name="plus" class="u-add-btn" size="40"></u-icon>
+        <view class="u-add-tips">{{ uploadText }}</view>
+      </view>
+    </button>
+    <!-- #endif -->
+    <!-- #ifdef H5 -->
+    <view class="" v-if="openType==='chooseAvatar'&&false">
+      
+    </view>
+    <!-- #endif -->
+    <view class="add-btn" @tap="selectFile" v-else-if="maxCount > lists.length">
       <slot name="addBtn"></slot>
       <view v-if="!customBtn" class="u-list-item u-add-wrap" hover-class="u-add-wrap__hover" hover-stay-time="150"
         :style="{
@@ -83,6 +102,9 @@
       event: 'change'
     },
     props: {
+      openType: {
+        type: String, // chooseAvatar
+      },
       // 组件绑定的值,一般为上传文件编号（file_no）
       value: {
         type: String
@@ -355,6 +377,21 @@
       }
     },
     methods: {
+      chooseavatar(e) {
+        const avatarUrl = e?.detail?.avatarUrl;
+        if (avatarUrl) {
+          const listOldLength = this.lists.length
+          this.lists.push({
+            url: avatarUrl,
+            progress: 0,
+            error: false,
+            file: {
+              path: avatarUrl
+            }
+          });
+          this.uploadFile(listOldLength);
+        }
+      },
       async loadInitImages() {
         let imgList = await this.getFilePath(this.value);
         if (Array.isArray(imgList) && imgList.length > 0) {
@@ -621,7 +658,7 @@
             this.lists.splice(index, 1);
             this.$forceUpdate();
             this.$emit('on-remove', index, this.lists, this.index);
-            if(this.lists.length===0){
+            if (this.lists.length === 0) {
               this.fileNo = ''
             }
             this.showToast(res?.data?.state || '移除成功');
@@ -686,6 +723,18 @@
 
 <style lang="scss" scoped>
   @import '@/uview-ui/libs/css/style.components.scss';
+
+  .add-btn {
+    display: inline-block;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    border: none;
+
+    &::after {
+      border: none;
+    }
+  }
 
   .u-upload {
     @include vue-flex;

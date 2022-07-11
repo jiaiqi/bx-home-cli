@@ -148,7 +148,7 @@
         <view class="value rich-text" v-if="!fieldData.value">请输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
-      <input type="text" class="" style="width: 100%"
+      <input :type="fieldData.column==='nick_name'?'nickname':'text'" class="" style="width: 100%"
         :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" :value="fieldData.value"
         @blur="inputChange" :maxlength="max_len" :disabled="fieldData.disabled|| false"
         v-else-if="fieldData.type === 'text'" />
@@ -202,12 +202,24 @@
           <text class="cuIcon-pic"></text>
         </view>
       </view> -->
-      <robby-image-upload class="form-item-content_value image" v-else-if="fieldData.type === 'images'"
-        :value="imagesUrl" :enable-del="fieldData.disabled ? !fieldData.disabled : true"
+      <!--     <robby-image-upload :open-type="fieldData.column==='profile_url'?'chooseAvatar':''"
+        class="form-item-content_value image" v-else-if="fieldData.type === 'images'" :value="imagesUrl"
+        :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
         @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"
         :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum">
-      </robby-image-upload>
+      </robby-image-upload> -->
+
+      <bx-image-upload :open-type="fieldData.column==='profile_url'?'chooseAvatar':''" :disabled="pageType==='detail'"
+        :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
+        :tableName="uploadFormData.table_name" :value="fieldData.value" :index="fieldData.column" :action="uploadUrl"
+        @change="imgChange" v-else-if="fieldData.type === 'images'">
+        <!--     <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
+          <text class="cuIcon-add"></text>
+        </view> -->
+      </bx-image-upload>
+
+
     </view>
     <view class="icon-area" v-if="(fieldData.type === 'location' || fieldData.type === 'addr')"><text
         class="cuIcon-locationfill text-cyan" @click="getLocation"></text></view>
@@ -550,6 +562,9 @@
       }
     },
     methods: {
+      imgChange(val) {
+        this.fieldData.value = val
+      },
       selectorInput(e) {
         this.fkFieldLabel = e?.detail?.value;
       },
@@ -739,7 +754,7 @@
         })
 
         console.log(settings)
-        if (settings?.authSetting?.['scope.userLocation'] === false) {
+        if (settings?.authSetting?. ['scope.userLocation'] === false) {
           uni.showModal({
             title: '提示',
             content: '未授权访问位置信息，请先在权限设置页面授权允许小程序访问您的位置信息',
@@ -1008,6 +1023,7 @@
         this.fieldData.value = res.file_no;
         if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {
           this.uploadFormData['file_no'] = this.fieldData.value;
+          this.uploadFormData.table_name = this.fieldData.table_name;
         }
         // this.onBlur()
         this.getDefVal();
@@ -1555,6 +1571,7 @@
           table_name: '',
           columns: ''
         };
+        this.uploadFormData.table_name = this.fieldData.table_name;
         this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync(
           'activeApp');
         this.uploadFormData['columns'] = this.fieldData.column;

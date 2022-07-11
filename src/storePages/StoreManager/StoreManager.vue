@@ -162,37 +162,6 @@
         StoreInfo: {},
         modalName: '',
         storeNo: '',
-        filterList: [{
-            id: 0,
-            name: '综合',
-          },
-          {
-            id: 1,
-            name: '价格',
-            sort: true
-          },
-          {
-            id: 2,
-            name: '年龄',
-            sort: true
-          },
-          {
-            id: 3,
-            name: '经验',
-            sort: true
-          },
-          {
-            id: 4,
-            name: '不要排序',
-            sort: false
-          },
-          {
-            id: 5,
-            name: '最后一项',
-            sort: false
-          }
-        ],
-
         gridList: [{
             label: '店铺商品',
             icon: 'goods',
@@ -601,11 +570,16 @@
               "colName": "button_usage",
               "ruleType": "eq",
               "value": '管理人员'
+            },
+            {
+              "colName": "display",
+              "ruleType": "ne",
+              "value": '否'
             }
           ],
           "page": {
             "pageNo": 1,
-            "rownumber": 10
+            "rownumber": 100
           }
         }
         const res = await this.$fetch('select', 'srvhealth_store_home_component_select', req, 'health')
@@ -1077,62 +1051,16 @@
         this.modalName = ''
       },
       toDetail(e) {
-        debugger
-        let fieldsCond = [{
-            column: 'store_no',
-            display: false,
-            value: e.store_no
-          },
-          {
-            column: 'sale_num',
-            display: false
-          },
-          {
-            column: 'grade',
-            display: false
-          },
-          {
-            column: 'audit_status',
-            display: false,
-            value: e.audit_status
-          },
-          {
-            column: 'create_time',
-            display: false
-          },
-          {
-            column: 'create_user_disp',
-            display: false
-          },
-          {
-            column: 'order_count',
-            display: false
-          },
-          {
-            column: 'goods_count',
-            display: false
-          },
-          {
-            column: 'person_order_count',
-            display: false
-          },
-          {
-            column: 'see_doctor_count',
-            display: false
-          },
-          {
-            column: 'user_count',
-            display: false
-          },
-          {
-            column: 'website_no',
-            display: false,
-            value: e.website_no
-          }
-        ];
-        const url = '/publicPages/formPage/formPage?serviceName=srvhealth_store_mgmt_select&type=detail&fieldsCond=' +
-          JSON.stringify(
-            fieldsCond)
+        // let fieldsCond = [{
+        //     column: 'store_no',
+        //     display: false,
+        //     value: e.store_no
+        //   }
+        // ];
+        // const url = '/publicPages/formPage/formPage?serviceName=srvhealth_store_mgmt_select&type=detail&fieldsCond=' +
+        //   JSON.stringify(
+        //     fieldsCond)
+        const url = `/publicPages/formPage/formPage?serviceName=srvhealth_store_mgmt_select&type=detail&id=${this.StoreInfo?.id||this.storeInfo?.id}` 
         uni.navigateTo({
           url: url
         });

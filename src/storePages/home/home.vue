@@ -1287,7 +1287,6 @@
               const iconPath = this.getImagePath(item.nav_icon, true);
               this.url2Base64(iconPath).then(res => {
                 if (res) {
-                  debugger
                   item.iconPath = res
                 }
               })
@@ -1300,7 +1299,6 @@
               const selectedIconPath = this.getImagePath(item.nav_icon_selected, true);
               this.url2Base64(selectedIconPath).then(res => {
                 if (res) {
-                  debugger
                   item.selectedIconPath = res
                 }
               })

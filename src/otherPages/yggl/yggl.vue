@@ -9,7 +9,8 @@
         <view class="right">
           <view class="">
             <text class="text-bold text-lg margin-right-xs">{{item.person_name}}</text>
-            <text class="text-sm">{{item.person_introduce}}</text>
+            <text class="text-sm">健管师</text>
+            <!-- <text class="text-sm">{{item.person_introduce}}</text> -->
           </view>
           <view class="margin-tb-xs">
             <view class="text-sm text-gray">

@@ -1406,7 +1406,7 @@
     async onLoad(option) {
       // #ifdef MP-WEIXIN
       await this.initApp()
-      //#endif
+      // #endif
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)
       // })
@@ -1526,7 +1526,7 @@
         
         this.fieldsCond = fieldsCond
       }
-      if (this.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
+      if (option.type === 'detail' && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this.fieldsCond
           .length ===
           0)) && option.id) {
         this.fieldsCond = [{

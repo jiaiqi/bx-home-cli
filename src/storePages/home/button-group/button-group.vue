@@ -800,8 +800,66 @@
           }
         }
       },
-      async handlerBeforeClick(e) {
 
+      async handleValidate(actions) {
+        let res = true
+        for (let item of actions) {
+          if (res === false) {
+            break
+          }
+          switch (item.type) {
+            case 'id_no':
+              if (!this.userInfo?.id_no) {
+                res = false
+                this.showRealNameModal(actions)
+              }
+              break;
+            case 'phone':
+              if (!this.userInfo?.phone_xcx || !this.userInfo?.phone) {
+                res = false
+                this.showRealNameModal(actions)
+              }
+              break;
+            case 'name':
+              if (!this.userInfo?.name) {
+                res = false
+                this.showRealNameModal(actions)
+              }
+              break;
+            case 'sex':
+              if (!this.userInfo?.sex) {
+                res = false
+                this.showRealNameModal(actions)
+              }
+              break;
+            case 'birth':
+              if (!this.userInfo?.birthday) {
+                res = false
+                this.showRealNameModal(actions)
+              }
+              break;
+            case 'officialAccount':
+              res = await this.checkSubscribeStatus()
+              if (res === false) {
+                uni.showModal({
+                  title: '提示',
+                  content: item.hint,
+                  showCancel: false,
+                  success: (res) => {
+                    if (res.confirm) {
+                      uni.navigateTo({
+                        url: `/storePages/officialIntro/officialIntro?mp_no=${item.mp_no||'MP2201210021'}`
+                      })
+                    }
+                  }
+                })
+              }
+              break;
+          }
+        }
+      },
+
+      async handlerBeforeClick(e) {
         let res = true
 
         if (!e.navType && e.navigate_type) {
@@ -815,7 +873,7 @@
             content: e.prompt,
             showCancel: false
           })
-           res = false
+          res = false
         } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
@@ -850,60 +908,7 @@
         } else if (e?.before_click) {
           if (Array.isArray(e?.before_click?.validate) && e?.before_click?.validate.length > 0) {
             // 点击操作前校验
-            for (let item of e.before_click.validate) {
-              if (res === false) {
-                break
-              }
-              switch (item.type) {
-                case 'id_no':
-                  if (!this.userInfo?.id_no) {
-                    res = false
-                    this.showRealNameModal(e.before_click.validate)
-                  }
-                  break;
-                case 'phone':
-                  if (!this.userInfo?.phone_xcx || !this.userInfo?.phone) {
-                    res = false
-                    this.showRealNameModal(e.before_click.validate)
-                  }
-                  break;
-                case 'name':
-                  if (!this.userInfo?.name) {
-                    res = false
-                    this.showRealNameModal(e.before_click.validate)
-                  }
-                  break;
-                case 'sex':
-                  if (!this.userInfo?.sex) {
-                    res = false
-                    this.showRealNameModal(e.before_click.validate)
-                  }
-                  break;
-                case 'birth':
-                  if (!this.userInfo?.birthday) {
-                    res = false
-                    this.showRealNameModal(e.before_click.validate)
-                  }
-                  break;
-                case 'officialAccount':
-                  res = await this.checkSubscribeStatus()
-                  if (res === false) {
-                    uni.showModal({
-                      title: '提示',
-                      content: item.hint,
-                      showCancel: false,
-                      success: (res) => {
-                        if (res.confirm) {
-                          uni.navigateTo({
-                            url: `/storePages/officialIntro/officialIntro?mp_no=${item.mp_no||'MP2201210021'}`
-                          })
-                        }
-                      }
-                    })
-                  }
-                  break;
-              }
-            }
+            res = await this.handleValidate(e?.before_click?.validate)
           }
         }
         return res

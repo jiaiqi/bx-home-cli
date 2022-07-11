@@ -2,6 +2,10 @@ import store from '@/store'
 import api from '@/common/api.js'
 import _http from '@/common/http.js'
 import globalMixin from '@/common/mixins/global'
+import {
+  defaultProfile
+} from '@/common/base64_file.js'
+
 const mpAppNo = api.appNo.wxmp
 
 const dayjs = require('dayjs');
@@ -1570,12 +1574,9 @@ export default {
           "data": [{
             "nick_name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname
               .replace(
-                /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
+                /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "微信用户",
             "userno": user_no,
-            // "name": wxUserInfo && wxUserInfo.nickname ? wxUserInfo.nickname.replace(
-            //   /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "",
-            "profile_url": wxUserInfo ? wxUserInfo.headimgurl : "",
-            // "user_image": wxUserInfo ? wxUserInfo.headimgurl : "",
+            "profile_url": wxUserInfo ? wxUserInfo.headimgurl : defaultProfile,
             "sex": sex ? sex : null,
             "is_main": "是",
             "font_size": "中"
@@ -1607,8 +1608,8 @@ export default {
           req[0].data[0].add_store_no = api.storeNo
           req[0].data[0].home_store_no = api.storeNo
         }
-        
-        if(!req[0].data[0].userno){
+
+        if (!req[0].data[0].userno) {
           return
         }
         let res = await _http.post(url, req)
@@ -1674,7 +1675,7 @@ export default {
       }
     }
 
-    Vue.prototype.url2Base64 = (url)=> {
+    Vue.prototype.url2Base64 = (url) => {
       return new Promise((resolve) => {
         uni.request({
           url,
