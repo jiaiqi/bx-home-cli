@@ -1582,7 +1582,7 @@ export default {
               .replace(
                 /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : "微信用户",
             "userno": user_no,
-            "profile_url": wxUserInfo?.headimgurl || defaultProfile,
+            "profile_url": wxUserInfo?.headimgurl,
             "sex": sex || null,
             "is_main": "是",
             "font_size": "中"

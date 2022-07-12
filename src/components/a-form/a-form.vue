@@ -242,7 +242,7 @@
         } else {
           console.log('表单校验失败', showsNum, valid, this.fieldModel);
           uni.showToast({
-            title: '请检查输入数据是否有效',
+            title: '请检查输入数据是否完整',
             icon: 'none'
           });
           return false;

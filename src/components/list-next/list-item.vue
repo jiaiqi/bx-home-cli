@@ -116,13 +116,14 @@
           </text>
         </view>
         <view class="foot-button-box grid"
-          v-if="setViewTemp && setViewTemp.lp_style === '宫格'&&hasShowButton && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
+          v-if="buttonPosition!=='right'&&setViewTemp && setViewTemp.lp_style === '宫格'&&hasShowButton && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
           <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
             v-for="(btn,index) in setRowButton" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
             {{ btn.button_name }}
           </button>
         </view>
-        <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}" v-else-if="hasShowButton&&listType!=='selectorList'">
+        <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}"
+          v-else-if="buttonPosition!=='right'&&hasShowButton&&listType!=='selectorList'">
           <button class="cu-btn" :class="[setListView.btnClass]"
             :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
             v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
@@ -131,6 +132,18 @@
             {{ btn.button_name }}
           </button>
         </view>
+      </view>
+      <view class="list-item-button" v-if="buttonPosition==='right'">
+        <button class="cu-btn" v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
+          :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
+          :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
+          <text v-if="btn.icon" :class="btn.icon">
+
+          </text>
+          <text v-else>
+            {{ btn.button_name }}
+          </text>
+        </button>
       </view>
       <view class="main-image" :style="{
 					'border-radius': setViewTemp.img.cfg.radius,
@@ -149,7 +162,7 @@
 					}"></image>
       </view>
     </view>
-<!--    <view class="foot-button-box"
+    <!--    <view class="foot-button-box"
       v-if="setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
     </view> -->
   </view>
@@ -208,7 +221,7 @@
       childData: {
         type: [Object, Array]
       },
-      disabled: [String,Boolean]
+      disabled: [String, Boolean]
     },
     data() {
       return {
@@ -234,6 +247,9 @@
       }
     },
     computed: {
+      buttonPosition() {
+        return this.viewTemp?.btn_cfg?.position
+      },
       amount() {
         let data = this.cartData.find(item => item.id === this.rowData.id);
         if (data?.goods_count) {
@@ -328,10 +344,25 @@
       setRowButton() {
         let buttons = [];
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
-          buttons = this.rowButton.filter((item, index) => {
+          buttons = this.rowButton.map((item, index) => {
+            if (this.viewTemp?.btn_cfg?.position === 'right') {
+              if (Array.isArray(this.viewTemp?.btn_cfg?.icon) && this.viewTemp?.btn_cfg?.icon.length > index) {
+                item.icon = `cuIcon-${this.viewTemp?.btn_cfg?.icon[index]}`
+              } else if (item.button_type && item.button_type.indexOf('delete') !== -1) {
+                item.icon = 'cuIcon-delete'
+              } else if (item.button_type && item.button_type.indexOf('edit') !== -1) {
+                item.icon = 'cuIcon-write'
+              } else if (item.button_type && item.button_type.indexOf('add') !== -1) {
+                item.icon = 'cuIcon-add'
+              }
+            }
+            return item
+          }).filter((item, index) => {
+
             if (!item.moreConfig) {
               item.moreConfig = {}
             }
+
             if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this
               .rowButton.length) {
               return this.rowData._buttons[index] === 1;
@@ -368,7 +399,7 @@
             background: this.setViewTemp?.bg || this.setViewTemp?.background,
           }
         };
-        if(this.listType=='selectorList'&&this.disabled===true){
+        if (this.listType == 'selectorList' && this.disabled === true) {
           result.rootClass += `disabled `;
         }
         if (this.setViewTemp?.lp_style === '宫格') {
@@ -377,7 +408,7 @@
         }
         // 按钮配置
         let btnCfg = this.setViewTemp?.btn_cfg;
-        if(btnCfg?.wrap_row){
+        if (btnCfg?.wrap_row) {
           result.btnWrapRow = true
         }
         result.btnClass = '';
@@ -867,6 +898,16 @@
         }
       }
 
+      .list-item-button {
+        display: flex;
+        align-items: center;
+
+        .cu-btn {
+          background-color: transparent;
+          padding: 0 10px;
+        }
+      }
+
       .list-item-content {
         flex: 1;
         display: flex;
@@ -983,10 +1024,12 @@
       justify-content: flex-end;
       // width: 100%;
       flex: 1;
-      &.wrap-row{
+
+      &.wrap-row {
         width: 100%;
         flex: none;
       }
+
       .bg-orange {
         background-color: #f3a250;
       }

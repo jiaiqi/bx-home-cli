@@ -380,10 +380,13 @@
         let self = this;
         let colVs = await this.getServiceV2(this.serviceName, 'list', 'list', app);
         // colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
-        if (!this.pageTitle && colVs.service_view_name) {
+        if (!this.pageTitle && colVs?.service_view_name) {
           uni.setNavigationBarTitle({
             title: colVs.service_view_name
           });
+        }
+        if(!colVs){
+          return
         }
         console.log('colVs', colVs);
         if (colVs.more_config) {

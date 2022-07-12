@@ -169,7 +169,9 @@
             size: this.listConfig?.btn_cfg?.size || viewTemp?.btn_cfg?.size || '',
             margin: this.listConfig?.btn_cfg?.margin ?? viewTemp?.btn_cfg
               ?.margin,
-            padding: this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null
+            padding: this.listConfig?.btn_cfg?.padding || viewTemp?.btn_cfg?.padding || null,
+            icon: this.listConfig?.btn_cfg?.icon || viewTemp?.btn_cfg?.icon || null,
+            position: this.listConfig?.btn_cfg?.position || viewTemp?.btn_cfg?.position || null
           },
           img: {
             col: this.listConfig?.img?.col || viewTemp?.img?.col,

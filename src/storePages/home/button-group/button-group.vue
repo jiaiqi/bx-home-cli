@@ -209,6 +209,9 @@
 </template>
 
 <script>
+  import {
+    selectPersonInfo
+  } from '@/common/api/login.js'
   export default {
     props: {
       bindUserInfo: {
@@ -1006,6 +1009,60 @@
         //#endif
       },
       async toPages(e) {
+        
+        if (this.userInfo?.userno) {
+          await selectPersonInfo(this.userInfo?.userno,true)
+        }
+        debugger
+        if ((!this.userInfo.nick_name || !this.userInfo.user_image) && this.userInfo?.userno) {
+          let res = await new Promise((resolve) => {
+            uni.showModal({
+              title: '提示',
+              content: '请先完善您的基本信息（昵称头像），然后再进行其它操作',
+              success: (res) => {
+                if (res.confirm) {
+                  const uuid = uni.$u.guid()
+                  let url =
+                    `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
+
+                  uni.navigateTo({
+                    url,
+                    success: () => {
+                      uni.$on('onBack', (e) => {
+                        if (e?.uuid === uuid && e?.service ===
+                          'srvhealth_person_info_profile_nickname_update') {
+                          this.initApp().then(_ => {
+                            resolve(true)
+                          })
+                        }
+                      })
+                    }
+                  })
+                }
+              }
+            })
+          })
+          if (res == true) {
+            const res1 = await new Promise(resolve => {
+              uni.showModal({
+                title: '提示',
+                content: '是否继续之前的操作？',
+                success: (handler) => {
+                  if (handler.confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+            if (res1 === false) {
+              return
+            }
+          } else {
+            return
+          }
+        }
 
         if (e.$orig) {
           e = e.$orig;

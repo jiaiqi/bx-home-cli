@@ -53,7 +53,7 @@
         return this.srvInfo?.column
       },
       parentCol(){
-        return this.srvInfo?.parent_col||this.parentCol||'parent_no'
+        return this.srvInfo?.parent_col||'parent_no'
       },
       showCol(){
         return this.srvInfo?.key_disp_col||this.srvInfo?.showCol||'name'

@@ -61,7 +61,7 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         "usingComponents" : true,
-        "appid" : "wxa3c50c8177ef6739",
+        "appid" : "wx94525ef9e15a3f28",
         "lazyCodeLoading" : "requiredComponents",
         "setting" : {
             "minifyWXSS" : true, //上传代码时是否自动压缩样式文件
@@ -78,17 +78,16 @@
             }
         },
         "requiredBackgroundModes" : [ "audio" ],
-        "plugins" : {
-            "WechatSI" : {
-                "version" : "0.3.5",
-                "provider" : "wx069ba97219f66d99"
-            },
-            "live-player-plugin" : {
-                "version" : "1.3.5",
-                "provider" : "wx2b03c6e691cd7370"
-            }
-        }
+        "plugins" : {}
     },
+    // "WechatSI" : {
+    //     "version" : "0.3.5",
+    //     "provider" : "wx069ba97219f66d99"
+    // },
+    // "live-player-plugin" : {
+    //     "version" : "1.3.5",
+    //     "provider" : "wx2b03c6e691cd7370"
+    // }
     // "live-player-plugin" : {
     //     "version" : "1.3.4",
     //     "provider" : "wx2b03c6e691cd7370"

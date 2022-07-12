@@ -71,7 +71,7 @@
     },
     methods: {
       toEdit(){
-        const url = `/publicPages/formPage/formPage?type=update&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}`
+        const url = `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}`
         uni.navigateTo({
           url
         })

@@ -157,7 +157,7 @@ const wxOpenLogin = async (openCode) => {
   })
 }
 
-const selectPersonInfo = async (user_no) => {
+const selectPersonInfo = async (user_no,refresh) => {
   user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
   try {
     if (store.state.user.loginUserInfo?.user_no) {
@@ -181,7 +181,7 @@ const selectPersonInfo = async (user_no) => {
     },
   }
   const userInfo = store.state?.user?.userInfo
-  if (user_no && user_no === userInfo?.userno) {
+  if (!refresh&&user_no && user_no === userInfo?.userno) {
     store.commit('SET_USERINFO', userInfo)
     store.commit('SET_USERLIST', [userInfo])
     store.commit('SET_AUTH_USERINFO', true);
@@ -191,7 +191,7 @@ const selectPersonInfo = async (user_no) => {
   }
   let res = {}
   if (user_no) {
-    if (store?.state?.user?.userInfo?.userno === user_no) {
+    if (store?.state?.user?.userInfo?.userno === user_no&&!refresh) {
       res = {
         data: {
           state: "SUCCESS",

@@ -150,7 +150,8 @@
         loading: false,
         hideChildTable: false, // 隐藏子表
         leftText: null,
-        rightBtn: null
+        rightBtn: null,
+        uuid: null
       }
     },
     computed: {
@@ -454,12 +455,14 @@
                 uni.showLoading()
 
                 let res = await this.onRequest('update', e.service_name, reqData, app);
-
                 uni.hideLoading()
 
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
                   uni.$emit('dataChange', e.service_name)
+                  if(service==='srvhealth_person_info_profile_nickname_update'){
+                    self.initApp()
+                  }
                   if (
                     Array.isArray(res.data.response) &&
                     res.data.response.length > 0 &&
@@ -481,16 +484,34 @@
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        debugger
                         uni.reLaunch({
-                          url: `/storePages/home/home?store_no=${store_no}`
+                          url: `/storePages/home/home?store_no=${store_no}`,
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
                         })
                         return
                       } else if (self.afterSubmit === 'detail') {
                         self.toPages('detail');
                         return
                       } else if (beforeRedirectUrl) {
+                        debugger
                         uni.redirectTo({
-                          url: beforeRedirectUrl
+                          url: beforeRedirectUrl,
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
                         })
                         getApp().globalData.beforeRedirectUrl = null
                         return
@@ -525,20 +546,35 @@
                         let path =
                           '/publicPages/formPage/formPage?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
                           encodeURIComponent(JSON.stringify(fieldsCond));
+                        debugger
                         uni.redirectTo({
-                          url: path
+                          url: path,
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
                         });
                       } else if (self.afterSubmit === 'back') {
                         if (self.submitAction) {
                           uni.$emit(self.submitAction)
                         }
-                        uni.navigateBack()
+                        debugger
+                        uni.navigateBack({
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
+                        })
                       } else if (self.afterSubmit === 'close') {
-                        // getApp().globalData.beforeRedirectUrl = null
-                        // let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                        // uni.reLaunch({
-                        //   url: `/storePages/home/home?store_no=${store_no}`
-                        // })
+
                         if (top.window?.tab?.closeCurrentTab && top?.window?.tab
                           ?.getCurrentTab) {
                           let curTab = top.window?.tab.getCurrentTab();
@@ -552,19 +588,46 @@
                         self.toPages('detail');
                         return
                       } else if (self.afterSubmit === 'home') {
+                        debugger
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
-                          url: `/storePages/home/home?store_no=${store_no}`
+                          url: `/storePages/home/home?store_no=${store_no}`,
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
                         })
                       } else {
 
                         let pages = getCurrentPages();
                         if (pages.length > 1) {
-                          uni.navigateBack()
+                          debugger
+                          uni.navigateBack({
+                            success: () => {
+                              if (self.uuid) {
+                                uni.$emit('onBack', {
+                                  uuid: self.uuid,
+                                  service: service
+                                })
+                              }
+                            }
+                          })
                         } else {
                           let data = resData.response[0]?.response.effect_data[0]
                           uni.redirectTo({
-                            url: `/publicPages/detail/detail?serviceName=${this.addV2?.select_service_name||this.detailV2?.service_name}&destApp=${this.select_}&id=${data.id}`
+                            url: `/publicPages/detail/detail?serviceName=${self?.addV2?.select_service_name||self.detailV2?.service_name}&destApp=${self.appName||self.destApp}&id=${data.id}`,
+                            success: () => {
+                              if (self.uuid) {
+                                uni.$emit('onBack', {
+                                  uuid: self.uuid,
+                                  service: service
+                                })
+                              }
+                            }
                           })
                         }
                       }
@@ -810,7 +873,11 @@
               uni.showLoading()
               let res = await this.$http.post(url, reqData);
               uni.hideLoading()
+
               if (res.data.state === 'SUCCESS') {
+                if(service==='srvhealth_person_info_profile_nickname_update'){
+                  self.initApp()
+                }
                 uni.$emit('dataChange', service)
                 let effect_data = null
                 if (
@@ -833,6 +900,7 @@
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
+                      debugger
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
@@ -856,12 +924,27 @@
                         return
                       } else if (beforeRedirectUrl) {
                         uni.redirectTo({
-                          url: beforeRedirectUrl
+                          url: beforeRedirectUrl,
+                          success: () => {
+                            uni.$emit('onBack', {
+                              uuid: self.uuid,
+                              service: service
+                            })
+                          }
                         })
                         getApp().globalData.beforeRedirectUrl = null
                         return
                       } else {
-                        uni.navigateBack({})
+                        uni.navigateBack({
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
+                        })
                       }
                     }
                   }
@@ -883,6 +966,7 @@
               }
 
               this.onButtonToUrl(data, this.appName).then(res => {
+                debugger
                 if (res.state === 'SUCCESS') {
                   uni.$emit('dataChange')
                   uni.showModal({
@@ -891,7 +975,17 @@
                     showCancel: false,
                     success: (res) => {
                       if (res.confirm) {
-                        uni.navigateBack()
+                        debugger
+                        uni.navigateBack({
+                          success: () => {
+                            if (self.uuid) {
+                              uni.$emit('onBack', {
+                                uuid: self.uuid,
+                                service: service
+                              })
+                            }
+                          }
+                        })
                       }
                     }
                   })
@@ -1405,6 +1499,9 @@
       };
     },
     async onLoad(option) {
+      if (option.uuid) {
+        this.uuid = option.uuid
+      }
       // #ifdef MP-WEIXIN
       await this.initApp()
       // #endif
