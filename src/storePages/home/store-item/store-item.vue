@@ -17,7 +17,7 @@
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
-      v-else-if="['店铺信息','店铺信息2','店铺信息3','简洁店铺信息'].includes(pageItem.type)" :isBind="isBind" :isManage="isManage"
+      v-else-if="['店铺信息','店铺信息2','店铺信息3','简洁店铺信息','店铺信息-可切换店铺'].includes(pageItem.type)" :isBind="isBind" :isManage="isManage"
       :pageItem="pageItem" @setHomePage="setHomePage" @addToStore="addToStore" @getQrcode="getQrcode"
       :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"

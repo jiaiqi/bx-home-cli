@@ -224,7 +224,7 @@
           return
         }
         
-        let service =this.curType === 'edit'?'srvhealth_store_service_people_update':this.curType === 'add'? 'srvhealth_store_service_people_add':""
+        const service =this.curType === 'edit'?'srvhealth_store_service_people_update':this.curType === 'add'? 'srvhealth_store_service_people_add':""
         const url = `/health/operate/${service}`
         const req = [{
           "serviceName": service,

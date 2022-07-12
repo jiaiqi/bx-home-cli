@@ -1,7 +1,40 @@
 <template>
   <view>
-
-    <view class="layout-2" :style="[calcStyle]" v-if="pageItem && pageItem.type === '店铺信息2'">
+    <view class="layout-4" v-if="pageItem&&pageItem.type==='店铺信息-可切换店铺'">
+      <view class="left">
+        <view class="top">
+          <view class="store-name">
+            <view class="store-name">{{ setStoreInfo.name || '' }}</view>
+          </view>
+          <view class="right-btn" @click="toChangeStore">
+            切换
+          </view>
+        </view>
+        <view class="bottom">
+          <image class="logo" :src="getImagePath(setStoreInfo.logo)" mode="aspectFit" v-if="setStoreInfo.logo"></image>
+          <view class="content">
+            <view class="margin-bottom-xs">
+              <text @click.stop="getCurrentLocation">
+                <text class="cuIcon-locationfill margin-right-xs"></text> {{setStoreInfo.address||''}}
+              </text>
+            </view>
+            <view class="">
+              <text class="cuIcon-timefill margin-right-xs"></text>
+              <text class="text-gray">营业时间：{{setStoreInfo.start_time}}-{{setStoreInfo.end_time}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="right">
+        <view class="right-item bg-red" @click="makePhoneCall()">
+          <u-icon name="phone"></u-icon>
+        </view>
+        <view class="right-item bg-gray" @click="showModal('showQrCode')">
+          <text class="cuIcon-qrcode"></text>
+        </view>
+      </view>
+    </view>
+    <view class="layout-2" :style="[calcStyle]" v-else-if="pageItem && pageItem.type === '店铺信息2'">
       <view class="image-bg" :style="{ 'background-image': backgroundImage }">
         <view class="store-info" v-if="setStoreInfo">
           <view class="store-icon" v-if="setStoreInfo.logo">
@@ -328,6 +361,81 @@
       };
     },
     methods: {
+      toChangeStore() {
+        const listConfig = {
+          "lp_style": "单行",
+          "navTitle": "切换店铺",
+          "listBarReadonly": true,
+          "show_public_btn": false,
+          "padding": "0px",
+          "margin": "5px 10px 0",
+          "detailPage": "/storePages/home/home?store_no=${data.store_no}",
+          "navType": "reLaunch",
+          "img": {
+            "col": "image",
+            "cfg": {
+              "position": "left",
+              "width": "50px",
+              "height": "50px",
+              "radius": "5px"
+            }
+          },
+          "cols": [{
+            "col": "name",
+            "cfg": {
+              "disp_label": false,
+              "font_weight": 600,
+            }
+          }, {
+            "col": "user_role",
+            "cfg": {
+              "disp_label": true,
+              "font_size": "12px",
+              "color": "#666"
+            }
+          }]
+        }
+
+        let rCond = {
+          relation: "OR",
+          data: [{
+              "colName": "path",
+              "ruleType": "like",
+              "value": this.setStoreInfo.path
+            },
+            {
+              "colName": "parent_no",
+              "ruleType": "like",
+              "value": this.setStoreInfo.parent_no
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "like",
+              "value": this.setStoreInfo.parent_no
+            }
+          ]
+        }
+        let url =
+          `/publicPages/list2/list2?serviceName=srvhealth_store_cus_niming_detail_select&destApp=health&rCond=${JSON.stringify(rCond)}`
+
+        url += `&idCol=store_no`
+
+        const uuid = uni.$u.guid()
+
+        url += `&uuid=${uuid}`
+
+        url += `&listType=selectorList&listConfig=${encodeURIComponent(JSON.stringify(listConfig))}`
+        uni.$on('confirmSelect', (e) => {
+          if (e.val) {
+            uni.redirectTo({
+              url: `/storePages/home/home?store_no=${e.val}`
+            })
+          }
+        })
+        uni.navigateTo({
+          url
+        })
+      },
       async makePoster() {
         let posterNo = this.pageItem?.more_config?.posterNo;
         if (!posterNo) {
@@ -452,11 +560,9 @@
         });
       },
       getCurrentLocation() {
-        let latitude = 34.219329;
-        let longitude = 108.935485;
         uni.openLocation({
-          latitude: this.setStoreInfo.latitude ? Number(this.setStoreInfo.latitude) : latitude,
-          longitude: this.setStoreInfo.longitude ? Number(this.setStoreInfo.longitude) : longitude,
+          latitude: this.setStoreInfo.latitude ? Number(this.setStoreInfo.latitude) : '',
+          longitude: this.setStoreInfo.longitude ? Number(this.setStoreInfo.longitude) : '',
           name: this.setStoreInfo.name,
           address: this.setStoreInfo.address,
           success: function() {
@@ -562,6 +668,80 @@
 </script>
 
 <style scoped lang="scss">
+  .layout-4 {
+    display: flex;
+
+    .left {
+      flex: 1;
+      padding: 10px;
+
+      .top {
+        display: flex;
+        align-items: center;
+        padding-bottom: 5px;
+
+        .store-name {
+          max-width: 600rpx;
+          font-weight: bold;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .right-btn {
+          margin-left: 10px;
+          padding: 0 10px;
+          color: blue;
+          border-left: 1px solid #f1f1f1;
+
+          &:active {
+            transform: translate(1px, 1px);
+          }
+        }
+      }
+
+      .bottom {
+        display: flex;
+
+        .logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 5px;
+        }
+
+        .content {
+          padding-left: 5px;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .right {
+      background-color: transparent;
+      width: 30px;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+
+      .bg-red {
+        background-color: #F90000;
+      }
+
+      .right-item {
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+
+        &:active {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
   .layout-2 {
     min-width: 300px;
 

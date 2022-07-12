@@ -506,7 +506,7 @@
                 item.selected = false;
                 let disabled = this.isDisabled('third', item)
                 if (item[pidCol] === e[pidCol] && disabled !== true&&this.secondLevelData.find(item=>item.selected)) {
-                  item.selected = true
+                  // item.selected = true
                 }
                 return item
               })
@@ -647,11 +647,11 @@
   .child-node {
     // display: flex;
     // flex-wrap: nowrap;
-    // overflow-x: scroll;
+    overflow-x: scroll;
     display: block;
     white-space: nowrap;
     padding: 5px 0;
-
+    
     &.flex-wrap {
       white-space: pre-wrap;
     }
