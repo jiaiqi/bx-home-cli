@@ -11,15 +11,15 @@
       <text>{{ pageItem.component_label || '' }}</text>
       <button class="right-btn text-sm text-gray cu-btn bg-white sm" v-if="rightBtn&&rightBtn.label"
         @click="onRightBtn">
-        {{rightBtn.label}}
+        <text>{{rightBtn.label}}</text> <text class="cuIcon-right margin-left-xs"></text>
       </button>
     </view>
     <slide-list v-if="pageItem.type === '轮播图'" ref="swiperList" :storeInfo="storeInfo" :userInfo="userInfo"
       @setHomePage="setHomePage" :pageItem="pageItem" :beforeClick="beforeClick"></slide-list>
     <store-info :storeInfo="storeInfo" :userInfo="userInfo" :bindUserInfo="bindUserInfo" @bindUser="bindStore"
-      v-else-if="['店铺信息','店铺信息2','店铺信息3','简洁店铺信息','店铺信息-可切换店铺'].includes(pageItem.type)" :isBind="isBind" :isManage="isManage"
-      :pageItem="pageItem" @setHomePage="setHomePage" @addToStore="addToStore" @getQrcode="getQrcode"
-      :beforeClick="beforeClick"></store-info>
+      v-else-if="['店铺信息','店铺信息2','店铺信息3','简洁店铺信息','店铺信息-可切换店铺'].includes(pageItem.type)" :isBind="isBind"
+      :isManage="isManage" :pageItem="pageItem" @setHomePage="setHomePage" @addToStore="addToStore"
+      @getQrcode="getQrcode" :beforeClick="beforeClick"></store-info>
     <button-list :pageItem="pageItem" :userInfo="userInfo" :bindUserInfo="bindUserInfo" :storeInfo="storeInfo"
       @addToStore="addToStore" v-else-if="pageItem&&pageItem.type === '按钮组'" :button-list="pageItem.listdata"
       ref="buttonGroup">
@@ -47,7 +47,8 @@
     </link-wifi>
     <bx-list ref="normalList" v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick"
       :pageItem="pageItem" class="bx-list" />
-    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'"  :page-item="pageItem" :config="moreConfig"></user-card>
+    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :page-item="pageItem" :config="moreConfig">
+    </user-card>
     <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
     </vip-card>
     <avatar-list :storeNo="storeNo" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
@@ -162,6 +163,12 @@
     },
     computed: {
       rightBtn() {
+        if (this.pageItem?.button_title_right_label && this.pageItem?.button_title_right_url) {
+          return {
+            label: this.pageItem?.button_title_right_label,
+            url: this.pageItem?.button_title_right_url
+          }
+        }
         return this.moreConfig?.rightBtn
       },
       moreConfig() {
@@ -172,8 +179,8 @@
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
-        if(this.pageItem?.type==='用户卡片'&&this.pageItem?.user_card_type==='卡包'){
-          style.background = this.pageItem?.component_bg_color?'transparent':"#fff"
+        if (this.pageItem?.type === '用户卡片' && this.pageItem?.user_card_type === '卡包') {
+          style.background = this.pageItem?.component_bg_color ? 'transparent' : "#fff"
         } else if (this.pageItem?.component_bg_color) {
           style.background = this.pageItem?.component_bg_color
         } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
@@ -465,7 +472,10 @@
     color: #474849;
   }
 
-
+  .right-btn {
+    display: flex;
+    align-items: center;
+  }
 
   .user-avatar-list {
     display: flex;

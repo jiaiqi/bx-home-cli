@@ -484,7 +484,6 @@
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                        debugger
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`,
                           success: () => {
@@ -501,7 +500,6 @@
                         self.toPages('detail');
                         return
                       } else if (beforeRedirectUrl) {
-                        debugger
                         uni.redirectTo({
                           url: beforeRedirectUrl,
                           success: () => {
@@ -546,7 +544,6 @@
                         let path =
                           '/publicPages/formPage/formPage?share_type=seeDoctor&serviceName=srvhealth_see_doctor_record_add&type=add&fieldsCond=' +
                           encodeURIComponent(JSON.stringify(fieldsCond));
-                        debugger
                         uni.redirectTo({
                           url: path,
                           success: () => {
@@ -562,7 +559,6 @@
                         if (self.submitAction) {
                           uni.$emit(self.submitAction)
                         }
-                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {
@@ -588,7 +584,6 @@
                         self.toPages('detail');
                         return
                       } else if (self.afterSubmit === 'home') {
-                        debugger
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`,
@@ -605,7 +600,6 @@
 
                         let pages = getCurrentPages();
                         if (pages.length > 1) {
-                          debugger
                           uni.navigateBack({
                             success: () => {
                               if (self.uuid) {
@@ -900,7 +894,6 @@
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
-                      debugger
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
@@ -966,7 +959,6 @@
               }
 
               this.onButtonToUrl(data, this.appName).then(res => {
-                debugger
                 if (res.state === 'SUCCESS') {
                   uni.$emit('dataChange')
                   uni.showModal({
@@ -975,7 +967,6 @@
                     showCancel: false,
                     success: (res) => {
                       if (res.confirm) {
-                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {

@@ -223,8 +223,9 @@
           })
           return
         }
-        
-        const service =this.curType === 'edit'?'srvhealth_store_service_people_update':this.curType === 'add'? 'srvhealth_store_service_people_add':""
+
+        const service = this.curType === 'edit' ? 'srvhealth_store_service_people_update' : this.curType === 'add' ?
+          'srvhealth_store_service_people_add' : ""
         const url = `/health/operate/${service}`
         const req = [{
           "serviceName": service,
@@ -246,7 +247,7 @@
             return
           }
         }
-        if(!service){
+        if (!service) {
           uni.showModal({
             title: '提示',
             content: '系统错误，请推出小程序后重新进入页面再试',
@@ -355,6 +356,11 @@
       changeModal(e) {
         this.modalName = e
         this.curType = e
+        if (e === 'add') {
+          Object.keys(this.form).forEach(key => {
+            this.form[key] = ''
+          })
+        }
       },
       toEdit(e) {
         this.cur = e

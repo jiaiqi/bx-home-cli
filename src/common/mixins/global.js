@@ -392,6 +392,7 @@ export default {
                 if (item.trigger.type == 'condition') {
                   let isPass = true;
                   if (Array.isArray(item.trigger?.rule) && item.trigger.rule.length > 0) {
+                    debugger
                     item.trigger.rule.forEach(a => {
                       a = JSON.parse(this.renderStr(JSON.stringify(a), globalData))
                       if (a.result && a.value === a.result) {

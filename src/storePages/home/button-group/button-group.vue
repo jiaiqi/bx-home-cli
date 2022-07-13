@@ -19,9 +19,9 @@
       </view>
     </view>
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
-      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight}]"
+      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight,margin:item.margin}]"
         v-for="item in buttonsIcon">
-        <u-image widht="100%" height="100%" :src="item.imgSrc" @click="toPages(item)">
+        <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" @click="toPages(item)">
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
         </u-image>
       </view>
@@ -1023,7 +1023,7 @@
                 if (res.confirm) {
                   const uuid = uni.$u.guid()
                   let url =
-                    `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
+                    `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
 
                   uni.navigateTo({
                     url,
