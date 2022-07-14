@@ -219,6 +219,9 @@
           return []
         }
       },
+      fkConfig() {
+        return this.moreConfig?.fk_config
+      },
       childService() {
         let result = []
         if (['update', 'add'].includes(this.srvType)) {
@@ -244,6 +247,13 @@
             }
             return item
           }).filter((item, index) => {
+
+            if (this.fkConfig?.hide && item?.foreign_key?.constraint_name) {
+              if (this.fkConfig.hide.indexOf(item?.foreign_key?.constraint_name) !== -1) {
+                return false
+              }
+            }
+
             if (Array.isArray(this.mainData?._child_tables) && result.length === this.mainData
               ._child_tables.length) {
               if (this.mainData._child_tables[index] === 0) {
@@ -460,7 +470,7 @@
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
                   uni.$emit('dataChange', e.service_name)
-                  if(service==='srvhealth_person_info_profile_nickname_update'){
+                  if (service === 'srvhealth_person_info_profile_nickname_update') {
                     self.initApp()
                   }
                   if (
@@ -869,7 +879,7 @@
               uni.hideLoading()
 
               if (res.data.state === 'SUCCESS') {
-                if(service==='srvhealth_person_info_profile_nickname_update'){
+                if (service === 'srvhealth_person_info_profile_nickname_update') {
                   self.initApp()
                 }
                 uni.$emit('dataChange', service)

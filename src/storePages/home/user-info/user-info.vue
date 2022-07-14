@@ -4,7 +4,7 @@
       <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image" mode="aspectFit"></image>
       <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
     </view>
-    <view class="bottom" @click="toCardList">
+    <view class="bottom" @click.stop="toCardList">
       我的卡包
     </view>
   </view>

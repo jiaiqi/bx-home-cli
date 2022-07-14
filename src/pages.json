@@ -607,30 +607,27 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "addMember/addMember",
+          "style": {
+            "navigationBarTitleText": "添加会员",
+            "enablePullDownRefresh": false
+          }
+
+        }, {
+          "path": "yggl/yggl",
+          "style": {
+            "navigationBarTitleText": "员工管理",
+            "enablePullDownRefresh": false
+          }
+
         }
-          ,{
-                    "path" : "addMember/addMember",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "添加会员",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-                ,{
-                    "path" : "yggl/yggl",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "员工管理",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      ]
     }
     //#ifdef H5
     ,
     {
+
       "root": "pages/h5",
       "pages": [{
         "path": "tzpc/tzpc",
@@ -650,16 +647,27 @@
           "navigationBarTitleText": "",
           "enablePullDownRefresh": false
         }
-      }    ,{
-                    "path" : "appointment/appointment",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "预约信息",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      }, {
+        "path": "appointment/appointment",
+        "style": {
+          "navigationBarTitleText": "预约信息",
+          "enablePullDownRefresh": false
+        }
+
+      }, {
+        "path": "earning/earning",
+        "style": {
+          "navigationBarTitleText": "我的收益",
+          "enablePullDownRefresh": false
+        }
+
+      }, {
+        "path": "withdraw/withdraw",
+        "style": {
+          "navigationBarTitleText": "结算中心",
+          "enablePullDownRefresh": false
+        }
+      }]
     }
     //#endif
   ],

@@ -479,6 +479,7 @@
         pageTop: 0,
         filterVal: '',
         disabledCol: '', // selectorList时用来判断是否禁止选择的字段
+        hideChildTable: false,
       }
     },
     methods: {
@@ -497,7 +498,6 @@
       },
       qrcodeCanvasComplete(e) {
         this.qrcodePath = e;
-        // this.qrcodePath = this.setStoreInfo?.barcode_pic || e;
         this.$emit('getQrcode', e);
       },
       hideModal() {
@@ -673,6 +673,10 @@
           if (this.wxMchId) {
             url += `&wxMchId=${this.wxMchId}`
           }
+          if (this.hideChildTable) {
+            url += `&hideChildTable=true`
+          }
+
           uni.navigateTo({
             url
           });
@@ -938,6 +942,9 @@
           }
           if (more_config?.navUrl) {
             let url = this.renderStr(more_config?.navUrl, this);
+            if (this.hideChildTable) {
+              url += `&hideChildTable=true`
+            }
             uni.navigateTo({
               url
             })
@@ -950,9 +957,13 @@
             serviceName: e.service_name,
             eventOrigin: e
           };
+          let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
+            params)
+          if (this.hideChildTable) {
+            url += `&hideChildTable=true`
+          }
           uni.navigateTo({
-            url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
-              params)
+            url
           });
         } else if (e.servcie_type === 'select') {
           let params = {
@@ -971,13 +982,17 @@
                 img: 'person_image',
               }
             }
+            let url = '/publicPages/list/list?pageType=list&serviceName=' +
+              e.service_name +
+              '&cond=' +
+              JSON.stringify(e.operate_params.condition) +
+              '&viewTemp=' +
+              JSON.stringify(viewTemp)
+            if (this.hideChildTable) {
+              url += `&hideChildTable=true`
+            }
             uni.navigateTo({
-              url: '/publicPages/list/list?pageType=list&serviceName=' +
-                e.service_name +
-                '&cond=' +
-                JSON.stringify(e.operate_params.condition) +
-                '&viewTemp=' +
-                JSON.stringify(viewTemp)
+              url
             });
           }
         } else if (e.servcie_type === 'update') {
@@ -1019,7 +1034,9 @@
           if (this.appName) {
             url += `&appName=${this.appName}`
           }
-
+          if (this.hideChildTable) {
+            url += `&hideChildTable=true`
+          }
           uni.navigateTo({
             url: url
           });
@@ -1064,6 +1081,9 @@
           }
           if (this.main_data) {
             url += `&main_data=${JSON.stringify(this.main_data)}`
+          }
+          if (this.hideChildTable) {
+            url += `&hideChildTable=true`
           }
           uni.navigateTo({
             url: url
@@ -1169,8 +1189,9 @@
         if (this.moreConfig?.count_config) {
           this.getCountData(this.moreConfig?.count_config)
         }
-        
-        if (Array.isArray(this.moreConfig?.relation_condition) && this.moreConfig.relation_condition.length > 0 && this
+
+        if (Array.isArray(this.moreConfig?.relation_condition) && this.moreConfig.relation_condition.length > 0 &&
+          this
           .tabs.length < 1) {
           let data = {
             userInfo: this.$store?.state?.user?.userInfo,
@@ -1178,17 +1199,17 @@
             bindUserInfo: this.$store?.state?.user?.storeUserInfo
           };
           try {
-            this.relationCondition= JSON.parse(this.renderStr(JSON.stringify(this.moreConfig
+            this.relationCondition = JSON.parse(this.renderStr(JSON.stringify(this.moreConfig
               ?.relation_condition), data));
           } catch (err) {
             console.log(err);
           }
         }
-        
-        if((Array.isArray(this.moreConfig?.group) && this.moreConfig.group.length > 0)){
+
+        if ((Array.isArray(this.moreConfig?.group) && this.moreConfig.group.length > 0)) {
           req.group = this.moreConfig.group
         }
-        
+
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -1532,21 +1553,21 @@
       //   return
       // },
       async clickFootBtn(data) {
-        if(data?.button?.pre_confirm_msg){
-          let confirm = await new Promise(resolve=>{
+        if (data?.button?.pre_confirm_msg) {
+          let confirm = await new Promise(resolve => {
             uni.showModal({
-              title:'提示',
-              content:data?.button?.pre_confirm_msg,
+              title: '提示',
+              content: data?.button?.pre_confirm_msg,
               success: (res) => {
-                if(res.confirm){
+                if (res.confirm) {
                   resolve(true)
-                }else{
+                } else {
                   resolve(false)
                 }
               }
             })
           })
-          if(confirm===false){
+          if (confirm === false) {
             return
           }
         }
@@ -1802,6 +1823,9 @@
               let url = this.renderStr(buttonInfo.moreConfig.navUrl, globalData)
 
               let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
               this.navigateTo({
                 url,
                 title
@@ -1888,6 +1912,9 @@
               // uni.navigateTo({
               //   url
               // });
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
               let title = buttonInfo?.service_view_name || buttonInfo?.button_name
               this.navigateTo({
                 url,
@@ -1912,13 +1939,21 @@
                     img: 'person_image',
                   }
                 }
+
+
+                let url = '/publicPages/list/list?pageType=list&serviceName=' +
+                  buttonInfo.service_name +
+                  '&cond=' +
+                  JSON.stringify(buttonInfo.operate_params.condition) +
+                  '&viewTemp=' +
+                  JSON.stringify(viewTemp)
+
+                if (this.hideChildTable) {
+                  url += `&hideChildTable=true`
+                }
+
                 uni.navigateTo({
-                  url: '/publicPages/list/list?pageType=list&serviceName=' +
-                    buttonInfo.service_name +
-                    '&cond=' +
-                    JSON.stringify(buttonInfo.operate_params.condition) +
-                    '&viewTemp=' +
-                    JSON.stringify(viewTemp)
+                  url
                 });
                 return
               }
@@ -1959,6 +1994,9 @@
               if (Array.isArray(condition) && condition.length > 0) {
                 url += `&condition=${JSON.stringify(condition)}`
               }
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
               uni.navigateTo({
                 url: url
               });
@@ -1982,6 +2020,9 @@
             }
 
             let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+            if (this.hideChildTable) {
+              url += `&hideChildTable=true`
+            }
             this.navigateTo({
               url,
               title
@@ -2003,6 +2044,9 @@
             }
             let url =
               `/publicPages/formPage/formPage?type=detail&disabled=true&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+            if (this.hideChildTable) {
+              url += `&hideChildTable=true`
+            }
             uni.navigateTo({
               url
             })
@@ -2040,6 +2084,9 @@
             // uni.navigateTo({
             //   url
             // });
+            if (this.hideChildTable) {
+              url += `&hideChildTable=true`
+            }
             let title = buttonInfo?.service_view_name || buttonInfo?.button_name
             this.navigateTo({
               url,
@@ -2050,6 +2097,8 @@
 
         } else if (this.listType === 'proc') {
           if (buttonInfo && buttonInfo.button_type === 'edit' && rowData.proc_instance_no) {
+
+
             uni.navigateTo({
               url: '/publicPages/procDetail/procDetail?proc_instance_no=' + rowData
                 .proc_instance_no
@@ -2119,6 +2168,11 @@
               })
               return
             }
+
+            if (this.hideChildTable) {
+              targetUrl += `&hideChildTable=true`
+            }
+
             uni.navigateTo({
               url: targetUrl
             })
@@ -2173,6 +2227,9 @@
               if (this.disabled === true) {
                 url += '&disabled=true'
               }
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
               uni.navigateTo({
                 url: url
               })
@@ -2198,9 +2255,14 @@
                   defaultVal: rowData,
                   eventOrigin: buttonInfo
                 };
+
+                let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                  params)
+                if (this.hideChildTable) {
+                  url += `&hideChildTable=true`
+                }
                 uni.navigateTo({
-                  url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
-                    params)
+                  url
                 });
               } else if (buttonInfo.servcie_type === 'select') {
                 let params = {
@@ -2219,13 +2281,16 @@
                       img: 'person_image',
                     }
                   }
+
+                  let url = '/publicPages/list/list?pageType=list&serviceName=' +
+                    buttonInfo.service_name +
+                    '&cond=' +
+                    JSON.stringify(buttonInfo.operate_params.condition) +
+                    '&viewTemp=' +
+                    JSON.stringify(viewTemp)
+
                   uni.navigateTo({
-                    url: '/publicPages/list/list?pageType=list&serviceName=' +
-                      buttonInfo.service_name +
-                      '&cond=' +
-                      JSON.stringify(buttonInfo.operate_params.condition) +
-                      '&viewTemp=' +
-                      JSON.stringify(viewTemp)
+                    url
                   });
                 }
               } else if (buttonInfo.servcie_type === 'update') {
@@ -2311,6 +2376,9 @@
               if (self.appName) {
                 url += `&appName=${self.appName}`
               }
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
               uni.navigateTo({
                 url: url
               });
@@ -2321,6 +2389,8 @@
                 defaultVal: res.row,
                 eventOrigin: res.button
               };
+
+
               uni.navigateTo({
                 url: '/pages/public/formPage/formPage?params=' + JSON.stringify(
                   params)
@@ -2335,7 +2405,10 @@
         }
       }
     },
-   async onLoad(option) {
+    async onLoad(option) {
+      if (option.hideChildTable) {
+        this.hideChildTable = true
+      }
       // #ifdef MP-WEIXIN
       await this.initApp()
       //#endif
@@ -2511,11 +2584,11 @@
           this.condition = cond;
         }
       }
-      if(option.rCond){
-        try{
+      if (option.rCond) {
+        try {
           let relationCondition = JSON.parse(option.rCond)
           this.relationCondition = relationCondition
-        }catch(e){
+        } catch (e) {
           //TODO handle the exception
         }
       }
@@ -2566,8 +2639,8 @@
       if (path) {
         path = this.renderStr(path, _data)
       }
-      if(path&&path.indexOf('store_no')==-1){
-        path+=`&store_no=${this.storeInfo?.store_no}`
+      if (path && path.indexOf('store_no') == -1) {
+        path += `&store_no=${this.storeInfo?.store_no}`
       }
       // if (typeof _data.rowData === 'object') {
       //   delete _data.rowData._buttons
