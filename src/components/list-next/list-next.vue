@@ -74,7 +74,8 @@
       itemWidth: {
         type: String
       },
-      disabledCol: String
+      disabledCol: String,
+      selectoDataId:String
     },
     watch: {
       list: {

@@ -45,7 +45,7 @@
               <text class="text-gray margin-left-xs">mmhg</text>
             </view>
             <view class="item-data">
-              {{item.before_diastolic_blood_pressure}} / {{item.before_systolic_blood_pressure}}
+              {{item.after_diastolic_blood_pressure}} / {{item.after_systolic_blood_pressure}}
               <text class="text-gray margin-left-xs">mmhg</text>
             </view>
           </view>
@@ -69,24 +69,29 @@
           <view class="form-box">
             <view class="form-item">
               <text>泡浴前</text>
-              <input type="text" placeholder-class="placeholder" placeholder="舒张压(高压)"
-                v-model="form.before_diastolic_blood_pressure" />
+              <input type="digit" :class="{active:curInputCol==='before_diastolic_blood_pressure'}" disabled
+                placeholder-class="placeholder" placeholder="舒张压(低压)" v-model="form.before_diastolic_blood_pressure"
+                @click="onInput('before_diastolic_blood_pressure')" />
               <text class="text-lg">/</text>
-              <input type="text" placeholder-class="placeholder" placeholder="收缩压(低压)"
-                v-model="form.before_systolic_blood_pressure" />
+              <input type="digit" :class="{active:curInputCol==='before_systolic_blood_pressure'}" disabled
+                placeholder-class="placeholder" placeholder="收缩压(高压)" v-model="form.before_systolic_blood_pressure"
+                @click="onInput('before_systolic_blood_pressure')" />
               <text class="text-sm text-gray">mmHg</text>
             </view>
             <view class="form-item">
               <text>泡浴后</text>
-              <input type="text" placeholder-class="placeholder" placeholder="舒张压(高压)"
-                v-model="form.after_diastolic_blood_pressure" />
+              <input type="digit" :class="{active:curInputCol==='after_diastolic_blood_pressure'}" disabled
+                placeholder-class="placeholder" placeholder="舒张压(低压)" v-model="form.after_diastolic_blood_pressure"
+                @click="onInput('after_diastolic_blood_pressure')" />
               <text class="text-lg">/</text>
-              <input type="text" placeholder-class="placeholder" placeholder="收缩压(低压)"
-                v-model="form.after_systolic_blood_pressure" />
+              <input type="digit" :class="{active:curInputCol==='after_systolic_blood_pressure'}" disabled
+                placeholder-class="placeholder" placeholder="收缩压(高压)" v-model="form.after_systolic_blood_pressure"
+                @click="onInput('after_systolic_blood_pressure')" />
               <text class="text-sm text-gray">mmHg</text>
             </view>
           </view>
-          <!-- <u-number-keyboard></u-number-keyboard> -->
+          <u-number-keyboard ref="uKeyboard" @change="valChange" @backspace="backspace" v-model="showKeyboard">
+          </u-number-keyboard>
           <view class="bottom" @click="addRecord">
             确定
           </view>
@@ -113,7 +118,10 @@
           total: 0,
           rownumber: 20
         },
-        list: []
+        list: [],
+        showKeyboard: true,
+        curInputCol: "",
+        curInputVal: ""
       }
     },
     onLoad() {
@@ -133,6 +141,27 @@
       }
     },
     methods: {
+      // 按键被点击(点击退格键不会触发此事件)
+      valChange(val) {
+        // 将每次按键的值拼接到value变量中，注意+=写法
+        this.curInputVal += val;
+        console.log(this.curInputVal);
+        if (this.curInputCol) {
+          this.form[this.curInputCol] = this.curInputVal
+        }
+      },
+      // 退格键被点击
+      backspace() {
+        // 删除value的最后一个字符
+        if (this.curInputVal.length) this.curInputVal = this.curInputVal.substr(0, this.curInputVal.length - 1);
+        console.log(this.curInputVal);
+        this.form[this.curInputCol] = this.curInputVal
+      },
+
+      onInput(col) {
+        this.curInputCol = col
+        this.curInputVal = this.form[this.curInputCol] || ''
+      },
       isNight(e) {
         debugger
         if (e) {
@@ -145,6 +174,8 @@
       },
       addRecord() {
         // 添加血压记录
+        this.curInputCol = ''
+        this.curInputVal = ''
         if (this.form.before_diastolic_blood_pressure && this.form.before_systolic_blood_pressure && this.form
           .after_diastolic_blood_pressure && this.form.after_systolic_blood_pressure) {
 
@@ -172,7 +203,14 @@
         this.$http.post(url, req).then(res => {
           if (res?.data?.state == 'SUCCESS') {
             this.modalName = ''
+            // #ifdef MP-WEIXIN
+            uni.startPullDownRefresh({
+              
+            })
+            // #endif
+            // #ifdef H5
             this.getList()
+            // #endif
             Object.keys(this.form).forEach(key => {
               this.form[key] = ''
             })
@@ -213,6 +251,8 @@
 
             if (res?.data?.page?.total === 0) {
               this.noData = true
+            }else{
+              this.noData = false
             }
 
             if (this.pageInfo.pageNo > 1) {
@@ -224,7 +264,13 @@
         })
       },
       showModal(name) {
+        this.curInputCol = ""
+        this.curInputVal = ""
         this.modalName = name || ''
+        if (name === 'addModal') {
+          this.curInputCol = 'before_diastolic_blood_pressure'
+          this.curInputVal = this.form['before_diastolic_blood_pressure'] || ''
+        }
       },
     }
   }
@@ -328,6 +374,45 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        input {
+          margin: 0 5px;
+        }
+
+        .active {
+          position: relative;
+          border: 1px solid #333;
+          border-radius: 5px;
+
+          @keyframes focus {
+            0% {
+              opacity: 0;
+            }
+
+            30% {
+              opacity: 1;
+            }
+
+            70% {
+              opacity: 1;
+            }
+
+
+            100% {
+              opacity: 0;
+            }
+          }
+
+          // &:before {
+          //   content: '';
+          //   width: 1px;
+          //   height: 100%;
+          //   background-color: #333;
+          //   position: absolute;
+          //   left: 20px;
+          //   animation: focus infinite 1s;
+          // }
+        }
 
         &:first-child {
           border-bottom: 1px solid #f1f1f1;

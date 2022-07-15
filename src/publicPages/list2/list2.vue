@@ -33,7 +33,7 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags> -->
       <view class="list-view">
-        <list-next class="list-next" ref="listRef" :disabledCol="disabledCol" :id-col="idCol"
+        <list-next class="list-next" ref="listRef" :selectoDataId="selectoDataId" :disabledCol="disabledCol" :id-col="idCol"
           :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
           :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
           :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart"
@@ -1375,11 +1375,14 @@
               this.loadStatus = 'more'
             }
           }
-          if (this.listType === 'cartList' || this.listType === 'selectorList') {
+          if (["multiSelectByJson","cartList","selectorList"].includes(this.listType)) {
             let idCol = this.idCol || 'id'
-            this.list = this.list.map(item => {
+            list = list.map(item => {
               if (!item.checked) {
                 item.checked = false;
+              }
+              if(typeof this.selectoDataId==='string'&&this.selectoDataId&&this.selectoDataId.indexOf(item[idCol])!==-1){
+                item.checked = true
               }
               if (this.selectoDataId && Number(this.selectoDataId) === Number(item[idCol])) {
                 item.checked = true

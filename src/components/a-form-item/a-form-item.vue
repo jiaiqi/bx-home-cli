@@ -117,7 +117,7 @@
           </view>
           <view class="value hidden" v-else-if="fieldData.type==='multiSelectByJson'">
             <text class="cu-tag" v-for="tag in multiSelectJson">
-              {{tag[fieldData.fmt.disp_col]}}
+              {{tag['disp_val']}}
             </text>
           </view>
           <view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
@@ -394,6 +394,7 @@
           if(this.fieldData?.fmt?.disp_col){
             item.disp_val = item[this.fieldData?.fmt?.disp_col]
           }
+          return item
         })
       },
       selectType() {
@@ -1453,7 +1454,17 @@
           if (idCol) {
             url += `&idCol=${idCol}`
           }
-
+          
+          if(this.fieldData.value){
+            try{
+              let arr = JSON.parse(this.fieldData.value)
+              let selectedVal = arr.map(item=>item[idCol]).toString()
+              url+=`&selectedVal=${selectedVal}`
+            }catch(e){
+              //TODO handle the exception
+            }
+          }
+          
           const uuid = uni.$u.guid()
           url += `&uuid=${uuid}`
           uni.$on('confirmSelect', (e) => {

@@ -427,7 +427,7 @@
         url += `&listType=selectorList&listConfig=${encodeURIComponent(JSON.stringify(listConfig))}`
         uni.$on('confirmSelect', (e) => {
           if (e.val) {
-            uni.redirectTo({
+            uni.reLaunch({
               url: `/storePages/home/home?store_no=${e.val}`
             })
           }
