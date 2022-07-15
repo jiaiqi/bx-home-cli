@@ -1008,14 +1008,14 @@
       },
       async toPages(e) {
         
-        if (this.userInfo?.userno&&(!this.userInfo.nick_name || !this.userInfo.user_image)) {
+        if (this.userInfo?.userno&&(!this.userInfo.nick_name)) {
           await selectPersonInfo(this.userInfo?.userno,true)
         }
-        if ((!this.userInfo.nick_name || !this.userInfo.user_image) && this.userInfo?.userno) {
+        if ((!this.userInfo.nick_name) && this.userInfo?.userno) {
           let res = await new Promise((resolve) => {
             uni.showModal({
               title: '提示',
-              content: '请先完善您的基本信息（昵称头像），然后再进行其它操作',
+              content: '请先完善您的基本信息，然后再进行其它操作',
               success: (res) => {
                 if (res.confirm) {
                   const uuid = uni.$u.guid()

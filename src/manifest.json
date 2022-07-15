@@ -77,6 +77,8 @@
                 "desc" : "导航、定位、搜索周边WiFi等功能需要获取位置信息"
             }
         },
+        "optimization" : true,
+        "requiredPrivateInfos" : [ "getLocation" ],
         "requiredBackgroundModes" : [ "audio" ],
         "plugins" : {
             "WechatSI" : {

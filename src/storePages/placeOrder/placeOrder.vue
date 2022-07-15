@@ -1215,13 +1215,17 @@
             pay_state: pay_state
           }]
         }];
+        
         if (order_state) {
           req[0].data[0].order_state = order_state
         }
+        
         if (prepay_id) {
           req[0].data[0].prepay_id = prepay_id
         }
+        
         await this.$fetch('operate', serviceName, req, 'health')
+        
         // 支付成功后修改订单状态和支付状态
         await this.getOrderInfo()
       },
@@ -1570,7 +1574,7 @@
               if (this.delivery_type !== '当面交易') {
                 await this.updateOrderState('', '已支付');
               } else {
-                // this.updateOrderState('', '已支付');
+                this.updateOrderState('', '已支付');
               }
             }
           }

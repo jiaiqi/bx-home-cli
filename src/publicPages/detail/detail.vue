@@ -972,12 +972,18 @@
       .col-item {
         display: flex;
         flex-wrap: wrap;
-
+        align-items: center;
+        justify-content: space-between;
         .label {
           margin-right: 20rpx;
           margin-bottom: 10rpx;
         }
-
+        .value{
+          text-align: right;
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .label-top {
           width: 100%;
         }

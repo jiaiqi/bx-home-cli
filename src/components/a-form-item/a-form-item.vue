@@ -45,6 +45,11 @@
         <mp-html :content="fieldData.value.replace(/\<img/gi, '<img width=100%')" v-if="fieldData.value" />
         <!-- <rich-text :nodes="field.value" class="value rich-text"></rich-text> -->
       </view>
+      <view class="form-item-content_detail" v-else-if="fieldData.type==='multiSelectByJson'">
+        <text class="cu-tag" v-for="tag in multiSelectJson">
+          {{tag['disp_val']}}
+        </text>
+      </view>
       <view class="form-item-content_detail text" :class="{ 'can-link': canLink }" v-else-if="pageType === 'detail'"
         @click="toFKLink">
         {{ fkFieldLabel || fieldData.value | formalText }}
@@ -121,13 +126,12 @@
             </text>
           </view>
           <view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
-            234
             {{ fieldData.value.toString() }}
           </view>
-          <text class="value hidden" v-else-if="fkFieldLabel">345{{
+          <text class="value hidden" v-else-if="fkFieldLabel">{{
 					  fkFieldLabel|| ""
 					}}</text>
-          <view class="value hidden" v-else-if="fieldData.value">456{{
+          <view class="value hidden" v-else-if="fieldData.value">{{
             fieldData.value
           }}</view>
           <text class="cuIcon-right" v-if="fieldData.value&&!fieldData.disabled"></text>
@@ -216,7 +220,7 @@
         :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum">
       </robby-image-upload> -->
 
-      <bx-image-upload :max-count="fieldData.max"
+      <bx-image-upload :max-count="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.maxCount?fieldData.moreConfig.maxCount:10"
         :open-type="['profile_url','user_image'].includes(fieldData.column)?'chooseAvatar':''"
         :disabled="pageType==='detail'" :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
         :tableName="uploadFormData.table_name" :value="fieldData.value" :index="fieldData.column" :action="uploadUrl"
@@ -255,46 +259,9 @@
         <option-selector :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
           :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey"
-          @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange">
+          @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange($event,'Selector')">
         </option-selector>
-        <!-- <view class="tree-selector">
-          <view class="content">
-            <view class="cu-bar search bg-white" v-if="modalName === 'Selector' && fieldData.showSearch !== false">
-              <view class="search-form round">
-                <input@blur="searchFKDataWithKey" type="text" placeholder="搜索" confirm-type="search" />
-              </view>
-              <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs" @click="refresh()"></text>
-              <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
-              </text>
-            </view>
-            <view class="option-box">
-              <bx-checkbox-group v-if="modalName === 'MultiSelector'" @change="onBlur"
-                class="form-item-content_value checkbox-group" v-model="fieldData.value" mode="button">
-                <bx-checkbox v-for="item in setOptionList" :key="item.value" :name="item.value" v-model="item.checked">
-                  {{ item.label }}
-                </bx-checkbox>
-              </bx-checkbox-group>
-             <bx-radio-group v-if="modalName === 'Selector'" class="form-item-content_value radio-group"
-               mode="button" @change="pickerChange" :disabled="fieldData.disabled">
-                <bx-radio v-for="item in radioOptions" :key="item.value" :name="item.value">{{ item.label }}
-                </bx-radio>
-                 <bx-radio name="__others">其它</bx-radio>
-                <view class="other-val" v-if="fieldData.value==='__others'">
-                  <input type="text" class="input-value" v-model="otherNodeVal" placeholder="输入其它"
-                   @blur="selectorInput" />
-                </view>
-                <view v-if="hasNext" @click.stop="nextPage()" class="cu-btn bx-btn-bg round">加载更多</view>
-              </bx-radio-group>
-            </view>
-          </view>
-          <view class="dialog-button">
-            <view class="cu-btn bg-blue shadow" @tap="hideModal"
-              v-if="modalName === 'MultiSelector'||(modalName === 'Selector'&&otherNodeVal)">确定
-            </view>
-            <view class="cu-btn bg-grey shadow" @tap="hideModal"
-              v-if="modalName === 'Selector'&&fieldData.value!=='__others'">取消</view>
-          </view>
-        </view> -->
+
       </view>
     </view>
 
@@ -376,12 +343,12 @@
       mainData: [Object, Boolean]
     },
     computed: {
-      
+
       multiSelectJson() {
         let res = []
         if (this.fieldData.type === 'multiSelectByJson') {
           if (Array.isArray(this.fieldData.jsonValue)) {
-            res =  this.fieldData.jsonValue
+            res = this.fieldData.jsonValue
           } else if (this.fieldData.value) {
             try {
               res = JSON.parse(this.fieldData.value)
@@ -390,8 +357,8 @@
             }
           }
         }
-        return res.map(item=>{
-          if(this.fieldData?.fmt?.disp_col){
+        return res.map(item => {
+          if (this.fieldData?.fmt?.disp_col) {
             item.disp_val = item[this.fieldData?.fmt?.disp_col]
           }
           return item
@@ -578,7 +545,7 @@
         immediate: true,
         handler(newValue, oldValue) {
           if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
-            this.pickerChange(newValue.value)
+            this.pickerChange(newValue.value, 'Selector')
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
             this.textareaValue = newValue.value;
@@ -1087,10 +1054,12 @@
             this.$emit('setColData', this.fieldData)
           }
         }
+        debugger
         this.hideModal();
       },
       searchFKDataWithKey(e) {
         this.treePageInfo.pageNo = 1
+        debugger
         if (e?.detail?.value) {
           let option = this.fieldData.option_list_v2;
           let relation_condition = {
@@ -1149,7 +1118,7 @@
         this.fieldData.old_value = this.fieldData.value
         this.$emit('on-value-change', this.fieldData);
       },
-      pickerChange(e) {
+      pickerChange(e, type) {
         if (e?.type === '__others') {
           this.fieldData.value = e.value
           this.fkFieldLabel = e.value;
@@ -1170,7 +1139,10 @@
           }
           this.fieldData.value = e
         }
-        this.hideModal();
+        if (type !== 'Selector') {
+          debugger
+          this.hideModal();
+        }
       },
       toFkAdd() {
         const option_list_v2 = this.fieldData?.option_list_v2
@@ -1188,7 +1160,7 @@
       },
       refresh() {
         this.treePageInfo.pageNo = 1
-        this.getSelectorData()
+        this.getSelectorData('refresh')
       },
       nextPage() {
         this.treePageInfo.pageNo += 1
@@ -1196,7 +1168,7 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
-        self.fieldData.old_value = self.fieldData.value
+        // self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
           if (Array.isArray(this.fieldData.options)) {
             this.selectorData = this.fieldData.options;
@@ -1225,29 +1197,31 @@
         // #ifdef H5
         top.user = uni.getStorageSync('login_user_info');
         // #endif
-        if (cond) {
+        if (cond && Array.isArray(cond)) {
           req.condition = cond;
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
           condition = self.evalConditions(condition, fieldModelsData)
           condition = condition.map(item => {
-            if (item.value && item.value.indexOf('data.') !== -1) {
-              let colName = item.value.slice(item.value.indexOf('data.') + 5);
-              if (fieldModelsData[colName]) {
-                item.value = fieldModelsData[colName];
+            if (typeof item.value === 'string' && item.value) {
+              if (item.value.indexOf('data.') !== -1) {
+                let colName = item.value.slice(item.value.indexOf('data.') + 5);
+                if (fieldModelsData[colName]) {
+                  item.value = fieldModelsData[colName];
+                }
+              } else if (item.value.indexOf('top.user.user_no') !== -1) {
+                item.value = uni.getStorageSync('login_user_info').user_no;
+              } else if (item.value.indexOf('globalData.') !== -1) {
+                let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
+                if (globalData && globalData[colName]) {
+                  item.value = globalData[colName];
+                }
+              } else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+                  "'") === item.value
+                .length - 1) {
+                item.value = item.value.replace(/\'/gi, '');
               }
-            } else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
-              item.value = uni.getStorageSync('login_user_info').user_no;
-            } else if (item.value && item.value.indexOf('globalData.') !== -1) {
-              let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
-              if (globalData && globalData[colName]) {
-                item.value = globalData[colName];
-              }
-            } else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
-                "'") === item.value
-              .length - 1) {
-              item.value = item.value.replace(/\'/gi, '');
             }
             if (item.value_exp) {
               delete item.value_exp;
@@ -1281,18 +1255,34 @@
           }
           appName = 'sso';
         }
-        if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
-          self
-          .fieldData?.redundant) {
-          if (Array.isArray(req.condition) !== true) {
-            req.condition = []
+
+        if (cond !== 'refresh') {
+          if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
+            self
+            .fieldData?.redundant) {
+            if (Array.isArray(req.condition) !== true) {
+              req.condition = []
+            }
+            req.condition.push({
+              colName: self.fieldData.option_list_v2.refed_col,
+              ruleType: 'eq',
+              value: self.fieldData.value
+            })
           }
-          req.condition.push({
-            colName: self.fieldData.option_list_v2.refed_col,
-            ruleType: 'eq',
-            value: self.fieldData.value
-          })
+
+
+          if (self.fieldData.value && (!req.condition || req.condition.length == 0) && (self.fieldData.disabled ||
+              self
+              .fieldData.display == false)) {
+            req.condition = [{
+              colName: self.fieldData.option_list_v2.refed_col,
+              ruleType: 'like',
+              value: self.fieldData.value
+            }]
+          }
+
         }
+
 
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
@@ -1307,14 +1297,7 @@
           return
         }
 
-        if (self.fieldData.value && (!req.condition || req.condition.length == 0) && (self.fieldData.disabled || self
-            .fieldData.display == false)) {
-          req.condition = [{
-            colName: self.fieldData.option_list_v2.refed_col,
-            ruleType: 'like',
-            value: self.fieldData.value
-          }]
-        }
+
         let res = await self.onRequest('select', req.serviceName, req, appName);
         if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
           if (res.data.page) {
@@ -1454,17 +1437,17 @@
           if (idCol) {
             url += `&idCol=${idCol}`
           }
-          
-          if(this.fieldData.value){
-            try{
+
+          if (this.fieldData.value) {
+            try {
               let arr = JSON.parse(this.fieldData.value)
-              let selectedVal = arr.map(item=>item[idCol]).toString()
-              url+=`&selectedVal=${selectedVal}`
-            }catch(e){
+              let selectedVal = arr.map(item => item[idCol]).toString()
+              url += `&selectedVal=${selectedVal}`
+            } catch (e) {
               //TODO handle the exception
             }
           }
-          
+
           const uuid = uni.$u.guid()
           url += `&uuid=${uuid}`
           uni.$on('confirmSelect', (e) => {
@@ -1489,23 +1472,26 @@
             let condition = this.deepClone(option_list_v2.conditions);
             condition = this.evalConditions(condition, fieldModelsData)
             condition = condition.map(item => {
-              if (item.value && item.value.indexOf('data.') !== -1) {
-                let colName = item.value.slice(item.value.indexOf('data.') + 5);
-                if (fieldModelsData[colName]) {
-                  item.value = fieldModelsData[colName];
+              if (typeof item.value === 'string' && item.value) {
+                if (item.value.indexOf('data.') !== -1) {
+                  let colName = item.value.slice(item.value.indexOf('data.') + 5);
+                  if (fieldModelsData[colName]) {
+                    item.value = fieldModelsData[colName];
+                  }
+                } else if (item.value.indexOf('top.user.user_no') !== -1) {
+                  item.value = uni.getStorageSync('login_user_info').user_no;
+                } else if (item.value.indexOf('globalData.') !== -1) {
+                  let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
+                  if (globalData && globalData[colName]) {
+                    item.value = globalData[colName];
+                  }
+                } else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+                    "'") === item.value
+                  .length - 1) {
+                  item.value = item.value.replace(/\'/gi, '');
                 }
-              } else if (item.value && item.value.indexOf('top.user.user_no') !== -1) {
-                item.value = uni.getStorageSync('login_user_info').user_no;
-              } else if (item.value && item.value.indexOf('globalData.') !== -1) {
-                let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
-                if (globalData && globalData[colName]) {
-                  item.value = globalData[colName];
-                }
-              } else if (item.value && item.value.indexOf("'") === 0 && item.value.lastIndexOf(
-                  "'") === item.value
-                .length - 1) {
-                item.value = item.value.replace(/\'/gi, '');
               }
+
               if (item.value_exp) {
                 delete item.value_exp;
               }

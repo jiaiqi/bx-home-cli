@@ -6,8 +6,8 @@
         <view class="search-form round">
           <input @input="onSearch" type="text" placeholder="搜索" confirm-type="search" />
         </view>
-        <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs" @click="refresh"></text>
-        <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click="toFkAdd">
+        <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs" @click.stop="refresh"></text>
+        <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click.stop="toFkAdd">
         </text>
       </view>
       <view class="option-box">

@@ -5,7 +5,7 @@
     </view>
     <view class="member-list">
       <view class="member-item" v-for="item in members">
-        <image :src="getImagePath(item.user_image)" class="profile" mode="aspectFit"></image>
+        <image :src="getImagePath(item.person_image || item.user_image)" class="profile" mode="aspectFit"></image>
         <view class="right">
           <view class="">
             <text class="text-bold text-lg margin-right-xs">{{item.person_name}}</text>
