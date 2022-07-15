@@ -13,7 +13,7 @@
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
         :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition"
-        :fieldsModel="fieldModel" :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
+        :fieldsModel="fieldModel" :mainData="mainData" :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
         @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
         :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
         @setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">

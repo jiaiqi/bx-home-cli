@@ -5,8 +5,8 @@
         'no-wrap':nowrap
 			}">
       <view class="check-box-item " :class="{
-          'disabled':listType==='selectorList'&&setRadioDisabled(item),
-					'check-box_item':listType==='selectorList',
+          'disabled':['multiSelectByJson','selectorList'].includes(listType)&&setRadioDisabled(item),
+					'check-box_item':listType==='selectorList'||listType==='multiSelectByJson',
 					grid_span2: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '2' || setViewTemp.grid_span === 2),
 					grid_span3: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '3' || setViewTemp.grid_span === 3),
 					grid_span4: setViewTemp && setViewTemp.lp_style === '宫格' && setViewTemp && (setViewTemp.grid_span === '4' || setViewTemp.grid_span === 4),
@@ -21,7 +21,7 @@
           :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
           :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
           @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
-        <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'"
+        <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'||listType==='multiSelectByJson'"
           style="transform:scale(1);margin-right:5px;" :disabled="setRadioDisabled(item)"
           @click="checkboxChange(item)" />
       </view>

@@ -318,6 +318,8 @@
           if (val) {
             this.fileNo = val;
             this.loadInitImages()
+          }else{
+            this.lists = []
           }
         }
       },

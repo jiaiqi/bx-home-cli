@@ -23,8 +23,10 @@
         <view class="xueya-record-item-content">
           <view class="xueya-record-item-content-item text-sm text-gray">
             <view class="item-data  flex-0-5 ">
-              <image src="/static/icon/sun.png"  style="width:20px;height:20px;" mode="aspectFit" v-if="!isNight(item.record_time)"></image>
-              <image src="/static/icon/moon.png" style="width:20px;height:20px;"  mode="aspectFit" v-if="isNight(item.record_time)"></image>
+              <image src="/static/icon/sun.png" style="width:20px;height:20px;" mode="aspectFit"
+                v-if="!isNight(item.record_time)"></image>
+              <image src="/static/icon/moon.png" style="width:20px;height:20px;" mode="aspectFit"
+                v-if="isNight(item.record_time)"></image>
             </view>
             <view class="item-data">
               泡浴前
@@ -61,7 +63,8 @@
             <view class="">
               手动记录
             </view>
-            <text class="cuIcon-close text-bold text-lg" @click="showModal()"></text>
+            <button class="cu-btn bg-white" @click.stop="showModal('')"> <text
+                class="cuIcon-close text-bold text-lg"></text></button>
           </view>
           <view class="form-box">
             <view class="form-item">
@@ -130,11 +133,11 @@
       }
     },
     methods: {
-      isNight(e){
+      isNight(e) {
         debugger
-        if(e){
-          let num  = parseInt(e)
-          if(!isNaN(num)&&num>=18){
+        if (e) {
+          let num = parseInt(e)
+          if (!isNaN(num) && num >= 18) {
             return true
           }
         }
@@ -221,7 +224,7 @@
         })
       },
       showModal(name) {
-        this.modalName = name
+        this.modalName = name || ''
       },
     }
   }
@@ -259,7 +262,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            &.flex-0-5{
+
+            &.flex-0-5 {
               flex: 0.5;
             }
           }

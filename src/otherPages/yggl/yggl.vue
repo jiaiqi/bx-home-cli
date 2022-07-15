@@ -354,13 +354,17 @@
         this.form[col] = val?.detail?.value || val
       },
       changeModal(e) {
-        this.modalName = e
-        this.curType = e
         if (e === 'add') {
           Object.keys(this.form).forEach(key => {
             this.form[key] = ''
           })
+          this.weeks = this.weeks.map(item => {
+            item.checked = false
+            return item
+          })
         }
+        this.curType = e
+        this.modalName = e
       },
       toEdit(e) {
         this.cur = e

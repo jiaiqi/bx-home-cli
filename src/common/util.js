@@ -262,6 +262,8 @@ export default {
             item.init_expr = login_user_info?.real_name || '';
           }
 
+
+
           if (item.init_expr && item.init_expr.indexOf('new Date()') !== -1) {
             if (item.col_type === 'Date') {
               item.init_expr = dayjs().format('YYYY-MM-DD')
@@ -294,6 +296,9 @@ export default {
         if (item.col_type === "String" || item.col_type === "TelNo" || item.col_type === 'Email' || item
           .col_type === 'IdNo') {
           fieldInfo.type = "text"
+        } else if (item.col_type === 'fkjsons') {
+          // 外键多选
+          fieldInfo.type = "multiSelectByJson"
         } else if (item.col_type === "DateTime") {
           fieldInfo.type = "dateTime"
           if (fieldInfo?.moreConfig?.min && fieldInfo.moreConfig.min.indexOf('new Date()') !== -
@@ -431,7 +436,7 @@ export default {
         fieldInfo.disabled = item.updatable === 0 ? true : false; //字段是否冻结
         if (item.validators) {
           fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
-          if(fieldInfo._validators?.max){
+          if (fieldInfo._validators?.max) {
             fieldInfo.max = fieldInfo._validators?.max
           }
           fieldInfo.isRequire = fieldInfo._validators.required
@@ -1310,9 +1315,17 @@ export default {
                 }]
                 let url =
                   `/publicPages/formPage/formPage?type=update&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${JSON.stringify(fieldsCond)}`;
+                  
                 if (appName) {
                   url += `&appName=${appName}`
                 }
+                
+                
+                if (this.hideChildTable == true) {
+                  url += `&hideChildTable=true`
+                }
+                
+                
                 if (btn.service_name === 'srvdaq_cms_content_update') {
                   let hideColumn = ['no']
                   url += `&hideColumn=${JSON.stringify(hideColumn)}`
@@ -1361,6 +1374,10 @@ export default {
                 if (appName) {
                   url += `&appName=${appName}`
                 }
+                if (this.hideChildTable == true) {
+                  url += `&hideChildTable=true`
+                }
+                
                 // uni.navigateTo({
                 //   url: url
                 // })
@@ -1532,7 +1549,7 @@ export default {
             return
           }
         }
-        
+
       } else {
         // 没有基本信息 创建基本信息
         let login_user_info = uni.getStorageSync('login_user_info')
@@ -1559,7 +1576,7 @@ export default {
               break;
           }
         }
-        
+
         if (wxUserInfo && wxUserInfo.gender) {
           switch (wxUserInfo.gender) {
             case 0:
@@ -1573,7 +1590,7 @@ export default {
               break;
           }
         }
-        
+
         let url = Vue.prototype.getServiceUrl('health', 'srvhealth_person_info_add', 'add')
         let req = [{
           "serviceName": "srvhealth_person_info_add",

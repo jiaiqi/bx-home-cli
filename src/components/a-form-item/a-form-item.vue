@@ -115,13 +115,19 @@
             <text>{{!fieldData.disabled?'请选择':''}}</text>
             <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
           </view>
+          <view class="value hidden" v-else-if="fieldData.type==='multiSelectByJson'">
+            <text class="cu-tag" v-for="tag in multiSelectJson">
+              {{tag[fieldData.fmt.disp_col]}}
+            </text>
+          </view>
           <view class="value hidden" v-else-if="fieldData.value && isArray(fieldData.value)">
+            234
             {{ fieldData.value.toString() }}
           </view>
-          <text class="value hidden" v-else-if="fkFieldLabel">{{
+          <text class="value hidden" v-else-if="fkFieldLabel">345{{
 					  fkFieldLabel|| ""
 					}}</text>
-          <view class="value hidden" v-else-if="fieldData.value">{{
+          <view class="value hidden" v-else-if="fieldData.value">456{{
             fieldData.value
           }}</view>
           <text class="cuIcon-right" v-if="fieldData.value&&!fieldData.disabled"></text>
@@ -366,9 +372,30 @@
       beforeSection: {
         type: Boolean,
         default: false
-      }
+      },
+      mainData: [Object, Boolean]
     },
     computed: {
+      
+      multiSelectJson() {
+        let res = []
+        if (this.fieldData.type === 'multiSelectByJson') {
+          if (Array.isArray(this.fieldData.jsonValue)) {
+            res =  this.fieldData.jsonValue
+          } else if (this.fieldData.value) {
+            try {
+              res = JSON.parse(this.fieldData.value)
+            } catch (e) {
+              //TODO handle the exception
+            }
+          }
+        }
+        return res.map(item=>{
+          if(this.fieldData?.fmt?.disp_col){
+            item.disp_val = item[this.fieldData?.fmt?.disp_col]
+          }
+        })
+      },
       selectType() {
         // 自行输入 下拉选择 编辑选择
         return this.fieldData?.option_list_v2?.select_type
@@ -474,7 +501,7 @@
         checkedList: [],
         fieldData: {},
         imagesUrl: [],
-        popupFieldTypeList: ['TreeSelector', 'treeSelector', 'Selector', 'Set'], //点击会弹出popup的字段类型
+        popupFieldTypeList: ['TreeSelector', 'treeSelector', 'Selector', 'Set', 'multiSelectByJson'], //点击会弹出popup的字段类型
         pickerFieldList: ['date', 'dateTime', 'time', 'Time', 'Date'],
         reqHeader: {
           bx_auth_ticket: uni.getStorageSync('bx_auth_ticket')
@@ -1380,6 +1407,66 @@
         const self = this
         // 打开弹出层
         if (this.fieldData.disabled) {
+          return
+        }
+        if (type === 'multiSelectByJson') {
+          // 外键多选
+          let option_list_v2 = this.fieldData?.fmt;
+
+          let url =
+            `/publicPages/list2/list2?disabled=true&selectCol=${this.fieldData.column}&destApp=${option_list_v2?.srv_app||uni.getStorageSync('activeApp')}&listType=multiSelectByJson&serviceName=${option_list_v2.service}`
+
+          if (Array.isArray(option_list_v2.cols) && option_list_v2.cols.length > 0) {
+            let listConfig = {
+              cols: option_list_v2.cols.map(item => {
+                return {
+                  col: item,
+                  cfg: {
+                    margin: "0 10px 0 0"
+                  }
+                }
+              })
+            }
+            url += `&listConfig=${JSON.stringify(listConfig)}`
+          }
+
+          if (Array.isArray(option_list_v2?.condition) && option_list_v2?.condition.length > 0) {
+            let condition = option_list_v2?.condition.map(cond => {
+              let obj = {
+                colName: cond.colName,
+                ruleType: cond.ruleType,
+                value: ''
+              }
+              if (cond?.value?.value_type === 'mainData') {
+                obj.value = this.mainData[cond?.value?.value_key]
+              } else if (cond?.value?.value_type === 'rowData') {
+                obj.value = this.fieldsModel[cond?.value?.value_key]
+              } else if (cond?.value?.value_type === 'constant') {
+                obj.value = cond?.value?.value
+              }
+              return obj
+            })
+            url += `&cond=${JSON.stringify(condition)}`
+          }
+
+          let idCol = option_list_v2?.primary_col || 'id'
+          if (idCol) {
+            url += `&idCol=${idCol}`
+          }
+
+          const uuid = uni.$u.guid()
+          url += `&uuid=${uuid}`
+          uni.$on('confirmSelect', (e) => {
+            if (e.uuid === uuid) {
+              if (Array.isArray(e.data)) {
+                this.fieldData.jsonValue = e.data;
+                this.fieldData.value = JSON.stringify(e.data)
+              }
+            }
+          })
+          uni.navigateTo({
+            url: url
+          })
           return
         }
         if (this.fieldData.type === 'Selector' && this.fieldData?.moreConfig?.editor_type ===

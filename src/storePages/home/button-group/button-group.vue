@@ -505,7 +505,6 @@
                 h: item.icon_origin_height
               }
               let res = this.setPicHeight(picInfo);
-              debugger
               if (res.w && res.h) {
                 if (item.button_width && item.button_width.indexOf('%') !== -1) {
                   let ratio = item.button_width.replace('%', '') * 0.01
@@ -949,7 +948,6 @@
               let arr = text.split('/');
               let cond = []
               let service = ''
-              debugger
               if (arr.length >= 3) {
                 service = arr[1]
                 cond = [{
@@ -1010,10 +1008,9 @@
       },
       async toPages(e) {
         
-        if (this.userInfo?.userno) {
+        if (this.userInfo?.userno&&(!this.userInfo.nick_name || !this.userInfo.user_image)) {
           await selectPersonInfo(this.userInfo?.userno,true)
         }
-        debugger
         if ((!this.userInfo.nick_name || !this.userInfo.user_image) && this.userInfo?.userno) {
           let res = await new Promise((resolve) => {
             uni.showModal({

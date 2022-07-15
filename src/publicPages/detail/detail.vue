@@ -144,23 +144,25 @@
         class="cu-btn border bg-green shadow-blur margin-left-sm" @click="changeChild(item)"
         v-for="(item,index) in foldChildService" :key="index">{{item.label||''}}</button>
     </view>
-    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild">
+    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild&&!hideChildTable">
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]" :childListData="childListData"
-          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail" @addChild="addChild"
-          @child-list-change="childListChange" v-if="detail&&currentChild">
+          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
+          :childListData="childListData" :fkCondition="fkCondition[item.constraint_name||item.key_no]"
+          :appName="appName" :mainData="detail" @addChild="addChild" @child-list-change="childListChange"
+          v-if="detail&&currentChild">
         </child-list>
       </view>
     </view>
-    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail">
+    <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail&&!hideChildTable">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
           :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
           :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
-          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail" @addChild="addChild"
-          @child-list-change="childListChange" @unfold="unfoldChild(item,index)" v-if="detail&&item.isFold!==true">
+          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail"
+          @addChild="addChild" @child-list-change="childListChange" @unfold="unfoldChild(item,index)"
+          v-if="detail&&item.isFold!==true">
         </child-list>
       </view>
     </view>
@@ -195,6 +197,7 @@
         gridButtonDisp: null,
         rowButtonDisp: null,
         childListData: {},
+        hideChildTable: false
       }
     },
     computed: {
@@ -262,7 +265,7 @@
             if (item?.foreign_key?.section_name) {
               item.label = item.foreign_key.section_name
             }
-            if (item?.foreign_key?.constraint_name||item?.foreign_key?.key_no) {
+            if (item?.foreign_key?.constraint_name || item?.foreign_key?.key_no) {
               item.constraint_name = item.foreign_key.constraint_name || item?.foreign_key?.key_no
             }
             item.use_type = 'detaillist'
@@ -821,6 +824,9 @@
       },
     },
     onLoad(option) {
+      if (option.hideChildTable) {
+        this.hideChildTable = true
+      }
       if (option.formButtonDisp) {
         try {
           this.formButtonDisp = JSON.parse(option.formButtonDisp)

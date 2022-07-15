@@ -116,14 +116,14 @@
           </text>
         </view>
         <view class="foot-button-box grid"
-          v-if="buttonPosition!=='right'&&setViewTemp && setViewTemp.lp_style === '宫格'&&hasShowButton && setViewTemp.grid_span >= 3&&listType!=='selectorList'">
+          v-if="buttonPosition!=='right'&&setViewTemp && setViewTemp.lp_style === '宫格'&&hasShowButton && setViewTemp.grid_span >= 3&&listType!=='selectorList'&listType!=='multiSelectByJson'">
           <button class="cu-btn" :style="[setListView.btnStyle]" :class="[setListView.btnClass]"
             v-for="(btn,index) in setRowButton" :key="index" v-show="isShowBtn(btn)" @click.stop="clickButton(btn)">
             {{ btn.button_name }}
           </button>
         </view>
         <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}"
-          v-else-if="buttonPosition!=='right'&&hasShowButton&&listType!=='selectorList'">
+          v-else-if="buttonPosition!=='right'&&hasShowButton&&listType!=='selectorList'&&listType!=='multiSelectByJson'">
           <button class="cu-btn" :class="[setListView.btnClass]"
             :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
             v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"

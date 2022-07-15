@@ -450,7 +450,7 @@
         orderCols: [],
         proc_data_type: "", //流程状态
         searchVal: "",
-        listType: "list", //list,proc,cart,selectorList
+        listType: "list", //list,proc,cart,selectorList，multiSelectByJson
         pageType: "", //list,proc,cart,
         detailType: "", //  normal,custom
         tabList: [],
@@ -533,6 +533,9 @@
             col: this.selectCol,
             data: this.list.find(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
           }
+          if(this.listType=='multiSelectByJson'){
+            emitData.data = this.list.filter(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
+          }
           let viewTemp = this.colV2?.moreConfig?.list_config
           if (Array.isArray(viewTemp?.cols) && emitData.data) {
             let related_col = viewTemp?.cols.find(item => item.type === 'childData')?.related_col
@@ -546,16 +549,25 @@
         uni.navigateBack({})
       },
       checkboxChange(e) {
-        if (this.listType === 'selectorList') {
+        if (['multiSelectByJson', 'selectorList'].includes(this.listType)) {
           let idCol = this.idCol || 'id'
-          this.list = this.list.map(item => {
-            if (e[idCol] && e[idCol] === item[idCol]) {
-              item.checked = !item.checked
-            } else {
-              item.checked = false
-            }
-            return item
-          })
+          if (this.listType === 'multiSelectByJson') {
+            this.list = this.list.map(item => {
+              if (e[idCol] && e[idCol] === item[idCol]) {
+                item.checked = !item.checked
+              }
+              return item
+            })
+          } else {
+            this.list = this.list.map(item => {
+              if (e[idCol] && e[idCol] === item[idCol]) {
+                item.checked = !item.checked
+              } else {
+                item.checked = false
+              }
+              return item
+            })
+          }
           let selectorList = this.list.filter(item => item.checked == true).map(item => item[idCol]).toString()
           this.selectoDataId = selectorList
         } else {
@@ -1571,9 +1583,8 @@
             return
           }
         }
-        if (this.listType === 'selectorList') {
+        if (['multiSelectByJson', 'selectorList'].includes(this.listType)) {
           if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
-
             return false
           }
           this.checkboxChange(data.row)
