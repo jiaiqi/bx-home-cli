@@ -13,9 +13,9 @@
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
         :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition"
-        :fieldsModel="fieldModel" :mainData="mainData" :optionMode="optionMode" @on-value-change="onValChange" @on-value-blur="onValBlur"
-        @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType" ref="fitem"
-        :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
+        :fieldsModel="fieldModel" :mainData="mainData" :optionMode="optionMode" @on-value-change="onValChange"
+        @on-value-blur="onValBlur" @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType"
+        ref="fitem" :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
         @setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">
       </a-form-item>
     </view>
@@ -68,8 +68,8 @@
         }
       }
     },
-    created() {
-      let oldFieldModel = this.oldField.reduce((res, cur) => {
+    async created() {
+      const oldFieldModel = this.oldField.reduce((res, cur) => {
         if (cur.value) {
           if (cur.column) {
             res[cur.column] = cur.value
@@ -364,7 +364,7 @@
               }
             }
           }
-          
+
           if (item.display !== false) {
             item.display = true
           }
@@ -422,7 +422,7 @@
                 if (this.fieldModel[item.columns]) {
                   this.fieldModel[item.columns] = ''
                 }
-              }else if (item.type === 'TreeSelector'){
+              } else if (item.type === 'TreeSelector') {
                 item.value = ''
                 item.colData = null
                 if (this.fieldModel[item.columns]) {

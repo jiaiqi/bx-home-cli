@@ -104,6 +104,7 @@ if (top?.window?.pathConfig?.ws_gateway) {
 // #endif
 
 let ENV = {
+  qqmapKey:"Y4MBZ-S223W-RXLR7-O254E-HTPEZ-A2FOD", //腾讯地图key
   env: env,
   // backEndAddress: "https://login.100xsys.cn", //后台管理系统地址
   backEndAddress: "https://login.100xsys.cn:1443", //后台管理系统地址

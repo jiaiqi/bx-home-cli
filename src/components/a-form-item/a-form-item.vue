@@ -1054,12 +1054,10 @@
             this.$emit('setColData', this.fieldData)
           }
         }
-        debugger
         this.hideModal();
       },
       searchFKDataWithKey(e) {
         this.treePageInfo.pageNo = 1
-        debugger
         if (e?.detail?.value) {
           let option = this.fieldData.option_list_v2;
           let relation_condition = {
@@ -1140,7 +1138,6 @@
           this.fieldData.value = e
         }
         if (type !== 'Selector') {
-          debugger
           this.hideModal();
         }
       },

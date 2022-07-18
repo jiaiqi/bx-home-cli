@@ -667,7 +667,16 @@
           "navigationBarTitleText": "结算中心",
           "enablePullDownRefresh": false
         }
-      }]
+      }    ,{
+                    "path" : "detail/detail",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#endif
   ],

@@ -48,6 +48,66 @@ export default {
     //#endif
   },
   methods: {
+    async getAddressByLocation(location = {}) {
+      const {
+        lat,
+        lng
+      } = location;
+      if (lat && lng && this.$api?.qqmapKey) {
+        const url = `https://apis.map.qq.com/ws/geocoder/v1/?location=${lat},${lng}&key=${this.$api.qqmapKey}`
+        let res = await this.$http.get(url)
+        return res?.data?.result
+      }
+    },
+    async setDefaultValueForAddressCol(columns,colMap){
+        const res = await new Promise(resolve => {
+          uni.getLocation({
+            type: 'gcj02',
+            success: (res) => {
+              resolve(res)
+            },
+            fail: (err) => {
+              resolve(err)
+            }
+          })
+        })
+        const {
+          longitude,
+          latitude
+        } = res || {}
+        if (longitude && latitude) {
+          const result = await this.getAddressByLocation({
+            lat: latitude,
+            lng: longitude
+          })
+          if (result?.address_component) {
+            const {
+              province,
+              city,
+              district
+            } = result?.address_component || {}
+             return columns.map(item => {
+              if (colMap?.pro && item.column === colMap.pro && province) {
+                item.value = item.value || province
+              }
+              if (colMap?.city && item.column === colMap.city && city) {
+                item.value = item.value || city
+              }
+              if (colMap?.district && item.column === colMap.district && district) {
+                item.value = item.value || district
+              }
+              if (colMap?.lat && item.column === colMap.lat && latitude) {
+                item.value = item.value || latitude
+              }
+              if (colMap?.lng && item.column === colMap.lng && longitude) {
+                item.value = item.value || longitude
+              }
+              return item
+            })
+          }
+        }
+      
+    },
     toTop() {
       uni.pageScrollTo({
         scrollTop: 0,
@@ -173,8 +233,8 @@ export default {
         if (orderType.indexOf('餐饮') > -1) {
           showParams = '服务场地'
         }
-        if(orderType&&orderType.indexOf('服务')!==-1){
-         showParams=`服务场地,服务人员`
+        if (orderType && orderType.indexOf('服务') !== -1) {
+          showParams = `服务场地,服务人员`
         }
       }
       return showParams
@@ -203,7 +263,7 @@ export default {
           '面额卡') || goodsType.includes('体验产品') || goodsType.includes('在线服务')) {
         order_type = '虚拟商品'
       }
-      
+
       if (goodsType.includes('线下服务')) {
         order_type = '服务'
       }

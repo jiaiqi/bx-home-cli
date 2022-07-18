@@ -62,8 +62,7 @@
 
     <view class="cu-modal bottom-modal" :class="{show:showTagsModal&&index===curTag}" @click="showModal()"
       v-for="(item,index) in setTabs">
-      <view class="cu-dialog" @click.stop=""
-        v-if="item&&item.list_tab_no&&formModel&&formModel[item.list_tab_no]">
+      <view class="cu-dialog" @click.stop="" v-if="curTag==index&& item&&item.list_tab_no&&formModel[item.list_tab_no]">
         <view class="label">
           {{item.label}}
         </view>
@@ -71,6 +70,11 @@
           :current="selectTreeData" @confirm="getCascaderValue" @reset="onreset" ref="treeSelector"
           v-if="item&&item&&item._type=='tree'&&item.more_config&&item.more_config.srvInfo">
         </tree-selector>
+        <option-selector :has-next="false" modalName="Selector" :show-search="true" :options="item.selectorData"
+          :selectType="''" @load-more="nextPage()" @hide="showModal()" @search="searchFKDataWithKey"
+          @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange"
+          v-else-if="item&&item&&item._type=='fk'&&item.more_config&&item.more_config.srvInfo&&item.selectorData&&item.selectorData.length>0">
+        </option-selector>
         <bx-radio-group mode="button" v-model="formModel[item.list_tab_no].value" @change="radioChange" v-else>
           <bx-radio :name="item.value" :key="item.value" v-for="(item,rIndex) in item.options">
             <view class="radio-label">
@@ -81,7 +85,7 @@
       </view>
     </view>
 
- <!--   <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
+    <!--   <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
       <view class="cu-dialog" @click.stop=""
         v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no&&formModel&&formModel[setTabs[curTag].list_tab_no]">
         <view class="label">
@@ -114,6 +118,7 @@
     name: "filter-tags",
     data() {
       return {
+        radioOptions: {},
         selectTreeData: {},
         inputMoreConfig: {
           value: "",
@@ -132,7 +137,12 @@
         formModel: {},
         onInputValue: false, // 是否有输入值
         showTagsModal: false,
-        fkFieldLabel: ''
+        fkFieldLabel: '',
+        page: {
+          pageNo: 1,
+          total: 0,
+          rownumber: 50
+        }
       };
     },
     computed: {
@@ -174,7 +184,139 @@
       }
     },
     methods: {
+      refresh() {
+        this.setTabs[this.curTag].pageInfo.pageNo = 1
+        this.getSelectorData('refresh')
+      },
+      nextPage() {
+        this.setTabs[this.curTag].pageInfo.pageNo += 1
+        this.getSelectorData()
+      },
+      async getSelectorData(cond, serv, relation_condition) {
+        let self = this;
+        // self.fieldData.old_value = self.fieldData.value
 
+        let req = {
+          serviceName: serv || self.srvInfo.serviceName || '',
+          colNames: ['*'],
+          condition: [],
+          page: {
+            pageNo: this.setTabs[this.curTag]?.pageNo,
+            rownumber: this.setTabs[this.curTag]?.rownumber
+          }
+        };
+        let globalData = getApp().globalData
+        let appName = self.srvInfo?.srv_app || self.srvApp || uni.getStorageSync(
+          'activeApp');
+
+        if (cond && Array.isArray(cond)) {
+          req.condition = cond;
+        } else if (self.srvInfo && Array.isArray(self.srvInfo.conditions) &&
+          self.srvInfo.conditions.length > 0) {
+          let condition = self.deepClone(self.srvInfo.conditions);
+          condition = condition.map(item => {
+            if (typeof item.value === 'string' && item.value) {
+              if (item.value.indexOf('top.user.user_no') !== -1) {
+                item.value = uni.getStorageSync('login_user_info').user_no;
+              } else if (item.value.indexOf('globalData.') !== -1) {
+                let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
+                if (globalData && globalData[colName]) {
+                  item.value = globalData[colName];
+                }
+              } else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf(
+                  "'") === item.value
+                .length - 1) {
+                item.value = item.value.replace(/\'/gi, '');
+              }
+            }
+            if (item.value_exp) {
+              delete item.value_exp;
+            }
+            return item;
+          });
+          if (Array.isArray(condition) && condition.length > 0) {
+            req.condition = condition;
+          } else {
+            // return;
+            // if(this.fieldData.value){
+            // 	debugger
+            // 	req.condition = [{
+            // 		colName:this.fieldData.option_list_v2?.refed_col,
+            // 		ruleType:'like',
+            // 		value:this.fieldData.value
+            // 	}]
+            // }
+          }
+        }
+
+        if (relation_condition && typeof relation_condition === 'object') {
+          req.relation_condition = relation_condition;
+          delete req.condition;
+        }
+
+        if (!req.serviceName) {
+          return;
+        }
+
+        if (!appName) {
+          return
+        }
+
+
+        let res = await self.onRequest('select', req.serviceName, req, appName);
+        let selectorData = []
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          if (res.data.page) {
+            this.setTabs[this.curTag].pageInfo = res.data.page;
+          }
+
+          if (res.data.page && res.data.page.pageNo > 1) {
+            let data = res.data.data;
+            selectorData = [selectorData, ...data];
+          } else {
+            selectorData = res.data.data;
+          }
+          selectorData = selectorData.map(item => {
+            const config = this.deepClone(this.srvInfo);
+            // item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`
+            item.label = config.show_as_pair === true ?
+              `${item[ config.key_disp_col||'' ]}/${item[ config.refed_col ]}` : item[config
+                .key_disp_col]
+            item.value = config.refed_col ? item[config.refed_col] : '';
+            return item;
+          });
+        } else if (res.data.state === 'SUCCESS' && res.data.data.length == 0) {
+          if (res.data.page) {
+            selectorData = res.data.page;
+          }
+        } else if (req.serviceName === 'srvsys_service_columnex_v2_select' && res.data && res.data.data &&
+          Array.isArray(res.data.data.srv_cols)) {
+          selectorData = res.data.data.srv_cols.map(item => {
+            item.checked = false;
+            return item;
+          });
+        }
+        let tabs = this.setTabs[this.curTag]
+        tabs.selectorData = selectorData
+        this.$set(this.setTabs,this.curTag,tabs)
+      },
+      toFkAdd() {
+        const option_list_v2 = this.srvInfo()
+        if (option_list_v2?.serviceName) {
+          let serviceName = option_list_v2.serviceName.replace('_select', '_add')
+          let url = `/publicPages/formPage/formPage?serviceName=${serviceName}&type=add`
+          if (option_list_v2.srv_app) {
+            url += `&destApp=${option_list_v2.srv_app}`
+          }
+          uni.navigateTo({
+            url
+          })
+        }
+      },
+      pickerChange(e) {
+        this.formModel[this.setTabs[this.curTag].list_tab_no].value = e
+        this.radioChange(e)
+      },
       onreset() {
         let curTag = this.setTabs[this.curTag]
         curTag.fkFieldLabel = ''
@@ -192,7 +334,8 @@
           value = e.value;
           curTag.fkFieldLabel = e.value
         } else {
-          if (!curTag.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== curTag.selectTreeData[srvInfo
+          if (!curTag.selectTreeData || (e && srvInfo?.refed_col && e[srvInfo.refed_col] !== curTag.selectTreeData[
+              srvInfo
               .refed_col])) {
             curTag.selectTreeData = e
             curTag.fkFieldLabel = srvInfo?.show_as_pair === true ?
@@ -252,6 +395,8 @@
             // this.$nextTick(_ => {
             //   this.$refs?.treeSelector?.getData?.()
             // })
+          } else if (this.setTabs[index]._type === 'fk') {
+            this.getSelectorData()
           } else {
             this.curTagButtons = tag?.options
           }
@@ -272,11 +417,11 @@
             inputType: item.inputType,
             formType: "",
             default: item.default,
-            selectTreeData:null,
-            fkFieldLabel:"",
-            srvInfo:item?.more_config?.srvInfo
+            selectTreeData: null,
+            fkFieldLabel: "",
+            srvInfo: item?.more_config?.srvInfo
           }
-          
+
 
           item.options = self.getTabOptions(item)
           col.colName = item._colName
@@ -304,9 +449,15 @@
           } else if (item._type === 'tree') {
             col.value = item.default || null
             model[item.list_tab_no] = col
+          } else {
+            model[item.list_tab_no] = col
           }
         })
-        
+        tabs.pageInfo = {
+          pageNo: 1,
+          rownumber: 50,
+          total: 0
+        }
         this.setTabs = tabs
         if (tabs.length > 0) {
           this.curTagButtons = tabs[0]?.options
@@ -486,7 +637,7 @@
           "relation": "OR",
           "data": []
         }
-        
+
         for (let i = 0; i < tabs.length; i++) {
           relation.data = []
           let child_relation = {
@@ -499,7 +650,7 @@
             "ruleType": "",
             "value": ""
           }
-          if (['checkbox', 'radio', 'tree'].includes(condsModel[tabs[i]].formType) && condsModel[tabs[i]].value &&
+          if (['checkbox', 'radio', 'tree','fk'].includes(condsModel[tabs[i]].formType) && condsModel[tabs[i]].value &&
             condsModel[tabs[i]].value.length !== 0 && condsModel[tabs[i]].value !== '_unlimited_' && condsModel[tabs[i]]
             .value[0] !== '_unlimited_') {
             if (condsModel[tabs[i]].inputType === 'BetweenNumber' || condsModel[tabs[i]].inputType === 'Date' ||
@@ -549,7 +700,7 @@
               }
             } else if (['Enum', 'Dict', 'group'].includes(condsModel[tabs[i]].inputType)) {
               let value = ''
-              if (['tree', 'radio'].includes(condsModel[tabs[i]].formType)) {
+              if (['tree', 'radio','fk'].includes(condsModel[tabs[i]].formType)) {
                 value = condsModel[tabs[i]].value
               } else if (Array.isArray(condsModel[tabs[i]].value) && condsModel[tabs[i]].value.length > 0) {
                 value = condsModel[tabs[i]].value.join(",")
