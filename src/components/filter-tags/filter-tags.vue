@@ -60,19 +60,19 @@
       </view>
     </view>
 
-    <view class="cu-modal bottom-modal" :class="{show:showTagsModal&&index===curTag}" @click="showModal()"
-      v-for="(item,index) in setTabs">
+    <view class="cu-modal bottom-modal" :class="{show:showTagsModal&&index===curTag,'option-selector':item._type=='fk'}"
+      @click="showModal()" v-for="(item,index) in setTabs">
       <view class="cu-dialog" @click.stop="" v-if="curTag==index&& item&&item.list_tab_no&&formModel[item.list_tab_no]">
         <view class="label">
           {{item.label}}
         </view>
         <tree-selector :srvInfo="item.more_config.srvInfo" :srvApp="srvApp" @cancel="showModal()"
-          :current="selectTreeData" @confirm="getCascaderValue" @reset="onreset" ref="treeSelector"
+          :current="item.selectTreeData" @confirm="getCascaderValue" @reset="onreset" ref="treeSelector"
           v-if="item&&item&&item._type=='tree'&&item.more_config&&item.more_config.srvInfo">
         </tree-selector>
-        <option-selector :has-next="false" modalName="Selector" :show-search="true" :options="item.selectorData"
-          :selectType="''" @load-more="nextPage()" @hide="showModal()" @search="searchFKDataWithKey"
-          @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange"
+        <option-selector :has-next="false" modalName="Selector" :allowCanel="true" :show-search="false"
+          :options="item.selectorData" :selectType="''" @load-more="nextPage()" @hide="showModal()"
+          @search="searchFKDataWithKey" @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange"
           v-else-if="item&&item&&item._type=='fk'&&item.more_config&&item.more_config.srvInfo&&item.selectorData&&item.selectorData.length>0">
         </option-selector>
         <bx-radio-group mode="button" v-model="formModel[item.list_tab_no].value" @change="radioChange" v-else>
@@ -118,8 +118,6 @@
     name: "filter-tags",
     data() {
       return {
-        radioOptions: {},
-        selectTreeData: {},
         inputMoreConfig: {
           value: "",
           options: [{
@@ -194,7 +192,6 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
-        // self.fieldData.old_value = self.fieldData.value
 
         let req = {
           serviceName: serv || self.srvInfo.serviceName || '',
@@ -214,6 +211,14 @@
         } else if (self.srvInfo && Array.isArray(self.srvInfo.conditions) &&
           self.srvInfo.conditions.length > 0) {
           let condition = self.deepClone(self.srvInfo.conditions);
+          const data = {}
+          const keys = Object.keys(this.formModel)
+          if (keys.length > 0) {
+            keys.forEach(key => {
+              data[key] = this.formModel[key].value
+            })
+          }
+
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
               if (item.value.indexOf('top.user.user_no') !== -1) {
@@ -222,6 +227,11 @@
                 let colName = item.value.slice(item.value.indexOf('globalData.') + 10);
                 if (globalData && globalData[colName]) {
                   item.value = globalData[colName];
+                }
+              } else if (item.value.indexOf('data.') !== -1) {
+                let colName = item.value.slice(item.value.indexOf('data.') + 5);
+                if (data && data[colName]) {
+                  item.value = data[colName];
                 }
               } else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf(
                   "'") === item.value
@@ -298,7 +308,7 @@
         }
         let tabs = this.setTabs[this.curTag]
         tabs.selectorData = selectorData
-        this.$set(this.setTabs,this.curTag,tabs)
+        this.$set(this.setTabs, this.curTag, tabs)
       },
       toFkAdd() {
         const option_list_v2 = this.srvInfo()
@@ -313,8 +323,26 @@
           })
         }
       },
+      clearRelationVal(list_tab_no) {
+        // 清除关联字段的值
+        if (list_tab_no) {
+          let colName = this.formModel[list_tab_no].colName.reduce((res, cur) => cur, '')
+          if (colName) {
+            this.setTabs.forEach((item, index) => {
+              if (Array.isArray(item?.more_config?.srvInfo?.conditions) && item?.more_config?.srvInfo
+                ?.conditions.find(
+                  e => e.value && e.value === `data.${colName}`)) {
+                this.formModel[this.setTabs[index].list_tab_no].value = ''
+                this.clearRelationVal(this.setTabs[index].list_tab_no)
+              }
+            })
+          }
+        }
+      },
       pickerChange(e) {
         this.formModel[this.setTabs[this.curTag].list_tab_no].value = e
+        const list_tab_no = this.setTabs[this.curTag].list_tab_no
+        this.clearRelationVal(list_tab_no)
         this.radioChange(e)
       },
       onreset() {
@@ -359,6 +387,7 @@
         if (e == '_unlimited_') {
           col.value = ''
         }
+        this.setTabs[this.curTag].currentSelect = col.value || {}
         this.formModel[curTag.list_tab_no] = col
         this.showTagsModal = !this.showTagsModal
       },
@@ -449,15 +478,19 @@
           } else if (item._type === 'tree') {
             col.value = item.default || null
             model[item.list_tab_no] = col
+            tabs[index].selectTreeData = {}
+
           } else {
             model[item.list_tab_no] = col
           }
+
+          tabs[index].pageInfo = {
+            pageNo: 1,
+            rownumber: 50,
+            total: 0
+          }
         })
-        tabs.pageInfo = {
-          pageNo: 1,
-          rownumber: 50,
-          total: 0
-        }
+
         this.setTabs = tabs
         if (tabs.length > 0) {
           this.curTagButtons = tabs[0]?.options
@@ -650,7 +683,7 @@
             "ruleType": "",
             "value": ""
           }
-          if (['checkbox', 'radio', 'tree','fk'].includes(condsModel[tabs[i]].formType) && condsModel[tabs[i]].value &&
+          if (['checkbox', 'radio', 'tree', 'fk'].includes(condsModel[tabs[i]].formType) && condsModel[tabs[i]].value &&
             condsModel[tabs[i]].value.length !== 0 && condsModel[tabs[i]].value !== '_unlimited_' && condsModel[tabs[i]]
             .value[0] !== '_unlimited_') {
             if (condsModel[tabs[i]].inputType === 'BetweenNumber' || condsModel[tabs[i]].inputType === 'Date' ||
@@ -700,7 +733,7 @@
               }
             } else if (['Enum', 'Dict', 'group'].includes(condsModel[tabs[i]].inputType)) {
               let value = ''
-              if (['tree', 'radio','fk'].includes(condsModel[tabs[i]].formType)) {
+              if (['tree', 'radio', 'fk'].includes(condsModel[tabs[i]].formType)) {
                 value = condsModel[tabs[i]].value
               } else if (Array.isArray(condsModel[tabs[i]].value) && condsModel[tabs[i]].value.length > 0) {
                 value = condsModel[tabs[i]].value.join(",")
@@ -947,8 +980,17 @@
     z-index: 9999;
 
     &.bottom-modal {
+      &.option-selector {
+        .cu-dialog {
+          background: #fff;
+        }
+      }
+
       .cu-dialog {
         min-height: 200px;
+        // ::v-deep.tree-selector .content{
+        //   background: transparent;
+        // }
       }
 
     }

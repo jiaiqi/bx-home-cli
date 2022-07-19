@@ -57,7 +57,7 @@
     <view class="official-account " v-else-if="storeNo && pageItem && pageItem.type === '公众号关注'">
       <text class="text" v-if="pageItem&&pageItem.tip_text">{{pageItem.tip_text}}</text>
       <text class="text" v-else-if="moreConfig&&moreConfig.text">{{moreConfig.text}}</text>
-      <text class="text" v-else> 关注xxx公众号，重要消息不再错过~</text>
+      <text class="text" v-else> 关注公众号，重要消息不再错过~</text>
       <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()"
         v-if="pageItem.right_btn_name">{{pageItem.right_btn_name}}</button>
       <button class="cu-btn bg-white sm round" style="color: #ee7b77;" @click="toOfficial()" v-else>立即关注</button>
@@ -295,7 +295,7 @@
         let mp_no = this.pageItem?.mp_no || this.moreConfig?.mp_no
         if (mp_no) {
           let webUrl =
-            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${this.moreConfig?.mp_no}`
+            `${frontEndAddress}storePages/officialIntro/officialIntro?mp_no=${mp_no}`
           let url =
             `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
           uni.navigateTo({

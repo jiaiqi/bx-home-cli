@@ -16,7 +16,8 @@
         <view class="node-item round shadow-blur  cu-btn bg-white" v-for="item in nodeList" @click="clickNode(item)">
           <text class="" v-if="item[showCol]">{{item[showCol]}}</text>
         </view>
-        <view class="node-item round shadow-blur cu-btn bg-white" @click="clickNode('__others')"  v-if="pageType!=='filter'&&selectType==='自行输入'">
+        <view class="node-item round shadow-blur cu-btn bg-white" @click="clickNode('__others')"
+          v-if="pageType!=='filter'&&selectType==='自行输入'">
           <text>其它</text>
         </view>
         <view v-if="pageType!=='filter'&&selectType==='自行输入'&&curNode==='__others'" class="other-val">
@@ -49,14 +50,14 @@
       };
     },
     computed: {
-      valCol(){
-        return this.srvInfo?.column
+      valCol() {
+        return this.srvInfo?.column||this.srvInfo?.refed_col
       },
-      parentCol(){
-        return this.srvInfo?.parent_col||'parent_no'
+      parentCol() {
+        return this.srvInfo?.parent_col || 'parent_no'
       },
-      showCol(){
-        return this.srvInfo?.key_disp_col||this.srvInfo?.showCol||'name'
+      showCol() {
+        return this.srvInfo?.key_disp_col || this.srvInfo?.showCol || 'name'
       },
       selectType() {
         return this.srvInfo?.select_type
@@ -111,7 +112,7 @@
             type: this.selectType
           })
         } else {
-          
+
           this.$emit('confirm', this.curNodeInfo)
         }
       },
@@ -122,13 +123,13 @@
         this.selectedList = []
         this.getData()
         this.$emit('reset')
-        
+
       },
       async getData(cond) {
         // 查找节点数据
         const srvInfo = this.deepClone(this.srvInfo);
         const serviceName = srvInfo.serviceName;
-        const appName = srvInfo.appNo || this.srvApp;
+        const appName = srvInfo.appNo || srvInfo.srv_app || this.srvApp;
         const that = this;
         let url = this.getServiceUrl(appName, serviceName, 'select');
         let condition = [];
