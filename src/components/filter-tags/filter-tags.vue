@@ -30,7 +30,7 @@
             <view v-if="tab._type === 'fk'">
               <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
                 v-model="formModel[tab.list_tab_no].value">
-                <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
+                <bx-radio :name="item.value" :key="item.value" :allowCanel="true"  v-for="(item,index) in tab.options">
                   {{item.label||''}}
                 </bx-radio>
               </bx-radio-group>
@@ -43,9 +43,9 @@
               </bx-checkbox-group>
             </view>
             <view v-if="tab._type === 'radio'&&tab._colSrvData" v-show="tab&&tab.options && tab.options.length > 0">
-              <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
+              <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F" :allowCanel="true"
                 v-model="formModel[tab.list_tab_no].value">
-                <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
+                <bx-radio :name="item.value" :key="item.value" :allowCanel="true" v-for="(item,index) in tab.options">
                   {{item.label||''}}
                 </bx-radio>
               </bx-radio-group>
