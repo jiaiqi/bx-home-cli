@@ -3,8 +3,10 @@
   <view class="float-button-view">
     <movable-area class="movable-area">
       <movable-view direction="all" :x="x" :y="y" :out-of-bounds="true" @change="onChange">
-        <view class="float-button" :style="[setStyle]" @click="toPages">
-        </view>
+        <!--        <view class="float-button" :style="[setStyle]" @click="toPages">
+        </view> -->
+        <image  :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" class="float-button" mode="aspectFit" @click="toPages" v-if="pageItem&&pageItem.component_bg_img">
+        </image>
       </movable-view>
     </movable-area>
   </view>
@@ -30,9 +32,9 @@
     computed: {
       setStyle() {
         let obj = {}
-        if (this.pageItem?.component_bg_img) {
-          obj.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img)})`
-        }
+        // if (this.pageItem?.component_bg_img) {
+        //   obj.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img)})`
+        // }
         if (this.pageItem?.float_btn_width) {
           obj.width = `${this.pageItem?.float_btn_width}px`
           obj.height = obj.width

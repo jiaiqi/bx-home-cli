@@ -1428,33 +1428,53 @@
             }
           }
         }
-        
-       // #ifdef MP-WEIXIN
-       if (this.moreConfig?.coord_info?.coord_col && Array.isArray(fields) && fields.length > 0) {
-         const confirm = await new Promise(resolve=>{
-           uni.showModal({
-             title:'提示',
-             content:'当前页面部分内容默认值需要您授予定位权限才能自动进行填充，若出现授权弹窗请允许授权',
-             cancelText:'不想授权',
-             success: (res) => {
-               if(res.confirm){
-                 resolve(true)
-               }else{
-                 resolve(false)
-               }
-             }
-           })
-         })
-         if(confirm==true){
-           const colMap = this.moreConfig?.coord_info?.coord_col || {}
-           let cols = await this.setDefaultValueForAddressCol(fields,colMap)
-           if(Array.isArray(cols)&&cols.length>0){
-             fields = cols
-           }
-         }
-       }
-       // #endif
-        
+
+        // #ifdef MP-WEIXIN
+        if (this.moreConfig?.coord_info?.coord_col && Array.isArray(fields) && fields.length > 0) {
+          let confirm = false
+          const hasLocationAuth = await new Promise(resolve => {
+            uni.getSetting({
+              success(res) {
+                console.log(res.authSetting)
+                if (res['scope.userLocation']) {
+                  resolve(true)
+                } else {
+                  resolve(false)
+                }
+              },
+              fail: () => {
+                resolve(false)
+              }
+            })
+          })
+          if (hasLocationAuth) {
+            confirm = true
+          } else {
+            confirm = await new Promise(resolve => {
+              uni.showModal({
+                title: '提示',
+                content: '当前页面部分内容默认值需要您授予定位权限才能自动进行填充，若出现授权弹窗请允许授权',
+                cancelText: '不想授权',
+                success: (res) => {
+                  if (res.confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+          }
+          if (confirm == true) {
+            const colMap = this.moreConfig?.coord_info?.coord_col || {}
+            let cols = await this.setDefaultValueForAddressCol(fields, colMap)
+            if (Array.isArray(cols) && cols.length > 0) {
+              fields = cols
+            }
+          }
+        }
+        // #endif
+
         this.fields = fields
       },
       hideModal() {
