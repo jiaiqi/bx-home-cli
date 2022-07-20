@@ -97,7 +97,7 @@
   .float-button {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    // border-radius: 50%;
     background-repeat: no-repeat;
     background-size: 100% 100%;
     z-index: 10;
