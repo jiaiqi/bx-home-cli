@@ -19,7 +19,8 @@
         </bx-checkbox-group>
         <bx-radio-group class="form-item-content_value radio-group" mode="button" @change="onChange" v-model="curVal"
           v-else-if="modalName === 'Selector'">
-          <bx-radio v-for="item in options" :allowCanel="allowCanel" :key="item.value" :name="item.value">{{ item.label }}
+          <bx-radio v-for="item in options" :allowCanel="allowCanel" :key="item.value" :name="item.value">
+            {{ item.label }}
           </bx-radio>
           <bx-radio name="__others" v-if="selectType==='自行输入'">其它</bx-radio>
           <view class="other-val" v-if="curVal==='__others'">
@@ -62,7 +63,7 @@
         type: Boolean,
         default: false
       },
-      allowCanel:{
+      allowCanel: {
         type: Boolean,
         default: false
       }
@@ -102,10 +103,8 @@
       },
       onChange(e) {
         this.curVal = e
-        if (e == '__others') {
-
-        } else {
-          this.$emit('change', e)
+        if (e == '__others') {} else {
+          this.$emit('change', e, this.options.find(item => item.value === e))
         }
       },
       loadMore() {

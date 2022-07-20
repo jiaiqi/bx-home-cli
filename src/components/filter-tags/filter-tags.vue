@@ -1,19 +1,77 @@
 <template>
   <view class="filter-tags-view">
-    <view class="filter-tags-box" v-if="mode==='fold'&&setTabs&&setTabs.length>0">
+
+    <view class="filter-form" v-if="dispMode==='custom'">
+      <view class="filter-tags-box" v-if="setTabs&&setTabs.length>0">
+        <button class="cu-btn round sm margin-right-xs"
+          :class="{'':!tab.active,' active-tag':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
+          v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)" v-if="isFold(tab)">
+          <text class="label">
+            <text
+              v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{formModel[tab.list_tab_no].fkFieldLabel||formModel[tab.list_tab_no].value}}</text>
+            <text v-else>{{tab.label||''}}</text>
+          </text>
+          <text class="cuIcon-right margin-left-xs" style="transform: rotate(90deg);"></text>
+        </button>
+      </view>
+
+      <view class="filter-form">
+        <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex"
+          v-if="!isFold(tab)">
+          <view class="label" :class="{'pc-model':sysModel==='PC'}"
+            v-if="(!tab.more_config.showLabel&&tab.more_config.showLabel!==false)||sysModel==='PC'">
+            {{tab.label||''}}
+          </view>
+          <view class="form-item-content" v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]">
+            <view v-if="tab._type === 'input'">
+              <input col="2" :placeholder="tab.placeholder" clearable :name="tab.list_tab_no"
+                v-model="formModel[tab.list_tab_no].value"></input>
+            </view>
+            <view v-if="tab._type === 'fk'">
+              <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
+                v-model="formModel[tab.list_tab_no].value">
+                <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
+                  {{item.label||''}}
+                </bx-radio>
+              </bx-radio-group>
+            </view>
+            <view v-if="tab._type === 'checkbox'">
+              <bx-checkbox-group mode="button" v-model="formModel[tab.list_tab_no].value" v-if="tab._colSrvData">
+                <bx-checkbox v-model="item.checked" v-for="item in tab.options" :key="item.value" :name="item.value">
+                  {{ item.label }}
+                </bx-checkbox>
+              </bx-checkbox-group>
+            </view>
+            <view v-if="tab._type === 'radio'&&tab._colSrvData" v-show="tab&&tab.options && tab.options.length > 0">
+              <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
+                v-model="formModel[tab.list_tab_no].value">
+                <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in tab.options">
+                  {{item.label||''}}
+                </bx-radio>
+              </bx-radio-group>
+            </view>
+          </view>
+        </view>
+      </view>
+
+    </view>
+
+    <view class="filter-tags-box" v-else-if="mode==='fold'&&setTabs&&setTabs.length>0">
       <button class="cu-btn round sm margin-right-xs"
         :class="{'':!tab.active,' active-tag':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
         v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)">
         <text class="label">
           <text
-            v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{fkFieldLabel||formModel[tab.list_tab_no].value}}</text>
+            v-if="formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value">{{formModel[tab.list_tab_no].fkFieldLabel||formModel[tab.list_tab_no].value}}</text>
           <text v-else>{{tab.label||''}}</text>
         </text>
         <text class="cuIcon-right margin-left-xs" style="transform: rotate(90deg);"></text>
       </button>
     </view>
 
-    <view class="filter-form" v-if="mode==='unfold'&&setTabs&&setTabs.length>0" @click.prevent.captur="">
+
+
+    <view class="filter-form" v-else-if="mode==='unfold'&&setTabs&&setTabs.length>0" @click.prevent.captur="">
       <view class="filter-form-item" :label="tab.label" v-for="(tab,tabIndex) in setTabs" :key="tabIndex">
         <view class="label" :class="{'pc-model':sysModel==='PC'}"
           v-if="(!tab.more_config.showLabel&&tab.more_config.showLabel!==false)||sysModel==='PC'">
@@ -85,24 +143,6 @@
       </view>
     </view>
 
-    <!--   <view class="cu-modal bottom-modal" :class="{show:showTagsModal}" @click="showModal()">
-      <view class="cu-dialog" @click.stop=""
-        v-if="setTabs&&setTabs.length>0&&setTabs[curTag]&&setTabs[curTag].list_tab_no&&formModel&&formModel[setTabs[curTag].list_tab_no]">
-        <view class="label">
-          {{setTabs[curTag].label}}
-        </view>
-        <tree-selector :srvInfo="srvInfo" :srvApp="srvApp" @cancel="showModal()" :current="selectTreeData"
-          @confirm="getCascaderValue" @reset="onreset" v-if="setTabs[curTag]._type=='tree'&&srvInfo" ref="treeSelector">
-        </tree-selector>
-        <bx-radio-group mode="button" v-model="formModel[setTabs[curTag].list_tab_no].value" @change="radioChange">
-          <bx-radio :name="item.value" :key="item.value" v-for="(item,index) in setTabs[curTag].options">
-            <view class="radio-label">
-              {{item.label||''}}
-            </view>
-          </bx-radio>
-        </bx-radio-group>
-      </view>
-    </view> -->
   </view>
 </template>
 
@@ -144,6 +184,20 @@
       };
     },
     computed: {
+      foldTabs() {
+        return this.setTabs.filter(item => item.showAllTag !== true)
+      },
+      unfoldTabs() {
+        return this.setTabs.filter(item => item.showAllTag === true)
+      },
+      dispMode() {
+        let mode = this.mode;
+        if (mode == 'fold' && this.tabs.find(item => item.showAllTag == true)) {
+          // 如果配置的是折叠模式但是tabs中又有配置显示所有标签
+          mode = 'custom'
+        }
+        return mode
+      },
       srvInfo() {
         return this?.setTabs?. [this.curTag]?.more_config?.srvInfo || this?.setTabs?. [this.curTag]?._colSrvData?. [0]
           ?.option_list_v2
@@ -182,6 +236,9 @@
       }
     },
     methods: {
+      isFold(e) {
+        return e?.showAllTag !== true
+      },
       refresh() {
         this.setTabs[this.curTag].pageInfo.pageNo = 1
         this.getSelectorData('refresh')
@@ -339,11 +396,12 @@
           }
         }
       },
-      pickerChange(e) {
-        this.formModel[this.setTabs[this.curTag].list_tab_no].value = e
+      pickerChange(val, e) {
+        this.formModel[this.setTabs[this.curTag].list_tab_no].value = val
+
         const list_tab_no = this.setTabs[this.curTag].list_tab_no
         this.clearRelationVal(list_tab_no)
-        this.radioChange(e)
+        this.radioChange(val, e)
       },
       onreset() {
         let curTag = this.setTabs[this.curTag]
@@ -391,13 +449,19 @@
         this.formModel[curTag.list_tab_no] = col
         this.showTagsModal = !this.showTagsModal
       },
-      radioChange(e) {
+      radioChange(val, e) {
         let curTag = this.setTabs[this.curTag]
         let col = {
           colName: curTag._colName,
-          value: e,
+          value: val,
           inputType: curTag.inputType,
           default: curTag.default
+        }
+
+        const srvInfo = this.srvInfo
+        if (srvInfo?.key_disp_col && srvInfo?.refed_col && e) {
+          col.fkFieldLabel = srvInfo?.show_as_pair === true ?
+            `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
         }
         col.colName = curTag._colName
         col.inputType = curTag.inputType
@@ -435,11 +499,13 @@
           this.curTagButtons = []
         }
       },
-      onBuildFormValues() {
+      async onBuildFormValues() {
         let self = this
         let tabs = this.deepClone(this.tabs)
         let model = {}
-        tabs.forEach((item, index) => {
+        for (let index in tabs) {
+          const item = tabs[index]
+
           let col = {
             colName: item._colName,
             value: "",
@@ -480,6 +546,43 @@
             model[item.list_tab_no] = col
             tabs[index].selectTreeData = {}
 
+          } else if (item._type === 'fk' && this.dispMode == 'custom') {
+            if (item.showAllTag == true) {
+              let srvInfo = item?.more_config?.srvInfo
+              if (srvInfo?.serviceName) {
+                // {
+                //     "refed_col": "name",
+                //     "srv_app": "park",
+                //     "serviceName": "srvpark_city_select",
+                //     "conditions": [
+                //         {
+                //             "colName": "area_type",
+                //             "ruleType": "in",
+                //             "value": "'省,直辖市'"
+                //         }
+                //     ],
+                //     "key_disp_col": "name"
+                // }
+                let req = {
+                  serviceName: srvInfo.serviceName,
+                  colNames: ['*'],
+                  condition: srvInfo?.conditions || [],
+                  page: {
+                    pageNo: 1,
+                    rownumber: 100
+                  }
+                };
+                let res = await this.onRequest('select', req.serviceName, req, srvInfo?.srv_app);
+                if (Array.isArray(res?.data?.data)) {
+                  tabs[index].options = res.data.data.map(e => {
+                    e.label = e[srvInfo?.key_disp_col] || e[srvInfo?.refed_col]
+                    e.value = e[srvInfo?.refed_col]
+                    return e
+                  })
+                }
+              }
+            }
+            model[item.list_tab_no] = col
           } else {
             model[item.list_tab_no] = col
           }
@@ -489,7 +592,9 @@
             rownumber: 50,
             total: 0
           }
-        })
+
+          debugger
+        }
 
         this.setTabs = tabs
         if (tabs.length > 0) {
@@ -919,7 +1024,7 @@
   }
 
   .filter-tags-box {
-    padding: 10px;
+    // padding: 10px;
     // border: 1rpx solid #f1f1f1;
 
     .cu-btn {
@@ -944,14 +1049,13 @@
 
   .filter-form {
     padding: 10rpx 20rpx;
-    border: 1rpx solid #f1f1f1;
-
+    // border: 1rpx solid #f1f1f1;
     .filter-form-item {
       display: flex;
       align-items: center;
       padding-bottom: 10rpx;
       justify-content: flex-start;
-      flex-wrap: wrap;
+      // flex-wrap: wrap;
       width: 100%;
 
       .label {

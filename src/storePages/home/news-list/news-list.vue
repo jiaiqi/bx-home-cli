@@ -12,34 +12,7 @@
         </view>
       </view>
       <view class="content news-list">
-        <view class="news-item" :class="{
-            'none-image': !item.icon_image,
-            'layout-right-image': item.icon_image,
-            'layout-left-image':
-              item.cover_pic_style === '左侧' && item.icon_image,
-            'layout-center-single-image':
-              item.cover_pic_style === '下一' && item.icon_image,
-            'layout-center-multi-image':
-              item.cover_pic_style === '下三' && item.icon_image,
-          }" v-for="(item, noticeIndex) in cate.list" :key="noticeIndex" @click="toArticle(item)">
-          <image lazy-load mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
-          </image>
-          <view class="content-box">
-            <text class="title-text">
-              <text>{{ item.title }}</text>
-              <text class="text-red cuIcon-hotfill"
-                v-if="item && item.other_status && item.other_status === '热门'">hot</text>
-              <button class="line-red cu-btn sm"
-                v-if="item && item.other_status && item.other_status === '最新'">最新</button>
-              <button class="line-red cu-btn sm"
-                v-if="item && item.other_status && item.other_status === '精选'">精选</button>
-              <button class="line-red cu-btn sm" v-if="item && item.top_status && item.top_status === '是'">置顶</button>
-            </text>
-            <text class="date" v-if="hideCreateTime!==true">{{
-              dayjs(item.create_time).format("YYYY-MM-DD")
-            }}</text>
-          </view>
-        </view>
+        <news-item :item="item" v-for="(item, noticeIndex) in  cate.list" :key="noticeIndex"></news-item>
       </view>
     </view>
   </view>
@@ -51,32 +24,7 @@
       </view>
     </scroll-view>
     <view class="content news-list">
-      <view class="news-item" :class="{
-          'none-image': !item.icon_image,
-          'layout-right-image': item.icon_image,
-          'layout-left-image':
-            item.cover_pic_style === '左侧' && item.icon_image,
-          'layout-center-single-image':
-            item.cover_pic_style === '下一' && item.icon_image,
-          'layout-center-multi-image':
-            item.cover_pic_style === '下三' && item.icon_image,
-        }" v-for="(item, noticeIndex) in list" :key="noticeIndex" @click="toArticle(item)">
-        <image lazy-load mode="aspectFit" class="image-icon" :src="getImagePath(item.icon_image, true)" v-if="item.icon_image">
-        </image>
-        <view class="content-box">
-          <text class="title-text">
-            <text>{{ item.title }}</text>
-            <text class="text-red cuIcon-hotfill"
-              v-if="item && item.other_status && item.other_status === '热门'">hot</text>
-            <button class="line-red cu-btn sm"
-              v-if="item && item.other_status && item.other_status === '精选'">精选</button>
-            <button class="line-red cu-btn sm" v-if="item && item.top_status && item.top_status === '是'">置顶</button>
-          </text>
-          <text class="date" v-if="hideCreateTime!==true">{{
-            dayjs(item.create_time).format("YYYY-MM-DD")
-          }}</text>
-        </view>
-      </view>
+      <news-item :item="item" v-for="(item, noticeIndex) in list" :key="noticeIndex"></news-item>
       <u-empty v-if="list.length === 0 && loadstatus[current] === 'noMore'" mode="news" text="暂无内容"></u-empty>
       <uni-load-more :status="loadstatus[current]" v-else-if="loadstatus[current] === 'loading'"></uni-load-more>
       <view @click="getTabs()" v-if="loadstatus[current] === 'fail'" :style="{
@@ -160,9 +108,9 @@
         this.list = this.noticeList[this.current] ? this.noticeList[this.current].list : []
       },
       toMore(e) {
-        if(this.hasNotRegInfo){
+        if (this.hasNotRegInfo) {
           uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
+            url: '/publicPages/accountExec/accountExec'
           })
           return
         }
@@ -453,6 +401,7 @@
       background: #FAFBFC;
       border-radius: 20rpx;
       color: #333;
+
       .news-item {
         display: flex;
         padding: 20rpx;
