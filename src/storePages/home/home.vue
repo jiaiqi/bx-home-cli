@@ -38,8 +38,11 @@
             </view>
           </view>
         </view>
-        <view class="cu-load load-modal" v-else @click.stop="">
+        <view class="cu-load load-modal" v-else-if="loadStatus==='loading'" @click.stop="">
           <text>加载中...</text>
+        </view>
+        <view class="data-empty" style="width: 100vw;height: 60vh;line-height: 60vh;text-align: center;color: #999;" v-else-if="loadStatus==='noMore'">
+          页面内容为空
         </view>
       </view>
     </view>
@@ -90,6 +93,7 @@
         ptInfo: null,
         rowData: {},
         invite_user_no: '',
+        loadStatus:'more'
       };
     },
     computed: {
@@ -343,8 +347,13 @@
             rownumber: 100
           }
         };
+        this.loadStatus = 'loading'
         let res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health');
+        this.loadStatus = ''
         if (res.success) {
+          if(res.data.length===0){
+            this.loadStatus = 'noMore'
+          }
           let setFirstSwiper = false;
           this.pageItemList = []
           let pageItemList = res.data.filter(item => item.display !== '否' && item.button_usage !== '管理人员')
@@ -1225,7 +1234,9 @@
           },
           order: []
         };
+        this.loadStatus = 'loading'
         let res = await this.$http.post(url, req);
+        this.loadStatus = ''
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           let setFirstSwiper = false;
           let pageItemList = res.data.data
@@ -1242,6 +1253,7 @@
           await this.getComponentData();
           return pageItemList
         } else {
+          this.loadStatus = 'noMore'
           this.pageItemList = []
         }
       },

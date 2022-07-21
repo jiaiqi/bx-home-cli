@@ -622,16 +622,16 @@
           }
 
         }
-          ,{
-                    "path" : "scanCode/scanCode",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "扫码",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+        //#ifdef MP-WEIXIN
+        , {
+          "path": "scanCode/scanCode",
+          "style": {
+            "navigationBarTitleText": "扫码",
+            "enablePullDownRefresh": false
+          }
+        }
+        //#endif
+      ]
     }
     //#ifdef H5
     ,
@@ -676,16 +676,14 @@
           "navigationBarTitleText": "结算中心",
           "enablePullDownRefresh": false
         }
-      }    ,{
-                    "path" : "detail/detail",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      }, {
+        "path": "detail/detail",
+        "style": {
+          "navigationBarTitleText": "",
+          "enablePullDownRefresh": false
+        }
+
+      }]
     }
     //#endif
   ],

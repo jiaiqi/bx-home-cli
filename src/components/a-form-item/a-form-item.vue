@@ -220,7 +220,8 @@
         :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum">
       </robby-image-upload> -->
 
-      <bx-image-upload :max-count="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.maxCount?fieldData.moreConfig.maxCount:10"
+      <bx-image-upload
+        :max-count="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.maxCount?fieldData.moreConfig.maxCount:10"
         :open-type="['profile_url','user_image'].includes(fieldData.column)?'chooseAvatar':''"
         :disabled="pageType==='detail'" :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
         :tableName="uploadFormData.table_name" :value="fieldData.value" :index="fieldData.column" :action="uploadUrl"
@@ -1654,7 +1655,7 @@
           columns: ''
         };
         this.uploadFormData.table_name = this.fieldData.table_name;
-        this.uploadFormData['app_no'] = this.fieldData?.srvInfo?.appNo || this.srvApp || uni.getStorageSync(
+        this.uploadFormData['app_no'] = this.srvApp || this.fieldData?.srvInfo?.appNo || uni.getStorageSync(
           'activeApp');
         this.uploadFormData['columns'] = this.fieldData.column;
         if (this.fieldData.value !== '' && this.fieldData.value !== null && this.fieldData.value !== undefined) {

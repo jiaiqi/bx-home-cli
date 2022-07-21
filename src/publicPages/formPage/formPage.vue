@@ -1436,7 +1436,7 @@
             uni.getSetting({
               success(res) {
                 console.log(res.authSetting)
-                if (res['scope.userLocation']) {
+                if (res?.authSetting['scope.userLocation']) {
                   resolve(true)
                 } else {
                   resolve(false)

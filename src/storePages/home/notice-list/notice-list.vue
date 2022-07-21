@@ -1,5 +1,17 @@
 <template>
-  <view class="notice-wrap" v-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
+  <view class="notice-wrap"
+    v-if="customService&&pageItem&&pageItem.notice_style&&showNoticeBar&&multiRow&&multiListSimple&&multiListSimple.length>0">
+    <u-notice-bar :mode="mode" :list="lists" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
+      :type="theme" :color="styleConfig.color" :duration="duration" @click="clickMultiNotice(idx1,$event)"
+      v-for="(lists,idx1) in multiListSimple">
+      <template v-if="pageItem&&pageItem.notice_left_icon" v-slot:leftIcon>
+        <image :style="[{width:volumeSize+'rpx',height:volumeSize+'rpx'}]" :src="getImagePath(pageItem.notice_left_icon)"
+          mode="aspectFit"></image>
+      </template>
+    </u-notice-bar>
+  </view>
+  <view class="notice-wrap"
+    v-else-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
     <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
       :type="theme" :color="color" :duration="duration" @click="clickNotice">
     </u-notice-bar>
@@ -31,6 +43,43 @@
       }
     },
     computed: {
+      customService() {
+        return this.pageItem?.notice_list_origin === '自定义服务'
+      },
+      styleConfig() {
+        return this.customService && this.pageItem?.more_config?.styleConfig || {}
+      },
+      multiRow() {
+        return this.customService && !isNaN(Number(this.pageItem?.row_number)) && this.pageItem.row_number > 1
+      },
+      multiListSimple() {
+        if (Array.isArray(this.multiList) && this.multiList.length > 0) {
+          return this.multiList.map((item) => {
+            if (Array.isArray(item) && item.length > 0) {
+              item = item.map(e => {
+                e = e?.label || e[this.labelCol] || e?.title
+                return e
+              })
+            }
+            return item
+          })
+        }
+      },
+      multiList() {
+        if (this.multiRow) {
+          let rownumber = Number(this.pageItem?.row_number);
+          let arr = []
+          for (let i = 0; i < rownumber; i++) {
+            arr.push([])
+          }
+          if (this.noticeList.length > 0) {
+            this.noticeList.forEach((item, index) => {
+              arr[index % rownumber].push(item)
+            })
+          }
+          return arr
+        }
+      },
       showNoticeBar() {
         return this.pageItem.notice_style == '垂直滚动' || this.pageItem.notice_style == '水平滚动'
       },
@@ -39,7 +88,7 @@
       },
       theme() {
         // primary / info / error / success / none
-        return 'primary '
+        return this.styleConfig?.theme || 'primary '
       },
       volumeSize() {
         return 34
@@ -59,6 +108,9 @@
           return 'horizontal'
         }
       },
+      reqCfg() {
+        return this.pageItem?.more_config?.request_cfg
+      }
     },
     data() {
       return {
@@ -66,6 +118,10 @@
       }
     },
     methods: {
+      clickMultiNotice(idx1, idx2) {
+        let e = this.multiList[idx1][idx2]
+        this.handelClick(e)
+      },
       clickNotice(index) {
         if (this.hasNotRegInfo) {
           uni.navigateTo({
@@ -97,6 +153,42 @@
           })
         }
       },
+      async getCustomList() {
+        const service = this.reqCfg?.serviceName
+        const app = this.reqCfg?.srv_app || uni.getStorageSync('activeApp')
+        let data = {
+          storeUser:this.vstoreUser,
+          userInfo:this.userInfo,
+          storeInfo:this.storeInfo
+        }
+        let condition = this.reqCfg?.condition||[]
+        if(Array.isArray(condition)&&condition.length>0){
+          condition = condition.map(item=>{
+            item.value = this.renderStr(item.value,data)
+            return item
+          })
+        }
+        const req = {
+          "condition": condition,
+          "page": {
+            "pageNo": 1,
+            "rownumber": 1000
+          },
+          "serviceName": service,
+          "colNames": ["*"]
+        }
+        
+        if (service && app) {
+          const url = `/${app}/select/${service}`
+          const res = await this.$http.post(url, req);
+          if (Array.isArray(res?.data?.data)) {
+            this.noticeList = res.data.data.map(item => {
+              item.label = item.label || item[this.reqCfg?.labelCol] || ''
+              return item
+            })
+          }
+        }
+      },
       async getList() {
         if (!this.pageItem || !this.pageItem.component_no) {
           return
@@ -117,7 +209,7 @@
           ],
           "page": {
             "pageNo": 1,
-            "rownumber": 10
+            "rownumber": 100
           },
         }
         if (this.pageItem?.category_no) {
@@ -159,8 +251,22 @@
         }
       },
     },
+    watch: {
+      pageItem: {
+        immediate:true,
+        deep:true,
+        handler(newValue, oldValue){
+          if (this.pageItem?.notice_list_origin === '自定义服务') {
+            this.getCustomList()
+            return
+          }else{
+            this.getList()
+          }
+        }
+      }
+    },
     mounted() {
-      this.getList()
+     
     }
   }
 </script>
@@ -172,7 +278,7 @@
     // margin: 0rpx 20rpx 0;
     border-radius: 20rpx;
     overflow: hidden;
-    background-color: #fff;
+    // background-color: #fff;
     color: #333;
 
     @media screen and (min-width: 1300px) {
