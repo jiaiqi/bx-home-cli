@@ -3,7 +3,7 @@
 
     <view class="filter-form" v-if="dispMode==='custom'">
       <view class="filter-tags-box" v-if="setTabs&&setTabs.length>0">
-        <button class="cu-btn round sm margin-right-xs"
+        <button class="cu-btn round sm  margin-right-xs"
           :class="{'':!tab.active,' active-tag':formModel&&tab.list_tab_no&&formModel[tab.list_tab_no]&&formModel[tab.list_tab_no].value}"
           v-for="(tab,tabIndex) in setTabs" :key="tabIndex" @click="showModal(tab,tabIndex)" v-if="isFold(tab)">
           <text class="label">
@@ -30,7 +30,7 @@
             <view v-if="tab._type === 'fk'">
               <bx-radio-group mode="button" activeBg="#FBEAE7" activeColor="#FE5A3F"
                 v-model="formModel[tab.list_tab_no].value">
-                <bx-radio :name="item.value" :key="item.value" :allowCanel="true"  v-for="(item,index) in tab.options">
+                <bx-radio :name="item.value" :key="item.value" :allowCanel="true" v-for="(item,index) in tab.options">
                   {{item.label||''}}
                 </bx-radio>
               </bx-radio-group>
@@ -1032,7 +1032,9 @@
       text-align: center;
       position: relative;
       margin-top: 5px;
-
+      font-size: 14px;
+      background-color: #f8f8fa;
+      border: 1px solid #f1f1f1;
       &:nth-child(1),
       &:nth-child(2),
       &:nth-child(3),
@@ -1049,6 +1051,7 @@
 
   .filter-form {
     padding: 10rpx 20rpx;
+
     // border: 1rpx solid #f1f1f1;
     .filter-form-item {
       display: flex;

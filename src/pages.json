@@ -592,6 +592,13 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
+        },
+        {
+          "path": "valetOrder/valetOrder",
+          "style": {
+            "navigationBarTitleText": "代客下单",
+            "enablePullDownRefresh": false
+          }
         }
         //#endif
         , {
@@ -623,7 +630,7 @@
 
         }
         //#ifdef MP-WEIXIN
-        , {
+        ,{
           "path": "scanCode/scanCode",
           "style": {
             "navigationBarTitleText": "扫码",
