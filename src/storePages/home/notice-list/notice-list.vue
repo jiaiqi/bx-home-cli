@@ -4,9 +4,11 @@
     <u-notice-bar :mode="mode" :list="lists" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
       :type="theme" :color="styleConfig.color" :duration="duration" @click="clickMultiNotice(idx1,$event)"
       v-for="(lists,idx1) in multiListSimple">
-      <template v-if="pageItem&&pageItem.notice_left_icon" v-slot:leftIcon>
-        <image :style="[{width:volumeSize+'rpx',height:volumeSize+'rpx'}]" :src="getImagePath(pageItem.notice_left_icon)"
-          mode="aspectFit"></image>
+      <template v-slot:leftIcon>
+        <view style="display: flex;margin: 0;padding: 0;align-items: center;" class="" v-if="pageItem&&pageItem.notice_left_icon">
+          <image :style="[{width:volumeSize+'rpx',height:volumeSize+'rpx'}]"
+            :src="getImagePath(pageItem.notice_left_icon)" mode="aspectFit"></image>
+        </view>
       </template>
     </u-notice-bar>
   </view>
@@ -17,7 +19,7 @@
     </u-notice-bar>
   </view>
   <view class="notice-wrap" v-else-if="pageItem&&noticeList&&noticeList.length>0">
-    <view class="notice-item" v-for="item in noticeList" :key="item.id" @click="handelClick(item)" :style="{
+    <view class="notice-item" v-for="item in noticeList" @click="handelClick(item)" :style="{
         'font-size': item.style_config.fontSize,
         'justify-content': item.style_config.align,
         color: item.style_config.color,
@@ -157,14 +159,14 @@
         const service = this.reqCfg?.serviceName
         const app = this.reqCfg?.srv_app || uni.getStorageSync('activeApp')
         let data = {
-          storeUser:this.vstoreUser,
-          userInfo:this.userInfo,
-          storeInfo:this.storeInfo
+          storeUser: this.vstoreUser,
+          userInfo: this.userInfo,
+          storeInfo: this.storeInfo
         }
-        let condition = this.reqCfg?.condition||[]
-        if(Array.isArray(condition)&&condition.length>0){
-          condition = condition.map(item=>{
-            item.value = this.renderStr(item.value,data)
+        let condition = this.reqCfg?.condition || []
+        if (Array.isArray(condition) && condition.length > 0) {
+          condition = condition.map(item => {
+            item.value = this.renderStr(item.value, data)
             return item
           })
         }
@@ -177,7 +179,7 @@
           "serviceName": service,
           "colNames": ["*"]
         }
-        
+
         if (service && app) {
           const url = `/${app}/select/${service}`
           const res = await this.$http.post(url, req);
@@ -253,20 +255,20 @@
     },
     watch: {
       pageItem: {
-        immediate:true,
-        deep:true,
-        handler(newValue, oldValue){
+        immediate: true,
+        deep: true,
+        handler(newValue, oldValue) {
           if (this.pageItem?.notice_list_origin === '自定义服务') {
             this.getCustomList()
             return
-          }else{
+          } else {
             this.getList()
           }
         }
       }
     },
     mounted() {
-     
+
     }
   }
 </script>
