@@ -226,13 +226,13 @@
     flex-direction: column;
     width: 100%;
     margin: 0 auto;
-    padding: 20upx 20upx 40upx;
+    // padding: 20upx 0 40upx;
     min-height: 100vh;
 
     .top {
       display: flex;
       flex-wrap: wrap;
-
+      padding: 20rpx;
       .left {
         flex: 1;
       }

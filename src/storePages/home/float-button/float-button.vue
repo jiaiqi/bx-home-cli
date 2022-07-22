@@ -1,14 +1,25 @@
 <template>
 
-  <view class="float-button-view">
-    <movable-area class="movable-area">
+  <view class="float-button-view" v-if="show==true">
+    <view class="float-button-content" v-if="locationWay==='绝对定位'">
+      <view class="float-button absolute-location" :style="[setStyle]" @click="toPages">
+        <text class="closeable cuIcon-close" @click.stop.capture="close" v-if="closeable">
+        </text>
+        <image :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" mode="aspectFit"
+          v-if="pageItem&&pageItem.component_bg_img">
+        </image>
+      </view>
+    </view>
+    <movable-area class="movable-area" v-else>
       <movable-view :style="[setStyle]" :disabled="disabledDrag" direction="all" :x="initX" :y="initY"
         :out-of-bounds="true" @change="onChange">
-        <!--        <view class="float-button" :style="[setStyle]" @click="toPages">
-        </view> -->
-        <image :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" class="float-button" mode="aspectFit"
-          @click="toPages" v-if="pageItem&&pageItem.component_bg_img">
-        </image>
+        <view class="float-button" :style="[setStyle]" @click="toPages">
+          <text class="closeable cuIcon-close" @click.stop.capture="close" v-if="closeable">
+          </text>
+          <image :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" mode="aspectFit"
+            v-if="pageItem&&pageItem.component_bg_img">
+          </image>
+        </view>
       </movable-view>
     </movable-area>
   </view>
@@ -18,6 +29,7 @@
   export default {
     data() {
       return {
+        show: true,
         x: 370,
         y: 370,
         old: {
@@ -32,6 +44,12 @@
       },
     },
     computed: {
+      locationWay() {
+        return this.pageItem?.float_btn_location_way || 'xy轴'
+      },
+      closeable() {
+        return this.pageItem?.float_btn_closeable === '是' ? true : false
+      },
       disabledDrag() {
         return this.pageItem?.float_btn_draggable === '否' ? true : false
       },
@@ -53,10 +71,24 @@
         if (this.pageItem?.component_bg_color) {
           obj['background-color'] = this.pageItem?.component_bg_color
         }
+
+        if (this.locationWay === '绝对定位') {
+          debugger
+          let position = ['left', 'right', 'top', 'bottom']
+          position.forEach(key => {
+            if (this.pageItem?. [`float_btn_init_${key}`] || this.pageItem?. [`float_btn_init_${key}`] === 0) {
+              obj[key] = uni.upx2px(this.pageItem?. [`float_btn_init_${key}`] * 2) + 'px'
+            }
+          })
+        }
+
         return obj
       }
     },
     methods: {
+      close() {
+        this.show = false
+      },
       onChange: function(e) {
         this.old.x = e.detail.x
         this.old.y = e.detail.y
@@ -104,6 +136,20 @@
     width: 100vw;
     height: calc(100vh - var(--window-top) - var(--window-bottom) - 200rpx);
     pointer-events: none;
+
+    // position: relative;
+    .float-button-content {
+      pointer-events: none;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 9;
+
+      .absolute-location {
+        position: absolute;
+      }
+    }
+
   }
 
   .float-button {
@@ -113,5 +159,24 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
     z-index: 10;
+    position: relative;
+    pointer-events: all;
+
+    .closeable {
+      position: absolute;
+      right: 0;
+      // right: calc(50% - 10px);
+      top: -10px;
+      // bottom: calc(50% - 15px);
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      width: 25px;
+      height: 25px;
+      text-align: center;
+      line-height: 25px;
+      border-radius: 50%;
+      z-index: 2;
+    }
   }
 </style>

@@ -108,7 +108,8 @@
         goodsList: [],
         selectedAddr: null,
         selectedUser: null,
-        selectedGoods: ""
+        selectedGoods: "",
+        selectedGoodsList:[],
       }
     },
     computed: {
@@ -213,7 +214,6 @@
         let option_list_v2 = this.fieldData?.fmt;
         let url =
           `/publicPages/list2/list2?disabled=true&selectCol=goods_no&destApp=health&listType=multiSelectByJson&serviceName=srvhealth_store_goods_select`
-
         let listConfig = {
           "lp_style": "单行",
           img: {
@@ -263,6 +263,7 @@
           if (e.uuid === uuid) {
             if (Array.isArray(e.data)) {
               debugger
+              // this.selectedGoodsList = []
               // this.fieldData.jsonValue = e.data;
               // this.fieldData.value = JSON.stringify(e.data)
             }
@@ -332,7 +333,6 @@
 
         uni.$on('confirmSelect', (e) => {
           if (e.uuid === uuid) {
-            debugger
             this.form[e.col] = e.val
             this.selectedUser = e.data
           }
@@ -347,7 +347,6 @@
           `/publicPages/list2/list2?selectCol=rcv_addr_no&destApp=health&listType=selectorList&serviceName=srvhealth_shipping_address_select&cond=[{"colName":"using_store_user_no","ruleType":"like","value":"${this.vstoreUser.store_user_no}"}]&idCol=addr_no&uuid=${uuid}`
         uni.$on('confirmSelect', (e) => {
           if (e.uuid === uuid) {
-            debugger
             this.form[e.col] = e.val
             this.selectedAddr = e.data
 

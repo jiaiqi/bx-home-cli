@@ -43,7 +43,28 @@
       return {
 
       };
-    }
+    },
+    methods: {
+      toArticle(e) {
+        debugger
+        if (e.content_no) {
+          let url =
+            `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
+          if (this.storeInfo && this.storeInfo.name) {
+            url += `&store_name=${this.storeInfo.name}`
+          }
+          if (this.storeInfo.store_no) {
+            url += `&store_no=${this.storeInfo.store_no}`
+          }
+          if (this.storeInfo.logo) {
+            url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
+          }
+          uni.navigateTo({
+            url: url
+          });
+        }
+      },
+    },
   }
 </script>
 

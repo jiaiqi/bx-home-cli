@@ -12,7 +12,7 @@
         </view>
       </view>
       <view class="content news-list">
-        <news-item :item="item" v-for="(item, noticeIndex) in  cate.list" :key="noticeIndex"></news-item>
+        <news-item :item="item" v-for="(item, noticeIndex) in cate.list" :key="noticeIndex"></news-item>
       </view>
     </view>
   </view>
@@ -133,24 +133,7 @@
           })
         }
       },
-      toArticle(e) {
-        if (e.content_no) {
-          let url =
-            `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`
-          if (this.storeInfo && this.storeInfo.name) {
-            url += `&store_name=${this.storeInfo.name}`
-          }
-          if (this.storeInfo.store_no) {
-            url += `&store_no=${this.storeInfo.store_no}`
-          }
-          if (this.storeInfo.logo) {
-            url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
-          }
-          uni.navigateTo({
-            url: url
-          });
-        }
-      },
+      
       getTabs() {
         let req = {
           "serviceName": "srvdaq_cms_category_select",
@@ -159,7 +142,12 @@
             "colName": "parent_no",
             "value": this.cateNo,
             "ruleType": "eq"
-          }],
+          },{
+            "colName": "display",
+            "value": '否',
+            "ruleType": "ne"
+          }
+          ],
           "page": {
             "pageNo": 1,
             "rownumber": 999
