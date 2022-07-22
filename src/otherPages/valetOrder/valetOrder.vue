@@ -22,7 +22,7 @@
         <view class="form-item-label">
           <text class="text-red margin-right-xs">*</text> 会员账号
         </view>
-        <view class="form-item-content" @click="toSelectGoods">
+        <view class="form-item-content" @click="toSelectUser">
           <text
             v-if="selectedUser&&(selectedUser.person_name||selectedUser.nick_name)">{{selectedUser.person_name||selectedUser.nick_name}}/</text>
           <text v-if="form.store_user_no">{{form.store_user_no}}</text>
@@ -228,24 +228,25 @@
           cols: [{
               col: 'goods_name',
               cfg: {
-
+                "disp_label": false
               }
             },
             {
-              col: "goods_no"
+              col: "goods_no",
+              cfg: {
+                "disp_label": false
+              }
             }
           ]
         }
         url += `&listConfig=${JSON.stringify(listConfig)}`
 
-        if (Array.isArray(option_list_v2?.condition) && option_list_v2?.condition.length > 0) {
-          let condition = [{
-            colName: "store_no",
-            ruleType: "eq",
-            value: this.store_no
-          }]
-          url += `&cond=${JSON.stringify(condition)}`
-        }
+        let condition = [{
+          colName: "store_no",
+          ruleType: "eq",
+          value: this.storeInfo.store_no
+        }]
+        url += `&cond=${JSON.stringify(condition)}`
 
         let idCol = "goods_no"
         if (idCol) {
@@ -272,7 +273,7 @@
         })
 
       },
-      toSelectGoods() {
+      toSelectUser() {
         const uuid = uni.$u.guid()
         let url =
           `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_user_select&cond=[{"colName":"store_no","ruleType":"like","value":"${this.vstoreUser.store_no}"}]&idCol=store_user_no&uuid=${uuid}`
@@ -565,6 +566,11 @@
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 10px;
+
+    .text-gray {
+      color: #808080;
+      font-size: 12px;
+    }
 
     .text-area {
       border: 1px solid #f1f1f1;

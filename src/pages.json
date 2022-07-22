@@ -593,14 +593,14 @@
             "enablePullDownRefresh": true
           }
         }
-        // ,
-        // {
-        //   "path": "valetOrder/valetOrder",
-        //   "style": {
-        //     "navigationBarTitleText": "代客下单",
-        //     "enablePullDownRefresh": false
-        //   }
-        // }
+        ,
+        {
+          "path": "valetOrder/valetOrder",
+          "style": {
+            "navigationBarTitleText": "代客下单",
+            "enablePullDownRefresh": false
+          }
+        }
         //#endif
         , {
           "path": "tVideoPlayer/tVideoPlayer",

@@ -2,7 +2,8 @@
 
   <view class="float-button-view">
     <movable-area class="movable-area">
-      <movable-view direction="all" :x="initX" :y="initY" :out-of-bounds="true" @change="onChange">
+      <movable-view :style="[setStyle]" :disabled="disabledDrag" direction="all" :x="initX" :y="initY"
+        :out-of-bounds="true" @change="onChange">
         <!--        <view class="float-button" :style="[setStyle]" @click="toPages">
         </view> -->
         <image :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" class="float-button" mode="aspectFit"
@@ -31,32 +32,26 @@
       },
     },
     computed: {
+      disabledDrag() {
+        return this.pageItem?.float_btn_draggable === '否' ? true : false
+      },
       initX() {
-        if (this.pageItem?.float_btn_init_x && this.pageItem?.float_btn_init_x !== 370) {
-          return uni.upx2px(this.pageItem?.float_btn_init_x)
-        } else {
-          return uni.upx2px(740)
-        }
+        return uni.upx2px(this.pageItem?.float_btn_init_x * 2)
       },
       initY() {
-        if (this.pageItem?.float_btn_init_y && this.pageItem?.float_btn_init_y !== 370) {
-          return uni.upx2px(this.pageItem?.float_btn_init_y)
-        } else {
-          return uni.upx2px(740)
-        }
+        return uni.upx2px(this.pageItem?.float_btn_init_y * 2)
       },
       setStyle() {
         let obj = {}
-        // if (this.pageItem?.component_bg_img) {
-        //   obj.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img)})`
-        // }
-        
         if (this.pageItem?.float_btn_width) {
-          obj.width = `${this.pageItem?.float_btn_width}px`
+          obj.width = `${uni.upx2px(this.pageItem?.float_btn_width*2)}px`
           obj.height = obj.width
         }
         if (this.pageItem?.float_btn_height) {
-          obj.height = `${this.pageItem?.float_btn_height}px`
+          obj.height = `${uni.upx2px(this.pageItem?.float_btn_height*2)}px`
+        }
+        if (this.pageItem?.component_bg_color) {
+          obj['background-color'] = this.pageItem?.component_bg_color
         }
         return obj
       }
@@ -90,8 +85,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 70px;
-    width: 70px;
     color: #fff;
     pointer-events: auto;
   }
@@ -105,17 +98,17 @@
 
   .float-button-view {
     position: fixed;
-    bottom: 100px;
+    bottom: 100rpx;
     right: 0;
-    padding-right: 10px;
+    left: 0;
     width: 100vw;
-    height: calc(100vh - var(--window-top) - var(--window-bottom) - 200px);
+    height: calc(100vh - var(--window-top) - var(--window-bottom) - 200rpx);
     pointer-events: none;
   }
 
   .float-button {
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
     // border-radius: 50%;
     background-repeat: no-repeat;
     background-size: 100% 100%;
