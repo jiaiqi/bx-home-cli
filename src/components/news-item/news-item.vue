@@ -46,7 +46,6 @@
     },
     methods: {
       toArticle(e) {
-        debugger
         if (e.content_no) {
           let url =
             `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}`

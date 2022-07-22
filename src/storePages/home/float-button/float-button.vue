@@ -73,7 +73,6 @@
         }
 
         if (this.locationWay === '绝对定位') {
-          debugger
           let position = ['left', 'right', 'top', 'bottom']
           position.forEach(key => {
             if (this.pageItem?. [`float_btn_init_${key}`] || this.pageItem?. [`float_btn_init_${key}`] === 0) {

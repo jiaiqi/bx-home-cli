@@ -51,13 +51,16 @@
         <view class="form-item-label">
           <text class="text-red margin-right-xs">*</text> 收货地址
         </view>
-        <view class="form-item-content" @click="toSelectAddr">
+        <view class="form-item-content">
+          <input type="text" placeholder="输入收货地址" placeholder-style="font-size:12px;" v-model="form.rcv_addr_str">
+        </view>
+        <!--   <view class="form-item-content" @click="toSelectAddr">
           <text v-if="selectedAddr&&selectedAddr.addr_str">{{selectedAddr.addr_str}}</text>
           <text v-else-if="form.rcv_addr_no"></text>
           <text class="text-gray" v-else>
             点击选择
           </text>
-        </view>
+        </view> -->
       </view>
     </view>
 
@@ -66,13 +69,23 @@
         商品列表
       </view>
 
-      <view class="text-area padding-xs">
-        <button class="cu-btn bg-blue " @click="toGoodsSelector">选择商品</button>
+      <view class="text-area padding-xs text-center">
+        <view class="goods-list">
+          <view class="goods-item" v-for="item in selectedGoodsList" @click="toGoodDetail(item)">
+            <view class="">
+              {{item.goods_name}}
+            </view>
+            <view class="">
+              <u-number-box v-model="item.goods_amount" :min="1"></u-number-box>
+            </view>
+          </view>
+        </view>
+        <button class="cu-btn bg-blue " style="margin: 0 auto;" @click="toGoodsSelector">选择商品</button>
       </view>
     </view>
 
     <view class="bottom-btn" v-if="pageType!=='detail'">
-      <button class="cu-btn lg" @click="onsubmit">提交</button>
+      <button class="cu-btn lg" @click="addOrder">提交</button>
     </view>
   </view>
 </template>
@@ -87,7 +100,7 @@
           store_user_no: "", //会员账号
           rcv_name: "", //联系人
           rcv_telephone: "", //手机号
-          rcv_addr_no: "", //收货地址
+          rcv_addr_str: "", //收货地址
         },
         provinces: "",
         city: "",
@@ -98,7 +111,7 @@
           store_user_no: true, //会员账号
           rcv_name: true, //联系人
           rcv_telephone: true, //手机号
-          rcv_addr_no: false, //收货地址
+          rcv_addr_str: true, //收货地址
         },
         isOnSubmit: false,
         focusField: '',
@@ -109,7 +122,7 @@
         selectedAddr: null,
         selectedUser: null,
         selectedGoods: "",
-        selectedGoodsList:[],
+        selectedGoodsList: [],
       }
     },
     computed: {
@@ -142,7 +155,51 @@
       }
     },
     methods: {
-      addOrder() {
+      toGoodDetail(e) {
+        let url = `/storePages/GoodsDetail/GoodsDetail?goods_no=${e?.goods_no}&storeNo=${this.storeInfo?.store_no}`
+        uni.navigateTo({
+          url
+        })
+      },
+      async addOrder() {
+        this.isOnSubmit = true
+        let keys = Object.keys(this.form)
+        let unpass = 0;
+        for (let key of keys) {
+          if (!this.form[key] && this.required[key]) {
+            unpass++
+            let requiredLabel = {
+              delivery_type: '提货方式', //提货方式
+              store_user_no: '会员账号', //会员账号
+              rcv_name: '联系人', //联系人
+              rcv_telephone: '手机号', //手机号
+              rcv_addr_str: '收货地址', //收货地址
+            }
+            uni.showModal({
+              title: '提示',
+              content: `请填写/选择【${requiredLabel[key]}】`,
+              showCancel: false
+            })
+            this.isOnSubmit = false
+            break
+          }
+        }
+        
+        if(Array.isArray(this.selectedGoodsList)&&this.selectedGoodsList.length===0){
+          uni.showModal({
+            title: '提示',
+            content: `请选择商品`,
+            showCancel: false
+          })
+          this.isOnSubmit = false
+          return
+        }
+        
+        if (unpass > 0) {
+          this.isOnSubmit = false
+          return
+        }
+
         const req = [{
           "serviceName": "srvhealth_store_replace_order_add",
           "condition": [],
@@ -167,7 +224,7 @@
             "virtual_type": "自动发货",
             "virtual_status": "待发货",
             "receive_virtual_status": "待领取",
-            "rcv_addr_no": "AD220721180001",
+            "rcv_addr_no": this.form.rcv_addr_no,
             "rcv_addr_str": this.selectedAddr?.addr_str,
             "delivery_method": "现买现交",
             "cus_type": "自建用户",
@@ -185,20 +242,18 @@
             "is_shopping_cart": "否",
             // "order_remark": "啊啊啊",
             "child_data_list": [{
-              "data": [{
-                "goods_no": "GD2205310002",
-                "goods_amount": 1,
-                "goods_type": "产品",
-                "goods_name": "隆德堂本草茶饮补肺益气茶",
-                "goods_image": "20220531145303034100",
-                "origin_price": 198,
-                "use_start_date": null,
-                "use_end_date": null,
-                "one_money_than": 0.2,
-                "two_money_than": 0.1,
-                "package_goods_no": "TC22053114570002",
-                "packaging_fee": 0
-              }],
+              "data": this.selectedGoodsList.map(item => {
+                let obj = {
+                  "goods_no": item.goods_no,
+                  "goods_amount": item.goods_amount,
+                  "goods_type": item.goods_type,
+                  "goods_name": item.goods_name,
+                  "goods_image": item.goods_image,
+                  "origin_price": item.origin_price,
+                  "package_goods_no": item.package_goods_no
+                }
+                return obj
+              }),
               "serviceName": "srvhealth_store_order_goods_detail_add",
               "depend_keys": [{
                 "type": "column",
@@ -208,6 +263,23 @@
             }]
           }]
         }]
+
+        const url = `/health/operate/srvhealth_store_replace_order_add`
+        const res = await this.$http.post(url, req);
+        this.isOnSubmit = false
+        if (res?.data?.state === 'SUCCESS') {
+          uni.showModal({
+            title: '提示',
+            content: '下单成功',
+            success: (res) => {
+              if (res.confirm) {
+                uni.navigateBack({
+
+                })
+              }
+            }
+          })
+        }
       },
       toGoodsSelector() {
         // 外键多选
@@ -262,8 +334,11 @@
         uni.$on('confirmSelect', (e) => {
           if (e.uuid === uuid) {
             if (Array.isArray(e.data)) {
-              debugger
-              // this.selectedGoodsList = []
+              this.selectedGoodsList = e.data.map(item => {
+                item.goods_amount = 1;
+                return item
+              })
+              this.selectedGoods = e.data.map(item => item.goods_no).toString()
               // this.fieldData.jsonValue = e.data;
               // this.fieldData.value = JSON.stringify(e.data)
             }
@@ -565,6 +640,13 @@
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 10px;
+
+    .goods-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
 
     .text-gray {
       color: #808080;

@@ -8,7 +8,8 @@
         :readonly="true" v-if="showListBar">
       </list-bar>
       <filter-tags :tabs="tags" ref="filterTabs" :mode="'fold'" :cols="colV2.srv_cols" :srv="serviceName"
-        @on-input-value="onFilterChange" @on-change="getListWithFilter" v-if="colV2&&colV2.srv_cols&&tags">
+        @on-input-value="onFilterChange" @on-change="getListWithFilter"
+        v-if="showFilterBar&&colV2&&colV2.srv_cols&&tags">
       </filter-tags>
       <view class="title" :style="titleStyle" v-if="pageItem&&pageItem.show_label!=='否'&&showEmptyData">
         <text>{{ pageItem.component_label || '' }}</text>
@@ -57,6 +58,7 @@
       }
     },
     computed: {
+
       loadOnReachBottom() {
         return this.pageItem?.load_on_reach_bottom || this.config?.loadOnReachBottom
       },
@@ -119,6 +121,9 @@
       showListBar() {
         return this.pageItem && this.pageItem.show_list_bar == '是' && this.srvCols && this.srvCols.length > 0 && this
           .list_config.list_bar !== false
+      },
+      showFilterBar() {
+        return this.pageItem && this.pageItem.show_filter_bar == '是'
       },
       listBarBg() {
         let color = 'white'
@@ -444,8 +449,8 @@
             console.log(err);
           }
         }
-        
-        if(Array.isArray(this.config?.group)&&this.config?.group.length>0){
+
+        if (Array.isArray(this.config?.group) && this.config?.group.length > 0) {
           url += `&group=${JSON.stringify(this.config?.group)}`
         }
 
@@ -725,7 +730,7 @@
             console.log(err);
           }
         }
-        if((Array.isArray(this.config?.group) && this.config.group.length > 0)){
+        if ((Array.isArray(this.config?.group) && this.config.group.length > 0)) {
           req.group = this.config.group
         }
         if (Array.isArray(this.tabs) && this.tabs.length > 0) {
