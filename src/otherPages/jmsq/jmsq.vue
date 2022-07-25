@@ -248,7 +248,7 @@
           end_time: true, // 营业结束时间
           business_license: false, //营业执照
           legal_person_id_card: false, // 法人身份证
-          legal_person_id_card_reverse: true,
+          legal_person_id_card_reverse: false, // 法人身份证反面
           wx_mch_id: true, //微信商户号
           longitude: '', //地址经度
           latitude: "", //地址纬度
@@ -361,7 +361,7 @@
               end_time: '营业结束时间', // 营业结束时间
               // business_license: '营业执照', //营业执照
               // legal_person_id_card: '法人身份证', // 法人身份证
-              legal_person_id_card_reverse: '法人身份证（反）',
+              // legal_person_id_card_reverse: '法人身份证（反）',
               wx_mch_id: '微信商户号', //微信商户号
               one_money_than: '一级分佣比例', //
               two_money_than: '二级分佣比例', //

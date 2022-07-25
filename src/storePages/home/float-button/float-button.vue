@@ -5,7 +5,7 @@
       <view class="float-button absolute-location" :style="[setStyle]" @click="toPages">
         <text class="closeable cuIcon-close" @click.stop.capture="close" v-if="closeable">
         </text>
-        <image :style="[setStyle]" :src="getImagePath(pageItem.component_bg_img)" mode="aspectFit"
+        <image :style="[setWidthHeight]" :src="getImagePath(pageItem.component_bg_img)" mode="aspectFit"
           v-if="pageItem&&pageItem.component_bg_img">
         </image>
       </view>
@@ -58,6 +58,17 @@
       },
       initY() {
         return uni.upx2px(this.pageItem?.float_btn_init_y * 2)
+      },
+      setWidthHeight(){
+        let obj = {}
+        if (this.pageItem?.float_btn_width) {
+          obj.width = `${uni.upx2px(this.pageItem?.float_btn_width*2)}px`
+          obj.height = obj.width
+        }
+        if (this.pageItem?.float_btn_height) {
+          obj.height = `${uni.upx2px(this.pageItem?.float_btn_height*2)}px`
+        }
+        return obj
       },
       setStyle() {
         let obj = {}

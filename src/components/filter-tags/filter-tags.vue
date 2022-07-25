@@ -593,7 +593,6 @@
             total: 0
           }
 
-          debugger
         }
 
         this.setTabs = tabs

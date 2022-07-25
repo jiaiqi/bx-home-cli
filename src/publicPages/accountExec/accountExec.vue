@@ -144,6 +144,9 @@
       }
       let isWeixinClient = this.isWeixinClient();
       let isLogin = uni.getStorageSync('isLogin')
+      if(option.loginType){
+        this.loginType = option.loginType;
+      }
       if (isWeixinClient) {
         // 微信公众号环境 , 静默登录
         // this.loginType = 'weixin-qrcode'
