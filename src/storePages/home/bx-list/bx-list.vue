@@ -631,7 +631,7 @@
         let self = this;
         let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ? 'proclist' :
           'list', app);
-        colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+        colVs?.srv_cols ? colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2) : ''
         console.log('colVs', colVs);
         if (colVs.more_config) {
           try {

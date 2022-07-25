@@ -1,10 +1,9 @@
 <template>
   <view class="page-wrap">
     <list-bar @change="changeSerchVal" :filterCols="filterCols" :srvApp="appName" :srvCols="srvCols"
-      :gridButtonDisp="gridButtonDisp"
-      :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
-      @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
-      @search="toSearch" v-if="showSearchBar">
+      :gridButtonDisp="gridButtonDisp" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder"
+      @toFilter="toFilter" @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton"
+      @clickAddButton="clickAddButton" @search="toSearch" v-if="showSearchBar">
     </list-bar>
     <bx-list ref="bxList" :serviceName="serviceName" :condition="condition"
       :order="orderList.length > 0 ? orderList : order" :relation_condition="relation_condition" :pageType="pageType"
@@ -12,8 +11,8 @@
         listConfig && listConfig.rowButton ? listConfig.rowButton : []
       " :showTab="false" :viewTemp="viewTemp" :listConfig="listConfig" :showButton="showRowButton" :fixed="true"
       :top="listTop" :searchWords="searchVal" :searchColumn="keyColumn" :tempWord="tempWord" :rownumber="42"
-      :colnumber="col" :customTemp="customTemp" :showFootBtn="showFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
-          :formButtonDisp="formButtonDisp" @click-list-item="clickItem"
+      :colnumber="col" :customTemp="customTemp" :showFootBtn="showFootBtn" :gridButtonDisp="gridButtonDisp"
+      :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp" @click-list-item="clickItem"
       @list-change="listChange" @clickFootBtn="clickFootBtn" @loadEnd="loadEnd"></bx-list>
   </view>
 </template>
@@ -1121,7 +1120,9 @@
         let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ?
           'proclist' :
           'list', app);
-        colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+        if (colVs.srv_cols) {
+          colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+        }
         if (!this.navigationBarTitle) {
           uni.setNavigationBarTitle({
             title: colVs.service_view_name

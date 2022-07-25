@@ -1008,7 +1008,10 @@
 						'list', app);
 
 				}
+        if(colVs.srv_cols){
+          
 				colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+        }
 				console.log('colVs', colVs);
 				// this.listConfig = colVs;
 				if (this.pageType === 'proc') {

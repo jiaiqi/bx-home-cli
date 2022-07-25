@@ -1114,7 +1114,9 @@
         let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ?
           'proclist' :
           'list', app, this.v2Params);
-        colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+          if( colVs.srv_cols ){
+            colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+          }
         if (!this.navigationBarTitle) {
           let title = ''
           if (this.listConfig?.navTitle) {
