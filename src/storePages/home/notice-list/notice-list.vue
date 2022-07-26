@@ -125,12 +125,12 @@
         this.handelClick(e)
       },
       clickNotice(index) {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let e = this.noticeList[index]
         this.handelClick(e)
       },

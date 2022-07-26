@@ -48,6 +48,113 @@ export default {
     //#endif
   },
   methods: {
+    async unbindWxUser() {
+      const result = await new Promise((resolve) => {
+        uni.showModal({
+          title: '提示',
+          content: '确认解绑账号？',
+          success: (res) => {
+            if (res.confirm) {
+              resolve(true)
+            } else {
+              resolve(false)
+            }
+          },
+          fail() {
+            resolve(false)
+          }
+        })
+      })
+      if (result !== true) {
+        return
+      }
+      const url = this.$api.unbindWxUser;
+      const req = [{
+        serviceName: 'srvwx_user_unbind'
+      }];
+      const response = await this.$http.post(url, req);
+      if (response?.data?.state === 'SUCCESS') {
+        uni.showModal({
+          title: '提示',
+          content: '解绑成功,即将清除缓存，重新进入小程序',
+          showCancel: false,
+          success: (res) => {
+            if (res.confirm) {
+              uni.clearStorageSync()
+              this.initClientEnv();
+              this.$store.commit('SET_LOGIN_STATE', false);
+              uni.reLaunch({
+                url: '/pages/home/home'
+              })
+            }
+          }
+        })
+      }
+    },
+    async bindWxUser(e) {
+      console.log('bindWxUser', e);
+      let that = this;
+      let url = that.$api.bindWxUser;
+      let req = [{
+        serviceName: 'srvwx_user_bind',
+        data: [e]
+      }];
+      if (that.isInvalid(e?.user_no) && that.isInvalid(e?.pwd)) {
+        let response = await that.$http.post(url, req);
+        console.log('bindWxUser', response);
+        if (response.data.state === 'SUCCESS' && response.data.response[0].response) {
+          let res = response.data.response[0].response;
+          let expire_timestamp = parseInt(new Date().getTime() / 1000) + res.expire_time; //过期时间的时间戳(秒)
+          uni.setStorageSync('bx_auth_ticket', res.bx_auth_ticket);
+          uni.setStorageSync('expire_time', res.expire_time); // 有效时间
+          uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
+          if (res && res?.login_user_info?.user_no) {
+            uni.setStorageSync('login_user_info', res.login_user_info);
+            console.log('res.login_user_info', res.login_user_info);
+            that.$store.commit('SET_LOGIN_USER', res.login_user_info);
+          }
+          if (res?.login_user_info?.data) {
+            uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
+          }
+          uni.setStorageSync('isLogin', true);
+          that.$store.commit('SET_LOGIN_STATE', true);
+          uni.showModal({
+            title: "提示",
+            content: '绑定成功,即将清除缓存，重新进入小程序',
+            showCancel: false,
+            success: (res) => {
+              if (res.confirm) {
+                uni.clearStorageSync()
+                this.initClientEnv();
+                uni.reLaunch({
+                  url: '/pages/home/home'
+                })
+              }
+            }
+          })
+        } else {
+          if (response?.data?.resultMessage === '非移动端用户登录') {
+            uni.showToast({
+              title: '当前微信账号已经绑定过系统账号',
+              duration: 2000,
+              icon: 'none'
+            });
+            return
+          }
+          uni.showToast({
+            title: response.data.resultMessage,
+            duration: 2000,
+            icon: 'none'
+          });
+        }
+      } else {
+        uni.showToast({
+          title: '帐号或密码错误',
+          duration: 2000
+        });
+      }
+
+    },
     async getAddressByLocation(location = {}) {
       const {
         lat,
@@ -59,54 +166,128 @@ export default {
         return res?.data?.result
       }
     },
-    async setDefaultValueForAddressCol(columns,colMap){
-        const res = await new Promise(resolve => {
-          uni.getLocation({
-            type: 'gcj02',
+    async setDefaultValueForAddressCol(columns, colMap) {
+      const res = await new Promise(resolve => {
+        uni.getLocation({
+          type: 'gcj02',
+          success: (res) => {
+            resolve(res)
+          },
+          fail: (err) => {
+            resolve(err)
+          }
+        })
+      })
+      const {
+        longitude,
+        latitude
+      } = res || {}
+      if (longitude && latitude) {
+        const result = await this.getAddressByLocation({
+          lat: latitude,
+          lng: longitude
+        })
+        if (result?.address_component) {
+          const {
+            province,
+            city,
+            district
+          } = result?.address_component || {}
+          return columns.map(item => {
+            if (colMap?.pro && item.column === colMap.pro && province) {
+              item.value = item.value || province
+            }
+            if (colMap?.city && item.column === colMap.city && city) {
+              item.value = item.value || city
+            }
+            if (colMap?.district && item.column === colMap.district && district) {
+              item.value = item.value || district
+            }
+            if (colMap?.lat && item.column === colMap.lat && latitude) {
+              item.value = item.value || latitude
+            }
+            if (colMap?.lng && item.column === colMap.lng && longitude) {
+              item.value = item.value || longitude
+            }
+            return item
+          })
+        }
+      }
+
+    },
+
+    async checkUserInfo() {
+      if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
+        await selectPersonInfo(this.userInfo?.userno, true)
+      }
+      if ((!this.userInfo.nick_name) && this.userInfo?.id) {
+        let res = await new Promise((resolve) => {
+          uni.showModal({
+            title: '提示',
+            content: '请先完善您的基本信息，然后再进行其它操作',
             success: (res) => {
-              resolve(res)
-            },
-            fail: (err) => {
-              resolve(err)
+              if (res.confirm) {
+                toEditUserInfo.then(result=>{
+                  resolve(result)
+                })
+              }
             }
           })
         })
-        const {
-          longitude,
-          latitude
-        } = res || {}
-        if (longitude && latitude) {
-          const result = await this.getAddressByLocation({
-            lat: latitude,
-            lng: longitude
-          })
-          if (result?.address_component) {
-            const {
-              province,
-              city,
-              district
-            } = result?.address_component || {}
-             return columns.map(item => {
-              if (colMap?.pro && item.column === colMap.pro && province) {
-                item.value = item.value || province
+        if (res == true) {
+          const res1 = await new Promise(resolve => {
+            uni.showModal({
+              title: '提示',
+              content: '是否继续之前的操作？',
+              success: (handler) => {
+                if (handler.confirm) {
+                  resolve(true)
+                } else {
+                  resolve(false)
+                }
               }
-              if (colMap?.city && item.column === colMap.city && city) {
-                item.value = item.value || city
-              }
-              if (colMap?.district && item.column === colMap.district && district) {
-                item.value = item.value || district
-              }
-              if (colMap?.lat && item.column === colMap.lat && latitude) {
-                item.value = item.value || latitude
-              }
-              if (colMap?.lng && item.column === colMap.lng && longitude) {
-                item.value = item.value || longitude
-              }
-              return item
             })
+          })
+          if (res1 === false) {
+            return false
+          }else{
+            return true
           }
+        } else {
+          return false
         }
-      
+      }
+
+    },
+
+    toEditUserInfo() {
+      return new Promise(resolve => {
+        const uuid = uni.$u.guid()
+        let url =
+          `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
+        if (this.userInfo?.id) {
+          uni.navigateTo({
+            url,
+            success: () => {
+              uni.$on('onBack', (e) => {
+                if (e?.uuid === uuid && e?.service ===
+                  'srvhealth_person_info_profile_nickname_update') {
+                  this.initApp().then(_ => {
+                    resolve(true)
+                  })
+                }
+              })
+            }
+          })
+        } else {
+          uni.showModal({
+            title: '提示',
+            content: '系统错误,请重新进入小程序',
+            showCancel: false
+          })
+          resolve(false)
+        }
+      })
     },
     toTop() {
       uni.pageScrollTo({

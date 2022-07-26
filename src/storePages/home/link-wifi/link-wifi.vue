@@ -36,14 +36,19 @@
 
     methods: {
       toWifi() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
-        uni.navigateTo({
-          url: '/storePages/linkwifi/linkwifi?store_no=' + this.store_no
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
+      this.checkUserInfo().then(res => {
+          if (res) {
+            uni.navigateTo({
+              url: '/storePages/linkwifi/linkwifi?store_no=' + this.store_no
+            })
+
+          }
         })
       },
       getConnectedWifi() {
@@ -119,16 +124,16 @@
       this.getConnectedWifi()
     },
     mounted() {
-      uni.$on('wifi-status-change',(wifi)=>{
-        if(wifi?.SSID){
-          this.connectedWifi = wifi 
+      uni.$on('wifi-status-change', (wifi) => {
+        if (wifi?.SSID) {
+          this.connectedWifi = wifi
         }
       })
       let globalData = getApp().globalData
       if (globalData.room_no) {
         this.room_no = globalData.room_no
       }
-      
+
       this.getConnectedWifi()
     }
   }

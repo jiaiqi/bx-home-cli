@@ -862,12 +862,13 @@
         }
       },
       async clickFootBtn(data) {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        await this.checkUserInfo()
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let self = this;
         let buttonInfo = this.deepClone(data.button);
         let rowData = this.deepClone(data.row);

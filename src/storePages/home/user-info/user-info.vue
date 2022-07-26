@@ -1,5 +1,6 @@
 <template>
-  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]" @click="toEdit">
+  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]"
+    @click="toEdit">
     <view class="top">
       <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image" mode="aspectFit"></image>
       <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
@@ -31,7 +32,7 @@
       </view>
     </view>
     <view class="left" v-else>
-      <button class="cu-btn bg-white" @click="toLogin">请点击登录</button>
+      <button class="cu-btn bg-white" @click="toEditUserInfo">点击完善用户信息</button>
     </view>
     <view class="right">
       <!-- #ifdef MP-WEIXIN -->
@@ -70,8 +71,9 @@
       this.getAuditStatus()
     },
     methods: {
-      toEdit(){
-        const url = `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}`
+      toEdit() {
+        const url =
+          `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_info_profile_nickname_update&id=${this.userInfo.id}`
         uni.navigateTo({
           url
         })
@@ -144,13 +146,7 @@
           }
         })
       },
-      toLogin() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-        }
-      }
+     
     },
   }
 </script>

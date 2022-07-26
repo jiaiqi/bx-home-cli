@@ -141,12 +141,12 @@
           })
           return
         }
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let jumpUrl = ''
         switch (item.jump_type) {
           case '商品':

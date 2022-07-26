@@ -126,13 +126,14 @@
           }
         }
       },
-      toDetail() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+      async toDetail() {
+        await this.checkUserInfo()
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let url = this.moreConfig?.detailUrl || this.moreConfig?.detailUrl
         if (url) {
           url = this.renderStr(url, this)
@@ -288,14 +289,15 @@
           }
         })
       },
-      toOpenVip() {
+      async toOpenVip() {
         debugger
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        await this.checkUserInfo()
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let url = this.moreConfig?.open_url
         if (url) {
           url = this.renderStr(url, this)

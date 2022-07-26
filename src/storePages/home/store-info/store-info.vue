@@ -495,12 +495,12 @@
         }
       },
       toManage() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let url = `/storePages/StoreManager/StoreManager?store_no=${this.setStoreInfo.store_no}`;
         if (this.setStoreInfo.store_no) {
           uni.navigateTo({
@@ -509,12 +509,12 @@
         }
       },
       toAttention() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let url = '/publicPages/webviewPage/webviewPage';
         url += `?webUrl=${encodeURIComponent('https://mp.weixin.qq.com/s/Z9o7ZJOtrAsR2Sj7PIIgRQ')}`;
         uni.navigateTo({
@@ -548,12 +548,12 @@
         this.$emit('getQrcode', e);
       },
       makePhoneCall(telephone) {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         uni.makePhoneCall({
           phoneNumber: telephone || this.setStoreInfo && this.setStoreInfo.telephone ? this.setStoreInfo.telephone :
             '10086'
@@ -577,12 +577,12 @@
         this.$emit('setHomePage');
       },
       toPages(e, info) {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         const globalData = {
           userInfo: this.userInfo,
           storeUser: this.vstoreUser,

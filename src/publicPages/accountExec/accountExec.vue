@@ -1,6 +1,5 @@
 <template>
   <view class="authorization">
-    <!-- #ifdef H5 -->
     <view class="container">
       <view class="right-top-sign"></view>
       <!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
@@ -10,10 +9,9 @@
             <!-- #ifdef H5||APP-PLUS -->
             <text>你好, 欢迎使用！</text>
             <!-- #endif -->
-            <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text>
+            <!-- <text v-if="(client_env === 'wxh5' || client_env === 'wxmp') && !isShowUserLogin">请授权微信登录</text> -->
           </view>
-          <!-- #ifndef MP-WEIXIN -->
-          <view class="input-content">
+          <view class="input-content" v-if="(client_env === 'wxmp'&&isWxUser)||client_env !== 'wxmp'">
             <view class="input-item">
               <text class="cuIcon-people margin-right"></text>
               <input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="50" data-key="mobile"
@@ -30,20 +28,29 @@
             </view>
           </view>
 
-          <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
+          <!--      <checkbox-group @change="checkboxChange" class="" style="display: flex;justify-content: flex-end;">
             <label
               style="width: 100%;display: flex;justify-content: space-between;margin: 0 auto;margin-top: 10px;padding: 0 30px;">
               <checkbox class="" value="cd" :checked="checkValue" style="margin-right: 5px;transform: scale(0.7);" />
               <text>记住密码</text>
             </label>
-          </checkbox-group>
+          </checkbox-group> -->
 
-          <debounce-view type="throttle" @onThrottle="userLogined">
+
+          <view class="text-center" v-if="client_env==='wxmp' &&isSysUser">
+            您已经绑定账号，点击下方按钮解绑
+          </view>
+          <debounce-view type="throttle" @onThrottle="unbindWxUser" v-if="client_env==='wxmp' && isSysUser">
             <button class="confirm-btn bg-blue text-green">
-              {{ isBindUser ? '提交绑定' : '登录' }}
+              解绑
             </button>
           </debounce-view>
-          <!-- #endif -->
+
+          <debounce-view type="throttle" @onThrottle="userLogined" v-else>
+            <button class="confirm-btn bg-blue text-green">
+              {{ isBindUser&&isWxUser ? '提交绑定' : '登录' }}
+            </button>
+          </debounce-view>
 
           <!--      <button class="confirm-btn bg-blue text-green" @click="userLogined">
             {{ isBindUser ? '提交绑定' : '登录' }}
@@ -80,9 +87,8 @@
       </view>
 
     </view>
-    <!-- #endif -->
     <!-- #ifdef MP-WEIXIN -->
-    <bx-auth @auth-complete="initPage"></bx-auth>
+    <!-- <bx-auth @auth-complete="initPage"></bx-auth> -->
     <!-- #endif -->
   </view>
 </template>
@@ -94,6 +100,14 @@
   export default {
     // 账号授权页面
     name: 'AccountExec',
+    computed: {
+      isSysUser() {
+        return this.vloginUser?.login_user_type === 'user'
+      },
+      isWxUser() {
+        return this.vloginUser?.login_user_type === 'wx_user'
+      }
+    },
     data() {
       return {
         showLoginQrCode: false,
@@ -125,6 +139,13 @@
       // #endif
     },
     onLoad(option) {
+      // #ifdef MP-WEIXIN
+      if (option.loginType && option.isBindUser) {
+        this.loginType = option.loginType;
+        this.isBindUser = true
+        return
+      }
+      // #endif
       // #ifdef H5
       if (uni.getStorageSync('isLogin')) {
         console.log('已登录，不进行初始化授权', uni.getStorageSync('isLogin'));
@@ -144,9 +165,7 @@
       }
       let isWeixinClient = this.isWeixinClient();
       let isLogin = uni.getStorageSync('isLogin')
-      if(option.loginType){
-        this.loginType = option.loginType;
-      }
+
       if (isWeixinClient) {
         // 微信公众号环境 , 静默登录
         // this.loginType = 'weixin-qrcode'
@@ -714,6 +733,10 @@
 
       async userLogined() {
         let that = this;
+        if (this.isBindUser && this.client_env === 'wxmp') {
+          let res = await this.bindWxUser(this.user)
+          return
+        }
         let url = that.getServiceUrl('sso', 'srvuser_login', 'operate');
         let req = [{
           serviceName: 'srvuser_login',

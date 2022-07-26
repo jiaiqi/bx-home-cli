@@ -706,13 +706,14 @@
         content.w = maxW;
         return content;
       },
-      toGoodsDetail(e) {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+     async toGoodsDetail(e) {
+        await this.checkUserInfo()
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         if (e.goods_no) {
           let url = `/storePages/GoodsDetail/GoodsDetail?goods_no=${ e.goods_no}`
           if (this.storeInfo?.telephone) {

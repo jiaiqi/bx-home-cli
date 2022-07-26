@@ -276,13 +276,6 @@
           this.$refs?.normalList?.loadMore?.()
         }
       },
-      toLogin() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-        }
-      },
       toOfficial(toSub = false) {
         if (this.hasNotRegInfo) {
           uni.navigateTo({

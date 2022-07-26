@@ -80,12 +80,12 @@
         }
       },
       toDetail(e) {
-        if(this.hasNotRegInfo){
-          uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if(this.hasNotRegInfo){
+        //   uni.navigateTo({
+        //     url:'/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         this.$emit('toDoctorDetail', e)
       }
     },

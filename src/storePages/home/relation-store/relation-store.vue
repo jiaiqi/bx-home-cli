@@ -98,12 +98,12 @@
         })
       },
       toStore(e) {
-        if(this.hasNotRegInfo){
-          uni.navigateTo({
-            url:'/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+        // if(this.hasNotRegInfo){
+        //   uni.navigateTo({
+        //     url:'/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         if (e.b_store_no) {
           uni.navigateTo({
             animationType: "zoom-fade-out",

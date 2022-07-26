@@ -466,13 +466,14 @@
           },
         })
       },
-      toMore() {
-        if (this.hasNotRegInfo) {
-          uni.navigateTo({
-            url: '/publicPages/accountExec/accountExec'
-          })
-          return
-        }
+      async toMore() {
+        await this.checkUserInfo()
+        // if (this.hasNotRegInfo) {
+        //   uni.navigateTo({
+        //     url: '/publicPages/accountExec/accountExec'
+        //   })
+        //   return
+        // }
         let url = `/storePages/VaccineList/VaccineList?storeNo=${this.storeInfo.store_no}`
         if (this.moreConfig && typeof this.moreConfig === 'object') {
           url += `&moreConfig=${JSON.stringify(this.moreConfig)}`
