@@ -277,6 +277,11 @@
     onLoad(option) {
       if (option.type) {
         this.pageType = option.type
+        if(option.type==='update'){
+          uni.setNavigationBarTitle({
+            title:'店铺设置'
+          })
+        }
       }
       if (option.fieldsCond) {
         try {

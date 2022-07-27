@@ -103,7 +103,25 @@
     <view class="loading-box" v-if="loading">
       <u-loading mode="flower" size="80" :show="loading"></u-loading>
     </view>
-
+    <view class="cu-modal bottom-modal" :class="{ show: modalName === 'showQrCode' }" @click="hideModal">
+      <view class="cu-dialog " @click.stop="">
+        <view class="qrcode-box">
+          <!-- <view class="title">我的推广码</view> -->
+          <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" show-menu-by-longpress
+            v-if="storeInfo && qrcodePath" @click="toPreviewImage(qrcodePath)" :show-menu-by-longpress="true"></image>
+          <view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
+          <!-- <view class="store-name">{{ setStoreInfo.name || '' }}</view> -->
+          <view class="store-name">长按保存图片</view>
+        </view>
+        <view class="button-box"><button @click.stop="hideModal()" class="cu-btn">关闭</button></view>
+        <view class="qrcodeCanvas-box" v-if="modalName === 'showQrCode' && qrCodeText">
+          <uni-qrcode cid="qrcodeCanvas" style="width: 100px;height: 100px;" :text="qrCodeText" :size="codeSize"
+            class="qrcode-canvas" foregroundColor="#333" makeOnLoad @makeComplete="qrcodeCanvasComplete"
+            ref="qrcodeCanvas">
+          </uni-qrcode>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -151,7 +169,10 @@
         hideChildTable: false, // 隐藏子表
         leftText: null,
         rightBtn: null,
-        uuid: null
+        uuid: null,
+        qrCodeText: "",
+        codeSize: uni.upx2px(750),
+        qrcodePath: "",
       }
     },
     computed: {
@@ -373,11 +394,21 @@
           }
         }
       },
+      qrcodeCanvasComplete(e) {
+        this.qrcodePath = e;
+        this.$emit('getQrcode', e);
+      },
+      makeQrCode(){
+        if (this.$refs.qrcodeCanvas) {
+          this.$refs.qrcodeCanvas.make();
+        }
+      },
       async onButton(e, btnTarget) {
         // this.isOnButton = true
         if (!e) {
           return;
         }
+        const self = this
         if (btnTarget === 'handler') {
           if (e?.type) {
             e = this.formButtons.find(item => item.button_type && item.button_type == e.type)
@@ -386,14 +417,15 @@
             }
           }
         }
-        const self = this
+        const globalData = {
+          data: this.mainData || {},
+          storeInfo: self.storeInfo,
+          userInfo: self.userInfo,
+          storeUser: self.vstoreUser
+        }
+
         if (e.type === 'navToList') {
-          const globalData = {
-            // data: effect_data || {},
-            storeInfo: self.storeInfo,
-            userInfo: self.userInfo,
-            storeUser: self.vstoreUser
-          }
+
           let url =
             `/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
           if (e.cond) {
@@ -410,7 +442,16 @@
             url
           })
           return
+        } else if (e?.type === 'showQrcode') {
+          if (e.qrcode_content) {
+            this.qrCodeText = this.renderStr(e.qrcode_content, globalData)
+            this.modalName = 'showQrCode'
+            this.makeQrCode()
+            
+          }
+          return
         }
+
         let req = this.$refs.bxForm.getFieldModel();
         for (let key in req) {
           if (Array.isArray(req[key])) {
@@ -1865,6 +1906,51 @@
     text-align: center;
     padding-top: 40vh;
   }
+
+
+  .qrcodeCanvas-box {
+    position: fixed;
+    top: -9999px;
+  }
+
+  .qrcode-box {
+    padding: 80rpx 40rpx;
+    text-align: center;
+    position: relative;
+
+    .title {
+      padding: 0 0 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .store-name {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .store-logo {
+      position: absolute;
+      width: 100rpx;
+      height: 100rpx;
+      left: calc(50% - 50rpx);
+      top: 20rpx;
+      z-index: 2;
+    }
+
+    .qr-code-image {
+      width: 500rpx;
+      height: 500rpx;
+      line-height: 500rpx;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 20px;
+      border: 15rpx solid #333;
+      padding: 10px;
+      // border-radius: 20rpx;
+    }
+  }
+
 
   .button-box {
     padding: 10px;
