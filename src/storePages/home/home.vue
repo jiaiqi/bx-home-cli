@@ -254,7 +254,8 @@
         if (this.singleStore) {
           return
         }
-        let cond = [{
+        let cond = [
+          {
             colName: 'person_no',
             ruleType: 'eq',
             value: this.userInfo?.no
@@ -263,8 +264,14 @@
             colName: 'member_status',
             ruleType: 'in',
             value: '正常'
-          }
+          },
+          // {
+          //   colName: 'store_online_status',
+          //   ruleType: 'ne',
+          //   value: '下线'
+          // }
         ];
+        // '非公开', '仅本店', '双向隔离'
         if (this.userInfo?.userno) {
           let listConfig = {
             navTitle: '切换店铺',

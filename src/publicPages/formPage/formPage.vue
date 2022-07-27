@@ -447,7 +447,6 @@
             this.qrCodeText = this.renderStr(e.qrcode_content, globalData)
             this.modalName = 'showQrCode'
             this.makeQrCode()
-            
           }
           return
         }
