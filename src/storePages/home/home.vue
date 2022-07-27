@@ -764,7 +764,21 @@
           }
         }
         if (Array.isArray(res.data) && res.data.length > 0) {
-
+          if(res?.data[0]?.audit_status=='禁用'){
+            uni.showModal({
+              title:'提示',
+              content:'该店铺已被禁用，即将跳转到小程序首页',
+              showCancel:false,
+              success: (res) => {
+                if(res.confirm){
+                  uni.reLaunch({
+                    url:'/storePages/home/home?store_no=S0000000000'
+                  })
+                }
+              }
+            })
+            return
+          }
           this.$store.commit('setStateAttr', {
             key: 'storeInfo',
             val: res.data[0]
