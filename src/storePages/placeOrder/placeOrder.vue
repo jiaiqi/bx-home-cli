@@ -284,6 +284,7 @@
     },
     data() {
       return {
+        orderAddService: "", //自定义表单提交服务
         includesColumns: "", // 表单中要包含的字段
         columnsDefaultVal: {}, //表单默认值
         submitColumns: "",
@@ -554,7 +555,7 @@
         }
       },
       async valueChange(e, triggerField) {
-        let data = this.orderInfo|| this.mainData
+        let data = this.orderInfo?.order_no ? this.orderInfo : this.mainData
         const column = triggerField.column
 
         if (this.mainData && typeof this.mainData === 'object') {
@@ -725,7 +726,7 @@
       },
       async getSrvCols(type = "add", pageType = "") {
         const app = this.fieldsCfg?.app || this.appName || uni.getStorageSync('activeApp');
-        const service = this.fieldsCfg?.service
+        const service = this.orderAddService || this.fieldsCfg?.service
         if (app && service) {
           uni.showLoading()
           let colVs = await this.getServiceV2(service, type, type, app);
@@ -818,7 +819,7 @@
           const table_name = colVs.main_table
           let result = null
 
-          defaultVal = this.orderInfo || defaultVal
+          defaultVal = this.orderInfo?.order_no?this.orderInfo: defaultVal
           if (Array.isArray(cols) && cols.length > 0) {
             // #ifdef MP-WEIXIN
             result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
@@ -1402,8 +1403,9 @@
         uni.showLoading({
           mask: true
         })
+        let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
-          serviceName: 'srvhealth_store_order_add',
+          serviceName: orderAddService,
           condition: [],
           data: [{
             store_no: this.orderInfo.store_no,
@@ -1584,7 +1586,7 @@
           //   await this.clearOrderCartGoods(ids)
           // }
         }
-        let res = await this.$fetch('operate', 'srvhealth_store_order_add', req, 'health')
+        let res = await this.$fetch('operate', orderAddService, req, 'health')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1816,7 +1818,9 @@
       },
     },
     async onLoad(option) {
-
+      if (option.orderAddService) {
+        this.orderAddService = option.orderAddService
+      }
       if (option.approval_type) {
         this.approval_type = option.approval_type
       }

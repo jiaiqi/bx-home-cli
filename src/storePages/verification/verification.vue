@@ -69,10 +69,14 @@
             list: list
           });
           let url =
-            `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo?.store_no }&cardInfo=${JSON.stringify(this.cardInfo)}&pay_method=${this.cardInfo.card_type}`
+            `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo?.store_no}&cardInfo=${JSON.stringify(this.cardInfo)}&pay_method=${this.cardInfo.card_type}`
           // if (this.wxMchId) {
           // 	url += `&wxMchId=${this.wxMchId}`
           // }
+          let xianxiafuw = this.goodsList.find(item => item.goods_type === '线下服务')
+          if (xianxiafuw) {
+            url += `&orderAddService=srvhealth_store_order_write_off_add`
+          }
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
           if (this.approval_type) {
@@ -110,15 +114,15 @@
       },
       async confirm() {
         let xianxiafuw = this.goodsList.find(item => item.goods_type === '线下服务')
-        if (xianxiafuw) {
-          let url =
-            `/publicPages/formPage/formPage?serviceName=srvhealth_store_customer_serve_record_customize_add&hideChildTable=true`
-          uni.navigateTo({
-            url
-          })
-        } else {
-          this.toOrderPage()
-        }
+        // if (xianxiafuw) {
+        //   let url =
+        //     `/publicPages/formPage/formPage?serviceName=srvhealth_store_customer_serve_record_customize_add&hideChildTable=true`
+        //   uni.navigateTo({
+        //     url
+        //   })
+        // } else {
+        this.toOrderPage()
+        // }
         return
         let goodsList = this.goodsList.filter(item => item.checked)
         if (goodsList && goodsList.length > 0) {
