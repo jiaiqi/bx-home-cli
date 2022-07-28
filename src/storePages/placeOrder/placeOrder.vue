@@ -37,7 +37,7 @@
         </view> -->
         <view class="goods-list">
           <goods-item :goods="goods" :disabledRefund="disabledRefund" :disabledEvaluate="disabledEvaluate"
-            :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx"
+            :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx" @amount-change="amountChange"
             @attrChange="attrChange($event,idx)">
 
           </goods-item>
@@ -55,8 +55,11 @@
             <view class="detail-info_item_label">
               订单金额
             </view>
-            <view class="detail-info_item_value text-red">
+            <view class="detail-info_item_value text-red" v-if="orderInfo.order_amount">
               ￥{{orderInfo.order_amount}}
+            </view>
+            <view class="detail-info_item_value text-red" v-else-if="orderInfo.order_amount===0">
+              ￥0
             </view>
           </view>
           <view class="detail-info_item" v-if="couponMinus">
@@ -83,7 +86,7 @@
               ￥{{shippingFee||'0'}}
             </view>
           </view>
-          <view class="detail-info_item" v-if="totalMoney&&actualMoney">
+          <view class="detail-info_item" v-if="totalMoney&&actualMoney||totalMoney===0">
             <view class="detail-info_item_label">
               <!-- 应付金额 -->
             </view>
@@ -110,15 +113,15 @@
             订单备注
           </view>
           <view class="info-value" style="text-align: right;">
-            <input type="text" placeholder-style="font-size:12px;color:#999;" :disabled="orderInfo&&orderInfo.order_no" v-model="orderInfo.order_remark"
-              placeholder="可填写偏好和要求">
+            <input type="text" placeholder-style="font-size:12px;color:#999;" :disabled="orderInfo&&orderInfo.order_no"
+              v-model="orderInfo.order_remark" placeholder="可填写偏好和要求">
           </view>
         </view>
       </view>
 
 
       <!-- 优惠券 -->
-      <view class="order-other-info" v-if="!orderInfo.order_no&&!isHexiao">
+      <view class="order-other-info" v-if="!orderInfo.order_no&&!isHexiao&&actualMoney!==0">
         <view class="info-item">
           <view class="info-label">
             优惠券
@@ -485,7 +488,8 @@
         if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount) {
           return this.orderInfo?.order_pay_amount
         }
-        let res = this.totalMoney - this.couponMinus > 0 ? this.totalMoney - this.couponMinus : 0.01
+
+        let res = this.totalMoney - this.couponMinus >= 0 ? this.totalMoney - this.couponMinus : 0.01
         if (!isNaN(Number(this.shippingFee))) {
           res += this.shippingFee
         }
@@ -506,6 +510,17 @@
       }
     },
     methods: {
+      amountChange(e) {
+        if (e?.id) {
+          this.orderInfo.goodsList = this.orderInfo.goodsList.map(item => {
+            if (item.id === e.id) {
+              item.goods_amount = e.num
+              item.car_num = e.num
+            }
+            return item
+          })
+        }
+      },
       async valueChange(e, triggerField) {
         let data = this.mainData
         const column = triggerField.column
@@ -1215,17 +1230,17 @@
             pay_state: pay_state
           }]
         }];
-        
+
         if (order_state) {
           req[0].data[0].order_state = order_state
         }
-        
+
         if (prepay_id) {
           req[0].data[0].prepay_id = prepay_id
         }
-        
+
         await this.$fetch('operate', serviceName, req, 'health')
-        
+
         // 支付成功后修改订单状态和支付状态
         await this.getOrderInfo()
       },
@@ -1671,7 +1686,8 @@
         }
 
         if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd'))) {
+            .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd')) && totalMoney >
+          0.01) {
           uni.showToast({
             title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
             icon: "none"
@@ -1697,6 +1713,19 @@
           mask: true,
           title: '请稍后..'
         })
+        if (totalMoney == 0) {
+          // 价格为0  直接完成订单
+          self.orderInfo.order_state = '待发货';
+          self.updateOrderState('待发货', '已支付', result.prepay_id).then(_ => {
+            self.orderInfo.pay_state = '已支付';
+            uni.redirectTo({
+              url: '/storePages/successPay/successPay?order_no=' + self.orderInfo.order_no +
+                '&totalMoney=' + self.totalMoney
+            });
+            resolve(true)
+          })
+          return
+        }
         if (orderData.prepay_id) {
           result.prepay_id = orderData.prepay_id;
         } else {

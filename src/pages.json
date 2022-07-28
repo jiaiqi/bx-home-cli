@@ -592,8 +592,7 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
-        }
-        ,
+        },
         {
           "path": "valetOrder/valetOrder",
           "style": {
@@ -631,7 +630,7 @@
 
         }
         //#ifdef MP-WEIXIN
-        ,{
+        , {
           "path": "scanCode/scanCode",
           "style": {
             "navigationBarTitleText": "扫码",
@@ -640,6 +639,30 @@
         }
         //#endif
       ]
+    },
+    {
+      "root": "pages/stock",
+      "pages": [{
+        "path": "list/list",
+        "style": {
+          "navigationBarTitleText": "库存列表",
+          "enablePullDownRefresh": true
+        }
+      }, {
+        "path": "item/item",
+        "style": {
+          "navigationBarTitleText": "货品详情",
+          "enablePullDownRefresh": false
+        }
+
+      }, {
+        // 库存管理，出入库
+        "path": "record/record",
+        "style": {
+          "navigationBarTitleText": "出入库记录",
+          "enablePullDownRefresh": false
+        }
+      }]
     }
     //#ifdef H5
     ,

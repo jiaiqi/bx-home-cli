@@ -3,9 +3,10 @@
     <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar" @click="openSwitchHomePage">
         <text class="home-name">
-          <text v-if="StoreInfo&&StoreInfo.name">{{ StoreInfo.name || '' }}</text>
+          <text v-if="pageDefine&&pageDefine.pg_title">{{pageDefine.pg_title}}</text>
+          <text v-else-if="StoreInfo&&StoreInfo.name">{{ StoreInfo.name }}</text>
           <text v-else-if="pageDefine&&pageDefine.pg_label">{{pageDefine.pg_label}}</text>
-          <text v-else>
+          <text v-else-if="loadStatus==='loading'">
             <u-loading :show="true" mode="flower"></u-loading>
             <text class="text-gray text-sm margin-left-xs">加载中</text>
           </text>
@@ -41,7 +42,8 @@
         <view class="cu-load load-modal" v-else-if="loadStatus==='loading'" @click.stop="">
           <text>加载中...</text>
         </view>
-        <view class="data-empty" style="width: 100vw;height: 60vh;line-height: 60vh;text-align: center;color: #999;" v-else-if="loadStatus==='noMore'">
+        <view class="data-empty" style="width: 100vw;height: 60vh;line-height: 60vh;text-align: center;color: #999;"
+          v-else-if="loadStatus==='noMore'">
           页面内容为空
         </view>
       </view>
@@ -93,7 +95,7 @@
         ptInfo: null,
         rowData: {},
         invite_user_no: '',
-        loadStatus:'more'
+        loadStatus: 'more'
       };
     },
     computed: {
@@ -254,8 +256,7 @@
         if (this.singleStore) {
           return
         }
-        let cond = [
-          {
+        let cond = [{
             colName: 'person_no',
             ruleType: 'eq',
             value: this.userInfo?.no
@@ -358,7 +359,7 @@
         let res = await this.$fetch('select', 'srvhealth_store_home_component_user_select', req, 'health');
         this.loadStatus = ''
         if (res.success) {
-          if(res.data.length===0){
+          if (res.data.length === 0) {
             this.loadStatus = 'noMore'
           }
           let setFirstSwiper = false;
@@ -764,15 +765,15 @@
           }
         }
         if (Array.isArray(res.data) && res.data.length > 0) {
-          if(res?.data[0]?.audit_status=='禁用'){
+          if (res?.data[0]?.audit_status == '禁用') {
             uni.showModal({
-              title:'提示',
-              content:'该店铺已被禁用，即将跳转到小程序首页',
-              showCancel:false,
+              title: '提示',
+              content: '该店铺已被禁用，即将跳转到小程序首页',
+              showCancel: false,
               success: (res) => {
-                if(res.confirm){
+                if (res.confirm) {
                   uni.reLaunch({
-                    url:'/storePages/home/home?store_no=S0000000000'
+                    url: '/storePages/home/home?store_no=S0000000000'
                   })
                 }
               }
@@ -829,12 +830,13 @@
           } else {
             uni.showModal({
               title: '未查找到机构信息',
-              content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
+              content: `该店铺已关闭`,
+              // content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
               showCancel: false,
               success(res) {
                 if (res.confirm) {
                   uni.reLaunch({
-                    url: '/storePages/home/home'
+                    url: '/storePages/home/home?store_no=S0000000000'
                   });
                 }
               }
@@ -853,8 +855,8 @@
           this.joinStore();
           return;
         }
-        if(!this.userInfo?.no){
-          return 
+        if (!this.userInfo?.no) {
+          return
         }
         let req = [{
           serviceName: 'srvhealth_store_user_add',
@@ -894,7 +896,7 @@
             req[0].data[0].user_image = this.userInfo?.user_image
           }
         }
-        
+
         let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health');
         if (res.success) {
           this.isBind = true;

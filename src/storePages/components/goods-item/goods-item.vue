@@ -15,9 +15,10 @@
           {{ goods.unit_price || goods.price || "" }}
         </view>
         <view class="amount">
-          <text>x{{
-		    goods.goods_amount ? goods.goods_amount : goods.car_num || ""
-		  }}</text>
+          <u-number-box v-model="goodsAmount" @change="goodsAmountChange" :min="1" v-if="editable"></u-number-box>
+          <text v-else>x{{
+              goods.goods_amount ? goods.goods_amount : goods.car_num || ""
+            }}</text>
         </view>
         <view class="" v-if="orderInfo&&orderInfo.order_no">
           <button class="cu-btn round sm margin-right-xs" @click="toAfterSale"
@@ -25,7 +26,8 @@
           <button class="cu-btn round sm border"
             v-if="disabledEvaluate!==true&&orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
             @click="toEvaluate">评价</button>
-          <button class="cu-btn round sm border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'" @click="toEvaluate('detail')">查看评价</button>
+          <button class="cu-btn round sm border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'"
+            @click="toEvaluate('detail')">查看评价</button>
         </view>
       </view>
     </view>
@@ -64,16 +66,20 @@
       goods: {
         type: Object
       },
-      disabledEvaluate:Boolean,
-      disabledRefund:Boolean
+      disabledEvaluate: Boolean,
+      disabledRefund: Boolean
     },
     data() {
       return {
+        goodsAmount: 0,
         list: [],
         skuAttr: []
       }
     },
     computed: {
+      editable(){
+        return !this.orderInfo.order_no
+      },
       skuAttrStr() {
         if (Array.isArray(this.skuAttr) && this.skuAttr.length > 0) {
           return this.skuAttr.reduce((res, cur) => {
@@ -93,6 +99,7 @@
       }
     },
     mounted() {
+      this.goodsAmount = this.goods?.goods_amount || this.goods?.car_num || 1
       if (['套餐卡', '提货卡'].includes(this.goods?.goods_type) && this.goods?.package_goods_no) {
         this.getDetail()
       }
@@ -101,6 +108,12 @@
       }
     },
     methods: {
+      goodsAmountChange(e) {
+        this.$emit('amount-change', {
+          num: e?.value,
+          id: this.goods?.id
+        })
+      },
       toAfterSale() {
         // 跳转到售后页面
         const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
@@ -116,13 +129,13 @@
         if (this.goods.return_num) {
           goods.goods_amount = goods.goods_amount - this.goods.return_num
         }
-        
-        
+
+
         if (!goods.goods_amount || goods.goods_amount < 1) {
           uni.showModal({
-            title:'提示',
-            content:'已退数量大于已购数量',
-            showCancel:false
+            title: '提示',
+            content: '已退数量大于已购数量',
+            showCancel: false
           })
           return
         }
@@ -230,7 +243,7 @@
 <style scoped lang="scss">
   .goods-item-list {
     margin-top: 5px;
-    padding: 10px;
+    padding: 5px 10px;
     border-radius: 5px;
     background-color: #f8f8fa;
 
@@ -245,7 +258,6 @@
 
   .goods-item {
     display: flex;
-    margin-top: 10px;
     flex-wrap: wrap;
 
     .bottom-button {

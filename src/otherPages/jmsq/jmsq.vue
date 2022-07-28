@@ -137,7 +137,8 @@
       </view>
       <view class="form-item">
         <view class="form-item-label">
-          联系电话
+          <text> 联系电话</text>
+          <text class="text-red" v-if="pageType!=='detail'">*</text>
         </view>
         <view class="form-item-content">
           <view class="input">
@@ -243,7 +244,7 @@
           introduction: '', //店铺介绍
           image: "", //店铺照片
           logo: true, //店铺logo
-          telephone: false, //联系电话
+          telephone: true, //联系电话
           start_time: true, //营业开始时间
           end_time: true, // 营业结束时间
           business_license: false, //营业执照
@@ -277,9 +278,9 @@
     onLoad(option) {
       if (option.type) {
         this.pageType = option.type
-        if(option.type==='update'){
+        if (option.type === 'update') {
           uni.setNavigationBarTitle({
-            title:'店铺设置'
+            title: '店铺设置'
           })
         }
       }
@@ -361,7 +362,7 @@
               name: '店铺名称', //店铺名称
               // address: '店铺地址', //店铺地址
               logo: '店铺logo', //店铺logo
-              // telephone: '联系电话', //联系电话
+              telephone: '联系电话', //联系电话
               start_time: '营业开始时间', //营业开始时间
               end_time: '营业结束时间', // 营业结束时间
               // business_license: '营业执照', //营业执照
