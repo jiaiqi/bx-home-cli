@@ -68,8 +68,9 @@
       <view class="" v-else>
 
       </view>
-      <button class="cu-btn bg-blue" v-if="rightBtn"
-        @click="onButton(rightBtn,'handler')">{{rightBtn.label||''}}</button>
+      <debounce-view @onThrottle="onButton(rightBtn,'handler')" type="throttle" v-if="rightBtn">
+        <button class="cu-btn bg-blue">{{rightBtn.label||''}}</button>
+      </debounce-view>
     </view>
     <view class="button-box" v-if="!orderMode&&!loading&&srvType==='detail'&&view_cfg&&isArray(view_cfg.bottomBtn)">
       <button class="cu-btn bg-blue round lg bx-btn-bg-color" v-for="(btn, btnIndex) in view_cfg.bottomBtn"
@@ -77,6 +78,11 @@
         @click="onButton(btn)">
         {{ btn.button_name}}
       </button>
+      <!--      <debounce-view @onThrottle="onButton(rightBtn,'handler')" type="throttle" :key='btnIndex'
+        v-for="(btn, btnIndex) in view_cfg.bottomBtn">
+        <button class="cu-btn bg-blue round lg bx-btn-bg-color" :open-type="btn.type" :data-btn="btn"
+          :data-shareurl="btn.shareUrl" :style="[btn.style]">{{ btn.button_name}}</button>
+      </debounce-view> -->
     </view>
     <view class="button-box" v-else-if="!orderMode&&!loading&&stepMode&&childService&&childService.length>0">
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>
@@ -398,7 +404,7 @@
         this.qrcodePath = e;
         this.$emit('getQrcode', e);
       },
-      makeQrCode(){
+      makeQrCode() {
         if (this.$refs.qrcodeCanvas) {
           this.$refs.qrcodeCanvas.make();
         }
@@ -1752,7 +1758,7 @@
         width: 100%;
         display: flex;
         align-items: center;
-        padding: 20px;
+        padding: 0 20px;
         position: fixed;
         bottom: 0;
         background-color: #fff;

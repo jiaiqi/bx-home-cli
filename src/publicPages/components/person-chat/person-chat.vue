@@ -100,8 +100,8 @@
                 {{item.msg_content}}
               </view>
               <view class="child-link  " v-if="isArray(item.childList)&&item.childList.length>0">
-                <view class="child-link-item text-blue u-border-top padding-tb-xs" :data-linkdata="linkItem" :key="linkItem.link_no"
-                  v-for="linkItem in item.childList" @click="sendReplay">
+                <view class="child-link-item text-blue u-border-top padding-tb-xs" :data-linkdata="linkItem"
+                  :key="linkItem.link_no" v-for="linkItem in item.childList" @click="sendReplay">
                   {{linkItem.rsp_content_title||''}}
                 </view>
               </view>
@@ -2576,7 +2576,7 @@
           this.$emit('load-msg-complete', res.data.data, res.data.page, this.pageInfo.total);
         }
         let resData = res.data.data;
-        if (this.sessionType == '专题咨询') {
+        if (['专题咨询', '机构用户客服'].includes(this.sessionType)) {
           let unread = res.data.data.filter(item => item.msg_state === '未读' && item.identity && this.identity && item
             .identity !== this.identity)
           if (unread.length > 0) {
@@ -2739,11 +2739,11 @@
 
           if (this.identity) {
             let recordList = this.recordList.filter((item) => {
-              if (item.identity !== this.identity && item.msg_state === '未读') {
+              if (item.identity && item.identity !== this.identity && item.msg_state === '未读') {
                 return true
               }
             })
-            // this.updateMessageInfo(recordList)
+            this.updateMessageInfo(recordList)
           }
           if (this.pageInfo.pageNo * this.pageInfo.rownumber >= res.data.page.total) {
             this.isAll = true;

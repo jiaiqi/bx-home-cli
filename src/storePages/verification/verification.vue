@@ -42,7 +42,7 @@
         uuid: "",
         orderInfo: {},
         cardInfo: {},
-        approval_type:""
+        approval_type: ""
       }
     },
     computed: {
@@ -75,8 +75,8 @@
           // }
           let orderType = this.getOrderType(list)
           url += `&order_type=${orderType}&show_params_config=${this.getOrderShowParams(orderType)}`
-          if(this.approval_type){
-            url+=`&approval_type=${this.approval_type}`
+          if (this.approval_type) {
+            url += `&approval_type=${this.approval_type}`
           }
           uni.navigateTo({
             url
@@ -109,7 +109,16 @@
 
       },
       async confirm() {
-        this.toOrderPage()
+        let xianxiafuw = this.goodsList.find(item => item.goods_type === '线下服务')
+        if (xianxiafuw) {
+          let url =
+            `/publicPages/formPage/formPage?serviceName=srvhealth_store_customer_serve_record_customize_add&hideChildTable=true`
+          uni.navigateTo({
+            url
+          })
+        } else {
+          this.toOrderPage()
+        }
         return
         let goodsList = this.goodsList.filter(item => item.checked)
         if (goodsList && goodsList.length > 0) {
@@ -340,7 +349,7 @@
       }
     },
     async onLoad(option) {
-      if(option.approval_type){
+      if (option.approval_type) {
         this.approval_type = option.approval_type
       }
       if (option.uuid) {

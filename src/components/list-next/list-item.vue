@@ -122,6 +122,12 @@
             {{ btn.button_name }}
           </button>
         </view>
+        <view class="foot-button-box" v-if="rowData.order_no &&rowData.goods_no&&rowData.pay_state&&rowData.is_remark">
+          <button class="cu-btn round sm border" v-if="rowData.is_remark=='待评价'&&rowData.pay_state==='已支付'"
+            @click.stop="toEvaluate">评价</button>
+          <button class="cu-btn round sm border" v-if="rowData.is_remark!='待评价'"
+            @click.stop="toEvaluate('detail')">查看评价</button>
+        </view>
         <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}"
           v-else-if="buttonPosition!=='right'&&hasShowButton&&listType!=='selectorList'&&listType!=='multiSelectByJson'">
           <button class="cu-btn" :class="[setListView.btnClass]"
@@ -659,6 +665,41 @@
       }
     },
     methods: {
+      toEvaluate(e) {
+        // 跳转到评价页面
+        let fieldsCond = [{
+          "column": "store_no",
+          "value": this.storeInfo.store_no
+        }, {
+          "column": "store_user_no",
+          "value": this.vstoreUser?.store_user_no
+        }, {
+          "column": "goods_no",
+          "value": this.rowData?.goods_no
+        }, {
+          "column": "order_no",
+          "value": this.rowData?.order_no
+        }, {
+          "column": "person_name",
+          "value": this.userInfo.name
+        }, {
+          "column": "person_photo",
+          "value": this.userInfo.profile_url || this.userInfo.user_image
+        }, {
+          "column": "order_goods_rec_no",
+          "value": this.rowData?.order_goods_rec_no
+        }]
+        let url =
+          `/publicPages/formPage/formPage?serviceName=srvhealth_store_goods_remark_add&destApp=health&fieldsCond=${encodeURIComponent(JSON.stringify(fieldsCond))}`
+        if (e == 'detail') {
+          url =
+            `/storePages/evaluateList/evaluateList?no=${this.rowData?.goods_no}&order_goods_rec_no=${this.rowData?.order_goods_rec_no}`
+        }
+        uni.navigateTo({
+          url
+        })
+
+      },
       formatText(item) {
         let text = item.value
         let type = item.fmt
@@ -771,12 +812,6 @@
       add: throttle(function() {
         this.$emit('add2Cart', this.rowData);
       }, 1000, true),
-      // del() {
-      //   this.$emit('del2Cart', this.rowData);
-      // },
-      // add() {
-      //   this.$emit('add2Cart', this.rowData);
-      // },
       isShowBtn(btn) {
         let notDetail = btn.button_type !== 'detail';
         if (notDetail) {

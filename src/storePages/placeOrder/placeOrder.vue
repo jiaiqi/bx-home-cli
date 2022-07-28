@@ -37,7 +37,7 @@
         </view> -->
         <view class="goods-list">
           <goods-item :goods="goods" :disabledRefund="disabledRefund" :disabledEvaluate="disabledEvaluate"
-            :orderInfo="orderInfo" v-for="(goods,idx) in orderInfo.goodsList" :key="idx" @amount-change="amountChange"
+            :orderInfo="orderInfo" v-for="(goods,idx) in goodsList" :key="idx" @amount-change="amountChange"
             @attrChange="attrChange($event,idx)">
 
           </goods-item>
@@ -363,7 +363,19 @@
         disabledRefund: false, // 禁用退款按钮
         disabledEvaluate: false, // 禁用 评价按钮
         approval_type: "普通核销", //核销方式
+        goodsList: []
       };
+    },
+    watch: {
+      orderInfo: {
+        deep: true,
+        immediate: true,
+        handler(nVal, oVal) {
+          if (nVal?.goodsList) {
+            this.goodsList = nVal.goodsList
+          }
+        }
+      }
     },
     computed: {
       canPlace() {
@@ -495,34 +507,54 @@
         }
         return res
       },
+      // goodsList() {
+      //   return this.orderInfo.goodsList || [];
+      // },
       totalMoney() {
-        if (Array.isArray(this.orderInfo.goodsList)) {
-          return this.orderInfo.goodsList.reduce((pre, cur) => {
-            if (cur.goods_amount && cur.unit_price) {
-              pre += cur.goods_amount * cur.unit_price;
-            } else if (cur.price && cur.car_num) {
-              pre += cur.car_num * cur.price;
-            }
-            return pre;
-            // }, 0)
-          }, 0)
-        }
+        // let num = 0
+        // if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
+        //   this.goodsList.forEach(item => {
+        //     if (item.goods_amount && item.unit_price) {
+        //       num += item.goods_amount * item.unit_price;
+        //     } else if (item.price && item.car_num) {
+        //       pre += item.car_num * item.price;
+        //     }
+        //   })
+        // }
+        // return num
+        return this.goodsList.reduce((pre, cur) => {
+          if (cur.goods_amount && cur.unit_price) {
+            pre += cur.goods_amount * cur.unit_price;
+          } else if (cur.price && cur.car_num) {
+            pre += cur.car_num * cur.price;
+          }
+          return pre;
+        }, 0)
       }
     },
     methods: {
       amountChange(e) {
         if (e?.id) {
-          this.orderInfo.goodsList = this.orderInfo.goodsList.map(item => {
+          this.orderInfo.goodsList.forEach((item, index) => {
             if (item.id === e.id) {
-              item.goods_amount = e.num
-              item.car_num = e.num
+              // item.goods_amount = e.num
+              // item.car_num = e.num
+              this.$set(item, 'goods_amount', e.num)
             }
             return item
           })
+          // this.orderInfo.goodsList = this.orderInfo.goodsList.map(item => {
+          //   if (item.id === e.id) {
+          //     item.goods_amount = e.num
+          //     item.car_num = e.num
+          //     this.$set(item)
+          //   }
+          //   return item
+          // })
         }
       },
       async valueChange(e, triggerField) {
-        let data = this.mainData
+        let data = this.orderInfo|| this.mainData
         const column = triggerField.column
 
         if (this.mainData && typeof this.mainData === 'object') {
@@ -555,6 +587,9 @@
           }
           xIfCols.forEach(col => {
             let x_if = col?.x_if;
+            if (col.column === 'pickup_code') {
+              debugger
+            }
             try {
               if (x_if) {
                 x_if = `(${x_if})(data)`
@@ -783,7 +818,7 @@
           const table_name = colVs.main_table
           let result = null
 
-
+          defaultVal = this.orderInfo || defaultVal
           if (Array.isArray(cols) && cols.length > 0) {
             // #ifdef MP-WEIXIN
             result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
@@ -1373,6 +1408,7 @@
           data: [{
             store_no: this.orderInfo.store_no,
             store_name: this.orderInfo.name,
+            store_addr: this.storeInfo?.address,
             image: this.orderInfo.image,
             type: this.orderInfo.type,
             rcv_addr_str: this.addressInfo.fullAddress,
@@ -1760,7 +1796,7 @@
               fail(res) {
                 // 支付失败/取消支付
                 self.orderInfo.pay_state = '取消支付';
-                self.updateOrderState('待支付', '取消支付', result.prepay_id).then(_ => {
+                self.updateOrderState('待支付', '待支付', result.prepay_id).then(_ => {
                   resolve(false)
                 })
               }
@@ -1804,7 +1840,7 @@
       }
       if (option.columnsDefaultVal) {
         try {
-          this.columnsDefaultVal = this.renderStr(JSON.parse(option.columnsDefaultVal), this)
+          this.columnsDefaultVal = JSON.parse(this.renderStr(option.columnsDefaultVal, this))
         } catch (e) {
           //TODO handle the exception
         }
