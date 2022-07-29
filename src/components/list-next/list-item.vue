@@ -562,181 +562,185 @@
           }
         }
         let rightCols = this.setViewTemp?.right_content?.cols
-        result.rightContent = this.setViewTemp?.right_content
-        result.rightContent.leftLine = this.setViewTemp?.right_content.left_line === true
+        if (rightCols) {
+          result.rightContent = this.setViewTemp?.right_content
+          result.rightContent.leftLine = this.setViewTemp?.right_content?.left_line === true
 
-        result.rightStyle = {
-          width: result.rightContent.width
-        }
-        result.rightCols = []
-        if (Array.isArray(rightCols) && rightCols.length > 0) {
-          rightCols.forEach(col => {
-            let cfg = col?.cfg;
-            let obj = {
-              sufIcon: col.sufIcon,
-              preIcon: col.preIcon,
-              style: {
-                flex: cfg?.flex,
-                'border-radius': cfg?.radius,
-                width: cfg?.width,
-                height: cfg?.height,
-                'min-width': cfg?.min_width,
-                'max-width': cfg?.max_width,
-                padding: cfg?.padding,
-                margin: cfg?.margin,
-                'font-size': cfg?.font_size,
-                'font-weight': cfg?.font_weight,
-                'text-align': cfg?.align,
-                'overflow': cfg?.overflow,
-                color: cfg?.color,
-                'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
-                  'right' ? 'flex-end' : cfg?.align
-              },
-              class: {
-                'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
-                  border: cfg?.style === 'line_button',
-                  round: cfg?.round === true,
-                  light: cfg?.light === true,
-                  sm: cfg?.size === 'sm',
-                  lg: cfg?.size === 'lg',
-                  'bg-blue': cfg?.bg === 'blue',
-                  'bg-red': cfg?.bg === 'red',
-                  'bg-orange': cfg?.bg === 'orange',
-                  'bg-cyan': cfg?.bg === 'cyan',
-                  'bg-yellow': cfg?.bg === 'yellow',
-                  'bg-white': cfg?.bg === 'white',
-                  'bg-black': cfg?.bg === 'black',
-                  'bg-green': cfg?.bg === 'green',
-                  'bg-grey': cfg?.bg === 'grey',
-                  'bg-gray': cfg?.bg === 'gray',
-                  'line-blue': cfg?.border_color === 'blue',
-                  'line-red': cfg?.border_color === 'red',
-                  'line-orange': cfg?.border_color === 'orange',
-                  'line-cyan': cfg?.border_color === 'cyan',
-                  'line-yellow': cfg?.border_color === 'yellow',
-                  'line-white': cfg?.border_color === 'white',
-                  'line-black': cfg?.border_color === 'black',
-                  'line-green': cfg?.border_color === 'green',
-                  'line-grey': cfg?.border_color === 'grey',
-                  'line-gray': cfg?.border_color === 'gray'
-              }
-            };
-
-            if (cfg?.mode) {
-              obj.mode = cfg.mode
-              obj.max = cfg.max
-              obj.allowHalf = cfg.allowHalf
-            }
-            if (col?.type === 'media') {
-              // 图片、视频
-              obj.type = col.type;
-              obj.imgStyle = {
-                width: cfg?.imgStyle?.width,
-                height: cfg?.imgStyle?.height,
-                'border-radius': cfg?.imgStyle?.radius,
-              }
-            }
-            if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
-              obj.style['background-color'] = cfg.bg;
-            }
-            if (cfg?.decoration) {
-              obj.style['text-decoration'] = cfg?.decoration;
-            }
-            if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
-              obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
-            }
-            if (Object.keys(obj.class).length > 0) {
-              obj.class = Object.keys(obj.class).reduce((res, cur) => {
-                if (obj.class[cur]) {
-                  res += ` ${cur}`;
+          result.rightStyle = {
+            width: result.rightContent.width
+          }
+          result.rightCols = []
+          if (Array.isArray(rightCols) && rightCols.length > 0) {
+            rightCols.forEach(col => {
+              let cfg = col?.cfg;
+              let obj = {
+                sufIcon: col.sufIcon,
+                preIcon: col.preIcon,
+                style: {
+                  flex: cfg?.flex,
+                  'border-radius': cfg?.radius,
+                  width: cfg?.width,
+                  height: cfg?.height,
+                  'min-width': cfg?.min_width,
+                  'max-width': cfg?.max_width,
+                  padding: cfg?.padding,
+                  margin: cfg?.margin,
+                  'font-size': cfg?.font_size,
+                  'font-weight': cfg?.font_weight,
+                  'text-align': cfg?.align,
+                  'overflow': cfg?.overflow,
+                  color: cfg?.color,
+                  'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
+                    'right' ? 'flex-end' : cfg?.align
+                },
+                class: {
+                  'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
+                    border: cfg?.style === 'line_button',
+                    round: cfg?.round === true,
+                    light: cfg?.light === true,
+                    sm: cfg?.size === 'sm',
+                    lg: cfg?.size === 'lg',
+                    'bg-blue': cfg?.bg === 'blue',
+                    'bg-red': cfg?.bg === 'red',
+                    'bg-orange': cfg?.bg === 'orange',
+                    'bg-cyan': cfg?.bg === 'cyan',
+                    'bg-yellow': cfg?.bg === 'yellow',
+                    'bg-white': cfg?.bg === 'white',
+                    'bg-black': cfg?.bg === 'black',
+                    'bg-green': cfg?.bg === 'green',
+                    'bg-grey': cfg?.bg === 'grey',
+                    'bg-gray': cfg?.bg === 'gray',
+                    'line-blue': cfg?.border_color === 'blue',
+                    'line-red': cfg?.border_color === 'red',
+                    'line-orange': cfg?.border_color === 'orange',
+                    'line-cyan': cfg?.border_color === 'cyan',
+                    'line-yellow': cfg?.border_color === 'yellow',
+                    'line-white': cfg?.border_color === 'white',
+                    'line-black': cfg?.border_color === 'black',
+                    'line-green': cfg?.border_color === 'green',
+                    'line-grey': cfg?.border_color === 'grey',
+                    'line-gray': cfg?.border_color === 'gray'
                 }
-                return res;
-              }, '');
-            }
-            obj.fmt = cfg?.fmt;
-            obj.separator = cfg?.separator
-            obj.prefix = cfg?.prefix || '';
-            obj.suffix = cfg?.suffix || '';
-            obj.valueWhiteSpace = cfg?.white_space;
-            obj.event = col.event
-            if (col?.col) {
-              let getVal = this.setValue(col.col, col.cfg);
-              if (cfg?.disp_label !== false) {
-                obj.label = getVal?.label || '';
-              }
-              obj.value = getVal?.value;
-              if (obj.value === 0) {
-                obj.value = '0'
-              }
-            }
+              };
 
-            if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
-              cfg.value_map.forEach(item => {
-                if (obj.value === item.value) {
-                  obj.value = item.label;
-                  obj.style['background-color'] = item.bg;
-                  obj.style['color'] = item.color;
-                  result.rootStyle['background-color'] = item?.item_bg || result
-                    .rootStyle['background-color'];
-                  result.rootStyle['color'] = item?.item_color || result.rootStyle[
-                    'color'];
-                  result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle
-                    .bg;
-                  result.btnStyle.color = item?.btn_color || result.btnStyle.color;
-                  if (Array.isArray(item.other_col) && item.other_col.length > 0) {}
+              if (cfg?.mode) {
+                obj.mode = cfg.mode
+                obj.max = cfg.max
+                obj.allowHalf = cfg.allowHalf
+              }
+              if (col?.type === 'media') {
+                // 图片、视频
+                obj.type = col.type;
+                obj.imgStyle = {
+                  width: cfg?.imgStyle?.width,
+                  height: cfg?.imgStyle?.height,
+                  'border-radius': cfg?.imgStyle?.radius,
                 }
-              });
-            }
-            if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
-              cfg.cfg_map.forEach(cfgItem => {
-                if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
-                  cfgItem.condition.forEach(cond => {
-                    if (cond.colName && cond.value) {
-                      let setValue = this.setValue(cond.colName);
-                      if (cond.ruleType === 'eq') {
-                        if (setValue.value === cond.value) {
-                          obj.style.color = cfgItem.color || obj.style
-                            .color;
-                        }
-                      } else if (cond.ruleType === 'in') {
-                        if (cond.value.indexOf(setValue.value) !== -1) {
-                          obj.style.color = cfgItem.color || obj.style
-                            .color;
+              }
+              if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
+                obj.style['background-color'] = cfg.bg;
+              }
+              if (cfg?.decoration) {
+                obj.style['text-decoration'] = cfg?.decoration;
+              }
+              if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
+                obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
+              }
+              if (Object.keys(obj.class).length > 0) {
+                obj.class = Object.keys(obj.class).reduce((res, cur) => {
+                  if (obj.class[cur]) {
+                    res += ` ${cur}`;
+                  }
+                  return res;
+                }, '');
+              }
+              obj.fmt = cfg?.fmt;
+              obj.separator = cfg?.separator
+              obj.prefix = cfg?.prefix || '';
+              obj.suffix = cfg?.suffix || '';
+              obj.valueWhiteSpace = cfg?.white_space;
+              obj.event = col.event
+              if (col?.col) {
+                let getVal = this.setValue(col.col, col.cfg);
+                if (cfg?.disp_label !== false) {
+                  obj.label = getVal?.label || '';
+                }
+                obj.value = getVal?.value;
+                if (obj.value === 0) {
+                  obj.value = '0'
+                }
+              }
+
+              if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
+                cfg.value_map.forEach(item => {
+                  if (obj.value === item.value) {
+                    obj.value = item.label;
+                    obj.style['background-color'] = item.bg;
+                    obj.style['color'] = item.color;
+                    result.rootStyle['background-color'] = item?.item_bg || result
+                      .rootStyle['background-color'];
+                    result.rootStyle['color'] = item?.item_color || result.rootStyle[
+                      'color'];
+                    result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle
+                      .bg;
+                    result.btnStyle.color = item?.btn_color || result.btnStyle.color;
+                    if (Array.isArray(item.other_col) && item.other_col.length > 0) {}
+                  }
+                });
+              }
+              if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
+                cfg.cfg_map.forEach(cfgItem => {
+                  if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
+                    cfgItem.condition.forEach(cond => {
+                      if (cond.colName && cond.value) {
+                        let setValue = this.setValue(cond.colName);
+                        if (cond.ruleType === 'eq') {
+                          if (setValue.value === cond.value) {
+                            obj.style.color = cfgItem.color || obj.style
+                              .color;
+                          }
+                        } else if (cond.ruleType === 'in') {
+                          if (cond.value.indexOf(setValue.value) !== -1) {
+                            obj.style.color = cfgItem.color || obj.style
+                              .color;
+                          }
                         }
                       }
-                    }
-                  });
-                }
-              });
-            }
-            if (cfg?.max && obj.value) {
-              if (!isNaN(Number(cfg?.max))) {
-                obj.value = obj.value.slice(0, cfg.max);
+                    });
+                  }
+                });
               }
-            }
-            if (!obj.value && cfg?.default_val) {
-              obj.value = cfg?.default_val;
-            }
-            if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
-              obj.class += ' hidden';
-            }
-            if (col.type === 'childData') {
-              obj = col;
-              obj.style = {
-                width: "100%"
-              }
-              if (col?.related_col) {
-                let related_col = col?.related_col
-                if (self.childData && Array.isArray(self.childData)) {
-                  obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
-                    related_col])
+              if (cfg?.max && obj.value) {
+                if (!isNaN(Number(cfg?.max))) {
+                  obj.value = obj.value.slice(0, cfg.max);
                 }
               }
+              if (!obj.value && cfg?.default_val) {
+                obj.value = cfg?.default_val;
+              }
+              if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
+                obj.class += ' hidden';
+              }
+              if (col.type === 'childData') {
+                obj = col;
+                obj.style = {
+                  width: "100%"
+                }
+                if (col?.related_col) {
+                  let related_col = col?.related_col
+                  if (self.childData && Array.isArray(self.childData)) {
+                    obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
+                      related_col])
+                  }
+                }
 
-            }
-            result.rightCols.push(obj);
-          });
+              }
+              result.rightCols.push(obj);
+            });
+          }
         }
+
+
         // 字段配置
         let cols = this.setViewTemp?.cols || [];
         result.cols = [];
