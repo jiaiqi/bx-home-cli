@@ -2327,7 +2327,6 @@
         }
       },
       sendReplay(e, msg) {
-        debugger
         let data = e?.target?.dataset?.linkdata
         if (data?.rsp_content_title) {
           let req = [{

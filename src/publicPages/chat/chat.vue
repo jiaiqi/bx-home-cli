@@ -1091,7 +1091,7 @@
     },
     async onLoad(option) {
       const self = this
-      await this.initApp()
+      await this.initApp(option)
 
       if (option.top_buttons) {
         let top_buttons = option.top_buttons;

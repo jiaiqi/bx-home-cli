@@ -1597,7 +1597,7 @@
         this.uuid = option.uuid
       }
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       // #endif
       // uni.$on('confirmSelect', e => {
       // 	this.changeValue(e)

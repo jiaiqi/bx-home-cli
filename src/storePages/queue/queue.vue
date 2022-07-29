@@ -711,7 +711,7 @@
     // 页面周期函数--监听页面加载
     async onLoad(option) {
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       this.checkOptionParams(option);
       if (option.fill_batch_no) {

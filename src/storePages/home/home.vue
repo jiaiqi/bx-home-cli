@@ -175,6 +175,7 @@
       handlerSwitch(curTab) {
         let data = this;
         try {
+          data.storeUser = this.vstoreUser
           curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
           let jsonStr = JSON.parse(curTab.link_pd_json);
           if (jsonStr.url) {
@@ -1492,7 +1493,7 @@
     },
     async onLoad(option) {
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       if (option.service_place_no) {
         getApp().globalData.service_place_no = option.service_place_no;

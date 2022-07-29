@@ -339,7 +339,7 @@
       };
     },
     async onLoad(option) {
-      await this.initApp()
+      await this.initApp(option)
       if (option.app) {
         this.app = option.app
       }

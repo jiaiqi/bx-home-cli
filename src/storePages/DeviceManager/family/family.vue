@@ -378,7 +378,7 @@ export default {
   async onLoad (option) {
     // await this.toAddPage()
     // #ifdef MP-WEIXIN
-    await this.initApp()
+    await this.initApp(option)
     //#endif
     if (option.store_no) {
       this.store_no = option.store_no

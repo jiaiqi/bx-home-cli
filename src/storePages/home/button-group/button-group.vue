@@ -436,6 +436,7 @@
                 num = true;
               }
             }
+         
             let obj = {
               prompt: btn.prompt,
               navType: btn.navigate_type,
@@ -449,6 +450,26 @@
               appid: btn.appid,
               phone_number: btn.phone_number
             }
+            
+            if(btn.unread_attr&&btn.unback_attr){
+              const data = this;
+              let num = Number(this.renderStr(btn.unread_attr, data));
+              if (isNaN(num)) {
+                num = true;
+              }
+              if(num){
+                obj.num = num
+              }
+              const unbacknum = Number(this.renderStr(btn.unback_attr, data));
+              if (isNaN(unbacknum)) {
+                unbacknum = true;
+              }
+              if(unbacknum){
+                obj.unbacknum = unbacknum
+              }
+            }
+            
+            
             if (btn.before_click_action) {
               try {
                 obj.before_click = JSON.parse(btn.before_click_action)
@@ -1567,19 +1588,20 @@
       .badge {
         top: 5px;
         right: 10px;
-        z-index: 1;
+        z-index: 10;
       }
 
       .badge-left {
         position: absolute;
         background-color: #f37b1d;
         border-radius: 100px;
-        top: 10px;
+        top: 5px;
         left: 10px;
         font-size: 10px;
         padding: 0px 5px;
         height: 14px;
         color: #ffffff;
+        z-index: 10;
       }
 
       &.grid-style {

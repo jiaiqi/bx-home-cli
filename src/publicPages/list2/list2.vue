@@ -2426,7 +2426,7 @@
         this.hideChildTable = true
       }
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       if (option.v2Params) {
         try {

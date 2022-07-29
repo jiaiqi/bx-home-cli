@@ -18,7 +18,7 @@
         >
           <slot name="content"></slot>
         </view> -->
-        <!-- <slot name="right"></slot> -->
+        <slot name="right"></slot>
       </view>
     </view>
   </view>
@@ -81,6 +81,10 @@
       theme: {
         type: String,
         default: ''
+      },
+      customStoreNo: {
+        type: String,
+        default: ''
       }
     },
     methods: {
@@ -90,10 +94,12 @@
       BackPage() {
         this.$emit('onBack')
         if (this.isFirstPage || this.backHome) {
-          let store_no = 'S0000000000'
+          let store_no = this.customStoreNo || 'S0000000000'
+
           if (this.$api?.singleStore && this.$api?.storeNo) {
             store_no = this.$api?.storeNo
           }
+          
           uni.reLaunch({
             // url: '/pages/index/index',
             url: `/storePages/home/home?store_no=${store_no}`
@@ -114,7 +120,9 @@
     width: 100vw;
 
   }
-  .action,.nav-bar{
+
+  .action,
+  .nav-bar {
     background-color: var(--home-bg-color) !important;
     color: var(--home-text-color) !important;
     font-size: var(--home-text-size);

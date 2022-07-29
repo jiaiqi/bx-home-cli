@@ -517,7 +517,7 @@
 
     async onLoad(option) {
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       if (option.share_store_user_no) {
         this.share_store_user_no = option.share_store_user_no

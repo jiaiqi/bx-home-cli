@@ -1,5 +1,12 @@
 <template>
   <view class="goods-detail-wrap">
+    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="storeNo">
+      <view class="nav-bar">
+        <text class="home-name">
+          <text>{{pageTitle}}</text>
+        </text>
+      </view>
+    </cu-custom-navbar>
     <swiper class="screen-swiper main-image square-dot" easing-function="linear" :indicator-dots="true" :circular="true"
       :autoplay="true" interval="5000" duration="500" @change="swiperChange"
       :style="{ height: imgHeight ? imgHeight + 'px' : '' }">
@@ -10,7 +17,7 @@
           v-else-if="!item.store_video_file || item.file_type !== '视频'"></image>
       </swiper-item>
     </swiper>
-    <view class="share-banner" v-if="shareBonus" @click="changeModal('showShareTips')">
+    <view class="share-banner" v-if="showShareBanner" @click="changeModal('showShareTips')">
       <image src="../static/bonus.png" mode="aspectFill" style="width: 30px;height: 30px;" class="margin-right-xs">
       </image> 分享赚￥<text class="text-lg text-bold">{{shareBonus}}</text>
     </view>
@@ -195,6 +202,29 @@
     },
 
     computed: {
+      pageTitle() {
+        return this.goodsInfo?.goods_name || '商品详情'
+      },
+      showBackHome() {
+        if (this.storeNo === "S0000000000") {
+          return false
+        } else {
+          let pages = getCurrentPages();
+          if (pages.length === 1) {
+            return true
+          }
+        }
+        // let status = this.storeInfo?.audit_status;
+        // if (status) {
+        //   if (['非公开', '仅本店', '双向隔离'].includes(status)) {
+        //     return false;
+        //   }
+        //   return true;
+        // }
+      },
+      showShareBanner() {
+        return this?.vstoreUser?.store_user_no && this.userInfo?.nick_name && this.shareBonus
+      },
       shareBonus() {
         // 分享后的奖金
         let res = 0
@@ -1193,7 +1223,7 @@
     },
     async onLoad(option) {
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       if (option.hideButton) {
         this.hideButton = true;
@@ -1246,7 +1276,7 @@
 
     .share-banner {
       position: fixed;
-      top: 30px;
+      top: 80px;
       right: 0;
       padding: 0 10px;
       color: #fff;
@@ -1632,6 +1662,26 @@
           width: 45%;
         }
       }
+    }
+
+  }
+
+  ::v-deep .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 10rpx 20rpx;
+    width: 100%;
+    // background-color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    .home-name {
+      display: inline-block;
+      width: calc(100% - 40rpx);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
   }

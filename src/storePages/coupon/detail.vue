@@ -507,7 +507,7 @@
     },
     async onLoad(option) {
       // #ifdef MP-WEIXIN
-      await this.initApp()
+      await this.initApp(option)
       //#endif
       if (option.appName) {
         this.appName = option.appName
