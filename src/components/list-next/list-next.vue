@@ -21,9 +21,9 @@
           :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
           :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
           @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
-        <radio :value="item[idCol]" :checked="item.checked" v-if="listType==='selectorList'||listType==='multiSelectByJson'"
-          style="transform:scale(1);margin-right:5px;" :disabled="setRadioDisabled(item)"
-          @click="checkboxChange(item)" />
+        <radio :value="item[idCol]" :checked="item.checked"
+          v-if="listType==='selectorList'||listType==='multiSelectByJson'" style="transform:scale(1);margin-right:5px;"
+          :disabled="setRadioDisabled(item)" @click="checkboxChange(item)" />
       </view>
     </view>
   </view>
@@ -75,7 +75,7 @@
         type: String
       },
       disabledCol: String,
-      selectoDataId:String
+      selectoDataId: String
     },
     watch: {
       list: {
@@ -194,6 +194,7 @@
                 ?.mode || ''
             }
           },
+          right_content: this.listConfig?.right_content || viewTemp?.right_content,
           cols: this.listConfig?.cols || viewTemp?.cols
         };
         return obj;

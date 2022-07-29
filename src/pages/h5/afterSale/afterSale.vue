@@ -46,6 +46,7 @@
         typeList: [
           "我要退款(无需退货)", '我要退货退款', '我要换货'
         ],
+        
         goodsInfo: null,
         amountMax: 1,
         storeUserNo: "",

@@ -33,11 +33,11 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags> -->
       <view class="list-view">
-        <list-next class="list-next" ref="listRef" :selectoDataId="selectoDataId" :disabledCol="disabledCol" :id-col="idCol"
-          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
-          :cartData="cartData" :listConfig="listConfig" :list="list" :listType="listType" :colV2="colV2"
-          :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart" @del2Cart="del2Cart"
-          @checkboxChange="checkboxChange" />
+        <list-next class="list-next" ref="listRef" :selectoDataId="selectoDataId" :disabledCol="disabledCol"
+          :id-col="idCol" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+          :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig" :list="list"
+          :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart"
+          @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
         <u-empty text="列表为空" mode="list" v-if="loadStatus==='noMore'&&list.length==0"></u-empty>
         <uni-load-more :status="loadStatus" v-else></uni-load-more>
       </view>
@@ -284,6 +284,7 @@
               "margin": this.listConfig?.img?.margin || config?.img?.cfg?.margin || ""
             }
           },
+          right_content: this.listConfig?.right_content || config?.right_content,
           cols: this.listConfig?.cols || config?.cols
         }
         return obj
@@ -533,7 +534,7 @@
             col: this.selectCol,
             data: this.list.find(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
           }
-          if(this.listType=='multiSelectByJson'){
+          if (this.listType == 'multiSelectByJson') {
             emitData.data = this.list.filter(item => this.selectoDataId.indexOf(item[idCol]) !== -1)
           }
           let viewTemp = this.colV2?.moreConfig?.list_config
@@ -1114,9 +1115,9 @@
         let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ?
           'proclist' :
           'list', app, this.v2Params);
-          if( colVs.srv_cols ){
-            colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
-          }
+        if (colVs.srv_cols) {
+          colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+        }
         if (!this.navigationBarTitle) {
           let title = ''
           if (this.listConfig?.navTitle) {
@@ -1377,13 +1378,14 @@
               this.loadStatus = 'more'
             }
           }
-          if (["multiSelectByJson","cartList","selectorList"].includes(this.listType)) {
+          if (["multiSelectByJson", "cartList", "selectorList"].includes(this.listType)) {
             let idCol = this.idCol || 'id'
             list = list.map(item => {
               if (!item.checked) {
                 item.checked = false;
               }
-              if(typeof this.selectoDataId==='string'&&this.selectoDataId&&this.selectoDataId.indexOf(item[idCol])!==-1){
+              if (typeof this.selectoDataId === 'string' && this.selectoDataId && this.selectoDataId.indexOf(item[
+                  idCol]) !== -1) {
                 item.checked = true
               }
               if (this.selectoDataId && Number(this.selectoDataId) === Number(item[idCol])) {

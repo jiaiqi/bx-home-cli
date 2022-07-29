@@ -335,7 +335,8 @@ export default {
       if (this.userInfo?.userno) {
         await selectPersonInfo(this.userInfo?.userno, true)
       }
-      if (this.userInfo?.userno) {
+      debugger
+      if (this.userInfo?.userno&&(this.userInfo?.nick_name==='微信用户'||!this.userInfo.nick_name)) {
         result = await new Promise((resolve) => {
           uni.showModal({
             title: '提示',
@@ -346,6 +347,11 @@ export default {
                 const uuid = uni.$u.guid()
                 let url =
                   `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}&disabledBack=true`
+                  let fieldsCond = [{
+                    column:"nick_name",
+                    value:""
+                  }]
+                  url+=`&fieldsCond=${JSON.stringify(fieldsCond)}`
                 const pages = getCurrentPages();
                 const path = pages[pages.length - 1]?.$page?.fullPath;
                 uni.navigateTo({

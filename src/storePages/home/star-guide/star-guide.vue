@@ -2,7 +2,7 @@
   <div>
     <!-- // 悬浮提示条 -->
     <view class="hovering-bar" :class="{show:showBar}" @click="showModal">
-      <text class="cuIcon-close margin-lr-xs" @click.stop="hide"></text> 添加到我的小程序,访问更方便<text
+      <text class="cuIcon-close padding-xs" @click.stop="hide"></text> 添加到我的小程序,访问更方便<text
         class="cuIcon-right margin-lr-xs"></text>
     </view>
     <view class="cu-modal" :class="{show:modal}"  @click="hideModal()">

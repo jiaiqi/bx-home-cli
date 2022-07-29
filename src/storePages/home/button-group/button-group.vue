@@ -430,7 +430,9 @@
 
             let num = 0;
             if (btn.notice_attr) {
-              const data = this;
+              const data = {
+                ...this.globalVariable
+              };
               num = Number(this.renderStr(btn.notice_attr, data));
               if (isNaN(num)) {
                 num = true;
@@ -1031,7 +1033,7 @@
         if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
           await selectPersonInfo(this.userInfo?.userno, true)
         }
-        if ((!this.userInfo.nick_name) && this.userInfo?.userno) {
+        if ((!this.userInfo.nick_name||this.userInfo.nick_name==='微信用户') && this.userInfo?.userno) {
           let isOk = await this.checkBasicUserInfo()
           if (isOk) {
             await this.initApp()

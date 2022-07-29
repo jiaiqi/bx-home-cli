@@ -819,7 +819,7 @@
           const table_name = colVs.main_table
           let result = null
 
-          defaultVal = this.orderInfo?.order_no?this.orderInfo: defaultVal
+          defaultVal = this.orderInfo?.order_no ? this.orderInfo : defaultVal
           if (Array.isArray(cols) && cols.length > 0) {
             // #ifdef MP-WEIXIN
             result = await this.evalX_IF(table_name, cols, defaultVal, this.appName)
@@ -1408,8 +1408,8 @@
           serviceName: orderAddService,
           condition: [],
           data: [{
-            store_no: this.orderInfo.store_no,
-            store_name: this.orderInfo.name,
+            store_no: this.storeInfo.store_no,
+            store_name: this.storeInfo.name,
             store_addr: this.storeInfo?.address,
             image: this.orderInfo.image,
             type: this.orderInfo.type,
