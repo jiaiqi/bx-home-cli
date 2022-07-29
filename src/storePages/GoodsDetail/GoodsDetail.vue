@@ -1,6 +1,6 @@
 <template>
   <view class="goods-detail-wrap">
-    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="storeNo">
+    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
       <view class="nav-bar">
         <text class="home-name">
           <text>{{pageTitle}}</text>
@@ -202,6 +202,9 @@
     },
 
     computed: {
+      setStoreNo() {
+        return this.goodsInfo?.store_no || this.storeNo
+      },
       pageTitle() {
         return this.goodsInfo?.goods_name || '商品详情'
       },
@@ -1197,7 +1200,13 @@
     onShareAppMessage() {
       let pages = getCurrentPages();
       let path = pages[pages.length - 1]?.$page?.fullPath;
-      path += '&from=share';
+      if (path) {
+        if (path.indexOf('?') == -1) {
+          path += '?from=share';
+        } else {
+          path += '&from=share';
+        }
+      }
       if (this.userInfo?.userno) {
         path += `&invite_user_no=${this.userInfo?.userno}`;
       }

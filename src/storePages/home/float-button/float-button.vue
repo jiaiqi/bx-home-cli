@@ -59,7 +59,7 @@
       initY() {
         return uni.upx2px(this.pageItem?.float_btn_init_y * 2)
       },
-      setWidthHeight(){
+      setWidthHeight() {
         let obj = {}
         if (this.pageItem?.float_btn_width) {
           obj.width = `${uni.upx2px(this.pageItem?.float_btn_width*2)}px`
@@ -105,14 +105,12 @@
       },
       toPages() {
         let url = this.pageItem?.float_btn_url;
-        let mainData = {
-          userInfo: this.userInfo,
-          storeInfo: this.storeInfo,
-          storeUser: this.vstoreUser,
+        let globalVariable = {
+          ...this.globalVariable
         }
         if (url) {
-          // url = this.renderStr(url,mainData) 
-          url = url.renderStr(mainData)
+          // url = this.renderStr(url,globalVariable) 
+          url = url.renderStr(globalVariable)
           uni.navigateTo({
             url
           })
@@ -140,11 +138,12 @@
 
   .float-button-view {
     position: fixed;
-    bottom: 100rpx;
+    bottom: 50px;
     right: 0;
     left: 0;
     width: 100vw;
-    height: calc(100vh - var(--window-top) - var(--window-bottom) - 200rpx);
+    height: calc(100vh - 95px);
+    bottom: calc(50px + var(--safe-area-inset-bottom));
     pointer-events: none;
 
     // position: relative;

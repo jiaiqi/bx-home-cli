@@ -1,6 +1,13 @@
 <template>
   <view class="form-wrap"
     :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode,'order-mode':orderMode}]">
+    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
+      <view class="nav-bar">
+        <text class="home-name">
+          <text>{{pageTitle||''}}</text>
+        </text>
+      </view>
+    </cu-custom-navbar>
     <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
       v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
       <view class="icon">
@@ -141,6 +148,8 @@
     },
     data() {
       return {
+        disabledBack: false,
+        backUrl: "",
         appName: null,
         service: "",
         serviceName: null,
@@ -179,6 +188,7 @@
         qrCodeText: "",
         codeSize: uni.upx2px(750),
         qrcodePath: "",
+        pageTitle: ""
       }
     },
     computed: {
@@ -516,7 +526,8 @@
                 let service = e.service_name.slice(0, e.service_name.lastIndexOf('_'))
                 if (res.data.state === 'SUCCESS') {
                   uni.$emit('dataChange', e.service_name)
-                  if (service === 'srvhealth_person_info_profile_nickname_update') {
+                  if ('srvhealth_person_info_profile_nickname_update'.indexOf(service) > -1 ||
+                    'srvhealth_person_profile_nickname_update'.indexOf(service) > -1) {
                     self.initApp()
                   }
                   if (
@@ -527,8 +538,6 @@
                     res.data.response[0].response.effect_data.length > 0
                   ) {
                     this.params.submitData = res.data.response[0].response.effect_data[0];
-
-
                   }
                   let resData = res.data
                   uni.showModal({
@@ -539,9 +548,10 @@
                       let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
-                        let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        let store_no = self.$store?.state?.app?.storeInfo?.store_no
+                        let url = self.backUrl || `/storePages/home/home?store_no=${store_no}`
                         uni.reLaunch({
-                          url: `/storePages/home/home?store_no=${store_no}`,
+                          url,
                           success: () => {
                             if (self.uuid) {
                               uni.$emit('onBack', {
@@ -556,6 +566,7 @@
                         self.toPages('detail');
                         return
                       } else if (beforeRedirectUrl) {
+                        debugger
                         uni.redirectTo({
                           url: beforeRedirectUrl,
                           success: () => {
@@ -604,6 +615,7 @@
                           url: path,
                           success: () => {
                             if (self.uuid) {
+                              debugger
                               uni.$emit('onBack', {
                                 uuid: self.uuid,
                                 service: service
@@ -615,6 +627,7 @@
                         if (self.submitAction) {
                           uni.$emit(self.submitAction)
                         }
+                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {
@@ -623,10 +636,22 @@
                                 service: service
                               })
                             }
+                          },
+                          fail: () => {
+                            if(self.backUrl){
+                              uni.redirectTo({
+                                url:self.backUrl,
+                                success: () => {
+                                  uni.$emit('onBack', {
+                                    uuid: self.uuid,
+                                    service: service
+                                  })
+                                }
+                              })
+                            }
                           }
                         })
                       } else if (self.afterSubmit === 'close') {
-
                         if (top.window?.tab?.closeCurrentTab && top?.window?.tab
                           ?.getCurrentTab) {
                           let curTab = top.window?.tab.getCurrentTab();
@@ -641,6 +666,7 @@
                         return
                       } else if (self.afterSubmit === 'home') {
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
+                        debugger
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`,
                           success: () => {
@@ -653,9 +679,9 @@
                           }
                         })
                       } else {
-
                         let pages = getCurrentPages();
                         if (pages.length > 1) {
+                          debugger
                           uni.navigateBack({
                             success: () => {
                               if (self.uuid) {
@@ -667,6 +693,7 @@
                             }
                           })
                         } else {
+                          debugger
                           let data = resData.response[0]?.response.effect_data[0]
                           uni.redirectTo({
                             url: `/publicPages/detail/detail?serviceName=${self?.addV2?.select_service_name||self.detailV2?.service_name}&destApp=${self.appName||self.destApp}&id=${data.id}`,
@@ -950,7 +977,7 @@
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
-                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl 
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
                         let store_no = self.$store?.state?.app?.storeInfo?.store_no
@@ -972,18 +999,19 @@
                         self.toPages('detail');
                         return
                       } else if (beforeRedirectUrl) {
+                        uni.$emit('onBack', {
+                          uuid: self.uuid,
+                          service: service
+                        })
                         uni.redirectTo({
                           url: beforeRedirectUrl,
                           success: () => {
-                            uni.$emit('onBack', {
-                              uuid: self.uuid,
-                              service: service
-                            })
                           }
                         })
                         getApp().globalData.beforeRedirectUrl = null
                         return
                       } else {
+                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {
@@ -1022,6 +1050,7 @@
                     content: "操作成功",
                     showCancel: false,
                     success: (res) => {
+                      debugger
                       if (res.confirm) {
                         uni.navigateBack({
                           success: () => {
@@ -1276,6 +1305,7 @@
 
         colVs = this.deepClone(colVs);
         if (colVs && colVs.service_view_name) {
+          this.pageTitle = colVs.service_view_name
           uni.setNavigationBarTitle({
             title: colVs.service_view_name
           });
@@ -1593,6 +1623,16 @@
       };
     },
     async onLoad(option) {
+      if (option.backUrl) {
+        try {
+          this.backUrl = decodeURIComponent(option.backUrl)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.disabledBack) {
+        this.disabledBack = true
+      }
       if (option.uuid) {
         this.uuid = option.uuid
       }
@@ -1982,5 +2022,24 @@
         min-width: calc(60% - 10px);
       }
     }
+  }
+  ::v-deep .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 10rpx 20rpx;
+    width: 100%;
+    // background-color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  
+    .home-name {
+      display: inline-block;
+      width: calc(100% - 40rpx);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  
   }
 </style>

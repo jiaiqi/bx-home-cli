@@ -2,8 +2,17 @@
   <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]"
     @click="toEdit">
     <view class="top">
-      <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image" mode="aspectFit"></image>
-      <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
+      <image :src="getUserImage()" class="profile-image"
+        mode="aspectFit"  @click.stop="getUserProfile"></image>
+      <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'点击完善用户信息' }}</text>
+      <!-- #ifdef MP-WEIXIN -->
+      <view class="flex flex-1 justify-end">
+        <button class="cu-btn  light round sm line-white border" @click.stop="getUserProfile">
+          <text class="cuIcon-refresh"></text>
+          更新头像昵称
+        </button>
+      </view>
+      <!-- #endif -->
     </view>
     <view class="bottom" @click.stop="toCardList">
       我的卡包
@@ -13,12 +22,12 @@
     <view class="left" v-if="!hasNotRegInfo">
       <view class="profile-image">
         <!-- <open-data type="userAvatarUrl"></open-data> -->
-        <image :src="getImagePath(userInfo.profile_url, true)" class="profile-image"></image>
+        <image :src="getUserImage()" class="profile-image"></image>
       </view>
       <view class="nick-name">
         <!-- <open-data type="userNickName"></open-data> -->
         <view class="name">
-          <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'' }}</text>
+          <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'微信用户' }}</text>
           <!--      <image src="./on_audit.png" mode="" class="audit-status" v-if="auditStatus&&auditStatus!=='通过'"></image>
           <image src="./has_audit.png" mode="" class="audit-status" v-else-if="auditStatus==='通过'"></image>
           <image src="./answer.png" mode="" class="audit-status" v-else></image> -->
@@ -146,12 +155,15 @@
           }
         })
       },
-     
+
     },
   }
 </script>
 
 <style lang="scss" scoped>
+  .flex-1{
+    flex: 1;
+  }
   .user-card {
     display: flex;
     padding: 10px;
@@ -188,6 +200,7 @@
         height: 50px;
         border-radius: 50px;
         margin-right: 10px;
+        background-color: rgba(255, 255, 255, 0.1);
       }
     }
 

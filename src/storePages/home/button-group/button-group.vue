@@ -436,7 +436,7 @@
                 num = true;
               }
             }
-         
+
             let obj = {
               prompt: btn.prompt,
               navType: btn.navigate_type,
@@ -450,26 +450,26 @@
               appid: btn.appid,
               phone_number: btn.phone_number
             }
-            
-            if(btn.unread_attr&&btn.unback_attr){
+
+            if (btn.unread_attr && btn.unback_attr) {
               const data = this;
               let num = Number(this.renderStr(btn.unread_attr, data));
               if (isNaN(num)) {
                 num = true;
               }
-              if(num){
+              if (num) {
                 obj.num = num
               }
               const unbacknum = Number(this.renderStr(btn.unback_attr, data));
               if (isNaN(unbacknum)) {
                 unbacknum = true;
               }
-              if(unbacknum){
+              if (unbacknum) {
                 obj.unbacknum = unbacknum
               }
             }
-            
-            
+
+
             if (btn.before_click_action) {
               try {
                 obj.before_click = JSON.parse(btn.before_click_action)
@@ -1028,39 +1028,41 @@
         //#endif
       },
       async toPages(e) {
-        
-        if (this.userInfo?.userno&&(!this.userInfo.nick_name)) {
-          await selectPersonInfo(this.userInfo?.userno,true)
+        if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
+          await selectPersonInfo(this.userInfo?.userno, true)
         }
         if ((!this.userInfo.nick_name) && this.userInfo?.userno) {
-          let res = await new Promise((resolve) => {
-            uni.showModal({
-              title: '提示',
-              content: '请先完善您的基本信息，然后再进行其它操作',
-              success: (res) => {
-                if (res.confirm) {
-                  const uuid = uni.$u.guid()
-                  let url =
-                    `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
+          let isOk = await this.checkBasicUserInfo()
+          if (isOk) {
+            await this.initApp()
+            // let res = await new Promise((resolve) => {
+            //   uni.showModal({
+            //     title: '提示',
+            //     content: '请先完善您的基本信息，然后再进行其它操作',
+            //     success: (res) => {
+            //       if (res.confirm) {
+            //         const uuid = uni.$u.guid()
+            //         let url =
+            //           `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
 
-                  uni.navigateTo({
-                    url,
-                    success: () => {
-                      uni.$on('onBack', (e) => {
-                        if (e?.uuid === uuid && e?.service ===
-                          'srvhealth_person_info_profile_nickname_update') {
-                          this.initApp().then(_ => {
-                            resolve(true)
-                          })
-                        }
-                      })
-                    }
-                  })
-                }
-              }
-            })
-          })
-          if (res == true) {
+            //         uni.navigateTo({
+            //           url,
+            //           success: () => {
+            //             uni.$on('onBack', (e) => {
+            //               if (e?.uuid === uuid && e?.service ===
+            //                 'srvhealth_person_info_profile_nickname_update') {
+            //                 this.initApp().then(_ => {
+            //                   resolve(true)
+            //                 })
+            //               }
+            //             })
+            //           }
+            //         })
+            //       }
+            //     }
+            //   })
+            // })
+            // if (res == true) {
             const res1 = await new Promise(resolve => {
               uni.showModal({
                 title: '提示',

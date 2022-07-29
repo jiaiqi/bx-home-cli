@@ -30,7 +30,30 @@ export default {
     },
     hasVipCard() {
       return !!this.vvipCard?.card_no
-    }
+    },
+    globalVariable() {
+      return {
+        loginUser: this.vloginUser,
+        userInfo: this.userInfo,
+        storeInfo: this.storeInfo,
+        vstoreUser: this.vstoreUser,
+        bindUserInfo: this.vstoreUser,
+        storeUser: this.vstoreUser,
+      }
+    },
+    setStoreNo() {
+      return this.storeNo || this.store_no || this.goodsInfo?.store_no || this.storeInfo?.store_no
+    },
+    showBackHome() {
+      if (this.storeNo === "S0000000000") {
+        return false
+      } else {
+        let pages = getCurrentPages();
+        if (pages.length === 1) {
+          return true
+        }
+      }
+    },
   },
   data() {
     return {
@@ -51,6 +74,11 @@ export default {
     //#endif
   },
   methods: {
+    getUserImage() {
+      // 获取用户头像
+      let img = this.userInfo?.user_image||this.userInfo.profile_url||'20220728150847232100';
+      return this.getImagePath(img,true)
+    },
     async unbindWxUser() {
       const result = await new Promise((resolve) => {
         uni.showModal({
@@ -302,62 +330,44 @@ export default {
       });
     },
 
-    // async checkBasicUserInfo() {
-    //   let result = false
-    //   if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
-    //     await selectPersonInfo(this.userInfo?.userno, true)
-    //   }
-    //   if ((!this.userInfo.nick_name) && this.userInfo?.userno) {
-    //     result = await new Promise((resolve) => {
-    //       uni.showModal({
-    //         title: '提示',
-    //         content: '请先完善您的基本信息，然后再进行其它操作',
-    //         showCancel: false,
-    //         success: (res) => {
-    //           if (res.confirm) {
-    //             const uuid = uni.$u.guid()
-    //             let url =
-    //               `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
-
-    //             uni.navigateTo({
-    //               url,
-    //               success: () => {
-    //                 uni.$on('onBack', (e) => {
-    //                   if (e?.uuid === uuid && e?.service ===
-    //                     'srvhealth_person_info_profile_nickname_update') {
-    //                     this.initApp().then(_ => {
-    //                       resolve(true)
-    //                     })
-    //                   }
-    //                 })
-    //               }
-    //             })
-    //           }
-    //         }
-    //       })
-    //     })
-    //     if (result == true) {
-    //       const res1 = await new Promise(resolve => {
-    //         uni.showModal({
-    //           title: '提示',
-    //           content: '是否继续之前的操作？',
-    //           success: (handler) => {
-    //             if (handler.confirm) {
-    //               resolve(true)
-    //             } else {
-    //               resolve(false)
-    //             }
-    //           }
-    //         })
-    //       })
-    //       if (res1 === false) {
-    //         return
-    //       }
-    //     } else {
-    //       return
-    //     }
-    //   }
-    // },
+    async checkBasicUserInfo() {
+      let result = false
+      if (this.userInfo?.userno) {
+        await selectPersonInfo(this.userInfo?.userno, true)
+      }
+      if (this.userInfo?.userno) {
+        result = await new Promise((resolve) => {
+          uni.showModal({
+            title: '提示',
+            content: '请先完善您的基本信息，然后再进行其它操作',
+            showCancel: false,
+            success: (res) => {
+              if (res.confirm) {
+                const uuid = uni.$u.guid()
+                let url =
+                  `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}&disabledBack=true`
+                const pages = getCurrentPages();
+                const path = pages[pages.length - 1]?.$page?.fullPath;
+                uni.navigateTo({
+                  url,
+                  success: () => {
+                    uni.$on('onBack', (e) => {
+                      if (e?.uuid === uuid && e.service && (
+                          'srvhealth_person_info_profile_nickname_update'.indexOf(e.service) > -
+                          1 ||
+                          'srvhealth_person_profile_nickname_update'.indexOf(e.service) > -1)) {
+                        resolve(true)
+                      }
+                    })
+                  }
+                })
+              }
+            }
+          })
+        })
+      }
+      return result
+    },
 
     async setSessionInfo(storeNo) {
       const url = `/health/operate/srvsys_session_info_set`
@@ -372,7 +382,7 @@ export default {
         return await this.$http.post(url, req)
       }
     },
-    async initApp(option={}) {
+    async initApp(option = {}) {
       // 初始化小程序
       // 1. 登录检测、用户信息查找
       if (option) {
@@ -380,62 +390,17 @@ export default {
       }
 
       await this.toAddPage()
-      // 没有用户昵称和头像 初次进入小程序
-      if (option.invite_user_no && option.store_no && !this.userInfo?.nick_name && !this.userInfo?.person_name) {
-        if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
-          await selectPersonInfo(this.userInfo?.userno, true)
-        }
-        if ((!this.userInfo.nick_name) && this.userInfo?.userno) {
-          let res = await new Promise((resolve) => {
-            uni.showModal({
-              title: '提示',
-              content: '请先完善您的基本信息，然后再进行其它操作',
-              success: (res) => {
-                if (res.confirm) {
-                  const uuid = uni.$u.guid()
-                  let url =
-                    `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
 
-                  uni.navigateTo({
-                    url,
-                    success: () => {
-                      uni.$on('onBack', (e) => {
-                        if (e?.uuid === uuid && e?.service ===
-                          'srvhealth_person_info_profile_nickname_update') {
-                          this.initApp().then(_ => {
-                            resolve(true)
-                          })
-                        }
-                      })
-                    }
-                  })
-                }
-              }
-            })
-          })
-          if (res == true) {
-            const res1 = await new Promise(resolve => {
-              uni.showModal({
-                title: '提示',
-                content: '是否继续之前的操作？',
-                success: (handler) => {
-                  if (handler.confirm) {
-                    resolve(true)
-                  } else {
-                    resolve(false)
-                  }
-                }
-              })
-            })
-            if (res1 === false) {
-              return
-            }
-          } else {
-            return
-          }
+      // 没有用户昵称和头像 初次进入小程序
+
+      if (option.invite_user_no && (!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户') && !this
+        .userInfo?.name) {
+        let res = await this.checkBasicUserInfo()
+        if (res == false) {
+          return
         }
       }
-      
+
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
       if (storeInfo?.store_no) {
@@ -510,10 +475,10 @@ export default {
         serviceName: 'srvhealth_store_user_add',
         condition: [],
         data: [{
-          store_no: this.storeNo,
-          name: this.StoreInfo.name,
-          image: this.StoreInfo.image,
-          type: this.StoreInfo.type,
+          store_no: this.storeInfo?.store_no || this.storeNo || this.curStoreNo,
+          name: this.storeInfo?.name,
+          image: this.storeInfo?.image,
+          type: this.storeInfo?.type,
           person_no: this.userInfo.no,
           person_name: this.userInfo && this.userInfo.name ? this.userInfo.name.replace(
             /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, '') : '',
@@ -529,6 +494,10 @@ export default {
             .inviterInfo?.invite_user_no
         }]
       }];
+      if (!req[0].data[0].store_no) {
+        debugger
+        return
+      }
       let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
         ?.invite_user_no;
       try {
@@ -546,15 +515,14 @@ export default {
       }
 
       let res = await this.$fetch('operate', 'srvhealth_store_user_add', req, 'health');
+      debugger
       if (res.success) {
-        this.isBind = true;
         if (res.data.length > 0) {
           this.bindUserInfo = res.data[0];
           this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           return this.bindUserInfo;
         }
       } else {
-        this.isBind = false;
         return res;
       }
     },
@@ -589,6 +557,7 @@ export default {
             return res.data.data;
           } else if (res.data.data.length == 0) {
             // 没有查找到店铺用户
+            debugger
             await this.add2Store()
             await this.getStoreUser_()
           }

@@ -34,19 +34,19 @@
           }
         }
       }
-      
-      
-      
+
+
+
       if (options?.query?.user_no) {
         selectPersonInfo(options?.query?.user_no);
       }
-      
+
       if (options?.query?.storeUserNo) {
         this.getStoreUserByNo(options?.query?.storeUserNo)
       }
-      
-      
-      
+
+
+
       this.$store.commit('SET_SCENE', options.scene)
       if (options.scene === 1154) {
         // 朋友圈单页模式进入
@@ -158,6 +158,38 @@
   @import "@/common/uni.css";
   @import "@/common/uni-nvue.css";
   /* #endif */
+
+  @supports (top: constant(safe-area-inset-top)) {
+    :root {
+      --safe-area-inset-top: env(safe-area-inset-top);
+      --safe-area-inset-right: env(safe-area-inset-right);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom);
+      --safe-area-inset-left: env(safe-area-inset-left);
+    }
+    page {
+      --safe-area-inset-top: constant(safe-area-inset-top);
+      --safe-area-inset-right: constant(safe-area-inset-right);
+      --safe-area-inset-bottom: constant(safe-area-inset-bottom);
+      --safe-area-inset-left: constant(safe-area-inset-left);
+    }
+
+  }
+
+  @supports (top: env(safe-area-inset-top)) {
+    :root {
+      --safe-area-inset-top: env(safe-area-inset-top);
+      --safe-area-inset-right: env(safe-area-inset-right);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom);
+      --safe-area-inset-left: env(safe-area-inset-left);
+    }
+    page {
+      --safe-area-inset-top: env(safe-area-inset-top);
+      --safe-area-inset-right: env(safe-area-inset-right);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom);
+      --safe-area-inset-left: env(safe-area-inset-left);
+    }
+  }
+
 
   /*每个页面公共css */
   #app,

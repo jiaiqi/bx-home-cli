@@ -173,9 +173,11 @@
         })
       },
       handlerSwitch(curTab) {
-        let data = this;
+        let data = {
+          ...this.globalVariable
+        };
         try {
-          data.storeUser = this.vstoreUser
+          // data.storeUser = this.vstoreUser
           curTab.link_pd_json = this.renderStr(curTab.link_pd_json, data);
           let jsonStr = JSON.parse(curTab.link_pd_json);
           if (jsonStr.url) {
@@ -378,9 +380,10 @@
                 item.isFirstSwiper = true;
                 setFirstSwiper = true;
               }
-              this.pageItemList.push(item)
+              // this.pageItemList.push(item)
               return item;
             });
+          this.pageItemList = pageItemList
           this.manageButtonGroup = res.data.filter(item => item.display !== '否' && item.button_usage == '管理人员')
           await this.getComponentData();
           return pageItemList
@@ -1244,6 +1247,10 @@
           serviceName: service,
           colNames: ['*'],
           condition: [{
+            colName: 'store_no',
+            ruleType: 'eq',
+            value: this.storeInfo?.store_no
+          }, {
             colName: 'pd_no',
             ruleType: 'eq',
             value: home_page_no
@@ -1258,10 +1265,23 @@
           },
           order: []
         };
+        if (service === 'srvhealth_store_home_ceshi_component_select') {
+          req.condition.push({
+            colName: 'user_no',
+            ruleType: 'eq',
+            value: this.userInfo.userno
+          })
+        }
         this.loadStatus = 'loading'
         let res = await this.$http.post(url, req);
         this.loadStatus = ''
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+          res.data.data = res.data.data.reduce((res, cur) => {
+            if (!res.find(item => item.id === cur.id)) {
+              res.push(cur)
+            }
+            return res
+          }, [])
           let setFirstSwiper = false;
           let pageItemList = res.data.data
             .filter(item => item.display !== '否' && item.button_usage !== '管理人员')

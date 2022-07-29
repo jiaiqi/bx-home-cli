@@ -425,15 +425,31 @@
         url += `&uuid=${uuid}`
 
         url += `&listType=selectorList&listConfig=${encodeURIComponent(JSON.stringify(listConfig))}`
-        uni.$on('confirmSelect', (e) => {
-          if (e.val) {
-            uni.redirectTo({
-              url: `/pages/home/home?store_no=${e.val}`
+
+        uni.navigateTo({
+          url,
+          success: () => {
+            uni.$on('confirmSelect', (e) => {
+              if (e.val) {
+                const url = `/storePages/home/home?store_no=${e.val}`
+                uni.redirectTo({
+                  url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`,
+                  success: () => {
+                    uni.reLaunch({
+                      url,
+                    })
+                  }
+                })
+                // uni.navigateBack({
+                //   success: () => {
+                //     uni.reLaunch({
+                //       url:`/storePages/home/home?store_no=${e.val}`
+                //     })
+                //   }
+                // })
+              }
             })
           }
-        })
-        uni.navigateTo({
-          url
         })
       },
       async makePoster() {

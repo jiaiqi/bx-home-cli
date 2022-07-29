@@ -64,7 +64,7 @@
             <view class="label">
               头像
             </view>
-            <view class="field">
+            <view class="field" v-if="modalName">
               <bx-image-upload :max-count="1" :custom-btn="true" :clipWidth="300" :clipHeight="300" interfaceName="add"
                 appName="health" tableName="bxhealth_store_service_people" :value="form.person_image"
                 index="person_image" :action="actionUrl" @change="valChange($event,'person_image')">
@@ -99,13 +99,11 @@
               排班
             </view>
             <view class="flex align-center flex-1">
-              <picker mode="time" v-model="form.schedule_start_time" start="09:01" end="21:01"
-                @change="valChange($event,'schedule_start_time')">
+              <picker mode="time" v-model="form.schedule_start_time" @change="valChange($event,'schedule_start_time')">
                 <view class="field">{{form.schedule_start_time||'请选择'}}</view>
               </picker>
               <text class="margin-lr-xs">至</text>
-              <picker mode="time" v-model="form.schedule_end_time" start="09:01" end="21:01"
-                @change="valChange($event,'schedule_end_time')">
+              <picker mode="time" v-model="form.schedule_end_time" @change="valChange($event,'schedule_end_time')">
                 <view class="field">{{form.schedule_end_time||'请选择'}}</view>
               </picker>
             </view>
@@ -208,13 +206,14 @@
     },
     methods: {
       confirm() {
-        this.modalName = ''
         if (!this.form.schedule_week) {
           this.form.schedule_week = this.weeks.filter(item => item.checked).map(item => item.name).toString()
         }
         let data = this.deepClone(this.form)
         data.store_no = data.store_no || this.storeInfo?.store_no
+        data.schedule_week = Array.isArray(data.schedule_week) ? data.schedule_week.toString() : data.schedule_week
         let hasEmpty = Object.keys(data).filter(key => !data[key]).length !== 0
+        debugger
         if (hasEmpty) {
           uni.showModal({
             title: '提示',
@@ -223,6 +222,10 @@
           })
           return
         }
+
+
+        this.modalName = ''
+
 
         const service = this.curType === 'edit' ? 'srvhealth_store_service_people_update' : this.curType === 'add' ?
           'srvhealth_store_service_people_add' : ""
@@ -256,6 +259,9 @@
           return
         }
         this.$http.post(url, req).then(res => {
+          Object.keys(this.form).forEach(key => {
+            this.form[key] = ''
+          })
           if (res.data.state === "SUCCESS") {
             uni.showToast({
               title: '操作成功!'
