@@ -233,18 +233,22 @@
     mounted() {
       let globalData = getApp().globalData
       this.globalData = globalData
+      // if (this.pageItem?.more_config) {
+      //   let moreConfig = this.pageItem?.more_config
+      //   if (typeof moreConfig === 'string') {
+      //     try {
+      //       moreConfig = JSON.parse(this.pageItem?.more_config)
+      //     } catch (e) {
+      //       //TODO handle the exception
+      //     }
+      //   }
 
-      if (this.pageItem?.more_config) {
-        try {
-          let moreConfig = JSON.parse(this.pageItem?.more_config)
-          if (moreConfig?.noticeNumConfig) {
-            let noticeNumConfig = moreConfig.noticeNumConfig;
-            this.getNoticeNum(noticeNumConfig)
-          }
-        } catch (e) {
-          //TODO handle the exception
-        }
-      }
+      //   if (moreConfig?.noticeNumConfig) {
+      //     let noticeNumConfig = moreConfig.noticeNumConfig;
+      //     this.getNoticeNum(noticeNumConfig)
+      //   }
+
+      // }
 
     },
     data() {
@@ -424,6 +428,23 @@
         return style
       },
       async setMenuList() {
+
+        if (this.pageItem?.more_config) {
+          let moreConfig = this.pageItem?.more_config
+          if (typeof moreConfig === 'string') {
+            try {
+              moreConfig = JSON.parse(this.pageItem?.more_config)
+            } catch (e) {
+              //TODO handle the exception
+            }
+          }
+
+          if (moreConfig?.noticeNumConfig) {
+            let noticeNumConfig = moreConfig.noticeNumConfig;
+            await this.getNoticeNum(noticeNumConfig)
+          }
+        }
+
         let list = [];
         if (Array.isArray(this.buttons) && this.buttons.length > 0) {
           for (let btn of this.buttons) {
@@ -431,7 +452,8 @@
             let num = 0;
             if (btn.notice_attr) {
               const data = {
-                ...this.globalVariable
+                ...this.globalVariable,
+                noticeNum: this.noticeNum || {},
               };
               num = Number(this.renderStr(btn.notice_attr, data));
               if (isNaN(num)) {
@@ -452,7 +474,6 @@
               appid: btn.appid,
               phone_number: btn.phone_number
             }
-
             if (btn.unread_attr && btn.unback_attr) {
               const data = this;
               let num = Number(this.renderStr(btn.unread_attr, data));
@@ -1033,7 +1054,7 @@
         if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
           await selectPersonInfo(this.userInfo?.userno, true)
         }
-        if ((!this.userInfo.nick_name||this.userInfo.nick_name==='微信用户') && this.userInfo?.userno) {
+        if ((!this.userInfo.nick_name || this.userInfo.nick_name === '微信用户') && this.userInfo?.userno) {
           let isOk = await this.checkBasicUserInfo()
           if (isOk) {
             await this.initApp()
@@ -1330,6 +1351,7 @@
           let data = res.data.data[0]
           this.noticeNum = Object.assign(this.noticeNum, data)
         }
+        return this.noticeNum
       },
       async selectPersonInGroup(group_no) {
         // 查找当前登录用户有没有在此圈子用户列表中

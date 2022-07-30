@@ -14,7 +14,7 @@
           :style="[setListView.imgIcon.style]" :src="getImagePath(setListView.imgIcon.fileNo,true)" mode="aspectFit">
         </image>
       </view>
-      <view class="flex">
+      <view class="flex flex-1">
         <view class="flex flex-wrap" :style="{ maxWidth: setListView.listContentMaxWidth }"
           v-if="setListView && setListView.cols">
           <view class="list-item-content">
@@ -511,6 +511,9 @@
           margin: btnCfg?.margin,
           color: btnCfg?.color
         };
+        if (btnCfg?.border_color && btnCfg?.border_color.indexOf('#') !== -1) {
+          result.btnStyle['border-color'] = btnCfg?.border_color;
+        }
         if (btnCfg?.bg && btnCfg?.bg.indexOf('#') !== -1) {
           result.btnStyle['background-color'] = btnCfg?.bg;
         }
@@ -568,6 +571,32 @@
 
           result.rightStyle = {
             width: result.rightContent.width
+          }
+          if (result.rightContent?.text_align) {
+            switch (result.rightContent?.text_align) {
+              case 'left':
+                result.rightStyle['align-items'] = 'flex-start'
+                break;
+              case 'right':
+                result.rightStyle['align-items'] = 'flex-end'
+                break;
+              default:
+                result.rightStyle['align-items'] = result.rightContent?.text_align
+                break;
+            }
+          }
+          if (result.rightContent?.vertical_align) {
+            switch (result.rightContent?.vertical_align) {
+              case 'between':
+                result.rightStyle['justify-content'] = 'space-between'
+                break;
+              case 'around':
+                result.rightStyle['justify-content'] = 'flex-end'
+                break;
+              default:
+                result.rightStyle['justify-content'] = result.rightContent?.vertical_align
+                break;
+            }
           }
           result.rightCols = []
           if (Array.isArray(rightCols) && rightCols.length > 0) {
@@ -1195,19 +1224,15 @@
       }
 
       .list-item-right-content {
-        // display: flex;
-        // flex-wrap: wrap;
-        // justify-content: flex-end;
-        // align-items: flex-start;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        align-items: flex-end;
+        align-items: center;
         position: relative;
 
         &.left-line {
-          padding-left: 10px;
-          margin-left: 10px;
+          padding-left: 10rpx;
+          margin-left: 10rpx;
 
           &:before {
             content: '';
@@ -1365,5 +1390,8 @@
         }
       }
     }
+  }
+  .flex-1{
+    flex: 1;
   }
 </style>
