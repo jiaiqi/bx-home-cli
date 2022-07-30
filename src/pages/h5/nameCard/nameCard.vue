@@ -3,7 +3,7 @@
     <view class="official-box" v-if="storeInfo">
       <image :src="getUserImage()" mode="aspectFit" class="icon"></image>
       <view class="store-name">
-        {{storeInfo.name||''}}
+        {{storeName|| storeInfo.name||''}}
       </view>
       <!--     <view class="tips">
         为了即时获取最新信息
@@ -38,7 +38,10 @@
         codeSize: uni.upx2px(700),
         qrcodePath: "",
         qrCodeText: "",
-        qrCodeLogo: ""
+        qrCodeLogo: "",
+        storeName: "",
+        storeNo: "",
+        userNo: ""
       }
     },
     methods: {
@@ -48,20 +51,15 @@
         this.qrcodePath = '';
         if (this.storeInfo?.logo) {
           this.qrCodeLogo = this.getImagePath(this.storeInfo?.logo, true)
-          // this.getFilePath(this.storeInfo?.logo).then(res => {
-          //   if (Array.isArray(res) && res.length > 0) {
-          //     const item = res[0];
-          //     this.qrCodeLogo = this.$api.getFilePath + item.fileurl;
-          //   }
-          // });
         }
-
-        if (this.userInfo && this.userInfo.userno && this.storeInfo && this.storeInfo.store_no) {
+        const store_no = this.storeNo || this.storeInfo.store_no
+        const userNo = this.userNo || this.userInfo.userno
+        if (userNo) {
           result =
-            `https://wx2.100xsys.cn/${this.$api.customQrcodeFolder?this.$api.customQrcodeFolder+'/home':'shareClinic'}/${this.storeInfo.store_no}/${this.userInfo.userno}`;
+            `https://wx2.100xsys.cn/${this.$api.customQrcodeFolder?this.$api.customQrcodeFolder+'/home':'shareClinic'}/${store_no}/${userNo}`;
         } else {
           result =
-            `https://wx2.100xsys.cn/${this.$api.customQrcodeFolder?this.$api.customQrcodeFolder+'/home':'shareClinic'}/${this.storeInfo?.store_no}`;
+            `https://wx2.100xsys.cn/${this.$api.customQrcodeFolder?this.$api.customQrcodeFolder+'/home':'shareClinic'}/${store_no}`;
         }
         this.qrCodeText = result;
         // this.$nextTick(()=>{
@@ -80,6 +78,15 @@
     onLoad(option) {
       if (option.bx_auth_ticket) {
         uni.setStorageSync('bx_auth_ticket', option.bx_auth_ticket)
+      }
+      if (option.storeNo) {
+        this.storeNo = option.storeNo
+      }
+      if (option.userNo) {
+        this.userNo = option.userNo
+      }
+      if (option.storeName) {
+        this.storeName = option.storeName
       }
       this.init()
     }
