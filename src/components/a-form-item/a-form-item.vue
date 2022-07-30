@@ -37,7 +37,7 @@
           :src="item"></image>
       </view>
       <view class="" v-else-if="fieldData.type==='openDocument'">
-        <button class="cu-btn bg-blue round" v-if="fieldData.value" @click="openDocument(fieldData.value)">预览</button>
+        <button class="cu-btn bg-blue round" v-if="fieldData.value" @click="openDocument(fieldData.value)">文件预览</button>
       </view>
       <view class="form-item-content_detail rich-text" v-else-if="
           pageType === 'detail' &&
@@ -208,9 +208,10 @@
         :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
         @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"
-        :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum" v-else-if="['media','openDocument'].includes(fieldData.type)  ">
+        :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum"
+        v-else-if="['media','openDocument'].includes(fieldData.type)  ">
       </bx-media-upload>
-      
+
       <!--    <view class="image-video-box" v-else-if="'media' === fieldData.type">
         <view class="media-select-box" @click="chooseMedia">
           <text class="cuIcon-pic"></text>
