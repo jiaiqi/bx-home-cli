@@ -1,7 +1,7 @@
 <template>
   <view>
     <view class="official-box" v-if="storeInfo">
-      <image :src="getUserImage()" mode="aspectFit" class="icon"></image>
+      <image :src="profile" mode="aspectFit" class="icon"></image>
       <view class="store-name">
         {{storeName|| storeInfo.name||''}}
       </view>
@@ -32,6 +32,9 @@
 </template>
 
 <script>
+  import {
+    selectPersonInfo
+  } from '@/common/api/login.js'
   export default {
     data() {
       return {
@@ -41,11 +44,14 @@
         qrCodeLogo: "",
         storeName: "",
         storeNo: "",
-        userNo: ""
+        userNo: "",
+        profile:""
       }
     },
     methods: {
-      init() {
+      async init() {
+        await selectPersonInfo()
+        this.profile = this.getUserImage()
         let result = '';
         this.qrCodeText = '';
         this.qrcodePath = '';
