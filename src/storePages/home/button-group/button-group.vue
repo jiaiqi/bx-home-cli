@@ -1709,14 +1709,15 @@
       border-radius: 20rpx;
     }
   }
-
-  .cu-dialog {
-    // width: 100%!important;
-  }
-
   .qrcode-canvas {
     position: fixed;
     top: -999px;
     right: -999px;
   }
+
+  .cu-dialog {
+    // width: 100%!important;
+  }
+
+
 </style>

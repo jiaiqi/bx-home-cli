@@ -40,7 +40,8 @@
 				type: String
 			},
 			logoSize: {
-				type: String
+				type: [String,Number],
+        default: uni.upx2px(120)
 			},
 			makeOnLoad: {
 				type: Boolean,

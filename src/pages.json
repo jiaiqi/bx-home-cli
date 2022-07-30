@@ -716,7 +716,16 @@
           "enablePullDownRefresh": false
         }
 
-      }]
+      }    ,{
+                    "path" : "nameCard/nameCard",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#endif
   ],
