@@ -320,7 +320,9 @@ export default {
           // #ifdef MP-WEIXIN
           fieldInfo.type = "media"
           // #endif
-
+          if (fieldInfo?.moreConfig?.openDocument==true) {
+            fieldInfo.type = "openDocument"
+          }
           fieldInfo.srvInfo = {
             tableName: item.table_name,
             appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
@@ -1315,17 +1317,17 @@ export default {
                 }]
                 let url =
                   `/publicPages/formPage/formPage?type=update&serviceName=${ btn.service_name||btn.operate_service}&fieldsCond=${JSON.stringify(fieldsCond)}`;
-                  
+
                 if (appName) {
                   url += `&appName=${appName}`
                 }
-                
-                
+
+
                 if (this.hideChildTable == true) {
                   url += `&hideChildTable=true`
                 }
-                
-                
+
+
                 if (btn.service_name === 'srvdaq_cms_content_update') {
                   let hideColumn = ['no']
                   url += `&hideColumn=${JSON.stringify(hideColumn)}`
@@ -1377,7 +1379,7 @@ export default {
                 if (this.hideChildTable == true) {
                   url += `&hideChildTable=true`
                 }
-                
+
                 // uni.navigateTo({
                 //   url: url
                 // })

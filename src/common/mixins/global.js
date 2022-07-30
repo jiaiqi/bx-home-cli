@@ -74,10 +74,86 @@ export default {
     //#endif
   },
   methods: {
+    downloadFile(e) {
+      return new Promise((resolve) => {
+        uni.showLoading({
+          title: "下载中..."
+        })
+        uni.downloadFile({
+          url: this.getImagePath(e, true), //仅为示例，并非真实接口地址。
+          complete: (e) => {
+            uni.hideLoading()
+            if (e?.tempFilePath) {
+              resolve(e.tempFilePath)
+            } else {
+              uni.showToast({
+                title: '下载失败！',
+                icon: 'none'
+              })
+              resolve(false)
+            }
+          }
+        });
+      })
+    },
+    openDocument(e) {
+      if (e) {
+        let path = this.getImagePath(e, true)
+        // #ifdef MP-WEIXIN
+        uni.downloadFile({
+          url: path,
+          success: function(res) {
+            var filePath = res.tempFilePath;
+            uni.openDocument({
+              filePath: filePath,
+              showMenu: true,
+              success: function(res) {
+                console.log('打开文档成功');
+              }
+            });
+          }
+        });
+        // #endif
+       // #ifdef H5
+        window.open(path)
+       // #endif
+      }
+    },
+    async saveFile(e) {
+      if (e) {
+        let tempFilePath = await this.downloadFile(e)
+        if (tempFilePath) {
+          uni.saveFile({
+            tempFilePath: tempFilePath,
+            success: function(res) {
+              var savedFilePath = res.savedFilePath;
+              uni.showModal({
+                title: "提示",
+                content: `文件已保存到${savedFilePath}`,
+                showCancel: false,
+                success: (e) => {
+                  if (e.confirm) {
+                    uni.getSavedFileList({
+                      success: function(f) {
+                        console.log(f.fileList);
+                        uni.showModal({
+                          title: 'fileList',
+                          content: JSON.stringify(f.fileList)
+                        })
+                      }
+                    });
+                  }
+                }
+              })
+            }
+          });
+        }
+      }
+    },
     getUserImage() {
       // 获取用户头像
-      let img = this.userInfo?.user_image||this.userInfo.profile_url||'20220728150847232100';
-      return this.getImagePath(img,true)
+      let img = this.userInfo?.user_image || this.userInfo.profile_url || '20220728150847232100';
+      return this.getImagePath(img, true)
     },
     async unbindWxUser() {
       const result = await new Promise((resolve) => {
@@ -336,7 +412,7 @@ export default {
         await selectPersonInfo(this.userInfo?.userno, true)
       }
       debugger
-      if (this.userInfo?.userno&&(this.userInfo?.nick_name==='微信用户'||!this.userInfo.nick_name)) {
+      if (this.userInfo?.userno && (this.userInfo?.nick_name === '微信用户' || !this.userInfo.nick_name)) {
         result = await new Promise((resolve) => {
           uni.showModal({
             title: '提示',
@@ -347,11 +423,11 @@ export default {
                 const uuid = uni.$u.guid()
                 let url =
                   `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}&disabledBack=true`
-                  let fieldsCond = [{
-                    column:"nick_name",
-                    value:""
-                  }]
-                  url+=`&fieldsCond=${JSON.stringify(fieldsCond)}`
+                let fieldsCond = [{
+                  column: "nick_name",
+                  value: ""
+                }]
+                url += `&fieldsCond=${JSON.stringify(fieldsCond)}`
                 const pages = getCurrentPages();
                 const path = pages[pages.length - 1]?.$page?.fullPath;
                 uni.navigateTo({

@@ -313,7 +313,7 @@
         return this.fk?.section_name
       },
       childCols() {
-        return this.childV2?._fieldInfo.filter(item => item.column !== 'sr_no' && (item.in_detail === 1 || item
+        return this.childV2?._fieldInfo.filter(item => item.column !== 'sr_no' && (item
           .in_list === 1))
       }
     },
