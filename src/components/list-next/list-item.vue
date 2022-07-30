@@ -14,15 +14,14 @@
           :style="[setListView.imgIcon.style]" :src="getImagePath(setListView.imgIcon.fileNo,true)" mode="aspectFit">
         </image>
       </view>
-      <view class="flex flex-1">
-        <view class="flex flex-wrap" :style="{ maxWidth: setListView.listContentMaxWidth }"
-          v-if="setListView && setListView.cols">
+      <view class="flex flex-1" :style="{ maxWidth: setListView.listContentMaxWidth }">
+        <view class="flex flex-wrap" v-if="setListView && setListView.cols">
           <view class="list-item-content">
             <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
                 <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
+                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -127,7 +126,7 @@
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
                 <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
+                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -189,15 +188,15 @@
               {{ btn.button_name }}
             </button>
           </view>
-          <view class="foot-button-box"
-            v-if="rowData.order_no &&rowData.goods_no&&rowData.pay_state&&rowData.is_remark">
+          <view class="foot-button-box wrap-row"
+            v-if="showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
             <button class="cu-btn round sm border"
-              v-if="rowData.order_state==='已完成'&&rowData.is_remark=='待评价'&&rowData.pay_state==='已支付'"
+              v-if="mainData.order_state==='已完成'&&rowData.is_remark=='待评价'&&mainData.pay_state==='已支付'"
               @click.stop="toEvaluate">评价</button>
             <button class="cu-btn round sm border" v-if="rowData.is_remark!='待评价'"
               @click.stop="toEvaluate('detail')">查看评价</button>
           </view>
-          <view class="foot-button-box" :class="{'wrap-row':setListView.btnWrapRow}"
+          <view class="foot-button-box" :class="{'wrap-row':!setListView.btnWrapRow||setListView.btnWrapRow!==false}"
             v-else-if="buttonPosition!=='right'&&hasShowButton&&listType!=='selectorList'&&listType!=='multiSelectByJson'">
             <button class="cu-btn" :class="[setListView.btnClass]"
               :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
@@ -260,6 +259,10 @@
       // #endif
     },
     props: {
+      // 主表数据
+      mainData: {
+        type: Object
+      },
       // 行数据
       rowData: {
         type: Object
@@ -419,6 +422,10 @@
           return rowButton.length > 0
         }
       },
+      showEvaluate(){
+        // 是否显示自定义评价按钮
+        return this.setViewTemp?.btn_cfg?.show_evaluate===true
+      },
       setRowButton() {
         let buttons = [];
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
@@ -570,7 +577,10 @@
           result.rightContent.leftLine = this.setViewTemp?.right_content?.left_line === true
 
           result.rightStyle = {
-            width: result.rightContent.width
+            width: result.rightContent.width,
+            margin: result.rightContent.margin,
+            padding: result.rightContent.padding,
+            
           }
           if (result.rightContent?.text_align) {
             switch (result.rightContent?.text_align) {
@@ -1391,7 +1401,8 @@
       }
     }
   }
-  .flex-1{
+
+  .flex-1 {
     flex: 1;
   }
 </style>

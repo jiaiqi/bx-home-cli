@@ -33,7 +33,7 @@
     <!-- #endif -->
     <!-- #ifdef H5 -->
     <view class="" v-if="openType==='chooseAvatar'&&false">
-      
+
     </view>
     <!-- #endif -->
     <view class="add-btn" @tap="selectFile" v-else-if="maxCount > lists.length">
@@ -315,10 +315,8 @@
       value: {
         immediate: true,
         handler(val) {
-          if (val) {
-            this.fileNo = val;
-            this.loadInitImages()
-          }
+          this.fileNo = val || "";
+          this.loadInitImages()
         }
       },
       fileList: {
@@ -393,6 +391,10 @@
         }
       },
       async loadInitImages() {
+        if (!this.value) {
+          this.lists = []
+          return
+        }
         let imgList = await this.getFilePath(this.value);
         if (Array.isArray(imgList) && imgList.length > 0) {
           imgList = imgList.reverse()

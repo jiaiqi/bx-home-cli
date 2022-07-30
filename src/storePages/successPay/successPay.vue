@@ -33,7 +33,7 @@
         //   }
         // })
         uni.redirectTo({
-          url:`/storePages/home/home?store_no=${this.storeInfo?.store_no}`
+          url: `/storePages/home/home?store_no=${this.storeInfo?.store_no}`
         })
       },
       toDetail() {
@@ -50,6 +50,16 @@
             colName: 'person_no',
             ruleType: 'eq',
             value: this.userInfo?.no
+          },
+          {
+            colName: 'store_user_no',
+            ruleType: 'eq',
+            value: this.vstoreUser?.store_user_no
+          },
+          {
+            colName: 'order_type',
+            ruleType: 'in',
+            value: "普通商品,虚拟商品"
           }
         ]
         const url =

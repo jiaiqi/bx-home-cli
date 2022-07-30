@@ -159,7 +159,7 @@
         },
         isOnSubmit: false,
         focusField: '',
-        pageType: 'detail', //add,update,detail
+        pageType: 'add', //add,update,detail
         id: "",
         serviceName: "",
       }

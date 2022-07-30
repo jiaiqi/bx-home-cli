@@ -64,7 +64,7 @@
             <view class="label">
               头像
             </view>
-            <view class="field" v-if="modalName">
+            <view class="field no-border" v-if="modalName">
               <bx-image-upload :max-count="1" :custom-btn="true" :clipWidth="300" :clipHeight="300" interfaceName="add"
                 appName="health" tableName="bxhealth_store_service_people" :value="form.person_image"
                 index="person_image" :action="actionUrl" @change="valChange($event,'person_image')">
@@ -361,6 +361,7 @@
       },
       changeModal(e) {
         if (e === 'add') {
+          this.cur = {}
           Object.keys(this.form).forEach(key => {
             this.form[key] = ''
           })
@@ -517,7 +518,7 @@
       display: flex;
       align-items: center;
       margin: 5px 0;
-
+      
       .flex-1 {
         flex: 1;
       }
@@ -540,7 +541,10 @@
         padding: 2px 5px;
         flex: 1;
         min-width: 100px;
-
+        &.no-border{
+          border-color: transparent;
+          padding-left: 0;
+        }
         .slot-btn {
           width: 100rpx;
           height: 100rpx;
