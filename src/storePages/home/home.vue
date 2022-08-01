@@ -102,7 +102,7 @@
     },
     computed: {
       pageTitle() {
-        return this.pageDefine.pg_title || this.StoreInfo.name 
+        return this.currentPageDefine?.pg_title || this.StoreInfo?.name 
       },
       isManage() {
         return Array.isArray(this.manageButtonGroup) && this.manageButtonGroup.length > 0

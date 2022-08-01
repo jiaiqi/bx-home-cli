@@ -91,7 +91,7 @@
       </view>
     </view>
 
-    <view class="form-box">
+<!--    <view class="form-box">
       <view class="title">
         健康信息
       </view>
@@ -101,9 +101,9 @@
       <view class="text-area padding-xs">
         <textarea cols="30" rows="10" v-model="form.healthy_info"></textarea>
       </view>
-    </view>
+    </view> -->
 
-    <view class="form-box">
+<!--    <view class="form-box">
       <view class="title">
         检查报告
       </view>
@@ -121,7 +121,7 @@
           </bx-image-upload>
         </view>
       </view>
-    </view>
+    </view> -->
 
 
     <view class="bottom-btn" v-if="pageType!=='detail'">
@@ -154,8 +154,8 @@
           person_name: true, //姓名
           sex: true, //性别
           phone: true, //手机号
-          healthy_info: true,
-          inspection_report: true
+          healthy_info: false,
+          inspection_report: false
         },
         isOnSubmit: false,
         focusField: '',
@@ -250,12 +250,12 @@
               person_name: "姓名", //姓名
               sex: "性别", //性别
               phone: "手机号", //手机号
-              healthy_info: "健康信息",
-              inspection_report: "检查报告"
+              // healthy_info: "健康信息",
+              // inspection_report: "检查报告"
             }
             uni.showModal({
               title: '提示',
-              content: `请填写/上传【${requiredLabel[key]}】`,
+              content: `请填写【${requiredLabel[key]}】`,
               showCancel: false
             })
             this.isOnSubmit = false
@@ -282,8 +282,8 @@
             "phone": this.form.phone,
             sex:this.form.sex,
             age:this.form.age,
-            healthy_info:this.form.healthy_info,
-            inspection_report:this.form.inspection_report,
+            // healthy_info:this.form.healthy_info,
+            // inspection_report:this.form.inspection_report,
             "family_addr": `${this.provinces?this.provinces+'省':''}${this.city?this.city+'市':''}${this.area?this.area+'区':''} ${this.form.family_addr||''}`,
             "urgent_contact": this.form.urgent_contact,
             "urgent_contact_phone": this.form.urgent_contact_phone,

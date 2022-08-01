@@ -10,18 +10,21 @@
       ￥{{data.total_over_money||'0'}}
     </view>
     <view class="text-center">
-      <button class="cu-btn bg-green lg" style="width: 90%;" @click="toWithdraw">提现至微信</button>
+      <button class="cu-btn bg-green lg" style="width: 90%;" @click="showModal">提现至微信</button>
     </view>
-    
-    <view class="cu-modal bottom-modal">
+
+    <view class="cu-modal" :class="{show:showAdd}">
       <view class="cu-dialog">
-        <view class="form-title">
+        <view class="form-title padding bg-white">
           请输入要提现的金额
         </view>
-        <view class="form-modal">
-          <view class="form-item">
-          
+        <view class="form-modal  flex justify-center padding">
+          <view class="form-item bg-white padding-tb-xs border-bottom line-black" style="display: inline-flex;">
+            <input type="digit" v-model="withdraw_amount" class="" style="width:280rpx;">
           </view>
+        </view>
+        <view class="  margin-tb ">
+          <button class="cu-btn bg-blue round" style="width: 40%;margin: 0 auto;" @click="toWithdraw">确认</button>
         </view>
       </view>
     </view>
@@ -33,13 +36,26 @@
     data() {
       return {
         data: {},
+        showAdd: false,
         form: {
 
-        }
+        },
+        withdraw_amount: 0,
       }
     },
     methods: {
-      toWithdraw(amount) {
+      showModal() {
+        if (!this.data?.total_over_money) {
+          uni.showModal({
+            title: '提示',
+            content: '没有可用提现余额',
+            showCancel: false
+          })
+          return
+        }
+        this.showAdd = true
+      },
+      toWithdraw() {
         const service = 'srvhealth_withdraw_add'
         const req = [{
           "serviceName": service,
@@ -56,7 +72,7 @@
             "wx_mch_id": this.getwxMchId(),
             "app_no": this.$api.appNo?.wxmp,
             "approve_type": "申请",
-            "withdraw_amount": amount
+            "withdraw_amount": this.withdraw_amount
           }]
         }]
         const url = `/health/operate/srvhealth_withdraw_add`
@@ -67,7 +83,15 @@
               content: '提现申请已提交，管理人员审核通过后即可到账',
               showCancel: false
             })
+          }else{
+            uni.showModal({
+              title: '提示',
+              content: res?.data?.resultMessage,
+              showCancel: false
+            })
           }
+          this.showAdd = false
+          this.getData()
         })
       },
       getData() {
@@ -91,6 +115,7 @@
         this.$http.post(url, req).then(res => {
           if (Array.isArray(res.data?.data) && res.data.data.length > 0) {
             this.data = res.data.data[0]
+            this.withdraw_amount = this.data.total_over_money
           }
         })
       },
@@ -104,5 +129,9 @@
 <style>
   .bg-green {
     background: #11AA66;
+  }
+
+  .border-bottom {
+    border-bottom: 1px solid #999;
   }
 </style>
