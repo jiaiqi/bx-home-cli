@@ -1058,34 +1058,6 @@
           let isOk = await this.checkBasicUserInfo()
           if (isOk) {
             await this.initApp()
-            // let res = await new Promise((resolve) => {
-            //   uni.showModal({
-            //     title: '提示',
-            //     content: '请先完善您的基本信息，然后再进行其它操作',
-            //     success: (res) => {
-            //       if (res.confirm) {
-            //         const uuid = uni.$u.guid()
-            //         let url =
-            //           `/publicPages/formPage/formPage?type=update&hideChildTable=true&serviceName=srvhealth_person_profile_nickname_update&id=${this.userInfo.id}&uuid=${uuid}`
-
-            //         uni.navigateTo({
-            //           url,
-            //           success: () => {
-            //             uni.$on('onBack', (e) => {
-            //               if (e?.uuid === uuid && e?.service ===
-            //                 'srvhealth_person_info_profile_nickname_update') {
-            //                 this.initApp().then(_ => {
-            //                   resolve(true)
-            //                 })
-            //               }
-            //             })
-            //           }
-            //         })
-            //       }
-            //     }
-            //   })
-            // })
-            // if (res == true) {
             const res1 = await new Promise(resolve => {
               uni.showModal({
                 title: '提示',
@@ -1709,6 +1681,7 @@
       border-radius: 20rpx;
     }
   }
+
   .qrcode-canvas {
     position: fixed;
     top: -999px;
@@ -1718,6 +1691,4 @@
   .cu-dialog {
     // width: 100%!important;
   }
-
-
 </style>

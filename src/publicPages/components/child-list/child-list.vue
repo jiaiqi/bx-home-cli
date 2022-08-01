@@ -177,6 +177,9 @@
       srvRowButtonDisp: {
         type: Object
       },
+      srvMoreConfig:{
+        type: Object
+      },
       fkCondition: {
         type: [Array, Object]
       },
@@ -546,20 +549,6 @@
         // let sheets = rowButton.map(item => item.button_name)
         this.showActionSheet = true
         this.listItemAction = rowButton
-        // uni.showActionSheet({
-        //   itemList: sheets,
-        //   success: (res) => {
-        //     console.log('选中了第' + (res.tapIndex + 1) + '个按钮');
-        //     let obj = {
-        //       row: e,
-        //       button: rowButton[res.tapIndex]
-        //     }
-        //     this.onFootButton(obj)
-        //   },
-        //   fail: (res) => {
-        //     console.log(res.errMsg);
-        //   }
-        // });
       },
       async onFootButton(data) {
         let self = this
@@ -863,10 +852,12 @@
               url =
                 `/publicPages/detail/detail?serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               // }
+
               if (this.hideChildList) {
                 url =
                   `/publicPages/formPage/formPage?type=detail&serviceName=${button.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
               }
+
               if (this.srvApp) {
                 url += `&appName=${this.srvApp}`
               }
@@ -1523,6 +1514,7 @@
         } else if (this.disabled) {
           return
         }
+        debugger
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':
@@ -1552,7 +1544,31 @@
                 if (Array.isArray(rowButton) && rowButton.length > 0) {
                   detailBtn = rowButton.find(item => item.button_type === 'detail')
                 }
-                if (this.config?.foreign_key?.moreConfig?.clickTarget === 'detail' && detailBtn) {
+
+                let toDetail = this.config?.foreign_key?.moreConfig?.clickTarget === 'detail'
+                let customDetailUrl = null
+                if (this.srvMoreConfig) {
+                  let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key
+                    ?.key_no
+                  if (constraint_name && this.srvMoreConfig[constraint_name]) {
+                    const moreConfig = this.srvMoreConfig[constraint_name];
+                    if (moreConfig?.clickTarget === 'detail') {
+                      toDetail = true
+                    }
+                    if (moreConfig?.customDetailUrl) {
+                      toDetail = true
+                      let obj = {
+                        ...this.globalVariable,
+                        data: row,
+                        rowData:row,
+                      };
+                      obj = this.deepClone(obj)
+                      customDetailUrl = this.renderStr(moreConfig.customDetailUrl, obj)
+                    }
+                  }
+                }
+
+                if (toDetail && detailBtn) {
                   let fieldsCond = []
                   if (row && row.id) {
                     fieldsCond = [{
@@ -1573,6 +1589,11 @@
                       })
                     }
                   }
+
+                  if (this.config?.foreign_key?.moreConfig?.detailService) {
+                    detailBtn.service_name = this.config?.foreign_key?.moreConfig?.detailService
+                  }
+
                   let url =
                     `/publicPages/detail/detail?serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
 
@@ -1580,12 +1601,19 @@
                     url =
                       `/publicPages/formPage/formPage?type=detail&serviceName=${detailBtn.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
                   }
+
+
                   if (this.config?.foreign_key?.moreConfig?.detailDisabled == true) {
                     url += '&disabled=true'
                   }
                   if (this.srvApp) {
                     url += `&appName=${this.srvApp}`
                   }
+
+                  if (customDetailUrl) {
+                    url = customDetailUrl
+                  }
+
                   uni.navigateTo({
                     url: url
                   })

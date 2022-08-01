@@ -647,6 +647,7 @@ export default {
         return res
       }
     },
+    
     getwxMchId() {
       // 获取商户号
       return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'

@@ -28,9 +28,6 @@
         <!-- <open-data type="userNickName"></open-data> -->
         <view class="name">
           <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'微信用户' }}</text>
-          <!--      <image src="./on_audit.png" mode="" class="audit-status" v-if="auditStatus&&auditStatus!=='通过'"></image>
-          <image src="./has_audit.png" mode="" class="audit-status" v-else-if="auditStatus==='通过'"></image>
-          <image src="./answer.png" mode="" class="audit-status" v-else></image> -->
         </view>
 
         <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->

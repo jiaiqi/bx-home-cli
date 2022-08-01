@@ -147,7 +147,7 @@
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild&&!hideChildTable">
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig" :srvGridButtonDisp="gridButtonDisp"
           :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
           :childListData="childListData" :fkCondition="fkCondition[item.constraint_name||item.key_no]"
           :appName="appName" :mainData="detail" @addChild="addChild" @child-list-change="childListChange"
@@ -158,7 +158,7 @@
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail&&!hideChildTable">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvGridButtonDisp="gridButtonDisp"
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig" :srvGridButtonDisp="gridButtonDisp"
           :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
           :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail"
           @addChild="addChild" @child-list-change="childListChange" @unfold="unfoldChild(item,index)"
@@ -195,6 +195,7 @@
         disabledChildButton: false, //子表禁止编辑
         formButtonDisp: null,
         gridButtonDisp: null,
+        srvMoreConfig:null,
         rowButtonDisp: null,
         childListData: {},
         hideChildTable: false
@@ -540,6 +541,9 @@
               return true
             }
           })
+        }
+        if (colVs?.moreConfig?.srvMoreConfig) {
+          this.srvMoreConfig = colVs?.moreConfig?.srvMoreConfig
         }
         if (colVs?.moreConfig?.formButtonDisp) {
           this.formButtonDisp = colVs?.moreConfig?.formButtonDisp
