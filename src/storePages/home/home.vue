@@ -1,17 +1,19 @@
 <template>
   <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
-    <cu-custom-navbar :isBack="showBackHome&&!singleStore" :back-home="showBackHome&&!singleStore">
-      <view class="nav-bar" @click="openSwitchHomePage">
-        <text class="home-name">
-          <text v-if="pageDefine&&pageDefine.pg_title">{{pageDefine.pg_title}}</text>
-          <text v-else-if="StoreInfo&&StoreInfo.name">{{ StoreInfo.name }}</text>
-          <text v-else-if="pageDefine&&pageDefine.pg_label">{{pageDefine.pg_label}}</text>
-          <text v-else-if="loadStatus==='loading'">
+    <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore">
+      <view class="nav-bar">
+        <text class="home-name" @click.stop="openSwitchHomePage">
+          <text>{{pageTitle||''}}</text>
+          <text v-if="loadStatus==='loading'">
             <u-loading :show="true" mode="flower"></u-loading>
             <text class="text-gray text-sm margin-left-xs">加载中</text>
           </text>
+          <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
+          <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
         </text>
-        <text class="cuIcon-unfold margin-left-xs" v-if="!singleStore"></text>
+        <text v-if="!singleStore" class="flex align-center">
+          <text class="cuIcon-unfold margin-left-xs"></text>
+        </text>
       </view>
     </cu-custom-navbar>
     <view class="">
@@ -99,6 +101,9 @@
       };
     },
     computed: {
+      pageTitle() {
+        return this.pageDefine.pg_title || this.StoreInfo.name 
+      },
       isManage() {
         return Array.isArray(this.manageButtonGroup) && this.manageButtonGroup.length > 0
       },
@@ -125,6 +130,10 @@
         if (this.currentTab !== -1 && this.pageDefineList.length > 0 && this.pageDefineList[this.currentTab]) {
           return this.pageDefineList[this.currentTab]
         }
+      },
+      showBackPage() {
+        // 是否显示返回按钮
+        return getCurrentPages().length > 1 || this.showBackHome
       },
       showBackHome() {
         if (this.storeNo === "S0000000000") {
@@ -772,7 +781,7 @@
           if (res?.data[0]?.audit_status == '禁用') {
             uni.showModal({
               title: '提示',
-              content: '该店铺已被禁用，即将跳转到小程序首页',
+              content: '该店铺已下架，即将跳转到小程序首页',
               showCancel: false,
               success: (res) => {
                 if (res.confirm) {

@@ -49,7 +49,7 @@
           "serviceName": service,
           "colNames": ["*"],
           "condition": [{
-              "colName": "user_account",
+              "colName": "user_no",
               "value": this.userInfo.userno,
               "ruleType": "eq"
             },
@@ -60,7 +60,9 @@
             }
           ]
         }
+        
         const url = `/health/select/${service}`
+        
         this.$http.post(url, req).then(res => {
           if (Array.isArray(res.data?.data) && res.data.data.length > 0) {
             this.data = res.data.data[0]

@@ -5,12 +5,7 @@
       <view class="store-name">
         {{storeName|| storeInfo.name||''}}
       </view>
-      <!--     <view class="tips">
-        为了即时获取最新信息
-      </view>
-      <view class="tips">
-        长按识别下方二维码，进行关注
-      </view> -->
+
       <view class="qrcode-box">
         <image :src="qrcodePath" :show-menu-by-longpress="true" mode="aspectFit" class="qr-code-image"
           @click="toPreviewImage(qrcodePath)" v-if="storeInfo&&qrcodePath"></image>
@@ -18,8 +13,6 @@
           <text class="cuIcon-refresh"></text>
         </view>
       </view>
-
-
 
       <view class="qr-code" v-if="qrCodeText">
         <uni-qrcode cid="qrcodeCanvas" :text="qrCodeText" :size="codeSize" class="qrcode-canvas" foregroundColor="#333"
@@ -45,13 +38,15 @@
         storeName: "",
         storeNo: "",
         userNo: "",
-        profile:""
+        profile: ""
       }
     },
     methods: {
       async init() {
         await selectPersonInfo()
-        this.profile = this.getUserImage()
+        let img = this.userInfo?.user_image || this.userInfo.profile_url || this.storeInfo?.logo ||
+          '20220728150847232100';
+        this.profile = this.getImagePath(img, true)
         let result = '';
         this.qrCodeText = '';
         this.qrcodePath = '';

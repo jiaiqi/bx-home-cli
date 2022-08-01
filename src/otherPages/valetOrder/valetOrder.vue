@@ -71,12 +71,12 @@
 
       <view class="text-area padding-xs text-center">
         <view class="goods-list">
-          <view class="goods-item" v-for="item in selectedGoodsList" @click="toGoodDetail(item)">
+          <view class="goods-item" v-for="(item,index) in selectedGoodsList" @click="toGoodDetail(item)">
             <view class="">
               {{item.goods_name}}
             </view>
             <view class="">
-              <u-number-box v-model="item.goods_amount" :min="1"></u-number-box>
+              <u-number-box v-model="item.goods_amount" :min="0" :index="index" @change="changeNumber"></u-number-box>
             </view>
           </view>
         </view>
@@ -155,6 +155,25 @@
       }
     },
     methods: {
+      changeNumber(e){
+        if(e?.value === 0){
+          uni.showModal({
+            title:'提示',
+            content:'数量已经不能再减少了，是否想要删除此商品?',
+            success: (res) => {
+              if(res.confirm){
+                this.selectedGoodsList.splice(e.index,1)
+              }else{
+                this.selectedGoodsList = this.selectedGoodsList.map(item=>{
+                  item.goods_amount = 1
+                  
+                  return item
+                })
+              }
+            }
+          })
+        }
+      },
       toGoodDetail(e) {
         let url = `/storePages/GoodsDetail/GoodsDetail?goods_no=${e?.goods_no}&storeNo=${this.storeInfo?.store_no}`
         uni.navigateTo({
@@ -184,8 +203,8 @@
             break
           }
         }
-        
-        if(Array.isArray(this.selectedGoodsList)&&this.selectedGoodsList.length===0){
+
+        if (Array.isArray(this.selectedGoodsList) && this.selectedGoodsList.length === 0) {
           uni.showModal({
             title: '提示',
             content: `请选择商品`,
@@ -194,7 +213,7 @@
           this.isOnSubmit = false
           return
         }
-        
+
         if (unpass > 0) {
           this.isOnSubmit = false
           return

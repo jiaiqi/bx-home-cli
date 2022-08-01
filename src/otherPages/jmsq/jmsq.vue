@@ -298,6 +298,12 @@
           //TODO handle the exception
         }
       }
+      if (this.pageType === 'add') {
+        // 下载logo 填充到默认值
+        // #ifdef MP-WEIXIN
+        this.initLogoFile()
+        // #endif
+      }
       if (option.id && option.serviceName) {
         this.id = option.id
         this.serviceName = option.serviceName
@@ -305,6 +311,48 @@
       }
     },
     methods: {
+      initLogoFile() {
+        if (this.storeInfo?.logo) {
+          uni.downloadFile({
+            url: this.getImagePath(this.storeInfo?.logo, true),
+            success: (res) => {
+              if (res.statusCode === 200) {
+                const {
+                  tempFilePath
+                } = res
+                if (tempFilePath) {
+                  uni.uploadFile({
+                    url: this.actionUrl,
+                    filePath: tempFilePath,
+                    name: 'file',
+                    header: {
+                      "bx_auth_ticket": uni.getStorageSync('bx_auth_ticket')
+                    },
+                    formData: {
+                      "serviceName": "srv_bxfile_service",
+                      "interfaceName": "add",
+                      "thumbnailType": "fwsu_100",
+                      "app_no": "health",
+                      "table_name": "bxhealth_store_mgmt",
+                      "columns": "image",
+                      "file_no": ""
+                    },
+                    success: (uploadFileRes) => {
+                      console.log(uploadFileRes.data);
+                      if (typeof uploadFileRes.data === 'string') {
+                        const resData = JSON.parse(uploadFileRes.data)
+                        if (resData?.file_no) {
+                          this.form.logo = resData?.file_no
+                        }
+                      }
+                    }
+                  });
+                }
+              }
+            }
+          });
+        }
+      },
       imgChange(val, col) {
         this.form[col] = val
       },

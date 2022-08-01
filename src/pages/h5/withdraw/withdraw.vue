@@ -32,7 +32,7 @@
           "serviceName": service,
           "colNames": ["*"],
           "condition": [{
-              "colName": "user_account",
+              "colName": "user_no",
               "value": this.userInfo.userno,
               "ruleType": "eq"
             },
