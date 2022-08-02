@@ -1,9 +1,5 @@
 <template>
 	<view class="auth-box">
-		<view class="logo-box">
-			<!-- <image :src="getImagePath('20210222171446264100')" mode="aspectFit" class="logo"></image> -->
-			<!-- <view class="label text-bold">百想健康</view> -->
-		</view>
 		<button type="primary" class="cu-btn bg-green button" lang="zh_CN" v-if="canIUseGetUserProfile"
 			@tap="getUserProfile">
 			微信登录 </button>
@@ -123,12 +119,6 @@
 		.bottom {
 			position: absolute;
 			bottom: 50px;
-		}
-
-		.logo-box {
-			margin-bottom: 50px;
-			letter-spacing: 2px;
-			min-height: 100rpx;
 		}
 
 		.logo {

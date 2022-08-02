@@ -1,5 +1,6 @@
 <template>
-  <view class="goods-detail-wrap">
+  <bx-auth @auth-complete="initPage" v-if="showAuth"></bx-auth>
+  <view class="goods-detail-wrap" v-else>
     <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
       <view class="nav-bar">
         <text class="home-name">
@@ -17,7 +18,7 @@
           v-else-if="!item.store_video_file || item.file_type !== '视频'"></image>
       </swiper-item>
     </swiper>
-    <view class="share-banner" v-if="showShareBanner" @click="changeModal('showShareTips')">
+    <view class="share-banner" v-if="showShareBanner&&shareBonus" @click="changeModal('showShareTips')">
       <image src="../static/bonus.png" mode="aspectFill" style="width: 30px;height: 30px;" class="margin-right-xs">
       </image> 分享赚￥<text class="text-lg text-bold">{{shareBonus}}</text>
     </view>
@@ -165,6 +166,9 @@
   import {
     mapState
   } from 'vuex';
+  import {
+    selectPersonInfo
+  } from '@/common/api/login.js'
   import skuSelector from '../components/sku-selector/sku-selector.vue'
   import evaluateCard from '../components/evaluate-card.vue'
   export default {
@@ -198,6 +202,7 @@
         group_price: "",
         pageType: "",
         dumpling_no: "", //团购编号
+        showAuth: false
       };
     },
 
@@ -345,6 +350,11 @@
       })
     },
     methods: {
+      async initPage() {
+        await selectPersonInfo(null,true)
+        // await this.initApp()
+        this.showAuth = false
+      },
       changeModalConfirmType(e) {
         this.modalConfirmType = 'all'
         this.modalName = e
@@ -747,6 +757,13 @@
         if (this.onHandler === true) {
           return;
         }
+
+        if ((!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户')) {
+          this.showAuth = true
+          return
+        }
+
+
         this.onHandler = true;
         let target_url = e?.target_url || this.moreConfig?.target_url;
         if (target_url && target_url !== 'add_to_cart') {

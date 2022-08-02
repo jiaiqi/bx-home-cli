@@ -475,13 +475,13 @@ export default {
 
       // 没有用户昵称和头像 初次进入小程序
 
-      if (option.invite_user_no && (!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户') && !this
-        .userInfo?.name) {
-        let res = await this.checkBasicUserInfo()
-        if (res == false) {
-          return
-        }
-      }
+      // if (option.invite_user_no && (!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户') && !this
+      //   .userInfo?.name) {
+      //   let res = await this.checkBasicUserInfo()
+      //   if (res == false) {
+      //     return
+      //   }
+      // }
 
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
@@ -571,13 +571,12 @@ export default {
           // user_image: this.userInfo.user_image,
           sex: this.userInfo.sex,
           user_role: '用户',
-          add_url: this.userInfo?.add_url || this.inviterInfo.add_url,
+          add_url: this.userInfo?.add_url || this.inviterInfo?.add_url,
           invite_user_no: this.invite_user_no || this.userInfo?.invite_user_no || this
             .inviterInfo?.invite_user_no
         }]
       }];
       if (!req[0].data[0].store_no) {
-        debugger
         return
       }
       let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo

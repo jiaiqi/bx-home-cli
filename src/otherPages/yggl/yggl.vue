@@ -99,12 +99,12 @@
               排班
             </view>
             <view class="flex align-center flex-1">
-              <picker class="flex-1" mode="time" v-model="form.schedule_start_time"
+              <picker class="flex-1" mode="time" :start="minTime" :end="maxTime" v-model="form.schedule_start_time"
                 @change="valChange($event,'schedule_start_time')">
                 <view class="field ">{{form.schedule_start_time||'请选择'}}</view>
               </picker>
               <text class="margin-lr-xs">至</text>
-              <picker class="flex-1" mode="time" v-model="form.schedule_end_time"
+              <picker class="flex-1" mode="time" :start="minTime" :end="maxTime" v-model="form.schedule_end_time"
                 @change="valChange($event,'schedule_end_time')">
                 <view class="field no-margin">{{form.schedule_end_time||'请选择'}}</view>
               </picker>
@@ -180,6 +180,12 @@
       }
     },
     computed: {
+      minTime() {
+        return this.storeInfo?.start_time || null
+      },
+      maxTime() {
+        return this.storeInfo?.end_time || null
+      },
       actionUrl() {
         return `${this.$api.srvHost}/file/upload`
       }
@@ -543,9 +549,11 @@
         padding: 2px 5px;
         flex: 1;
         min-width: 100px;
-        &.no-margin{
+
+        &.no-margin {
           margin: 0;
         }
+
         &.no-border {
           border-color: transparent;
           padding-left: 0;

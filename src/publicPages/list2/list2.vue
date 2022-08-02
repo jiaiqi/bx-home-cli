@@ -2003,8 +2003,9 @@
                   value: rowData.id
                 }]
               }
+              
               let url =
-                `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=${buttonInfo.servcie_type}&fieldsCond=` +
+                `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=update&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));
               if (this.appName) {
                 url += `&appName=${this.appName}`

@@ -133,8 +133,13 @@
         //   })
         //   return
         // }
-        let url = this.moreConfig?.detailUrl || this.moreConfig?.detailUrl
+        let url = this.moreConfig?.detailUrl || this.moreConfig?.detail_url
         if (url) {
+          let data = {
+            data: this.info,
+            info: this.info,
+            ...this.globalVariable
+          }
           url = this.renderStr(url, this)
           uni.navigateTo({
             url
@@ -142,7 +147,6 @@
         }
       },
       async handlerBeforeNav() {
-        debugger
         if (this.moreConfig?.before_nav_handler) {
           let handler = this.moreConfig?.before_nav_handler;
           let varData = {
@@ -190,6 +194,8 @@
                     if (res.data.data.length > 0) {
                       num++
                       noPass = true
+                    } else {
+                      noPass = false
                     }
                   } else {
                     if (res.data.data.length <= 0) {
@@ -203,6 +209,8 @@
                       content: item?.fail_tip,
                       showCancel: false
                     })
+                  } else {
+                    return true
                   }
                 }
               } else if (item.type === 'followOfficial') {
@@ -237,6 +245,8 @@
               return false
             }
           }
+        } else {
+          return true
         }
       },
       onRightBtn() {

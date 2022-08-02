@@ -73,7 +73,8 @@
             "wx_mch_id": this.getwxMchId(),
             "app_no": this.$api.appNo?.wxmp,
             "approve_type": "申请",
-            "withdraw_amount": this.withdraw_amount
+            "withdraw_amount": this.withdraw_amount,
+            "desc":"佣金提成"
           }]
         }]
         const url = `/health/operate/srvhealth_withdraw_add`

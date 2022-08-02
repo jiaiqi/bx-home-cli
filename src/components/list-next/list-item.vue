@@ -14,8 +14,8 @@
           :style="[setListView.imgIcon.style]" :src="getImagePath(setListView.imgIcon.fileNo,true)" mode="aspectFit">
         </image>
       </view>
-      <view class="flex flex-1" :style="{ maxWidth: setListView.listContentMaxWidth }">
-        <view class="flex flex-wrap" v-if="setListView && setListView.cols">
+      <view class="flex flex-1" :style="[{ maxWidth: setListView.listContentMaxWidth,width:'100%' }]">
+        <view class="flex flex-wrap" style="width:100%;" v-if="setListView && setListView.cols">
           <view class="list-item-content">
             <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
               :class="[item.class]">
@@ -189,7 +189,7 @@
             </button>
           </view>
           <view class="foot-button-box wrap-row"
-            v-if="showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
+            v-else-if="showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
             <button class="cu-btn round sm border"
               v-if="mainData.order_state==='已完成'&&rowData.is_remark=='待评价'&&mainData.pay_state==='已支付'"
               @click.stop="toEvaluate">评价</button>

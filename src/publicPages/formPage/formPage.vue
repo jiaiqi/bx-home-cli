@@ -1286,8 +1286,9 @@
         const app = this.appName || uni.getStorageSync('activeApp');
 
         let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
-
+        
         this[`${this.srvType}V2`] = colVs
+        
 
         if (['update', 'add'].includes(this.srvType)) {
           await this.getDetailV2(colVs.select_service_name)

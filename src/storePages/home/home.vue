@@ -1,5 +1,6 @@
 <template>
-  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
+  <bx-auth @auth-complete="initPage" v-if="showAuth"></bx-auth>
+  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]" v-else>
     <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar">
         <text class="home-name" @click.stop="openSwitchHomePage">
@@ -65,6 +66,9 @@
   import {
     mapState
   } from 'vuex';
+  import {
+    selectPersonInfo
+  } from '@/common/api/login.js'
   import StoreItem from './store-item/store-item.vue';
   import starGuide from './star-guide/star-guide.vue'
   var socketOpen = false;
@@ -97,12 +101,13 @@
         ptInfo: null,
         rowData: {},
         invite_user_no: '',
-        loadStatus: 'more'
+        loadStatus: 'more',
+        showAuth: false
       };
     },
     computed: {
       pageTitle() {
-        return this.currentPageDefine?.pg_title || this.StoreInfo?.name 
+        return this.currentPageDefine?.pg_title || this.StoreInfo?.name
       },
       isManage() {
         return Array.isArray(this.manageButtonGroup) && this.manageButtonGroup.length > 0
@@ -220,6 +225,12 @@
       },
       async changeTab(index) {
         let curTab = this.tabbarList[index];
+        if (index > 0) {
+          if ((!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户')) {
+            this.showAuth = true
+            return
+          }
+        }
         if (curTab?.link_pd_no) {
           this.pageItemList = []
           this.pdNo = curTab?.link_pd_no;
@@ -227,6 +238,7 @@
         } else if (curTab?.link_pd_json) {
           this.handlerSwitch(curTab)
         }
+        uni.$emit('on-nav-click')
       },
       getQrcode(e) {
         this.StoreInfo.store_qr_code = e;
@@ -1188,6 +1200,8 @@
       async initPage(forceUpdate = false) {
         // forceUpdate - 是否强制更新店铺组件
         // await this.toAddPage();
+        this.showAuth = false
+        await selectPersonInfo(null,true)
         // #ifdef MP-WEIXIN
         await this.initApp()
         //#endif
