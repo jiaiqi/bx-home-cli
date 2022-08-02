@@ -58,6 +58,9 @@
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
     <starGuide></starGuide>
+    
+    <view class="shadow-view" v-if="notNickName" @click="clickShadow" :allowCancel="true" @cancel="cancelAuth"></view>
+    
   </view>
 
 </template>
@@ -106,6 +109,9 @@
       };
     },
     computed: {
+      notNickName(){
+        return (!this.userInfo?.nick_name||this.userInfo?.nick_name==='微信用户')&&!this.userInfo?.profile_url
+      },
       pageTitle() {
         return this.currentPageDefine?.pg_title || this.StoreInfo?.name
       },
@@ -162,6 +168,21 @@
       })
     },
     methods: {
+      cancelAuth(){
+        this.showAuth = false
+      },
+      clickShadow(){
+        uni.showModal({
+          title:'提示',
+          content:'请先授权访问您的头像昵称信息，在进行其他操作',
+          showCancel:false,
+          success: (res) => {
+            if(res.confirm){
+              this.showAuth = true
+            }
+          }
+        })
+      },
       toHome() {
         //#ifdef MP-WEIXIN
         if (this.$api?.env === 'custom') {
@@ -1772,6 +1793,15 @@
 </script>
 
 <style lang="scss" scoped>
+  .shadow-view{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background: transparent;
+  }
   .page-wrap {
     background-color: #f8f8fa;
     background-color: var(--home-bg-color);

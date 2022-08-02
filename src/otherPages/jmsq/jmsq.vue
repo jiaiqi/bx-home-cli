@@ -179,7 +179,7 @@
         </view>
       </view>
     </view>
-    <view class="form-box">
+    <!-- <view class="form-box">
       <view class="title">
         分佣设置
       </view>
@@ -205,7 +205,7 @@
           </view>
         </view>
       </view>
-    </view>
+    </view> -->
     <view class="bottom-btn" v-if="pageType!=='detail'">
       <button class="cu-btn lg" @click="onsubmit">提交</button>
     </view>

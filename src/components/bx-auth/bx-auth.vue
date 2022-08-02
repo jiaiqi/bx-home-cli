@@ -6,6 +6,7 @@
 		<button type="primary" class="cu-btn bg-green button" v-else open-type="getUserInfo" @getuserinfo="getUserInfo">
 			微信登录
 		</button>
+    <button class="cu-btn bg-gray button margin-tb-xs" @click="onCancel" v-if="allowCancel">取消</button>
 		<view class="tips">{{ tips }}</view>
 		<view class="bottom">
 			登录代表您已同意<text class="text-cyan" @click="toArticle('CT2021012816330102')">百想用户协议</text>
@@ -30,7 +31,11 @@
 			tips: {
 				type: String,
 				default: '您必须登录后才可体验完整小程序'
-			}
+			},
+      allowCancel:{
+        type:Boolean,
+        default:true
+      }
 		},
 		created() {
 			if (wx.getUserProfile) {
@@ -38,6 +43,9 @@
 			}
 		},
 		methods: {
+      onCancel(){
+        this.$emit('cancel')
+      },
 			getUserProfile(e) {
 				// 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认
 				// 开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
