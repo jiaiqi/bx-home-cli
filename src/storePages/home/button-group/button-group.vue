@@ -212,17 +212,12 @@
   import {
     selectPersonInfo
   } from '@/common/api/login.js'
+  let interval = null
   export default {
     props: {
       bindUserInfo: {
         type: Object,
       },
-      /*   storeInfo: {
-           type: Object,
-         },
-         userInfo: {
-           type: Object,
-         }, */
       pageItem: {
         type: Object,
       },
@@ -233,23 +228,12 @@
     mounted() {
       let globalData = getApp().globalData
       this.globalData = globalData
-      // if (this.pageItem?.more_config) {
-      //   let moreConfig = this.pageItem?.more_config
-      //   if (typeof moreConfig === 'string') {
-      //     try {
-      //       moreConfig = JSON.parse(this.pageItem?.more_config)
-      //     } catch (e) {
-      //       //TODO handle the exception
-      //     }
-      //   }
-
-      //   if (moreConfig?.noticeNumConfig) {
-      //     let noticeNumConfig = moreConfig.noticeNumConfig;
-      //     this.getNoticeNum(noticeNumConfig)
-      //   }
-
-      // }
-
+      uni.$on('on-nav-click', () => {
+        this.setMenuList()
+      })
+    },
+    unmounted() {
+      clearInterval(interval)
     },
     data() {
       return {
@@ -276,26 +260,11 @@
         buttonsIcon: [],
         menuList: [],
         noticeNum: {},
-        validateMap: null
+        validateMap: null,
       };
     },
 
     watch: {
-      'pageItem': {
-        deep: true,
-        immediate: true,
-        handler(newValue, oldValue) {
-          if (newValue && Array.isArray(newValue.listdata)) {
-            // this.buttons = newValue.listdata.map(item => {
-            //   item.url = item.dest_page
-            //   if (item.dest_page && item.dest_page.indexOf('getPhoneNumber') !== -1) {
-            //     item.openType = 'getPhoneNumber'
-            //   }
-            //   return item
-            // });
-          }
-        }
-      },
       buttons: {
         immediate: true,
         deep: true,
@@ -309,13 +278,15 @@
           }
         }
       },
-      // storeNo: {
-      //   immediate: true,
-      //   handler(newValue, oldValue) {
-      //   },
-      // },
     },
     computed: {
+      moreConfig() {
+        return this.pageItem?.more_config
+      },
+      noticeNumConfig() {
+        return this.pageItem?.moreConfig?.noticeNumConfig || this.pageItem?.more_config?.noticeNumConfig || this
+          .moreConfig?.noticeNumConfig || null
+      },
       buttonSize() {
         let size = ''
         switch (this.pageItem?.button_size) {
@@ -428,22 +399,14 @@
         return style
       },
       async setMenuList() {
-
-        if (this.pageItem?.more_config) {
-          let moreConfig = this.pageItem?.more_config
-          if (typeof moreConfig === 'string') {
-            try {
-              moreConfig = JSON.parse(this.pageItem?.more_config)
-            } catch (e) {
-              //TODO handle the exception
-            }
-          }
-
-          if (moreConfig?.noticeNumConfig) {
-            let noticeNumConfig = moreConfig.noticeNumConfig;
-            await this.getNoticeNum(noticeNumConfig)
-          }
+        if (this.noticeNumConfig) {
+          clearInterval(interval)
+          interval = setTimeout(() => {
+            this.setMenuList()
+          }, 30000)
         }
+        console.log(this.noticeNumConfig);
+        await this.getNoticeNum(this.noticeNumConfig)
 
         let list = [];
         if (Array.isArray(this.buttons) && this.buttons.length > 0) {
@@ -1051,6 +1014,7 @@
         //#endif
       },
       async toPages(e) {
+        this.setMenuList()
         if (this.userInfo?.userno && (!this.userInfo.nick_name)) {
           await selectPersonInfo(this.userInfo?.userno, true)
         }
@@ -1288,8 +1252,15 @@
         this.$emit("addToStore");
       },
       async getNoticeNum(e) {
+        console.log(e, this.pageItem)
+        e = e || this.pageItem?.more_config?.noticeNumConfig
+        debugger
         let serviceName = e?.service_name
         let app = e?.app
+        if (!serviceName) {
+          debugger
+          return
+        }
         let req = {
           "colNames": ["*"],
           "serviceName": serviceName,

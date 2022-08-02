@@ -61,10 +61,11 @@
           "serviceName": service,
           "data": [{
             "store_no": this.storeInfo.store_no,
-            "person_no": this.userInfo?.userno,
+            "person_no": this.vstoreUser?.store_user_no,
+            // "person_no": this.userInfo?.no,
             "person_name": this.userInfo?.name || this.userInfo?.nick_name,
             "phone": this.userInfo?.phone || this.userInfo?.phone_xcx,
-            "user_account": this.userInfo?.no,
+            "user_account": this.userInfo?.userno,
             "profile_url": this.userInfo?.profile_url,
             "user_image": this.userInfo?.user_image,
             "over_money": this.data.total_over_money,

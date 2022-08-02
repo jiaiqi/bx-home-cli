@@ -21,7 +21,7 @@
           :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
           :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
           @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
-        <radio :value="item[idCol]" :checked="item.checked"
+        <radio :value="item[idCol]?item[idCol].toString():''" :checked="item.checked"
           v-if="listType==='selectorList'||listType==='multiSelectByJson'" style="transform:scale(1);margin-right:5px;"
           :disabled="setRadioDisabled(item)" @click="checkboxChange(item)" />
       </view>

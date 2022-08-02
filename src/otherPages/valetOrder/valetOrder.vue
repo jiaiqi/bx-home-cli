@@ -71,12 +71,12 @@
 
       <view class="text-area padding-xs text-center">
         <view class="goods-list">
-          <view class="goods-item" v-for="(item,index) in selectedGoodsList" @click="toGoodDetail(item)">
+          <view class="goods-item" v-for="(item,index) in selectedGoodsList" :key="item.id" @click="toGoodDetail(item)">
             <view class="">
               {{item.goods_name}}
             </view>
             <view class="">
-              <u-number-box v-model="item.goods_amount" :min="0" :index="index" @change="changeNumber"></u-number-box>
+              <u-number-box v-model="item.goods_amount" ref="numberBox" :min="0" :index="index" @change="changeNumber"></u-number-box>
             </view>
           </view>
         </view>
@@ -155,18 +155,22 @@
       }
     },
     methods: {
-      changeNumber(e){
-        if(e?.value === 0){
+      changeNumber(e) {
+        if (e?.value === 0) {
           uni.showModal({
-            title:'提示',
-            content:'数量已经不能再减少了，是否想要删除此商品?',
+            title: '提示',
+            content: '数量已经不能再减少了，是否想要删除此商品?',
             success: (res) => {
-              if(res.confirm){
-                this.selectedGoodsList.splice(e.index,1)
-              }else{
-                this.selectedGoodsList = this.selectedGoodsList.map(item=>{
-                  item.goods_amount = 1
-                  
+              if (res.confirm) {
+                this.selectedGoodsList.splice(e.index, 1)
+                this.selectedGoods = this.selectedGoodsList.map(item => item.goods_no).toString()
+              } else {
+                this.selectedGoodsList.forEach((item, index) => {
+                  if (index === e.index) {
+                    item.goods_amount = 1;
+                    this.$refs.numberBox[index].inputVal = 1
+                    this.$set(this.selectedGoodsList, index, item)
+                  }
                   return item
                 })
               }
@@ -336,6 +340,11 @@
           colName: "store_no",
           ruleType: "eq",
           value: this.storeInfo.store_no
+        },
+        {
+          colName:'online_state',
+          ruleType: "eq",
+          value: '上线'
         }]
         url += `&cond=${JSON.stringify(condition)}`
 
@@ -371,7 +380,7 @@
       toSelectUser() {
         const uuid = uni.$u.guid()
         let url =
-          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_user_select&cond=[{"colName":"store_no","ruleType":"like","value":"${this.vstoreUser.store_no}"}]&idCol=store_user_no&uuid=${uuid}`
+          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_member_list_select&cond=[{"colName":"store_no","ruleType":"like","value":"${this.vstoreUser.store_no}"}]&idCol=store_user_no&uuid=${uuid}`
 
         const listConfig = {
           "lp_style": "单行",

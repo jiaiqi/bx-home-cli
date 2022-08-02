@@ -115,7 +115,6 @@
     methods: {
       async onHandler() {
         let res = await this.handlerBeforeNav()
-        debugger
         if (res === false) {
           return
         } else {
@@ -290,7 +289,6 @@
         })
       },
       async toOpenVip() {
-        debugger
         await this.checkUserInfo()
         // if (this.hasNotRegInfo) {
         //   uni.navigateTo({

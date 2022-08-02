@@ -99,12 +99,14 @@
               排班
             </view>
             <view class="flex align-center flex-1">
-              <picker mode="time" v-model="form.schedule_start_time" @change="valChange($event,'schedule_start_time')">
-                <view class="field">{{form.schedule_start_time||'请选择'}}</view>
+              <picker class="flex-1" mode="time" v-model="form.schedule_start_time"
+                @change="valChange($event,'schedule_start_time')">
+                <view class="field ">{{form.schedule_start_time||'请选择'}}</view>
               </picker>
               <text class="margin-lr-xs">至</text>
-              <picker mode="time" v-model="form.schedule_end_time" @change="valChange($event,'schedule_end_time')">
-                <view class="field">{{form.schedule_end_time||'请选择'}}</view>
+              <picker class="flex-1" mode="time" v-model="form.schedule_end_time"
+                @change="valChange($event,'schedule_end_time')">
+                <view class="field no-margin">{{form.schedule_end_time||'请选择'}}</view>
               </picker>
             </view>
           </view>
@@ -518,7 +520,7 @@
       display: flex;
       align-items: center;
       margin: 5px 0;
-      
+
       .flex-1 {
         flex: 1;
       }
@@ -541,10 +543,14 @@
         padding: 2px 5px;
         flex: 1;
         min-width: 100px;
-        &.no-border{
+        &.no-margin{
+          margin: 0;
+        }
+        &.no-border {
           border-color: transparent;
           padding-left: 0;
         }
+
         .slot-btn {
           width: 100rpx;
           height: 100rpx;
