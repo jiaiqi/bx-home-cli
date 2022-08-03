@@ -422,12 +422,12 @@
               </view>
             </view>
             <view class="person-chat-item-left" @tap.stop="clickAvatar(item)" @longpress.stop="remindSomeone(item)">
-              <image lazy-load
-                :src="storeInfo.logo?getImagePath(storeInfo.logo,true):getImagePath(storeInfo.image,true)"
+         <!--     <image lazy-load
+                :src="storeInfo.logo?getImagePath(storeInfo.logo,true):getSenderProfile(item)"
                 mode="aspectFill" v-if="identity === '客服'&&(storeInfo.image||storeInfo.logo)&&item.identity=='客服'">
-              </image>
+              </image> -->
               <image lazy-load :src="getSenderProfile(item)
-                " mode="aspectFill" v-else></image>
+                " mode="aspectFill"></image>
             </view>
           </view>
         </view>
@@ -2059,6 +2059,7 @@
           if (this.identity === '客户') {
             serviceName = 'srvhealth_consultation_chat_record_kefu_user_add'
           } else {
+            debugger
             serviceName = 'srvhealth_consultation_chat_record_kefu_kefu_add'
           }
         }
