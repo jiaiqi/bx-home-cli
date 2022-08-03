@@ -69,10 +69,7 @@
               }}</text>
             </view>
             <view class="person-chat-item-left" @tap.stop="clickAvatar(item)" @longpress.stop="remindSomeone(item)">
-              <image lazy-load :src="
-                  storeInfo.logo
-                    ? getImagePath(storeInfo.logo)
-                    : getImagePath(storeInfo.image)
+              <image lazy-load :src="getSenderProfile(item)
                 " mode="aspectFill"
                 v-if="identity === '客户' && item.identity === '客服'&&(storeInfo.logo||storeInfo.image)"></image>
               <image lazy-load :src="
@@ -422,7 +419,7 @@
               </view>
             </view>
             <view class="person-chat-item-left" @tap.stop="clickAvatar(item)" @longpress.stop="remindSomeone(item)">
-         <!--     <image lazy-load
+              <!--     <image lazy-load
                 :src="storeInfo.logo?getImagePath(storeInfo.logo,true):getSenderProfile(item)"
                 mode="aspectFill" v-if="identity === '客服'&&(storeInfo.image||storeInfo.logo)&&item.identity=='客服'">
               </image> -->
@@ -3500,6 +3497,7 @@
               width: 80rpx;
               height: 80rpx;
               border-radius: 10rpx;
+              background-color: #f5f5f5;
             }
           }
 
@@ -3795,6 +3793,7 @@
               width: 80rpx;
               height: 80rpx;
               border-radius: 10rpx;
+              background-color: #f7f7f7;
             }
 
             margin-left: 20rpx;

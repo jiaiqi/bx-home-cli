@@ -262,7 +262,7 @@
         show: modalName === 'Selector' || modalName === 'MultiSelector',
       }" @click="hideModal" @touchmove.prevent.stop="">
       <view class="cu-dialog" @tap.stop="">
-        <fk-selector :srvApp="srvApp" :fields-model="fieldsModel" :option-cfg="fieldData.option_list_v2"></fk-selector>
+        <!-- <fk-selector :srvApp="srvApp" :fields-model="fieldsModel" :option-cfg="fieldData.option_list_v2"></fk-selector> -->
         <option-selector :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
           :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey"
