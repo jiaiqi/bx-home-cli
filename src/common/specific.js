@@ -245,7 +245,7 @@ export default {
         if (res.data.state === 'SUCCESS') {
           if (res?.data?.response?. [0]?.response?.effect_data?. [0]?.id) {
             let data = res?.data?.response?. [0]?.response?.effect_data?. [0]
-            this.$store.commit('SET_USERINFO', data)
+            store.commit('SET_USERINFO', data)
             uni.setStorageSync('current_user_info', data);
             uni.setStorageSync('current_user', data.name);
           }

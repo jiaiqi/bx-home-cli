@@ -23,7 +23,8 @@ export default {
       isLogin: state => state.app.isLogin,
       vvipCard: state => state.user.vipCard, //用户会员卡信息（充值卡）
       curStoreNo: state => state.app.curStoreNo, //当前店铺编号
-      placeInfo: state => state.app.placeInfo
+      placeInfo: state => state.app.placeInfo,
+      inviterInfo: state => state.app.inviterInfo,
     }),
     $api() {
       return api
@@ -114,9 +115,9 @@ export default {
           }
         });
         // #endif
-       // #ifdef H5
+        // #ifdef H5
         window.open(path)
-       // #endif
+        // #endif
       }
     },
     async saveFile(e) {
@@ -411,7 +412,6 @@ export default {
       if (this.userInfo?.userno) {
         await selectPersonInfo(this.userInfo?.userno, true)
       }
-      debugger
       if (this.userInfo?.userno && (this.userInfo?.nick_name === '微信用户' || !this.userInfo.nick_name)) {
         result = await new Promise((resolve) => {
           uni.showModal({
@@ -607,8 +607,104 @@ export default {
         return res;
       }
     },
+    async getInviteStoreUser(user_no) {
+      let storeNo = this.curStoreNo
+      if (!storeNo) {
+        return
+      }
+      let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select');
+      let req = {
+        colNames: ['*'],
+        serviceName: 'srvhealth_store_user_share_select',
+        condition: [{
+            colName: 'user_account',
+            ruleType: 'eq',
+            value: user_no
+          },
+          {
+            colName: 'store_no',
+            ruleType: 'eq',
+            value: storeNo
+          }
+        ],
+        page: {
+          rownumber: 1
+        }
+      };
+      if (!user_no) {
+        return;
+      }
+      let res = await this.$http.post(url, req);
+      if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        return res.data.data[0];
+      }
+    },
+    async updatePersonInfo(data = {}) {
+      const service = 'srvhealth_person_info_update'
+      const url = `/health/operate/${service}`
+      if (!this.userInfo?.id) {
+        return
+      }
+      const req = [{
+        "serviceName": service,
+        "condition": [{
+          colName: 'id',
+          ruleType: 'eq',
+          value: this.userInfo?.id
+        }],
+        "data": [data]
+      }]
+      const res = await this.$http.post(url, req)
+      return res
+    },
+    async updateStoreUser(data, showToast) {
+      if (!this.vstoreUser?.id) {
+        return
+      }
+      let req = [{
+        serviceName: 'srvhealth_store_user_update',
+        condition: [{
+          colName: 'id',
+          ruleType: 'eq',
+          value: this.vstoreUser?.id
+        }],
+        data: [data]
+      }];
+      let res = await this.$fetch('operate', 'srvhealth_store_user_update', req, 'health');
+      if (res.success) {
+        if (showToast) {
+          uni.showToast({
+            title: '操作成功'
+          });
+        }
+        await this.getStoreUser_();
+      }
+      return
+    },
+
     async getStoreUser_() {
       let storeNo = this.curStoreNo
+      let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no
+      if (invite_user_no && invite_user_no !== this.userInfo?.userno && storeNo) {
+        // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !this.userInfo?.invite_user_no && storeNo) {
+        if (this.storeInfo?.standard == '更新') {
+          // 更新店铺用户的邀请人编码
+          let data = {
+            invite_user_no: invite_user_no
+          };
+          if (!this.userInfo?.invite_user_no) {
+            await this.updatePersonInfo(data);
+          }
+          let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
+          if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
+            .store_user_no !== this
+            .vstoreUser?.store_user_no) {
+            data.invite_store_user_no = inviterStoreUser.store_user_no;
+          }
+          await this.updateStoreUser(data)
+        }
+      }
+
       if (this.userInfo?.no && storeNo) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {
@@ -646,7 +742,7 @@ export default {
         return res
       }
     },
-    
+
     getwxMchId() {
       // 获取商户号
       return this.storeInfo?.wx_mch_id || this.$api?.wxMchId || '1485038452'

@@ -1,8 +1,5 @@
 <template>
   <view class="padding-sm">
-    <view class="flex justify-center ">
-      <button class="cu-btn bg-blue padding-lr-lg" @click="toAdd">新建入库</button>
-    </view>
     <view class="filter-card bg-white radius margin-tb padding-sm">
       <view class="filter-item flex justify-between">
         <view class="label">
@@ -64,11 +61,6 @@
       }
     },
     methods: {
-      toAdd(){
-        uni.navigateTo({
-          url:'/pages/stock/add/add'
-        })
-      },
       instock() {
         // 入库
         const req = [{

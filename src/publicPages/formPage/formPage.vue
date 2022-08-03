@@ -1785,7 +1785,6 @@
   .form-wrap {
     min-height: 100vh;
     background-color: #F8F8F8;
-    padding: 20rpx;
     display: flex;
     flex-direction: column;
     margin: 0 auto;

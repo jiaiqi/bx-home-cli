@@ -13,7 +13,7 @@
         <view class="bottom">
           <image class="logo" :src="getImagePath(setStoreInfo.logo)" mode="aspectFit" v-if="setStoreInfo.logo"></image>
           <view class="content">
-            <view class="margin-bottom-xs">
+            <view class="margin-bottom-xs" v-if="setStoreInfo.address">
               <text @click.stop="getCurrentLocation">
                 <text class="cuIcon-locationfill margin-right-xs"></text> {{setStoreInfo.address||''}}
               </text>

@@ -1254,11 +1254,9 @@
       async getNoticeNum(e) {
         console.log(e, this.pageItem)
         e = e || this.pageItem?.more_config?.noticeNumConfig
-        debugger
         let serviceName = e?.service_name
         let app = e?.app
         if (!serviceName) {
-          debugger
           return
         }
         let req = {

@@ -1,5 +1,5 @@
 <template>
-  <bx-auth @auth-complete="initPage" v-if="showAuth"></bx-auth>
+  <bx-auth @auth-complete="initPage" v-if="showAuth"  :allowCancel="true" @cancel="cancelAuth"></bx-auth>
   <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]" v-else>
     <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar">
@@ -58,8 +58,9 @@
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
     <starGuide></starGuide>
-    
-    <view class="shadow-view" v-if="notNickName" @click="clickShadow" :allowCancel="true" @cancel="cancelAuth"></view>
+    <!-- #ifdef MP-WEIXIN -->
+    <view class="shadow-view" v-if="notNickName" @click="clickShadow"></view>
+    <!-- #endif -->
     
   </view>
 
@@ -160,10 +161,8 @@
       },
       ...mapState({
         theme: state => state.app.theme,
-        wxUserInfo: state => state.user.wxUserInfo,
-        userInfo: state => state.user.userInfo,
-        inviterInfo: state => state.app.inviterInfo,
-        subscsribeStatus: state => state.app.subscsribeStatus, //是否关注公众号
+        // userInfo: state => state.user.userInfo,
+        // subscsribeStatus: state => state.app.subscsribeStatus, //是否关注公众号
         // hasNotRegInfo: state => state.app.hasNotRegInfo //授权访问用户信息
       })
     },
@@ -174,7 +173,7 @@
       clickShadow(){
         uni.showModal({
           title:'提示',
-          content:'请先授权访问您的头像昵称信息，在进行其他操作',
+          content:'请先授权访问您的头像昵称信息，再进行其他操作',
           showCancel:false,
           success: (res) => {
             if(res.confirm){
@@ -275,27 +274,27 @@
         };
         this.updateStoreUser(data, true);
       },
-      async updateStoreUser(data, showToast) {
-        let req = [{
-          serviceName: 'srvhealth_store_user_update',
-          condition: [{
-            colName: 'id',
-            ruleType: 'eq',
-            value: this.bindUserInfo?.id
-          }],
-          data: [data]
-        }];
-        let res = await this.$fetch('operate', 'srvhealth_store_user_update', req, 'health');
-        this.hideModal();
-        if (res.success) {
-          if (showToast) {
-            uni.showToast({
-              title: '操作成功'
-            });
-          }
-          this.selectBindUser(true);
-        }
-      },
+      // async updateStoreUser(data, showToast) {
+      //   let req = [{
+      //     serviceName: 'srvhealth_store_user_update',
+      //     condition: [{
+      //       colName: 'id',
+      //       ruleType: 'eq',
+      //       value: this.bindUserInfo?.id
+      //     }],
+      //     data: [data]
+      //   }];
+      //   let res = await this.$fetch('operate', 'srvhealth_store_user_update', req, 'health');
+      //   this.hideModal();
+      //   if (res.success) {
+      //     if (showToast) {
+      //       uni.showToast({
+      //         title: '操作成功'
+      //       });
+      //     }
+      //     this.selectBindUser(true);
+      //   }
+      // },
 
       openSwitchHomePage() {
         if (this.singleStore) {
@@ -708,24 +707,24 @@
               this.isBind = false;
             }
             this.bindUserInfo = isBind;
-            let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
-              ?.invite_user_no;
-            if (invite_user_no && invite_user_no !== this.userInfo?.userno && !updated) {
-              if (this.StoreInfo?.standard == '更新') {
-                // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
-                // 更新店铺用户的邀请人编码
-                let data = {
-                  invite_user_no: invite_user_no
-                };
-                let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
-                if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
-                  .store_user_no !== this
-                  .bindUserInfo?.store_user_no) {
-                  data.invite_store_user_no = inviterStoreUser.store_user_no;
-                }
-                this.updateStoreUser(data);
-              }
-            }
+            // let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
+            //   ?.invite_user_no;
+            // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !updated) {
+              // if (this.StoreInfo?.standard == '更新') {
+              //   // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
+              //   // 更新店铺用户的邀请人编码
+              //   let data = {
+              //     invite_user_no: invite_user_no
+              //   };
+              //   let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
+              //   if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
+              //     .store_user_no !== this
+              //     .bindUserInfo?.store_user_no) {
+              //     data.invite_store_user_no = inviterStoreUser.store_user_no;
+              //   }
+              //   this.updateStoreUser(data);
+              // }
+            // }
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           } else {
             this.isBind = false;
@@ -734,34 +733,34 @@
           this.isBind = false;
         }
       },
-      async getInviteStoreUser(user_no) {
-        let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select');
-        let req = {
-          colNames: ['*'],
-          serviceName: 'srvhealth_store_user_share_select',
-          condition: [{
-              colName: 'user_account',
-              ruleType: 'eq',
-              value: user_no
-            },
-            {
-              colName: 'store_no',
-              ruleType: 'eq',
-              value: this.StoreInfo.store_no
-            }
-          ],
-          page: {
-            rownumber: 1
-          }
-        };
-        if (!user_no) {
-          return;
-        }
-        let res = await this.$http.post(url, req);
-        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-          return res.data.data[0];
-        }
-      },
+      // async getInviteStoreUser(user_no) {
+      //   let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select');
+      //   let req = {
+      //     colNames: ['*'],
+      //     serviceName: 'srvhealth_store_user_share_select',
+      //     condition: [{
+      //         colName: 'user_account',
+      //         ruleType: 'eq',
+      //         value: user_no
+      //       },
+      //       {
+      //         colName: 'store_no',
+      //         ruleType: 'eq',
+      //         value: this.StoreInfo.store_no
+      //       }
+      //     ],
+      //     page: {
+      //       rownumber: 1
+      //     }
+      //   };
+      //   if (!user_no) {
+      //     return;
+      //   }
+      //   let res = await this.$http.post(url, req);
+      //   if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+      //     return res.data.data[0];
+      //   }
+      // },
       async getThemeCfg(no) {
         // 查找店铺主题配置
         if (!no || typeof no !== 'string') {
@@ -814,7 +813,7 @@
           if (res?.data[0]?.audit_status == '禁用') {
             uni.showModal({
               title: '提示',
-              content: '该店铺已下架，即将跳转到小程序首页',
+              content: '该店铺已下架',
               showCancel: false,
               success: (res) => {
                 if (res.confirm) {
@@ -1227,7 +1226,7 @@
         await this.initApp()
         //#endif
         this.pageItemList = false
-        if (!this.subscsribeStatus) {
+        if (!this.isAttention) {
           // 检测是否已关注公众号
           this.checkSubscribeStatus();
         }
@@ -1503,7 +1502,7 @@
     async onShow() {
       let globalData = getApp().globalData;
       this.globalData = globalData;
-      if (!this.subscsribeStatus) {
+      if (!this.isAttention) {
         // 检测是否已关注公众号
         this.checkSubscribeStatus();
       }

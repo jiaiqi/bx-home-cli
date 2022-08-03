@@ -163,7 +163,6 @@
         this.curInputVal = this.form[this.curInputCol] || ''
       },
       isNight(e) {
-        debugger
         if (e) {
           let num = parseInt(e)
           if (!isNaN(num) && num >= 18) {

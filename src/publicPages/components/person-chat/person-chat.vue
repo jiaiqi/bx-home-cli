@@ -2360,7 +2360,7 @@
           })
         }
       },
-      async getAutoReplayMsg() {
+      async getAutoReplayMsg(replayListStore) {
         // 查找自动回复消息
         const url = `/health/select/srvhealth_automatic_response_content_select`
         const req = {
@@ -2369,7 +2369,7 @@
           "condition": [{
             colName: 'store_no',
             ruleType: 'eq',
-            value: this.storeInfo?.store_no
+            value: replayListStore || this.storeInfo?.store_no
           }],
           "page": {
             "pageNo": 1,
@@ -2702,10 +2702,26 @@
             resData = resData;
             if (this.sessionType === '机构用户客服' && this.identity === '客户') {
               if (this.recordList.length === 0) {
-                let autoReplayMsg = await this.getAutoReplayMsg()
-                if (Array.isArray(autoReplayMsg)) {
-                  resData = [...autoReplayMsg, ...resData]
+                if (this.storeInfo?.automatic_rsp_set_up) {
+                  // 自动回复设置
+                  if (this.storeInfo?.automatic_rsp_set_up !== '不开启') {
+                    let replayListStore = ''
+                    if (this.storeInfo?.automatic_rsp_set_up === '使用总店配置') {
+                      replayListStore = this.storeInfo.path.split('/')[1]
+                    } else {
+                      replayListStore = this.storeInfo?.store_no
+                    }
+                    if (replayListStore) {
+                      let autoReplayMsg = await this.getAutoReplayMsg(replayListStore)
+                      if (Array.isArray(autoReplayMsg)) {
+                        resData = [...autoReplayMsg, ...resData]
+                      }
+                    }
+
+                  }
                 }
+
+
               } else {
                 let autoReplay = this.recordList.filter(item => item.type === 'autoReplay');
                 if (Array.isArray(autoReplay) && autoReplay.length > 0) {

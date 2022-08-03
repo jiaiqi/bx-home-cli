@@ -181,10 +181,18 @@
     },
     computed: {
       minTime() {
-        return this.storeInfo?.start_time || null
+        let start_time = this.storeInfo?.start_time || null
+        if (start_time) {
+          start_time = start_time.slice(0, 5)
+        }
+        return start_time
       },
       maxTime() {
-        return this.storeInfo?.end_time || null
+        let end_time = this.storeInfo?.end_time || null
+        if (end_time) {
+          end_time = end_time.slice(0, 5)
+        }
+        return end_time
       },
       actionUrl() {
         return `${this.$api.srvHost}/file/upload`

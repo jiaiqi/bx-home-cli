@@ -228,9 +228,9 @@
       <bx-image-upload
         :max-count="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.maxCount?fieldData.moreConfig.maxCount:10"
         :open-type="['profile_url','user_image'].includes(fieldData.column)?'chooseAvatar':''"
-        :disabled="pageType==='detail'" :custom-btn="false" :interfaceName="formType" :appName="uploadFormData.app_no"
-        :tableName="uploadFormData.table_name" :value="fieldData.value" :index="fieldData.column" :action="uploadUrl"
-        @change="imgChange" v-else-if="fieldData.type === 'images'">
+        :disabled="pageType==='detail'||fieldData.disabled" :custom-btn="false" :interfaceName="formType"
+        :appName="uploadFormData.app_no" :tableName="uploadFormData.table_name" :value="fieldData.value"
+        :index="fieldData.column" :action="uploadUrl" @change="imgChange" v-else-if="fieldData.type === 'images'">
         <!--     <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
           <text class="cuIcon-add"></text>
         </view> -->
@@ -262,6 +262,7 @@
         show: modalName === 'Selector' || modalName === 'MultiSelector',
       }" @click="hideModal" @touchmove.prevent.stop="">
       <view class="cu-dialog" @tap.stop="">
+        <fk-selector :srvApp="srvApp" :fields-model="fieldsModel" :option-cfg="fieldData.option_list_v2"></fk-selector>
         <option-selector :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
           :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey"
@@ -1274,7 +1275,8 @@
           }
 
 
-          if (self.fieldData.value && (!req.condition || req.condition.length == 0) && (self.fieldData.disabled ||
+          if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && (!req.condition || req.condition
+              .length == 0) && (self.fieldData.disabled ||
               self
               .fieldData.display == false)) {
             req.condition = [{
