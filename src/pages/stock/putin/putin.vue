@@ -63,7 +63,7 @@
 
           </view>
         </view>
-        <view class="tr" v-for="item in selectedGoods">
+        <view class="tr" v-for="(item,index) in selectedGoods" @click="showModal('update',index)">
           <view class="td">
             {{item.goods_name||''}}
           </view>
@@ -84,6 +84,59 @@
     </view>
     <view class="bottom-button margin-tb">
       <button class="cu-btn bg-blue" @click="confirm">确认</button>
+    </view>
+
+    <view class="cu-modal " :class="{show:modalName==='update'}">
+      <view class="cu-dialog">
+        <view class="add-modal">
+          <view class="flex justify-between align-center padding ">
+            <text></text>
+            <text> 编辑商品</text>
+            <view class="padding-xs" @click="showModal()">
+              <text class="cuIcon-close"></text>
+            </view>
+          </view>
+          <view class="form-item">
+            <view class="label">
+              商品
+            </view>
+            <view class="value flex justify-between align-center">
+              <picker @change="goodsChange" :value="curGoods" :range="goodsNameList">
+                <view class="">{{goodsNameList[curGoods]||'请选择'}}</view>
+              </picker>
+              <text class="cuIcon-right margin-left-xs"></text>
+            </view>
+          </view>
+          <view class="form-item">
+            <view class="label">
+              规格
+            </view>
+            <view class="value">
+              <input type="text" v-model="addForm.unit">
+            </view>
+          </view>
+          <view class="form-item">
+            <view class="label">
+              数量
+            </view>
+            <view class="value">
+              <input type="digit" v-model="addForm.goods_num">
+            </view>
+          </view>
+          <view class="form-item">
+            <view class="label">
+              <!-- 仓库 -->
+            </view>
+            <view class="value">
+              <!-- warehouse_no -->
+            </view>
+          </view>
+          <view class="bottom-button">
+            <button class="cu-btn bg-blue round" @click="confirmGoods">确认</button> <button
+              class="cu-btn w bg-red round margin-left-xs" @click="del"><text class="cuIcon-delete"></text> </button>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view class="cu-modal " :class="{show:modalName==='add'}">
@@ -220,6 +273,7 @@
   export default {
     data() {
       return {
+        curEditGoods: -1,
         type: '入库',
         group_buy_ship_no: "", //团购发货编码
         shipInfo: {}, //团购发货单信息
@@ -266,6 +320,8 @@
     async onLoad(option) {
       if (option.type) {
         type = option.type
+      } else {
+        option.type = '入库'
       }
       this.type = option.type
       this.form.type = option.type
@@ -282,6 +338,21 @@
       await this.initFormData()
     },
     methods: {
+      del() {
+        if (this.curEditGoods || this.curEditGoods == 0) {
+          uni.showModal({
+            title: '提示',
+            content: '是否删除此商品',
+            success: (res) => {
+              if (res.confirm) {
+                this.selectedGoods.splice(this.curEditGoods, 1)
+                this.curEditGoods = -1
+                this.showModal()
+              }
+            }
+          })
+        }
+      },
       getShipDetail() {
         const url = `/health/select/srvhealth_group_buy_ship_detail_select`
         const req = {
@@ -620,9 +691,20 @@
       },
       confirmGoods() {
         // 加入商品列表
-        this.selectedGoods.push({
-          ...this.addForm
-        })
+        if (this.modalName === 'add' && this.curEditGoods === -1) {
+          this.selectedGoods.push({
+            ...this.addForm
+          })
+        } else {
+          this.selectedGoods[this.curEditGoods] = {
+            ...this.addForm
+          }
+          this.$set(this.selectedGoods, this.curEditGoods, {
+            ...this.addForm
+          })
+          this.curEditGoods = -1
+        }
+
         this.initAddForm()
         this.showModal()
         this.addForm.unit = this.goodsList[0].unit
@@ -653,8 +735,24 @@
         await this.getHouse()
         await this.getGoods()
       },
-      showModal(e = "") {
-        this.modalName = e
+      showModal(e = "", index) {
+        if (e == 'update' && this.type == '出库') {
+
+        } else {
+          this.modalName = e
+        }
+        if (index || index == 0) {
+          let item = this.selectedGoods[index]
+          this.addForm = {
+            "goods_name": item.goods_name,
+            "bar_code": item.bar_code,
+            "unit": item.unit,
+            "warehouse_no": item.warehouse_no,
+            "goods_num": item.goods_num,
+            "scan_num": item.scan_num
+          }
+          this.curEditGoods = index
+        }
       },
 
       goodsChange(e) {
@@ -736,9 +834,16 @@
   .bottom-button {
     padding: 10px;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .cu-btn {
       width: 80%;
+
+      &.w {
+        // width: auto;
+      }
     }
   }
 
@@ -775,6 +880,7 @@
 
     .label {
       width: 100px;
+      text-align: left;
     }
 
     .value {
