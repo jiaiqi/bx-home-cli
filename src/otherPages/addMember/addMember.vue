@@ -1,10 +1,29 @@
 <template>
   <view class="page-wrap" :class="{'detail-page':pageType==='detail'}">
+
+   <!-- <view class="form-box">
+      <view class="form-item">
+        <view class="form-item-label">
+          <text class="text-red margin-right-xs">*</text> 头像
+        </view>
+        <view class="form-item-content no-border margin-top-xs " style="padding:0;">
+          <bx-image-upload :disabled="pageType==='detail'" :custom-btn="true" interfaceName="add" :appName="appName"
+            tableName="bxhealth_store_user" :value="form.user_image" index="user_image"
+            :action="actionUrl" @change="imgChange($event,'user_image')">
+            <view slot="addBtn" class="slot-btn" hover-class="slot-btn__hover" hover-stay-time="150">
+              <text class="cuIcon-add"></text>
+            </view>
+          </bx-image-upload>
+        </view>
+      </view>
+    </view> -->
+
     <view class="form-box">
       <view class="title">
         基本信息
       </view>
       <view class="form-group">
+
         <view class="form-item">
           <view class="form-item-label">
             <text class="text-red margin-right-xs">*</text> 姓名
@@ -86,12 +105,13 @@
           <text v-if="pageType!=='add'">家庭住址</text>
         </view>
         <view class="form-item-content">
-          <input type="text" placeholder="详细地址" placeholder-style="font-size:12px;padding-left:10px;" v-model="form.family_addr">
+          <input type="text" placeholder="详细地址" placeholder-style="font-size:12px;padding-left:10px;"
+            v-model="form.family_addr">
         </view>
       </view>
     </view>
 
-<!--    <view class="form-box">
+    <!--    <view class="form-box">
       <view class="title">
         健康信息
       </view>
@@ -103,7 +123,7 @@
       </view>
     </view> -->
 
-<!--    <view class="form-box">
+    <!--    <view class="form-box">
       <view class="title">
         检查报告
       </view>
@@ -262,12 +282,12 @@
             break
           }
         }
-        
+
         if (unpass > 0) {
           this.isOnSubmit = false
           return
         }
-        
+
         const service = this.serviceName || 'srvhealth_store_user_add'
 
         const url = `/health/operate/${service}`
@@ -278,10 +298,10 @@
             "store_no": this.storeInfo?.store_no,
             // "person_no": this.userInfo.no,
             // "person_name": this.userInfo.name || this.userInfo.nick_name,
-            person_name:this.form.name,
+            person_name: this.form.person_name,
             "phone": this.form.phone,
-            sex:this.form.sex,
-            age:this.form.age,
+            sex: this.form.sex,
+            age: this.form.age,
             // healthy_info:this.form.healthy_info,
             // inspection_report:this.form.inspection_report,
             "family_addr": `${this.provinces?this.provinces+'省':''}${this.city?this.city+'市':''}${this.area?this.area+'区':''} ${this.form.family_addr||''}`,
@@ -312,7 +332,7 @@
         if (res?.data?.state === 'SUCCESS') {
           uni.showModal({
             title: '提示',
-            content:res?.data?.resultMessage|| '提交成功!',
+            content: res?.data?.resultMessage || '提交成功!',
             showCancel: false,
             success: (res) => {
               if (res.confirm) {
@@ -437,9 +457,11 @@
         flex: 1;
         min-height: 25px;
         padding: 2px 10px;
-        input{
+
+        input {
           width: 100%;
         }
+
         &.no-border {
           border-color: transparent;
         }

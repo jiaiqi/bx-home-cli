@@ -38,7 +38,7 @@
       </u-calendar> -->
       <!-- #endif -->
     </view>
-    <picker class="uni-picker" :start="min"  :mode="mode" :value="selectVal" @change="change" :disabled="disabled"
+    <picker class="uni-picker" :start="min" :mode="mode" :value="selectVal" @change="change" :disabled="disabled"
       v-else-if="mode==='date'">
       <view class="picker-content date-select-box">
         <view class="place-holder" v-if="!selectVal">请选择</view>

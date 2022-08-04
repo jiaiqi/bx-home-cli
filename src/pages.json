@@ -664,16 +664,20 @@
           "navigationBarTitleText": "出入库记录",
           "enablePullDownRefresh": false
         }
-      }    ,{
-                    "path" : "add/add",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "新建入库",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      }, {
+        "path": "add/add",
+        "style": {
+          "navigationBarTitleText": "新建入库",
+          "enablePullDownRefresh": false
+        }
+
+      }, {
+        "path": "putin/putin",
+        "style": {
+          "navigationBarTitleText": "入库",
+          "enablePullDownRefresh": false
+        }
+      }]
     }
     //#ifdef H5
     ,
