@@ -4,7 +4,7 @@
     <view class="camera" v-else>
       确认扫码内容
     </view>
-    <view class="scan-result-list bg-white margin-top">
+    <view class="scan-result-list bg-white margin-top padding">
       <view class="flex justify-between">
         <text>扫码结果</text>
         <text>{{list.length}}</text>
