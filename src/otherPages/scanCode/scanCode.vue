@@ -20,8 +20,8 @@
       <view class="list-box">
         <view class="list-item flex align-center justify-between" v-for="(item,index) in list">
           <text>{{item}} </text>
-          <text class="closeIcon">
-            <text class="cuIcon-close" @click="close(index)"> </text>
+          <text class="closeIcon" @click.stop="del(index)">
+            <text class="cuIcon-close"> </text>
           </text>
         </view>
       </view>
@@ -40,9 +40,7 @@
         show: true,
         uuid: '',
         bar_code: "",
-        list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 23, 4, 5, 6, 7, 89, 0, 2, 12, 312, 312, 3213, 213, 12312, 3213, 21321,
-          3213, 9
-        ]
+        list: []
       }
     },
     onLoad(option) {
@@ -59,7 +57,7 @@
       }
     },
     methods: {
-      close(index) {
+      del(index) {
         this.list.splice(index, 1)
       },
       back() {

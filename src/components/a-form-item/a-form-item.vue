@@ -102,7 +102,7 @@
           {{fkFieldLabel||fieldData.value||'请选择'}}
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
-        <view v-else-if="
+        <!--  <view v-else-if="
             (setOptionList&&setOptionList.length < 5 && fieldData.type === 'Set') ||
             (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
@@ -117,8 +117,11 @@
             <bx-radio v-for="item in radioOptions" :key='item.value' :name="item.value">{{ item.label }}
             </bx-radio>
           </bx-radio-group>
-        </view>
-        <view @click="openModal(fieldData.type)" class="open-popup" v-else>
+        </view> -->
+        <view @click="openModal(fieldData.type)" class="open-popup" v-else-if="
+            (fieldData.type === 'Set') ||
+            (fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
+          ">
           <view class="place-holder" v-if="!fieldData.value">
             <text>{{!fieldData.disabled?'请选择':''}}</text>
             <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
@@ -1138,6 +1141,7 @@
           this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
           // this.onBlur()
+          this.hideModal()
         } else if (this.fieldData.type === 'Set') {
           if (Array.isArray(e)) {
             e = e.toString()

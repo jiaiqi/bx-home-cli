@@ -85,7 +85,7 @@
       <button class="cu-btn bg-blue" @click="confirm">确认</button>
     </view>
 
-    <view class="cu-modal " :class="{show:modalName==='update'||modalName==='add'}">
+    <view class="cu-modal" :class="{show:modalName==='update'||modalName==='add'}">
       <view class="cu-dialog">
         <view class="add-modal">
           <view class="flex justify-between align-center padding ">
@@ -96,7 +96,7 @@
             </view>
           </view>
           <view class="form-item">
-            <view class="label">
+            <view class="label mini">
               <text class="text-red margin-right-xs">*</text>商品
             </view>
             <view class="value flex justify-between align-center">
@@ -107,7 +107,7 @@
             </view>
           </view>
           <view class="form-item">
-            <view class="label">
+            <view class="label mini">
               <text class="text-red margin-right-xs">*</text>规格
             </view>
             <view class="value">
@@ -115,7 +115,7 @@
             </view>
           </view>
           <view class="form-item">
-            <view class="label">
+            <view class="label mini">
               <text class="text-red margin-right-xs">*</text> 数量
             </view>
             <view class="value">
@@ -123,8 +123,8 @@
             </view>
           </view>
           <view class="bottom-button">
-            <button class="cu-btn w bg-red round margin-right-xs" @click="del" v-if="modalName==='update'&&type=='入库'"><text
-                class="cuIcon-delete"></text>
+            <button class="cu-btn w bg-red round margin-right-xs" @click="del"
+              v-if="modalName==='update'&&type=='入库'"><text class="cuIcon-delete"></text>
             </button>
             <button class="cu-btn bg-blue round " @click="confirmGoods">确认</button>
           </view>
@@ -416,10 +416,10 @@
             let data = this.selectedGoods.find(item => item.bar_code == code)
             if (this.scanList[code].length < data.goods_num) {
               numpass = false
-              tip = `【${data.goods_name}】的数量与已扫码数不一致`
+              tip = `【${data.goods_name}】已扫码数不足`
             } else if (this.scanList[code].length > data.goods_num) {
               numpass = false
-              tip = `【${data.goods_name}】的数量少于已扫码数`
+              tip = `【${data.goods_name}】已扫码数超出${this.type}数量`
             }
             if (this.scanList[code].length > 0) {
               this.scanList[code].forEach(e => {
@@ -445,7 +445,7 @@
             "serviceName": "srvhealth_in_out_warehouse_add",
             "condition": [],
             "data": [{
-              store_no: this.storeInfo?.store_no,
+              "store_no": this.storeInfo?.store_no,
               "operator": this.vstoreUser?.store_user_no,
               "operator_name": this.username,
               "warehouse_no": this.warehouse_no,
@@ -463,6 +463,7 @@
                   }],
                   "data": this.selectedGoods.map(item => {
                     return {
+                      "store_no": this.storeInfo?.store_no,
                       "type": type,
                       "bar_code": item.bar_code,
                       "unit": item.unit,
@@ -575,6 +576,7 @@
             "in_out_date": this.form.in_out_date,
             "type": "出库",
             "out_warehouse_type": this.form.out_warehouse_type,
+            // "in_out_order_no":this.group_buy_ship_no, //团购发货编号
             "remark": this.form.remark,
             "child_data_list": [{
                 "serviceName": "srvhealth_in_out_warehouse_details_add",
@@ -613,8 +615,7 @@
             ]
           }]
         }]
-        console.log(req)
-        debugger
+        
         this.$http.post(url, req).then(res => {
           if (res?.data?.state === 'SUCCESS') {
             uni.showModal({
@@ -687,6 +688,7 @@
         if (type === '入库') {
           this.putIn()
         } else {
+          // 出库
           this.putOut()
         }
       },
@@ -885,7 +887,9 @@
       .value {
         width: 100%;
       }
-
+      .label.mini{
+        width: 50px;
+      }
       .text-area {
         width: 100%;
         height: 150rpx;
