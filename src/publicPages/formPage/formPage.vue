@@ -1,6 +1,7 @@
 <template>
   <view class="form-wrap"
     :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode,'order-mode':orderMode}]">
+    <!-- #ifdef MP-WEIXIN -->
     <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
       <view class="nav-bar">
         <text class="home-name">
@@ -8,6 +9,7 @@
         </text>
       </view>
     </cu-custom-navbar>
+    <!-- #endif -->
     <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
       v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
       <view class="icon">

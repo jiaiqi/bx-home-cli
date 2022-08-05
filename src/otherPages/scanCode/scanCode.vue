@@ -89,14 +89,14 @@
               innerAudioContext.play()
             }
           })
-          uni.vibrateShort()
+          // uni.vibrateShort()
           this.list.unshift(e.detail.result)
         } else {
           uni.showToast({
             title: '重复扫码!',
             icon: 'none'
           })
-          uni.vibrateLong()
+          // uni.vibrateLong()
         }
 
         // if (e.detail) {

@@ -875,13 +875,13 @@
           } else {
             uni.showModal({
               title: '未查找到机构信息',
-              content: `该店铺已关闭`,
+              content: `该店铺已关闭,即将跳转到首页`,
               // content: `${res ? JSON.stringify(res) : ''}  storeNo为${this.storeNo}`,
               showCancel: false,
               success(res) {
                 if (res.confirm) {
                   uni.reLaunch({
-                    url: '/storePages/home/home?store_no=S0000000000'
+                    url: '/storePages/home/home'
                   });
                 }
               }

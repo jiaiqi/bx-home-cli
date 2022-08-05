@@ -576,7 +576,7 @@
             "in_out_date": this.form.in_out_date,
             "type": "出库",
             "out_warehouse_type": this.form.out_warehouse_type,
-            // "in_out_order_no":this.group_buy_ship_no, //团购发货编号
+            "in_out_order_no": this.group_buy_ship_no, //团购发货编号
             "remark": this.form.remark,
             "child_data_list": [{
                 "serviceName": "srvhealth_in_out_warehouse_details_add",
@@ -615,7 +615,7 @@
             ]
           }]
         }]
-        
+
         this.$http.post(url, req).then(res => {
           if (res?.data?.state === 'SUCCESS') {
             uni.showModal({
@@ -887,9 +887,11 @@
       .value {
         width: 100%;
       }
-      .label.mini{
+
+      .label.mini {
         width: 50px;
       }
+
       .text-area {
         width: 100%;
         height: 150rpx;

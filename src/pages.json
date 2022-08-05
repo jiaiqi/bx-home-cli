@@ -630,8 +630,7 @@
             "enablePullDownRefresh": false
           }
 
-        }
-        , {
+        }, {
           "path": "scanCode/scanCode",
           "style": {
             "navigationBarTitleText": "扫码",
@@ -639,7 +638,7 @@
           }
         }
         //#ifdef MP-WEIXIN
-       
+
         //#endif
       ]
     },

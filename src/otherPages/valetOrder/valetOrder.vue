@@ -380,7 +380,7 @@
       toSelectUser() {
         const uuid = uni.$u.guid()
         let url =
-          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_member_list_select&cond=[{"colName":"store_no","ruleType":"like","value":"${this.vstoreUser.store_no}"}]&idCol=store_user_no&uuid=${uuid}`
+          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_medicated_user_select&cond=[{"colName":"store_no","ruleType":"like","value":"${this.vstoreUser.store_no}"}]&idCol=store_user_no&uuid=${uuid}`
 
         const listConfig = {
           "lp_style": "单行",

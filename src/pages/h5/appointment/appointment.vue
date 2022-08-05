@@ -332,7 +332,7 @@
           value: this.storeInfo?.store_no
         }]
         let url =
-          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_user_select&cond=${JSON.stringify(condition)}`
+          `/publicPages/list2/list2?selectCol=store_user_no&destApp=health&listType=selectorList&serviceName=srvhealth_store_medicated_user_select&cond=${JSON.stringify(condition)}`
 
         // if (this.fieldData?.moreConfig?.listConfig && typeof this.fieldData?.moreConfig?.listConfig ===
         //   'object') {

@@ -192,6 +192,11 @@
     onLoad(option) {
       if (option.type) {
         this.pageType = option.type
+        if(option.type){
+          uni.setNavigationBarTitle({
+            title:'修改信息'
+          })
+        }
       }
       if (option.fieldsCond) {
         try {
@@ -218,7 +223,7 @@
         this.form[col] = val
       },
       async getDetail() {
-        let serviceName = 'srvhealth_store_user_select'
+        let serviceName = 'srvhealth_store_medicated_user_select'
         const req = {
           "condition": [{
             "colName": "id",
