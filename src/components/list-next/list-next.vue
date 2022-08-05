@@ -175,6 +175,7 @@
             position: this.listConfig?.btn_cfg?.position || viewTemp?.btn_cfg?.position || null
           },
           img: {
+            placeholder: this.listConfig?.img?.placeholder || viewTemp?.img?.placeholder,
             col: this.listConfig?.img?.col || viewTemp?.img?.col,
             icon: this.listConfig?.img?.icon || viewTemp?.img?.icon,
             cfg: {

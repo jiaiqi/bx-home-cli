@@ -32,7 +32,7 @@
             <text class="cuIcon-calendar margin-left-xs"></text>
           </view>
           <view class="text-area " v-else-if="item.column==='remark'">
-            <input type="text" v-model="item.value" placeholder="请输入">
+            <input type="text" v-model="form.remark" placeholder="请输入">
           </view>
           <input type="text" v-model="item.value" v-else>
 
@@ -60,7 +60,6 @@
             已扫码数
           </view>
           <view class="td flex-2-5">
-
           </view>
         </view>
         <view class="tr" v-for="(item,index) in selectedGoods" @click="showModal('update',index)">
@@ -76,7 +75,7 @@
           <view class="td half">
             {{item.scan_num||'0'}}
           </view>
-          <view class="td flex-2-5 text-center" @click="toScan(item)">
+          <view class="td flex-2-5 text-center" @click.stop="toScan(item)">
             <text class="cuIcon-scan"></text>
           </view>
         </view>
@@ -86,19 +85,19 @@
       <button class="cu-btn bg-blue" @click="confirm">确认</button>
     </view>
 
-    <view class="cu-modal " :class="{show:modalName==='update'}">
+    <view class="cu-modal " :class="{show:modalName==='update'||modalName==='add'}">
       <view class="cu-dialog">
         <view class="add-modal">
           <view class="flex justify-between align-center padding ">
             <text></text>
-            <text> 编辑商品</text>
+            <text> {{modalName==='update'?'编辑商品':modalName==='add'?'添加商品':''}}</text>
             <view class="padding-xs" @click="showModal()">
               <text class="cuIcon-close"></text>
             </view>
           </view>
           <view class="form-item">
             <view class="label">
-              商品
+              <text class="text-red margin-right-xs">*</text>商品
             </view>
             <view class="value flex justify-between align-center">
               <picker @change="goodsChange" :value="curGoods" :range="goodsNameList">
@@ -109,36 +108,30 @@
           </view>
           <view class="form-item">
             <view class="label">
-              规格
+              <text class="text-red margin-right-xs">*</text>规格
             </view>
             <view class="value">
-              <input type="text" v-model="addForm.unit">
+              <input type="text" v-model="addForm.unit" :disabled="true">
             </view>
           </view>
           <view class="form-item">
             <view class="label">
-              数量
+              <text class="text-red margin-right-xs">*</text> 数量
             </view>
             <view class="value">
-              <input type="digit" v-model="addForm.goods_num">
-            </view>
-          </view>
-          <view class="form-item">
-            <view class="label">
-              <!-- 仓库 -->
-            </view>
-            <view class="value">
-              <!-- warehouse_no -->
+              <input type="digit" v-model="addForm.goods_num" :focus="['update','add'].includes(modalName)">
             </view>
           </view>
           <view class="bottom-button">
-            <button class="cu-btn bg-blue round" @click="confirmGoods">确认</button> <button
-              class="cu-btn w bg-red round margin-left-xs" @click="del"><text class="cuIcon-delete"></text> </button>
+            <button class="cu-btn w bg-red round margin-right-xs" @click="del" v-if="modalName==='update'&&type=='入库'"><text
+                class="cuIcon-delete"></text>
+            </button>
+            <button class="cu-btn bg-blue round " @click="confirmGoods">确认</button>
           </view>
         </view>
       </view>
     </view>
-
+    <!-- 
     <view class="cu-modal " :class="{show:modalName==='add'}">
       <view class="cu-dialog">
         <view class="add-modal">
@@ -178,10 +171,8 @@
           </view>
           <view class="form-item">
             <view class="label">
-              <!-- 仓库 -->
             </view>
             <view class="value">
-              <!-- warehouse_no -->
             </view>
           </view>
           <view class="bottom-button">
@@ -189,7 +180,7 @@
           </view>
         </view>
       </view>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -285,12 +276,12 @@
         typeList: [],
         fields: [],
         addForm: {
-          goods_name: "", //商品名称
-          bar_code: "", //商品
-          unit: "", //规格
-          warehouse_no: "", //仓库编号
-          goods_num: 0, //商品数量
-          scan_num: 0, //扫码数量
+          goods_name: null, //商品名称
+          bar_code: null, //商品
+          unit: null, //规格
+          warehouse_no: null, //仓库编号
+          goods_num: null, //商品数量
+          scan_num: null, //扫码数量
         },
 
         form: {
@@ -385,6 +376,7 @@
 
       },
       getShipInfo() {
+        //
         const url = `/health/select/srvhealth_group_buy_invoice_select`
         const req = {
           "serviceName": "srvhealth_group_buy_invoice_select",
@@ -408,28 +400,38 @@
       },
       putIn() {
         // 入库
+        if (this.selectedGoods.length === 0) {
+          uni.showModal({
+            title: '提示',
+            content: '请选择入库商品',
+            showCancel: false
+          })
+          return
+        }
         const url = `/health/operate/srvhealth_in_out_warehouse_add`
         let numpass = true
         let tip = ''
         let codeList = Object.keys(this.scanList).reduce((res, code) => {
-          if (Array.isArray(this.scanList[code]) && this.scanList[code].length > 0) {
+          if (Array.isArray(this.scanList[code])) {
             let data = this.selectedGoods.find(item => item.bar_code == code)
             if (this.scanList[code].length < data.goods_num) {
               numpass = false
-              tip = `[${data.goods_name}]的数量与已扫码数不一致`
+              tip = `【${data.goods_name}】的数量与已扫码数不一致`
             } else if (this.scanList[code].length > data.goods_num) {
               numpass = false
-              tip = `[${data.goods_name}]的数量少于已扫码数`
+              tip = `【${data.goods_name}】的数量少于已扫码数`
             }
-            this.scanList[code].forEach(e => {
-              res.push({
-                ...data,
-                warehouse_no: this.warehouse_no,
-                _bar_code: e
+            if (this.scanList[code].length > 0) {
+              this.scanList[code].forEach(e => {
+                res.push({
+                  ...data,
+                  warehouse_no: this.warehouse_no,
+                  _bar_code: e
+                })
               })
-            })
-            return res
+            }
           }
+          return res
         }, [])
         if (numpass === false && tip) {
           uni.showModal({
@@ -538,10 +540,10 @@
             let data = this.selectedGoods.find(item => item.bar_code == code)
             if (this.scanList[code].length < data.goods_num) {
               numpass = false
-              tip = `${data.goods_name}的数量与已扫码数不一致`
+              tip = `【${data.goods_name}】已扫码数不足`
             } else if (this.scanList[code].length > data.goods_num) {
               numpass = false
-              tip = `[${data.goods_name}]的数量少于已扫码数`
+              tip = `【${data.goods_name}】已扫码数超出${this.type}数量`
             }
             this.scanList[code].forEach(e => {
               res.push({
@@ -642,7 +644,10 @@
         if (!this.scanList[e.bar_code]) {
           this.scanList[e.bar_code] = []
         }
-        const url = `/otherPages/scanCode/scanCode?uuid=${uuid}&bar_code=${e.bar_code}`
+        let url = `/otherPages/scanCode/scanCode?uuid=${uuid}&bar_code=${e.bar_code}`
+        if (Array.isArray(this.scanList[e.bar_code]) && this.scanList[e.bar_code].length > 0) {
+          url += `&list=${JSON.stringify(this.scanList[e.bar_code])}`
+        }
         uni.navigateTo({
           url,
           success: () => {
@@ -665,10 +670,6 @@
                     return item
                   })
                 }
-                uni.showModal({
-                  title: '提示',
-                  content: JSON.stringify(this.scanList)
-                })
               }
             })
           }
@@ -691,6 +692,20 @@
       },
       confirmGoods() {
         // 加入商品列表
+        if (!this.addForm.goods_name) {
+          uni.showToast({
+            title: '请选择商品',
+            icon: 'none'
+          })
+          return
+        }
+        if (!this.addForm.goods_num) {
+          uni.showToast({
+            title: '请填写数量',
+            icon: 'none'
+          })
+          return
+        }
         if (this.modalName === 'add' && this.curEditGoods === -1) {
           this.selectedGoods.push({
             ...this.addForm
@@ -705,6 +720,10 @@
           this.curEditGoods = -1
         }
 
+        if (this?.addForm?.bar_code) {
+          this.scanList[this.addForm.bar_code] = this.scanList[this.addForm.bar_code] || []
+        }
+
         this.initAddForm()
         this.showModal()
         this.addForm.unit = this.goodsList[0].unit
@@ -714,7 +733,7 @@
       initAddForm() {
         this.curGoods = 0
         Object.keys(this.addForm).forEach(key => {
-          this.addForm[key] = ''
+          this.addForm[key] = null
         })
       },
       async initFormData() {
@@ -736,11 +755,11 @@
         await this.getGoods()
       },
       showModal(e = "", index) {
-        if (e == 'update' && this.type == '出库') {
+        // if (e == 'update' && this.type == '出库') {
 
-        } else {
-          this.modalName = e
-        }
+        // } else {
+        this.modalName = e
+        // }
         if (index || index == 0) {
           let item = this.selectedGoods[index]
           this.addForm = {

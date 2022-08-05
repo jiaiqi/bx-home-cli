@@ -21,7 +21,8 @@
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
                 <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
+                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
+                  v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -126,7 +127,8 @@
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
                 <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
+                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
+                  v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -356,6 +358,7 @@
           btn_cfg: this.viewTemp?.btn_cfg,
           background: this.viewTemp?.bg || this.viewTemp?.background,
           img: {
+            placeholder: this.viewTemp?.img?.placeholder,
             icon: this.viewTemp?.img?.icon,
             col: this.viewTemp?.img?.col,
             cfg: this.viewTemp?.img?.cfg || {
@@ -422,9 +425,9 @@
           return rowButton.length > 0
         }
       },
-      showEvaluate(){
+      showEvaluate() {
         // 是否显示自定义评价按钮
-        return this.setViewTemp?.btn_cfg?.show_evaluate===true
+        return this.setViewTemp?.btn_cfg?.show_evaluate === true
       },
       setRowButton() {
         let buttons = [];
@@ -530,8 +533,19 @@
           let imgCfg = this.setViewTemp?.img?.cfg;
           result.imgAlign = imgCfg.position || 'left';
           result.imgClass = `${imgCfg.position === 'top' ? 'm-r-0' : ''}`;
-          result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value, imgCfg?.compress ? false :
-            true);
+
+          if (this.setViewTemp?.img?.placeholder) {
+            result.imgSrc = this.getImagePath(this.setViewTemp?.img?.placeholder, true);
+            if (this.setViewTemp?.img?.placeholder == 'profile') {
+              result.imgSrc = require('@/static/profile.png')
+            }
+          }
+
+          if (this.setValue(this.setViewTemp.img.col).value) {
+            result.imgSrc = this.getImagePath(this.setValue(this.setViewTemp.img.col).value, imgCfg?.compress ? false :
+              true);
+          }
+
           result.imgStyle = {
             'border-radius': imgCfg?.radius,
             'border': imgCfg?.border,
@@ -580,7 +594,7 @@
             width: result.rightContent.width,
             margin: result.rightContent.margin,
             padding: result.rightContent.padding,
-            
+
           }
           if (result.rightContent?.text_align) {
             switch (result.rightContent?.text_align) {
@@ -707,7 +721,10 @@
                 obj.value = getVal?.value;
                 if (obj.value === 0) {
                   obj.value = '0'
+                } else if (!obj.value && col?.placeholder) {
+                  obj.value = col?.placeholder
                 }
+
               }
 
               if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
@@ -1353,8 +1370,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
             // white-space: nowrap;
+            word-break: break-all;
             max-width: 100%;
-            flex: 1;
+            // flex: 1;
             // display: inline-flex;
             align-items: center;
 

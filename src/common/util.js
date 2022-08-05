@@ -55,12 +55,13 @@ export default {
       let appName = app || uni.getStorageSync("activeApp")
       if (srv && srvType && pageType) {
         let len = srv.lastIndexOf('_')
+        // let serviceName = srv
         let serviceName = srv.slice(0, len) + '_'
         let lastName = srv.slice(len + 1)
         if (srvType === 'list' || srvType === 'detail') {
           serviceName += 'select'
         } else {
-          if (['add', 'update', 'select', 'delete'].indexOf(lastName)) {
+          if (['add', 'update', 'select', 'delete'].indexOf(lastName)!=-1) {
             serviceName += srvType
           } else {
             serviceName += `${lastName}`

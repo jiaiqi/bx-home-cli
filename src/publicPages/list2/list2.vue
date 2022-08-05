@@ -130,10 +130,12 @@
             if (Array.isArray(this.colV2?._fieldInfo)) {
               let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
               if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-                res.tabs = [{
-                  value: '_all',
-                  name: '全部'
-                }]
+                if (cfg?.show_total_tab !== false) {
+                  res.tabs = [{
+                    value: '_all',
+                    name: '全部'
+                  }]
+                }
                 let allTab = col.option_list_v2
                 if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
                   allTab = cfg.customTabs
@@ -737,6 +739,7 @@
         let self = this
         if (count_config && Array.isArray(count_config.condition) && count_config.condition.length > 0) {
           let data = {
+            ...this.globalVariable,
             storeInfo: self.storeInfo,
             userInfo: self.userInfo,
             storeUser: self.vstoreUser,
@@ -970,11 +973,12 @@
             serviceName: e.service_name,
             eventOrigin: e
           };
-          let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
-            params)
-          if (this.hideChildTable) {
+          // let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
+          //   params)
+          let url = `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name}`
+          // if (this.hideChildTable) {
             url += `&hideChildTable=true`
-          }
+          // }
           uni.navigateTo({
             url
           });
@@ -995,12 +999,13 @@
                 img: 'person_image',
               }
             }
-            let url = '/publicPages/list/list?pageType=list&serviceName=' +
+            let url = '/publicPages/list2/list2?pageType=list&serviceName=' +
               e.service_name +
               '&cond=' +
-              JSON.stringify(e.operate_params.condition) +
-              '&viewTemp=' +
-              JSON.stringify(viewTemp)
+              JSON.stringify(e.operate_params.condition)
+            // +
+            // '&viewTemp=' +
+            // JSON.stringify(viewTemp)
             if (this.hideChildTable) {
               url += `&hideChildTable=true`
             }
@@ -1152,9 +1157,9 @@
                 this.customDetailUrl = colVs.moreConfig?.customDetailUrl
               }
             }
-            if (colVs.moreConfig?.count_config) {
-              this.getCountData(colVs.moreConfig?.count_config)
-            }
+            // if (colVs.moreConfig?.count_config) {
+            //   this.getCountData(colVs.moreConfig?.count_config)
+            // }
           } catch (e) {
             //TODO handle the exception
             console.info(e)
@@ -1193,9 +1198,12 @@
       },
       async getList(cond, initCond) {
         if (!cond) {
+          if (!this.curTabVal && Array.isArray(this.enumTabs) && this.enumTabs.length > 0) {
+            this.curTabVal = this.enumTabs[0].name
+          }
           if (this.curTabVal && this.tabsCfg?.col && Array.isArray(this.tabsCfg.tabs)) {
             let index = this.tabsCfg.tabs.findIndex(item => item.name === this.curTabVal);
-            if (index > 0) {
+            if (index >= 0) {
               this.changeTabs(index)
               return
             }
@@ -2003,7 +2011,7 @@
                   value: rowData.id
                 }]
               }
-              
+
               let url =
                 `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=update&fieldsCond=` +
                 encodeURIComponent(JSON.stringify(fieldsCond));

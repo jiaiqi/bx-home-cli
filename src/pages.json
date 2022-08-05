@@ -631,7 +631,6 @@
           }
 
         }
-        //#ifdef MP-WEIXIN
         , {
           "path": "scanCode/scanCode",
           "style": {
@@ -639,6 +638,8 @@
             "enablePullDownRefresh": false
           }
         }
+        //#ifdef MP-WEIXIN
+       
         //#endif
       ]
     },

@@ -144,7 +144,6 @@
       value: {
         immediate: true,
         handler(v1, v2) {
-          debugger
           // 只有value的改变是来自外部的时候，才去同步inputVal的值，否则会造成循环错误
           if (!this.changeFromInner) {
             this.inputVal = v1;

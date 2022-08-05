@@ -308,7 +308,7 @@
         // 外键多选
         let option_list_v2 = this.fieldData?.fmt;
         let url =
-          `/publicPages/list2/list2?disabled=true&selectCol=goods_no&destApp=health&listType=multiSelectByJson&serviceName=srvhealth_store_goods_select`
+          `/publicPages/list2/list2?disabled=true&selectCol=goods_no&destApp=health&listType=multiSelectByJson&serviceName=srvhealth_store_goods_join_select`
         let listConfig = {
           "lp_style": "单行",
           img: {
