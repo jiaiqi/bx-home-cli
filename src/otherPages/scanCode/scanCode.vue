@@ -19,7 +19,9 @@
 
       <view class="list-box">
         <view class="list-item flex align-center justify-between" v-for="(item,index) in list">
-          <text>{{item}} </text>
+          <view class="item">
+            {{item}}
+          </view>
           <text class="closeIcon" @click.stop="del(index)">
             <text class="cuIcon-close"> </text>
           </text>
@@ -150,12 +152,15 @@
   }
 
   .list-item {
-    padding: 0 10px;
-    height: 40px;
-    line-height: 40px;
+    padding: 5px 10px;
+    min-height: 40px;
     border: 1px solid #f1f1f1;
     border-radius: 5px;
     margin-bottom: 5px;
+    .item{
+      flex: 1;
+      margin-right: 10px;
+    }
   }
 
   .bottom-button {

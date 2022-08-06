@@ -656,16 +656,17 @@
               console.log(data.uuid, uuid, data.bar_code, data.list)
               if (data.uuid === uuid && data.bar_code && data.list) {
                 if (Array.isArray(data.list)) {
-                  let list = this.scanList[e.bar_code] || []
-                  data.list.forEach(item => {
-                    if (!list.find(code => code === item)) {
-                      list.push(item)
-                    }
-                  })
-                  this.scanList[e.bar_code] = list
+                   this.scanList[e.bar_code] = data.list
+                  // let list = this.scanList[e.bar_code] || []
+                  // data.list.forEach(item => {
+                  //   if (!list.find(code => code === item)) {
+                  //     list.push(item)
+                  //   }
+                  // })
+                  // this.scanList[e.bar_code] = list
                   this.selectedGoods = this.selectedGoods.map((item, index) => {
                     if (item.bar_code === e.bar_code) {
-                      item.scan_num = list.length
+                      item.scan_num = data.list.length
                       this.$set(this.selectedGoods, index, item)
                     }
                     return item

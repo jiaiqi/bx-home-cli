@@ -91,7 +91,9 @@
               <!-- 应付金额 -->
             </view>
             <view class="detail-info_item_value text-red actual-money">
-              <text class="text-sm margin-right-xs">应付:</text>￥{{actualMoney}}
+              <text v-if="orderInfo.order_pay_amount"><text
+                  class="text-sm margin-right-xs">实付:￥</text>{{orderInfo.order_pay_amount}}</text>
+              <text v-else> <text class="text-sm margin-right-xs">应付:￥{{actualMoney}}</text></text>
             </view>
           </view>
         </view>
@@ -114,7 +116,7 @@
           </view>
           <view class="info-value" style="text-align: right;">
             <input type="text" placeholder-style="font-size:12px;color:#999;" :disabled="orderInfo&&orderInfo.order_no"
-              v-model="orderInfo.order_remark" placeholder="可填写偏好和要求">
+              v-model="order_remark" placeholder="可填写偏好和要求">
           </view>
         </view>
       </view>
@@ -235,7 +237,7 @@
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
-      <button class="cu-btn bg-gradual-orange round" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&
+      <button class="cu-btn bg-gradual-orange round" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&orderInfo.order_state!=='取消订单'&&
             ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'&&!onPay
           ">
         付款
@@ -508,29 +510,31 @@
         }
         return res
       },
-      // goodsList() {
-      //   return this.orderInfo.goodsList || [];
-      // },
       totalMoney() {
-        // let num = 0
-        // if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
-        //   this.goodsList.forEach(item => {
-        //     if (item.goods_amount && item.unit_price) {
-        //       num += item.goods_amount * item.unit_price;
-        //     } else if (item.price && item.car_num) {
-        //       pre += item.car_num * item.price;
-        //     }
-        //   })
-        // }
-        // return num
-        return this.goodsList.reduce((pre, cur) => {
-          if (cur.goods_amount && cur.unit_price) {
-            pre += cur.goods_amount * cur.unit_price;
-          } else if (cur.price && cur.car_num) {
-            pre += cur.car_num * cur.price;
-          }
-          return pre;
-        }, 0)
+        let list = this.goodsList
+        let num = 0
+        if (Array.isArray(list) && list.length > 0) {
+          list.forEach(item => {
+            if (item.goods_amount && item.price) {
+              num += item.goods_amount * item.price;
+            } else if (item.goods_amount && item.unit_price) {
+              num += item.goods_amount * item.unit_price;
+            } else if (item.price && item.car_num) {
+              num += item.car_num * item.price;
+            }
+          })
+        }
+        return num
+        // return list.reduce((pre, cur) => {
+        //   if (cur.goods_amount && cur.price) {
+        //     pre += cur.goods_amount * cur.price;
+        //   } else if (cur.goods_amount && cur.unit_price) {
+        //     pre += cur.goods_amount * cur.unit_price;
+        //   } else if (cur.price && cur.car_num) {
+        //     pre += cur.car_num * cur.price;
+        //   }
+        //   return pre;
+        // }, 0)
       }
     },
     methods: {
@@ -540,7 +544,10 @@
             if (item.id === e.id) {
               // item.goods_amount = e.num
               // item.car_num = e.num
+              // item.amount = e.num
+              this.$set(item, 'amount', e.num)
               this.$set(item, 'goods_amount', e.num)
+              this.$set(item, 'car_num', e.num)
             }
             return item
           })
@@ -1428,7 +1435,7 @@
             user_role: this.userInfo.user_role,
             order_pay_amount: this.actualMoney || this.totalMoney,
             order_amount: this.actualMoney || this.totalMoney,
-            order_remark: this.order_remark || '',
+            order_remark: this.orderInfo.order_remark || this.order_remark || '',
             pay_state: '待支付',
             order_state: '待支付',
             child_data_list: [{

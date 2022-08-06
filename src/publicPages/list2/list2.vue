@@ -949,6 +949,16 @@
       },
       handlerCustomizeButton(e) {
         // 自定义按钮
+        let fieldsCond = []
+        let operate_params = null;
+        if (e?.operate_params) {
+          try {
+            operate_params = JSON.parse(e.operate_params)
+          } catch (e) {
+            //TODO handle the exception
+          }
+
+        }
         if (e.more_config) {
           let more_config = e.more_config;
           try {
@@ -973,12 +983,45 @@
             serviceName: e.service_name,
             eventOrigin: e
           };
+          if (Array.isArray(operate_params?.data) && operate_params?.data.length > 0) {
+            let datas = operate_params?.data;
+            datas.forEach(data => {
+              if (typeof data === 'object') {
+                Object.keys(data).forEach(item => {
+                  if (typeof data[item] === 'object' && data[item]
+                    .value_type === 'constant') {
+                    data[item] = data[item].value;
+                  } else if (typeof data[item] === 'object' && data[item]
+                    .value_type ===
+                    "globalData") {
+                    // 全局变量
+                    const globalVariable = {
+                      ...this.globalVariable
+                    }
+                    data[item] = this.renderStr(data[item].value_key,
+                      globalVariable)
+                  }
+                  if (data[item] && item) {
+                    fieldsCond.push({
+                      column: item,
+                      value: data[item]
+                    })
+                  }
+                });
+              }
+
+            })
+          }
           // let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
           //   params)
-          let url = `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name}`
-          // if (this.hideChildTable) {
+          let url =
+            `/publicPages/formPage/formPage?type=add&serviceName=${e.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}`
+          if (this.hideChildTable) {
             url += `&hideChildTable=true`
-          // }
+          }
+          if(e?.operate_type&&e.operate_type.indexOf('弹出')!==-1){
+            url += `&hideChildTable=true`
+          }
           uni.navigateTo({
             url
           });

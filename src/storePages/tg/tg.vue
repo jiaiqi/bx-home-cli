@@ -18,14 +18,14 @@
         <view class="tg-info">
           <view class="top text-bold">
             <view class="">
-              <text class="bg-red round cu-tag margin-right">
-                {{tgInfo.number}}人团
+              <text class="bg-red round cu-tag margin-right" v-if="tgInfo.act_type==='拼团'&&tgInfo.number">
+                {{tgInfo.number||'-'}}人团
               </text>
               <text class="">
                 {{tgInfo.name||''}}
               </text>
             </view>
-            <view class="text-red">
+            <view class="text-red" v-if="tgInfo.act_type==='拼团'">
               {{tgInfo.state||''}}
             </view>
           </view>
@@ -53,10 +53,10 @@
           <view class="count-down" v-if="countDown===0">
             当前团购已结束
           </view>
-          <view class="count-down" v-else-if="countDown!==0&&countDown!=='团购已经结束'">
+          <view class="count-down" v-else-if="countDown!==0&&countDown!=='团购已经结束'&&countDown!=='团购还未开始'">
             距离团购结束还有 <text class="text-red margin-left-xs text-bold">{{countDown||''}}</text>
           </view>
-          <view class="count-down" v-else-if="countDown">
+          <view class="count-down text-red" v-else-if="countDown">
             {{countDown}}
           </view>
         </view>
@@ -67,23 +67,25 @@
         <text class="main" v-if="type==='detail'">下单商品</text>
       </view>
       <view class="goods-list">
-        <view class="goods-item" v-for=" (item,index) in goodsList" :key="index" @click="changeCheck(index)">
-          <view class="check-box" v-if="type==='default'&&countDown!==0&&countDown!=='团购已经结束'">
+        <view class="goods-item" v-for=" (item,index) in goodsList" :key="index">
+          <view class="check-box" v-if="type==='default'&&countDown!==0&&countDown!=='团购已经结束'"
+            @click="changeCheck(index)">
             <radio :checked="item.checked" /><text></text>
           </view>
-          <image :src="getImagePath(item.goods_img)" class="goods-image" mode=""></image>
+          <image :src="getImagePath(item.goods_img)" class="goods-image" mode="" @click="changeCheck(index)"></image>
           <view class="goods-info">
-            <view class="">
+            <view class="" @click="changeCheck(index)">
               商品名称:{{item.goods_name||''}}
             </view>
-            <view class="text-sm padding-tb-xs"
+            <view class="text-sm "
               style="display: flex;justify-content: space-between;align-items: center;">
               <!--    <view class="">
                 规格：100g
               </view> -->
               <view class="" v-if="(type==='view'||type==='detail')">
-                <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
-                <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
+                <text class="text-red margin-right-xs " v-if="item.group_price">￥{{item.group_price}}</text>
+                <text class="text-gray line-through text-sm " v-if="item.price"><text v-if="item.group_price">原价</text>
+                  ￥{{item.price}}</text>
               </view>
               <view class="text-sm text-gray" v-if="type==='view'&&item.boughtNum">
                 已团{{item.boughtNum||'-'}}件
@@ -94,10 +96,11 @@
             </view>
             <view class="price" v-if="type==='default'">
               <view class="">
-                <text class="text-red margin-right-xs ">￥{{item.group_price}}</text>
-                <text class="text-gray line-through text-sm " v-if="item.price">原价￥{{item.price}}</text>
+                <text class="text-red margin-right-xs" v-if="item.group_price">￥{{item.group_price}}</text>
+                <text class="text-gray line-through text-sm " v-if="item.price"><text
+                    v-if="item.group_price">原价</text>￥{{item.price}}</text>
               </view>
-              <view class="number-box" v-if="countDown!==0&&countDown!=='团购已经结束'&&item.amount">
+              <view class="number-box " v-if="countDown!==0&&countDown!=='团购已经结束'&&item.amount" @click.stop="">
                 <u-number-box :value="item.amount" :min="1" :index="index" @change="changeAmount($event,index)">
                 </u-number-box>
               </view>
@@ -195,7 +198,7 @@
     methods: {
       onBackHome() {
         let url = `/storePages/home/home?store_no=S0000000000`
-        if(this.storeNo){
+        if (this.storeNo) {
           url = `/storePages/home/home?store_no=${this.storeNo}`
         }
         uni.reLaunch({
@@ -487,7 +490,7 @@
       }
       if (this.storeNo) {
         path += `&store_no=${this.storeNo}`;
-      }else if(this.storeInfo?.store_no){
+      } else if (this.storeInfo?.store_no) {
         path += `&store_no=${this.storeInfo?.store_no}`
       }
 

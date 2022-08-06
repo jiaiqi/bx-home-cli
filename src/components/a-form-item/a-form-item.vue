@@ -93,7 +93,7 @@
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view class="" v-else-if="selectorData.length===0&&fkFieldLabel" @click="openModal(fieldData.type)">
-          {{fkFieldLabel}}
+          {{fkFieldLabel||fieldData.value}}
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view class="selector-tip"
@@ -102,6 +102,7 @@
           {{fkFieldLabel||fieldData.value||'请选择'}}
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
+
         <!--  <view v-else-if="
             (setOptionList&&setOptionList.length < 5 && fieldData.type === 'Set') ||
             (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
@@ -141,6 +142,10 @@
             fieldData.value
           }}</view>
           <text class="cuIcon-right" v-if="fieldData.value&&!fieldData.disabled"></text>
+        </view>
+        <view class="" v-else @click="openModal(fieldData.type)">
+          <text> {{fieldData.value}}</text>
+          <text class="cuIcon-right margin-left-xs"></text>
         </view>
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
