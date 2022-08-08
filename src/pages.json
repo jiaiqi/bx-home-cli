@@ -736,6 +736,13 @@
           "enablePullDownRefresh": false
         }
 
+      }, {
+        "path": "stockOutPrint/stockOutPrint",
+        "style": {
+          "navigationBarTitleText": "出库打印单",
+          "enablePullDownRefresh": false
+        }
+
       }]
     }
     //#endif
