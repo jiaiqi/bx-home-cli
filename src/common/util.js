@@ -1864,7 +1864,11 @@ export default {
       return conditions
     }
 
-    Vue.prototype.renderStr = (str, obj) => {
+    Vue.prototype.renderStr = (str, obj={}) => {
+      obj = {
+        ...Vue.prototype.globalVariable,
+        ...obj
+      }
       if (typeof obj === 'object' && str) {
         str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()

@@ -102,10 +102,9 @@
           {{fkFieldLabel||fieldData.value||'请选择'}}
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
-
-        <!--  <view v-else-if="
-            (setOptionList&&setOptionList.length < 5 && fieldData.type === 'Set') ||
-            (radioOptions&&radioOptions.length <= 4 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
+        <view v-else-if="
+            (setOptionList&&setOptionList.length < 4 &&setOptionList.length > 1 && fieldData.type === 'Set') ||
+            (radioOptions&&radioOptions.length <= 4&&radioOptions.length > 1 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
           <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
             v-model="fieldData.value" mode="button" @change="onBlur">
@@ -118,7 +117,7 @@
             <bx-radio v-for="item in radioOptions" :key='item.value' :name="item.value">{{ item.label }}
             </bx-radio>
           </bx-radio-group>
-        </view> -->
+        </view>
         <view @click="openModal(fieldData.type)" class="open-popup" v-else-if="
             (fieldData.type === 'Set') ||
             (fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
@@ -268,7 +267,7 @@
     </view>
     <view class="cu-modal bottom-modal" :class="{
         show: modalName === 'Selector' || modalName === 'MultiSelector',
-      }" @click="hideModal" @touchmove.prevent.stop="">
+      }" @click="hideModal" @touchmove.prevent.stop="" v-if="fieldData&&fieldData.col_type!=='Enum'">
       <view class="cu-dialog" @tap.stop="">
         <!-- <fk-selector :srvApp="srvApp" :fields-model="fieldsModel" :option-cfg="fieldData.option_list_v2"></fk-selector> -->
         <option-selector :has-next="hasNext" :modalName="modalName"
@@ -279,6 +278,8 @@
 
       </view>
     </view>
+    <u-select v-model="showEnumSelect" :default-value="[curEnumIndex]" :list="fieldData.options"
+      v-if="fieldData&&fieldData.col_type=='Enum'" @confirm="confirmEnum"></u-select>
 
   </view>
 </template>
@@ -479,6 +480,8 @@
     },
     data() {
       return {
+        showEnumSelect: false,
+        curEnumIndex: -1,
         otherNodeVal: "",
         focusTextArea: false,
         checkedList: [],
@@ -573,6 +576,14 @@
       }
     },
     methods: {
+      confirmEnum(e) {
+        if (Array.isArray(e) && e.length > 0) {
+          this.fieldData.value = e[0].value
+          this.fkFieldLabel = e[0].label || e[0].value
+          this.curEnumIndex = this.fieldData.options.findIndex(item => item.value === e[0].value)
+        }
+
+      },
       imgChange(val) {
         this.fieldData.value = val
       },
@@ -937,6 +948,7 @@
 
       showModal(name) {
         this.modalName = name;
+
       },
       hideModal() {
         if (this.fieldData.value === '__others' && !this.otherNodeVal) {
@@ -1573,8 +1585,12 @@
             }
             break;
           case 'Selector':
-            await this.getSelectorData(null, null, null)
-            this.modalName = 'Selector';
+            if (this.fieldData.col_type == 'Enum') {
+              this.showEnumSelect = true
+            } else {
+              await this.getSelectorData(null, null, null)
+              this.modalName = 'Selector';
+            }
             break;
           case 'TreeSelector':
             // await this.getSelectorData(null, null, null)

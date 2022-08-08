@@ -421,10 +421,7 @@
               data: item,
               data1: this.topLevelData.find(item => item.selected === true) || {},
               data2: this.secondLevelData.find(item => item.selected === true) || {},
-              data3: this.thirdLevelData.find(item => item.selected === true) || {},
-              storeInfo: this.storeInfo,
-              storeUser: this.vstoreUser,
-              bindUserInfo: this.vstoreUser,
+              data3: this.thirdLevelData.find(item => item.selected === true) || {}
             }
             let time = this.renderStr(cfg?.dateTime, globalData)
             if (time) {
@@ -737,12 +734,8 @@
               let data = {
                 data1: this.topLevelData.find(item => item.selected === true) || {},
                 data2: this.secondLevelData.find(item => item.selected === true) || {},
-                data: this.curSelect,
-                storeInfo: this.storeInfo,
-                storeUser: this.vstoreUser,
-                bindUserInfo: this.vstoreUser,
+                data: this.curSelect
               }
-              console.log(this.secondLevelData)
               str = this.renderStr(str, data)
               try {
                 let cond = JSON.parse(str)

@@ -595,9 +595,6 @@
           }
           xIfCols.forEach(col => {
             let x_if = col?.x_if;
-            if (col.column === 'pickup_code') {
-              debugger
-            }
             try {
               if (x_if) {
                 x_if = `(${x_if})(data)`
@@ -1410,6 +1407,7 @@
         uni.showLoading({
           mask: true
         })
+        
         let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
           serviceName: orderAddService,

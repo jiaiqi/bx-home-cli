@@ -441,7 +441,7 @@
         navigationBarTitle: "",
         hideChildList: false,
         showMockCount: false,
-        serviceName: "srvhealth_store_vaccination_appoint_record_select",
+        serviceName: "",
         list: [],
         pageNo: 1,
         rownumber: 20,
@@ -1641,7 +1641,8 @@
             return
           }
         }
-        if (['multiSelectByJson', 'selectorList'].includes(this.listType)) {
+        
+        if (['multiSelectByJson', 'selectorList'].includes(this.listType)&&!data?.button?.icon) {
           if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
             return false
           }
@@ -1673,7 +1674,6 @@
           })
           return
         }
-
         if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
           // 序列化操作参数
           try {
@@ -2684,7 +2684,6 @@
       }
     },
     onShareAppMessage(e) {
-      debugger
       let imgUrl = ''
       let title = e?.target?.dataset?.sharetitle
       let path = e?.target?.dataset?.shareurl

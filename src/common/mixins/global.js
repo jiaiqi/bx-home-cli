@@ -75,6 +75,38 @@ export default {
     //#endif
   },
   methods: {
+    renderStr(str, obj = {}) {
+      obj = {
+        ...this.globalVariable,
+        ...obj
+      }
+      if (typeof obj === 'object' && str) {
+        str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
+          key = key.trim()
+          let result = obj[key]
+          if (key === 'today') {
+            result = dayjs().format("YYYY-MM-DD")
+          }
+          let arr = key.split('.')
+          if (arr.length > 1) {
+            result = obj
+            arr.forEach(item => {
+              try {
+                result = result[item] ?? '';
+                if (result === 0) {
+                  result = '0'
+                }
+              } catch (e) {
+                //TODO handle the exception
+              }
+            })
+          }
+          return result
+        })
+      }
+      return str
+    },
+
     downloadFile(e) {
       return new Promise((resolve) => {
         uni.showLoading({
