@@ -446,7 +446,11 @@
             }
             return item
           }).filter((item, index) => {
-
+          
+            if(item.client_type&&item.client_type.indexOf('APP')==-1){
+              // 根据自定义按钮配置的客户端类型过滤按钮
+              return false
+            }
             if (!item.moreConfig) {
               item.moreConfig = {}
             }
@@ -724,7 +728,6 @@
                 } else if (!obj.value && col?.placeholder) {
                   obj.value = col?.placeholder
                 }
-
               }
 
               if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
