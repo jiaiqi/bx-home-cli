@@ -1311,6 +1311,9 @@
         let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
+          if(this.orderInfo?.regimental_dumpling_no){
+            this.tgNo = this.orderInfo?.regimental_dumpling_no
+          }
           if (this.orderInfo.coupon_amount) {
             this.couponMinus = this.orderInfo.coupon_amount
           }
@@ -1407,7 +1410,7 @@
         uni.showLoading({
           mask: true
         })
-        
+
         let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
           serviceName: orderAddService,
@@ -1772,8 +1775,31 @@
         if (orderData.prepay_id) {
           result.prepay_id = orderData.prepay_id;
         } else {
+          let profit_sharing = false
+          let para_cfg = this.storeInfo?.para_cfg;
+          if (para_cfg) {
+            try {
+              para_cfg = JSON.parse(para_cfg)
+            } catch (e) {
+              //TODO handle the exception
+            }
+          }
+          
+          if (Array.isArray(para_cfg?.order_profit_sharing) && para_cfg?.order_profit_sharing.indexOf('general') !== -
+            1) {
+            // 普通订单
+            profit_sharing = true
+          }
+          
+          if (this.tgNo) {
+            // 团购订单
+            profit_sharing = para_cfg?.order_profit_sharing && para_cfg?.order_profit_sharing.indexOf(
+                'group_purchase') !== -
+              1;
+          }
+
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
-            orderData, this.wxMchId, goodsName);
+            orderData, this.wxMchId, goodsName, profit_sharing);
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);

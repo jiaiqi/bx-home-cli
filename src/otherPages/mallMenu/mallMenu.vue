@@ -48,47 +48,31 @@
         arr: [],
         scrollRightTop: 0, // 右边栏目scroll-view的滚动条高度
         timer: null, // 定时器
-        menuLabelCol: '',
-        detailUrl: "",
-        idCol: "",
-        nameCol: '',
-        imgCol: "",
-        menuService: "",
-        service: '',
-        app: '',
+        app: "",
+        config: null,
         // 左侧按钮分页信息
-        menuPage:{
-          pageNo:1,
-          rownumber:50,
-          total:0
+        menuPage: {
+          pageNo: 1,
+          rownumber: 50,
+          total: 0
         },
         // 右边数据分页信息
-        listPage:{
-          
-        }
+        listPage: {
+          pageNo: 1,
+          rownumber: 50,
+          total: 0
+        },
+        menus: [],
+        colV2: null
       }
     },
     onLoad(option) {
-
       if (option.app) {
         this.app = option.app
-      } else {
-        this.app = uni.getStorageSync('activeApp')
       }
-      if (option.menuLabelCol) {
-        this.menuLabelCol = option.menuLabelCol
-      }
-      if (option.nameCol) {
-        this.nameCol = option.nameCol
-      }
-      if (option.imgCol) {
-        this.imgCol = option.imgCol
-      }
-      if (option.detailUrl) {
-        this.detailUrl = option.detailUrl
-      }
-      if (option.service && option.menuService) {
-        this.getClassify()
+      if (option.service) {
+        this.service = option.service
+        this.initData()
       }
 
     },
@@ -96,10 +80,39 @@
       this.getMenuItemTop()
     },
     methods: {
-      getClassify() {
-        // 查找左侧分类
+      async initData() {
+        let app = this.app || uni.getStorageSync('activeApp');
+        let colVs = await this.getServiceV2(this.service, 'list', 'list', app);
+        if (colVs?.moreConfig?.verticalNavCfg) {
+          let config = colVs?.moreConfig?.verticalNavCfg
+          const {
+            left: leftCfg,
+            right: rightCfg
+          } = config
+
+          let leftData = await this.getLeft(leftCfg)
+          if (leftCfg.relationCol && rightCfg.relationCol && Array.isArray(leftData) && leftData.length > 0) {
+            let ids = leftData.map(item => item[leftCfg.relationCol]).toString()
+            let rightData = await this.getRight(rightCfg, ids)
+            leftData = leftData.map(item => {
+              item.childList = rightData.filter(e => e[rightCfg.relationCol] === item[leftCfg.relationCol])
+              return item
+            })
+            this.menus = leftData
+          }
+
+        }
+        // this.colV2 = colVs
+
+      },
+      async getLeft(cfg = {}) {
+        const {
+          app,
+          service
+        } = cfg
+        const url = `/${app}/select/${service}`
         const req = {
-          "serviceName": "srvhealth_goods_classify_select",
+          "serviceName": service,
           "colNames": ["*"],
           "condition": [{
             "colName": "store_no",
@@ -110,15 +123,95 @@
             "ruleType": "isnull"
           }],
           "page": {
-            "pageNo": 1,
-            "rownumber": 50
+            "pageNo": this.menuPage.pageNo,
+            "rownumber": this.menuPage.rownumber
           }
+        }
+        const res = await this.$http.post(url, req)
+        if (res?.data?.state === 'SUCCESS') {
+          let menus = res.data.data;
+          // const list = await this.getRight()
+          return res.data.data;
+        }
+      },
+      async getRight(cfg = {}, ids) {
+        // 查找右侧数据
+        const {
+          app,
+          service
+        } = cfg
+        const req = {
+          "serviceName": service,
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo?.store_no
+          }],
+          "page": {
+            "pageNo": this.listPage.pageNo,
+            "rownumber": this.listPage.rownumber
+          }
+        }
+        if (ids && cfg?.relationCol) {
+          req.condition.push({
+            colName: cfg?.relationCol,
+            ruleType: 'in',
+            value: ids
+          })
+        }
+        const url = `/${app}/select/${this.service}`
+        const res = await this.$http.post(url, req)
+        if (res?.data?.state === 'SUCCESS') {
+          return res.data.data
         }
 
       },
-      getList() {
+      async getClassify() {
+        // 查找左侧分类
+        const url = `/${this.app}/select/${this.menuService}`
+        const req = {
+          "serviceName": this.menuService,
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo?.store_no
+          }, {
+            "colName": "parent_no",
+            "ruleType": "isnull"
+          }],
+          "page": {
+            "pageNo": this.menuPage.pageNo,
+            "rownumber": this.menuPage.rownumber
+          }
+        }
+        const res = await this.$http.post(url, req)
+        if (res?.data?.state === 'SUCCESS') {
+          this.menus = res.data.data;
+          const list = await this.getList()
+        }
+      },
+      async getList() {
         // 查找右侧数据
-
+        const req = {
+          "serviceName": this.service,
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "store_no",
+            "ruleType": "eq",
+            "value": this.storeInfo?.store_no
+          }],
+          "page": {
+            "pageNo": this.listPage.pageNo,
+            "rownumber": this.listPage.rownumber
+          },
+        }
+        const url = `/${this.app}/select/${this.service}`
+        const res = await this.$http.post(url, req)
+        if (res?.data?.state === 'SUCCESS') {
+          return res.data.data
+        }
       },
       // 点击左边的栏目切换
       async swichMenu(index) {
