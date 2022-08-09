@@ -93,48 +93,48 @@
       cartBottom
     },
     watch: {
-      'moreConfig.tabs_cfg': {
-        immediate: true,
-        deep: true,
-        handler(newValue, oldValue) {
-          if (newValue) {
-            let cfg = newValue
-            let res = {
-              col: cfg?.column,
-              tabs: [],
-              activeColor: cfg?.active_color
-            }
-            if (cfg) {
-              if (cfg?.type === 'enum_col' && cfg?.column) {
-                if (Array.isArray(this.colV2?._fieldInfo)) {
-                  let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
-                  if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-                    if (cfg?.show_total_tab !== false) {
-                      res.tabs = [{
-                        value: '_all',
-                        name: '全部'
-                      }]
-                    }
-                    let allTab = col.option_list_v2
-                    if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
-                      allTab = cfg.customTabs
-                    }
-                    allTab.forEach(item => {
-                      res.tabs.push({
-                        name: item.value,
-                        value: item.value
-                      })
-                    })
-                  }
-                }
-              } else if (cfg?.type === 'fk_col' && cfg?.column) {
+      // 'moreConfig.tabs_cfg': {
+      //   immediate: true,
+      //   deep: true,
+      //   handler(newValue, oldValue) {
+      //     if (newValue) {
+      //       let cfg = newValue
+      //       let res = {
+      //         col: cfg?.column,
+      //         tabs: [],
+      //         activeColor: cfg?.active_color
+      //       }
+      //       if (cfg) {
+      //         if (cfg?.type === 'enum_col' && cfg?.column) {
+      //           if (Array.isArray(this.colV2?._fieldInfo)) {
+      //             let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
+      //             if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
+      //               if (cfg?.show_total_tab !== false) {
+      //                 res.tabs = [{
+      //                   value: '_all',
+      //                   name: '全部'
+      //                 }]
+      //               }
+      //               let allTab = col.option_list_v2
+      //               if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
+      //                 allTab = cfg.customTabs
+      //               }
+      //               allTab.forEach(item => {
+      //                 res.tabs.push({
+      //                   name: item.value,
+      //                   value: item.value
+      //                 })
+      //               })
+      //             }
+      //           }
+      //         } else if (cfg?.type === 'fk_col' && cfg?.column) {
 
-              }
-            }
-            this.tabsCfg = res
-          }
-        }
-      },
+      //         }
+      //       }
+      //       this.tabsCfg = res
+      //     }
+      //   }
+      // },
       enumTabs: {
         immediate: true,
         deep: true,
@@ -1273,7 +1273,54 @@
             return item
           })
         }
-
+        
+        if (colVs?.moreConfig?.tabs_cfg) {
+          let tabsCfg = colVs?.moreConfig?.tabs_cfg;
+          if (tabsCfg?.column && !tabsCfg.col) {
+            tabsCfg.col = tabsCfg?.column
+          }
+          tabsCfg.tabs = []
+          tabsCfg.activeColor =  tabsCfg?.active_color
+          if (tabsCfg?.show_total_tab !== false) {
+            tabsCfg.tabs = [{
+              value: '_all',
+              name: '全部'
+            }]
+          }
+          if (tabsCfg?.type === 'fk_col' && tabsCfg?.srvInfo && tabsCfg?.srvInfo.key_disp_col && tabsCfg
+            ?.srvInfo
+            .refed_col) {
+            let tabs = await this.getFkTabs(tabsCfg?.srvInfo)
+            if (Array.isArray(tabs) && tabs.length > 0) {
+              tabs = tabs.map(item => {
+                return {
+                  name: item[tabsCfg?.srvInfo.key_disp_col],
+                  value: item[tabsCfg?.srvInfo.refed_col]
+                }
+                return item
+              })
+            }
+            tabsCfg.tabs = [...tabsCfg.tabs, ...tabs];
+          } else if (tabsCfg?.type === 'enum_col' && tabsCfg?.column) {
+            if (Array.isArray(colVs?._fieldInfo)) {
+              let col = colVs?._fieldInfo.find(item => item.column === tabsCfg.column)
+              if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
+                let allTab = col.option_list_v2
+                if (Array.isArray(tabsCfg.customTabs) && tabsCfg.customTabs.length > 0) {
+                  allTab = tabsCfg.customTabs
+                }
+                allTab.forEach(item => {
+                  tabsCfg.tabs.push({
+                    name: item.value,
+                    value: item.value
+                  })
+                })
+              }
+            }
+          }
+          this.tabsCfg = tabsCfg
+        }
+        
         this.colV2 = colVs;
 
         if (Array.isArray(colVs.srv_cols)) {

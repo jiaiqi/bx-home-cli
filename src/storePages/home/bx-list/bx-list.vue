@@ -18,6 +18,10 @@
           <text class="cuIcon-right"></text>
         </view>
       </view>
+      <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
+        <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
+          @change="changeTab"></u-tabs>
+      </view>
       <view class="list-content" v-if="showEmptyData">
         <view class="list-view">
           <list-next class="list-next" :nowrap="nowrap" :itemWidth="itemWidth" :cartData="cartData"
@@ -25,9 +29,7 @@
             @click-foot-btn="clickFootBtn" />
         </view>
       </view>
-      <!--      <view class="data-empty" style="text-align: center;" v-if="showEmptyData&&list.length===0&&loadStatus==='noMore'">
-        <u-empty></u-empty>
-      </view> -->
+
       <uni-load-more :status="loadStatus" v-if="loadOnReachBottom"></uni-load-more>
     </view>
     <view class="tabs-list list-box" v-else-if="tabs.length > 0">
@@ -58,7 +60,9 @@
       }
     },
     computed: {
-
+      enumTabs() {
+        return this.tabsCfg?.tabs || []
+      },
       loadOnReachBottom() {
         return this.pageItem?.load_on_reach_bottom || this.config?.loadOnReachBottom
       },
@@ -342,6 +346,10 @@
     },
     data() {
       return {
+        tabsData: [],
+        curTab: 0, //当前选中tab的索引
+        tabsCfg: null,
+        curTabVal: null, //当前选中tab的值
         hideChildList: false,
         showMockCount: false,
         list: [],
@@ -367,8 +375,6 @@
         customDetailUrl: '',
         initCond: [],
         relationCondition: [],
-        curTab: 0,
-        tabsData: [],
         gridButtonDisp: {
           refresh: false
         },
@@ -404,11 +410,30 @@
         this.curTab = e;
         // this.serviceName  = this.tabs[e].service||this.serviceName
         // this.appName  = this.tabs[e].app||this.appName
-        this.condition = this.tabs[e].condition || [];
+        if (this.tabsCfg?.type === 'fk_col') {
+          let cond = null
+          let tab = this.tabsCfg.tabs[e]
+          if (tab.value) {
+            if (tab.value !== '_all') {
+              cond = [{
+                colName: this.tabsCfg?.col || this.tabsCfg?.col,
+                ruleType: 'eq',
+                value: tab.value
+              }]
+            } else {
+              cond = []
+            }
+            this.curTabVal = tab.value
+            this.pageNo = 1;
+            this.getList(cond)
+          }
+        } else {
+          this.condition = this.tabs[e].condition || [];
+          this.getListV2().then(_ => {
+            this.refresh();
+          });
+        }
 
-        this.getListV2().then(_ => {
-          this.refresh();
-        });
       },
       toAll() {
         let url = `/publicPages/list2/list2?serviceName=${this.serviceName}&destApp=${this.appName}`
@@ -433,7 +458,8 @@
           url += `&cond=${JSON.stringify(conds)}`
         }
 
-        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 &&
+        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length >
+          0 &&
           this
           .tabs.length < 1) {
           let data = {
@@ -626,12 +652,45 @@
         // });
         return
       },
+      async getFkTabs(srvInfo = {}) {
+        const {
+          serviceName,
+          srv_app
+        } = srvInfo
+        if (serviceName && srv_app) {
+          const url = `/${srv_app}/select/${serviceName}`
+          const req = {
+            "serviceName": serviceName,
+            "colNames": ["*"],
+            "condition": [],
+            "page": {
+              "rownumber": 20,
+              "pageNo": 1
+            }
+          }
+          if (Array.isArray(srvInfo?.conditions) && srvInfo?.conditions.length > 0) {
+            req.condition = srvInfo?.conditions.map(item => {
+              let data = {
+                ...this.globalVariable
+              }
+              item.value = this.renderStr(item.value, data)
+              return item
+            })
+          }
+          const res = await this.$http.post(url, req);
+          if (res?.data?.state === 'SUCCESS') {
+            return res.data.data
+          }
+        }
+      },
       async getListV2() {
         let app = this.appName || uni.getStorageSync('activeApp');
         let self = this;
         let colVs = await this.getServiceV2(this.serviceName, 'list', this.listType === 'proc' ? 'proclist' :
           'list', app);
-        colVs?.srv_cols ? colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2) : ''
+        colVs?.srv_cols ? colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item
+            .in_list === 2) :
+          ''
         console.log('colVs', colVs);
         if (colVs.more_config) {
           try {
@@ -660,6 +719,58 @@
             console.info(e);
           }
         }
+        if (colVs?.moreConfig?.tabs_cfg) {
+          let tabsCfg = colVs?.moreConfig?.tabs_cfg;
+          if (tabsCfg?.column && !tabsCfg.col) {
+            tabsCfg.col = tabsCfg?.column
+          }
+          tabsCfg.activeColor = tabsCfg?.active_color
+          tabsCfg.tabs = []
+          if (tabsCfg?.show_total_tab !== false) {
+            tabsCfg.tabs = [{
+              value: '_all',
+              name: '全部'
+            }]
+          }
+          if (tabsCfg?.type === 'fk_col' && tabsCfg?.srvInfo && tabsCfg?.srvInfo.key_disp_col && tabsCfg
+            ?.srvInfo
+            .refed_col) {
+            let tabs = await this.getFkTabs(tabsCfg?.srvInfo)
+            if (Array.isArray(tabs) && tabs.length > 0) {
+              tabs = tabs.map(item => {
+                return {
+                  name: item[tabsCfg?.srvInfo.key_disp_col],
+                  value: item[tabsCfg?.srvInfo.refed_col]
+                }
+                return item
+              })
+            }
+            tabsCfg.tabs = [...tabsCfg.tabs, ...tabs];
+          } else if (tabsCfg?.type === 'enum_col' && tabsCfg?.column) {
+            if (Array.isArray(colVs?._fieldInfo)) {
+              let col = colVs?._fieldInfo.find(item => item.column === tabsCfg.column)
+              if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
+                // if (tabsCfg?.show_total_tab !== false) {
+                //   allTab.tabs = [{
+                //     value: '_all',
+                //     name: '全部'
+                //   }]
+                // }
+                let allTab = col.option_list_v2
+                if (Array.isArray(tabsCfg.customTabs) && tabsCfg.customTabs.length > 0) {
+                  allTab = tabsCfg.customTabs
+                }
+                allTab.forEach(item => {
+                  tabsCfg.tabs.push({
+                    name: item.value,
+                    value: item.value
+                  })
+                })
+              }
+            }
+          }
+          this.tabsCfg = tabsCfg
+        }
         this.colV2 = colVs;
         if (Array.isArray(colVs.srv_cols)) {
           this.orderCols = colVs.srv_cols.filter(item => {
@@ -673,10 +784,19 @@
         return colVs;
       },
       async getList(cond, initCond) {
-        // if(this.rownumber===0){
-        // 	return
-        // }
 
+        if (!cond) {
+          if (!this.curTabVal && Array.isArray(this.enumTabs) && this.enumTabs.length > 0) {
+            this.curTabVal = this.enumTabs[0].name
+          }
+          if (this.curTabVal && this.tabsCfg?.col && Array.isArray(this.tabsCfg.tabs)) {
+            let index = this.tabsCfg.tabs.findIndex(item => item.name === this.curTabVal);
+            if (index >= 0) {
+              this.changeTab(index)
+              return
+            }
+          }
+        }
         let serviceName = this.serviceName;
         let app = this.appName || uni.getStorageSync('activeApp');
         let url = this.getServiceUrl(app, serviceName, 'select');
@@ -715,7 +835,8 @@
             req.condition.push(obj);
           });
         }
-        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data.length > 0 &&
+        if (Array.isArray(this.config?.relation_condition?.data) && this.config.relation_condition?.data
+          .length > 0 &&
           this
           .tabs.length < 1) {
           let data = {
