@@ -93,6 +93,48 @@
       cartBottom
     },
     watch: {
+      'moreConfig.tabs_cfg': {
+        immediate: true,
+        deep: true,
+        handler(newValue, oldValue) {
+          if (newValue) {
+            let cfg = newValue
+            let res = {
+              col: cfg?.column,
+              tabs: [],
+              activeColor: cfg?.active_color
+            }
+            if (cfg) {
+              if (cfg?.type === 'enum_col' && cfg?.column) {
+                if (Array.isArray(this.colV2?._fieldInfo)) {
+                  let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
+                  if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
+                    if (cfg?.show_total_tab !== false) {
+                      res.tabs = [{
+                        value: '_all',
+                        name: '全部'
+                      }]
+                    }
+                    let allTab = col.option_list_v2
+                    if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
+                      allTab = cfg.customTabs
+                    }
+                    allTab.forEach(item => {
+                      res.tabs.push({
+                        name: item.value,
+                        value: item.value
+                      })
+                    })
+                  }
+                }
+              } else if (cfg?.type === 'fk_col' && cfg?.column) {
+
+              }
+            }
+            this.tabsCfg = res
+          }
+        }
+      },
       enumTabs: {
         immediate: true,
         deep: true,
@@ -116,42 +158,44 @@
         return this.moreConfig?.tagsMode || 'unfold'
       },
       enumTabs() {
-        return this.tabsCfg.tabs || []
+        return this.tabsCfg?.tabs || []
       },
-      tabsCfg() {
-        let cfg = this.moreConfig?.tabs_cfg
-        let res = {
-          col: cfg?.column,
-          tabs: [],
-          activeColor: cfg?.active_color
-        }
-        if (cfg) {
-          if (cfg?.type === 'enum_col' && cfg?.column) {
-            if (Array.isArray(this.colV2?._fieldInfo)) {
-              let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
-              if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-                if (cfg?.show_total_tab !== false) {
-                  res.tabs = [{
-                    value: '_all',
-                    name: '全部'
-                  }]
-                }
-                let allTab = col.option_list_v2
-                if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
-                  allTab = cfg.customTabs
-                }
-                allTab.forEach(item => {
-                  res.tabs.push({
-                    name: item.value,
-                    value: item.value
-                  })
-                })
-              }
-            }
-          }
-        }
-        return res
-      },
+      // tabsCfg() {
+      //   let cfg = this.moreConfig?.tabs_cfg
+      //   let res = {
+      //     col: cfg?.column,
+      //     tabs: [],
+      //     activeColor: cfg?.active_color
+      //   }
+      //   if (cfg) {
+      //     if (cfg?.type === 'enum_col' && cfg?.column) {
+      //       if (Array.isArray(this.colV2?._fieldInfo)) {
+      //         let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
+      //         if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
+      //           if (cfg?.show_total_tab !== false) {
+      //             res.tabs = [{
+      //               value: '_all',
+      //               name: '全部'
+      //             }]
+      //           }
+      //           let allTab = col.option_list_v2
+      //           if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
+      //             allTab = cfg.customTabs
+      //           }
+      //           allTab.forEach(item => {
+      //             res.tabs.push({
+      //               name: item.value,
+      //               value: item.value
+      //             })
+      //           })
+      //         }
+      //       }
+      //     } else if (cfg?.type === 'fk_col' && cfg?.column) {
+
+      //     }
+      //   }
+      //   return res
+      // },
       sysModel() {
         return getApp().globalData.systemInfo?.model
       },
@@ -432,6 +476,7 @@
     },
     data() {
       return {
+        tabsCfg: null,
         topHeight: 0,
         modalName: "",
         codeSize: uni.upx2px(750),
@@ -486,6 +531,9 @@
       }
     },
     methods: {
+      getFkTabs(){
+        
+      },
       setTopHeight() {
         const query = uni.createSelectorQuery().in(this);
         query.select('#top-bar').boundingClientRect(data => {
@@ -1019,7 +1067,7 @@
           if (this.hideChildTable) {
             url += `&hideChildTable=true`
           }
-          if(e?.operate_type&&e.operate_type.indexOf('弹出')!==-1){
+          if (e?.operate_type && e.operate_type.indexOf('弹出') !== -1) {
             url += `&hideChildTable=true`
           }
           uni.navigateTo({
@@ -1641,8 +1689,8 @@
             return
           }
         }
-        
-        if (['multiSelectByJson', 'selectorList'].includes(this.listType)&&!data?.button?.icon) {
+
+        if (['multiSelectByJson', 'selectorList'].includes(this.listType) && !data?.button?.icon) {
           if (data.row && (data.row[this.disabledCol] === true || data.row[this.disabledCol] === 1)) {
             return false
           }

@@ -11,19 +11,20 @@
         :scroll-into-view="itemId">
         <view v-for="(item,index) in tabbar" :key="index" class="u-tab-item"
           :class="[current == index ? 'u-tab-item-active' : '']" @tap.stop="swichMenu(index)">
-          <text class="u-line-1">{{item.name}}</text>
+          <text class="u-line-1">{{item.label}}</text>
         </view>
       </scroll-view>
       <scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box" @scroll="rightScroll">
         <view class="page-view">
           <view class="class-item" :id="'item' + index" v-for="(item , index) in tabbar" :key="index">
             <view class="item-title">
-              <text>{{item.name}}</text>
+              <text>{{item.label}}</text>
             </view>
-            <view class="item-container">
-              <view class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
-                <image class="item-menu-image" :src="item1.icon" mode=""></image>
-                <view class="item-menu-name">{{item1.name}}</view>
+            <u-empty v-if="item.childList.length==0"></u-empty>
+            <view class="item-container" v-else>
+              <view class="thumb-box" v-for="(item1, index1) in item.childList" :key="index1" @click="toDetail(item1)">
+                <image class="item-menu-image" :src="item1.icon" mode="aspectFit"></image>
+                <view class="item-menu-name">{{item1.label}}</view>
               </view>
             </view>
           </view>
@@ -33,7 +34,6 @@
   </view>
 </template>
 <script>
-  import classifyData from './staticData.js';
   export default {
     data() {
       return {
@@ -43,7 +43,7 @@
         menuHeight: 0, // 左边菜单的高度
         menuItemHeight: 0, // 左边菜单item的高度
         itemId: '', // 栏目右边scroll-view用于滚动的id
-        tabbar: classifyData,
+        tabbar: [],
         menuItemPos: [],
         arr: [],
         scrollRightTop: 0, // 右边栏目scroll-view的滚动条高度
@@ -62,8 +62,6 @@
           rownumber: 50,
           total: 0
         },
-        menus: [],
-        colV2: null
       }
     },
     onLoad(option) {
@@ -80,6 +78,17 @@
       this.getMenuItemTop()
     },
     methods: {
+      toDetail(e){
+        let url = this.config?.detailUrl;
+        let data = {
+          data:e,
+          ...this.globalVariable
+        }
+        url = this.renderStr(url,data)
+        uni.navigateTo({
+          url
+        })
+      },
       async initData() {
         let app = this.app || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.service, 'list', 'list', app);
@@ -89,20 +98,19 @@
             left: leftCfg,
             right: rightCfg
           } = config
-
+          this.config = config
           let leftData = await this.getLeft(leftCfg)
           if (leftCfg.relationCol && rightCfg.relationCol && Array.isArray(leftData) && leftData.length > 0) {
             let ids = leftData.map(item => item[leftCfg.relationCol]).toString()
             let rightData = await this.getRight(rightCfg, ids)
             leftData = leftData.map(item => {
+              item.label = item[leftCfg.labelCol]
               item.childList = rightData.filter(e => e[rightCfg.relationCol] === item[leftCfg.relationCol])
               return item
             })
-            this.menus = leftData
+            this.tabbar = leftData
           }
-
         }
-        // this.colV2 = colVs
 
       },
       async getLeft(cfg = {}) {
@@ -129,9 +137,13 @@
         }
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
-          let menus = res.data.data;
-          // const list = await this.getRight()
-          return res.data.data;
+          let tabbar = res.data.data;
+          return res.data.data.map(item => {
+            if (cfg.labelCol && item[cfg.labelCol]) {
+              item.label = item[cfg.labelCol]
+            }
+            return item
+          });
         }
       },
       async getRight(cfg = {}, ids) {
@@ -163,55 +175,17 @@
         const url = `/${app}/select/${this.service}`
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
-          return res.data.data
+          return res.data.data.map(item => {
+            if (cfg.labelCol && item[cfg.labelCol]) {
+              item.label = item[cfg.labelCol]
+            }
+            if (cfg.iconCol && item[cfg.iconCol]) {
+              item.icon = this.getImagePath(item[cfg.iconCol])
+            }
+            return item
+          });
         }
 
-      },
-      async getClassify() {
-        // 查找左侧分类
-        const url = `/${this.app}/select/${this.menuService}`
-        const req = {
-          "serviceName": this.menuService,
-          "colNames": ["*"],
-          "condition": [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeInfo?.store_no
-          }, {
-            "colName": "parent_no",
-            "ruleType": "isnull"
-          }],
-          "page": {
-            "pageNo": this.menuPage.pageNo,
-            "rownumber": this.menuPage.rownumber
-          }
-        }
-        const res = await this.$http.post(url, req)
-        if (res?.data?.state === 'SUCCESS') {
-          this.menus = res.data.data;
-          const list = await this.getList()
-        }
-      },
-      async getList() {
-        // 查找右侧数据
-        const req = {
-          "serviceName": this.service,
-          "colNames": ["*"],
-          "condition": [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeInfo?.store_no
-          }],
-          "page": {
-            "pageNo": this.listPage.pageNo,
-            "rownumber": this.listPage.rownumber
-          },
-        }
-        const url = `/${this.app}/select/${this.service}`
-        const res = await this.$http.post(url, req)
-        if (res?.data?.state === 'SUCCESS') {
-          return res.data.data
-        }
       },
       // 点击左边的栏目切换
       async swichMenu(index) {
@@ -417,6 +391,8 @@
     font-size: 26rpx;
     color: $u-main-color;
     font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f6f6f6;
   }
 
   .item-menu-name {

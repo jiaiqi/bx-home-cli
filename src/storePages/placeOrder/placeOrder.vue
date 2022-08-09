@@ -1738,7 +1738,7 @@
             title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
             icon: "none"
           })
-          totalMoney = 0.01
+          totalMoney = 0.1
         }
 
         let result = {};

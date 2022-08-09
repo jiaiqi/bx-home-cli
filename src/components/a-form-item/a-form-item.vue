@@ -93,7 +93,7 @@
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view class="" v-else-if="selectorData.length===0&&fkFieldLabel" @click="openModal(fieldData.type)">
-          {{fkFieldLabel||fieldData.value}}
+          {{fkFieldLabel||fieldData.value||'请选择'}}
           <text class="cuIcon-right margin-left-xs"></text>
         </view>
         <view class="selector-tip"
@@ -142,9 +142,10 @@
           }}</view>
           <text class="cuIcon-right" v-if="fieldData.value&&!fieldData.disabled"></text>
         </view>
-        <view class="" v-else @click="openModal(fieldData.type)">
-          <text> {{fieldData.value}}</text>
-          <text class="cuIcon-right margin-left-xs"></text>
+        <view class="selector-tip flex align-center" v-else @click="openModal(fieldData.type)">
+          <text class="place-holder" v-if="!fieldData.value"> 请选择</text>
+          <text v-else> {{fieldData.value}}</text>
+          <text class="cuIcon-right "></text>
         </view>
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
