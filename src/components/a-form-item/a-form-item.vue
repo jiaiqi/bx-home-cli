@@ -39,11 +39,13 @@
       <view class="" v-else-if="fieldData.type==='openDocument'">
         <button class="cu-btn bg-blue round" v-if="fieldData.value" @click="openDocument(fieldData.value)">文件预览</button>
       </view>
+      <view class="form-item-content_detail textarea" v-else-if="
+          pageType === 'detail' &&['textarea'].includes(field.type)
+        ">
+        <textarea disabled :auto-height="true" :value="fieldData.value"></textarea>
+      </view>
       <view class="form-item-content_detail rich-text" v-else-if="
-          pageType === 'detail' &&
-          (field.type === 'snote' ||
-            field.type === 'Note' ||
-            field.type === 'RichText')
+          pageType === 'detail' &&['snote','Note','RichText'].includes(field.type)
         ">
         <mp-html :content="fieldData.value.replace(/\<img/gi, '<img width=100%')" v-if="fieldData.value" />
         <!-- <rich-text :nodes="field.value" class="value rich-text"></rich-text> -->
@@ -90,7 +92,7 @@
           v-if="selectorData.length===0&&setOptionList.length===0&&!fkFieldLabel&&!fieldData.value"
           @click="openModal(fieldData.type)">
           请选择
-          <text class="cuIcon-right margin-left-xs"></text>
+          <text class="cuIcon-right "></text>
         </view>
         <view class="" v-else-if="selectorData.length===0&&fkFieldLabel" @click="openModal(fieldData.type)">
           {{fkFieldLabel||fieldData.value||'请选择'}}
@@ -100,7 +102,7 @@
           v-else-if="fieldData.type === 'Selector'&&fieldData.moreConfig&&fieldData.moreConfig.editor_type==='selectorList'"
           @click.stop="openModal">
           {{fkFieldLabel||fieldData.value||'请选择'}}
-          <text class="cuIcon-right margin-left-xs"></text>
+          <text class="cuIcon-right "></text>
         </view>
         <view v-else-if="
             (setOptionList&&setOptionList.length < 4 &&setOptionList.length > 1 && fieldData.type === 'Set') ||
@@ -118,11 +120,11 @@
             </bx-radio>
           </bx-radio-group>
         </view>
-        <view @click="openModal(fieldData.type)" class="open-popup" v-else-if="
+        <view @click="openModal(fieldData.type)" class="place-holder" v-else-if="
             (fieldData.type === 'Set') ||
             (fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
-          <view class="place-holder" v-if="!fieldData.value">
+          <view class="" v-if="!fieldData.value">
             <text>{{!fieldData.disabled?'请选择':''}}</text>
             <text class="cuIcon-right" v-if="!fieldData.disabled"></text>
           </view>
@@ -448,7 +450,7 @@
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
-        if (['images', 'textarea', 'media'].includes(this.fieldData.type)) {
+        if (['images', 'textarea', 'RichText', 'media'].includes(this.fieldData.type)) {
           if (this.pageType === 'detail' && !this.fieldData.value) {
 
           } else {

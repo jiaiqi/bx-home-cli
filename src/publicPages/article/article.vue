@@ -22,7 +22,7 @@
       </view>
     </view>
 
-    <view class="content" v-if="articleData.content">
+    <view class="content" v-if="articleData.content" :style="[setPadding]">
       <mp-html :content="articleData.content.replace(/\<img/gi, '<img width=100%')" />
     </view>
   </view>
@@ -35,9 +35,28 @@
   } from 'vuex'
   export default {
     computed: {
-      ...mapState({
-        userInfo: state => state.user.userInfo
-      })
+      setPadding() {
+        let style = {
+          padding: 0
+        }
+        if (this.articleData?.content_padding) {
+          switch (this.articleData?.content_padding) {
+            case '小':
+              style.padding = '5px'
+              break;
+            case '中':
+              style.padding = '10px'
+              break;
+            case '大':
+              style.padding = '15px'
+              break;
+            default:
+              break;
+          }
+        }
+        return style
+      },
+
     },
     data() {
       return {
@@ -233,6 +252,7 @@
       display: flex;
       flex-wrap: wrap;
       padding: 20rpx;
+
       .left {
         flex: 1;
       }
@@ -255,6 +275,7 @@
     .header {
       display: flex;
       align-items: center;
+      margin-bottom: 10rpx;
 
       .title {
         min-height: 100upx;
@@ -283,8 +304,9 @@
       color: #888;
       display: flex;
       justify-content: space-between;
-      // align-items: center;
-      flex-direction: column;
+      align-items: center;
+      flex-wrap: wrap;
+      // flex-direction: column;
 
       // margin: 20upx 0 0;
       .store-name {
@@ -294,11 +316,12 @@
 
     .content {
       min-height: 800upx;
-      margin-top: 30upx;
-      padding: 30upx 0;
+      // margin-top: 30upx;
+      padding: 0;
       border-top: dashed 1px #eee;
       line-height: 60upx;
       font-size: 36upx;
+      word-break: break-all;
     }
 
     .footer {

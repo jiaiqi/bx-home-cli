@@ -297,7 +297,7 @@
     },
     data() {
       return {
-        fileNo: "",
+        fileNo: null,
         fileList: [], // 已上传的文件列表
         lists: [],
         isInCount: true,
@@ -307,7 +307,6 @@
     },
     watch: {
       fileNo: {
-        immediate: true,
         handler(val) {
           this.$emit('change', val)
         }
