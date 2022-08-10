@@ -502,7 +502,16 @@
           }
 
         }
-      ]
+          ,{
+                    "path" : "resume1/resume1",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "简历详情",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     },
     {
       "root": "otherPages",

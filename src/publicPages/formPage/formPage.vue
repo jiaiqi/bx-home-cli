@@ -640,9 +640,9 @@
                             }
                           },
                           fail: () => {
-                            if(self.backUrl){
+                            if (self.backUrl) {
                               uni.redirectTo({
-                                url:self.backUrl,
+                                url: self.backUrl,
                                 success: () => {
                                   uni.$emit('onBack', {
                                     uuid: self.uuid,
@@ -979,7 +979,7 @@
                   showCancel: false,
                   success: (res) => {
                     if (res.confirm) {
-                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl 
+                      let beforeRedirectUrl = getApp().globalData.beforeRedirectUrl
                       if (self.afterSubmit === 'home') {
                         getApp().globalData.beforeRedirectUrl = null
                         let store_no = self.$store?.state?.app?.storeInfo?.store_no
@@ -1007,8 +1007,7 @@
                         })
                         uni.redirectTo({
                           url: beforeRedirectUrl,
-                          success: () => {
-                          }
+                          success: () => {}
                         })
                         getApp().globalData.beforeRedirectUrl = null
                         return
@@ -1288,9 +1287,9 @@
         const app = this.appName || uni.getStorageSync('activeApp');
 
         let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
-        
+
         this[`${this.srvType}V2`] = colVs
-        
+
 
         if (['update', 'add'].includes(this.srvType)) {
           await this.getDetailV2(colVs.select_service_name)
@@ -1357,7 +1356,7 @@
                       field.customLabel = item.label;
                     }
                     if (item.hasOwnProperty('value')) {
-                      field.value = item.value;
+                      field.value = this.renderStr(item.value, defaultVal);
                     }
                     if (field.option_list_v2 && Array.isArray(field
                         .option_list_v2
@@ -1427,8 +1426,8 @@
                       field.disabled = item.disabled;
                     }
                     if (item.hasOwnProperty('value')) {
-                      field.value = item.value;
-                      field.defaultValue = item.value;
+                      field.value = this.renderStr(item.value, defaultVal);
+                      field.defaultValue = field.value;
                     }
                     if (field.option_list_v2 && Array.isArray(field
                         .option_list_v2
@@ -1729,6 +1728,7 @@
           console.log(str)
           str = JSON.stringify(str)
           console.log(str)
+          
           str = JSON.parse(str)
           console.log(str)
           fieldsCond = JSON.parse(str);
@@ -1759,7 +1759,10 @@
           }
         }
 
-        this.fieldsCond = fieldsCond
+        this.fieldsCond = fieldsCond.map(item=>{
+          item.value = this.renderStr(item.value)
+          return item
+        })
       }
       if (['detail', 'update'].includes(option.type) && (!this.fieldsCond || (Array.isArray(this.fieldsCond) && this
           .fieldsCond
@@ -2025,6 +2028,7 @@
       }
     }
   }
+
   ::v-deep .nav-bar {
     display: flex;
     align-items: center;
@@ -2034,7 +2038,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-  
+
     .home-name {
       display: inline-block;
       width: calc(100% - 40rpx);
@@ -2042,6 +2046,6 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-  
+
   }
 </style>

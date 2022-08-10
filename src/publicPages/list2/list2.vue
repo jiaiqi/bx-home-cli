@@ -531,8 +531,36 @@
       }
     },
     methods: {
-      getFkTabs(){
-        
+      async getFkTabs(srvInfo = {}) {
+        const {
+          serviceName,
+          srv_app
+        } = srvInfo
+        if (serviceName && srv_app) {
+          const url = `/${srv_app}/select/${serviceName}`
+          const req = {
+            "serviceName": serviceName,
+            "colNames": ["*"],
+            "condition": [],
+            "page": {
+              "rownumber": 20,
+              "pageNo": 1
+            }
+          }
+          if (Array.isArray(srvInfo?.conditions) && srvInfo?.conditions.length > 0) {
+            req.condition = srvInfo?.conditions.map(item => {
+              let data = {
+                ...this.globalVariable
+              }
+              item.value = this.renderStr(item.value, data)
+              return item
+            })
+          }
+          const res = await this.$http.post(url, req);
+          if (res?.data?.state === 'SUCCESS') {
+            return res.data.data
+          }
+        }
       },
       setTopHeight() {
         const query = uni.createSelectorQuery().in(this);
@@ -1273,14 +1301,14 @@
             return item
           })
         }
-        
+
         if (colVs?.moreConfig?.tabs_cfg) {
           let tabsCfg = colVs?.moreConfig?.tabs_cfg;
           if (tabsCfg?.column && !tabsCfg.col) {
             tabsCfg.col = tabsCfg?.column
           }
           tabsCfg.tabs = []
-          tabsCfg.activeColor =  tabsCfg?.active_color
+          tabsCfg.activeColor = tabsCfg?.active_color
           if (tabsCfg?.show_total_tab !== false) {
             tabsCfg.tabs = [{
               value: '_all',
@@ -1320,7 +1348,7 @@
           }
           this.tabsCfg = tabsCfg
         }
-        
+
         this.colV2 = colVs;
 
         if (Array.isArray(colVs.srv_cols)) {

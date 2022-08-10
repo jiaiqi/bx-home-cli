@@ -78,13 +78,13 @@
       this.getMenuItemTop()
     },
     methods: {
-      toDetail(e){
+      toDetail(e) {
         let url = this.config?.detailUrl;
         let data = {
-          data:e,
+          data: e,
           ...this.globalVariable
         }
-        url = this.renderStr(url,data)
+        url = this.renderStr(url, data)
         uni.navigateTo({
           url
         })
@@ -122,19 +122,20 @@
         const req = {
           "serviceName": service,
           "colNames": ["*"],
-          "condition": [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeInfo?.store_no
-          }, {
-            "colName": "parent_no",
-            "ruleType": "isnull"
-          }],
+          "condition": [],
           "page": {
             "pageNo": this.menuPage.pageNo,
             "rownumber": this.menuPage.rownumber
           }
         }
+        
+        if (Array.isArray(cfg?.conditions) && cfg?.conditions.length > 0) {
+          cfg?.conditions.forEach(item=>{
+            item.value = this.renderStr(item.value);
+            req.condition.push(item)
+          })
+        }
+        
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
           let tabbar = res.data.data;
@@ -155,16 +156,20 @@
         const req = {
           "serviceName": service,
           "colNames": ["*"],
-          "condition": [{
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeInfo?.store_no
-          }],
+          "condition": [],
           "page": {
             "pageNo": this.listPage.pageNo,
             "rownumber": this.listPage.rownumber
           }
         }
+        
+        if (Array.isArray(cfg?.conditions) && cfg?.conditions.length > 0) {
+          cfg?.conditions.forEach(item=>{
+            item.value = this.renderStr(item.value);
+            req.condition.push(item)
+          })
+        }
+        
         if (ids && cfg?.relationCol) {
           req.condition.push({
             colName: cfg?.relationCol,
@@ -172,8 +177,10 @@
             value: ids
           })
         }
+        
         const url = `/${app}/select/${this.service}`
         const res = await this.$http.post(url, req)
+        
         if (res?.data?.state === 'SUCCESS') {
           return res.data.data.map(item => {
             if (cfg.labelCol && item[cfg.labelCol]) {
