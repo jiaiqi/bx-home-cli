@@ -867,8 +867,8 @@
             calcResult = await this.evalCalc(table_name, calcCols, defaultVal, this.appName)
           }
 
-          for (let i = 0; i < colVs._fieldInfo.length; i++) {
-            const item = colVs._fieldInfo[i]
+          for (let i = 0; i < fields.length; i++) {
+            const item = fields[i]
             if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item
                 .column] == 0)) {
 
@@ -925,16 +925,23 @@
                 .order_show_col.indexOf('结束日期') !== -1)) {
               item.display = true
             }
+            if (item.column === 'service_people_no' && this.storeInfo.order_up && this.storeInfo.order_up.indexOf(
+                '服务人员项目过滤') !== -1) {
+              if (item.option_list_v2?.serviceName) {
+                item.option_list_v2.serviceName = 'srvhealth_goods_person_select'
+              }
+            }
           }
-          
-          if(fields.find(item=>['reserve_start_date','reserve_end_date'].includes(item.column)&&item.display===true)){
-            fields.forEach(item=>{
-              if(item.column==='service_date'){
+
+          if (fields.find(item => ['reserve_start_date', 'reserve_end_date'].includes(item.column) && item.display ===
+              true)) {
+            fields.forEach(item => {
+              if (item.column === 'service_date') {
                 item.display = false
               }
             })
           }
-          
+
           this.fields = fields
           uni.hideLoading()
           return colVs

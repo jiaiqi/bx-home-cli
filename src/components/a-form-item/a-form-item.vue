@@ -108,9 +108,9 @@
             (setOptionList&&setOptionList.length < 4 &&setOptionList.length > 1 && fieldData.type === 'Set') ||
             (radioOptions&&radioOptions.length <= 4&&radioOptions.length > 1 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
-          <bx-checkbox-group v-if=" fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
-            v-model="fieldData.value" mode="button" @change="onBlur">
-            <bx-checkbox v-for="item in setOptionList" :key="item.value" :name="item.value" v-model="item.checked">
+          <bx-checkbox-group v-if="fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
+             mode="button" @change="pickerChange">
+            <bx-checkbox v-for="item in setOptionList" @change="changeCheckbox" @input="changeCheckbox($event,item.value)" :key="item.value" :name="item.value" v-model="item.checked">
               {{ item.label }}
             </bx-checkbox>
           </bx-checkbox-group>
@@ -1146,7 +1146,19 @@
         this.fieldData.old_value = this.fieldData.value
         this.$emit('on-value-change', this.fieldData);
       },
+      changeCheckbox(e){
+        debugger
+        if(e?.name){
+          this.setOptionList = this.setOptionList.map(item=>{
+            if(item.value===e.name){
+              item.checked = e.value
+            }
+            return e
+          })
+        }
+      },
       pickerChange(e, type) {
+        console.log(this.setOptionList)
         if (e?.type === '__others') {
           this.fieldData.value = e.value
           this.fkFieldLabel = e.value;
@@ -1604,7 +1616,7 @@
       },
       onBlur(e) {
         // 输入框失去焦点 进行校验
-        console.log('on-blur');
+        console.log('on-blur',e);
         this.getValid();
         // if (this.fieldData.value !== this.fieldData.old_value) {
         // this.fieldData.old_value = this.fieldData.value
