@@ -5,37 +5,38 @@
         <view class="top">
           <view class="left">
             <view class="name">
-              陈阿姨
+              {{mainData.person_name||'陈阿姨'}}
             </view>
             <view class="golden">
-              年龄：46岁
+              年龄：{{mainData.person_sex||' - '}}岁
             </view>
             <view class="golden">
               服务等级：标准服务
             </view>
           </view>
           <view class="right">
-            <image class="image" src="/static/profile.png" mode="aspectFit"></image>
+            <image class="image" src="/static/profile.png" mode="aspectFit" v-if="!mainData.person_image"></image>
+            <image class="image" :src="getImagePath(mainData.person_image)" mode="aspectFit" v-else></image>
           </view>
         </view>
         <view class="attr-list">
           <view class="attr-item">
-            属相：兔
+            属相：{{mainData.sign_of_the_zodiac||'-'}}
           </view>
           <view class="attr-item">
-            服务：8户
+            服务：{{mainData.service_num||'-'}}户
           </view>
           <view class="attr-item">
-            星座：狮子座
+            星座：{{mainData.constellation||'-'}}
           </view>
           <view class="attr-item">
-            籍贯：陕西
+            籍贯：{{mainData.rf_hometown_name_path?mainData.rf_hometown_name_path.replaceAll('/',''):'-'}}
           </view>
           <view class="attr-item">
-            民族：汉族
+            民族：{{mainData.nationality||'-'}}族
           </view>
           <view class="attr-item">
-            学历：初中
+            学历：{{mainData.education||'-'}}
           </view>
         </view>
       </view>
@@ -44,31 +45,22 @@
       <view class="title">
         自我介绍
       </view>
-      <view class="tags-box">
-        <view class="cu-btn round sm margin-right-xs">
-          老实本分
-        </view>
-        <view class="cu-btn round sm margin-right-xs">
-          热情开朗
-        </view>
-        <view class="cu-btn round sm margin-right-xs">
-          干活利索
-        </view>
-        <view class="cu-btn round sm margin-right-xs">
-          待人亲切
+      <view class="tags-box" v-if="tags&&tags.length>0">
+        <view class="cu-btn round sm margin-right-xs" v-for="item in tags">
+          {{item}}
         </view>
       </view>
       <view class="content">
-        我老实本分、热情开朗、干活利索、待人靠切,我是陕西眯化人，我精通母婴护理知识,依识别和处理新生儿简单生理现象和病理现象,我性裕开朗垫情,性裕和心态好,做事有条不紊。凭偌多年护理经验,为宝妈宝宝苇来一个舒适枳的月孑是我函幸福和快乐。
+        {{mainData.self_introduction_content||'-'}}
       </view>
     </view>
-    <view class="content-box">
+    <view class="content-box" v-if="mainData.comments">
       <view class="title">
         考核团评语
       </view>
 
       <view class="content">
-        陈阿咦回口之家，孩孑在上学，以前在望织厂上班，阿咦性裕开朗
+        {{mainData.comments||''}}
       </view>
     </view>
     <view class="content-box bg-white">
@@ -76,8 +68,8 @@
         视频展示
       </view>
 
-      <view class="content">
-
+      <view class="content flex flex-wrap justify-center">
+        <video :src="src" v-for="src in videos"></video>
       </view>
     </view>
 
@@ -86,8 +78,8 @@
         服务照片
       </view>
 
-      <view class="content">
-
+      <view class="content flex flex-wrap">
+        <u-image width="220rpx" height="150rpx" :src="src" mode="aspectFit" v-for="src in images"></u-image>
       </view>
     </view>
 
@@ -98,23 +90,8 @@
           专业证件
         </view>
         <view class="card-list">
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>产后康复</text>
-          </view>
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>无痛催乳+母乳指导</text>
-          </view>
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>无痛催乳+母乳指导</text>
-          </view>
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>精品月嫂</text>
-          </view>
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>身份证</text>
-          </view>
-          <view class="card-item">
-            <text class="cuIcon-card margin-right-xs"></text><text>身份证</text>
+          <view class="card-item" v-for="item in certList">
+            <text class="cuIcon-card margin-right-xs"></text><text>{{item.documents_name}}</text>
           </view>
         </view>
       </view>
@@ -131,8 +108,8 @@
           </view>
         </view>
         <view class="card-list">
-          <view class="list-item">
-            宝宝生活照顾
+          <view class="list-item" v-for="item in serviceList">
+            {{item.content_title||''}}
           </view>
           <view class="list-item">
             宝宝生活照顾
@@ -142,7 +119,7 @@
           </view>
         </view>
       </view>
-      <view class="list-card">
+      <view class="list-card" v-if="skillList&&skillList.length>0">
         <view class="card-title">
           <view class="title">
             服务技能
@@ -152,17 +129,8 @@
           </view>
         </view>
         <view class="card-list">
-          <view class="list-item">
-            新生儿喂养
-          </view>
-          <view class="list-item">
-            新生儿喂养
-          </view>
-          <view class="list-item">
-            新生儿喂养
-          </view>
-          <view class="list-item">
-            新生儿喂养
+          <view class="list-item" v-for=" item in skillList">
+            {{item.skill_name||''}}
           </view>
         </view>
       </view>
@@ -188,11 +156,165 @@
   export default {
     data() {
       return {
-
+        id: null,
+        mainData: {},
+        images: [],
+        videos: [],
+        certList: [], //证件
+        serviceList: [], //服务内容列表
+        skillList: [], //服务技能列表
+        goodsList: [], //商品列表
+      }
+    },
+    computed: {
+      tags() {
+        let res = []
+        if (this.mainData.person_label) {
+          res = this.mainData.person_label.split(',')
+        }
+        return res
       }
     },
     methods: {
-
+      // 查找商品列表
+      getGoods() {
+        const req = {
+          "serviceName": "srvhealth_goods_person_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "service_no",
+            "ruleType": "eq",
+            "value": this.mainData.service_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 50
+          }
+        }
+        const url = `/health/select/srvhealth_goods_person_select`
+        this.$http.post(url, req).then(res => {
+          if (res.data?.state === 'SUCCESS') {
+            this.goodsList = res.data.data
+          }
+        })
+      },
+      // 查找证件列表
+      getCert() {
+        const url = `/health/select/srvhealth_person_documents_select`
+        let req = {
+          "serviceName": "srvhealth_person_documents_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "service_no",
+            "ruleType": "eq",
+            "value": this.mainData.service_no
+          }],
+          "relation_condition": {},
+          "page": {
+            "pageNo": 1,
+            "rownumber": 8
+          },
+        }
+        this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.data)) {
+            this.certList = res.data.data
+          }
+        })
+      },
+      // 查找服务内容
+      getServiceList() {
+        const req = {
+          "serviceName": "srvhealth_service_content_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "service_no",
+            "ruleType": "eq",
+            "value": this.mainData.service_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 20
+          },
+        }
+        const url = `/health/select/srvhealth_service_content_select`
+        this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.data)) {
+            this.serviceList = res.data.data
+          }
+        })
+      },
+      // 查找服务技能列表
+      getSkillList() {
+        const req = {
+          "serviceName": "srvhealth_service_skill_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "service_no",
+            "ruleType": "eq",
+            "value": this.mainData.service_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 20
+          }
+        }
+        this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.data)) {
+            this.skillList = res.data.data
+          }
+        })
+      },
+      async getFiles(val) {
+        let files = []
+        let fileDatas = await this.getFilePath(val);
+        if (fileDatas) {
+          for (let i = 0; i < fileDatas.length; i++) {
+            const url =
+              `${this.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+            files.push(url);
+          }
+        }
+        return files
+      },
+      getMainData() {
+        const service = 'srvhealth_technician_list_select'
+        const req = {
+          "serviceName": service,
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "id",
+            "ruleType": "eq",
+            "value": this.id
+          }]
+        }
+        const url = `/health/select/${service}`
+        this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
+            this.mainData = res.data.data[0]
+            if (this.mainData.service_no) {
+              this.getCert()
+              this.getServiceList()
+              this.getSkillList()
+            }
+            if (this.mainData.service_image) {
+              this.getFiles(this.mainData.service_image).then(res => {
+                this.images = res
+              })
+            }
+            if (this.mainData.service_video) {
+              this.getFiles(this.mainData.service_video).then(res => {
+                this.videos = res
+              })
+            }
+          }
+        })
+      },
+    },
+    onLoad(option) {
+      if (option.id) {
+        this.id = option.id;
+        this.getMainData()
+      }
     }
   }
 </script>
@@ -200,7 +322,7 @@
 <style lang="scss" scoped>
   .profile-box {
     // background-color: #FF96A4;
-    height: 310px;
+    height: 320px;
     // background-image: linear-gradient(180deg, #FF96A4, #FC7387);
     position: relative;
     overflow: hidden;
@@ -263,17 +385,21 @@
         .right {
           width: 120px;
           height: 150px;
-          border: 3px solid #fff;
-          box-shadow: 0px 0px 10px -5px rgba(50, 50, 50, 1);
-          border-radius: 10px 10px 5px 5px;
+          border-radius: 10px;
           position: absolute;
           top: -20px;
           right: 15px;
-          background: #fff;
+          box-shadow: 0px 0px 10px 0px rgba(50, 50, 50, 0.5);
+          // background: #fff;
+          overflow: hidden;
 
           .image {
+            background: #fff;
+            border-radius: 10px;
+            border: 3px solid #fff;
             width: 100%;
             height: 100%;
+            overflow: hidden;
           }
         }
       }
@@ -281,10 +407,11 @@
       .attr-list {
         padding-top: 20px;
         color: #2E0106;
+        min-height: 110px;
 
         .attr-item {
           width: 50%;
-          padding: 2px 20px;
+          padding: 2px 0 2px 20px;
           display: inline-block;
           position: relative;
 
@@ -436,10 +563,9 @@
 
   .list-card {
     flex: 1;
-    margin-right: 5px;
     margin: 20px 0;
+    margin-right: 5px;
     background-image: linear-gradient(90deg, #FFFCF7, #FEF1EB);
-    margin-right: 10px;
     padding: 10px 0;
 
     &:last-child {
@@ -458,6 +584,7 @@
       .title {
         background-image: linear-gradient(#FEE8D0, #F5DBBA);
         width: 70%;
+        max-width: 130px;
         padding: 5px 10px;
         border-radius: 0 20px 20px 0;
         color: #410311;
@@ -491,26 +618,28 @@
   .bottom-button {
     display: flex;
     justify-content: center;
-    padding:  0;
+    padding: 0;
     position: fixed;
     bottom: 0;
     z-index: 10;
-    .cu-btn{
+
+    .cu-btn {
       border-radius: 0;
       width: 50vw;
       padding: 15px 0;
       height: auto;
       color: #410311;
-      background-image: linear-gradient(#FEE8D0, #F5DBBA) ;
-      &:last-child{
+      background-image: linear-gradient(#FEE8D0, #F5DBBA);
+
+      &:last-child {
         color: #fff;
         background-image: linear-gradient(#FD78A3, #F9588D);
       }
     }
   }
-  
-  .page-wrap{
+
+  .page-wrap {
     padding-bottom: 80px;
-    
+
   }
 </style>

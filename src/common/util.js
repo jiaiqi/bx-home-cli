@@ -61,7 +61,7 @@ export default {
         if (srvType === 'list' || srvType === 'detail') {
           serviceName += 'select'
         } else {
-          if (['add', 'update', 'select', 'delete'].indexOf(lastName)!=-1) {
+          if (['add', 'update', 'select', 'delete'].indexOf(lastName) != -1) {
             serviceName += srvType
           } else {
             serviceName += `${lastName}`
@@ -321,7 +321,7 @@ export default {
           // #ifdef MP-WEIXIN
           fieldInfo.type = "media"
           // #endif
-          if (fieldInfo?.moreConfig?.openDocument==true) {
+          if (fieldInfo?.moreConfig?.openDocument == true) {
             fieldInfo.type = "openDocument"
           }
           fieldInfo.srvInfo = {
@@ -1860,16 +1860,23 @@ export default {
         }
         return op
       })
-
       return conditions
     }
 
-    Vue.prototype.renderStr = (str, obj={}) => {
+    Vue.prototype.renderStr = (str, obj = {}) => {
       obj = {
         ...Vue.prototype.globalVariable,
         ...obj
       }
-      if (typeof obj === 'object' && str) {
+
+      if (this.globalVariable && typeof this.globalVariable === 'object') {
+        obj = {
+          ...obj,
+          ...this.globalVariable
+        }
+      }
+
+      if (typeof obj === 'object' && str && typeof str === 'string') {
         str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
@@ -1893,6 +1900,7 @@ export default {
           return result
         })
       }
+      console.log(str)
       return str
     }
 

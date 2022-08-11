@@ -595,6 +595,14 @@
             }]
           } else {
             cond = []
+            if (Array.isArray(this.enumTabs) && this.enumTabs.length > 1) {
+              let val = this.enumTabs.filter(item => item.value !== '_all').map(item => item.value).toString()
+              cond = [{
+                colName: this.tabsCfg?.col,
+                ruleType: 'in',
+                value: val
+              }]
+            }
           }
           this.curTabVal = tab.value
           this.pageNo = 1;

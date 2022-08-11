@@ -500,6 +500,10 @@
       },
       actualMoney() {
         // 实际支付价格
+        if (this.orderInfo?.tobe_paid_amount) {
+          return this.orderInfo?.tobe_paid_amount
+        }
+
         if (this.orderInfo?.order_pay_amount && this.orderInfo?.order_amount) {
           return this.orderInfo?.order_pay_amount
         }
@@ -1311,7 +1315,7 @@
         let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
-          if(this.orderInfo?.regimental_dumpling_no){
+          if (this.orderInfo?.regimental_dumpling_no) {
             this.tgNo = this.orderInfo?.regimental_dumpling_no
           }
           if (this.orderInfo.coupon_amount) {
@@ -1434,6 +1438,7 @@
             user_image: this.userInfo.user_image,
             sex: this.userInfo.sex,
             user_role: this.userInfo.user_role,
+            tobe_paid_amount: this.actualMoney || this.totalMoney,
             order_pay_amount: this.actualMoney || this.totalMoney,
             order_amount: this.actualMoney || this.totalMoney,
             order_remark: this.orderInfo.order_remark || this.order_remark || '',
@@ -1708,13 +1713,12 @@
         }
       },
       async toPay(onClickbutton = false) {
-
         this.wxMchId = this.getwxMchId()
-
         let self = this;
         let orderData = this.deepClone(this.orderInfo);
         let goodsData = this.deepClone(this.orderInfo.goodsList);
-        let totalMoney = orderData?.order_pay_amount || orderData.order_amount || this.actualMoney || this.totalMoney
+        let totalMoney = orderData?.tobe_paid_amount || orderData?.order_pay_amount || orderData.order_amount || this
+          .actualMoney || this.totalMoney
         if (typeof totalMoney !== 'number' || totalMoney.toString() === 'NaN') {
           uni.showModal({
             title: '提示',
@@ -1784,13 +1788,13 @@
               //TODO handle the exception
             }
           }
-          
+
           if (Array.isArray(para_cfg?.order_profit_sharing) && para_cfg?.order_profit_sharing.indexOf('general') !== -
             1) {
             // 普通订单
             profit_sharing = true
           }
-          
+
           if (this.tgNo) {
             // 团购订单
             profit_sharing = para_cfg?.order_profit_sharing && para_cfg?.order_profit_sharing.indexOf(

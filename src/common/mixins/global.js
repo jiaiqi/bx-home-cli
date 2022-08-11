@@ -80,7 +80,7 @@ export default {
         ...this.globalVariable,
         ...obj
       }
-      if (typeof obj === 'object' && str) {
+      if (typeof obj === 'object' && str && typeof str==='string') {
         str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
