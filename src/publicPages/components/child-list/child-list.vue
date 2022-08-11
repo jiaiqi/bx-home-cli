@@ -1858,22 +1858,8 @@
 
           }
 
-          // if (item.col_type === 'fk') {
-          //   if (this.mainData && this.mainData[item.columns]) {
-          //     // item.disabled = true
-          //     if (Array.isArray(this.initData) && this.initData.length > 0 && this.initData.find(e => e[item
-          //         .columns] === this.mainData[item.columns])) {
-
-          //     } else {
-          //       // item.value = this.mainData[item.columns]
-          //     }
-          //   }
-          // }
-
           let fkInitVal = this.fkInitVal
-          // if (fkInitVal[item.column]&&item.display!==false) {
           if (fkInitVal && fkInitVal[item.column] && (item.display !== false || item.in_add !== 0)) {
-            // if(!item.value){
             let obj = {
               mainData: this.mainData
             }

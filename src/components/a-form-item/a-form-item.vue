@@ -146,7 +146,7 @@
         </view>
         <view class="selector-tip flex align-center" v-else @click="openModal(fieldData.type)">
           <text class="place-holder" v-if="!fieldData.value"> 请选择</text>
-          <text v-else> {{fieldData.value}}</text>
+          <text v-else> {{fkFieldLabel||fieldData.value}}</text>
           <text class="cuIcon-right "></text>
         </view>
       </view>

@@ -136,18 +136,23 @@
       </view>
     </view>
 
-    <view class="content-box bg-white">
-      <view class="title">
-        商品
+    <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;">
+      <view class="title text-white">
+        项目列表
       </view>
 
       <view class="content">
-
+        <view class="goods-item flex justify-between margin-bottom-xs" v-for="item in goodsList">
+          <view class="text-white">
+            {{item.goods_name||''}}
+          </view>
+          <button class="cu-btn bg-red light round sm" @click="toOrder(item)">预约</button>
+        </view>
       </view>
     </view>
     <view class="bottom-button">
-      <button class="cu-btn bg-blue">立即预约</button>
-      <button class="cu-btn bg-blue">电话咨询</button>
+      <!-- <button class="cu-btn bg-blue">立即预约</button> -->
+      <button class="cu-btn bg-blue" @click="makePhone" v-if="storeInfo&&storeInfo.telephone">电话咨询</button>
     </view>
   </view>
 </template>
@@ -176,6 +181,47 @@
       }
     },
     methods: {
+      toOrder(e) {
+        let goodsInfo = {
+          goods_name: e.goods_name,
+          goods_no: e.goods_no,
+          price: e.service_goods_price,
+          goods_image: e.service_goods_icon,
+          goods_amount: 1,
+        }
+        let fieldsCond = [{
+            column: 'service_people_no',
+            value: this.mainData.service_no
+          },
+          {
+            column: 'server_type',
+            value: '上门服务',
+            display: false
+          },
+          {
+            column: 'service_place_no',
+            display: false
+          },
+          {
+            column: 'service_time_no',
+            display: false
+          },
+          {
+            column: 'people_work_no',
+            display: false
+          }
+        ]
+        let url =
+          `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo.store_no}&order_type=服务&show_params_config=服务场地,服务人员&wxMchId=${this.getwxMchId()}&goods_info=${JSON.stringify(goodsInfo)}&fieldsCond=${JSON.stringify(fieldsCond)}`
+        uni.navigateTo({
+          url
+        })
+      },
+      makePhone() {
+        uni.makePhoneCall({
+          phoneNumber: this.storeInfo?.telephone || '10086'
+        })
+      },
       // 查找商品列表
       getGoods() {
         const req = {
@@ -245,6 +291,7 @@
       },
       // 查找服务技能列表
       getSkillList() {
+        const url = `/health/select/srvhealth_service_skill_select`
         const req = {
           "serviceName": "srvhealth_service_skill_select",
           "colNames": ["*"],
@@ -295,6 +342,7 @@
               this.getCert()
               this.getServiceList()
               this.getSkillList()
+              this.getGoods()
             }
             if (this.mainData.service_image) {
               this.getFiles(this.mainData.service_image).then(res => {
@@ -622,10 +670,11 @@
     position: fixed;
     bottom: 0;
     z-index: 10;
+    width: 100%;
 
     .cu-btn {
       border-radius: 0;
-      width: 50vw;
+      flex: 1;
       padding: 15px 0;
       height: auto;
       color: #410311;

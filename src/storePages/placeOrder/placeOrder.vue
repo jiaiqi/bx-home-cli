@@ -366,7 +366,8 @@
         disabledRefund: false, // 禁用退款按钮
         disabledEvaluate: false, // 禁用 评价按钮
         approval_type: "普通核销", //核销方式
-        goodsList: []
+        goodsList: [],
+        fieldsCond: []
       };
     },
     watch: {
@@ -754,6 +755,8 @@
           }
           // if (type === 'add') {
           fields = colVs._fieldInfo.map(field => {
+
+
             if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
               field.option_list_v2 = field.option_list_v2.map(item => {
                 item.checked = false;
@@ -805,6 +808,7 @@
               field.defaultValue = this.columnsDefaultVal[field.column];
             }
             return field;
+
           })
           defaultVal = colVs._fieldInfo.reduce((res, cur) => {
             if (cur.defaultValue) {
@@ -888,11 +892,49 @@
                 }
               }
             }
+
+            if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+              this.fieldsCond.forEach(item1 => {
+                if (item1.column === item.column) {
+                  if (item1.hasOwnProperty('display')) {
+                    item.display = item1.display;
+                  }
+                  if (item1.hasOwnProperty('label')) {
+                    item.customLabel = item1.label;
+                  }
+                  if (item1.hasOwnProperty('value')) {
+                    item.value = this.renderStr(item1.value, defaultVal);
+                  }
+                }
+              });
+            }
+
+            if (item.column === 'due_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
+                .indexOf('预产期') !== -1)) {
+              item.display = true
+            }
+            if (item.column === 'id_num' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
+                .indexOf('身份证号') !== -1)) {
+              item.display = true
+            }
+            if (item.column === 'reserve_start_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e
+                .order_show_col.indexOf('开始日期') !== -1)) {
+              item.display = true
+            }
+            if (item.column === 'reserve_end_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e
+                .order_show_col.indexOf('结束日期') !== -1)) {
+              item.display = true
+            }
           }
-          // } else {
-
-
-          // }
+          
+          if(fields.find(item=>['reserve_start_date','reserve_end_date'].includes(item.column)&&item.display===true)){
+            fields.forEach(item=>{
+              if(item.column==='service_date'){
+                item.display = false
+              }
+            })
+          }
+          
           this.fields = fields
           uni.hideLoading()
           return colVs
@@ -1853,6 +1895,13 @@
       },
     },
     async onLoad(option) {
+      if (option.fieldsCond) {
+        try {
+          this.fieldsCond = JSON.parse(option.fieldsCond)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
       if (option.orderAddService) {
         this.orderAddService = option.orderAddService
       }
