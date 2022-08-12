@@ -1323,12 +1323,15 @@
           }
         } else {
           let customDetailUrl = this.customDetailUrl
+          
           if (this.config?.customDetailUrl) {
             customDetailUrl = this.config?.customDetailUrl
           }
+          
           if (this.tabs.length > 0 && this.tabs[this.curTab].customDetailUrl) {
             customDetailUrl = this.tabs[this.curTab].customDetailUrl
           }
+
           if (buttonInfo.button_type === 'detail' && customDetailUrl) {
             let storeInfo = this.$store?.state?.app?.storeInfo;
             let bindUserInfo = this.$store?.state?.user?.storeUserInfo;

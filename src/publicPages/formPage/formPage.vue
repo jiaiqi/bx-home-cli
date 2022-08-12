@@ -1319,7 +1319,6 @@
 
         let defaultVal = null
         let fields = null
-
         switch (colVs.use_type) {
           case 'update':
           case 'detail':
@@ -1357,6 +1356,7 @@
                     }
                     if (item.hasOwnProperty('value')) {
                       field.value = this.renderStr(item.value, defaultVal);
+                      this.mainData[item.column] = field.value
                     }
                     if (field.option_list_v2 && Array.isArray(field
                         .option_list_v2
@@ -1449,12 +1449,12 @@
               return field;
             }).filter(item => !this.hideColumn.includes(item.column))
             defaultVal = colVs._fieldInfo.reduce((res, cur) => {
-              if (cur.defaultValue) {
+              if (cur.value) {
+                res[cur.column] = cur.value
+              } else if (cur.defaultValue) {
                 res[cur.column] = cur.value || cur.defaultValue
                 cur.value = cur.value || cur.defaultValue
                 this.mainData[cur.column] = cur.value
-              } else if (cur.value) {
-                res[cur.column] = cur.value
               }
               return res
             }, {})
@@ -1462,7 +1462,6 @@
 
             break;
         }
-
 
         const cols = colVs._fieldInfo.filter(item => item.x_if).map(item => item.column)
         const table_name = colVs.main_table
@@ -1728,7 +1727,7 @@
           console.log(str)
           str = JSON.stringify(str)
           console.log(str)
-          
+
           str = JSON.parse(str)
           console.log(str)
           fieldsCond = JSON.parse(str);
@@ -1759,7 +1758,7 @@
           }
         }
 
-        this.fieldsCond = fieldsCond.map(item=>{
+        this.fieldsCond = fieldsCond.map(item => {
           item.value = this.renderStr(item.value)
           return item
         })

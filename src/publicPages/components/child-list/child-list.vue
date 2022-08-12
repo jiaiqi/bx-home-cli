@@ -1513,8 +1513,7 @@
 
         } else if (this.disabled) {
           return
-        }
-        debugger
+        } 
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':
@@ -1801,6 +1800,9 @@
           })
         }
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
+          if(item.column&&this.mainData&&this.mainData[item.column]){
+            item.value = this.mainData[item.column]
+          }
           if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2
             .mconditions.length > 0) {
             let mconditions = item.option_list_v2.mconditions

@@ -197,6 +197,7 @@
           that.page.pageNo = page.pageNo;
           that.page.total = page.total;
           that.nodeList = res.data.data;
+          this.$emit('on-get-data',res.data.data)
           return that.nodeList;
         }
       }
@@ -215,10 +216,9 @@
             if (!this.curNode) {
               this.selectedList = []
             }
-
-            if (this.srvInfo && this.valCol && this.srvInfo.serviceName) {
-              this.getData()
-            }
+          }
+          if (this.srvInfo && this.valCol && this.srvInfo.serviceName) {
+            this.getData()
           }
         }
       }

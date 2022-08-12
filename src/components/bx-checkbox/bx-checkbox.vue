@@ -192,6 +192,7 @@
       },
       emitEvent() {
         let self = this
+        
         this.$emit('change', {
           index: this.childIndex,
           value: !this.value,
@@ -199,6 +200,7 @@
         });
         let val = !this.value
         this.$emit('input', val);
+        this.$emit('on-change', val);
         // 执行父组件bx-checkbox-group的事件方法
         // 等待下一个周期再执行，因为this.$emit('input')作用于父组件，再反馈到子组件内部，需要时间
         setTimeout(() => {

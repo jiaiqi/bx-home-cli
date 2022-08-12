@@ -107,7 +107,8 @@
       },
       // 组件绑定的值,一般为上传文件编号（file_no）
       value: {
-        type: String
+        type: String,
+        default: ""
       },
       //是否显示组件自带的图片预览功能
       showUploadList: {
@@ -297,7 +298,7 @@
     },
     data() {
       return {
-        fileNo: null,
+        fileNo: "",
         fileList: [], // 已上传的文件列表
         lists: [],
         isInCount: true,
@@ -313,7 +314,7 @@
       },
       value: {
         immediate: true,
-        handler(val) {
+        handler(val, oldVal) {
           this.fileNo = val || "";
           this.loadInitImages()
         }

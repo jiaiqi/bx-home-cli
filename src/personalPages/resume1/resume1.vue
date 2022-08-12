@@ -8,11 +8,14 @@
               {{mainData.person_name||'陈阿姨'}}
             </view>
             <view class="golden">
-              年龄：{{mainData.person_sex||' - '}}岁
+              年龄：{{mainData.age||' - '}}岁
             </view>
             <view class="golden">
-              服务等级：标准服务
+              性别：{{mainData.person_sex||' - '}}
             </view>
+           <!-- <view class="golden">
+              服务等级：标准服务
+            </view> -->
           </view>
           <view class="right">
             <image class="image" src="/static/profile.png" mode="aspectFit" v-if="!mainData.person_image"></image>
@@ -111,12 +114,12 @@
           <view class="list-item" v-for="item in serviceList">
             {{item.content_title||''}}
           </view>
-          <view class="list-item">
+      <!--    <view class="list-item">
             宝宝生活照顾
           </view>
           <view class="list-item">
             宝宝生活照顾
-          </view>
+          </view> -->
         </view>
       </view>
       <view class="list-card" v-if="skillList&&skillList.length>0">

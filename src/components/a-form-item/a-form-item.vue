@@ -108,9 +108,11 @@
             (setOptionList&&setOptionList.length < 4 &&setOptionList.length > 1 && fieldData.type === 'Set') ||
             (radioOptions&&radioOptions.length <= 4&&radioOptions.length > 1 && fieldData.type === 'Selector'&&fieldData.bx_col_type!=='fk')
           ">
-          <bx-checkbox-group v-if="fieldData.type==='Set'" class=" form-item-content_value checkbox-group"
-             mode="button" @change="pickerChange">
-            <bx-checkbox v-for="item in setOptionList" @change="changeCheckbox" @input="changeCheckbox($event,item.value)" :key="item.value" :name="item.value" v-model="item.checked">
+          <bx-checkbox-group v-if="fieldData.type==='Set'" class=" form-item-content_value checkbox-group" mode="button"
+            @change="pickerChange">
+            <bx-checkbox v-for="item in setOptionList" @change="changeCheckbox"
+              @on-change="changeCheckbox($event,item.value)" @input="changeCheckbox($event,item.value)"
+              :key="item.value" :name="item.value" v-model="item.checked">
               {{ item.label }}
             </bx-checkbox>
           </bx-checkbox-group>
@@ -262,8 +264,8 @@
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
           <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
-            :fields-model="fieldsModel" @cancel="hideModal" :pageType="pageType" :current="selectTreeData"
-            @confirm="getCascaderValue">
+            :fields-model="fieldsModel" @cancel="hideModal" @on-get-data="onGetTreeData" :pageType="pageType"
+            :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
         </view>
       </view>
@@ -579,13 +581,25 @@
       }
     },
     methods: {
+      onGetTreeData(e) {
+        // 树选择器查到数据
+        this.selectorData = e || []
+        let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
+        if (this.fieldData.value && srvInfo?.refed_col) {
+          let data = this.selectorData.find(item => item[srvInfo?.refed_col] === this.fieldData.value)
+          if (data) {
+            this.fkFieldLabel = srvInfo.show_as_pair === true ?
+              `${data[ srvInfo.key_disp_col ]}/${data[ srvInfo.refed_col ]}` : data[srvInfo.key_disp_col];
+            this.fieldData['colData'] = data;
+          }
+        }
+      },
       confirmEnum(e) {
         if (Array.isArray(e) && e.length > 0) {
           this.fieldData.value = e[0].value
           this.fkFieldLabel = e[0].label || e[0].value
           this.curEnumIndex = this.fieldData.options.findIndex(item => item.value === e[0].value)
         }
-
       },
       imgChange(val) {
         this.fieldData.value = val
@@ -1146,11 +1160,11 @@
         this.fieldData.old_value = this.fieldData.value
         this.$emit('on-value-change', this.fieldData);
       },
-      changeCheckbox(e){
+      changeCheckbox(e) {
         debugger
-        if(e?.name){
-          this.setOptionList = this.setOptionList.map(item=>{
-            if(item.value===e.name){
+        if (e?.name) {
+          this.setOptionList = this.setOptionList.map(item => {
+            if (item.value === e.name) {
               item.checked = e.value
             }
             return e
@@ -1176,9 +1190,19 @@
           this.hideModal()
         } else if (this.fieldData.type === 'Set') {
           if (Array.isArray(e)) {
+            this.setOptionList = this.setOptionList.map(item=>{
+              if(e.includes(item.value)){
+                item.checked = true
+              }else{
+                item.checked = false
+              }
+              this.$set(item,'checked',item.checked)
+              return item
+            })
             e = e.toString()
           }
           this.fieldData.value = e
+         
         }
         if (type !== 'Selector') {
           this.hideModal();
@@ -1616,7 +1640,7 @@
       },
       onBlur(e) {
         // 输入框失去焦点 进行校验
-        console.log('on-blur',e);
+        console.log('on-blur', e);
         this.getValid();
         // if (this.fieldData.value !== this.fieldData.old_value) {
         // this.fieldData.old_value = this.fieldData.value

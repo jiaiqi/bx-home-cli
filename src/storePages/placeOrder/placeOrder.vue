@@ -912,23 +912,35 @@
             if (item.column === 'due_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
                 .indexOf('预产期') !== -1)) {
               item.display = true
+              item.in_add = 1
             }
             if (item.column === 'id_num' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
                 .indexOf('身份证号') !== -1)) {
               item.display = true
+              item.in_add = 1
             }
             if (item.column === 'reserve_start_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e
                 .order_show_col.indexOf('开始日期') !== -1)) {
               item.display = true
+              item.in_add = 1
             }
             if (item.column === 'reserve_end_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e
                 .order_show_col.indexOf('结束日期') !== -1)) {
               item.display = true
+              item.in_add = 1
             }
             if (item.column === 'service_people_no' && this.storeInfo.order_up && this.storeInfo.order_up.indexOf(
                 '服务人员项目过滤') !== -1) {
               if (item.option_list_v2?.serviceName) {
                 item.option_list_v2.serviceName = 'srvhealth_goods_person_select'
+                if (Array.isArray(this.orderInfo.goodsList) && this.orderInfo.goodsList.length > 0) {
+                  item.option_list_v2.conditions = [{
+                    colName: 'goods_no',
+                    ruleType: 'eq',
+                    value: this.orderInfo.goodsList[0].goods_no
+                  }]
+                }
+
               }
             }
           }

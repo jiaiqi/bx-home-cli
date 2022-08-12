@@ -131,9 +131,6 @@
           if ((val.value && val.name !== e.name) || (e.name === val.name && e.value)) {
             values.push(val.name)
           }
-          // if(val.value){
-          //   values.push(val.name)
-          // }
           return val
         });
         // if(values.includes('全部') && values.length>1){
