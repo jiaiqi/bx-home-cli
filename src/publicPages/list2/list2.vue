@@ -1754,7 +1754,6 @@
       //   return
       // },
       async clickFootBtn(data) {
-        debugger
         if (data?.button?.pre_confirm_msg) {
           let confirm = await new Promise(resolve => {
             uni.showModal({
@@ -2318,7 +2317,6 @@
               bindUserInfo,
               filterVal: this.filterVal
             };
-            debugger
             obj = this.deepClone(obj)
             targetUrl = this.renderStr(this.customDetailUrl, obj)
             if (targetUrl && targetUrl.indexOf('"value":""') !== -1) {

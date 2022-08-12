@@ -568,7 +568,6 @@
                         self.toPages('detail');
                         return
                       } else if (beforeRedirectUrl) {
-                        debugger
                         uni.redirectTo({
                           url: beforeRedirectUrl,
                           success: () => {
@@ -617,7 +616,6 @@
                           url: path,
                           success: () => {
                             if (self.uuid) {
-                              debugger
                               uni.$emit('onBack', {
                                 uuid: self.uuid,
                                 service: service
@@ -629,7 +627,6 @@
                         if (self.submitAction) {
                           uni.$emit(self.submitAction)
                         }
-                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {
@@ -668,7 +665,6 @@
                         return
                       } else if (self.afterSubmit === 'home') {
                         let store_no = this.$store?.state?.app?.storeInfo?.store_no
-                        debugger
                         uni.reLaunch({
                           url: `/storePages/home/home?store_no=${store_no}`,
                           success: () => {
@@ -683,7 +679,6 @@
                       } else {
                         let pages = getCurrentPages();
                         if (pages.length > 1) {
-                          debugger
                           uni.navigateBack({
                             success: () => {
                               if (self.uuid) {
@@ -695,7 +690,6 @@
                             }
                           })
                         } else {
-                          debugger
                           let data = resData.response[0]?.response.effect_data[0]
                           uni.redirectTo({
                             url: `/publicPages/detail/detail?serviceName=${self?.addV2?.select_service_name||self.detailV2?.service_name}&destApp=${self.appName||self.destApp}&id=${data.id}`,
@@ -731,11 +725,10 @@
               if (Array.isArray(this.childService) && this.childService.length > 0 && !this.hideChildTable) {
                 this.childService.forEach((item, index) => {
                   let child_data = this.$refs.childList[index].getChildDataList()
-
                   data.child_data_list.push(...child_data)
-                  // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
+              debugger
               if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
                 let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
                 if (Array.isArray(submit_validate) && submit_validate.length > 0) {
@@ -835,6 +828,27 @@
                             })
                           }
                           break;
+                      }
+                    } else if(['all-child-has-data'].includes(item.type)){
+                      // 所有子表都必须有数据
+                      if (num > 0) {
+                        return
+                      }
+                      if(this.childService.length>data.child_data_list.length){
+                        num++
+                        let labels = this.childService.map(item=>item.label).toString()
+                        uni.showModal({
+                          title: '提示',
+                          content: `请确认${labels||'数据'}均已填写`,
+                          showCancel:false,
+                          success: (res) => {
+                            if (res.confirm) {
+                              resolve(true)
+                            } else {
+                              resolve(false)
+                            }
+                          }
+                        })
                       }
                     } else if (['data-empty', 'no-repeat'].includes(item.type)) {
                       // 校验重复数据及空数据
@@ -1178,16 +1192,7 @@
           }
         }
       },
-      // getServiceName(srv) {
-      //   let len = srv.lastIndexOf('_');
-      //   let serviceName = srv.slice(0, len) + '_';
-      //   if (this.srvType === 'list' || this.srvType === 'detail') {
-      //     serviceName += 'select';
-      //   } else {
-      //     serviceName += this.srvType;
-      //   }
-      //   return serviceName;
-      // },
+
       toPages(type, e) {
         this.srvType = type;
         if (this?.params?.to && this?.params?.idCol && this?.params?.submitData && this?.params?.submitData[this

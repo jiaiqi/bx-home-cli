@@ -567,7 +567,8 @@
         deep: true,
         immediate: true,
         handler(newValue, oldValue) {
-          if (newValue?.type === 'Selector' && newValue?.value && oldValue?.value) {
+          if (newValue?.type === 'Selector' && newValue?.value !== oldValue
+            ?.value) {
             this.pickerChange(newValue.value, 'Selector')
           }
           if (newValue.type === 'textarea' || newValue.type === 'RichText') {
@@ -1161,7 +1162,6 @@
         this.$emit('on-value-change', this.fieldData);
       },
       changeCheckbox(e) {
-        debugger
         if (e?.name) {
           this.setOptionList = this.setOptionList.map(item => {
             if (item.value === e.name) {
@@ -1187,24 +1187,26 @@
           this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
           // this.onBlur()
+          debugger
           this.hideModal()
         } else if (this.fieldData.type === 'Set') {
           if (Array.isArray(e)) {
-            this.setOptionList = this.setOptionList.map(item=>{
-              if(e.includes(item.value)){
+            this.setOptionList = this.setOptionList.map(item => {
+              if (e.includes(item.value)) {
                 item.checked = true
-              }else{
+              } else {
                 item.checked = false
               }
-              this.$set(item,'checked',item.checked)
+              this.$set(item, 'checked', item.checked)
               return item
             })
             e = e.toString()
           }
           this.fieldData.value = e
-         
+
         }
         if (type !== 'Selector') {
+          debugger
           this.hideModal();
         }
       },
@@ -1223,10 +1225,12 @@
 
       },
       refresh() {
+        debugger
         this.treePageInfo.pageNo = 1
         this.getSelectorData('refresh')
       },
       nextPage() {
+        debugger
         this.treePageInfo.pageNo += 1
         this.getSelectorData()
       },
@@ -1320,33 +1324,33 @@
           appName = 'sso';
         }
 
-        if (cond !== 'refresh') {
-          if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
-            self
-            .fieldData?.redundant) {
-            if (Array.isArray(req.condition) !== true) {
-              req.condition = []
-            }
-            req.condition.push({
-              colName: self.fieldData.option_list_v2.refed_col,
-              ruleType: 'eq',
-              value: self.fieldData.value
-            })
-          }
+        // if (cond !== 'refresh') {
+        //   if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
+        //     self
+        //     .fieldData?.redundant) {
+        //     if (Array.isArray(req.condition) !== true) {
+        //       req.condition = []
+        //     }
+        //     req.condition.push({
+        //       colName: self.fieldData.option_list_v2.refed_col,
+        //       ruleType: 'eq',
+        //       value: self.fieldData.value
+        //     })
+        //   }
 
 
-          if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && (!req.condition || req.condition
-              .length == 0) && (self.fieldData.disabled ||
-              self
-              .fieldData.display == false)) {
-            req.condition = [{
-              colName: self.fieldData.option_list_v2.refed_col,
-              ruleType: 'like',
-              value: self.fieldData.value
-            }]
-          }
+        //   if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && (!req.condition || req.condition
+        //       .length == 0) && (self.fieldData.disabled ||
+        //       self
+        //       .fieldData.display == false)) {
+        //     req.condition = [{
+        //       colName: self.fieldData.option_list_v2.refed_col,
+        //       ruleType: 'like',
+        //       value: self.fieldData.value
+        //     }]
+        //   }
 
-        }
+        // }
 
 
         if (relation_condition && typeof relation_condition === 'object') {
@@ -1627,7 +1631,7 @@
             if (this.fieldData.col_type == 'Enum') {
               this.showEnumSelect = true
             } else {
-              await this.getSelectorData(null, null, null)
+              // await this.getSelectorData(null, null, null)
               this.modalName = 'Selector';
             }
             break;
