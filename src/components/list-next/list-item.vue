@@ -48,7 +48,14 @@
                   <text v-if="item.suffix">{{ item.suffix }}</text>
                   <text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
                 </view>
-                <view class="value" :style="{ 'white-space': item.valueWhiteSpace }" v-else>
+                <view class="value"
+                  :style="{
+                    'white-space': item.valueWhiteSpace,
+                    '-webkit-line-clamp':item.style['-webkit-line-clamp'],
+                    '-webkit-box-orient':item.style['-webkit-box-orient'],
+                    'display':item.style.display
+                  }"
+                  v-else>
                   <text v-if="item.prefix">{{ item.prefix }}</text>
                   <view class="" v-if="item.fmt">
                     <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;"
@@ -446,8 +453,8 @@
             }
             return item
           }).filter((item, index) => {
-          
-            if(item.client_type&&item.client_type.indexOf('APP')==-1){
+
+            if (item.client_type && item.client_type.indexOf('APP') == -1) {
               // 根据自定义按钮配置的客户端类型过滤按钮
               return false
             }
@@ -855,7 +862,16 @@
                   'line-gray': cfg?.border_color === 'gray'
               }
             };
-
+            if (cfg?.line_clamp && !isNaN(Number(cfg?.line_clamp))) {
+              obj.style.overflow = 'hidden'
+              obj['text-overflow'] = null
+              obj.style.display = '-webkit-box'
+              obj.style['-webkit-box-orient'] = 'vertical'
+              obj.style['-webkit-line-clamp'] = Number(cfg?.line_clamp)
+              if (cfg?.white_space) {
+                cfg.white_space = null
+              }
+            }
             if (cfg?.mode) {
               obj.mode = cfg.mode
               obj.max = cfg.max
