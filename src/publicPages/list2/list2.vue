@@ -1373,10 +1373,10 @@
       async getList(cond, initCond) {
         if (!cond) {
           if (!this.curTabVal && Array.isArray(this.enumTabs) && this.enumTabs.length > 0) {
-            this.curTabVal = this.enumTabs[0].name
+            this.curTabVal = this.enumTabs[0].value
           }
           if (this.curTabVal && this.tabsCfg?.col && Array.isArray(this.tabsCfg.tabs)) {
-            let index = this.tabsCfg.tabs.findIndex(item => item.name === this.curTabVal);
+            let index = this.tabsCfg.tabs.findIndex(item => item.value === this.curTabVal);
             if (index >= 0) {
               this.changeTabs(index)
               return
