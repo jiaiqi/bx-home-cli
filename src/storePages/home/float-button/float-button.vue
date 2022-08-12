@@ -145,7 +145,7 @@
     height: calc(100vh - 95px);
     bottom: calc(50px + var(--safe-area-inset-bottom));
     pointer-events: none;
-
+    z-index: 10;
     // position: relative;
     .float-button-content {
       pointer-events: none;
