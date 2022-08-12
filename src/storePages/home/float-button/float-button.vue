@@ -109,11 +109,36 @@
           ...this.globalVariable
         }
         if (url) {
-          // url = this.renderStr(url,globalVariable) 
           url = url.renderStr(globalVariable)
-          uni.navigateTo({
-            url
-          })
+          let navType = this.pageItem?.navigate_type
+          if (navType === "小程序") {
+            // #ifdef MP-WEIXIN
+            if (url) {
+              url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+            }
+            if (this.pageItem?.appid) {
+              uni.navigateToMiniProgram({
+                appId: this.pageItem?.appid,
+                path: url,
+              });
+            }
+            // #endif
+          }else if (this.pageItem?.navigate_type === '打电话') {
+            uni.makePhoneCall({
+              phoneNumber: url,
+              fail(err) {
+                console.error(err);
+              },
+            });
+          } else {
+            if (url && url.indexOf('https') == 0) {
+              url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(e.url)}`
+            }
+            uni.navigateTo({
+              url
+            })
+          }
+
         }
       }
     },
@@ -146,6 +171,7 @@
     bottom: calc(50px + var(--safe-area-inset-bottom));
     pointer-events: none;
     z-index: 10;
+
     // position: relative;
     .float-button-content {
       pointer-events: none;
