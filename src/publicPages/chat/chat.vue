@@ -551,6 +551,11 @@
               uni.redirectTo({
                 url: `/publicPages/gropDetail/gropDetail?gc_no=${this.groupNo}&pb_no=${this.userInfo.no}&type=group-detail&from=store-detail`
               });
+            }else{
+              let groupUser = res.data.find(item => item.person_no === this.userInfo.no)
+              if(groupUser?.pg_no){
+                this.pg_no = groupUser?.pg_no
+              }
             }
             if (res.data.length > 0) {
               if (this.groupInfo && this.groupInfo.name) {

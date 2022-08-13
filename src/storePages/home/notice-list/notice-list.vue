@@ -186,6 +186,7 @@
           if (Array.isArray(res?.data?.data)) {
             this.noticeList = res.data.data.map(item => {
               item.label = item.label || item[this.reqCfg?.labelCol] || ''
+              item.label = this.renderStr(item.label,{...this.globalVariable})
               return item
             })
           }
@@ -239,6 +240,7 @@
         if (res.success) {
           this.noticeList = res.data.map(item => {
             item.label = item.label || item.title
+            item.label = this.renderStr(item.label,{...this.globalVariable})
             if (!item.style_config) {
               item.style_config = {}
             } else if (typeof item.style_config === 'string') {

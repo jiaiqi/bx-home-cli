@@ -1,6 +1,6 @@
 <template>
 
-  <view class="float-button-view" v-if="show==true">
+  <view class="float-button-view" v-if="show==true" :style="[{ top: CustomBar + 'px' }]">
     <view class="float-button-content" v-if="locationWay==='绝对定位'">
       <view class="float-button absolute-location" :style="[setStyle]" @click="toPages">
         <text class="closeable cuIcon-close" @click.stop.capture="close" v-if="closeable">
@@ -29,6 +29,7 @@
   export default {
     data() {
       return {
+        CustomBar: this.CustomBar,
         show: true,
         x: 370,
         y: 370,

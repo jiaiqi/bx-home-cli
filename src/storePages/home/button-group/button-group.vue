@@ -1053,7 +1053,6 @@
           return
         }
         let url = "";
-
         if (
           e &&
           (!this.bindUserInfo || !this.bindUserInfo.store_user_no) &&
@@ -1206,8 +1205,40 @@
         if (e.navType) {
           navType = e.navType;
         }
-
-        if (navType === "miniProgram") {
+        if (navType === '视频号主页') {
+          // 打开视频号主页 需要视频号id（finderUserName）
+          if (e.finder_user_name) {
+            wx.openChannelsUserProfile({
+              finderUserName: e.finder_user_name,
+              fail: (err)=> {
+                if(err?.errno===1416103){
+                  uni.showToast({
+                    title:'打开视频好主页需要小程序与视频号的主体相同或为关联主体',
+                    icon:'none'
+                  })
+                }
+              }
+            })
+          } else {
+            uni.showToast({
+              title: '未配置视频号ID',
+              icon: 'none'
+            })
+          }
+          return
+        } else if (navType === '视频号视频') {
+          // 打开视频号视频 需要视频号id（finderUserName）和视频id（feedId）
+          if (e.finder_user_name && e.feed_id) {
+            wx.openChannelsActivity({
+              finderUserName: e.finder_user_name,
+              feedId: e.feed_id,
+              fail: (err)=> {
+                console.log(err)
+              }
+            })
+          }
+          return
+        } else if (navType === "miniProgram") {
           // #ifdef MP-WEIXIN
           if (url) {
             url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
