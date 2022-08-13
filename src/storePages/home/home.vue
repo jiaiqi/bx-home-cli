@@ -859,7 +859,7 @@
             // 当前用户不在此诊所中 则添加当前用户到此诊所中
             await this.bindStore();
           }
-          if (this.StoreInfo.home_page_no && (!this.pdNo || forceUpdate == true)) {
+          if (this.StoreInfo.home_page_no && (!this.pdNo)) {
             if (!this.pdNo) {
               this.pdNo = this.StoreInfo.home_page_no;
             }
@@ -1242,6 +1242,7 @@
             if (!this.pdNo) {
               await this.getPageItem();
             } else {
+              console.log(this.pdNo)
               await this.getPageDefine(this.pdNo, forceUpdate);
             }
           }
@@ -1274,6 +1275,8 @@
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
+          console.log(this.pdNo,home_page_no)
+          debugger
           await this.getTabbar(home_page_no);
           let pageItemList = await this.getPageComponent(home_page_no, 'srvhealth_store_home_ceshi_component_select');
           let curTab = this.tabbarList.findIndex(item => item.link_pd_no === home_page_no);

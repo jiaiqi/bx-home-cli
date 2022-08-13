@@ -21,8 +21,9 @@
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
       <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight,margin:item.margin}]"
         v-for="item in buttonsIcon">
-        <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" @click="toPages(item)">
+        <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" :fade="true" duration="450" @click="toPages(item)">
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
+          <u-loading slot="loading"></u-loading>
         </u-image>
       </view>
     </view>

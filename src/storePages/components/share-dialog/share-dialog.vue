@@ -37,6 +37,14 @@
                 微信
               </view>
             </view>
+<!--            <view class="share-item">
+              <button class="cu-btn bg-transparent" @click="toShare">
+                <image src="/static/icon/pyq.png" mode="aspectFit" class="share-icon"></image>
+              </button>
+              <view class="share-label">
+                朋友圈
+              </view>
+            </view> -->
             <view class="share-item" @click="makePoster" v-if="posterNo">
               <button class="cu-btn bg-transparent">
                 <view class="share-icon bg-orange">
@@ -98,6 +106,18 @@
       }
     },
     methods: {
+      toShare() {
+        wx.showShareMenu({
+          menus: ["shareTimeline"],
+          success: () => {
+
+          },
+          fail: (err) => {
+            console.log(err)
+            debugger
+          }
+        })
+      },
       open(e) {
         this.modalName = 'shareDialog'
         if (e?.text) {
