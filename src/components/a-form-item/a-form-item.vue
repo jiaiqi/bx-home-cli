@@ -1225,12 +1225,10 @@
 
       },
       refresh() {
-        debugger
         this.treePageInfo.pageNo = 1
         this.getSelectorData('refresh')
       },
       nextPage() {
-        debugger
         this.treePageInfo.pageNo += 1
         this.getSelectorData()
       },
@@ -1324,33 +1322,33 @@
           appName = 'sso';
         }
 
-        // if (cond !== 'refresh') {
-        //   if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
-        //     self
-        //     .fieldData?.redundant) {
-        //     if (Array.isArray(req.condition) !== true) {
-        //       req.condition = []
-        //     }
-        //     req.condition.push({
-        //       colName: self.fieldData.option_list_v2.refed_col,
-        //       ruleType: 'eq',
-        //       value: self.fieldData.value
-        //     })
-        //   }
+        if (cond !== 'refresh'&&this.fieldData?.disabled===true) {
+          if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
+            self
+            .fieldData?.redundant) {
+            if (Array.isArray(req.condition) !== true) {
+              req.condition = []
+            }
+            req.condition.push({
+              colName: self.fieldData.option_list_v2.refed_col,
+              ruleType: 'eq',
+              value: self.fieldData.value
+            })
+          }
 
 
-        //   if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && (!req.condition || req.condition
-        //       .length == 0) && (self.fieldData.disabled ||
-        //       self
-        //       .fieldData.display == false)) {
-        //     req.condition = [{
-        //       colName: self.fieldData.option_list_v2.refed_col,
-        //       ruleType: 'like',
-        //       value: self.fieldData.value
-        //     }]
-        //   }
+          if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && (!req.condition || req.condition
+              .length == 0) && (self.fieldData.disabled ||
+              self
+              .fieldData.display == false)) {
+            req.condition = [{
+              colName: self.fieldData.option_list_v2.refed_col,
+              ruleType: 'like',
+              value: self.fieldData.value
+            }]
+          }
 
-        // }
+        }
 
 
         if (relation_condition && typeof relation_condition === 'object') {
