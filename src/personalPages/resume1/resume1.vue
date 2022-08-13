@@ -13,7 +13,7 @@
             <view class="golden">
               性别：{{mainData.person_sex||' - '}}
             </view>
-           <!-- <view class="golden">
+            <!-- <view class="golden">
               服务等级：标准服务
             </view> -->
           </view>
@@ -114,7 +114,7 @@
           <view class="list-item" v-for="item in serviceList">
             {{item.content_title||''}}
           </view>
-      <!--    <view class="list-item">
+          <!--    <view class="list-item">
             宝宝生活照顾
           </view>
           <view class="list-item">
@@ -184,6 +184,19 @@
       }
     },
     methods: {
+      async openCert(e) {
+        if (e?.documents_image) {
+          let res = await this.getFilePath(e.documents_image);
+          if (Array.isArray(res)) {
+            res = res.map(item => {
+              item.imageUrl = this.$api.getFilePath + item.fileurl + '&bx_auth_ticket=' + uni
+                .getStorageSync('bx_auth_ticket');
+              return item.imageUrl
+            })
+            this.toPreviewImage(res)
+          }
+        }
+      },
       toOrder(e) {
         let goodsInfo = {
           goods_name: e.goods_name,
@@ -247,6 +260,7 @@
           }
         })
       },
+
       // 查找证件列表
       getCert() {
         const url = `/health/select/srvhealth_person_documents_select`
@@ -254,10 +268,16 @@
           "serviceName": "srvhealth_person_documents_select",
           "colNames": ["*"],
           "condition": [{
-            "colName": "service_no",
-            "ruleType": "eq",
-            "value": this.mainData.service_no
-          }],
+              colName: 'audit_state',
+              ruleType: 'eq',
+              value: '审核通过'
+            },
+            {
+              "colName": "service_no",
+              "ruleType": "eq",
+              "value": this.mainData.service_no
+            }
+          ],
           "relation_condition": {},
           "page": {
             "pageNo": 1,

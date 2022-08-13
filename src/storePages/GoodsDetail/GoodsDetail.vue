@@ -178,6 +178,7 @@
     },
     data() {
       return {
+        isPYQ: false,
         current: 0,
         videoContext: {},
         goodsInfo: null,
@@ -351,7 +352,7 @@
     },
     methods: {
       async initPage() {
-        await selectPersonInfo(null,true)
+        await selectPersonInfo(null, true)
         // await this.initApp()
         this.showAuth = false
       },
@@ -375,6 +376,9 @@
 
       },
       getCartList() {
+        if (this.scene == 1154) {
+          return
+        }
         let req = {
           serviceName: 'srvhealth_store_my_shopping_cart_goods_detail_select',
           colNames: ['*'],
@@ -1248,9 +1252,17 @@
       };
     },
     async onLoad(option) {
+      console.log("options", option)
+      let scene = this.$store?.state?.app?.scene;
+      if (scene === 1154) {
+        this.isPYQ = true
+        return
+      }
+
       // #ifdef MP-WEIXIN
       await this.initApp(option)
       //#endif
+
       if (option.hideButton) {
         this.hideButton = true;
       }
@@ -1281,10 +1293,9 @@
       if (option.phone) {
         this.phone = option.phone;
       }
-      let scene = this.$store?.state?.app?.scene;
-      if (scene !== 1154) {
-        await this.toAddPage();
-      }
+
+      await this.toAddPage();
+
       if (option.goods_no) {
         this.getGoodsInfo(option.goods_no);
         this.getCartList();

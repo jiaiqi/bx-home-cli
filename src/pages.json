@@ -504,10 +504,9 @@
         }, {
           "path": "resume1/resume1",
           "style": {
-            "navigationBarTitleText": "简历详情",
+            "navigationBarTitleText": "技师详情",
             "enablePullDownRefresh": false
           }
-
         }
       ]
     },

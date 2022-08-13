@@ -1276,7 +1276,7 @@
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
           console.log(this.pdNo,home_page_no)
-          debugger
+          
           await this.getTabbar(home_page_no);
           let pageItemList = await this.getPageComponent(home_page_no, 'srvhealth_store_home_ceshi_component_select');
           let curTab = this.tabbarList.findIndex(item => item.link_pd_no === home_page_no);

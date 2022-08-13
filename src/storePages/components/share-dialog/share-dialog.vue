@@ -37,7 +37,7 @@
                 微信
               </view>
             </view>
-<!--            <view class="share-item">
+            <!--            <view class="share-item">
               <button class="cu-btn bg-transparent" @click="toShare">
                 <image src="/static/icon/pyq.png" mode="aspectFit" class="share-icon"></image>
               </button>

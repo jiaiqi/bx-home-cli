@@ -1344,7 +1344,7 @@
           req[0].data[0].prepay_id = prepay_id
         }
 
-        await this.$fetch('operate', serviceName, req, 'health')
+        // await this.$fetch('operate', serviceName, req, 'health')
 
         // 支付成功后修改订单状态和支付状态
         await this.getOrderInfo()
