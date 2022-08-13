@@ -4,7 +4,8 @@
       <view class="poster-image">
         <u-loading v-if="loadStatus==='loading'"></u-loading>
         <view class="uni-margin-wrap">
-          <swiper class="swiper" circular :indicator-dots="true" :autoplay="false" :interval="5000" :duration="1000">
+          <swiper class="swiper" circular :indicator-dots="true" :autoplay="autoPlay" :interval="interval"
+            :duration="1000">
             <swiper-item class="swiper-item" v-for="item in posterList">
               <view class="swiper-item" :style="[{backgroundImage:'url('+getImagePath(item.pop_ups_image)+')'}]"
                 @click="toPages(item)">
@@ -31,6 +32,8 @@
     },
     data() {
       return {
+        interval: 5000,
+        autoPlay: false,
         hasShow: false,
         loadStatus: '',
         posterList: []
@@ -38,6 +41,12 @@
     },
     created() {
       this.getPostList()
+      if (this.pageItem?.autoplay == '是') {
+        this.autoPlay = true
+      }
+      if (this.pageItem?.interval && !isNaN(Number(this.pageItem?.interval))) {
+        this.interval = this.pageItem?.interval
+      }
     },
     methods: {
       toPages(e) {
@@ -45,9 +54,9 @@
         let url = ''
         switch (type) {
           case '活动':
-           if(e?.activity_no){
-             url = `/storePages/msList/msList?activeNo=${e?.activity_no}`
-           }
+            if (e?.activity_no) {
+              url = `/storePages/msList/msList?activeNo=${e?.activity_no}`
+            }
             break;
           case '商品':
             if (e?.goods_no) {
@@ -106,7 +115,7 @@
     justify-content: center;
     flex-direction: column;
     position: relative;
-    
+
     .close-btn {
       font-size: 30px;
       background-color: rgba(0, 0, 0, 0.5);
@@ -129,6 +138,7 @@
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
+
         .image {
           width: 500rpx;
           height: 800rpx;

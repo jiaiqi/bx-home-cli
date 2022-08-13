@@ -185,7 +185,7 @@
     },
     methods: {
       async openCert(e) {
-        if (e?.documents_image) {
+        if (e?.documents_image&&e?.is_check_image==='是') {
           let res = await this.getFilePath(e.documents_image);
           if (Array.isArray(res)) {
             res = res.map(item => {
@@ -235,7 +235,7 @@
       },
       makePhone() {
         uni.makePhoneCall({
-          phoneNumber: this.storeInfo?.telephone || '10086'
+          phoneNumber:  this.storeInfo?.telephone || '10086'
         })
       },
       // 查找商品列表
@@ -698,7 +698,7 @@
     .cu-btn {
       border-radius: 0;
       flex: 1;
-      padding: 15px 0;
+      padding: 20px 0;
       height: auto;
       color: #410311;
       background-image: linear-gradient(#FEE8D0, #F5DBBA);
