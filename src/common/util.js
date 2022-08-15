@@ -321,6 +321,12 @@ export default {
           // #ifdef MP-WEIXIN
           fieldInfo.type = "media"
           // #endif
+          if (fieldInfo?.moreConfig?.mediaType) {
+            fieldInfo.mediaType = fieldInfo?.moreConfig?.mediaType
+            if(Array.isArray(fieldInfo.mediaType)&&fieldInfo.mediaType.length===1&&fieldInfo.mediaType.includes('video')){
+              fieldInfo.type = "media"
+            }
+          }
           if (fieldInfo?.moreConfig?.openDocument == true) {
             fieldInfo.type = "openDocument"
           }

@@ -1,18 +1,24 @@
 <template>
   <view class="image-video-box">
     <template class="" v-if="enableAdd||enableDel">
-      <view class="media-select-box" v-for="item in tempFiles">
+      <view class="media-select-box" v-for="item in tempFiles" v-if="mediaType">
         <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
-        <image class="media" :src="item.thumbTempFilePath" :poster="item.thumbTempFilePath" v-else
-          @click.stop="toOpenVideo(item)">
+        <image class="media" :src="item.thumbTempFilePath" mode="aspectFill" v-else-if="item.fileType==='video'">
         </image>
         <text class="cuIcon-playfill icon" v-if="item.fileType==='video'" @click.stop="toOpenVideo(item)"></text>
+      </view>
+      <view class="file-list" v-else>
+        <view class="file" v-for="(item,index) in tempFiles">
+          <text class="cuIcon-file"></text>
+          <text> {{item.name||''}}</text>
+          <!-- <text class="cuIcon-close" @click="del(index)"></text> -->
+        </view>
       </view>
     </template>
     <template v-else>
       <view class="media-select-box" v-for="item in uploadFiles">
-        <image class="media" :src="item.fileUrl" mode="aspectFill"
-          v-if="['png','jpg','gif'].includes(item.file_type)"  @click.stop=" toPreviewImage(item.fileUrl)">
+        <image class="media" :src="item.fileUrl" mode="aspectFill" v-if="['png','jpg','gif'].includes(item.file_type)"
+          @click.stop=" toPreviewImage(item.fileUrl)">
         </image>
         <video class="media" :controls="false" :show-center-play-btn="false" @click.stop="toOpenVideo(item)"
           :src="item.fileUrl" mode="aspectFill" v-if="['mp4'].includes(item.file_type) "></video>
@@ -20,8 +26,8 @@
           @click.stop="toOpenVideo(item)"></text>
       </view>
     </template>
-    <view class="media-select-box" @click="chooseMedia" v-if="enableAdd">
-      <text class="cuIcon-pic "></text>
+    <view class="media-select-box radius" style="background-color: #F4F5F6;" @click="chooseMedia" v-if="enableAdd">
+      <text class="cuIcon-add text-bold text-lg text-black"></text>
     </view>
   </view>
 </template>
@@ -31,7 +37,7 @@
   export default {
     name: "bx-media-upload",
     props: ['value', 'enableDel', 'enableAdd', 'enableDrag', 'serverUrl', 'formData', 'header', 'limit', 'fileKeyName',
-      'showUploadProgress', 'serverUrlDeleteImage', 'eventType', 'fileNo'
+      'showUploadProgress', 'serverUrlDeleteImage', 'eventType', 'fileNo', "mediaType"
     ],
     data() {
       return {
@@ -163,10 +169,59 @@
       },
       chooseMedia() {
         let self = this
+        if (this.mediaType && this.mediaType.length === 1 && this.mediaType.includes('video')) {
+          return new Promise(resolve => {
+            uni.chooseVideo({
+              sourceType: ['camera', 'album'],
+              success: function(res) {
+                let obj = {
+                  duration: res.duration,
+                  fileType: "video",
+                  height: res.height,
+                  size: res.size,
+                  tempFilePath: res.tempFilePath,
+                  thumbTempFilePath: res.thumbTempFilePath,
+                  width: res.width,
+                  name: res.name
+                }
+                self.tempFiles = [...self.tempFiles, obj]
+                self.uploadMedia([obj])
+                resolve([obj]) // 数组
+              }
+            });
+          })
+        }
+        // #ifdef H5
+        uni.chooseFile({
+          // count: 6, //默认100
+          // extension:['.zip','.doc'],
+          success: function(res) {
+            let arr = res.tempFiles
+            if (Array.isArray(arr) && arr.length > 0) {
+              arr = arr.map((item, index) => {
+                let obj = {
+                  file: item,
+                  type: item.type,
+                  size: item.size,
+                  name: item.name,
+                  tempFilePath: res.tempFilePaths[index]
+                }
+                return obj
+              })
+              self.tempFiles = [...self.tempFiles, ...arr]
+              // self.uploadMedia(arr)
+              resolve(arr) // 数组
+            }
+            console.log(JSON.stringify(res.tempFilePaths));
+          }
+        });
+        // #endif
+
+        // #ifdef MP-WEIXIN
         return new Promise(resolve => {
           uni.chooseMedia({
             count: 9,
-            mediaType: ['image', 'video'],
+            mediaType: this.mediaType || ['image', 'video'],
             sourceType: ['album', 'camera'],
             maxDuration: 30,
             camera: 'back',
@@ -200,6 +255,7 @@
             }
           })
         })
+        // #endif
       },
     },
   }
@@ -211,6 +267,18 @@
     min-height: 80px;
     display: flex;
     flex-wrap: wrap;
+
+    .file-list {
+      width: 100%;
+      margin-bottom: 10px;
+
+      .file {
+        padding: 5px 10px;
+        background-color: #F4F5F6;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
 
     .media-select-box {
       width: 200rpx;
@@ -234,11 +302,14 @@
         position: absolute;
         top: 0;
         right: calc(50% - 30rpx);
+        color: #fff;
       }
 
       .media {
         width: 100%;
         height: 100%;
+        background-color: #000;
+        color: #333;
       }
     }
 

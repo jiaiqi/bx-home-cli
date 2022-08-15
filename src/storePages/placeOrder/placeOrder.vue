@@ -426,11 +426,8 @@
         return this.colV2?.moreConfig || {}
       },
       ...mapState({
-        userInfo: state => state.user.userInfo,
         loginUserInfo: state => state.user.loginUserInfo,
         cartInfo: state => state.order.cartInfo,
-        storeInfo: state => state.app.storeInfo,
-        storeUserInfo: state => state.user.storeUserInfo,
         theme: state => state.app.theme
       }),
       timeStart() {
@@ -1489,16 +1486,16 @@
             rcv_addr_str: this.addressInfo.fullAddress,
             rcv_name: this.rcv_name || this.addressInfo.userName,
             rcv_telephone: this.rcv_telephone || this.addressInfo.telNumber,
-            person_no: this.userInfo.no,
-            person_name: this.userInfo.name,
-            user_account: this.userInfo.userno,
-            store_user_no: this.storeUserInfo.store_user_no,
+            person_no: this.userInfo?.no,
+            person_name: this.userInfo?.name,
+            user_account: this.userInfo?.userno,
+            store_user_no: this.vstoreUser?.store_user_no,
             nick_name: this.userInfo.nick_name ? this.userInfo.nick_name.replace(
               /\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g, "") : '',
-            profile_url: this.userInfo.profile_url,
-            user_image: this.userInfo.user_image,
-            sex: this.userInfo.sex,
-            user_role: this.userInfo.user_role,
+            profile_url: this.userInfo?.profile_url,
+            user_image: this.userInfo?.user_image,
+            sex: this.userInfo?.sex,
+            user_role: this.userInfo?.user_role,
             tobe_paid_amount: this.actualMoney || this.totalMoney,
             order_pay_amount: this.actualMoney || this.totalMoney,
             order_amount: this.actualMoney || this.totalMoney,

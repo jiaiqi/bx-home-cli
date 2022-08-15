@@ -21,7 +21,8 @@
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
       <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight,margin:item.margin}]"
         v-for="item in buttonsIcon">
-        <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" :fade="true" duration="450" @click="toPages(item)">
+        <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" :fade="true" duration="450"
+          @click="toPages(item)">
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
           <u-loading slot="loading"></u-loading>
         </u-image>
@@ -797,6 +798,7 @@
       hideQrcode() {
         this.showQrcode = false
       },
+
       isLastRow(list, index) {
         let row_number = Math.ceil(list.length / 4);
         if (row_number === 1) {
@@ -1211,11 +1213,11 @@
           if (e.finder_user_name) {
             wx.openChannelsUserProfile({
               finderUserName: e.finder_user_name,
-              fail: (err)=> {
-                if(err?.errno===1416103){
+              fail: (err) => {
+                if (err?.errno === 1416103) {
                   uni.showToast({
-                    title:'打开视频好主页需要小程序与视频号的主体相同或为关联主体',
-                    icon:'none'
+                    title: '打开视频好主页需要小程序与视频号的主体相同或为关联主体',
+                    icon: 'none'
                   })
                 }
               }
@@ -1233,7 +1235,7 @@
             wx.openChannelsActivity({
               finderUserName: e.finder_user_name,
               feedId: e.feed_id,
-              fail: (err)=> {
+              fail: (err) => {
                 console.log(err)
               }
             })

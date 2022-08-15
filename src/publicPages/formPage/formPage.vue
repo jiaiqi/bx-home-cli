@@ -137,6 +137,7 @@
         </view>
       </view>
     </view>
+    <doc-dialog ref="docDialog" v-if="showDocBeforeSubmit" :docNos="docNos" @confirm="confirmDoc"></doc-dialog>
   </view>
 </template>
 
@@ -150,6 +151,10 @@
     },
     data() {
       return {
+        curHandlerBtn: null,
+        isConfirmDoc: false,
+        showDocBeforeSubmit: false,
+        docNos: "",
         disabledBack: false,
         backUrl: "",
         appName: null,
@@ -325,6 +330,14 @@
 
     },
     methods: {
+      confirmDoc() {
+        this.isConfirmDoc = true
+        this.onButton(this.curHandlerBtn)
+      },
+      cancelDoc() {
+        this.isConfirmDoc = false
+        this.curHandlerBtn = null
+      },
       isShowBtn(e) {
         if (this.moreConfig?.formButtonDisp && e.button_type && this.moreConfig?.formButtonDisp[e.button_type] ===
           false) {
@@ -426,6 +439,7 @@
         if (!e) {
           return;
         }
+        this.curHandlerBtn = e
         const self = this
         if (btnTarget === 'handler') {
           if (e?.type) {
@@ -718,6 +732,11 @@
             }
             break;
           case 'submit':
+            if (this.showDocBeforeSubmit && !this.isConfirmDoc) {
+              this.$refs.docDialog?.open()
+              return
+            }
+            this.curHandlerBtn = null
             if (req) {
               let data = this.deepClone(req);
               data.child_data_list = []
@@ -728,7 +747,6 @@
                   data.child_data_list.push(...child_data)
                 })
               }
-              debugger
               if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
                 let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
                 if (Array.isArray(submit_validate) && submit_validate.length > 0) {
@@ -829,23 +847,23 @@
                           }
                           break;
                       }
-                    } else if(['all-child-has-data'].includes(item.type)){
+                    } else if (['all-child-has-data'].includes(item.type)) {
                       // 所有子表都必须有数据
                       if (num > 0) {
                         return
                       }
-                      if(this.childService.length>data.child_data_list.length){
+                      if (this.childService.length > data.child_data_list.length) {
                         num++
-                        let labels = this.childService.map(item=>item.label).toString()
+                        let labels = this.childService.map(item => item.label).toString()
                         uni.showModal({
                           title: '提示',
                           content: `请确认${labels||'数据'}均已填写`,
-                          showCancel:false,
+                          showCancel: false,
                           success: (res) => {
                             if (res.confirm) {
-                              resolve(true)
+                              // resolve(true)
                             } else {
-                              resolve(false)
+                              // resolve(false)
                             }
                           }
                         })
@@ -1292,7 +1310,12 @@
         const app = this.appName || uni.getStorageSync('activeApp');
 
         let colVs = await this.getServiceV2(this.serviceName, this.srvType, this.use_type, app);
-
+        if (colVs?.moreConfig?.showDocBeforeSubmit) {
+          if (typeof colVs?.moreConfig?.showDocBeforeSubmit === 'string') {
+            this.docNos = colVs?.moreConfig?.showDocBeforeSubmit
+          }
+          this.showDocBeforeSubmit = true
+        }
         this[`${this.srvType}V2`] = colVs
 
 

@@ -72,7 +72,10 @@
       </view>
 
       <view class="content flex flex-wrap justify-center">
-        <video :src="src" v-for="src in videos"></video>
+        <view class="media-item" v-for="item in videos">
+          <video :src="item._fileUrl" v-if="isVideo(item.file_type)"></video>
+          <u-image width="220rpx" height="150rpx" :src="item._fileUrl" mode="aspectFit" v-else></u-image>
+        </view>
       </view>
     </view>
 
@@ -139,7 +142,7 @@
       </view>
     </view>
 
-    <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;">
+    <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;" v-if="goodsList&&goodsList.length>0">
       <view class="title text-white">
         项目列表
       </view>
@@ -184,8 +187,14 @@
       }
     },
     methods: {
+      isVideo(e = "") {
+        if (e) {
+          return ['mp4', 'mov', 'm4v', '3gp', 'avi', 'm3u8', 'webm'].includes(e.toLocaleLowerCase())
+        }
+        return false
+      },
       async openCert(e) {
-        if (e?.documents_image&&e?.is_check_image==='是') {
+        if (e?.documents_image && e?.is_check_image === '是') {
           let res = await this.getFilePath(e.documents_image);
           if (Array.isArray(res)) {
             res = res.map(item => {
@@ -235,7 +244,7 @@
       },
       makePhone() {
         uni.makePhoneCall({
-          phoneNumber:  this.storeInfo?.telephone || '10086'
+          phoneNumber: this.storeInfo?.telephone || '10086'
         })
       },
       // 查找商品列表
@@ -341,10 +350,14 @@
           for (let i = 0; i < fileDatas.length; i++) {
             const url =
               `${this.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+            fileDatas[i]._fileUrl = url
             files.push(url);
           }
         }
-        return files
+        return {
+          files,
+          fileDatas
+        }
       },
       getMainData() {
         const service = 'srvhealth_technician_list_select'
@@ -369,12 +382,20 @@
             }
             if (this.mainData.service_image) {
               this.getFiles(this.mainData.service_image).then(res => {
-                this.images = res
+                const {
+                  fileDatas,
+                  files
+                } = res
+                this.images = files
               })
             }
             if (this.mainData.service_video) {
               this.getFiles(this.mainData.service_video).then(res => {
-                this.videos = res
+                const {
+                  fileDatas,
+                  files
+                } = res
+                this.videos = fileDatas
               })
             }
           }

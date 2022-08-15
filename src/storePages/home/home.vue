@@ -1,6 +1,5 @@
 <template>
-  <bx-auth @auth-complete="initPage" v-if="showAuth"  :allowCancel="true" @cancel="cancelAuth"></bx-auth>
-  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]" v-else>
+  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
     <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore">
       <view class="nav-bar">
         <text class="home-name" @click.stop="openSwitchHomePage">
@@ -58,10 +57,8 @@
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
     <starGuide></starGuide>
-    <!-- #ifdef MP-WEIXIN -->
-    <view class="shadow-view" v-if="notNickName" @click="clickShadow"></view>
-    <!-- #endif -->
-    
+    <view class="shadow-view" @click="clickShadow" v-if="notNickName"></view>
+    <bx-auth @auth-complete="initPage" ref="bxAuth" :allowCancel="true" @cancel="cancelAuth"></bx-auth>
   </view>
 
 </template>
@@ -106,7 +103,6 @@
         rowData: {},
         invite_user_no: '',
         loadStatus: 'more',
-        showAuth: false
       };
     },
     computed: {
@@ -167,20 +163,25 @@
       })
     },
     methods: {
+      showAuthDialog(){
+        // 显示授权弹框
+        this.$refs?.bxAuth?.open?.()
+      },
       cancelAuth(){
-        this.showAuth = false
+        // this.$refs?.bxAuth?.cancel?.()
       },
       clickShadow(){
-        uni.showModal({
-          title:'提示',
-          content:'请先授权访问您的头像昵称信息，再进行其他操作',
-          showCancel:false,
-          success: (res) => {
-            if(res.confirm){
-              this.showAuth = true
-            }
-          }
-        })
+        this.showAuthDialog()
+        // uni.showModal({
+        //   title:'提示',
+        //   content:'请先授权访问您的头像昵称信息，再进行其他操作',
+        //   // showCancel:false,
+        //   success: (res) => {
+        //     if(res.confirm){
+        //       this.showAuthDialog()
+        //     }
+        //   }
+        // })
       },
       toHome() {
         //#ifdef MP-WEIXIN
@@ -247,7 +248,7 @@
         let curTab = this.tabbarList[index];
         if (index > 0) {
           if ((!this.userInfo?.nick_name || this.userInfo?.nick_name == '微信用户')) {
-            this.showAuth = true
+            this.showAuthDialog()
             return
           }
         }
@@ -1220,7 +1221,6 @@
       async initPage(forceUpdate = false) {
         // forceUpdate - 是否强制更新店铺组件
         // await this.toAddPage();
-        this.showAuth = false
         await selectPersonInfo(null,true)
         // #ifdef MP-WEIXIN
         await this.initApp()
@@ -1799,7 +1799,7 @@
     width: 100vw;
     height: 100vh;
     position: fixed;
-    z-index: 1000;
+    z-index: 999;
     top: 0;
     left: 0;
     background: transparent;

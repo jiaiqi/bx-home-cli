@@ -216,12 +216,12 @@
         <view class="operate" hover-class="active" @click="numberChange('add')" @longpress="longpressNumChange('add')"
           @touchend="longpressNumEnd">+</view>
       </view>
-      <bx-media-upload class="form-item-content_value image" :value="imagesUrl"
+      <bx-media-upload class="form-item-content_value image" :value="imagesUrl" :mediaType="fieldData.mediaType"
         :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
         @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"
         :server-url-delete-image="deleteUrl" :limit="fieldData.fileNum"
-        v-else-if="['media','openDocument'].includes(fieldData.type)  ">
+        v-else-if="['media','openDocument'].includes(fieldData.type)">
       </bx-media-upload>
 
       <!--    <view class="image-video-box" v-else-if="'media' === fieldData.type">
@@ -1322,7 +1322,7 @@
           appName = 'sso';
         }
 
-        if (cond !== 'refresh'&&this.fieldData?.disabled===true) {
+        if (cond !== 'refresh' && this.fieldData?.disabled === true) {
           if (self.fieldData.value && self.fieldData.option_list_v2?.refed_col && !
             self
             .fieldData?.redundant) {
