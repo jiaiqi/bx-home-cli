@@ -15,10 +15,7 @@
         <view class="bottom">
           <view class="" v-for="item in documents">
             <u-checkbox v-model="item.checked" name="confirm" shape="circle" active-color="blue">阅读并接受</u-checkbox>
-            <text>
-              <text class="text-blue margin-right-xs"
-                @click="openDocument(item.protocol_file)">{{item.protocol_name}}</text>
-            </text>
+            <text class="text-blue " @click="openDocument(item.protocol_file)">{{item.protocol_name}}</text>
           </view>
         </view>
         <view class="button-box flex flex-wrap justify-center align-center">
@@ -119,7 +116,7 @@
       },
       confirm() {
         let notCheck = this.documents.find(item => item.mustCheck && item.checked !== true)
-        if (notCheck&&notCheck.protocol_name){
+        if (notCheck && notCheck.protocol_name) {
           uni.showToast({
             title: `请先阅读并接受【${notCheck.protocol_name}】`,
             icon: 'none'
