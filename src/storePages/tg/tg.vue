@@ -205,12 +205,12 @@
           url
         })
       },
-      getAddress() {
+      // getAddress() {
 
-      },
-      getShareStoreUser() {
+      // },
+      // getShareStoreUser() {
 
-      },
+      // },
       toOrder() {
         // 跳转到下单页面
         let list = this.goodsList.filter(item => item.checked === true && item.amount);

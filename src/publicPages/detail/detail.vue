@@ -26,7 +26,7 @@
           </view>
         </view>
       </view>
-      <view class="other-col">
+      <view class="other-col" v-if="detailConfig&&detailConfig.cols&&detailConfig.cols.length>0">
         <view class="col-item" v-for="column in detailConfig.cols " :key="column.col">
           <view class="label" :class="{'label-top':column.label&&column.label.position==='top'}" :style="{
             'font-size':column.label&&column.label.font_size?column.label.font_size:null,
@@ -147,19 +147,20 @@
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="currentChild&&!hideChildTable">
       <view class="child-service">
         <child-list :disabled="disabled||disabledChildButton" :config="currentChild" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
-          :childListData="childListData" :fkCondition="fkCondition[item.constraint_name||item.key_no]"
-          :appName="appName" :mainData="detail" @addChild="addChild" @child-list-change="childListChange"
-          v-if="detail&&currentChild">
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig"
+          :srvGridButtonDisp="gridButtonDisp" :srvRowButtonDisp="rowButtonDisp"
+          :fkInitVal="fkInitVal[item.constraint_name||item.key_no]" :childListData="childListData"
+          :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail"
+          @addChild="addChild" @child-list-change="childListChange" v-if="detail&&currentChild">
         </child-list>
       </view>
     </view>
     <view class="child-service-box" :class="{'pc-model':model==='PC'}" v-if="detail&&!hideChildTable">
       <view class="child-service" v-for="(item,index) in childService" :key="index">
         <child-list :disabled="disabled||disabledChildButton" :config="item" :mainServiceName="serviceName"
-          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig" :srvGridButtonDisp="gridButtonDisp"
-          :srvRowButtonDisp="rowButtonDisp" :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
+          :mainTable="v2Data.main_table" :mainFkField="fkFields" :srvMoreConfig="srvMoreConfig"
+          :srvGridButtonDisp="gridButtonDisp" :srvRowButtonDisp="rowButtonDisp"
+          :fkInitVal="fkInitVal[item.constraint_name]" :childListData="childListData"
           :fkCondition="fkCondition[item.constraint_name||item.key_no]" :appName="appName" :mainData="detail"
           @addChild="addChild" @child-list-change="childListChange" @unfold="unfoldChild(item,index)"
           v-if="detail&&item.isFold!==true">
@@ -195,7 +196,7 @@
         disabledChildButton: false, //子表禁止编辑
         formButtonDisp: null,
         gridButtonDisp: null,
-        srvMoreConfig:null,
+        srvMoreConfig: null,
         rowButtonDisp: null,
         childListData: {},
         hideChildTable: false
@@ -978,16 +979,19 @@
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
+
         .label {
           margin-right: 20rpx;
           margin-bottom: 10rpx;
         }
-        .value{
+
+        .value {
           text-align: right;
           flex: 1;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+
         .label-top {
           width: 100%;
         }
