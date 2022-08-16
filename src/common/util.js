@@ -102,6 +102,7 @@ export default {
 
             // 第一次拿到，缓存
             let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
+            
             if (pageconfig?.more_config && typeof pageconfig.more_config === 'string') {
               try {
                 pageconfig.moreConfig = JSON.parse(pageconfig.more_config)
@@ -127,6 +128,7 @@ export default {
     Vue.prototype.getPageConfig = function(v2res, useType) {
       let pageConfigs = v2res || false
       if (pageConfigs) {
+        debugger
         pageConfigs["_fieldInfo"] = Vue.prototype.getFieldInfo(v2res.srv_cols, useType)
         if (useType === 'list') {
           pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton)
@@ -199,9 +201,13 @@ export default {
           ...fieldInfo,
           ...item
         }
+        debugger
         if (item.more_config && typeof item.more_config === 'string') {
           try {
             fieldInfo.moreConfig = JSON.parse(item.more_config)
+            if(fieldInfo.moreConfig?.fkDefaultSelected){
+              debugger
+            }
             let data = {
               time: { //时间选择器
                 "beforeQuarterOfHour": dayjs().subtract(15, 'minute').format('HH:mm'), //15分钟之前
@@ -237,6 +243,7 @@ export default {
           } catch (e) {
             //TODO handle the exception
           }
+          
         }
         fieldInfo.column = item.columns
         fieldInfo.id = item.id
