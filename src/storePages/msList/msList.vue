@@ -1,7 +1,7 @@
 <template>
   <view>
     <view class="main-image">
-      <image :src="mainImg" mode="aspectFill" class="image"></image>
+      <image :src="mainImg" mode="scaleToFill" class="image"></image>
     </view>
     <view class="goods-list">
       <view class="goods-list-item" v-for="item in list">

@@ -21,8 +21,7 @@
             }}</text>
         </view>
         <view class="" v-if="orderInfo&&orderInfo.order_no">
-          <button class="cu-btn round sm margin-right-xs" @click="toAfterSale"
-            v-if="disabledRefund!==true&&goods.pay_state==='已支付'&&(!goods.return_num||goods.return_num<goods.goods_amount)">退款</button>
+          <button class="cu-btn round sm margin-right-xs" @click="toAfterSale" v-if="showButton('退款')">退款</button>
           <button class="cu-btn round sm border"
             v-if="disabledEvaluate!==true&&orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
             @click="toEvaluate">评价</button>
@@ -77,7 +76,7 @@
       }
     },
     computed: {
-      editable(){
+      editable() {
         return !this.orderInfo.order_no
       },
       skuAttrStr() {
@@ -108,6 +107,21 @@
       }
     },
     methods: {
+      showButton(e) {
+        let res = false;
+        if (e == '退款') {
+          res = this.disabledRefund !== true && this.goods.pay_state === '已支付' && (!this.goods.return_num || this.goods
+            .return_num < this.goods.goods_amount)
+        }
+        if (res && this.orderInfo.order_state == '已完成' && this.order_finish_time) {
+          let num = this.goods?.refunds_num || 7
+          // 订单完成超过七天或者配置的最晚可退款时间 就不显示退款按钮了
+          if (this.dayjs(this.order_finish_time).add(num, 'day') <= this.dayjs()) {
+            res = false
+          }
+        }
+        return res
+      },
       goodsAmountChange(e) {
         this.$emit('amount-change', {
           num: e?.value,
@@ -125,11 +139,11 @@
           res[cur] = this.goods[cur];
           return res
         }, {})
-
+        goods.order_pay_amount = this.orderInfo?.order_pay_amount
         if (this.goods.return_num) {
           goods.goods_amount = goods.goods_amount - this.goods.return_num
         }
-
+        
 
         if (!goods.goods_amount || goods.goods_amount < 1) {
           uni.showModal({

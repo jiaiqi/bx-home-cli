@@ -149,8 +149,9 @@
             邀请好友成功购买本商品，每单最高得<text class="text-orange">￥{{shareBonus}}</text>现金奖励
           </view>
           <view class="bottom-buttons">
-            <!-- <button class="cu-btn bg-blue margin-right">
-              分享到微信好友
+          <!--  <button class="cu-btn bg-blue margin-right" @click="makePosterImage"
+              v-if="goodsInfo&&goodsInfo.price&&goodsInfo.goods_name&&goodsInfo.goods_img">
+              生成海报卡片
             </button> -->
             <button class="cu-btn bg-blue" open-type="share">
               立即分享
@@ -159,6 +160,11 @@
         </view>
       </view>
     </view>
+<!--    <make-poster :price="goodsInfo.price" :title="goodsInfo.goods_name"
+     :qrcodeText="qrcodeText"
+     :main-image="goodsInfo.goods_img"
+      v-if="goodsInfo&&goodsInfo.price&&goodsInfo.goods_name&&goodsInfo.goods_img" ref="makePoster">
+    </make-poster> -->
   </view>
 </template>
 
@@ -171,13 +177,16 @@
   } from '@/common/api/login.js'
   import skuSelector from '../components/sku-selector/sku-selector.vue'
   import evaluateCard from '../components/evaluate-card.vue'
+  import makePoster from '../components/make-poster/make-poster.vue'
   export default {
     components: {
       skuSelector,
-      evaluateCard
+      evaluateCard,
+      makePoster
     },
     data() {
       return {
+        qrcodeText:"",
         isPYQ: false,
         current: 0,
         videoContext: {},
@@ -351,6 +360,9 @@
       })
     },
     methods: {
+      makePosterImage() {
+        this.$refs?.makePoster?.init()
+      },
       async initPage() {
         await selectPersonInfo(null, true)
         // await this.initApp()
@@ -1188,36 +1200,36 @@
         }
       }
     },
-    onShareTimeline() {
-      let pages = getCurrentPages();
-      let path = pages[pages.length - 1]?.$page?.fullPath;
-      let query = '';
-      if (path && path.indexOf('?') !== -1) {
-        query = path.split('?')[1];
-      }
-      query += '&from=share';
-      if (this.userInfo?.userno) {
-        query += `&invite_user_no=${this.userInfo?.userno}`;
-      }
-      if (this.storeInfo?.store_no) {
-        query += `&store_no=${this.storeInfo?.store_no}`;
-      }
-      let title = `【${this.goodsInfo.goods_name}】`;
+    // onShareTimeline() {
+    //   let pages = getCurrentPages();
+    //   let path = pages[pages.length - 1]?.$page?.fullPath;
+    //   let query = '';
+    //   if (path && path.indexOf('?') !== -1) {
+    //     query = path.split('?')[1];
+    //   }
+    //   query += '&from=share';
+    //   if (this.userInfo?.userno) {
+    //     query += `&invite_user_no=${this.userInfo?.userno}`;
+    //   }
+    //   if (this.storeInfo?.store_no) {
+    //     query += `&store_no=${this.storeInfo?.store_no}`;
+    //   }
+    //   let title = `【${this.goodsInfo.goods_name}】`;
 
-      this.saveSharerInfo(this.userInfo, ` ${path}&${query}`, 'timeline');
-      let imageUrl = '';
-      if (this.storeInfo?.logo) {
-        imageUrl = this.getImagePath(this.storeInfo.logo, true);
-      }
-      if (this.goodsInfo?.goods_img) {
-        imageUrl = this.getImagePath(this.goodsInfo.goods_img, true);
-      }
-      return {
-        title: title,
-        query: query,
-        imageUrl: imageUrl
-      };
-    },
+    //   this.saveSharerInfo(this.userInfo, ` ${path}&${query}`, 'timeline');
+    //   let imageUrl = '';
+    //   if (this.storeInfo?.logo) {
+    //     imageUrl = this.getImagePath(this.storeInfo.logo, true);
+    //   }
+    //   if (this.goodsInfo?.goods_img) {
+    //     imageUrl = this.getImagePath(this.goodsInfo.goods_img, true);
+    //   }
+    //   return {
+    //     title: title,
+    //     query: query,
+    //     imageUrl: imageUrl
+    //   };
+    // },
     onShareAppMessage() {
       let pages = getCurrentPages();
       let path = pages[pages.length - 1]?.$page?.fullPath;

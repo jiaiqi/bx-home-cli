@@ -1347,7 +1347,7 @@
                 }
                 allTab.forEach(item => {
                   tabsCfg.tabs.push({
-                    name: item.value,
+                    name: item.label,
                     value: item.value
                   })
                 })

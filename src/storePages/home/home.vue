@@ -328,7 +328,7 @@
             detailPage: '/storePages/home/home?store_no=${data.store_no}',
             navType: 'reLaunch',
             img: {
-              col: 'image',
+              col: 'logo',
               cfg: {
                 position: 'left',
                 width: '75px',

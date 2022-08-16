@@ -34,8 +34,8 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{item[col.columns]||''|hideYear(removeYearFromDate)}}
         </view>
-        <button class="cuIcon-add cu-btn bg-orange light more-btn bx-btn-bg-color" :class="['bx-btn-bg-'+theme]"
-          v-if="showHandle" @click.stop="showAction(item)"></button>
+        <button class="cuIcon-right cu-btn bg-white  more-btn " v-if="showHandle&&showButton(item)"
+          @click.stop="showAction(item)"></button>
         <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
@@ -177,7 +177,7 @@
       srvRowButtonDisp: {
         type: Object
       },
-      srvMoreConfig:{
+      srvMoreConfig: {
         type: Object
       },
       fkCondition: {
@@ -492,6 +492,50 @@
         }
         this.onFootButton(obj)
         this.showActionSheet = false
+      },
+      showButton(e) {
+        let rowButton = []
+        if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
+          rowButton = this.deepClone(this.rowButton).map(item => {
+            item.text = item.button_name
+            item.rowData = e
+            return item
+          })
+        }
+        if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
+          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate', 'duplicatedeep']
+            .includes(item
+              .button_type))
+        }
+
+        if (this.fkMoreConfig?.rowButtonDisp) {
+          rowButton = rowButton.filter(item => {
+            if (item.button_type === 'customize') {
+              if (this.fkMoreConfig?.rowButtonDisp && this.fkMoreConfig?.rowButtonDisp['customize_hide']) {
+                let customize_hide = this.fkMoreConfig?.rowButtonDisp['customize_hide']
+                if (Array.isArray(customize_hide)) {
+                  if (customize_hide.includes(item.id) || customize_hide.includes(item.button_name)) {
+                    return false
+                  }
+                }
+              }
+            }
+            if (this.fkMoreConfig?.rowButtonDisp[item.button_type] === false) {
+              return false
+            } else if (this.fkMoreConfig?.rowButtonDisp[item.button_type] && typeof this.fkMoreConfig
+              ?.rowButtonDisp[item.button_type] === 'string') {
+              item.button_custom_name = this.fkMoreConfig?.rowButtonDisp[item.button_type]
+            }
+            return true
+          })
+        }
+        if (rowButton.length === 0) {
+          return false
+        }
+        if (rowButton.length === 1 && rowButton.find(item => item.button_type === 'detail')) {
+          return false
+        }
+        return true
       },
       showAction(e) {
         this.curItem = e;
@@ -1513,7 +1557,7 @@
 
         } else if (this.disabled) {
           return
-        } 
+        }
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'refresh':
@@ -1559,7 +1603,7 @@
                       let obj = {
                         ...this.globalVariable,
                         data: row,
-                        rowData:row,
+                        rowData: row,
                       };
                       obj = this.deepClone(obj)
                       customDetailUrl = this.renderStr(moreConfig.customDetailUrl, obj)
@@ -1800,7 +1844,7 @@
           })
         }
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
-          if(item.column&&this.mainData&&this.mainData[item.column]){
+          if (item.column && this.mainData && this.mainData[item.column]) {
             item.value = this.mainData[item.column]
           }
           if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2

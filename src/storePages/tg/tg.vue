@@ -29,7 +29,7 @@
               {{tgInfo.state||''}}
             </view>
           </view>
-          <view class="date-tiem">
+          <view class="date-tiem" v-if="tgInfo&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime">
             团购起止时间：{{handleDateRange(tgInfo.activity_statr_datetime,tgInfo.activity_end_datetime)}}
           </view>
           <view class="describe" v-if="tgInfo.describe">
@@ -77,8 +77,7 @@
             <view class="" @click="changeCheck(index)">
               商品名称:{{item.goods_name||''}}
             </view>
-            <view class="text-sm "
-              style="display: flex;justify-content: space-between;align-items: center;">
+            <view class="text-sm " style="display: flex;justify-content: space-between;align-items: center;">
               <!--    <view class="">
                 规格：100g
               </view> -->
@@ -125,7 +124,8 @@
         </view>
       </view>
 
-      <view class="tg-form" v-if="tgInfo && (type==='view'||type==='detail')">
+      <view class="tg-form"
+        v-if="tgInfo&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime && (type==='view'||type==='detail')">
         <view class="cu-form-group ">
           <view class="title">开团时间</view>
           <input :placeholder="''" name="input" :value="tgInfo.activity_statr_datetime" :disabled="true"></input>

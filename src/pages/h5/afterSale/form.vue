@@ -68,6 +68,9 @@
         return `${this.$api.srvHost}/file/upload`
       },
       backMoney() {
+        if (this.goodsInfo?.order_pay_amount) {
+          return this.goodsInfo?.order_pay_amount
+        }
         return this.goodsInfo?.goods_amount * this.goodsInfo?.unit_price
       },
       toAddressSelector() {
@@ -132,7 +135,7 @@
           "serviceName": "srvhealth_store_return_order_add",
           "condition": [],
           "data": [{
-            "order_state":"未收货",
+            "order_state": "未收货",
             "person_name": this.userInfo?.name,
             "store_user_no": this.vstoreUser?.store_user_no,
             "nick_name": this.userInfo.nick_name,

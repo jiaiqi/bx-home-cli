@@ -166,8 +166,8 @@
   }
 
   .title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 900;
     padding: 5px 0;
   }
 
@@ -214,6 +214,9 @@
 
     .content-content {
       padding: 10px;
+      textarea{
+        width: 100%;
+      }
     }
   }
 </style>

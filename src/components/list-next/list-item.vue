@@ -4,7 +4,7 @@
     <view class="list-item" @click="clickItem">
       <view class="main-image" :style="[setListView.imgStyle]" :class="[setListView.imgClass]"
         v-if="setListView.showImg && setListView.imgAlign !== 'right'">
-        <image lazy-load class="image" :src="setListView.imgSrc" :mode="setListView.imgMode"
+        <image lazy-load class="image" :src="setListView.imgSrc"  :mode="setListView.imgMode"
           :style="[setListView.imgTagStyle]">
         </image>
         <image class="icon" :class="setListView.imgIcon.name" v-if="setListView.imgIcon&&setListView.imgIcon.name"
@@ -572,7 +572,7 @@
           if (imgCfg.position !== 'top') {
             result.listContentMaxWidth = imgCfg.width ? `calc(100% - ${imgCfg.width})` : `calc(100% - 50px)`
           }
-          result.imgMode = imgCfg?.mode || 'aspectFill';
+          result.imgMode = imgCfg?.mode || 'aspectFit';
           if (result.imgStyle.width) {
             // result.listContentWidth = `calc(100% - ${result.imgStyle.width})`
           }

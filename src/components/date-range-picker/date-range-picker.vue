@@ -13,11 +13,12 @@
       <text class="cuIcon-calendar margin-left-xs"></text>
     </view>
     <u-calendar v-model="show" mode="range" @change="change" :min-date="min||'1950-01-01'" max-date="2050-01-01"
-      v-if="mode==='date'">
+      v-if="mode==='date'||mode==='dateTime'">
     </u-calendar>
     <view class="cu-modal bottom-modal" :class="{show:show&&mode==='time'}" @click="hideModal">
       <view class="cu-dialog" @click.stop="">
-        <smh-time-range :time="[12,30,0,17,30]" :min="min" @confrim="change" @cancel="cancel" v-if="show&&mode==='time'">
+        <smh-time-range :time="[12,30,0,17,30]" :min="min" @confrim="change" @cancel="cancel"
+          v-if="show&&mode==='time'">
         </smh-time-range>
       </view>
     </view>
@@ -50,7 +51,8 @@
     <view class="calendar-box" v-else-if="mode==='dateTime'">
       <datetime-picker @change="change" :disabled="disabled" :defaultValue="value"></datetime-picker>
     </view>
-    <picker class="uni-picker"  :start="min" :end="max" :mode="mode" :value="selectVal" v-else @change="change" :disabled="disabled">
+    <picker class="uni-picker" :start="min" :end="max" :mode="mode" :value="selectVal" v-else @change="change"
+      :disabled="disabled">
       <view class="picker-content date-select-box">
         <view class="place-holder" v-if="!selectVal">请选择</view>
         <view class="value" v-else>{{ selectVal }}</view>
