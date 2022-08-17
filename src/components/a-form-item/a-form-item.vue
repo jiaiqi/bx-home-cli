@@ -1187,7 +1187,6 @@
           this.otherNodeVal = ''
           // this.$emit('setColData', this.fieldData)
           // this.onBlur()
-          debugger
           this.hideModal()
         } else if (this.fieldData.type === 'Set') {
           if (Array.isArray(e)) {
@@ -1206,7 +1205,6 @@
 
         }
         if (type !== 'Selector') {
-          debugger
           this.hideModal();
         }
       },
@@ -1242,15 +1240,37 @@
           return;
         }
         let req = {
-          serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2
-            .serviceName : '',
+          serviceName: serv || self.fieldData?.option_list_v2?.serviceName,
           colNames: ['*'],
           condition: [],
+          order: [],
           page: {
             pageNo: this.treePageInfo.pageNo,
             rownumber: this.treePageInfo.rownumber
           }
         };
+        if (!req.serviceName) {
+          return
+        }
+
+        if (self.fieldData?.moreConfig?.defaultSelectCondition) {
+          const defaultSelectCondition = self.fieldData?.moreConfig?.defaultSelectCondition
+          if (Array.isArray(defaultSelectCondition) && defaultSelectCondition.length > 0) {
+            // defaultSelectCondition.forEach(item => {
+            //   if (item.colName && item.ruleType == 'eq') {
+            //     req.order.push({
+            //       colName: item.colName,
+            //       orderType: "desc"
+            //     })
+            //   }
+            // })
+            // req.order.push({
+            //   colName: "modify_time",
+            //   orderType: "desc"
+            // })
+          }
+        }
+
         let globalData = getApp().globalData
         let appName = self.fieldData?.option_list_v2?.srv_app || self.srvApp || uni.getStorageSync(
           'activeApp');
@@ -1299,7 +1319,6 @@
           } else {
             // return;
             // if(this.fieldData.value){
-            // 	debugger
             // 	req.condition = [{
             // 		colName:this.fieldData.option_list_v2?.refed_col,
             // 		ruleType:'like',
@@ -1377,6 +1396,28 @@
           } else {
             self.selectorData = res.data.data;
           }
+
+          if (!this.fieldData.value && self.fieldData?.moreConfig?.defaultSelectCondition) {
+            const defaultSelectCondition = self.fieldData?.moreConfig?.defaultSelectCondition
+            if (Array.isArray(defaultSelectCondition) && defaultSelectCondition.length > 0) {
+              let defaultSelecte = self.selectorData.find(item => {
+                return defaultSelectCondition.every(cond => {
+                  if (cond?.ruleType == 'eq' && item[cond.colName] === cond.value) {
+                    return true
+                  }
+                })
+              })
+
+              if (defaultSelecte) {
+                if(self.fieldData.option_list_v2?.refed_col){
+                  self.fieldData.value = defaultSelecte[self.fieldData.option_list_v2.refed_col]||'';
+                }
+                self.fieldData['colData'] = defaultSelecte;
+                self.$emit('setColData', self.fieldData)
+              }
+            }
+          }
+
           self.selectorData = self.selectorData.map(item => {
             const config = this.deepClone(this.fieldData.option_list_v2);
             // item.label = `${item[config.key_disp_col]||''}/${item[config.refed_col]||''}`

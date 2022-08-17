@@ -35,7 +35,6 @@
             <input type="text" v-model="form.remark" placeholder="请输入">
           </view>
           <input type="text" v-model="item.value" v-else>
-
         </view>
       </view>
     </view>
@@ -131,56 +130,7 @@
         </view>
       </view>
     </view>
-    <!-- 
-    <view class="cu-modal " :class="{show:modalName==='add'}">
-      <view class="cu-dialog">
-        <view class="add-modal">
-          <view class="flex justify-between align-center padding ">
-            <text></text>
-            <text> 添加商品</text>
-            <view class="padding-xs" @click="showModal()">
-              <text class="cuIcon-close"></text>
-            </view>
-          </view>
-          <view class="form-item">
-            <view class="label">
-              商品
-            </view>
-            <view class="value flex justify-between align-center">
-              <picker @change="goodsChange" :value="curGoods" :range="goodsNameList">
-                <view class="">{{goodsNameList[curGoods]||'请选择'}}</view>
-              </picker>
-              <text class="cuIcon-right margin-left-xs"></text>
-            </view>
-          </view>
-          <view class="form-item">
-            <view class="label">
-              规格
-            </view>
-            <view class="value">
-              <input type="text" v-model="addForm.unit">
-            </view>
-          </view>
-          <view class="form-item">
-            <view class="label">
-              数量
-            </view>
-            <view class="value">
-              <input type="digit" v-model="addForm.goods_num">
-            </view>
-          </view>
-          <view class="form-item">
-            <view class="label">
-            </view>
-            <view class="value">
-            </view>
-          </view>
-          <view class="bottom-button">
-            <button class="cu-btn bg-blue" @click="confirmGoods">确认</button>
-          </view>
-        </view>
-      </view>
-    </view> -->
+   
   </view>
 </template>
 
@@ -656,7 +606,7 @@
               console.log(data.uuid, uuid, data.bar_code, data.list)
               if (data.uuid === uuid && data.bar_code && data.list) {
                 if (Array.isArray(data.list)) {
-                   this.scanList[e.bar_code] = data.list
+                  this.scanList[e.bar_code] = data.list
                   // let list = this.scanList[e.bar_code] || []
                   // data.list.forEach(item => {
                   //   if (!list.find(code => code === item)) {
@@ -710,9 +660,17 @@
           return
         }
         if (this.modalName === 'add' && this.curEditGoods === -1) {
-          this.selectedGoods.push({
-            ...this.addForm
-          })
+          let oldGoodsIndex = this.selectedGoods.findIndex(item => item.bar_code === this.addForm.bar_code)
+          if (oldGoodsIndex !== -1) {
+            let data = this.selectedGoods[oldGoodsIndex]
+            data.goods_num = Number(this.addForm.goods_num) + Number(data.goods_num)
+            this.$set(this.selectedGoods, oldGoodsIndex, data)
+          } else {
+
+            this.selectedGoods.push({
+              ...this.addForm
+            })
+          }
         } else {
           this.selectedGoods[this.curEditGoods] = {
             ...this.addForm
