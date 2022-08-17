@@ -471,7 +471,6 @@
         } else {
           return [];
         }
-
         if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
           buttons = buttons.filter(item => item.is_public !== true || item.button_type === 'detail');
         }

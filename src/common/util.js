@@ -339,7 +339,7 @@ export default {
             appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
               .table_name.indexOf("_"))
           }
-        } else if (item.col_type === "Image") {
+        } else if (["Image","image"].includes(item.col_type )) {
           // } else if (item.col_type === "Image" || item.col_type === "FileList") {
           fieldInfo.type = "images"
           if (item.table_name) {

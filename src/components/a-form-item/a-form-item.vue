@@ -1363,20 +1363,20 @@
           // delete req.condition;
         }
 
-        // if (self.fieldData.option_list_v2?.relation_condition) {
-        //   if (relation_condition) {
-        //     req.relation_condition = {
-        //       relation: "AND",
-        //       data: [
-        //         relation_condition,
-        //         self.fieldData.option_list_v2?.relation_condition
-        //       ]
-        //     }
-        //   } else {
-        //     req.relation_condition = self.fieldData.option_list_v2?.relation_condition
-        //   }
-        //   // delete req.condition;
-        // }
+        if (self.fieldData.option_list_v2?.relation_condition) {
+          if (relation_condition) {
+            req.relation_condition = {
+              relation: "AND",
+              data: [
+                relation_condition,
+                self.fieldData.option_list_v2?.relation_condition
+              ]
+            }
+          } else {
+            req.relation_condition = self.fieldData.option_list_v2?.relation_condition
+          }
+          // delete req.condition;
+        }
 
 
         if (!req.serviceName) {
