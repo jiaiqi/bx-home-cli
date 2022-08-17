@@ -1253,24 +1253,6 @@
           return
         }
 
-        if (self.fieldData?.moreConfig?.defaultSelectCondition) {
-          const defaultSelectCondition = self.fieldData?.moreConfig?.defaultSelectCondition
-          if (Array.isArray(defaultSelectCondition) && defaultSelectCondition.length > 0) {
-            // defaultSelectCondition.forEach(item => {
-            //   if (item.colName && item.ruleType == 'eq') {
-            //     req.order.push({
-            //       colName: item.colName,
-            //       orderType: "desc"
-            //     })
-            //   }
-            // })
-            // req.order.push({
-            //   colName: "modify_time",
-            //   orderType: "desc"
-            // })
-          }
-        }
-
         let globalData = getApp().globalData
         let appName = self.fieldData?.option_list_v2?.srv_app || self.srvApp || uni.getStorageSync(
           'activeApp');
@@ -1370,10 +1352,32 @@
         }
 
 
+        if (self.fieldData.option_list_v2?.relation_condition) {
+          req.relation_condition = self.fieldData.option_list_v2?.relation_condition
+          // delete req.condition;
+        }
+
+
         if (relation_condition && typeof relation_condition === 'object') {
           req.relation_condition = relation_condition;
-          delete req.condition;
+          // delete req.condition;
         }
+
+        // if (self.fieldData.option_list_v2?.relation_condition) {
+        //   if (relation_condition) {
+        //     req.relation_condition = {
+        //       relation: "AND",
+        //       data: [
+        //         relation_condition,
+        //         self.fieldData.option_list_v2?.relation_condition
+        //       ]
+        //     }
+        //   } else {
+        //     req.relation_condition = self.fieldData.option_list_v2?.relation_condition
+        //   }
+        //   // delete req.condition;
+        // }
+
 
         if (!req.serviceName) {
           return;
@@ -1409,8 +1413,8 @@
               })
 
               if (defaultSelecte) {
-                if(self.fieldData.option_list_v2?.refed_col){
-                  self.fieldData.value = defaultSelecte[self.fieldData.option_list_v2.refed_col]||'';
+                if (self.fieldData.option_list_v2?.refed_col) {
+                  self.fieldData.value = defaultSelecte[self.fieldData.option_list_v2.refed_col] || '';
                 }
                 self.fieldData['colData'] = defaultSelecte;
                 self.$emit('setColData', self.fieldData)

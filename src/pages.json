@@ -642,21 +642,11 @@
             "navigationBarTitleText": "扫码",
             "enablePullDownRefresh": false
           }
-        }
-        //#ifdef MP-WEIXIN
-
-        //#endif
-        , {
-          "path": "verticalNav/verticalNav",
-          "style": {
-            "navigationBarTitleText": "垂直导航",
-            "enablePullDownRefresh": false
-          }
-
-        }, {
+        },
+        {
           "path": "mallMenu/mallMenu",
           "style": {
-            "navigationBarTitleText": "垂直分类",
+            // "navigationBarTitleText": "垂直分类",
             "enablePullDownRefresh": false
           }
 

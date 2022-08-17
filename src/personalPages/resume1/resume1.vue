@@ -81,11 +81,12 @@
 
     <view class="content-box bg-white">
       <view class="title">
-        服务照片
+        风采展示
       </view>
 
       <view class="content flex flex-wrap">
-        <u-image width="220rpx" height="150rpx" :src="src" mode="aspectFit" v-for="src in images"></u-image>
+        <u-image style="margin-right: 2rpx;margin-bottom: 2rpx;" width="220rpx" height="150rpx" :src="src"
+          mode="aspectFill" v-for="(src,index) in images" @click="toPreviewImage(images,index)"></u-image>
       </view>
     </view>
 
@@ -96,7 +97,7 @@
           专业证件
         </view>
         <view class="card-list">
-          <view class="card-item" v-for="item in certList">
+          <view class="card-item" v-for="item in certList" @click="openCert(item)">
             <text class="cuIcon-card margin-right-xs"></text><text>{{item.documents_name}}</text>
           </view>
         </view>
@@ -104,7 +105,7 @@
     </view>
 
     <view class="flex">
-      <view class="list-card">
+      <view class="list-card" v-if="serviceList&&serviceList.length>0">
         <view class="card-title">
           <view class="title">
             护理内容
@@ -142,7 +143,8 @@
       </view>
     </view>
 
-    <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;" v-if="goodsList&&goodsList.length>0">
+    <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;"
+      v-if="goodsList&&goodsList.length>0">
       <view class="title text-white">
         项目列表
       </view>
@@ -687,11 +689,14 @@
 
     .card-list {
       padding: 15px;
-
+      display: flex;
+      flex-wrap: wrap;
       .list-item {
         padding: 5px 15px;
         position: relative;
-
+        min-width: 40vw;
+        max-width: 50vw;
+        flex: 1;
         &:before {
           content: '';
           width: 4px;
