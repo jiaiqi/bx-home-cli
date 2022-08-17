@@ -1587,7 +1587,10 @@
                 if (Array.isArray(rowButton) && rowButton.length > 0) {
                   detailBtn = rowButton.find(item => item.button_type === 'detail')
                 }
-
+                debugger
+                if(!detailBtn){
+                  return
+                }
                 let toDetail = this.config?.foreign_key?.moreConfig?.clickTarget === 'detail'
                 let customDetailUrl = null
                 if (this.srvMoreConfig) {
