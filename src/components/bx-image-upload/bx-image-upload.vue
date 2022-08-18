@@ -1,10 +1,10 @@
 <template>
-  <view class="u-upload" v-if="!disabled">
+  <view class="u-upload">
     <view v-if="showUploadList" class="u-list-item u-preview-wrap" v-for="(item, index) in lists" :key="index" :style="{
 				width: $u.addUnit(width),
 				height: $u.addUnit(height)
 			}">
-      <view v-if="deletable" class="u-delete-icon" @tap.stop="deleteItem(index)" :style="{
+      <view v-if="!disabled &&deletable" class="u-delete-icon" @tap.stop="deleteItem(index)" :style="{
 					background: delBgColor
 				}">
         <u-icon class="u-icon" :name="delIcon" size="20" :color="delColor"></u-icon>
@@ -36,7 +36,7 @@
 
     </view>
     <!-- #endif -->
-    <view class="add-btn" @tap="selectFile" v-else-if="maxCount > lists.length">
+    <view class="add-btn" @tap="selectFile" v-else-if="!disabled &&maxCount > lists.length">
       <slot name="addBtn"></slot>
       <view v-if="!customBtn" class="u-list-item u-add-wrap" hover-class="u-add-wrap__hover" hover-stay-time="150"
         :style="{

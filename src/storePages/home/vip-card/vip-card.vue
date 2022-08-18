@@ -79,8 +79,12 @@
       },
       setStyle() {
         let style = {}
+        
         if (this.config?.component_bg_img) {
           style.backgroundImage = `url(${this.getImagePath(this.config?.component_bg_img,true)})`
+        }
+        if(this.info?.id&&this.config?.component_bg_img_2){
+          style.backgroundImage = `url(${this.getImagePath(this.config?.component_bg_img_2,true)})`
         }
         if (this.moreConfig?.content_style) {
           style.borderRadius = this.moreConfig?.content_style?.radius

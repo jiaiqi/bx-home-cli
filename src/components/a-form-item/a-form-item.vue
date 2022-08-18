@@ -1406,7 +1406,8 @@
             if (Array.isArray(defaultSelectCondition) && defaultSelectCondition.length > 0) {
               let defaultSelecte = self.selectorData.find(item => {
                 return defaultSelectCondition.every(cond => {
-                  if (cond?.ruleType == 'eq' && item[cond.colName] === cond.value) {
+                  let val = this.renderStr(cond.value,{...this.globalVariable})
+                  if (cond?.ruleType == 'eq' && item[cond.colName] === val) {
                     return true
                   }
                 })

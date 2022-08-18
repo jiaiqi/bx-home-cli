@@ -130,7 +130,7 @@
         </view>
       </view>
     </view>
-   
+
   </view>
 </template>
 
@@ -204,7 +204,8 @@
 
   const typeList = {
     '入库': [
-      '采购入库', '调拨入库', '退货入库', '生产入库'
+      '采购入库', '调拨入库', '退货入库'
+      // , '生产入库'
     ],
     '出库': [
       '调拨出库', '报损出库', '其他出库'
@@ -780,6 +781,10 @@
         const req = {
           "serviceName": "srvhealth_store_treasury_info_select",
           "colNames": ["*"],
+          order: [{
+            colName: 'modify_time',
+            orderType: 'asc'
+          }],
           "condition": [{
             "colName": "parent_no",
             "ruleType": "isnull"

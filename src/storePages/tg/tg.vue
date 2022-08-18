@@ -263,6 +263,9 @@
       },
       getCountDown() {
         // 团购倒计时
+        if(this.tgInfo?.audit_state&&this.tgInfo?.audit_state!=='审核通过'){
+          return '团购已经结束'
+        }
         if(this.tgInfo?.state==='已结束'){
           return '团购已经结束'
         }
