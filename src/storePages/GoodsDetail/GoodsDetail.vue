@@ -1392,7 +1392,9 @@
   }
 
   .desc {
-    color: #aaa;
+    color: #333;
+    font-size: 16px;
+    line-height: 24px;
     padding: 20rpx;
     background-color: #fff;
 

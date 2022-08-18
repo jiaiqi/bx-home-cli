@@ -91,17 +91,17 @@
       <view class="store-name">
         <text>{{ setStoreInfo.name || '' }}</text>
         <view class="store-button">
-          <button class="image-btn sm margin-left" @click.stop="showModal('showQrCode')">
+          <button class="image-btn sm margin-left" @click.stop="showModal('showQrCode')" v-if="showIcon('qrcode')">
             <image class="image"
               :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode:require('../../static/qrcode.png')" mode="">
             </image>
           </button>
-          <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage">
+          <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage&&showIcon('manage')">
             <image class="image"
               :src="pageItem&&pageItem.icon_manager?pageItem.icon_manager:require('../../static/setting.png')" mode="">
             </image>
           </button>
-          <button class="image-btn sm margin-left" @click="showShareDialog">
+          <button class="image-btn sm margin-left" @click="showShareDialog" v-if="showIcon('share')">
             <image class="image"
               :src="pageItem&&pageItem.icon_share?pageItem.icon_share:require('../../static/share.png')" mode="">
             </image>
@@ -267,6 +267,9 @@
     },
 
     computed: {
+      iconDisplay(){
+        return this.pageItem?.more_config?.iconDisplay
+      },
       posterNo() {
         return this.setStoreInfo?.share_bill_pic_no || this.pageItem?.more_config?.posterNo
       },
@@ -361,6 +364,11 @@
       };
     },
     methods: {
+      showIcon(e){
+        if(e&&this.iconDisplay?.[e]!==false){
+          return true
+        }
+      },
       toChangeStore() {
         const listConfig = {
           "lp_style": "单行",
