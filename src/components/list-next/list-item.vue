@@ -719,12 +719,15 @@
               }
               obj.fmt = cfg?.fmt;
               obj.separator = cfg?.separator
-              obj.prefix = cfg?.prefix || '';
-              obj.suffix = cfg?.suffix || '';
+
               obj.valueWhiteSpace = cfg?.white_space;
               obj.event = col.event
               if (col?.col) {
                 let getVal = this.setValue(col.col, col.cfg);
+                if(getVal?.index===0){
+                  obj.prefix = cfg?.prefix || '';
+                  obj.suffix = cfg?.suffix || '';
+                }
                 if (cfg?.disp_label !== false) {
                   obj.label = getVal?.label || '';
                 }
@@ -910,6 +913,10 @@
             obj.event = col.event
             if (col?.col) {
               let getVal = this.setValue(col.col, col.cfg);
+              if(getVal?.index===0){
+                obj.prefix = cfg?.prefix || '';
+                obj.suffix = cfg?.suffix || '';
+              }
               if (cfg?.disp_label !== false) {
                 obj.label = getVal?.label || '';
               }
@@ -1105,8 +1112,9 @@
         let resCol = '';
         for (let i = 0; i < arr.length; i++) {
           let column = arr[i].trim();
-          if (detail[column]) {
+          if (detail[column]||detail[column]==0) {
             resCol = column;
+            res['index'] = i
             break;
           }
         }

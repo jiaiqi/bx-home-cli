@@ -905,12 +905,12 @@
                 }
               });
             }
-            if(['due_date','id_num','reserve_start_date','reserve_end_date','service_people_no'].includes(item.column)){
-              debugger
-            }
+            
+            // if(['due_date','id_num','reserve_start_date','reserve_end_date','service_people_no'].includes(item.column)){
+            // }
+            
             if (item.column === 'due_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
                 .indexOf('预产期') !== -1)) {
-                  debugger
               item.display = true
               item.in_add = 1
             }

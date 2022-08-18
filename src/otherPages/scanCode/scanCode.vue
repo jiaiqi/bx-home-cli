@@ -39,6 +39,7 @@
   export default {
     data() {
       return {
+        goods_num:null,
         show: true,
         uuid: '',
         bar_code: "",
@@ -46,6 +47,9 @@
       }
     },
     onLoad(option) {
+      if(option.goods_num){
+        this.goods_num = option.goods_num
+      }
       if (option.bar_code && option.uuid) {
         this.uuid = option.uuid
         this.bar_code = option.bar_code
@@ -74,16 +78,12 @@
         })
       },
       scancode(e) {
-        if (!this.list.find(i => i == e.detail?.result)) {
-          uni.showToast({
-            title: '扫码成功!',
-            icon: 'none'
-          })
+        if(this.list.length>=this.goods_num){
           var plugin = requirePlugin("WechatSI")
           plugin.textToSpeech({
             lang: "zh_CN",
             tts: true,
-            content: `扫码成功`,
+            content: `无法继续扫码,如要继续，请点击确认后再上一级页面添加商品数量`,
             success: function(res) {
               const innerAudioContext = uni.createInnerAudioContext();
               innerAudioContext.autoplay = true;
@@ -91,31 +91,30 @@
               innerAudioContext.play()
             }
           })
-          // uni.vibrateShort()
+        }else if (this.list.length<this.goods_num && !this.list.find(i => i == e.detail?.result)) {
+          uni.showToast({
+            title: '扫码成功!',
+            icon: 'none'
+          })
           this.list.unshift(e.detail.result)
+          var plugin = requirePlugin("WechatSI")
+          plugin.textToSpeech({
+            lang: "zh_CN",
+            tts: true,
+            content: `扫码${this.list.length}件`,
+            success: function(res) {
+              const innerAudioContext = uni.createInnerAudioContext();
+              innerAudioContext.autoplay = true;
+              innerAudioContext.src = res.filename
+              innerAudioContext.play()
+            }
+          })
         } else {
           uni.showToast({
             title: '重复扫码!',
             icon: 'none'
           })
-          // uni.vibrateLong()
         }
-
-        // if (e.detail) {
-        //   this.show = false
-        //   uni.showModal({
-        //     title: '提示',
-        //     content: `内容：${e.detail.result};类型：${e.detail.type}`,
-        //     success: (res) => {
-        //       if (res.confirm) {
-        //         this.list.push(e.detail.result)
-        //       }
-        //     },
-        //     complete: () => {
-        //       this.show = true
-        //     }
-        //   })
-        // }
       }
     }
   }

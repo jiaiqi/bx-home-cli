@@ -80,8 +80,8 @@
       },
       toStore() {
         if (this.storeNo) {
-          uni.navigateTo({
-            url: `/pages/home/home?store_no=${this.storeNo}&invite_user_no=${this.invite_user_no || 'jiaqi'}`
+          uni.redirectTo({
+            url: `/pages/home/home?store_no=${this.storeNo}&invite_user_no=${this.invite_user_no}`
           })
         }
 

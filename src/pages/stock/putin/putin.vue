@@ -595,7 +595,7 @@
         if (!this.scanList[e.bar_code]) {
           this.scanList[e.bar_code] = []
         }
-        let url = `/otherPages/scanCode/scanCode?uuid=${uuid}&bar_code=${e.bar_code}`
+        let url = `/otherPages/scanCode/scanCode?goods_num=${e.goods_num}&uuid=${uuid}&bar_code=${e.bar_code}`
         if (Array.isArray(this.scanList[e.bar_code]) && this.scanList[e.bar_code].length > 0) {
           url += `&list=${JSON.stringify(this.scanList[e.bar_code])}`
         }
@@ -607,13 +607,6 @@
               if (data.uuid === uuid && data.bar_code && data.list) {
                 if (Array.isArray(data.list)) {
                   this.scanList[e.bar_code] = data.list
-                  // let list = this.scanList[e.bar_code] || []
-                  // data.list.forEach(item => {
-                  //   if (!list.find(code => code === item)) {
-                  //     list.push(item)
-                  //   }
-                  // })
-                  // this.scanList[e.bar_code] = list
                   this.selectedGoods = this.selectedGoods.map((item, index) => {
                     if (item.bar_code === e.bar_code) {
                       item.scan_num = data.list.length

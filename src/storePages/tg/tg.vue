@@ -136,7 +136,7 @@
         </view>
       </view>
 
-      <view class="button-box" v-if="type==='view'">
+      <view class="button-box" v-if="type==='view'&&tgInfo.state!=='已结束' && countDown!=='团购已经结束'">
         <button class="cu-btn bg-red" open-type="share">立即分享</button>
       </view>
     </view>
@@ -263,6 +263,9 @@
       },
       getCountDown() {
         // 团购倒计时
+        if(this.tgInfo?.state==='已结束'){
+          return '团购已经结束'
+        }
         let start = this.tgInfo?.activity_statr_datetime
         let end = this.tgInfo?.activity_end_datetime
         if (start && end) {
@@ -370,6 +373,13 @@
         this.$http.post(url, req).then(res => {
           if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
             this.tgInfo = res.data.data[0]
+            if(this.tgInfo?.state==='已结束'){
+              uni.showModal({
+                title:'提示',
+                content:'当前团购已结束',
+                showCancel:false
+              })
+            }
             this.getJoinMember()
             if (this.tgInfo?.dumpling_no) {
               this.getTgGoods()
