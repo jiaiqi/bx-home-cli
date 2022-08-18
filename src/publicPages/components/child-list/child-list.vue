@@ -1098,6 +1098,33 @@
         })
         return result
       },
+      buildAllData() {
+        // 除了已删除的其它所有数据
+        let fk = this.foreignKey
+        let list = this.finalListData.filter(item => !['delete'].includes(item._dirtyFlags))
+        if (list.length === 0) {
+          return []
+        }
+        list = this.deepClone(list)
+        list = this.deepClone(list)
+        let params = list.map((item, index) => {
+          let row = this.localListData[index]
+          Object.keys(row).forEach(key => {
+            if (row[key] === item[key]) {
+              delete item[key]
+            }
+          })
+          return {
+            serviceName: this.updateService,
+            data: [item],
+          }
+        })
+        return params
+        // return {
+        //   constraint_name: this.foreignKey?.constraint_name,
+        //   list
+        // }
+      },
       buildDeleteParams() {
         let fk = this.foreignKey
         let deleteList = this.listData.filter(item => item._dirtyFlags === 'delete')
@@ -1413,35 +1440,6 @@
         this.modalName = ''
       },
 
-      // async handleCalc(triggerField) {
-      //   const table_name = this.curV2?.main_table
-      //   if (!table_name) {
-      //     debugger
-      //     return
-      //   }
-      //   const column = triggerField?.column
-      //   let calcResult = {}
-      //   let fieldModel = this.allFields.reduce((res, cur) => {
-      //     res[cur.column] = cur.value
-      //     return res
-      //   }, {})
-      //   let calcCols = this.allFields.filter(item => item.redundant?.func && Array.isArray(item
-      //     .calc_trigger_col) && item.calc_trigger_col.includes(column)).map(item => item.column)
-      //   if (Array.isArray(calcCols) && calcCols.length > 0) {
-      //     calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.appName)
-      //   }
-      //   for (let i = 0; i < this.allFields.length; i++) {
-      //     const item = this.allFields[i]
-      //     if (calcResult?.response && calcResult.response[item.column]) {
-      //       item.value = calcResult?.response[item.column]
-      //       // this.valueChange(fieldModel, item)
-      //       this.$set(this.allFields, i, item)
-      //       await this.handleCalc()
-      //     }
-      //   }
-      //   return calcResult
-      // },
-
       async updateValueChange(e, triggerField) {
         const column = triggerField.column
         let fieldModel = e
@@ -1588,7 +1586,7 @@
                   detailBtn = rowButton.find(item => item.button_type === 'detail')
                 }
                 debugger
-                if(!detailBtn){
+                if (!detailBtn) {
                   return
                 }
                 let toDetail = this.config?.foreign_key?.moreConfig?.clickTarget === 'detail'

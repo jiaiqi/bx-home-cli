@@ -210,6 +210,7 @@
       },
       toOrder(e) {
         let goodsInfo = {
+          ...e,
           goods_name: e.goods_name,
           goods_no: e.goods_no,
           price: e.service_goods_price,
@@ -238,6 +239,11 @@
             display: false
           }
         ]
+        this.$store.commit('SET_STORE_CART', {
+          storeInfo: this.storeInfo,
+          store_no: this.storeInfo.store_no,
+          list: [goodsInfo]
+        });
         let url =
           `/storePages/placeOrder/placeOrder?store_no=${this.storeInfo.store_no}&order_type=服务&show_params_config=服务场地,服务人员&wxMchId=${this.getwxMchId()}&goods_info=${JSON.stringify(goodsInfo)}&fieldsCond=${JSON.stringify(fieldsCond)}`
         uni.navigateTo({

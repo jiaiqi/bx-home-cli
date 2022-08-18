@@ -35,7 +35,7 @@
       <view class="" v-if="hideChildTable">
 
       </view>
-      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'" v-else-if="stepMode">
+      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'&&colsV2Data && isArray(fields)&&fields.length>0" v-else-if="stepMode">
         <view class="change-child">
           <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="curChild"
             @change="radioChange">
@@ -503,17 +503,31 @@
               }
               let data = this.deepClone(req);
               data.child_data_list = []
+              let dbData =  {
+                child_data_list:[]
+              }
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0 && !this.hideChildTable) {
                 this.childService.forEach((item, index) => {
-                  let child_data = this.$refs.childList[index].getChildDataList()
-                  data.child_data_list.push(...child_data)
+                  
+                  const child_data = this.$refs.childList[index].getChildDataList()
+                  if(Array.isArray(child_data)&&child_data.length>0){
+                    data.child_data_list.push(...child_data)
+                  }
+                  
+                  const datas = this.$refs.childList[index].buildAllData()
+                  if(Array.isArray(datas)&&datas.length>0){
+                    dbData.child_data_list.push(datas)
+                  }
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
+              
+              debugger
+              
               if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
                 let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
-                let validateRes = await this.handleSubmitValidate(submit_validate, data)
+                let validateRes = await this.handleSubmitValidate(submit_validate, dbData)
                 if (validateRes == false) {
                   return
                 }
