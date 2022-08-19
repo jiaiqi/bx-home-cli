@@ -964,6 +964,10 @@
             margin-bottom: 10rpx;
             margin-right: 20rpx;
           }
+          .value{
+            flex: 1;
+            
+          }
         }
       }
     }

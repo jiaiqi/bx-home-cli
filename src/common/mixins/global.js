@@ -517,6 +517,7 @@ export default {
 
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
+      
       if (storeInfo?.store_no) {
         // 3. 店铺用户信息查找
         await this.getStoreUser_()
@@ -540,7 +541,7 @@ export default {
         }
       };
       if (this.storeInfo?.store_no === this.curStoreNo) {
-        return
+        return this.storeInfo
       }
       let serviceName = 'srvhealth_store_list_select';
       // serviceName = 'srvhealth_store_mgmt_select'
@@ -736,7 +737,6 @@ export default {
           await this.updateStoreUser(data)
         }
       }
-
       if (this.userInfo?.no && storeNo) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {
@@ -766,7 +766,6 @@ export default {
             return res.data.data;
           } else if (res.data.data.length == 0) {
             // 没有查找到店铺用户
-            debugger
             await this.add2Store()
             await this.getStoreUser_()
           }

@@ -216,7 +216,8 @@
         <view class="operate" hover-class="active" @click="numberChange('add')" @longpress="longpressNumChange('add')"
           @touchend="longpressNumEnd">+</view>
       </view>
-      <bx-media-upload class="form-item-content_value image" :value="imagesUrl" :mediaType="fieldData.mediaType"
+      <bx-media-upload class="form-item-content_value image" :min-ratio="fieldData.minRatio"
+        :max-ratio="fieldData.maxRatio" :file-no="fieldData.value" :value="imagesUrl" :mediaType="fieldData.mediaType"
         :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
         @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"
@@ -1406,7 +1407,9 @@
             if (Array.isArray(defaultSelectCondition) && defaultSelectCondition.length > 0) {
               let defaultSelecte = self.selectorData.find(item => {
                 return defaultSelectCondition.every(cond => {
-                  let val = this.renderStr(cond.value,{...this.globalVariable})
+                  let val = this.renderStr(cond.value, {
+                    ...this.globalVariable
+                  })
                   if (cond?.ruleType == 'eq' && item[cond.colName] === val) {
                     return true
                   }

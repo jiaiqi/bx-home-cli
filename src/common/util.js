@@ -203,7 +203,7 @@ export default {
 
         if (item.more_config && typeof item.more_config === 'string') {
           try {
-            fieldInfo.moreConfig = JSON.parse(item.more_config) 
+            fieldInfo.moreConfig = JSON.parse(item.more_config)
             let data = {
               time: { //时间选择器
                 "beforeQuarterOfHour": dayjs().subtract(15, 'minute').format('HH:mm'), //15分钟之前
@@ -234,6 +234,14 @@ export default {
             } else if (fieldInfo.moreConfig.min && typeof fieldInfo.moreConfig.min === 'string' && fieldInfo
               .moreConfig.min.indexOf("${") > -1) {
               fieldInfo.min = Vue.prototype.renderStr(fieldInfo.moreConfig.min, data)
+            }
+
+            if (fieldInfo.moreConfig?.minWidthHeightRatio) {
+              fieldInfo.minmaxRatio = fieldInfo.moreConfig?.minWidthHeightRatio
+            }
+
+            if (fieldInfo.moreConfig?.maxWidthHeightRatio) {
+              fieldInfo.maxmaxRatio = fieldInfo.moreConfig?.maxWidthHeightRatio
             }
 
           } catch (e) {
@@ -339,7 +347,7 @@ export default {
             appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
               .table_name.indexOf("_"))
           }
-        } else if (["Image","image"].includes(item.col_type )) {
+        } else if (["Image", "image"].includes(item.col_type)) {
           // } else if (item.col_type === "Image" || item.col_type === "FileList") {
           fieldInfo.type = "images"
           if (item.table_name) {

@@ -752,8 +752,6 @@
           }
           // if (type === 'add') {
           fields = colVs._fieldInfo.map(field => {
-
-
             if (field.type === 'Set' && Array.isArray(field.option_list_v2)) {
               field.option_list_v2 = field.option_list_v2.map(item => {
                 item.checked = false;

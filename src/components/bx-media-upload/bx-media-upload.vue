@@ -1,6 +1,15 @@
 <template>
   <view class="image-video-box">
     <template class="" v-if="enableAdd||enableDel">
+      <view class="media-select-box" v-for="item in uploadFiles" v-if="mediaType">
+        <image class="media" :src="item.fileUrl" mode="aspectFill" v-if="['png','jpg','gif'].includes(item.file_type)"
+          @click.stop=" toPreviewImage(item.fileUrl)">
+        </image>
+        <video class="media" :controls="false" :show-center-play-btn="false" @click.stop="toOpenVideo(item)"
+          :src="item.fileUrl" mode="aspectFill" v-if="['mp4'].includes(item.file_type) "></video>
+        <text class="cuIcon-playfill icon" v-if="['mp4'].includes(item.file_type) "
+          @click.stop="toOpenVideo(item)"></text>
+      </view>
       <view class="media-select-box" v-for="item in tempFiles" v-if="mediaType">
         <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
         <image class="media" :src="item.thumbTempFilePath" mode="aspectFill" v-else-if="item.fileType==='video'">
@@ -37,7 +46,7 @@
   export default {
     name: "bx-media-upload",
     props: ['value', 'enableDel', 'enableAdd', 'enableDrag', 'serverUrl', 'formData', 'header', 'limit', 'fileKeyName',
-      'showUploadProgress', 'serverUrlDeleteImage', 'eventType', 'fileNo', "mediaType"
+      'showUploadProgress', 'serverUrlDeleteImage', 'eventType', 'fileNo', "mediaType", 'minRatio', 'maxRatio'
     ],
     data() {
       return {
@@ -64,6 +73,7 @@
         }
         if (this.fileNo) {
           let response = await this.$http.post(url, req);
+
           if (response.data.state === 'SUCCESS' && response.data.data.length > 0) {
 
             let data = response.data.data.map(item => {
@@ -90,7 +100,30 @@
       },
       uploadMedia(tempFiles) {
         const _self = this
+
         if (this.serverUrl && Array.isArray(tempFiles) && tempFiles.length > 0) {
+          if (tempFiles[0]?.width && tempFiles[0]?.height) {
+            let ratio = tempFiles[0]?.width / tempFiles[0]?.height
+            debugger
+            if (this.minRatio && this.minRatio > ratio) {
+              uni.showModal({
+                title: '提示',
+                content: `视频宽高比例必须大于${this.minRatio}`,
+                showCancel: false
+              })
+              return
+            }
+
+            if (this.maxRatio && this.maxRatio < ratio) {
+              uni.showModal({
+                title: '提示',
+                content: `视频宽高比例必须小于${this.maxRatio}`,
+                showCancel: false
+              })
+              return
+            }
+
+          }
           var promiseWorkList = [];
           uni.showLoading({
             title: '上传中...',
