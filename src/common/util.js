@@ -237,11 +237,19 @@ export default {
             }
 
             if (fieldInfo.moreConfig?.minWidthHeightRatio) {
-              fieldInfo.minmaxRatio = fieldInfo.moreConfig?.minWidthHeightRatio
+              // 视频上传限制最小宽高比例
+              fieldInfo.minRatio = Number(fieldInfo.moreConfig?.minWidthHeightRatio)
+              if(isNaN(fieldInfo.minRatio)){
+                fieldInfo.minRatio = null
+              }
             }
 
             if (fieldInfo.moreConfig?.maxWidthHeightRatio) {
-              fieldInfo.maxmaxRatio = fieldInfo.moreConfig?.maxWidthHeightRatio
+              // 视频上传限制最大宽高比例
+              fieldInfo.maxRatio = Number(fieldInfo.moreConfig?.maxWidthHeightRatio)
+              if(isNaN(fieldInfo.maxRatio)){
+                fieldInfo.maxRatio = null
+              }
             }
 
           } catch (e) {

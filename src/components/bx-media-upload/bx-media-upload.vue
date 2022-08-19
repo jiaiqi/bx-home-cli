@@ -102,28 +102,7 @@
         const _self = this
 
         if (this.serverUrl && Array.isArray(tempFiles) && tempFiles.length > 0) {
-          if (tempFiles[0]?.width && tempFiles[0]?.height) {
-            let ratio = tempFiles[0]?.width / tempFiles[0]?.height
-            debugger
-            if (this.minRatio && this.minRatio > ratio) {
-              uni.showModal({
-                title: '提示',
-                content: `视频宽高比例必须大于${this.minRatio}`,
-                showCancel: false
-              })
-              return
-            }
 
-            if (this.maxRatio && this.maxRatio < ratio) {
-              uni.showModal({
-                title: '提示',
-                content: `视频宽高比例必须小于${this.maxRatio}`,
-                showCancel: false
-              })
-              return
-            }
-
-          }
           var promiseWorkList = [];
           uni.showLoading({
             title: '上传中...',
@@ -217,8 +196,30 @@
                   width: res.width,
                   name: res.name
                 }
-                self.tempFiles = [...self.tempFiles, obj]
+
+                if (res?.width && res?.height) {
+                  let ratio = res?.width / res?.height
+                  if (self.minRatio && self.minRatio > ratio) {
+                    uni.showModal({
+                      title: '提示',
+                      content: `视频宽高比例必须大于${self.minRatio}`,
+                      showCancel: false
+                    })
+                    return
+                  }
+
+                  if (self.maxRatio && self.maxRatio < ratio) {
+                    uni.showModal({
+                      title: '提示',
+                      content: `视频宽高比例必须小于${self.maxRatio}`,
+                      showCancel: false
+                    })
+                    return
+                  }
+                }
+
                 self.uploadMedia([obj])
+                self.tempFiles = [...self.tempFiles, obj]
                 resolve([obj]) // 数组
               }
             });
@@ -241,6 +242,29 @@
                 }
                 return obj
               })
+
+              if (arr[0]?.width && arr[0]?.height) {
+                let ratio = arr[0]?.width / arr[0]?.height
+                if (self.minRatio && self.minRatio > ratio) {
+                  uni.showModal({
+                    title: '提示',
+                    content: `视频宽高比例必须大于${self.minRatio}`,
+                    showCancel: false
+                  })
+                  return
+                }
+
+                if (self.maxRatio && self.maxRatio < ratio) {
+                  uni.showModal({
+                    title: '提示',
+                    content: `视频宽高比例必须小于${self.maxRatio}`,
+                    showCancel: false
+                  })
+                  return
+                }
+
+              }
+
               self.tempFiles = [...self.tempFiles, ...arr]
               // self.uploadMedia(arr)
               resolve(arr) // 数组
@@ -254,13 +278,41 @@
         return new Promise(resolve => {
           uni.chooseMedia({
             count: 9,
-            mediaType: this.mediaType || ['image', 'video'],
+            mediaType: self.mediaType || ['image', 'video'],
             sourceType: ['album', 'camera'],
             maxDuration: 30,
             camera: 'back',
             success(res) {
+              
               console.log(res.type) // 文件类型，有效值有 image 、video、mix
               console.log(res.tempFiles) // 文件类型，有效值有 image 、video、mix
+              
+              if (Array.isArray(res.tempFiles) && res.tempFiles.length > 0) {
+                
+                if (res.tempFiles[0]?.width && res.tempFiles[0]?.height) {
+                  
+                  let ratio = res.tempFiles[0]?.width / res.tempFiles[0]?.height
+                  
+                  if (self.minRatio && self.minRatio > ratio) {
+                    uni.showModal({
+                      title: '提示',
+                      content: `视频宽高比例必须大于${self.minRatio}`,
+                      showCancel: false
+                    })
+                    return
+                  }
+
+                  if (self.maxRatio && self.maxRatio < ratio) {
+                    uni.showModal({
+                      title: '提示',
+                      content: `视频宽高比例必须小于${self.maxRatio}`,
+                      showCancel: false
+                    })
+                    return
+                  }
+
+                }
+              }
               self.tempFiles = [...self.tempFiles, ...res.tempFiles]
               self.uploadMedia(res.tempFiles)
               resolve(res.tempFiles) // 数组 
