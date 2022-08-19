@@ -4,7 +4,17 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "prepare": "npx husky install",
+    "lint": "lint-staged",
+    "release": "standard-version",
+    "commit": "git add . && npm lint && git cz",
+    "genlog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog-zh"
+    }
   },
   "repository": {
     "type": "git",

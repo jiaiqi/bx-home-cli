@@ -130,5 +130,6 @@
             "postcss" : true,
             "minified" : true
         }
-    }
+    },
+    "locale" : "zh-Hans"
 }

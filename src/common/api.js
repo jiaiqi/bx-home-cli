@@ -32,27 +32,24 @@ let conf = {
     frontPath: "https://login.100xsys.cn:1443/health/#/",
   },
   "custom": {
-    // // 陕西省软件行业协会
     // serviceAddress: "https://srvms.100xsys.cn",
+    // file: "https://file.100xsys.cn",
+    // ws: "wss://srvms.100xsys.cn:8081",
+    // frontPath: "https://wx2.100xsys.cn/health/#/",
+    
+    
+    // // 陕西省软件行业协会
     // appNo: "APPNO20220302164231",
     // appId: "wx0c82edeb3cdd554e",
-    // ws: "wss://srvms.100xsys.cn:8081",
-    // file: "https://file.100xsys.cn",
     // // serviceAddress: "http://192.168.0.241:8080", // 内网
-    // frontPath: "https://wx2.100xsys.cn/health/#/",
     // singleStore: true,
     // storeNo: 'S20210517043',
     // customQrcodeFolder: 'rjxh',
     // miniProgramName: "陕西省软件行业协会",
 
     // // 弥月妈妈
-    // serviceAddress: "https://srvms.100xsys.cn",
     // appNo: "APPNO20220401101144",
     // appId: "wxd1c976c54f57c493",
-    // ws: "wss://srvms.100xsys.cn:8081",
-    // file: "https://file.100xsys.cn",
-    // // serviceAddress: "http://192.168.0.241:8080", // 内网
-    // frontPath: "https://wx2.100xsys.cn/health/#/",
     // singleStore: true,
     // storeNo: 'S2203220104',
     // customQrcodeFolder: 'mymm',
@@ -60,18 +57,22 @@ let conf = {
     // miniProgramName: "弥月妈妈母婴智慧创业圈",
 
     // 易企跑
-    serviceAddress: "https://srvms.100xsys.cn",
+    // appNo: "APPNO20220614113855",
+    // appId: "wx94525ef9e15a3f28",
+    // singleStore: true,
+    // storeNo: 'S2207010001',
+    // customQrcodeFolder: 'yqpqf',
+    // // wxMchId:"1617830911",//微信商户号
+    // miniProgramName: "易企跑企服",
+    
+    // 产康
     appNo: "APPNO20220614113855",
-    appId: "wx94525ef9e15a3f28",
-    ws: "wss://srvms.100xsys.cn:8081",
-    file: "https://file.100xsys.cn",
+    appId: "wxfba5fb42d052300f",
     // serviceAddress: "http://192.168.0.241:8080", // 内网
-    frontPath: "https://wx2.100xsys.cn/health/#/",
-    singleStore: true,
     storeNo: 'S2207010001',
-    customQrcodeFolder: 'yqpqf',
+    // customQrcodeFolder: 'yqpqf',
     // wxMchId:"1617830911",//微信商户号
-    miniProgramName: "易企跑企服",
+    miniProgramName: "芊芊坊护乳产康",
   }
 }
 
