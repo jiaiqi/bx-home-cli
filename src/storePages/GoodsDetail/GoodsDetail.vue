@@ -18,7 +18,7 @@
           v-else-if="!item.store_video_file || item.file_type !== '视频'"></image>
       </swiper-item>
     </swiper>
-    <view class="share-banner" v-if="showShareBanner&&shareBonus" @click="changeModal('showShareTips')">
+    <view class="share-banner" v-if="!disabled && showShareBanner&&shareBonus" @click="changeModal('showShareTips')">
       <image src="../static/bonus.png" mode="aspectFill" style="width: 30px;height: 30px;" class="margin-right-xs">
       </image> 分享赚￥<text class="text-lg text-bold">{{shareBonus}}</text>
     </view>
@@ -124,13 +124,13 @@
           </button>
         </view>
         <view class="button-right" v-if="buttonCfg.right&&buttonCfg.right.length>0">
-          <button class="cu-btn  shadow-blur round" v-for="(item,index) in buttonCfg.right"
+          <button :disabled="disabled" class="cu-btn  shadow-blur round" v-for="(item,index) in buttonCfg.right"
             :class="{'bg-orange':item.type==='place_order','bg-red':item.type==='add_to_cart'}" :key="index"
             @click="clickBtn(item)">{{ item.button_name }}</button>
         </view>
       </view>
       <view class="right-btn" v-else-if="!hideButton">
-        <button class="full bg-orange" @click="clickBtn">
+        <button class="full bg-orange" @click="clickBtn" :disabled="disabled">
           <text v-if="moreConfig && moreConfig.button_name">{{ moreConfig.button_name }}</text>
           <text v-else>立即购买</text>
         </button>
@@ -186,6 +186,7 @@
     },
     data() {
       return {
+        disabled:false,
         qrcodeText:"",
         isPYQ: false,
         current: 0,
@@ -1264,6 +1265,9 @@
       };
     },
     async onLoad(option) {
+      if(option.disabled){
+        this.disabled = true
+      }
       console.log("options", option)
       let scene = this.$store?.state?.app?.scene;
       if (scene === 1154) {

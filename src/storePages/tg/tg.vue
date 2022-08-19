@@ -72,12 +72,12 @@
             @click="changeCheck(index)">
             <radio :checked="item.checked" /><text></text>
           </view>
-          <image :src="getImagePath(item.goods_img)" class="goods-image" mode="" @click="changeCheck(index)"></image>
+          <image :src="getImagePath(item.goods_img)" class="goods-image" mode="aspectFill"  @click.stop="toDetail(item)"></image>
           <view class="goods-info">
-            <view class="" @click="changeCheck(index)">
+            <view class="" @click.stop="toDetail(item)">
               商品名称:{{item.goods_name||''}}
             </view>
-            <view class="text-sm " style="display: flex;justify-content: space-between;align-items: center;">
+            <view class="text-sm " style="display: flex;justify-content: space-between;align-items: center;"  @click.stop="toDetail(item)">
               <!--    <view class="">
                 规格：100g
               </view> -->
@@ -93,7 +93,7 @@
                 x {{item.amount}}
               </view>
             </view>
-            <view class="price" v-if="type==='default'">
+            <view class="price" v-if="type==='default'"  @click.stop="toDetail(item)">
               <view class="">
                 <text class="text-red margin-right-xs" v-if="item.group_price">￥{{item.group_price}}</text>
                 <text class="text-gray line-through text-sm " v-if="item.price"><text
@@ -196,6 +196,14 @@
       }
     },
     methods: {
+      toDetail(e){
+        // 团购商品 进入商品详情 禁用
+        if(e?.goods_no){
+          uni.navigateTo({
+            url:`/storePages/GoodsDetail/GoodsDetail?goods_no=${e.goods_no}&disabled=true`
+          })
+        }
+      },
       onBackHome() {
         let url = `/storePages/home/home?store_no=S0000000000`
         if (this.storeNo) {
