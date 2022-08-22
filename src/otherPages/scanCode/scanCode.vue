@@ -83,7 +83,7 @@
           plugin.textToSpeech({
             lang: "zh_CN",
             tts: true,
-            content: `无法继续扫码,如要继续，请点击确认后再上一级页面添加商品数量`,
+            content: `无法继续扫码,如要继续，请点击确认后在上一级页面添加商品数量`,
             success: function(res) {
               const innerAudioContext = uni.createInnerAudioContext();
               innerAudioContext.autoplay = true;

@@ -89,7 +89,10 @@
         if (this.moreConfig?.content_style) {
           style.borderRadius = this.moreConfig?.content_style?.radius
           style.color = this.moreConfig?.content_style?.color
-          style.minHeight = this.moreConfig?.content_style?.height
+          let height = parseInt(this.moreConfig?.content_style?.height);
+          if(height){
+            style.minHeight = uni.upx2px(height*2) + 'px'
+          }
         }
         return style
       },
