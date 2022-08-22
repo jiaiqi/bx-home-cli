@@ -402,33 +402,35 @@
         // this.$emit('value-blur', this.fieldModel,fieldData);
       },
       onReset() {
+        let self = this
         if (Array.isArray(this.oldField) && this.oldField.length > 0) {
           this.allField = this.oldField.map((item, index) => {
             this.$refs.fitem[index].fieldData.value = item.value;
             this.fieldModel[item.columns] = item.value
             console.log('onReset', item.column, item.value)
-            if (this.pageType === 'filter') {
+            self.$refs.fitem[index]?.$refs?.optionSelector?.onreset?.()
+            if (self.pageType === 'filter') {
               if (item.defaultValue) {
                 item.value = item.defaultValue
               } else if (item.type === 'Selector') {
                 item.value = ''
-                if (this.fieldModel[item.columns]) {
-                  this.fieldModel[item.columns] = ''
+                if (self.fieldModel[item.columns]) {
+                  self.fieldModel[item.columns] = ''
                 }
-                this.$refs.fitem[index].refresh()
+                self.$refs.fitem[index].refresh()
               } else if (item.type === 'TreeSelector') {
                 item.value = ''
                 item.colData = null
-                if (this.fieldModel[item.columns]) {
-                  this.fieldModel[item.columns] = ''
+                if (self.fieldModel[item.columns]) {
+                  self.fieldModel[item.columns] = ''
                 }
-                this.$refs.fitem[index]?.reset?.()
+                self.$refs.fitem[index]?.reset?.()
               }
             }
             if (item.type === 'Set') {
-              this.$refs.fitem[index].initSetOptions()
+              self.$refs.fitem[index].initSetOptions()
             }
-            this.$set(this.allField, index, item);
+            self.$set(self.allField, index, item);
             return item;
           });
           return true;

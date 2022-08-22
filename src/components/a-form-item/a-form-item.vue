@@ -276,7 +276,7 @@
       }" @click="hideModal" @touchmove.prevent.stop="" v-if="fieldData&&fieldData.col_type!=='Enum'">
       <view class="cu-dialog" @tap.stop="">
         <!-- <fk-selector :srvApp="srvApp" :fields-model="fieldsModel" :option-cfg="fieldData.option_list_v2"></fk-selector> -->
-        <option-selector :has-next="hasNext" :modalName="modalName"
+        <option-selector ref='optionSelector' :has-next="hasNext" :modalName="modalName"
           :show-search="fieldData.showSearch!==false&&modalName === 'Selector'" :options="radioOptions"
           :selectType="selectType" @load-more="nextPage()" @hide="hideModal()" @search="searchFKDataWithKey"
           @refresh="refresh()" @toFkAdd="toFkAdd" @change="pickerChange($event,'Selector')">

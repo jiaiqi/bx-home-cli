@@ -101,6 +101,9 @@
       selectorInput(e) {
         this.otherNodeVal = e?.detail?.value
       },
+      onreset(){
+        this.curVal = ''
+      },
       onChange(e) {
         this.curVal = e
         if (e == '__others') {} else {

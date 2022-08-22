@@ -1772,7 +1772,7 @@
           return item
         })
         colVs.rowData = row
-        if (Array.isArray(colVs.formButton) && colVs.formButton.length > 0 && this.use_type === "detaillist") {
+        if (Array.isArray(colVs.formButton) && colVs.formButton.length > 0) {
           colVs.formButton = colVs.formButton.map(item => {
             if (item.button_type === 'reset') {
               let rowButton = this.v2Data?.rowButton
