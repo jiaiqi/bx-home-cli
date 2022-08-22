@@ -820,6 +820,68 @@
             break
           }
           switch (item.type) {
+            case 'data-empty':
+            case 'no-repeat':
+              // 校验重复数据及空数据
+              // data-empty:没有数据时不通过；no-repeat：有数据时不通过
+              const service = item.service
+              let condition = []
+              if (Array.isArray(item.condition)) {
+                condition = item.condition.map(cond => {
+                  let obj = {
+                    colName: cond.colName,
+                    ruleType: cond.ruleType,
+                    value: ''
+                  }
+                  if (cond?.value?.value_type === 'variable' && cond?.value?.value) {
+                    obj.value = this.renderStr(cond?.value?.value, globalData)
+                  } else if (cond?.value?.value_type === 'rowData') {
+                    obj.value = data[cond?.value?.value_key]
+                  } else if (cond?.value?.value_type === 'constant') {
+                    obj.value = cond?.value?.value
+                  }
+                  return obj
+                })
+              }
+              
+              const app = item?.app || this.appName || uni.getStorageSync('activeApp')
+              
+              let url = this.getServiceUrl(app, service, 'select');
+              
+              let req = {
+                "serviceName": service,
+                "condition": condition,
+                colNames: ['*'],
+                page: {
+                  pageNo: 1,
+                  rownumber: 1
+                }
+              }
+              let res = await this.$http.post(url, req)
+              if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+                let noPass = false
+                if (item.type === 'no-repeat') {
+                  if (res.data.data.length > 0) {
+                    num++
+                    noPass = true
+                  }
+                } else {
+                  if (res.data.data.length <= 0) {
+                    num++
+                    noPass = true
+                  }
+                }
+                if (noPass && item.fail_tip) {
+                  res = false
+                  uni.showModal({
+                    title: '提示',
+                    content: item.fail_tip,
+                    showCancel: false
+                  })
+                }
+              }
+
+              break;
             case 'id_no':
               if (!this.userInfo?.id_no) {
                 res = false
