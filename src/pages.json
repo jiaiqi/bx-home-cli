@@ -9,21 +9,20 @@
     }
   }],
   "subPackages": [
-    {
-      "root": "pages/home",
-      "pages":[
-        
-      {
-                    "path" : "index",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
-    },
+    // {
+    //   "root": "pages/home",
+    //   "pages": [
+
+    //     {
+    //       "path": "index",
+    //       "style": {
+    //         "navigationBarTitleText": "",
+    //         "enablePullDownRefresh": false
+    //       }
+
+    //     }
+    //   ]
+    // },
     {
       "root": "publicPages",
       "pages": [{

@@ -1,5 +1,5 @@
 <template>
-  <view class="page-wrap">
+  <view class="page-wrap" @selectstart="()=>false">
     <view class="title">
       {{data.policy_title||''}}
     </view>
@@ -62,7 +62,8 @@
         申报对象条件
       </view>
       <view class="content-content">
-        <textarea :auto-height="true" :value="data.declaration_cond" :disabled="true"></textarea>
+        <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" style=" user-select: none;" :value="data.declaration_cond" class="no-select"
+          readonly :disabled="true"></textarea>
         <!--   <mp-html :content="data.declaration_cond.replace(/\<img/gi, '<img width=100%')" /> -->
       </view>
     </view>
@@ -71,7 +72,8 @@
         补贴标准
       </view>
       <view class="content-content">
-        <textarea :auto-height="true" :value="data.subsidy_standard" :disabled="true"></textarea>
+        <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" :value="data.subsidy_standard" class="no-select" readonly
+          :disabled="true"></textarea>
       </view>
     </view>
     <view class="content-card">
@@ -79,7 +81,7 @@
         政策依据
       </view>
       <view class="content-content">
-        <textarea :auto-height="true" :value="data.policy_basis" :disabled="true"></textarea>
+        <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" :value="data.policy_basis" class="no-select" readonly :disabled="true"></textarea>
       </view>
     </view>
 
@@ -214,9 +216,21 @@
 
     .content-content {
       padding: 10px;
-      textarea{
+      position: relative;
+      &::after{
+        position: absolute;
+        content: '';
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+      }
+      textarea {
         width: 100%;
       }
     }
   }
+
 </style>
