@@ -215,6 +215,7 @@
   export default {
     data() {
       return {
+        // store
         pageTitle: '入库',
         curEditGoods: -1,
         type: '入库',
@@ -788,10 +789,17 @@
             colName: 'modify_time',
             orderType: 'asc'
           }],
-          "condition": [{
+          "condition": [
+            {
             "colName": "parent_no",
             "ruleType": "isnull"
-          }]
+          },
+          {
+            "colName": "store_no",
+            "ruleType": 'eq',
+            value:this.store_no||this.storeInfo?.store_no
+          },
+          ]
         }
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
