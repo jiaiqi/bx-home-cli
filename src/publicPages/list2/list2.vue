@@ -1358,7 +1358,6 @@
         }
 
         this.colV2 = colVs;
-
         if (Array.isArray(colVs.srv_cols)) {
           this.orderCols = colVs.srv_cols.filter(item => {
             if (item.in_list === 1) {

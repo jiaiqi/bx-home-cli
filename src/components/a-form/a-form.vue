@@ -250,13 +250,6 @@
       },
       setColData(e) {
         if (e && e.column) {
-          // this.allField = this.allField.map(item=>{
-          // 	if(item.column===e.column){
-          // 		item.colData = e.colData
-          // 	}
-          // 	return item
-          // })
-
           this.handlerReduant(e)
           this.$emit('setColData', e)
         }
@@ -422,6 +415,7 @@
                 if (this.fieldModel[item.columns]) {
                   this.fieldModel[item.columns] = ''
                 }
+                this.$refs.fitem[index].refresh()
               } else if (item.type === 'TreeSelector') {
                 item.value = ''
                 item.colData = null

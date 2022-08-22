@@ -104,7 +104,11 @@
       </view>
     </view>
     <view class="cu-bar foot bottom bg-white tabbar border shop" v-if="goodsInfo&&scene !== 1154">
-      <view class="right-btn " v-if="moreConfig && moreConfig.button_list">
+      <button class="flex flex-1 justify-center cu-btn bg-transparent" v-if="hideButton" @click="navigateBack">
+        <!-- <text class="cuIcon-back_android margin-right-xs"></text> -->
+        <text>返回</text>
+      </button>
+      <view class="right-btn " v-if="!hideButton&& moreConfig && moreConfig.button_list">
         <button class="cu-btn shadow-blur round"
           :class="{'bg-orange':!item.target_url||item.target_url==='place_order','bg-red':item.target_url==='add_to_cart'||item.type==='add_to_cart',}"
           @click="clickBtn(item)" v-for="(item,index) in moreConfig.button_list" :key="index">
@@ -129,7 +133,7 @@
             @click="clickBtn(item)">{{ item.button_name }}</button>
         </view>
       </view>
-      <view class="right-btn" v-else-if="!hideButton">
+      <view class="right-btn" v-else-if="!hideButton&&disabled">
         <button class="full bg-orange" @click="clickBtn" :disabled="disabled">
           <text v-if="moreConfig && moreConfig.button_name">{{ moreConfig.button_name }}</text>
           <text v-else>立即购买</text>
@@ -1266,7 +1270,7 @@
     },
     async onLoad(option) {
       if(option.disabled){
-        this.disabled = true
+        this.hideButton = true
       }
       console.log("options", option)
       let scene = this.$store?.state?.app?.scene;
@@ -1739,5 +1743,11 @@
       text-overflow: ellipsis;
     }
 
+  }
+  .bg-transparent{
+    background: transparent;
+  }
+  .flex-1{
+    flex: 1;
   }
 </style>

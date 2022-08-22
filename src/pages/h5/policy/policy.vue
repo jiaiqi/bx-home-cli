@@ -84,7 +84,7 @@
     </view>
 
     <view class="text-bold margin-top text-lg" v-if="articles&&articles.length>0">
-      相关文章
+      政策解读
     </view>
     <view class="article-list">
       <news-item :item="item" v-for="(item, noticeIndex) in  articles" :key="noticeIndex"></news-item>

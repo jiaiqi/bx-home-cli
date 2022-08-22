@@ -215,6 +215,7 @@
   export default {
     data() {
       return {
+        pageTitle: '入库',
         curEditGoods: -1,
         type: '入库',
         group_buy_ship_no: "", //团购发货编码
@@ -269,9 +270,11 @@
       this.form.type = option.type
       this.typeList = typeList[option.type]
       this.fields = fields[option.type]
+
       uni.setNavigationBarTitle({
-        title: type
+        title: option?.pageTitle || type || ''
       })
+
       if (option.group_buy_ship_no) {
         this.group_buy_ship_no = option.group_buy_ship_no
         await this.getShipInfo()

@@ -278,6 +278,9 @@
         }
         if (Array.isArray(result)) {
           return result.map(item => {
+            // if(!item.use_type){
+            //   item.use_type = this.use_type
+            // }
             if (item?.foreign_key?.constraint_name) {
               item.constraint_name = item?.foreign_key?.constraint_name
             }

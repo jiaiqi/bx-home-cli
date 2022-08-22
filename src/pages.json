@@ -8,7 +8,23 @@
       "enablePullDownRefresh": true
     }
   }],
-  "subPackages": [{
+  "subPackages": [
+    {
+      "root": "pages/home",
+      "pages":[
+        
+      {
+                    "path" : "index",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
+    },
+    {
       "root": "publicPages",
       "pages": [{
           "path": "accountExec/accountExec",

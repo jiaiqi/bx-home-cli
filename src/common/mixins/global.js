@@ -75,6 +75,9 @@ export default {
     //#endif
   },
   methods: {
+    navigateBack(){
+      uni.navigateBack()
+    },
     renderStr(str, obj = {}) {
       obj = {
         ...this.globalVariable,

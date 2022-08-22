@@ -593,6 +593,7 @@
             this.fkFieldLabel = srvInfo.show_as_pair === true ?
               `${data[ srvInfo.key_disp_col ]}/${data[ srvInfo.refed_col ]}` : data[srvInfo.key_disp_col];
             this.fieldData['colData'] = data;
+            this.$emit('setColData', this.fieldData)
           }
         }
       },
@@ -649,6 +650,7 @@
           return false
         }
       },
+      reset() {},
       saveRichText(e) {
         if (e.isSave) {
           if (e.type === 'textarea') {
@@ -959,6 +961,7 @@
         }
         const res = await this.$fetch('operate', serviceName, req, app)
         if (res.success && res.data.length > 0) {
+
           this.fieldData.colData = res.data[0]
           return res.data[0].gno
         }
@@ -1081,6 +1084,7 @@
           this.fkFieldLabel = srvInfo?.show_as_pair === true ?
             `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
           this.fieldData['colData'] = e;
+          this.$emit('setColData', this.fieldData)
           this.modalName = '';
         }
       },
@@ -1097,6 +1101,7 @@
               `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
             this.fieldData['colData'] = e;
             this.fieldData.value = e[srvInfo.refed_col];
+            debugger
             this.$emit('setColData', this.fieldData)
           }
         }
@@ -1417,6 +1422,7 @@
               })
 
               if (defaultSelecte) {
+                debugger
                 if (self.fieldData.option_list_v2?.refed_col) {
                   self.fieldData.value = defaultSelecte[self.fieldData.option_list_v2.refed_col] || '';
                 }
@@ -1443,6 +1449,7 @@
                   self.fieldData.value || item[self.fieldData.option_list_v2.refed_col] ===
                   Number(self.fieldData.value)) && (self.fieldData.value || self.fieldData.value === 0)) {
                 self.fieldData['colData'] = item;
+                debugger
                 self.$emit('setColData', self.fieldData)
               }
             });

@@ -137,7 +137,8 @@
         allFields: [],
         listItemAction: [],
         showActionSheet: false,
-        fk_condition: null
+        fk_condition: null,
+        use_type:'detaillist'
       }
     },
     filters: {
@@ -196,10 +197,12 @@
         handler(newValue) {
           let allFields = []
           if (newValue === 'addChildData') {
+            this.use_type = 'add'
             if (Array.isArray(this.addV2?._fieldInfo)) {
               allFields = this.deepClone(this.addV2?._fieldInfo)
             }
           } else if (newValue === 'updateChildData') {
+            this.use_type = 'update'
             if (Array.isArray(this.updateV2?._fieldInfo)) {
               allFields = this.deepClone(this.updateV2?._fieldInfo)
             }
@@ -280,8 +283,7 @@
         return this.config?.foreign_key?.moreConfig
       },
       showDelete() {
-        return this?.v2Data?.use_type && ['update', 'add', 'addchildlist', 'updatechildlist'].includes(this.v2Data
-          .use_type)
+        return this.use_type && ['update', 'add', 'addchildlist', 'updatechildlist'].includes(this.use_type)
       },
       setListData() {
         return this.listData.filter(item => item._dirtyFlags !== "delete")
@@ -290,9 +292,9 @@
         return [...this.listData, ...this.memoryListData, ...this.initData].filter(item => item._dirtyFlags !==
           'delete')
       },
-      use_type() {
-        return this.config?.use_type || this.v2Data?.use_type
-      },
+      // use_type() {
+      //   return this.config?.use_type || this.v2Data?.use_type
+      // },
       condition() {
         const foreignKey = this.foreignKey
         const data = this.config
@@ -1362,6 +1364,7 @@
         }
       },
       async add2List(e) {
+        debugger
         let data = this.$refs.childForm.getFieldModel();
         if (!data) {
           return
@@ -1375,6 +1378,7 @@
               delete data[key]
             }
           }
+          
           if (this.use_type === 'detaillist') {
             // 直接添加
             // let {
@@ -1441,6 +1445,7 @@
       },
 
       async updateValueChange(e, triggerField) {
+        debugger
         const column = triggerField.column
         let fieldModel = e
         const cols = this.allFields.filter(item => item.x_if && item.in_update === 1).map(item => item.column)
@@ -1526,6 +1531,7 @@
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             if (item.redundant?.trigger === 'always' || !item.value) {
               item.value = calcResult?.response[item.column] || item.value
+              debugger
               fieldModel[item.column] = item.value
             }
           }

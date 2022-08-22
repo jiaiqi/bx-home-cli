@@ -29,10 +29,7 @@
 					this.$store.commit('SET_CURRENT_PAGE', url)
 				}
 			} else {
-        debugger
         let url = '/storePages/home/home'
-        
-     
 				uni.redirectTo({
 					url
 				})
