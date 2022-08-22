@@ -1773,7 +1773,8 @@
         })
         colVs.rowData = row
         if (Array.isArray(colVs.formButton) && colVs.formButton.length > 0) {
-          colVs.formButton = colVs.formButton.map(item => {
+          if(this.use_type === "detaillist"){
+            colVs.formButton = colVs.formButton.map(item => {
             if (item.button_type === 'reset') {
               let rowButton = this.v2Data?.rowButton
               if (rowButton.length > 0) {
@@ -1785,6 +1786,8 @@
             }
             return item
           })
+          }
+          colVs.formButton = colVs.formButton.reverse()
         }
 
         if (this.fkMoreConfig?.rowButtonDisp) {
@@ -1849,6 +1852,9 @@
               return true
             }
           })
+        }
+        if(Array.isArray(colVs.formButton)){
+          colVs.formButton.reverse()
         }
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (item.column && this.mainData && this.mainData[item.column]) {
