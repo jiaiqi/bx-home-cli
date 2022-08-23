@@ -1240,6 +1240,10 @@
         let self = this;
         // self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
+          if(Array.isArray(this.fieldData?.moreConfig?.customOptions)&&this.fieldData?.moreConfig?.customOptions.length>0){
+            // 自定义枚举值
+            this.selectorData = this.fieldData?.moreConfig?.customOptions
+          }
           if (Array.isArray(this.fieldData.options)) {
             this.selectorData = this.fieldData.options;
           }
