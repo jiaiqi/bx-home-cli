@@ -1422,7 +1422,6 @@
               })
 
               if (defaultSelecte) {
-                debugger
                 if (self.fieldData.option_list_v2?.refed_col) {
                   self.fieldData.value = defaultSelecte[self.fieldData.option_list_v2.refed_col] || '';
                 }
@@ -1449,7 +1448,6 @@
                   self.fieldData.value || item[self.fieldData.option_list_v2.refed_col] ===
                   Number(self.fieldData.value)) && (self.fieldData.value || self.fieldData.value === 0)) {
                 self.fieldData['colData'] = item;
-                debugger
                 self.$emit('setColData', self.fieldData)
               }
             });

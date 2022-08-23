@@ -32,10 +32,8 @@
         </a-form>
       </view>
 
-      <view class="" v-if="hideChildTable">
-
-      </view>
-      <view class="child-service-box step-mode" v-show="stepMode&&curStep=='child'&&colsV2Data && isArray(fields)&&fields.length>0" v-else-if="stepMode">
+      <view class="" v-if="hideChildTable"></view>
+      <view class="child-service-box step-mode" v-show="curStep=='child'" v-else-if="stepMode&&colsV2Data && isArray(fields)&&fields.length>0">
         <view class="change-child">
           <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="curChild"
             @change="radioChange">
@@ -87,11 +85,6 @@
         @click="onButton(btn)">
         {{ btn.button_name}}
       </button>
-      <!--      <debounce-view @onThrottle="onButton(rightBtn,'handler')" type="throttle" :key='btnIndex'
-        v-for="(btn, btnIndex) in view_cfg.bottomBtn">
-        <button class="cu-btn bg-blue round lg bx-btn-bg-color" :open-type="btn.type" :data-btn="btn"
-          :data-shareurl="btn.shareUrl" :style="[btn.style]">{{ btn.button_name}}</button>
-      </debounce-view> -->
     </view>
     <view class="button-box" v-else-if="!orderMode&&!loading&&stepMode&&childService&&childService.length>0">
       <button class="cu-btn bg-cyan lg round " @click="changeStep('child')" v-if="curStep==='main'">下一步</button>

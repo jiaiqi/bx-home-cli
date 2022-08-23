@@ -4,7 +4,7 @@
     <view class="list-item" @click="clickItem">
       <view class="main-image" :style="[setListView.imgStyle]" :class="[setListView.imgClass]"
         v-if="setListView.showImg && setListView.imgAlign !== 'right'">
-        <image lazy-load class="image" :src="setListView.imgSrc"  :mode="setListView.imgMode"
+        <image lazy-load class="image" :src="setListView.imgSrc" :mode="setListView.imgMode"
           :style="[setListView.imgTagStyle]">
         </image>
         <image class="icon" :class="setListView.imgIcon.name" v-if="setListView.imgIcon&&setListView.imgIcon.name"
@@ -48,14 +48,12 @@
                   <text v-if="item.suffix">{{ item.suffix }}</text>
                   <text class="cuIcon-locationfill text-blue" style="font-size: 20px;"></text>
                 </view>
-                <view class="value"
-                  :style="{
+                <view class="value" :style="{
                     'white-space': item.valueWhiteSpace,
                     '-webkit-line-clamp':item.style['-webkit-line-clamp'],
                     '-webkit-box-orient':item.style['-webkit-box-orient'],
                     'display':item.style.display
-                  }"
-                  v-else>
+                  }" v-else>
                   <text v-if="item.prefix">{{ item.prefix }}</text>
                   <view class="" v-if="item.fmt">
                     <text class="cu-tag margin-top-xs bg-gray radius margin-right-xs" style="margin-left: 0;"
@@ -436,10 +434,19 @@
         // 是否显示自定义评价按钮
         return this.setViewTemp?.btn_cfg?.show_evaluate === true
       },
+      setButtonsAuth() {
+        return this.rowData?._buttons || []
+      },
       setRowButton() {
         let buttons = [];
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
-          buttons = this.rowButton.map((item, index) => {
+          this.rowButton.forEach((e, index) => {
+            let item = {
+              ...e
+            }
+            if (!item?.moreConfig) {
+              item.moreConfig = {}
+            }
             if (this.viewTemp?.btn_cfg?.position === 'right') {
               if (Array.isArray(this.viewTemp?.btn_cfg?.icon) && this.viewTemp?.btn_cfg?.icon.length > index) {
                 item.icon = `cuIcon-${this.viewTemp?.btn_cfg?.icon[index]}`
@@ -451,40 +458,51 @@
                 item.icon = 'cuIcon-add'
               }
             }
-            return item
-          }).filter((item, index) => {
+            buttons.push(item)
+          })
+          
+          buttons = buttons.filter((item, index) => {
             if (item.client_type && item.client_type.indexOf('APP') == -1) {
               // 根据自定义按钮配置的客户端类型过滤按钮
               return false
             }
-            if (!item.moreConfig) {
-              item.moreConfig = {}
+
+            if (this.setViewTemp?.btn_cfg?.show_public_btn === false && item.is_public == true && item
+              .button_type !== 'detail') {
+              return false
             }
 
-            if (Array.isArray(this.rowData?._buttons) && this.rowData._buttons.length === this
-              .rowButton.length) {
-              return this.rowData._buttons[index] === 1;
-            }else{
-              // return false
+            if (this.setViewTemp?.btn_cfg?.show_custom_btn === false && item.button_type === 'customize') {
+              return false
             }
+
+            if (this.rowButtonDisp && this.rowButtonDisp[item.button_type] === false) {
+              return false
+            }
+
+            if (Array.isArray(this.setButtonsAuth) && this.setButtonsAuth.length === this
+              .rowButton.length) {
+              return this.setButtonsAuth[index] === 1;
+            } else {
+              return false
+            }
+
             return true;
           });
-        } else {
-          return [];
         }
-        if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
-          buttons = buttons.filter(item => item.is_public !== true || item.button_type === 'detail');
-        }
-        if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
-          buttons = buttons.filter(item => item.is_public === true);
-        }
-        buttons = buttons.filter(btn => {
-          if (this.rowButtonDisp && this.rowButtonDisp[btn.button_type] === false) {
-            return false;
-          } else {
-            return true;
-          }
-        });
+        // if (this.setViewTemp?.btn_cfg?.show_public_btn === false) {
+        //   buttons = buttons.filter(item => item.is_public !== true || item.button_type === 'detail');
+        // }
+        // if (this.setViewTemp?.btn_cfg?.show_custom_btn === false) {
+        //   buttons = buttons.filter(item => item.is_public === true);
+        // }
+        // buttons = buttons.filter(btn => {
+        //   if (this.rowButtonDisp && this.rowButtonDisp[btn.button_type] === false) {
+        //     return false;
+        //   } else {
+        //     return true;
+        //   }
+        // });
         return buttons;
       },
       setListView() {
@@ -725,7 +743,7 @@
               obj.event = col.event
               if (col?.col) {
                 let getVal = this.setValue(col.col, col.cfg);
-                if(getVal?.index===0){
+                if (getVal?.index === 0) {
                   obj.prefix = cfg?.prefix || '';
                   obj.suffix = cfg?.suffix || '';
                 }
@@ -914,7 +932,7 @@
             obj.event = col.event
             if (col?.col) {
               let getVal = this.setValue(col.col, col.cfg);
-              if(getVal?.index===0){
+              if (getVal?.index === 0) {
                 obj.prefix = cfg?.prefix || '';
                 obj.suffix = cfg?.suffix || '';
               }
@@ -1113,7 +1131,7 @@
         let resCol = '';
         for (let i = 0; i < arr.length; i++) {
           let column = arr[i].trim();
-          if (detail[column]||detail[column]==0) {
+          if (detail[column] || detail[column] == 0) {
             resCol = column;
             res['index'] = i
             break;
