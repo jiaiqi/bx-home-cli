@@ -46,7 +46,8 @@
     "test:ios": "cross-env UNI_PLATFORM=app-plus UNI_OS_NAME=ios jest -i",
     "test:mp-baidu": "cross-env UNI_PLATFORM=mp-baidu jest -i",
     "test:mp-weixin": "cross-env UNI_PLATFORM=mp-weixin jest -i",
-    "prepare": "husky install"
+    "prepare": "husky install",
+	"git": "git add . && git cz"
   },
   "dependencies": {
     "@dcloudio/uni-app-plus": "^2.0.0-31920210428001",

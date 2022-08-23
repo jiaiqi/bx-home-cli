@@ -68,7 +68,7 @@
     <swiper class="swiper" :class="{
         'rectangle-dot': pageItem.button_style !== 'grid',
         'grid-style': pageItem.button_style === 'grid',
-        'list-style': pageItem.button_style === 'list',
+        'list-style': pageItem.button_style === 'list'
       }" :style="{ height: swiperHeight + 'px' }" indicator-active-color="#00aaff" indicator-color="#ccc"
       :indicator-dots="indicatorDots" :autoplay="false" v-else-if="menuList.length > 1">
       <swiper-item v-for="(swiperItem, swiperIndex) in menuList" :key="swiperIndex">
@@ -101,9 +101,17 @@
         语音合成
       </view> -->
       <view class="menu-item" :class="{
-          'five-column':pageItem.row_number===5||pageItem.row_number==='5', 'grid-style' :
-        pageItem.button_style==='grid' , 'list-style' : pageItem.button_style==='list' , 'last-row' :
-        isLastRow(menuList[0], index), }" @click="toPages(item)" v-for="(item, index) in menuList[0]" :key="index">
+          'col-2':colNumber===2,
+          'col-3':colNumber===3,
+          'col-4':colNumber===4,
+          'col-5':colNumber===5,
+          'col-6':colNumber===6,
+          'col-7':colNumber===7,
+          'five-column':pageItem.row_number===5||pageItem.row_number==='5', 
+          'grid-style' :pageItem.button_style==='grid' , 
+          'list-style' : pageItem.button_style==='list' , 
+          'last-row' :isLastRow(menuList[0], index), }" @click="toPages(item)" v-for="(item, index) in menuList[0]"
+        :key="index">
         <view class="cu-tag badge" v-if="item.num">{{ setNumber(item.num )|| "" }}</view>
         <view class="cu-tag badge-left" v-if="item.unbacknum">{{
           setNumber(item.unbacknum) || ""
@@ -282,6 +290,12 @@
       },
     },
     computed: {
+      colNumber() {
+        if (this.pageItem?.col_number) {
+          return Number(this.pageItem?.col_number)
+        }
+        return 4
+      },
       moreConfig() {
         return this.pageItem?.more_config
       },
@@ -843,11 +857,11 @@
                   return obj
                 })
               }
-              
+
               const app = item?.app || this.appName || uni.getStorageSync('activeApp')
-              
+
               let url = this.getServiceUrl(app, service, 'select');
-              
+
               let req = {
                 "serviceName": service,
                 "condition": condition,
@@ -1623,15 +1637,6 @@
 
     .menu-item {
       width: calc(25% - 15px / 4);
-
-      &.five-column {
-        width: auto;
-        flex: 1;
-        max-width: calc(25% - 15px / 4);
-        min-width: calc(20% - 15px / 4);
-      }
-
-
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -1642,11 +1647,78 @@
       margin-bottom: 10px;
       position: relative;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12),
-      0 0 6px rgba(0, 0, 0, 0.04);
+        0 0 6px rgba(0, 0, 0, 0.04);
 
-      &:nth-child(4n + 1) {
-        margin-left: 0;
+
+      &.five-column {
+        width: calc(20% - 20px / 5);
+
+        &:nth-child(5n + 1) {
+          margin-left: 0;
+        }
       }
+
+      @for $i from 2 through 7 {
+        
+        &.col-#{$i} {
+          width: calc( 100%/#{$i} - 5px);
+        
+          &:nth-child(#{$i}n + 1) {
+            margin-left: 0;
+          }
+        }
+        
+      }
+
+      // &.col-2 {
+      //   width: calc(50% - 5px);
+
+      //   &:nth-child(2n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+
+      // &.col-3 {
+      //   width: calc(33.33% - 10px / 3);
+
+      //   &:nth-child(3n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+      // &.col-4 {
+      //   &:nth-child(4n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+      // &.col-5 {
+      //   width: calc(20% - 20px / 5);
+
+      //   &:nth-child(5n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+      // &.col-6 {
+      //   width: calc(16.66% - 25px /6);
+
+      //   &:nth-child(6n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+      // &.col-7 {
+      //   width: calc(14.28% - 30px /7);
+
+      //   &:nth-child(7n + 1) {
+      //     margin-left: 0;
+      //   }
+      // }
+
+
+
 
       .badge {
         top: 5px;
@@ -1707,6 +1779,10 @@
         font-family: 苹方-简;
         font-weight: normal;
         line-height: 22px;
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
     }
   }
