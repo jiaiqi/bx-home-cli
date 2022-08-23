@@ -48,7 +48,7 @@
     "test:mp-weixin": "cross-env UNI_PLATFORM=mp-weixin jest -i",
     "prepare": "husky install",
 	"commit": "git add . && git cz",
-	"push":"git push && git push github"
+	"push":"git push gitee && git push github"
   },
   "dependencies": {
     "@dcloudio/uni-app-plus": "^2.0.0-31920210428001",

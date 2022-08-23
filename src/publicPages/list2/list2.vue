@@ -1340,11 +1340,14 @@
           } else if (tabsCfg?.type === 'enum_col' && tabsCfg?.column) {
             if (Array.isArray(colVs?._fieldInfo)) {
               let col = colVs?._fieldInfo.find(item => item.column === tabsCfg.column)
-              if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-                let allTab = col.option_list_v2
-                if (Array.isArray(tabsCfg.customTabs) && tabsCfg.customTabs.length > 0) {
-                  allTab = tabsCfg.customTabs
-                }
+              let allTab = []
+              if (col?.col_type === 'Enum' && col?.option_list_v2 && col?.option_list_v2?.length) {
+                allTab = col.option_list_v2
+              }
+              if (Array.isArray(tabsCfg.customTabs) && tabsCfg.customTabs.length > 0) {
+                allTab = tabsCfg.customTabs
+              }
+              if (Array.isArray(allTab) && allTab.length > 0) {
                 allTab.forEach(item => {
                   tabsCfg.tabs.push({
                     name: item.label,
