@@ -61,7 +61,7 @@ const wxVerifyLogin = (userInfo) => {
               if (store.state.app.isLogin) {
                 resolve(true)
               }
-              if (resData && resData.bx_open_code&&!resData?.bx_auth_ticket) {
+              if (resData && resData.bx_open_code && !resData?.bx_auth_ticket) {
                 // 后端未获取到unionid 需要通过开放登录接口给后端发送wx.getUserInfo获取到的数据
                 resolve(wxOpenLogin(resData.bx_open_code))
               }
@@ -97,7 +97,6 @@ const wxOpenLogin = async (openCode) => {
     return true
   }
   let wxAuthUserInfo = store?.state?.user?.wxAuthUserInfo
-  debugger
   // if (!wxAuthUserInfo) {
   //   // uni.redirectTo({
   //   //   url: '/publicPages/accountExec/accountExec'
@@ -157,7 +156,7 @@ const wxOpenLogin = async (openCode) => {
   })
 }
 
-const selectPersonInfo = async (user_no,refresh) => {
+const selectPersonInfo = async (user_no, refresh) => {
   user_no = user_no || uni.getStorageSync('login_user_info')?.user_no
   try {
     if (store.state.user.loginUserInfo?.user_no) {
@@ -181,7 +180,7 @@ const selectPersonInfo = async (user_no,refresh) => {
     },
   }
   const userInfo = store.state?.user?.userInfo
-  if (!refresh&&user_no && user_no === userInfo?.userno) {
+  if (!refresh && user_no && user_no === userInfo?.userno) {
     store.commit('SET_USERINFO', userInfo)
     store.commit('SET_USERLIST', [userInfo])
     store.commit('SET_AUTH_USERINFO', true);
@@ -191,7 +190,7 @@ const selectPersonInfo = async (user_no,refresh) => {
   }
   let res = {}
   if (user_no) {
-    if (store?.state?.user?.userInfo?.userno === user_no&&!refresh) {
+    if (store?.state?.user?.userInfo?.userno === user_no && !refresh) {
       res = {
         data: {
           state: "SUCCESS",
@@ -211,6 +210,10 @@ const selectPersonInfo = async (user_no,refresh) => {
     uni.setStorageSync('current_user', res.data.data[0].name);
     // #ifdef MP-WEIXIN
     if (res.data.data[0].home_store_no && !store.state.app.hasIntoHospital) {
+      // this.$store.commit('setStateAttr', {
+      //   key: "curStoreNo",
+      //   val: res.data.data[0].home_store_no
+      // })
       // 有home_store 此次打开小程序未进入过医院/餐馆主页
       let pageInfo = Vue.prototype.getShareParams()
       // console.log(store.state.app.inviterInfo)

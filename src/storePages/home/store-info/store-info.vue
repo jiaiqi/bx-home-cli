@@ -706,6 +706,7 @@
 
         .store-name {
           max-width: 600rpx;
+          padding-bottom: 5px;
           font-weight: bold;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -911,6 +912,7 @@
       display: flex;
       justify-content: space-between;
       // align-items: center;
+      padding-bottom: 5px;
     }
 
     .store-button {

@@ -148,7 +148,6 @@
                   currentImages: [result],
                   allImages: _self.imageList
                 });
-                debugger
                 _self.$emit('input', _self.imageList);
               } else {
                 console.log('fail to upload image:' + res.data);

@@ -119,7 +119,7 @@
         return str
       },
       rowButton() {
-        return this.colV2?.rowButton.filter(item => item.permission !== false);
+        return this.colV2?.rowButton
       },
       moreConfig() {
         let result = null;

@@ -1090,7 +1090,6 @@
         }
       },
       getCascaderValue(e) {
-        debugger
         if (e?.type == '自行输入') {
           this.fieldData.value = e.value;
           this.fkFieldLabel = e.value
@@ -1103,7 +1102,6 @@
               `${e[ srvInfo.key_disp_col ]}/${e[ srvInfo.refed_col ]}` : e[srvInfo.key_disp_col];
             this.fieldData['colData'] = e;
             this.fieldData.value = e[srvInfo.refed_col];
-            debugger
             this.$emit('setColData', this.fieldData)
           }
         }

@@ -106,8 +106,8 @@
       };
     },
     computed: {
-      notNickName(){
-        return (!this.userInfo?.nick_name||this.userInfo?.nick_name==='微信用户')&&!this.userInfo?.profile_url
+      notNickName() {
+        return (!this.userInfo?.nick_name || this.userInfo?.nick_name === '微信用户') && !this.userInfo?.profile_url
       },
       pageTitle() {
         return this.currentPageDefine?.pg_title || this.StoreInfo?.name
@@ -163,14 +163,14 @@
       })
     },
     methods: {
-      showAuthDialog(){
+      showAuthDialog() {
         // 显示授权弹框
         this.$refs?.bxAuth?.open?.()
       },
-      cancelAuth(){
+      cancelAuth() {
         // this.$refs?.bxAuth?.cancel?.()
       },
-      clickShadow(){
+      clickShadow() {
         this.showAuthDialog()
         // uni.showModal({
         //   title:'提示',
@@ -711,20 +711,20 @@
             // let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
             //   ?.invite_user_no;
             // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !updated) {
-              // if (this.StoreInfo?.standard == '更新') {
-              //   // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
-              //   // 更新店铺用户的邀请人编码
-              //   let data = {
-              //     invite_user_no: invite_user_no
-              //   };
-              //   let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
-              //   if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
-              //     .store_user_no !== this
-              //     .bindUserInfo?.store_user_no) {
-              //     data.invite_store_user_no = inviterStoreUser.store_user_no;
-              //   }
-              //   this.updateStoreUser(data);
-              // }
+            // if (this.StoreInfo?.standard == '更新') {
+            //   // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
+            //   // 更新店铺用户的邀请人编码
+            //   let data = {
+            //     invite_user_no: invite_user_no
+            //   };
+            //   let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
+            //   if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
+            //     .store_user_no !== this
+            //     .bindUserInfo?.store_user_no) {
+            //     data.invite_store_user_no = inviterStoreUser.store_user_no;
+            //   }
+            //   this.updateStoreUser(data);
+            // }
             // }
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           } else {
@@ -1221,7 +1221,7 @@
       async initPage(forceUpdate = false) {
         // forceUpdate - 是否强制更新店铺组件
         // await this.toAddPage();
-        await selectPersonInfo(null,true)
+        await selectPersonInfo(null, true)
         // #ifdef MP-WEIXIN
         await this.initApp()
         //#endif
@@ -1275,8 +1275,8 @@
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data) && res.data.data.length > 0) {
           this.pageDefine = res.data.data[0];
-          console.log(this.pdNo,home_page_no)
-          
+          console.log(this.pdNo, home_page_no)
+
           await this.getTabbar(home_page_no);
           let pageItemList = await this.getPageComponent(home_page_no, 'srvhealth_store_home_ceshi_component_select');
           let curTab = this.tabbarList.findIndex(item => item.link_pd_no === home_page_no);
@@ -1750,7 +1750,12 @@
         if (this.$api && this.$api.singleStore && this.$api.storeNo) {
           option.store_no = this.$api.storeNo
         } else if (this.userInfo && this.userInfo.home_store_no) {
+
           option.store_no = this.userInfo.home_store_no;
+          this.$store.commit('setStateAttr', {
+            key: "curStoreNo",
+            val: option.store_no
+          })
         } else {}
       }
 
@@ -1795,7 +1800,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .shadow-view{
+  .shadow-view {
     width: 100vw;
     height: 100vh;
     position: fixed;
@@ -1804,6 +1809,7 @@
     left: 0;
     background: transparent;
   }
+
   .page-wrap {
     background-color: #f8f8fa;
     background-color: var(--home-bg-color);

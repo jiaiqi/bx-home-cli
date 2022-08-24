@@ -1453,7 +1453,6 @@
       },
 
       async updateValueChange(e, triggerField) {
-        debugger
         const column = triggerField.column
         let fieldModel = e
         const cols = this.allFields.filter(item => item.x_if && item.in_update === 1).map(item => item.column)
@@ -1539,7 +1538,6 @@
           if (calcResult?.response && (calcResult.response[item.column] || calcResult.response[item.column] == 0)) {
             if (item.redundant?.trigger === 'always' || !item.value) {
               item.value = calcResult?.response[item.column] || item.value
-              debugger
               fieldModel[item.column] = item.value
             }
           }
@@ -1599,7 +1597,6 @@
                 if (Array.isArray(rowButton) && rowButton.length > 0) {
                   detailBtn = rowButton.find(item => item.button_type === 'detail')
                 }
-                debugger
                 if (!detailBtn) {
                   return
                 }

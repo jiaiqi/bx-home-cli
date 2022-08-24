@@ -114,7 +114,6 @@
           },
           fail: (err) => {
             console.log(err)
-            debugger
           }
         })
       },

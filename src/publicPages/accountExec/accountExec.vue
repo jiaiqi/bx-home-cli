@@ -205,7 +205,6 @@
       }
       // else {
       if (uni.getSystemInfoSync().model === 'PC') {
-        debugger
         if (option.code && option.state) {
           // 扫码登陆重定向
           this.scanLogin(option)

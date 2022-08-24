@@ -43,10 +43,12 @@
         show: true,
         uuid: '',
         bar_code: "",
-        list: []
+        list: [],
+        isOver:false,//扫码数量超出
       }
     },
     onLoad(option) {
+      this.isOver = false
       if(option.goods_num){
         this.goods_num = option.goods_num
       }
@@ -78,7 +80,8 @@
         })
       },
       scancode(e) {
-        if(this.list.length>=this.goods_num){
+        if(this.list.length>=this.goods_num&&!this.isOver){
+          this.isOver = true
           var plugin = requirePlugin("WechatSI")
           plugin.textToSpeech({
             lang: "zh_CN",

@@ -84,7 +84,7 @@
 							this.$store.commit('SET_TICKET', response.bx_auth_ticket)
 							uni.setStorageSync('isLogin', true);
 							uni.reLaunch({
-								url: '/pages/home/home'
+								url: '/storePages/home/home'
 							})
 						}
 					}

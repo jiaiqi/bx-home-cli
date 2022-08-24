@@ -2056,7 +2056,6 @@
           if (this.identity === '客户') {
             serviceName = 'srvhealth_consultation_chat_record_kefu_user_add'
           } else {
-            debugger
             serviceName = 'srvhealth_consultation_chat_record_kefu_kefu_add'
           }
         }

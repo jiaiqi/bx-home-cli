@@ -433,7 +433,7 @@
           this.isOnSubmit = false
           return
         }
-        debugger
+
         const service = this.serviceName || 'srvhealth_store_mgmt_join_add'
 
         const url = `/health/operate/${service}`

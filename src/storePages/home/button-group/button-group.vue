@@ -1019,6 +1019,10 @@
                 //扫码点餐
                 // /store_no/food/餐桌号/
                 option.store_no = arr[1];
+                  this.$store.commit('setStateAttr', {
+                            key: "curStoreNo",
+                            val: option.store_no
+                          })
                 option.service_place_no = arr[2]
                 if (arr[3]) {
                   option.link_pd_no = arr[3]

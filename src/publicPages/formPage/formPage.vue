@@ -519,7 +519,6 @@
                 })
               }
               
-              debugger
               
               if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
                 let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
@@ -861,7 +860,6 @@
                         getApp().globalData.beforeRedirectUrl = null
                         return
                       } else {
-                        debugger
                         uni.navigateBack({
                           success: () => {
                             if (self.uuid) {
@@ -900,7 +898,6 @@
                     content: "操作成功",
                     showCancel: false,
                     success: (res) => {
-                      debugger
                       if (res.confirm) {
                         uni.navigateBack({
                           success: () => {

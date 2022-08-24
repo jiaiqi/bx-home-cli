@@ -229,7 +229,7 @@
         data.store_no = data.store_no || this.storeInfo?.store_no
         data.schedule_week = Array.isArray(data.schedule_week) ? data.schedule_week.toString() : data.schedule_week
         let hasEmpty = Object.keys(data).filter(key => !data[key]).length !== 0
-        debugger
+        
         if (hasEmpty) {
           uni.showModal({
             title: '提示',

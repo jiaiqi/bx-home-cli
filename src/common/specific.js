@@ -94,14 +94,15 @@ export default {
       }
     }
 
-    Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id, description, profitSharing=false) => {
+    Vue.prototype.toPlaceOrder = async (total_fee, login_user_type, orderData, wx_mch_id, description, profitSharing =
+      false) => {
       // 统一下单
       login_user_type = uni.getStorageSync('login_user_info')?.login_user_type || ''
       if (total_fee) {
         total_fee = Number(total_fee.toFixed(2))
       }
-      if(description&&description.length>40){
-        description = description.slice(0,40) + '...'
+      if (description && description.length > 40) {
+        description = description.slice(0, 40) + '...'
       }
       let url = Vue.prototype.getServiceUrl('wx', 'srvwx_order', 'operate');
       let req = [{
@@ -118,8 +119,8 @@ export default {
           "login_user_type": login_user_type || "user"
         }]
       }]
-      if(profitSharing){
-        req[0].data[0]. profit_sharing = 'Y'
+      if (profitSharing) {
+        req[0].data[0].profit_sharing = 'Y'
       }
       let res = await _http.post(url, req)
       if (res.data.state === 'SUCCESS') {
@@ -165,6 +166,12 @@ export default {
 
     Vue.prototype.checkOptionParams = (option) => {
       // option中如果有邀请信息 则存储到vuex
+      if (option.store_no) {
+        store.commit('setStateAttr', {
+          key: "curStoreNo",
+          val: option.store_no
+        })
+      }
       if (option && option.share_type) {
         store.commit('SET_SHARE_TYPE', option.share_type)
       }

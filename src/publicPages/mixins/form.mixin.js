@@ -103,7 +103,6 @@ export default {
             }
           } else if (['all-child-has-data'].includes(item.type)) {
             // 所有子表都必须有数据
-            debugger
             if (this.childService.length > data.child_data_list.length) {
               result = false
               let labels = this.childService.map(item => item.label).toString()

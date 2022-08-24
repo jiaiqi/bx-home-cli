@@ -86,7 +86,6 @@
         uni.$on('confirmSelect', (e) => {
           if (e?.uuid === uuid && e.data) {
             let data = e.data;
-            debugger
             this.orderInfo.rcv_name = data?.rcv_name
             this.orderInfo.rcv_telephone = data?.telephone
             this.orderInfo.rcv_addr_str = data?.addr_str
