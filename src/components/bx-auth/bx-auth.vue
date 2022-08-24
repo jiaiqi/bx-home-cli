@@ -177,7 +177,13 @@
           self.$store.commit('SET_AUTH_USERINFO', true);
           await self.setWxUserInfo(rawData);
           await this.toAddPage(rawData)
+          this.show = false
           this.$emit('auth-complete')
+          uni.showToast({
+            title:'登录成功',
+            icon:"none",
+            duration:3000
+          })
           return
         }
       },
