@@ -138,7 +138,7 @@
         listItemAction: [],
         showActionSheet: false,
         fk_condition: null,
-        use_type:'detaillist'
+        use_type: 'detaillist'
       }
     },
     filters: {
@@ -1108,14 +1108,18 @@
           return []
         }
         list = this.deepClone(list)
-        list = this.deepClone(list)
         let params = list.map((item, index) => {
           let row = this.localListData[index]
-          Object.keys(row).forEach(key => {
-            if (row[key] === item[key]) {
-              delete item[key]
+          if(row){
+            let keys = Object.keys(row);
+            if(Array.isArray(keys)&&keys.length>0){
+              keys.forEach(key => {
+                if (row[key] === item[key]) {
+                  delete item[key]
+                }
+              })
             }
-          })
+          }
           return {
             serviceName: this.updateService,
             data: [item],
@@ -1211,7 +1215,12 @@
           return item
         })
       },
-      onChildFormBtn(e, index, isMem) {
+      async onChildFormBtn(e, index, isMem) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'submit':
@@ -1364,7 +1373,6 @@
         }
       },
       async add2List(e) {
-        debugger
         let data = this.$refs.childForm.getFieldModel();
         if (!data) {
           return
@@ -1378,7 +1386,7 @@
               delete data[key]
             }
           }
-          
+
           if (this.use_type === 'detaillist') {
             // 直接添加
             // let {
@@ -1773,21 +1781,21 @@
         })
         colVs.rowData = row
         if (Array.isArray(colVs.formButton) && colVs.formButton.length > 0) {
-          if(this.use_type === "detaillist"){
+          if (this.use_type === "detaillist") {
             colVs.formButton = colVs.formButton.map(item => {
-            if (item.button_type === 'reset') {
-              let rowButton = this.v2Data?.rowButton
-              if (rowButton.length > 0) {
-                let delBtn = rowButton.find(item => item.button_type === 'delete')
-                if (delBtn) {
-                  item = delBtn
+              if (item.button_type === 'reset') {
+                let rowButton = this.v2Data?.rowButton
+                if (rowButton.length > 0) {
+                  let delBtn = rowButton.find(item => item.button_type === 'delete')
+                  if (delBtn) {
+                    item = delBtn
+                  }
                 }
               }
-            }
-            return item
-          })
+              return item
+            })
           }
-          colVs.formButton = colVs.formButton.reverse()
+          colVs.formButton = colVs.formButton
         }
 
         if (this.fkMoreConfig?.rowButtonDisp) {
@@ -1853,8 +1861,16 @@
             }
           })
         }
-        if(Array.isArray(colVs.formButton)){
-          colVs.formButton.reverse()
+        if (Array.isArray(colVs.formButton)) {
+          colVs.formButton.sort((a, b) => {
+            if (a.button_type === 'submit' && b.button_type == 'reset') {
+              return 1
+            } else if (a.button_type === 'reset' && b.button_type == 'submit') {
+              return -1
+            } else {
+              return 0
+            }
+          })
         }
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (item.column && this.mainData && this.mainData[item.column]) {

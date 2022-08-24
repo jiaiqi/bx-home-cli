@@ -121,11 +121,11 @@
         this.curNode = ''
         this.curNodeInfo = ''
         this.selectedList = []
-        this.getData()
+        this.getData(null,true)
         this.$emit('reset')
 
       },
-      async getData(cond) {
+      async getData(cond,isReset=false) {
         // 查找节点数据
         const srvInfo = this.deepClone(this.srvInfo);
         const serviceName = srvInfo.serviceName;
@@ -179,6 +179,15 @@
             }
           }
         }
+        
+        if(!isReset&&this.fieldData.value&&this.fieldData.option_list_v2?.refed_col){
+          condition = [{
+            colName:this.fieldData.option_list_v2?.refed_col,
+            ruleType:'eq',
+            value:this.fieldData.value
+          }]
+        }
+        
         let req = {
           serviceName: serviceName,
           colNames: ['*'],
@@ -249,6 +258,9 @@
       },
       pageType: {
         type: String
+      },
+      fieldData:{
+        type: Object,
       }
     },
   }

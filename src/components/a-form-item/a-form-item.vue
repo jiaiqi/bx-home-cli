@@ -264,7 +264,7 @@
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
-          <tree-selector :srvInfo="fieldData.srvInfo" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
+          <tree-selector :srvInfo="fieldData.srvInfo" :fieldData="fieldData" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
             :fields-model="fieldsModel" @cancel="hideModal" @on-get-data="onGetTreeData" :pageType="pageType"
             :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
@@ -588,6 +588,7 @@
         this.selectorData = e || []
         let srvInfo = this.fieldData.srvInfo || this.fieldData.option_list_v2;
         if (this.fieldData.value && srvInfo?.refed_col) {
+          console.log(this.selectorData)
           let data = this.selectorData.find(item => item[srvInfo?.refed_col] === this.fieldData.value)
           if (data) {
             this.fkFieldLabel = srvInfo.show_as_pair === true ?
@@ -1089,6 +1090,7 @@
         }
       },
       getCascaderValue(e) {
+        debugger
         if (e?.type == '自行输入') {
           this.fieldData.value = e.value;
           this.fkFieldLabel = e.value
