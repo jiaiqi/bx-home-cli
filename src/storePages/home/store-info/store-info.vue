@@ -87,7 +87,7 @@
         </view>
       </view>
     </view>
-    <view class="store-info simple-layout" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
+    <view class="store-info simple-layout"  :style="{ 'background-image': backgroundImage }" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
       <view class="store-name">
         <text>{{ setStoreInfo.name || '' }}</text>
         <view class="store-button">
@@ -277,10 +277,14 @@
         return this.pageItem?.more_config?.style;
       },
       backgroundImage() {
-        if (this.setStoreInfo?.image) {
-          let path = this.getImagePath(this.setStoreInfo.image, true);
-          return `url(${path})`;
-        }
+        // if(this.pageItem?.component_bg_img){
+        //   let path = this.getImagePath(this.pageItem?.component_bg_img, true);
+        //   return `url(${path})`;
+        // }
+        // if (this.setStoreInfo?.image) {
+        //   let path = this.getImagePath(this.setStoreInfo.image, true);
+        //   return `url(${path})`;
+        // }
       },
       isAttention() {
         // 是否关注公众号
@@ -904,7 +908,8 @@
   .layout-1,
   .simple-layout {
     flex-wrap: wrap;
-
+    background-repeat :no-repeat;
+    background-size :100% 100%;
     .store-name {
       width: 100%;
       font-size: 16px;

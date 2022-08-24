@@ -1,5 +1,5 @@
 <template>
-  <view class="store-item" v-if="storeInfo && storeInfo.store_no && pageItem && isShow" :style="[itemStyle]" :class="{
+  <view class="store-item" v-if="storeInfo && storeInfo.store_no && pageItem && isShow" :style="itemStyle" :class="{
 			'is-swiper': pageItem.type === '轮播图',
 			'padding':['疫苗列表'].includes(pageItem.type),
 			'bg-transparent': pageItem && ['关联店铺', '通知横幅', '会员卡片', '通用列表', '商品列表'].includes(pageItem.type),
@@ -176,23 +176,28 @@
       },
       itemStyle() {
         let style = {}
+        
         if (typeof this.pageItem?.more_config === 'object' && typeof this.pageItem?.more_config?.style === 'object') {
           style = this.pageItem?.more_config?.style || {};
         }
+        
         if (this.pageItem?.type === '用户卡片' && this.pageItem?.user_card_type === '卡包') {
-          style.backgroundColor = this.pageItem?.component_bg_color ? 'transparent' : "#fff"
-        } else if (this.pageItem?.component_bg_color) {
-          style.backgroundColor = this.pageItem?.component_bg_color
-        } else if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
-          style.backgroundImage = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
+          style['background-color'] = this.pageItem?.component_bg_color ? 'transparent' : "#fff"
+        }
+        if (this.pageItem?.component_bg_color) {
+          style['background-color'] = this.pageItem?.component_bg_color
+        }
+        if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
+          style['background-color'] = null
+          style['background-image'] = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
           style.backgroundRepeat = 'no-repeat'
           style.backgroundSize = "100% 100%"
         }
         if (style.background && style.background.indexOf('否') !== -1) {
-          style.background = ''
+          style.background = null
         }
-        style.backgroundColor = style.background || '#fff'
-        if(style.backgroundImage){
+        // style['background-color'] = style.background || '#fff'
+        if(style['background-image']){
           style.background = ''
         }
         if (this.pageItem?.button_style === '仅图片') {
@@ -207,7 +212,13 @@
         if (this.pageItem?.is_radius === '是') {
           style.borderRadius = '10px'
         }
-        return style
+        let str = ''
+        if(Object.keys(style).length>0){
+          Object.keys(style).forEach(key=>{
+            str+=`${key}:${style[key]||''};`
+          })
+        }
+        return str||style
       },
       titleStyle() {
         if (typeof this.pageItem?.more_config === 'object') {
