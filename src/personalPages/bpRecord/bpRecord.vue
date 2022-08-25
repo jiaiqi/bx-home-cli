@@ -228,9 +228,10 @@
           "serviceName": service,
           "colNames": ["*"],
           "condition": [{
-            "colName": "store_user_no",
+            "colName": "user_account",
+            // "colName": "store_user_no",
             "ruleType": "eq",
-            "value": this.vstoreUser.store_user_no
+            "value": this.vstoreUser.user_account
           }],
           "page": {
             "pageNo": 1,
