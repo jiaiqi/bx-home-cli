@@ -2,10 +2,13 @@
   <view class="pay-order" :class="['theme-'+theme]">
     <view class="order-detail">
       <view class="form-box">
-        <a-form v-if="colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
+        <a-form v-if="isLoadingCols!==true&&colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
           :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
           @value-blur="valueChange">
         </a-form>
+        <view class="flex justify-center padding-tb" v-else>
+          <u-loading mode="flower" ></u-loading>
+        </view>
       </view>
       <view class="person-info" v-if="orderType==='团购'">
         <view class="cu-form-group">
@@ -232,7 +235,7 @@
         <text v-if="actualMoney">{{actualMoney||''}}</text>
         <text v-else>{{ totalMoney || "" }}</text>
       </text>
-      <button class="cu-btn bg-gradual-orange round" :class="'bx-bg-'+theme" @click="submitOrder"
+      <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" :class="'bx-bg-'+theme" @click="submitOrder"
         v-if="orderInfo.order_state === '待提交'">
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
@@ -286,6 +289,7 @@
     },
     data() {
       return {
+        isLoadingCols:false,
         orderAddService: "", //自定义表单提交服务
         includesColumns: "", // 表单中要包含的字段
         columnsDefaultVal: {}, //表单默认值
@@ -735,6 +739,7 @@
         const service = this.orderAddService || this.fieldsCfg?.service
         if (app && service) {
           uni.showLoading()
+          this.isLoadingCols = true
           let colVs = await this.getServiceV2(service, type, type, app);
           this.colV2 = colVs
           let fields = []
@@ -954,6 +959,7 @@
 
           this.fields = fields
           uni.hideLoading()
+          this.isLoadingCols = false
           return colVs
         }
       },

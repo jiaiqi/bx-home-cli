@@ -200,6 +200,9 @@
         if(style['background-image']){
           style.background = ''
         }
+        if(!style['background-color']){
+          style['background-color'] = '#fff'
+        }
         if (this.pageItem?.button_style === '仅图片') {
           style.borderRadius = '0'
         }

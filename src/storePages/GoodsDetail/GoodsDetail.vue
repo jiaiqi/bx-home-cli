@@ -463,7 +463,7 @@
       },
       phoneCall() {
         uni.makePhoneCall({
-          phoneNumber: this.phone || '10086' //仅为示例
+          phoneNumber: this.phone || this.storeInfo?.telephone || '10086' //仅为示例
         });
       },
 
