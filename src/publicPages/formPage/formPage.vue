@@ -33,7 +33,8 @@
       </view>
 
       <view class="" v-if="hideChildTable"></view>
-      <view class="child-service-box step-mode" v-show="curStep=='child'" v-else-if="stepMode&&colsV2Data && isArray(fields)&&fields.length>0">
+      <view class="child-service-box step-mode" v-show="curStep=='child'"
+        v-else-if="stepMode&&colsV2Data && isArray(fields)&&fields.length>0">
         <view class="change-child">
           <bx-radio-group class="form-item-content_value radio-group" mode="button" v-model="curChild"
             @change="radioChange">
@@ -500,27 +501,27 @@
               }
               let data = this.deepClone(req);
               data.child_data_list = []
-              let dbData =  {
-                child_data_list:[]
+              let dbData = {
+                child_data_list: []
               }
               console.log(this.childService)
               if (Array.isArray(this.childService) && this.childService.length > 0 && !this.hideChildTable) {
                 this.childService.forEach((item, index) => {
-                  
+
                   const child_data = this.$refs.childList[index].getChildDataList()
-                  if(Array.isArray(child_data)&&child_data.length>0){
+                  if (Array.isArray(child_data) && child_data.length > 0) {
                     data.child_data_list.push(...child_data)
                   }
-                  
+
                   const datas = this.$refs.childList[index].buildAllData()
-                  if(Array.isArray(datas)&&datas.length>0){
+                  if (Array.isArray(datas) && datas.length > 0) {
                     dbData.child_data_list.push(datas)
                   }
                   // data.child_data_list.push(this.$refs.childList[index].getChildDataList())
                 })
               }
-              
-              
+
+
               if (this[`${this.srvType}V2`] && this[`${this.srvType}V2`].moreConfig?.submit_validate) {
                 let submit_validate = this[`${this.srvType}V2`].moreConfig?.submit_validate
                 let validateRes = await this.handleSubmitValidate(submit_validate, dbData)
@@ -885,7 +886,82 @@
             }
             break;
           case 'customize':
-          debugger
+
+            let buttonInfo = e;
+
+            let rowData = this.mainData
+
+            let moreConfig = buttonInfo?.more_config;
+
+            if (moreConfig && typeof moreConfig === 'string') {
+              try {
+                buttonInfo.moreConfig = JSON.parse(moreConfig);
+                moreConfig = buttonInfo.moreConfig
+              } catch (e) {
+                //TODO handle the exception
+                console.log(e);
+              }
+            }
+
+            let operate_params = buttonInfo?.operate_params || {}
+            if (buttonInfo?.operate_params && typeof buttonInfo.operate_params === 'string') {
+              try {
+                operate_params = JSON.parse(buttonInfo.operate_params);
+              } catch (e) {
+                //TODO handle the exception
+              }
+            }
+            if (Array.isArray(operate_params?.condition) && operate_params.condition
+              .length > 0) {
+              operate_params.condition.forEach(cond => {
+                if (typeof cond.value === 'object' && cond.value.value_type === 'rowData') {
+                  cond.value = rowData[cond.value.value_key];
+                } else if (typeof cond.value === 'object' && cond.value.value_type ===
+                  'constant') {
+                  cond.value = cond.value.value;
+                } else if (typeof cond.value === 'object' && cond.value.value_type ===
+                  'globalVariable') {
+                  // 全局变量
+                  const globalVariable = {
+                    storeUser: this.vstoreUser,
+                    loginUser: this.vloginUser,
+                    userInfo: this.userInfo,
+                    storeInfo: this.storeInfo
+                  }
+                  cond.value = this.renderStr(cond.value.value_key, globalVariable)
+                }
+              });
+            }
+
+            if (Array.isArray(operate_params?.data) && operate_params.data.length >
+              0) {
+              operate_params.data.forEach(data => {
+                if (typeof data === 'object') {
+                  Object.keys(data).forEach(item => {
+                    if (typeof data[item] === 'object' && data[item].value_type ===
+                      'rowData') {
+                      data[item] = rowData[data[item].value_key];
+                    } else if (typeof data[item] === 'object' && data[item]
+                      .value_type === 'constant') {
+                      data[item] = data[item].value;
+                    } else if (typeof data[item] === 'object' && data[item]
+                      .value_type ===
+                      'globalVariable') {
+                      // 全局变量
+                      const globalVariable = {
+                        storeUser: this.vstoreUser,
+                        loginUser: this.vloginUser,
+                        userInfo: this.userInfo,
+                        storeInfo: this.storeInfo
+                      }
+                      data[item] = this.renderStr(data[item].value_key,
+                        globalVariable)
+                    }
+                  });
+                }
+              });
+            }
+
             if (e.operate_type === '删除') {
               let data = {
                 button: e,
@@ -917,7 +993,438 @@
                 }
               })
 
+            } else if (['操作', '增加', '修改'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
+
+              if (moreConfig?.type === 'wx_pay') {
+                this.onRequestPayment(rowData, moreConfig)
+                return
+              }
+
+              let reqData = [{
+                serviceName: buttonInfo.operate_service,
+                condition: buttonInfo.operate_params.condition,
+                data: buttonInfo.operate_params.data
+              }];
+
+              if (!buttonInfo.operate_params.data && buttonInfo.servcie_type === 'update') {
+                uni.showModal({
+                  title: '提示',
+                  content: '按钮操作参数配置有误',
+                  showCancel: false
+                })
+                return
+              }
+              let app = this.appName || uni.getStorageSync('activeApp');
+              let url = this.getServiceUrl(buttonInfo.application || app, buttonInfo.operate_service,
+                buttonInfo.servcie_type);
+              uni.showModal({
+                title: '提示',
+                content: '是否确认操作?',
+                success: (e) => {
+                  if (e.confirm) {
+                    this.$http.post(url, reqData).then(result => {
+                      if (result?.data?.state === 'SUCCESS') {
+                        // this.refresh()
+                        this.getDefaultVal()
+                      }
+                    })
+                  }
+                }
+              })
+              return
+            } else if (buttonInfo.operate_type === "URL跳转") {
+              let storeInfo = this.$store?.state?.app?.storeInfo
+              let bindUserInfo = this.$store?.state?.user?.storeUserInfo
+              let globalData = {
+                userInfo: this.userInfo,
+                data: rowData,
+                rowData,
+                storeInfo,
+                bindUserInfo,
+                storeUser: bindUserInfo
+              };
+              if (buttonInfo?.moreConfig?.navUrl) {
+                // 跳转到自定义页面
+                if (buttonInfo?.moreConfig?.click_validate) {
+                  let click_validate = buttonInfo?.moreConfig?.click_validate
+                  if (Array.isArray(click_validate) && click_validate.length > 0) {
+                    let num = 0;
+                    for (let i = 0; i < click_validate.length; i++) {
+                      const item = click_validate[i]
+                      if (['data-empty', 'no-repeat'].includes(item.type)) {
+                        // 校验重复数据及空数据
+                        // data-empty:没有数据时不通过；no-repeat：有数据时不通过
+                        if (num > 0) {
+                          return
+                        }
+                        const service = item.service
+                        let condition = []
+                        if (Array.isArray(item.condition)) {
+                          condition = item.condition.map(cond => {
+                            let obj = {
+                              colName: cond.colName,
+                              ruleType: cond.ruleType,
+                              value: ''
+                            }
+                            if (cond?.value?.value_type === 'variable' && cond?.value?.value) {
+                              obj.value = this.renderStr(cond?.value?.value, globalData)
+                            } else if (cond?.value?.value_type === 'rowData') {
+                              obj.value = data[cond?.value?.value_key]
+                            } else if (cond?.value?.value_type === 'constant') {
+                              obj.value = cond?.value?.value
+                            }
+                            return obj
+                          })
+                        }
+                        let url = this.getServiceUrl(item?.app || this.appName || uni
+                          .getStorageSync('activeApp'), service, 'select');
+                        let req = {
+                          "serviceName": service,
+                          "condition": condition,
+                          colNames: ['*'],
+                          page: {
+                            pageNo: 1,
+                            rownumber: 1
+                          }
+                        }
+                        let res = await this.$http.post(url, req)
+                        if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+                          let noPass = false
+                          if (item.type === 'no-repeat') {
+                            if (res.data.data.length > 0) {
+                              num++
+                              noPass = true
+                            }
+                          } else {
+                            if (res.data.data.length <= 0) {
+                              num++
+                              noPass = true
+                            }
+                          }
+                          if (noPass && item.fail_tip) {
+                            uni.showModal({
+                              title: '提示',
+                              content: item.fail_tip,
+                              showCancel: false
+                            })
+                          }
+                        }
+                      } else if (item.type === 'followOfficial') {
+                        // 检查是否关注公众号
+                        let res = await this.checkSubscribeStatus()
+                        if (!res) {
+                          num++
+                          let confirm = await new Promise((resolve) => {
+                            uni.showModal({
+                              title: '提示',
+                              content: '请先关注百想助理公众号，以便及时收到新消息通知',
+                              confirmText: '去关注',
+                              success: (res) => {
+                                if (res.confirm) {
+                                  resolve(true)
+                                } else {
+                                  resolve(false)
+                                }
+                              }
+                            })
+                          })
+                          if (confirm === true) {
+                            if (this.$api?.env === 'prod') {
+                              this.toOfficial()
+                              return
+                            }
+                          } else {
+                            return
+                          }
+                        }
+                      }
+
+                    }
+                    if (num > 0) {
+                      return
+                    }
+                  }
+                }
+
+
+                let url = this.renderStr(buttonInfo.moreConfig.navUrl, globalData)
+
+                let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+                if (this.hideChildTable) {
+                  url += `&hideChildTable=true`
+                }
+                this.navigateTo({
+                  url,
+                  title
+                })
+              } else if (buttonInfo?.pre_data_handle === 'requestPayment' || buttonInfo?.path_col ===
+                'requestPayment') {
+                // 调起支付接口
+                let total_col = 'order_amount'
+                let order_no_col = 'order_no'
+                if (buttonInfo?.moreConfig?.total_col) {
+                  total_col = buttonInfo?.moreConfig?.total_col
+                }
+                if (buttonInfo?.moreConfig?.order_no_col) {
+                  order_no_col = buttonInfo?.moreConfig?.order_no_col
+                }
+                let total = rowData[total_col]
+                let orderNo = rowData[order_no_col]
+                rowData.order_no = rowData.order_no || orderNo
+                if (total && orderNo) {
+                  let wx_mch_id = this.getwxMchId()
+                  let result = {}
+                  if (rowData?.prepay_id) {
+                    result = {
+                      prepay_id: rowData?.prepay_id
+                    }
+                  } else {
+                    result = await this.toPlaceOrder(total * 100, this.vloginUser?.login_user_type, rowData,
+                      wx_mch_id);
+                  }
+                  if (result && result.prepay_id) {
+                    let res = await this.getPayParams(result.prepay_id, wx_mch_id);
+                    wx.requestPayment({
+                      timeStamp: res.timeStamp.toString(),
+                      nonceStr: res.nonceStr,
+                      package: res.package,
+                      signType: 'MD5',
+                      paySign: res.paySign,
+                      success(res) {
+                        // 支付成功
+                        self.updateOrderState('待发货', '已支付', result.prepay_id, rowData
+                          .order_no);
+                      },
+                      fail(res) {
+                        // 支付失败/取消支付
+                        self.updateOrderState('待支付', '取消支付', result.prepay_id, rowData
+                          .order_no);
+                      }
+                    });
+                  }
+                }
+              } else if (buttonInfo?.moreConfig?.type === 'showQrcode') {
+                // 展示二维码弹框
+                if (buttonInfo?.moreConfig?.qrcode_content) {
+                  let data = {
+                    storeInfo: this.storeInfo,
+                    userInfo: this.userInfo,
+                    storeUser: this.vstoreUser,
+                    data: rowData
+                  }
+                  this.qrCodeText = this.renderStr(buttonInfo?.moreConfig?.qrcode_content, data)
+                  this.modalName = 'showQrCode'
+                  this.makeQrCode()
+                }
+              }
+            } else if (buttonInfo.operate_type === '更新弹出' || buttonInfo.operate_type === '更新跳转') {
+              // 自定义按钮
+              let moreConfig = buttonInfo.more_config;
+              if (moreConfig && typeof moreConfig === 'string') {
+                try {
+                  moreConfig = JSON.parse(moreConfig);
+                } catch (e) {
+                  //TODO handle the exception
+                  console.log(e);
+                }
+              }
+              if (buttonInfo.servcie_type === 'add') {
+                let params = {
+                  type: 'add',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                let url = '/pages/public/formPage/formPage?params=' + JSON.stringify(
+                  params)
+                // uni.navigateTo({
+                //   url
+                // });
+                if (this.hideChildTable) {
+                  url += `&hideChildTable=true`
+                }
+                let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+                this.navigateTo({
+                  url,
+                  title
+                })
+
+                return
+              } else if (buttonInfo.servcie_type === 'select') {
+                let params = {
+                  type: 'select',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                if (buttonInfo.operate_params && Array.isArray(buttonInfo.operate_params
+                    .condition)) {
+                  let viewTemp = {};
+                  if (buttonInfo.service_name ===
+                    'srvhealth_store_vaccination_appoint_record_select') {
+                    viewTemp = {
+                      title: 'customer_name',
+                      img: 'person_image',
+                    }
+                  }
+
+
+                  let url = '/publicPages/list/list?pageType=list&serviceName=' +
+                    buttonInfo.service_name +
+                    '&cond=' +
+                    JSON.stringify(buttonInfo.operate_params.condition) +
+                    '&viewTemp=' +
+                    JSON.stringify(viewTemp)
+
+                  if (this.hideChildTable) {
+                    url += `&hideChildTable=true`
+                  }
+
+                  uni.navigateTo({
+                    url
+                  });
+                  return
+                }
+              } else if (buttonInfo.servcie_type === 'update' || buttonInfo.servcie_type === 'operate') {
+                let params = {
+                  type: 'update',
+                  serviceName: buttonInfo.service_name,
+                  defaultVal: rowData,
+                  eventOrigin: buttonInfo
+                };
+                let fieldsCond = [];
+                let condition = buttonInfo?.operate_params?.condition
+                let defaultVal = buttonInfo?.operate_params?.data
+                if (Array.isArray(defaultVal) && defaultVal.length > 0) {
+                  let obj = defaultVal[0]
+                  if (this.iObject(obj)) {
+                    Object.keys(obj).forEach(key => {
+                      fieldsCond.push({
+                        column: key,
+                        value: obj[key]
+                      })
+                    })
+                  }
+                }
+
+                if (fieldsCond.length === 0) {
+                  fieldsCond = [{
+                    column: 'id',
+                    value: rowData.id
+                  }]
+                }
+
+                let url =
+                  `/publicPages/formPage/formPage?service=${buttonInfo.service}&serviceName=${buttonInfo.service_name}&type=update&fieldsCond=` +
+                  encodeURIComponent(JSON.stringify(fieldsCond));
+                if (this.appName) {
+                  url += `&appName=${this.appName}`
+                }
+                if (Array.isArray(condition) && condition.length > 0) {
+                  url += `&condition=${JSON.stringify(condition)}`
+                }
+                if (this.hideChildTable) {
+                  url += `&hideChildTable=true`
+                }
+                uni.navigateTo({
+                  url: url
+                });
+                return
+              }
+              return
+            } else if (buttonInfo.operate_type === '列表跳转') {
+              // let serviceName = buttonInfo.service_name;
+              // let 
+              let app = buttonInfo.application
+              let url = '/publicPages/list2/list2?pageType=list&serviceName=' +
+                buttonInfo.service_name +
+                '&cond=' +
+                JSON.stringify(buttonInfo.operate_params.condition)
+
+              if (app) {
+                url += `&destApp=${app}`
+              }
+              if (this.disabled === true) {
+                url += '&disabled=true'
+              }
+
+              let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
+              this.navigateTo({
+                url,
+                title
+              })
+              return
+            } else if (buttonInfo.operate_type === '详情跳转') {
+              let fieldsCond = [];
+              if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition
+                .length >
+                0) {
+                buttonInfo.operate_params.condition.forEach(item => {
+                  let obj = {
+                    column: item.colName,
+                    value: item.value,
+                    disabled: true
+                  }
+                  fieldsCond.push(obj)
+                })
+              }
+              let url =
+                `/publicPages/formPage/formPage?type=detail&disabled=true&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
+              uni.navigateTo({
+                url
+              })
+              return
+            } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
+              let fieldsCond = [];
+              if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition
+                .length >
+                0) {
+                buttonInfo.operate_params.condition.forEach(item => {
+                  let obj = {
+                    column: item.colName,
+                    value: item.value,
+                    disabled: true
+                  }
+                  fieldsCond.push(obj)
+                })
+              }
+              if (Array.isArray(buttonInfo.operate_params?.data) && buttonInfo.operate_params.data.length >
+                0) {
+                buttonInfo.operate_params.data.forEach(item => {
+                  Object.keys(item).forEach(key => {
+                    let obj = {
+                      column: key,
+                      value: item[key],
+                      disabled: true
+                    }
+                    fieldsCond.push(obj)
+                  })
+
+                })
+              }
+              let url =
+                `/publicPages/formPage/formPage?type=add&serviceName=${buttonInfo.service_name}&fieldsCond=${JSON.stringify(fieldsCond)}&destApp=${buttonInfo.application}`;
+              // uni.navigateTo({
+              //   url
+              // });
+              if (this.hideChildTable) {
+                url += `&hideChildTable=true`
+              }
+              let title = buttonInfo?.service_view_name || buttonInfo?.button_name
+              this.navigateTo({
+                url,
+                title
+              })
+              return
             }
+
+
             break;
         }
 
