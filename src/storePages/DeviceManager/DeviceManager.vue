@@ -424,7 +424,7 @@ export default {
         "condition": [ {
           "colName": "store_user_no",
           "ruleType": 'eq',
-          "value": this.storeUserInfo.store_user_no
+          "value": this.vstoreUser?.store_user_no
         } ],
         "page": { "pageNo": this.pageNo, "rownumber": 10 },
         "order": [ { colName: "create_time", orderType: "desc" } ]
@@ -655,17 +655,36 @@ export default {
           "condition": [],
           "data": [
             {
+              "owner_type": "个人",
               "user_count": this.deviceInfo.user_count,
               "dt_name": this.deviceInfo.dt_name,
               "type_pic": this.deviceInfo.type_pic,
-              "dic_no": result.dic_no, "serial_number": result.dic_device_id,
-              "store_user_no": this.storeUserInfo.store_user_no,
-              "store_no": this.store_no, "person_no": this.userInfo.no,
-              "sex": this.userInfo.sex, "user_device_role": "用户",
+              "dic_no": result.dic_no, 
+              "serial_number": result.dic_device_id,
+              "store_user_no": this.vstoreUser?.store_user_no,
+              "store_no": this.store_no, 
+              "person_no": this.userInfo.no,
+              "sex": this.userInfo.sex, 
+              "user_device_role": "用户",
               "record_table": this.deviceInfo.record_table,
               user_id_col: this.deviceInfo.user_id_col,
               // "child_data_list": childList
-            }
+            },
+            
+            // dic_no: "DIC202208250002"
+            // dt_name: "愛奧樂A223臂式电子血压计"
+            // owner_type: "个人"
+            // person_no: "PB2020092209440043"
+            // record_table: "bxiot_ap_user_bp_data"
+            // serial_number: "20A313878"
+            // sex: "男"
+            // store_no: "S20210204016"
+            // store_user_no: "BX2112212139538978"
+            // sync_to_owner_record: "不同步"
+            // type_pic: "20210510173534874100"
+            // user_count: 2
+            // user_device_role: "用户"
+            // user_id_col: "user"
           ]
 
         }
@@ -729,6 +748,7 @@ export default {
           result = { ...result, dt_no: selectedDeviceType.dt_no }
         }
       }
+      
       // let data = await this.getDeviceInfoWithDIC(result)
       if (result.dt_no && result.dic_device_id) {
         let deviceInfo = await this.selectDeviceInfo(result.dt_no)
@@ -757,48 +777,48 @@ export default {
         }
       }
       return
-      if (data && data.dic_no) {
-        // 绑定设备
-        const req = [
-          {
-            "serviceName": "srvhealth_store_user_device_add",
-            "condition": [],
-            "data": [
-              {
-                "dic_no": data.dic_no,
-                "type_pic": data.type_pic,
-                "person_remark_device_name": data.dt_name,
-                "store_user_no": this.storeUserInfo.store_user_no,
-                "store_no": this.store_no,
-                "person_no": this.storeUserInfo.person_no,
-                "user_device_role": "用户"
-              }
-            ]
-          }
-        ]
-        const res = await this.$fetch('operate', 'srvhealth_store_user_device_add', req, 'health')
-        if (res.success) {
-          // uni.showToast({
-          //   title: '设备绑定成功',
-          //   icon: 'none',
-          //   mask: true
-          // })
-          uni.startPullDownRefresh()
-          console.log(res.data)
-          if (Array.isArray(res.data) && res.data.length > 0) {
-            uni.showModal({
-              title: '设备绑定成功',
-              content: '是否需要修改默认设备名称',
-              success: (res1) => {
-                if (res1.confirm) {
-                  this.showUpdateDeviceName(res.data[ 0 ])
-                }
-              }
-            })
-          }
+      // if (data && data.dic_no) {
+      //   // 绑定设备
+      //   const req = [
+      //     {
+      //       "serviceName": "srvhealth_store_user_device_add",
+      //       "condition": [],
+      //       "data": [
+      //         {
+      //           "dic_no": data.dic_no,
+      //           "type_pic": data.type_pic,
+      //           "person_remark_device_name": data.dt_name,
+      //           "store_user_no": this.vstoreUser.store_user_no,
+      //           "store_no": this.store_no,
+      //           "person_no": this.vstoreUser.person_no,
+      //           "user_device_role": "用户"
+      //         }
+      //       ]
+      //     }
+      //   ]
+      //   const res = await this.$fetch('operate', 'srvhealth_store_user_device_add', req, 'health')
+      //   if (res.success) {
+      //     // uni.showToast({
+      //     //   title: '设备绑定成功',
+      //     //   icon: 'none',
+      //     //   mask: true
+      //     // })
+      //     uni.startPullDownRefresh()
+      //     console.log(res.data)
+      //     if (Array.isArray(res.data) && res.data.length > 0) {
+      //       uni.showModal({
+      //         title: '设备绑定成功',
+      //         content: '是否需要修改默认设备名称',
+      //         success: (res1) => {
+      //           if (res1.confirm) {
+      //             this.showUpdateDeviceName(res.data[ 0 ])
+      //           }
+      //         }
+      //       })
+      //     }
 
-        }
-      }
+      //   }
+      // }
       // if(data&&data.dp_no){
 
       // }

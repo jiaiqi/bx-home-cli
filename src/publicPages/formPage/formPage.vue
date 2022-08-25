@@ -400,6 +400,7 @@
         }
       },
       onChildButton(e) {
+        debugger
         if (e?.btn?.button_type === 'add') {
           // 添加子表数据
           this.currentFormFk = e?.foreignKey
@@ -455,7 +456,6 @@
         }
 
         if (e.type === 'navToList') {
-
           let url =
             `/publicPages/list2/list2?destApp=${e.app||this.appName}&serviceName=${e.service||this.serviceName}`
           if (e.cond) {
@@ -487,6 +487,7 @@
             req[key] = req[key].toString();
           }
         }
+        debugger
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情' && this.use_type === 'detail') {
@@ -884,6 +885,7 @@
             }
             break;
           case 'customize':
+          debugger
             if (e.operate_type === '删除') {
               let data = {
                 button: e,
