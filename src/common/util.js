@@ -1962,11 +1962,11 @@ export default {
       return str
     }
 
-    Vue.prototype.toArticle = (no) => {
-      uni.navigateTo({
-        url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
-      });
-    }
+    // Vue.prototype.toArticle = (no) => {
+    //   uni.navigateTo({
+    //     url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
+    //   });
+    // }
 
     Vue.prototype.delNotChineseChar = (str) => {
       // 去掉非中文字符

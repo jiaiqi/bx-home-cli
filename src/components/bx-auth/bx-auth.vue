@@ -21,12 +21,12 @@
             <radio :value="isChecked" style="transform: scale(0.7);"/><text> 阅读并接受</text>
           </label> -->
           <u-checkbox v-model="isChecked" name="confirm" shape="circle" active-color="blue">阅读并接受</u-checkbox>
-          <text v-if="documents&&documents.length>0">
+          <template v-if="documents&&documents.length>0">
             <text class="text-blue margin-right-xs" @click="openDocument(item.protocol_file)"
               v-for="item in documents">{{item.protocol_name}}</text>
-          </text>
-          <text v-else><text class="text-blue" @click="toArticle('CT2021012816330102')">百想用户协议</text>
-            <text class="text-blue" @click="toArticle('CT2021012816470103')">、隐私协议</text></text>
+          </template>
+          <template v-else><text class="text-blue" @click.stop="toArticle('CT2021012816330102')">百想用户协议</text>
+            <text class="text-blue" @click.stop="toArticle('CT2021012816470103')">、隐私协议</text></template>
         </view>
         <view class="button-box flex flex-wrap justify-center align-center">
           <button class="cu-btn bg-transparent text-gray button margin-tb" @click="cancel"
@@ -80,7 +80,12 @@
       this.getDocs()
     },
     methods: {
-   
+      toArticle(no) {
+        debugger
+        uni.navigateTo({
+          url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
+        });
+      },
       getDocs() {
         //查找协议列表
         const url = `/health/select/srvhealth_protocol_manage_select`
@@ -88,15 +93,16 @@
           "serviceName": "srvhealth_protocol_manage_select",
           "colNames": ["*"],
           "condition": [{
-            colName: 'store_no',
-            ruleType: 'eq',
-            value: this.storeInfo?.store_no
-          },
-          {
-            colName:'sign_opportunity',
-            ruleType:'like',
-            value:'微信授权时'
-          }],
+              colName: 'store_no',
+              ruleType: 'eq',
+              value: this.storeInfo?.store_no
+            },
+            {
+              colName: 'sign_opportunity',
+              ruleType: 'like',
+              value: '微信授权时'
+            }
+          ],
           "page": {
             "pageNo": 1,
             "rownumber": 5
@@ -180,9 +186,9 @@
           this.show = false
           this.$emit('auth-complete')
           uni.showToast({
-            title:'登录成功',
-            icon:"none",
-            duration:3000
+            title: '登录成功',
+            icon: "none",
+            duration: 3000
           })
           return
         }
