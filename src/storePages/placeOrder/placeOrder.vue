@@ -1,5 +1,8 @@
 <template>
   <view class="pay-order" :class="['theme-'+theme]">
+    <view class="cu-load load-modal" v-if="onPay==true" @click.stop="" @touchstart.stop.prevent="" @mousemove.stop.prevent="">
+      <text>请稍后...</text>
+    </view>
     <view class="order-detail">
       <view class="form-box">
         <a-form v-if="isLoadingCols!==true&&colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
