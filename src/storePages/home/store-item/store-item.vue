@@ -184,7 +184,7 @@
         if (this.pageItem?.type === '用户卡片' && this.pageItem?.user_card_type === '卡包') {
           style['background-color'] = this.pageItem?.component_bg_color ? 'transparent' : "#fff"
         }
-        if (this.pageItem?.component_bg_color) {
+        if (this.pageItem?.component_bg_color&&this.pageItem?.component_bg_color!=='否') {
           style['background-color'] = this.pageItem?.component_bg_color
         }
         if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
@@ -211,6 +211,9 @@
         }
         if (this.pageItem?.is_radius === '是') {
           style.borderRadius = '10px'
+        }
+        if(!style['background']&&!style['background-color']&&!style['background-image']){
+          style['background-color'] = '#fff'
         }
         let str = ''
         if(Object.keys(style).length>0){

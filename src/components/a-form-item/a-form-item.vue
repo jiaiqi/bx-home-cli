@@ -264,9 +264,9 @@
     <view class="cu-modal bottom-modal" :class="{ show: modalName === 'TreeSelector' }" @tap="hideModal">
       <view class="cu-dialog" @tap.stop="">
         <view class="tree-selector cascader" v-show="modalName === 'TreeSelector'">
-          <tree-selector :srvInfo="fieldData.srvInfo" :fieldData="fieldData" v-if="fieldData&& fieldData.srvInfo" :srvApp="srvApp"
-            :fields-model="fieldsModel" @cancel="hideModal" @on-get-data="onGetTreeData" :pageType="pageType"
-            :current="selectTreeData" @confirm="getCascaderValue">
+          <tree-selector :srvInfo="fieldData.srvInfo" :fieldData="fieldData" v-if="fieldData&& fieldData.srvInfo"
+            :srvApp="srvApp" :fields-model="fieldsModel" @cancel="hideModal" @on-get-data="onGetTreeData"
+            :pageType="pageType" :current="selectTreeData" @confirm="getCascaderValue">
           </tree-selector>
         </view>
       </view>
@@ -1240,7 +1240,8 @@
         let self = this;
         // self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
-          if(Array.isArray(this.fieldData?.moreConfig?.customOptions)&&this.fieldData?.moreConfig?.customOptions.length>0){
+          if (Array.isArray(this.fieldData?.moreConfig?.customOptions) && this.fieldData?.moreConfig?.customOptions
+            .length > 0) {
             // 自定义枚举值
             this.selectorData = this.fieldData?.moreConfig?.customOptions
           }
@@ -1722,9 +1723,12 @@
         }
         if (this.fieldData.isRequire && this.fieldData.value) {
           if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty(
-              'isType') && typeof this.fieldData._validators.isType === 'function') {
-            this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
-            this.valid.valid = true;
+              'reg')) {
+            // this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
+            this.fieldData.valid = this.onRegTest(this.fieldData._validators?.reg, this.fieldData._validators?.msg, this
+              .fieldData.value);
+            this.valid.valid = this.fieldData.valid?.valid ?? true;
+            this.valid.msg = this.fieldData.valid?.msg || this.valid.msg || '';
           } else {
             this.fieldData.valid = {
               valid: true,
@@ -1732,24 +1736,14 @@
             };
             this.valid.valid = true;
           }
-          // this.valid.valid = this.fieldData.valid.valid;
         } else if (this.fieldData.isRequire && (this.fieldData.value === '' || this.fieldData.value === null ||
             this.fieldData.value === undefined)) {
-          // if (this.fieldsModel[this.fieldData.column]) {
-          // 	this.fieldData.value = this.fieldsModel[this.fieldData.column]
-          // 	this.fieldData.valid = {
-          // 		valid: true,
-          // 		msg: '有效'
-          // 	};
-          // 	this.valid.valid = true;
-          // } else {
           this.fieldData.valid = {
             display: this.fieldData.display,
             valid: false,
             msg: this.fieldData.label + '不能为空'
           };
           this.valid.valid = false;
-          // }
 
         } else {
           this.fieldData.valid = {

@@ -239,7 +239,7 @@ export default {
             if (fieldInfo.moreConfig?.minWidthHeightRatio) {
               // 视频上传限制最小宽高比例
               fieldInfo.minRatio = Number(fieldInfo.moreConfig?.minWidthHeightRatio)
-              if(isNaN(fieldInfo.minRatio)){
+              if (isNaN(fieldInfo.minRatio)) {
                 fieldInfo.minRatio = null
               }
             }
@@ -247,7 +247,7 @@ export default {
             if (fieldInfo.moreConfig?.maxWidthHeightRatio) {
               // 视频上传限制最大宽高比例
               fieldInfo.maxRatio = Number(fieldInfo.moreConfig?.maxWidthHeightRatio)
-              if(isNaN(fieldInfo.maxRatio)){
+              if (isNaN(fieldInfo.maxRatio)) {
                 fieldInfo.maxRatio = null
               }
             }
@@ -696,111 +696,182 @@ export default {
      * @param {String} url - 协议+ip+端口
      */
     Vue.prototype.getServiceUrl = function(app, srv, srvType, url) {
-        // 获取转换URL app, srv, srvType, url
-        let singleApp = api.singleApp
+      // 获取转换URL app, srv, srvType, url
+      let singleApp = api.singleApp
 
-        let urlVal = url || api.srvHost
-        let appVal = app
-        if (singleApp) {
-          appVal = api.appName
+      let urlVal = url || api.srvHost
+      let appVal = app
+      if (singleApp) {
+        appVal = api.appName
 
-        } else {
-          appVal = uni.getStorageSync('activeApp')
-        }
-        if (app) {
-          appVal = app
-        }
-        let srvTypeVal = srvType
-        let srvVal = srv
-        console.log("url:", urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal)
-        return urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal
-      },
-
-      /**
-       * 封装配置的校验信息
-       *  @param {String} vds - col 配置的 validators
-       *  @param {String} msg - col 配置的 validators_message
-       */
-      Vue.prototype.getValidators = function(vds, msg) { // 获取校验信息返回组件data
-        if (vds !== null && msg !== null) {
-          let str = vds
-          console.log('vds', vds)
-          let getStr = function(val, state, end) {
-            if (val.length > state.length + end.length) {
-              let s = val.indexOf(state)
-              if (s === -1) {
-                return ''
-              } else {
-                let nval = val.slice(s + state.length, val.length)
-                let e = nval.indexOf(end)
-                let str = nval.slice(0, e)
-                if (e === -1) {
-                  str = nval.slice(0)
-                }
-                return str
-              }
-            } else {
-              return ''
-            }
-          }
-          let Validators = {}
-          let reg = /required/gi
-          Validators['max'] = getStr(str, 'ngMaxlength=', ';').length > 0 ? parseInt(getStr(str,
-              'ngMaxlength=', ';')) :
-            null
-          Validators['min'] = getStr(str, 'ngMinlength=', ';').length > 0 ? parseInt(getStr(str,
-              'ngMinlength=', ';')) :
-            null
-          Validators['reg'] = getStr(str, 'ngPattern=', ';')
-          Validators['required'] = reg.test(str)
-          Validators['msg'] = getStr(msg, 'ngPattern=', ';')
-          Validators['isType'] = function(e) {
-            let reg = new RegExp(getStr(str, 'ngPattern=', ';'))
-            if (reg.test(e)) {
-              let obj = {
-                valid: reg.test(e),
-                msg: "有效"
-              }
-              return obj
-            } else {
-              let msgs = getStr(msg, 'ngPattern=', ';')
-              msgs = msgs === '' ? '信息有误' : msgs
-              let obj = {
-                valid: reg.test(e),
-                msg: msgs
-              }
-              return obj
-            }
-          }
-          return Validators
-        } else if (vds && !msg) {
-          let reg = /required/gi
-          let Validators = {}
-          Validators['required'] = reg.test(vds)
-          return Validators
-        } else {
-          return false
-        }
+      } else {
+        appVal = uni.getStorageSync('activeApp')
       }
-    Vue.prototype.deepClone = function(obj) {
-      // 深拷贝
-      function isObject(o) {
-        return (typeof o === 'object' || typeof o === 'function') && o !== null
+      if (app) {
+        appVal = app
       }
-      if (!isObject(obj)) {
-        // throw new Error('非对象')
-        console.log("非对象")
-        return
-      }
-      let isArray = Array.isArray(obj)
-      let newObj = isArray ? [...obj] : {
-        ...obj
-      }
-      Reflect.ownKeys(newObj).forEach(key => {
-        newObj[key] = isObject(obj[key]) ? Vue.prototype.deepClone(obj[key]) : obj[key]
-      })
-      return newObj
+      let srvTypeVal = srvType
+      let srvVal = srv
+      console.log("url:", urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal)
+      return urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal
     }
+    Vue.prototype.onRegTest = (regStr='',msgs='',text='')=>{
+        let reg = new RegExp(regStr)
+        if (reg.test(text)) {
+          let obj = {
+            valid: reg.test(text),
+            msg: "有效"
+          }
+          return obj
+        } else {
+          msgs = msgs === '' ? '信息有误' : msgs
+          let obj = {
+            valid: reg.test(text),
+            msg: msgs
+          }
+          return obj
+        }
+    }
+    /**
+     * 封装配置的校验信息
+     *  @param {String} vds - col 配置的 validators
+     *  @param {String} msg - col 配置的 validators_message
+     */
+    Vue.prototype.getValidators = function(vds = "", msg = "") { // 获取校验信息返回组件data
+      // if (vds !== null ) {
+      if (vds !== null && msg !== null) {
+        let str = vds
+        let getStr = function(val = "", state = "", end = "") {
+          if (val.length > state.length + end.length) {
+            let s = val.indexOf(state)
+            if (s === -1) {
+              return ''
+            } else {
+              let nval = val.slice(s + state.length, val.length)
+              let e = nval.indexOf(end)
+              let str = nval.slice(0, e)
+              if (e === -1) {
+                str = nval.slice(0)
+              }
+              return str
+            }
+          } else {
+            return ''
+          }
+        }
+        let Validators = {}
+        let reg = /required/gi
+        Validators['max'] = getStr(str, 'ngMaxlength=', ';').length > 0 ? parseInt(getStr(str,
+            'ngMaxlength=', ';')) :
+          null
+        Validators['min'] = getStr(str, 'ngMinlength=', ';').length > 0 ? parseInt(getStr(str,
+            'ngMinlength=', ';')) :
+          null
+        Validators['reg'] = getStr(str, 'ngPattern=', ';')
+        Validators['required'] = reg.test(str)
+        Validators['msg'] = getStr(msg, 'ngPattern=', ';')
+      
+        return Validators
+      } else if (vds && !msg) {
+        let reg = /required/gi
+        let Validators = {}
+        Validators['required'] = reg.test(vds)
+        return Validators
+      } else {
+        return false
+      }
+    }
+    const is = {
+      Array: Array.isArray,
+      Date: (val) => val instanceof Date,
+      Set: (val) => Object.prototype.toString.call(val) === '[object Set]',
+      Map: (val) => Object.prototype.toString.call(val) === '[object Map]',
+      Object: (val) => Object.prototype.toString.call(val) === '[object Object]',
+      Symbol: (val) => Object.prototype.toString.call(val) === '[object Symbol]',
+      Function: (val) => Object.prototype.toString.call(val) === '[object Function]',
+    }
+    Vue.prototype.deepClone = (value) => {
+      // 2.1 函数浅拷贝
+      /* if (is.Function(value)) return value */
+      // 2.2 函数深拷贝
+      if (is.Function(value)) {
+        if (/^function/.test(value.toString()) || /^\(\)/.test(value.toString()))
+          return new Function('return ' + value.toString())()
+
+        return new Function('return function ' + value.toString())()
+      }
+
+      // 3.Date 深拷贝
+      if (is.Date(value)) return new Date(value.valueOf())
+
+      // 4.判断如果是Symbol的value, 那么创建一个新的Symbol
+      if (is.Symbol(value)) return Symbol(value.description)
+
+      // 5.判断是否是Set类型 进行深拷贝
+      if (is.Set(value)) {
+        // 5.1 浅拷贝 直接进行解构即可
+        // return new Set([...value])
+
+        // 5.2 深拷贝
+        const newSet = new Set()
+        for (const item of value) newSet.add(Vue.prototype.deepClone(item))
+        return newSet
+      }
+
+      // 6.判断是否是Map类型 
+      if (is.Map(value)) {
+        // 6.1 浅拷贝 直接进行解构即可
+        // return new Map([...value])
+
+        // 6.2 深拷贝
+        const newMap = new Map()
+        for (const item of value) newMap.set(Vue.prototype.deepClone(item[0]), Vue.prototype.deepClone(item[1]))
+        return newMap
+      }
+
+      // 1.如果不是对象类型则直接将当前值返回
+      if (!(is.Object(value))) return value
+
+      // 7.判断传入的对象是数组, 还是对象
+      const newObject = is.Array(value) ? [] : {}
+
+      for (const key in value) {
+        // 8 进行递归调用
+        newObject[key] = Vue.prototype.deepClone(value[key])
+      }
+
+      // 4.1 对Symbol作为key进行特殊的处理 拿到对象上面的所有Symbol key，以数组形式返回
+      const symbolKeys = Object.getOwnPropertySymbols(value)
+      for (const sKey of symbolKeys) {
+
+        // 4.2 这里没有必要创建一个新的Symbol
+        // const newSKey = Symbol(sKey.description)
+
+        // 4.3 直接将原来的Symbol key 拷贝到新对象上就可以了
+        newObject[sKey] = Vue.prototype.deepClone(value[sKey])
+      }
+
+      return newObject
+    }
+    // Vue.prototype.deepClone = function(obj) {
+    //   // 深拷贝
+    //   function isObject(o) {
+    //     return (typeof o === 'object' || typeof o === 'function') && o !== null
+    //   }
+    //   if (!isObject(obj)) {
+    //     // throw new Error('非对象')
+    //     console.log("非对象")
+    //     return
+    //   }
+    //   let isArray = Array.isArray(obj)
+    //   let newObj = isArray ? [...obj] : {
+    //     ...obj
+    //   }
+    //   Reflect.ownKeys(newObj).forEach(key => {
+    //     newObj[key] = isObject(obj[key]) ? Vue.prototype.deepClone(obj[key]) : obj[key]
+    //   })
+    //   return newObj
+    // }
     Vue.prototype.toPreviewImage = (urls, current = 0) => {
       if (!urls) {
         return;

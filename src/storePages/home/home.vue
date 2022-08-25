@@ -117,7 +117,7 @@
       },
       themeVariable() {
         let config = this.themeConfig
-        return `--home-bg-color:${config?.style_bg_color||'#f8f8f8'};--home-text-color:${config?.style_font_color||'#333'};--home-text-size:${config?.style_font_size||'14'}px;`
+        return `--home-bg:${config?.style_bg||''};--home-bg-color:${config?.style_bg_color||'#f8f8f8'};--home-text-color:${config?.style_font_color||'#333'};--home-text-size:${config?.style_font_size||'14'}px;`
       },
       singleStore() {
         return this.$api.singleStore && this.$api.storeNo
@@ -1813,6 +1813,7 @@
   .page-wrap {
     background-color: #f8f8fa;
     background-color: var(--home-bg-color);
+    background: var(--home-bg);
     color: var(--home-text-color);
     font-size: var(--home-text-size);
     max-width: 960px;

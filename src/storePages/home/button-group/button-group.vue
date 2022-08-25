@@ -19,8 +19,7 @@
       </view>
     </view>
     <view class="pictuer-button" v-else-if="pageItem.button_style==='仅图片'">
-      <view class="picture-button-item" :style="[{width:item.imgWidth,height:item.imgHeight,margin:item.margin}]"
-        v-for="item in buttonsIcon">
+      <view class="picture-button-item" :style="[getPicBtnStyle(item)]" v-for="item in buttonsIcon">
         <u-image widht="100%" height="100%" mode="aspectFit" :src="item.imgSrc" :fade="true" duration="450"
           @click="toPages(item)">
           <view slot="error" style="font-size: 24rpx;">加载失败</view>
@@ -378,6 +377,33 @@
       },
     },
     methods: {
+      getPicBtnStyle(e = {}) {
+        let style = {}
+        // {width:item.imgWidth,height:item.imgHeight,margin:item.margin},
+        if (e.margin_left || e.margin_right || e.margin_top || e.margin_bottom) {
+          let pos = ['left', 'right', 'top', 'bottom']
+          pos.forEach(po => {
+            if (e[`margin_${po}`]) {
+              style[`margin-${po}`] = uni.upx2px(e[`margin_${po}`] * 2) + 'px'
+            }
+          })
+        } else if (e.margin) {
+          style.margin = e.margin
+        }
+        if (e.imgWidth) {
+          if (e.margin_left || e.margin_right) {
+            e.margin_left = e.margin_left || 0
+            e.margin_right = e.margin_right || 0
+            if (e.imgWidth.indexOf('%') !== -1) {
+              style.width = `calc(${e.imgWidth} - ${uni.upx2px(e.margin_left*2)}px - ${uni.upx2px(e.margin_right*2)}px)`
+            } else {
+              let w = parseFloat(e.imgWidth)
+              style.width = `${w - uni.upx2px(e.margin_left*2) - uni.upx2px(e.margin_right*2)}px`
+            }
+          }
+        }
+        return style
+      },
       sexChange(e) {
         this.formModel.sex = e.detail.value
       },
@@ -1019,10 +1045,10 @@
                 //扫码点餐
                 // /store_no/food/餐桌号/
                 option.store_no = arr[1];
-                  this.$store.commit('setStateAttr', {
-                            key: "curStoreNo",
-                            val: option.store_no
-                          })
+                this.$store.commit('setStateAttr', {
+                  key: "curStoreNo",
+                  val: option.store_no
+                })
                 option.service_place_no = arr[2]
                 if (arr[3]) {
                   option.link_pd_no = arr[3]
@@ -1663,15 +1689,15 @@
       }
 
       @for $i from 2 through 7 {
-        
+
         &.col-#{$i} {
-          width: calc( 100%/#{$i} - 5px);
-        
+          width: calc(100%/#{$i} - 5px);
+
           &:nth-child(#{$i}n + 1) {
             margin-left: 0;
           }
         }
-        
+
       }
 
       // &.col-2 {
