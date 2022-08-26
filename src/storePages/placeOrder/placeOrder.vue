@@ -1,16 +1,17 @@
 <template>
   <view class="pay-order" :class="['theme-'+theme]">
-    <view class="cu-load load-modal" v-if="onPay==true" @click.stop="" @touchstart.stop.prevent="" @mousemove.stop.prevent="">
+    <view class="cu-load load-modal" v-if="onPay==true" @click.stop="" @touchstart.stop.prevent=""
+      @mousemove.stop.prevent="">
       <text>请稍后...</text>
     </view>
     <view class="order-detail">
       <view class="form-box">
-        <a-form v-if="isLoadingCols!==true&&colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields" :moreConfig="moreConfig"
-          :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm" :mainData="mainData"
-          @value-blur="valueChange">
+        <a-form v-if="isLoadingCols!==true&&colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields"
+          :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm"
+          :mainData="mainData" @value-blur="valueChange">
         </a-form>
         <view class="flex justify-center padding-tb" v-else>
-          <u-loading mode="flower" ></u-loading>
+          <u-loading mode="flower"></u-loading>
         </view>
       </view>
       <view class="person-info" v-if="orderType==='团购'">
@@ -229,6 +230,7 @@
     </view>
 
     <view class="handler-bar">
+
       <text class="amount margin-right-xs"
         v-if="totalMoney&&actualMoney&&totalMoney!==actualMoney">共省{{ Number(((totalMoney*10000 - actualMoney*10000)/10000).toFixed(2)) }}元</text>
       <text class="amount" v-if="totalAmount">共{{ totalAmount }}件</text>
@@ -238,8 +240,8 @@
         <text v-if="actualMoney">{{actualMoney||''}}</text>
         <text v-else>{{ totalMoney || "" }}</text>
       </text>
-      <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" :class="'bx-bg-'+theme" @click="submitOrder"
-        v-if="orderInfo.order_state === '待提交'">
+      <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" :class="'bx-bg-'+theme"
+        @click="submitOrder" v-if="orderInfo.order_state === '待提交'">
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
@@ -247,6 +249,10 @@
             ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'&&!onPay
           ">
         付款
+      </button>
+      <button class="cu-btn bg-orange light round sm" :disabled="isLoadingCols==true" @click="toAfterSale"
+        v-if="showButton('退款')">
+        退款
       </button>
     </view>
     <view class="cu-modal bottom-modal" :class="{
@@ -292,7 +298,7 @@
     },
     data() {
       return {
-        isLoadingCols:false,
+        isLoadingCols: false,
         orderAddService: "", //自定义表单提交服务
         includesColumns: "", // 表单中要包含的字段
         columnsDefaultVal: {}, //表单默认值
@@ -547,6 +553,73 @@
       }
     },
     methods: {
+      toAfterSale() {
+        // 跳转到售后页面
+        const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
+          'origin_price', 'sum_price', 'unit_price', 'packaging_fee', 'goods_name', 'goods_image', 'goods_desc',
+          'goods_amount', 'delivery_status', 'goods_type', 'goods_source'
+        ]
+
+
+        if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
+          let goodsItem = this.goodsList[0]
+
+          const goods = cols.reduce((res, cur) => {
+            res[cur] = goodsItem[cur];
+            return res
+          }, {})
+
+
+          goods.order_pay_amount = this.orderInfo?.order_pay_amount
+          if (goodsItem.return_num) {
+            goods.goods_amount = goods.goods_amount - goodsItem.return_num
+          }
+
+          const goodsList = this.goodsList.map(item => {
+            let obj = cols.reduce((res, cur) => {
+              res[cur] = item[cur];
+              return res
+            }, {})
+            return obj
+          })
+
+          if (!goods.goods_amount || goods.goods_amount < 1) {
+            uni.showModal({
+              title: '提示',
+              content: '已退数量大于已购数量',
+              showCancel: false
+            })
+            return
+          }
+          let url =
+            // https://login.100xsys.cn/health/#
+            `/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
+
+          uni.navigateTo({
+            url
+          })
+          // uni.navigateTo({
+          //   url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+          // })
+        }
+
+
+      },
+      showButton(e) {
+        let res = false;
+        if (e == '退款') {
+          res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
+            this.orderInfo.order_pay_amount > 0
+        }
+        let refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num || 7
+        if (refunds_num && res && this.orderInfo.order_state == '已完成' && this.orderInfo.order_finish_time) {
+          // 订单完成超过七天或者配置的最晚可退款时间 就不显示退款按钮了
+          if (this.dayjs(this.orderInfo.order_finish_time).add(refunds_num, 'day') <= this.dayjs()) {
+            res = false
+          }
+        }
+        return res
+      },
       amountChange(e) {
         if (e?.id) {
           this.orderInfo.goodsList.forEach((item, index) => {
@@ -911,10 +984,10 @@
                 }
               });
             }
-            
+
             // if(['due_date','id_num','reserve_start_date','reserve_end_date','service_people_no'].includes(item.column)){
             // }
-            
+
             if (item.column === 'due_date' && this.orderInfo.goodsList.find(e => e.order_show_col && e.order_show_col
                 .indexOf('预产期') !== -1)) {
               item.display = true

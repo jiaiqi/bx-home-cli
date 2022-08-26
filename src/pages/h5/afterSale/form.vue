@@ -56,6 +56,8 @@
           reason: '',
           picture: ""
         },
+        order_pay_amount:null,
+        order_no:"",
         orderInfo: null,
         goodsInfo: null,
         serviceName: "",
@@ -107,7 +109,7 @@
           "colNames": ["*"],
           "condition": [{
             "colName": "order_no",
-            "value": this.goodsInfo.order_no,
+            "value": this.order_no,
             "ruleType": "eq"
           }]
         }
@@ -199,16 +201,20 @@
           title: option.type
         })
       }
-      if (option.goodsInfo) {
-        try {
-          this.goodsInfo = JSON.parse(option.goodsInfo)
-          if (this.goodsInfo?.order_no) {
-            this.getOrder()
-          }
-        } catch (e) {
-          //TODO handle the exception
-        }
+      if(option.order_no){
+        this.order_no = option.order_no
+        this.getOrder()
       }
+      // if (option.goodsInfo) {
+      //   try {
+      //     this.goodsInfo = JSON.parse(option.goodsInfo)
+      //     if (this.goodsInfo?.order_no) {
+      //       this.getOrder()
+      //     }
+      //   } catch (e) {
+      //     //TODO handle the exception
+      //   }
+      // }
     }
   }
 </script>

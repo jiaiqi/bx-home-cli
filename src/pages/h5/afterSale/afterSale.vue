@@ -4,7 +4,24 @@
       <view class="text-bold margin-tb-xs text-black">
         退款商品
       </view>
-      <view class="goods-info flex justify-between flex-wrap ">
+      <view class="goods-info flex justify-between flex-wrap margin-top-xs " v-for="item in goodsList">
+        <image class="goods-image" :src="getImagePath(item.goods_image)" mode="aspectFill"></image>
+        <view class="flex content flex-wrap padding-lr-xs">
+          <view class="flex width-wrap justify-between ">
+            <view class="goods-name text-bold">
+              {{item.goods_name}}
+            </view>
+            <view class="goods-price">
+              ￥{{item.unit_price}}
+            </view>
+          </view>
+          <view class=" width-wrap flex flex-1 justify-end align-center">
+            <text>x{{item.goods_amount}}</text>
+            <!-- <u-number-box v-model="item.goods_amount" :min="1" :max="amountMax" v-else></u-number-box> -->
+          </view>
+        </view>
+      </view>
+      <!--  <view class="goods-info flex justify-between flex-wrap ">
         <image class="goods-image" :src="getImagePath(goodsInfo.goods_image)" mode="aspectFill"></image>
         <view class="flex content flex-wrap padding-lr-xs">
           <view class="flex width-wrap justify-between ">
@@ -20,7 +37,7 @@
             <u-number-box v-model="goodsInfo.goods_amount" :min="1" :max="amountMax" v-else></u-number-box>
           </view>
         </view>
-      </view>
+      </view> -->
     </view>
 
     <view class="menu-box padding bg-white margin-tb">
@@ -43,36 +60,38 @@
   export default {
     data() {
       return {
+        goodsList: [],
         typeList: [
           "我要退款(无需退货)", '我要退货退款', '我要换货'
         ],
-        
+        order_no:'',
+        order_pay_amount: null,
         goodsInfo: null,
         amountMax: 1,
         storeUserNo: "",
       }
     },
     methods: {
-      getGoodsInfo(no) {
-        const req = {
-          "serviceName": "srvhealth_store_order_goods_detail_select",
-          "colNames": ["*"],
-          "condition": [{
-            "colName": "order_goods_rec_no",
-            "ruleType": "eq",
-            "value": no
-          }]
-        }
-        const url = `/health/select/srvhealth_store_order_goods_detail_select`
-        this.$http.post(url, req).then(res => {
-          if (res?.data?.data === 'SUCCESS'&&res.data.data.length>0) {
-            this.goodsInfo = res.data.data[0]
-          }
-        })
-      },
+      // getGoodsInfo(no) {
+      //   const req = {
+      //     "serviceName": "srvhealth_store_order_goods_detail_select",
+      //     "colNames": ["*"],
+      //     "condition": [{
+      //       "colName": "order_goods_rec_no",
+      //       "ruleType": "eq",
+      //       "value": no
+      //     }]
+      //   }
+      //   const url = `/health/select/srvhealth_store_order_goods_detail_select`
+      //   this.$http.post(url, req).then(res => {
+      //     if (res?.data?.data === 'SUCCESS'&&res.data.data.length>0) {
+      //       this.goodsInfo = res.data.data[0]
+      //     }
+      //   })
+      // },
       toForm(e) {
         let url =
-          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&goodsInfo=${JSON.stringify(this.goodsInfo)}`
+          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&no=${this.orde}&order_no=${this.order_no}&order_pay_amount=${this.order_pay_amount}&goodsInfo=${JSON.stringify(this.goodsInfo)}`
         uni.navigateTo({
           url
         })
@@ -80,7 +99,20 @@
 
     },
     onLoad(option) {
-
+      if(option.no){
+        this.order_no = option.no
+      }
+      if (option.amount) {
+        this.order_pay_amount = option.amount
+      }
+      if (option.goodsList) {
+        try {
+          this.goodsList = JSON.parse(option.goodsList)
+        } catch (e) {
+          //TODO handle the exception
+          this.goodsList = JSON.parse(decodeURIComponent(option.goodsList))
+        }
+      }
       if (option.goodsInfo) {
         try {
           this.goodsInfo = JSON.parse(option.goodsInfo)

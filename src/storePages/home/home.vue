@@ -638,18 +638,21 @@
                 // }
                 break;
               case '通知横幅':
-                element['listdata'] = dataArray[index] ? dataArray[index].map(item => {
-                  if (!item.style_config) {
-                    item.style_config = {};
-                  } else if (typeof item.style_config === 'string') {
-                    try {
-                      item.style_config = JSON.parse(item.style_config);
-                    } catch (e) {
-                      //TODO handle the exception
+                if (dataArray[index] && Array.isArray(dataArray[index])) {
+                  element['listdata'] = dataArray[index].map(item => {
+                    if (!item.style_config) {
+                      item.style_config = {};
+                    } else if (typeof item.style_config === 'string') {
+                      try {
+                        item.style_config = JSON.parse(item.style_config);
+                      } catch (e) {
+                        //TODO handle the exception
+                      }
                     }
-                  }
-                  return item;
-                }) : [];
+                    return item;
+                  })
+                }
+
                 break;
             }
             //  [ '按钮组', '人员列表', '商品列表', '通知横幅' ]
