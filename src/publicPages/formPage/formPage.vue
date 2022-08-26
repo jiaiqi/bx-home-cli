@@ -46,9 +46,9 @@
         </view>
 
         <view class="child-service" v-for="(item,index) in childServiceRadioOption" :key="index">
-          <child-list v-show="curChild===item.constraint_name" :config="item" :childListData="childListData"
-            :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
-            :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
+          <child-list v-show="curChild===item.constraint_name" :config="item" :srvType="srvType"
+            :childListData="childListData" :disabled="disabled || disabledChildButton" :appName="appName"
+            :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
             :fkCondition="fkCondition[item.constraint_name||item.key_no]" ref="childList" @onButton="onChildButton"
             @child-list-change="childListChange">
           </child-list>
@@ -58,10 +58,10 @@
       <view class="child-service-box" :class="{'pc-model':model==='PC'}"
         v-else-if="colsV2Data && isArray(fields)&&fields.length>0">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
-          <child-list :config="item" :childListData="childListData" :disabled="disabled || disabledChildButton"
-            :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name]"
-            :fkCondition="fkCondition[item.constraint_name]" ref="childList" @onButton="onChildButton"
-            @child-list-change="childListChange">
+          <child-list :config="item" :srvType="srvType" :childListData="childListData"
+            :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
+            :fkInitVal="fkInitVal[item.constraint_name]" :fkCondition="fkCondition[item.constraint_name]"
+            ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
           </child-list>
         </view>
       </view>

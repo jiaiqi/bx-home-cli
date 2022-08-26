@@ -328,10 +328,10 @@
             detailPage: '/storePages/home/home?store_no=${data.store_no}',
             navType: 'reLaunch',
             img: {
-              col: 'logo',
+              col: 'image',
               cfg: {
                 position: 'left',
-                width: '75px',
+                width: '50px',
                 height: '50px',
                 radius: '5px 0 0 5px'
               }

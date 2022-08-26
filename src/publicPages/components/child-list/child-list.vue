@@ -151,6 +151,9 @@
       }
     },
     props: {
+      srvType:{
+        type: String
+      },
       mainTable: {
         type: String
       },
@@ -1388,9 +1391,8 @@
             }
           }
 
-          if (this.use_type === 'detaillist'||this.v2Data?.use_type=='detaillist') {
+          if ((this.use_type === 'detaillist'||this.v2Data?.use_type=='detaillist')&&this.srvType!=='update') {
             // 详情页面 直接添加
-     
             let reqData = [{
               serviceName: e.service_name,
               data: [data]
