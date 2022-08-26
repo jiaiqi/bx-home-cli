@@ -380,7 +380,8 @@
         disabledEvaluate: false, // 禁用 评价按钮
         approval_type: "普通核销", //核销方式
         goodsList: [],
-        fieldsCond: []
+        fieldsCond: [],
+        isActive: false, // 虚拟商品是否已激活
       };
     },
     watch: {
@@ -553,6 +554,28 @@
       }
     },
     methods: {
+      getVirtualGoods() {
+        // 查找订单下单虚拟商品（卡包）判断是否未激活
+        const url = `/health/select/srvhealth_store_card_case_select`
+        let req = {
+          "serviceName": "srvhealth_store_card_case_select",
+          "colNames": ["*"],
+          "condition": [{
+            colName: 'order_no',
+            ruleType: 'eq',
+            value: this.orderInfo?.order_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 10
+          },
+        }
+        this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.data)) {
+            this.isActive = res?.data?.data.every(item => item.use_states === '未激活')
+          }
+        })
+      },
       toAfterSale() {
         // 跳转到售后页面
         const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
@@ -562,18 +585,19 @@
 
 
         if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
-          let goodsItem = this.goodsList[0]
+          
+          // let goodsItem = this.goodsList[0]
 
-          const goods = cols.reduce((res, cur) => {
-            res[cur] = goodsItem[cur];
-            return res
-          }, {})
+          // const goods = cols.reduce((res, cur) => {
+          //   res[cur] = goodsItem[cur];
+          //   return res
+          // }, {})
 
 
-          goods.order_pay_amount = this.orderInfo?.order_pay_amount
-          if (goodsItem.return_num) {
-            goods.goods_amount = goods.goods_amount - goodsItem.return_num
-          }
+          // goods.order_pay_amount = this.orderInfo?.order_pay_amount
+          // if (goodsItem.return_num) {
+          //   goods.goods_amount = goods.goods_amount - goodsItem.return_num
+          // }
 
           const goodsList = this.goodsList.map(item => {
             let obj = cols.reduce((res, cur) => {
@@ -583,41 +607,62 @@
             return obj
           })
 
-          if (!goods.goods_amount || goods.goods_amount < 1) {
-            uni.showModal({
-              title: '提示',
-              content: '已退数量大于已购数量',
-              showCancel: false
-            })
-            return
-          }
-          let url =
-            // https://login.100xsys.cn/health/#
-            `/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
+          // if (!goods.goods_amount || goods.goods_amount < 1) {
+          //   uni.showModal({
+          //     title: '提示',
+          //     content: '已退数量大于已购数量',
+          //     showCancel: false
+          //   })
+          //   return
+          // }
+          
+          const url =
+            `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
 
-          uni.navigateTo({
-            url
-          })
           // uni.navigateTo({
-          //   url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+          //   url
           // })
+          
+          uni.navigateTo({
+            url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
+          })
         }
-
-
       },
       showButton(e) {
         let res = false;
+        const {
+          order_state, //订单状态
+          pay_state, //支付状态
+          order_pay_amount, //订单支付金额
+          order_type, // 订单类型
+          order_finish_time // 订单完成时间
+        } = this.orderInfo
         if (e == '退款') {
-          res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
-            this.orderInfo.order_pay_amount > 0
-        }
-        let refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num || 7
-        if (refunds_num && res && this.orderInfo.order_state == '已完成' && this.orderInfo.order_finish_time) {
-          // 订单完成超过七天或者配置的最晚可退款时间 就不显示退款按钮了
-          if (this.dayjs(this.orderInfo.order_finish_time).add(refunds_num, 'day') <= this.dayjs()) {
+          if (order_type === '虚拟商品' && this.isActive == false) {
+            res = true
+          }
+          // res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
+          //   this.orderInfo.order_pay_amount > 0 || false
+
+          let refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num || 7
+
+          if (['待发货', '待收货', '待提货', '已完成'].includes(order_state) && pay_state === '已支付' &&
+            order_pay_amount && this.disabledRefund !== true) {
+            res = true
+          }
+          
+          if (['餐饮', '酒店'].includes(order_type)) {
             res = false
           }
+          
+          if (refunds_num && res && order_state == '已完成' && order_finish_time) {
+            // 订单完成超过七天或者配置的最晚可退款时间 就不显示退款按钮了
+            if (this.dayjs(order_finish_time).add(refunds_num, 'day') <= this.dayjs()) {
+              res = false
+            }
+          }
         }
+
         return res
       },
       amountChange(e) {
@@ -1469,6 +1514,11 @@
             });
           }
           let goods = await this.getGoodsList();
+          if (this.orderInfo?.order_type === '虚拟商品') {
+            // 查找虚拟商品 判断是否未激活
+            this.isActive = true
+            this.getVirtualGoods()
+          }
           return this.orderInfo;
         }
       },

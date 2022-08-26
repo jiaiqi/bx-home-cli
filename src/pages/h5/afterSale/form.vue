@@ -56,8 +56,8 @@
           reason: '',
           picture: ""
         },
-        order_pay_amount:null,
-        order_no:"",
+        order_pay_amount: null,
+        order_no: "",
         orderInfo: null,
         goodsInfo: null,
         serviceName: "",
@@ -70,10 +70,7 @@
         return `${this.$api.srvHost}/file/upload`
       },
       backMoney() {
-        if (this.goodsInfo?.order_pay_amount) {
-          return this.goodsInfo?.order_pay_amount
-        }
-        return this.goodsInfo?.goods_amount * this.goodsInfo?.unit_price
+        return this.order_pay_amount||0
       },
       toAddressSelector() {
         const cond = [{
@@ -192,6 +189,9 @@
       },
     },
     onLoad(option) {
+      if(option.order_pay_amount){
+        this.order_pay_amount = option.order_pay_amount
+      }
       if (option.serviceName) {
         this.serviceName = option.serviceName
       }
@@ -201,7 +201,7 @@
           title: option.type
         })
       }
-      if(option.order_no){
+      if (option.order_no) {
         this.order_no = option.order_no
         this.getOrder()
       }

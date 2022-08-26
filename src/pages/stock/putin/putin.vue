@@ -764,9 +764,15 @@
           "serviceName": "srvhealth_bar_code_select",
           "colNames": ["*"],
           "condition": [{
-            "colName": "parent_no",
-            "ruleType": "isnull"
-          }],
+              "colName": "parent_no",
+              "ruleType": "isnull"
+            },
+            {
+              colName: 'store_no',
+              ruleType: 'like',
+              value: this.storeInfo?.store_no
+            }
+          ],
         }
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
@@ -789,16 +795,15 @@
             colName: 'modify_time',
             orderType: 'asc'
           }],
-          "condition": [
+          "condition": [{
+              "colName": "parent_no",
+              "ruleType": "isnull"
+            },
             {
-            "colName": "parent_no",
-            "ruleType": "isnull"
-          },
-          {
-            "colName": "store_no",
-            "ruleType": 'eq',
-            value:this.store_no||this.storeInfo?.store_no
-          },
+              "colName": "store_no",
+              "ruleType": 'eq',
+              value: this.store_no || this.storeInfo?.store_no
+            },
           ]
         }
         const res = await this.$http.post(url, req)

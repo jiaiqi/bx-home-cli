@@ -402,6 +402,16 @@
             }
           }
         }
+        if(e.imgHeight){
+          style.height = e.imgHeight
+        }
+        // let attrs = Object.keys(style)
+        // let str = ''
+        // if(Array.isArray(attrs)&&attrs.length>0){
+        //   Object.keys(style).forEach(key=>{
+        //     str += `${key}:${style[key]};`
+        //   })
+        // }
         return style
       },
       sexChange(e) {

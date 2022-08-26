@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class=" padding bg-white" v-if="goodsInfo">
+    <view class=" padding bg-white" v-if="goodsList&&goodsList.length>0">
       <view class="text-bold margin-tb-xs text-black">
         退款商品
       </view>
@@ -91,7 +91,7 @@
       // },
       toForm(e) {
         let url =
-          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&no=${this.orde}&order_no=${this.order_no}&order_pay_amount=${this.order_pay_amount}&goodsInfo=${JSON.stringify(this.goodsInfo)}`
+          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&order_no=${this.order_no}&order_pay_amount=${this.order_pay_amount}&goodsInfo=${JSON.stringify(this.goodsInfo)}`
         uni.navigateTo({
           url
         })
