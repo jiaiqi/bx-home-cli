@@ -127,6 +127,9 @@
     },
     computed: {
       finderType() {
+        if(this.field?.moreConfig?.editor_type==='date_range_picker_ck'){
+          return 'calendar'
+        }
         return this.field?.moreConfig?.finderType
       },
       sysModel() {

@@ -18,6 +18,7 @@
         ref="fitem" :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
         @setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">
       </a-form-item>
+      
     </view>
     <view class="form-remark" v-if="remarkCfg&&remarkCfg.bottom" :style="[remarkCfg.bottom.style]">
       {{remarkCfg.bottom.content||''}}

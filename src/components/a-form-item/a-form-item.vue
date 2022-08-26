@@ -1,5 +1,5 @@
 <template>
-  <view class="form-item" v-if="fieldData.display" :class="{
+  <view class="form-item" v-if="fieldData.display&&showColumn" :class="{
     'section-top':sectionTop,
     'before-section':beforeSection,
 		'disabled-field':fieldData.disabled,
@@ -62,6 +62,7 @@
       </view>
       <!-- detail-详情-end -->
       <!-- form-item-start -->
+
       <bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
         v-else-if="fieldData.type === 'radio'" @change="radioChange" :disabled="fieldData.disabled">
         <bx-radio class="radio" color="#2979ff" v-for="item in fieldData.options" :key="item"
@@ -151,6 +152,14 @@
           <text v-else> {{fkFieldLabel||fieldData.value}}</text>
           <text class="cuIcon-right "></text>
         </view>
+      </view>
+      <view class="form-item-content_value"
+        v-else-if="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.editor_type&&fieldData.moreConfig.editor_type==='date_range_picker_ck'&&fieldData.column===fieldData.moreConfig.start_col">
+        <ck-date-range-picker ref="ckPicker" :service-no="mainData.service_people_no" @click="showCKPicker"></ck-date-range-picker>
+       <!-- <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="'date'"
+          :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="max" :min="min"
+          v-model="fieldData.value" @change="bindTimeChange">
+        </date-range-picker> -->
       </view>
       <view class="form-item-content_value picker" v-else-if="pickerFieldList.includes(fieldData.type)">
         <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="pickerMode"
@@ -365,7 +374,14 @@
       mainData: [Object, Boolean]
     },
     computed: {
-
+      showColumn() {
+        let res = true;
+        if (this.fieldData?.moreConfig?.editor_type === 'date_range_picker_ck' && this.fieldData?.moreConfig
+          ?.end_col === this.fieldData.column) {
+          res = false
+        }
+        return res
+      },
       multiSelectJson() {
         let res = []
         if (this.fieldData.type === 'multiSelectByJson') {
@@ -583,6 +599,9 @@
       }
     },
     methods: {
+      showCKPicker(){
+        this.$refs?.ckPicker?.open?.()
+      },
       onGetTreeData(e) {
         // 树选择器查到数据
         this.selectorData = e || []
