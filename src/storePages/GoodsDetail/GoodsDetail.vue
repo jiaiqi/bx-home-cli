@@ -89,7 +89,7 @@
         {{storeInfo.name.slice(0,1)}}
       </view>
       <view class="store-name">{{ storeInfo.name || '' }}</view>
-      <view class="phoneCall" v-if="phone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
+      <view class="phoneCall" v-if="phone||storeInfo.telephone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
     <evaluate-card :eval_show_way="goodsInfo.eval_show_way" :goods_no="goodsInfo.goods_no"
