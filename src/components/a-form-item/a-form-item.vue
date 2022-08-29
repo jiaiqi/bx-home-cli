@@ -155,8 +155,18 @@
       </view>
       <view class="form-item-content_value"
         v-else-if="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.editor_type&&fieldData.moreConfig.editor_type==='date_range_picker_ck'&&fieldData.column===fieldData.moreConfig.start_col">
-        <ck-date-range-picker ref="ckPicker" :service-no="mainData.service_people_no" @click="showCKPicker"></ck-date-range-picker>
-       <!-- <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="'date'"
+        <ck-date-range-picker ref="ckPicker" :service-no="serviceNo" @confirm="confirmPicker" v-if="serviceNo">
+          <view class="flex">
+            <view class="" v-if="start&&end">
+              {{start|formatDate}} - {{end|formatDate}}
+            </view>
+            <view class="" v-else>
+              请选择
+            </view>
+            <text class="cuIcon-right margin-left-xs"></text>
+          </view>
+        </ck-date-range-picker>
+        <!-- <date-range-picker style="width: 100%;" :disabled="fieldData.disabled" :field="fieldData" :mode="'date'"
           :isRange="pageType==='filter'" :priceConfig="datePriceConfig" :fieldsModel="fieldsModel" :max="max" :min="min"
           v-model="fieldData.value" @change="bindTimeChange">
         </date-range-picker> -->
@@ -303,6 +313,15 @@
   export default {
     name: 'aFormItem',
     filters: {
+      formatDate(val) {
+        if (val) {
+          let date = new Date(val)
+          if (date.getFullYear() === new Date().getFullYear()) {
+            return val.replace(date.getFullYear() + '-', '')
+          }
+        }
+        return val
+      },
       formalText(val) {
         if (Array.isArray(val)) {
           val = val.toString();
@@ -322,6 +341,9 @@
       }
     },
     props: {
+      serviceNo: {
+        type: String,
+      },
       field: {
         type: Object,
         required: true
@@ -374,6 +396,9 @@
       mainData: [Object, Boolean]
     },
     computed: {
+      // serviceNo() {
+      //   return this.mainData?.service_people_no
+      // },
       showColumn() {
         let res = true;
         if (this.fieldData?.moreConfig?.editor_type === 'date_range_picker_ck' && this.fieldData?.moreConfig
@@ -502,6 +527,7 @@
     },
     data() {
       return {
+        // serviceNo:"",
         showEnumSelect: false,
         curEnumIndex: -1,
         otherNodeVal: "",
@@ -539,10 +565,19 @@
         longpressTimer: null,
         modalName: '', //当前显示的modal
         selectorListUUID: "",
-        selectTreeData: null
+        selectTreeData: null,
+        start: "",
+        end: ""
       };
     },
     watch: {
+      // 'fieldsModel.service_people_no': {
+      //   deep: true,
+      //   immediate: true,
+      //   handler(newVal, oldVal) {
+      //     this.serviceNo = newVal
+      //   }
+      // },
       'fieldData.value': {
         deep: true,
         immediate: true,
@@ -599,7 +634,7 @@
       }
     },
     methods: {
-      showCKPicker(){
+      showCKPicker() {
         this.$refs?.ckPicker?.open?.()
       },
       onGetTreeData(e) {
@@ -1488,6 +1523,21 @@
             item.checked = false;
             return item;
           });
+        }
+      },
+      confirmPicker(e) {
+        let {
+          start_col,
+          end_col
+        } = this.fieldData.moreConfig
+        if (e?.start?.date && e?.end?.date && start_col && end_col) {
+          this.fieldData.colData = {
+            start: e?.start?.date,
+            end: e?.end?.date
+          }
+          this.start = e.start.date
+          this.end = e.end.date
+          this.$emit('date-change', this.fieldData)
         }
       },
       bindTimeChange(e, type) {

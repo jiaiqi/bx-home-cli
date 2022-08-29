@@ -1,8 +1,7 @@
 <template>
   <view class="">
-    <view class="" style="color: #808080;" @click="open">
-      <text> 请选择</text>
-      <text class="cuIcon-right margin-left-xs"></text>
+    <view class="flex" style="color: #808080;" @click="open">
+      <slot></slot>
     </view>
     <view class="cu-modal bottom-modal" :class="{show:show}" @click="hide">
       <view class="cu-dialog" @click.stop="">
@@ -15,7 +14,7 @@
           <view class="calendar" v-for="(item,index) in dayList" :key="index">
             <view class="year-month">{{item.year+'-'+item.month}}</view>
             <view class="days">
-              <view class="day" :class="getClass(item.year,item.month,ite)" v-for="(ite,ind) in item.day" :key="ind"
+              <view class="day" :class="[getClass(item.year,item.month,ite)]" v-for="(ite,ind) in item.day" :key="ind"
                 :style="''+['width:'+dayWidth+'px;height:'+dayWidth+'px']" @click="selDay(item.year,item.month,ite)">
                 <view class="dd" :style="'height: '+[dayWidth]+'rpx;'">{{ite||''}}</view>
               </view>
@@ -23,7 +22,7 @@
           </view>
         </scroll-view>
         <view class="flex justify-center margin-tb">
-          <button class="cu-btn round bg-blue lg" style="width: 80%;">确定</button>
+          <button class="cu-btn round bg-blue lg" style="width: 80%;" @click="confirm">确定</button>
         </view>
       </view>
     </view>
@@ -49,6 +48,7 @@
         endMonth: '', //选择结束月份
         endDay: '', //选择结束日
         dayWidth: '',
+        greenDays: [], // 可预约日期
         grayDays: [], //休息日期列表
         redDays: [], // 已预约日期列表
       };
@@ -58,6 +58,27 @@
         type: String,
         default: ''
       },
+    },
+    watch: {
+      serviceNo: {
+        immediate: true,
+        handler(newValue, oldValue) {
+          if (newValue) {
+            Promise.all([this.getGrayDay(), this.getRedDay()]).then(value => {
+              if (Array.isArray(value) && value.length == 2 && Array.isArray(value[0]) && Array.isArray(value[1])) {
+                const greenDays = []
+                for (let i = 0; i <= 60; i++) {
+                  let date = this.dayjs().add(i, 'day').format("YYYY/MM/DD")
+                  if (!value[0].includes(date) && !value[1].includes(date)) {
+                    greenDays.push(date)
+                  }
+                }
+                this.greenDays = greenDays
+              }
+            })
+          }
+        }
+      }
     },
     computed: {
       //总选择的天数
@@ -82,19 +103,24 @@
       this.setDay()
     },
     methods: {
-      confirm(){
-        this.$emit({
-          start:{
-            year:this.startYear,
-            month:this.startMonth,
-            day:this.startDay
-          },
-          end:{
-            year:this.endYear,
-            month:this.endMonth,
-            day:this.endDay
-          }
+      confirm() {
+        const start = {
+          date: this.dayjs(`${this.startYear}/${this.startMonth}/${this.startDay}`).format("YYYY-MM-DD"),
+          year: this.startYear,
+          month: this.startMonth,
+          day: this.startDay
+        }
+        const end = {
+          date: this.dayjs(`${this.endYear}/${this.endMonth}/${this.endDay}`).format("YYYY-MM-DD"),
+          year: this.endYear,
+          month: this.endMonth,
+          day: this.endDay
+        }
+        this.$emit('confirm', {
+          start,
+          end
         })
+        this.hide()
       },
       open() {
         this.show = true
@@ -103,7 +129,8 @@
         this.show = false
       },
       // 查找休息日
-      getGrayDay() {
+      async getGrayDay() {
+        const url = `/health/select/srvhealth_service_person_reserve_schedule_select`
         const req = {
           "serviceName": "srvhealth_service_person_reserve_schedule_select",
           "colNames": ["*"],
@@ -113,14 +140,14 @@
               "value": this.serviceNo
             },
             {
-              "colName": "start_date",
+              "colName": "end_date",
               "ruleType": "gt",
-              "value": this.dayjs().subtract(15, 'day').format("YYYY-MM-DD")
+              "value": this.dayjs().subtract(1, 'day').format("YYYY-MM-DD")
             },
             {
               "colName": "end_date",
               "ruleType": "lt",
-              "value": this.dayjs().add(45, 'day').format("YYYY-MM-DD")
+              "value": this.dayjs().add(30, 'day').format("YYYY-MM-DD")
             }
           ],
           "page": {
@@ -128,11 +155,85 @@
             "rownumber": 60
           },
         }
-
+        const res = await this.$http.post(url, req)
+        let grayDays = []
+        if (res?.data?.state === 'SUCCESS') {
+          let dates = res.data.data.map(item => {
+            let {
+              start_date,
+              end_date
+            } = item
+            if (start_date && end_date) {
+              start_date = start_date.replace(/-/g, '/')
+              end_date = end_date.replace(/-/g, '/')
+            }
+            const diffDay = (this.dayjs(end_date) - this.dayjs(start_date)) / 3600 / 24 / 1000
+            if (!isNaN(Number(diffDay)) && diffDay > 0) {
+              for (let i = 0; i <= diffDay; i++) {
+                grayDays.push(this.dayjs(start_date).add(i, 'day').format("YYYY/MM/DD"))
+              }
+            }
+            this.grayDays = grayDays
+          })
+        }
+        return grayDays
       },
 
       // 查找已预约日期
-
+      async getRedDay() {
+        const url = `/health/select/srvhealth_store_order_select`
+        const req = {
+          "serviceName": "srvhealth_store_order_select",
+          "colNames": ["*"],
+          "condition": [{
+              "colName": 'order_type',
+              "ruleType": "eq",
+              "value": '服务'
+            },
+            {
+              "colName": "service_people_no",
+              "ruleType": "eq",
+              "value": this.serviceNo
+            },
+            {
+              "colName": "reserve_start_date",
+              "ruleType": "gt",
+              "value": this.dayjs().subtract(1, 'day').format("YYYY-MM-DD")
+            },
+            {
+              "colName": "reserve_end_date",
+              "ruleType": "lt",
+              "value": this.dayjs().add(60, 'day').format("YYYY-MM-DD")
+            }
+          ],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 60
+          },
+        }
+        const res = await this.$http.post(url, req)
+        let redDays = []
+        if (res?.data?.state === 'SUCCESS') {
+          let dates = res.data.data.map(item => {
+            let {
+              reserve_start_date,
+              reserve_end_date
+            } = item
+            if (reserve_start_date && reserve_end_date) {
+              reserve_start_date = reserve_start_date.replace(/-/g, '/')
+              reserve_end_date = reserve_end_date.replace(/-/g, '/')
+            }
+            const diffDay = (this.dayjs(reserve_end_date) - this.dayjs(reserve_start_date)) / 3600 / 24 / 1000
+            if (!isNaN(Number(diffDay)) && diffDay > 0) {
+              for (let i = 0; i <= diffDay; i++) {
+                redDays.push(this.dayjs(reserve_start_date).add(i, 'day').format("YYYY/MM/DD"))
+              }
+            }
+            this.redDays = redDays
+          })
+        }
+        return redDays
+      },
 
       // 
       /**
@@ -175,37 +276,35 @@
        * 获取选中样式
        */
       getClass(year, month, day) {
-        
         if (!year || !month || !day) {
           return '';
         }
-        
         const today = this.dayjs().format("YYYY/MM/DD")
         const _date = this.dayjs(`${year}/${month}/${day}`).format("YYYY/MM/DD")
 
+        let defaultClass = ''
         if (this.dayjs(`${year}/${month}/${day}`) - this.dayjs().add(60, 'day') > 0) {
-          return 'gray-day'
+          defaultClass = 'black-day'
         }
-
         if (this.dayjs() - this.dayjs(`${year}/${month}/${day}`) >= 0 && today !== _date) {
-          return 'gray-day'
+          defaultClass = 'black-day'
         }
-
-
+        if (this.greenDays.find(item => this.dayjs(item).format("YYYY/MM/DD") === _date)) {
+          defaultClass = 'green-day'
+        }
         if (this.grayDays.find(item => this.dayjs(item).format("YYYY/MM/DD") === _date)) {
-          return 'gray-day'
+          defaultClass = 'gray-day'
         }
         if (this.redDays.find(item => this.dayjs(item).format("YYYY/MM/DD") === _date)) {
-          return 'red-day'
+          defaultClass = 'red-day'
         }
-
 
         //只选择了1天
         if (!this.endYear || !this.endMonth || !this.endDay) {
           if (this.startYear == year && this.startMonth == month && this.startDay == day) {
-            return 'day-yuan'
+            return 'day-yuan ' + defaultClass
           } else {
-            return '';
+            return ' ' + defaultClass;
           }
         } else {
           //选择了多天
@@ -213,13 +312,13 @@
           let endTime = new Date(this.endYear, this.endMonth - 1, this.endDay).getTime()
           let nowTime = new Date(year, month - 1, day).getTime();
           if (startTime == nowTime) {
-            return 'day-left';
-          }
-          if (endTime == nowTime) {
-            return 'day-right';
-          }
-          if (startTime < nowTime && endTime > nowTime) {
-            return 'day-none'
+            return 'day-left ' + defaultClass;
+          } else if (endTime == nowTime) {
+            return 'day-right ' + defaultClass;
+          } else if (startTime < nowTime && endTime > nowTime) {
+            return 'day-none ' + defaultClass
+          } else {
+            return defaultClass
           }
         }
       },
@@ -301,7 +400,7 @@
 </script>
 
 <style lang="scss" scoped>
-  $main-color: #2979FF;
+  $main-color: #39B54A;
   $disabled-color:#ccc;
 
   .weeks {
@@ -349,20 +448,118 @@
   }
 
   .day {
+
     text-align: center;
     // margin-top: 2rpx;
     position: relative;
-    border: 1px solid #fff;
-    background-color: #f1f1f1;
+    background-color: #F7F7F7;
+
+    &.black-day {
+      // 过去的日期
+      border: 1px solid #fff;
+      background-color: #F1F1F1;
+      pointer-events: none;
+      opacity: 0.5;
+      // .dd{
+      //   color: #F1F1F1;
+      // }
+    }
 
     &.gray-day {
+      // 休息日
+      border: 1px solid #fff;
       pointer-events: none;
       background-color: #ccc;
+      position: relative;
+
+      &::after {
+        position: absolute;
+        bottom: 0;
+        content: '休息';
+        right: 0;
+        font-size: 12px;
+        color: #f1f1f1;
+        transform: scale(0.8);
+      }
     }
 
     &.red-day {
+      // 已约
+      border: 1px solid #fff;
       pointer-events: none;
-      background-color: #FC011A;
+      background-color: #E54D42;
+      position: relative;
+      .dd {
+        color: #fff;
+      }
+      &::after {
+        position: absolute;
+        bottom: 0;
+        content: '已约';
+        right: 0;
+        font-size: 12px;
+        color: #f1f1f1;
+        transform: scale(0.8);
+      }
+    }
+
+    &.green-day {
+      border: 1px solid #fff;
+      background-color: #D7F0DB;
+      position: relative;
+
+      &::after {
+        position: absolute;
+        bottom: 0;
+        // content: '';
+        font-size: 12px;
+        color: #fff;
+        transform: scale(0.8);
+      }
+
+      .dd {
+        color: $main-color;
+      }
+
+      &.day-yuan {
+        border-radius: 100%;
+        background: $main-color;
+        border: 1px solid $main-color;
+
+        .dd {
+          color: #fff;
+        }
+      }
+
+      &.day-none {
+        border-top: 1px solid $main-color;
+        border-bottom: 1px solid $main-color;
+        background-color: #fff;
+      }
+
+      &.day-left {
+        &::after {
+          content: '开始';
+          right: 0;
+        }
+      }
+
+      &.day-right {
+        &::after {
+          content: '结束';
+          left: 0;
+        }
+      }
+
+      &.day-left,
+      &.day-right {
+        background-color: $main-color;
+        border: 1px solid $main-color;
+
+        .dd {
+          color: #fff;
+        }
+      }
     }
 
     &.day-none {
@@ -370,11 +567,7 @@
     }
   }
 
-  .day-yuan {
-    border-radius: 100%;
-    background: $main-color;
 
-  }
 
   .day-yuan,
   .day-left,

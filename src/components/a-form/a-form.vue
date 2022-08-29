@@ -12,13 +12,15 @@
         <text v-if="showSectionName">{{field.section}}</text>
       </view>
       <a-form-item :class="{'section-top':field.section,'before-section':eleIsBeforeSection(allField,fIndex)}"
-        :srvApp="srvApp" :form-type="formType" :procData="procData" :labelPosition="labelPosition"
-        :fieldsModel="fieldModel" :mainData="mainData" :optionMode="optionMode" @on-value-change="onValChange"
-        @on-value-blur="onValBlur" @chooseLocation="chooseLocation" :key="field.id" :field="field" :pageType="pageType"
-        ref="fitem" :section-top="field.section?true:false" :before-section="eleIsBeforeSection(allField,fIndex)"
-        @setColData="setColData" @setFieldModel="setFieldModel" @date-time-change="dateTimeChange">
+        :srvApp="srvApp" :serviceNo="serviceNo" :form-type="formType" :procData="procData"
+        :labelPosition="labelPosition" :fieldsModel="fieldModel" :mainData="mainData" :optionMode="optionMode"
+        @on-value-change="onValChange" @on-value-blur="onValBlur" @chooseLocation="chooseLocation" :key="field.id"
+        :field="field" :pageType="pageType" ref="fitem" :section-top="field.section?true:false"
+        :before-section="eleIsBeforeSection(allField,fIndex)" @setColData="setColData" @setFieldModel="setFieldModel"
+        @date-change="dateChange"
+        @date-time-change="dateTimeChange">
       </a-form-item>
-      
+
     </view>
     <view class="form-remark" v-if="remarkCfg&&remarkCfg.bottom" :style="[remarkCfg.bottom.style]">
       {{remarkCfg.bottom.content||''}}
@@ -101,6 +103,7 @@
     },
     data() {
       return {
+        serviceNo: '',
         allField: [],
         oldField: [],
         fieldModel: {},
@@ -111,6 +114,26 @@
       };
     },
     methods: {
+      dateChange(e) {
+        const {
+          start_col,
+          end_col
+        } = e?.moreConfig || {}
+        debugger
+        if (start_col && end_col) {
+          this.allField = this.allField.map(item => {
+            if (item.column === start_col) {
+              item.value = e.colData['start']
+              this.fieldModel[start_col] = e.colData['start']
+            }
+            if (item.column === end_col) {
+              item.value = e.colData['end']
+              this.fieldModel[end_col] = e.colData['end']
+            }
+            return item
+          })
+        }
+      },
       dateTimeChange(e) {
         const start_time_col = e?.moreConfig?.start_time_col
         const end_time_col = e?.moreConfig?.end_time_col
@@ -322,6 +345,9 @@
         // 保存已经发生变化的字段值
         e = this.deepClone(e)
         console.log('onValChange', e.column, e.value)
+        if (e.column === 'service_people_no') {
+          this.serviceNo = e.value
+        }
         if (e.type === 'number' || e.type === 'digit') {
           e.value = e.value !== null && e.value !== undefined ? Number(e.value) : null;
         }
