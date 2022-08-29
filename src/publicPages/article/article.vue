@@ -25,6 +25,16 @@
     <view class="content" v-if="articleData.content" :style="[setPadding]">
       <mp-html :content="articleData.content.replace(/\<img/gi, '<img width=100%')" />
     </view>
+
+    <view class="bottom-buttons">
+      <button class="bottom-button cu-btn" :class="[setBtnClass(item)]" v-for="item in bottomButtons"
+        @click="onBtn(item)">
+        <text v-if="item.font_icon" class="margin-right-xs" :class="'cuIcon-'+item.font_icon"></text>
+        <text>
+          {{item.button_label}}
+        </text>
+      </button>
+    </view>
   </view>
 
 </template>
@@ -33,6 +43,82 @@
   import {
     mapState
   } from 'vuex'
+  const ColorList = [{
+      title: '嫣红',
+      name: 'red',
+      color: '#e54d42'
+    },
+    {
+      title: '桔橙',
+      name: 'orange',
+      color: '#f37b1d'
+    },
+    {
+      title: '明黄',
+      name: 'yellow',
+      color: '#fbbd08'
+    },
+    {
+      title: '橄榄',
+      name: 'olive',
+      color: '#8dc63f'
+    },
+    {
+      title: '森绿',
+      name: 'green',
+      color: '#39b54a'
+    },
+    {
+      title: '天青',
+      name: 'cyan',
+      color: '#1cbbb4'
+    },
+    {
+      title: '海蓝',
+      name: 'blue',
+      color: '#0081ff'
+    },
+    {
+      title: '姹紫',
+      name: 'purple',
+      color: '#6739b6'
+    },
+    {
+      title: '木槿',
+      name: 'mauve',
+      color: '#9c26b0'
+    },
+    {
+      title: '桃粉',
+      name: 'pink',
+      color: '#e03997'
+    },
+    {
+      title: '棕褐',
+      name: 'brown',
+      color: '#a5673f'
+    },
+    {
+      title: '玄灰',
+      name: 'grey',
+      color: '#8799a3'
+    },
+    {
+      title: '草灰',
+      name: 'gray',
+      color: '#aaaaaa'
+    },
+    {
+      title: '墨黑',
+      name: 'black',
+      color: '#333333'
+    },
+    {
+      title: '雅白',
+      name: 'white',
+      color: '#ffffff'
+    }
+  ]
   export default {
     computed: {
       setPadding() {
@@ -71,10 +157,199 @@
         qrCodeText: "",
         qrcodePath: "",
         codeSize: uni.upx2px(700),
-        invite_user_no: ""
+        invite_user_no: "",
+        bottomButtons: [
+          // {
+          //   button_label: '按钮1'
+          // },
+          // {
+          //   button_label: '按钮1'
+          // },
+          // {
+          //   button_label: '按钮按钮按钮按钮按钮1'
+          // },
+          // {
+          //   button_label: '按钮按钮按钮按钮按钮按钮按钮1'
+          // },
+          // {
+          //   button_label: '按钮1'
+          // },
+          // {
+          //   button_label: '按钮1'
+          // }
+        ]
       };
     },
     methods: {
+      async onBtn(e) {
+        if ((!this.userInfo.nick_name || this.userInfo.nick_name === '微信用户') && this.userInfo?.userno) {
+          let isOk = await this.checkBasicUserInfo()
+          if (isOk) {
+            await this.initApp()
+            const res1 = await new Promise(resolve => {
+              uni.showModal({
+                title: '提示',
+                content: '是否继续之前的操作？',
+                success: (handler) => {
+                  if (handler.confirm) {
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              })
+            })
+            if (res1 === false) {
+              return
+            }
+          } else {
+            return
+          }
+        }
+
+        if (e.$orig) {
+          e = e.$orig;
+        }
+
+        let url = "";
+        if (e?.dest_page) {
+          url = e.dest_page;
+        }
+
+        try {
+          let data = {
+            storeNo: this.setStoreNo,
+            ...this.$data,
+            ...this.globalVariable
+          }
+          url = this.renderStr(url, data);
+          url = url.trim();
+        } catch (e) {
+          //TODO handle the exception
+        }
+
+        let navType = "navigateTo";
+        if (e.navType) {
+          navType = e.navType;
+        }
+        if (navType === '视频号主页') {
+          // 打开视频号主页 需要视频号id（finderUserName）
+          if (e.finder_user_name) {
+            wx.openChannelsUserProfile({
+              finderUserName: e.finder_user_name,
+              fail: (err) => {
+                if (err?.errno === 1416103) {
+                  uni.showToast({
+                    title: '打开视频好主页需要小程序与视频号的主体相同或为关联主体',
+                    icon: 'none'
+                  })
+                }
+              }
+            })
+          } else {
+            uni.showToast({
+              title: '未配置视频号ID',
+              icon: 'none'
+            })
+          }
+          return
+        } else if (navType === '视频号视频') {
+          // 打开视频号视频 需要视频号id（finderUserName）和视频id（feedId）
+          if (e.finder_user_name && e.feed_id) {
+            wx.openChannelsActivity({
+              finderUserName: e.finder_user_name,
+              feedId: e.feed_id,
+              fail: (err) => {
+                console.log(err)
+              }
+            })
+          }
+          return
+        } else if (navType === "miniProgram") {
+          // #ifdef MP-WEIXIN
+          if (url) {
+            url += `&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`
+          }
+          if (e.appid) {
+            uni.navigateToMiniProgram({
+              appId: e.appid,
+              path: url,
+            });
+          }
+          // #endif
+        } else if (navType === "takePhone") {
+          if (e.phone_number) {
+            uni.makePhoneCall({
+              phoneNumber: e.phone_number,
+              fail(err) {
+                console.error(err);
+              },
+            });
+          }
+        } else {
+          if (e.url && e.url.indexOf('https') == 0) {
+            url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(e.url)}`
+          }
+          if (
+            ["navigateTo", "redirectoTo", "switchTab", "reLaunch"].includes(
+              navType
+            )
+          ) {
+            uni[navType]({
+              url: url,
+              fail(err) {
+                uni.switchTab({
+                  url: url,
+                });
+              },
+            });
+          }
+        }
+      },
+      setBtnClass(item = {}) {
+        let str = `col-${this.bottomButtons.length}`
+        if (this.bottomButtons.length > 4) {
+          str = 'col-1'
+          if (this.bottomButtons.length % 2 === 0) {
+            str = 'col-2'
+          }
+        }
+        if (item.bg_color) {
+          if(Array.isArray(ColorList)&&ColorList.length>0){
+            ColorList.forEach(cur=>{
+              const color = `${cur.title}  ${cur.color}`
+              if(item.bg_color ===  color){
+                str += ` bg-${cur.name}`
+              } 
+            })
+          }
+        } else {
+          str += ` bg-white`
+        }
+        return str
+      },
+      getBottomBtn() {
+        // 查找文章底部按钮
+        const url = `/health/select/srvhealth_page_item_buttons_select`
+        const req = {
+          "serviceName": "srvhealth_page_item_buttons_select",
+          "colNames": ["*"],
+          "condition": [{
+            "colName": "article_no",
+            "ruleType": "eq",
+            "value": this.content_no
+          }],
+          "page": {
+            "pageNo": 1,
+            "rownumber": 20
+          },
+        }
+        this.$http.post(url, req).then(res => {
+          if (res?.data?.state === 'SUCCESS') {
+            this.bottomButtons = res?.data?.data
+          }
+        })
+      },
       qrcodeCanvasComplete(e) {
         this.qrcodePath = e;
       },
@@ -84,7 +359,6 @@
             url: `/pages/home/home?store_no=${this.storeNo}&invite_user_no=${this.invite_user_no}`
           })
         }
-
       },
       getArticleData() {
         let app = 'daq';
@@ -224,6 +498,7 @@
       if (option.content_no) {
         this.content_no = decodeURIComponent(option.content_no);
         this.getArticleData();
+        this.getBottomBtn()
         let result = ''
         this.qrCodeText = ''
         this.qrcodePath = ''
@@ -403,5 +678,63 @@
         }
       }
     }
+  }
+
+  .bottom-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 50px;
+
+    .bottom-button {
+      padding: 6px;
+      min-height: 36px;
+      border: 1px solid #f1f1f1;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: auto;
+      margin-bottom: 5px;
+    }
+
+    .col-1 {
+      width: 100%;
+      border-radius: 20px;
+    }
+
+    .col-2 {
+      width: 50%;
+      border-radius: 20px 0 0 20px;
+
+      &:nth-child(2n) {
+        border-radius: 0 20px 20px 0;
+        border-left: none;
+      }
+    }
+
+    .col-3 {
+      // width: 30%;
+      flex: 1;
+      margin-right: 10px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    .col-4 {
+      width: 25%;
+      margin: 0;
+      border-left: none;
+      border-radius: 0;
+
+      &:first-child {
+        border-left: 1px solid #f1f1f1;
+      }
+    }
+
   }
 </style>
