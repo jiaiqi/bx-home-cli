@@ -195,30 +195,32 @@
         if (this.pageItem?.component_bg_img && this.pageItem?.component_bg_img !== '否') {
           // style['background-color'] = null
           style['background-image'] = `url(${this.getImagePath(this.pageItem?.component_bg_img,true)})`
-          style.backgroundRepeat = 'no-repeat'
-          style.backgroundSize = "100% 100%"
+          style['background-repeat'] = 'no-repeat'
+          style['background-size'] = "100% 100%"
         }
         if (style.background && style.background.indexOf('否') !== -1) {
           style.background = null
+          delete style.background
         }
         // style['background-color'] = style.background || '#fff'
         if (style['background-image']) {
           style.background = ''
+          delete style.background
         }
         // if(!style['background-color']){
         //   style['background-color'] = '#fff'
         // }
         if (this.pageItem?.button_style === '仅图片') {
-          style.borderRadius = '0'
+          style['border-radius'] = '0'
         }
         if (this.pageItem?.margin) {
           style.margin = this.pageItem?.margin
         }
         if (this.pageItem?.is_radius === '否') {
-          style.borderRadius = '0'
+          style['border-radius'] = '0'
         }
         if (this.pageItem?.is_radius === '是') {
-          style.borderRadius = '10px'
+          style['border-radius'] = '10px'
         }
         if (!style['background'] && !style['background-color'] && !style['background-image']) {
           style['background-color'] = '#fff'
