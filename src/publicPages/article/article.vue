@@ -210,7 +210,6 @@
         if (e.$orig) {
           e = e.$orig;
         }
-
         let url = "";
         if (e?.dest_page) {
           url = e.dest_page;
@@ -231,6 +230,9 @@
         let navType = "navigateTo";
         if (e.navType) {
           navType = e.navType;
+        }
+        if(e.navigate_type){
+          navType = e.navigate_type;
         }
         if (navType === '视频号主页') {
           // 打开视频号主页 需要视频号id（finderUserName）
@@ -686,8 +688,10 @@
     justify-content: space-between;
     text-align: center;
     padding: 10px;
-    margin-bottom: 50px;
-
+    margin-bottom: 20px;
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
     .bottom-button {
       padding: 6px;
       min-height: 36px;

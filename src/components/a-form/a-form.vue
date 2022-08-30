@@ -86,6 +86,9 @@
             res[cur.columns] = cur.value
           }
         }
+        if(cur.columns === 'service_people_no'&& res[cur.columns]){
+          this.serviceNo =  res[cur.columns]
+        }
         return res
       }, {})
       this.oldFieldModel = this.deepClone(oldFieldModel)
