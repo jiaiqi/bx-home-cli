@@ -496,6 +496,7 @@
 <style lang="scss">
   .a-form {
     padding: 0;
+    width: 100%;
   }
 
   .section-name {

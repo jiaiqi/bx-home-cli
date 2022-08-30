@@ -146,6 +146,7 @@
             "order_no": this.order_no,
             "type": this.type,
             "return_amount": this.backMoney,
+            
             "audit_state": "申请中",
             picture: this.form.picture
           }]
