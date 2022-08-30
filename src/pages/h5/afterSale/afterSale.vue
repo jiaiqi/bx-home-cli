@@ -91,7 +91,7 @@
       // },
       toForm(e) {
         let url =
-          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&order_no=${this.order_no}&order_pay_amount=${this.order_pay_amount}&goodsInfo=${JSON.stringify(this.goodsInfo)}`
+          `/pages/h5/afterSale/form?serviceName=srvhealth_store_return_order_add&type=${e}&order_no=${this.order_no}&order_pay_amount=${this.order_pay_amount}&goodsList=${JSON.stringify(this.goodsList)}`
         uni.navigateTo({
           url
         })

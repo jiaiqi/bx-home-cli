@@ -3417,7 +3417,7 @@
           flex-wrap: wrap;
           width: 100%;
           position: relative;
-          align-items: center;
+          align-items: flex-start;
 
           .record-popover {
             background-color: #555;

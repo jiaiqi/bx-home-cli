@@ -10,7 +10,7 @@
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
         @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false"
         :top="topHeight" :readonly="listBarReadonly">
-      </list-bar>
+      </list-bar> 
 
       <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
@@ -33,7 +33,7 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags> -->
       <view class="list-view">
-        <list-next class="list-next" ref="listRef" :selectoDataId="selectoDataId" :disabledCol="disabledCol"
+        <list-next class="list-next" ref="listRef" :disabledEvaluate="disabledEvaluate" :selectoDataId="selectoDataId" :disabledCol="disabledCol"
           :id-col="idCol" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
           :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig" :list="list"
           :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart"
@@ -293,7 +293,7 @@
       moreConfig() {
         return this.colV2?.moreConfig || {}
       },
-
+      
       list_config() {
         let config = this.colV2?.moreConfig?.list_config
         let obj = {
@@ -476,6 +476,7 @@
     },
     data() {
       return {
+        disabledEvaluate:false,
         tabsCfg: null,
         topHeight: 0,
         modalName: "",
@@ -2611,6 +2612,9 @@
       }
     },
     async onLoad(option) {
+      if(option.disabledEvaluate){
+        this.disabledEvaluate = true
+      }
       if (option.hideChildTable) {
         this.hideChildTable = true
       }

@@ -60,6 +60,7 @@
         order_no: "",
         orderInfo: null,
         goodsInfo: null,
+        goodsList: [],
         serviceName: "",
         type: "",
         picture: ""
@@ -70,7 +71,7 @@
         return `${this.$api.srvHost}/file/upload`
       },
       backMoney() {
-        return this.order_pay_amount||0
+        return this.order_pay_amount || 0
       },
       toAddressSelector() {
         const cond = [{
@@ -140,9 +141,9 @@
             "user_address_no": this.orderInfo.rcv_addr_no,
             "rcv_name": this.orderInfo.rcv_name,
             "rcv_telephone": this.orderInfo.rcv_telephone,
-            "store_no": this.goodsInfo.store_no,
+            "store_no": this.curStoreNo,
             "reason": this.form.reason,
-            "order_no": this.goodsInfo.order_no,
+            "order_no": this.order_no,
             "type": this.type,
             "return_amount": this.backMoney,
             "audit_state": "申请中",
@@ -159,13 +160,15 @@
             "add_col": "return_no",
             "depend_key": "return_no"
           }],
-          "data": [{
-            "goods_no": this.goodsInfo.goods_no,
-            "goods_name": this.goodsInfo.goods_name,
-            "return_num": this.goodsInfo.goods_amount,
-            "real_amount": this.backMoney,
-            "price": this.goodsInfo.unit_price,
-          }]
+          "data": this.goodsList.map(item => {
+            return {
+              "goods_no": item.goods_no,
+              "goods_name": item.goods_name,
+              "return_num": item.goods_amount,
+              "real_amount": this.backMoney,
+              "price": item.unit_price,
+            }
+          })
         }]
         // }
         const url = `/health/operate/srvhealth_store_return_order_add`
@@ -189,7 +192,14 @@
       },
     },
     onLoad(option) {
-      if(option.order_pay_amount){
+      if (option.goodsList) {
+        try {
+          this.goodsList = JSON.parse(option.goodsList)
+        } catch (e) {
+          //TODO handle the exception
+        }
+      }
+      if (option.order_pay_amount) {
         this.order_pay_amount = option.order_pay_amount
       }
       if (option.serviceName) {

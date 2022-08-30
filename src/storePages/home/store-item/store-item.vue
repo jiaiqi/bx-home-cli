@@ -225,6 +225,10 @@
         if (!style['background'] && !style['background-color'] && !style['background-image']) {
           style['background-color'] = '#fff'
         }
+        if (this.pageItem.type == '用户卡片' && this.pageItem.user_card_type === '卡包') {
+          delete style['background-color']
+          style['border-radius'] = '0'
+        }
         let str = ''
         if (Object.keys(style).length > 0) {
           Object.keys(style).forEach(key => {

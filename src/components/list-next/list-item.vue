@@ -20,7 +20,7 @@
             <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
-                <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
+                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate" :viewTemp="item.list_config" :labelMap="labelMap"
                   listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
                   v-for="row in setChildData">
                 </list-item>
@@ -131,7 +131,7 @@
             <view class="col-item bg" v-for="(item,index) in setListView.rightCols" :key="index" :style="[item.style]"
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
-                <list-item class="list-item-wrap child-data" :viewTemp="item.list_config" :labelMap="labelMap"
+                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate" :viewTemp="item.list_config" :labelMap="labelMap"
                   listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
                   v-for="row in setChildData">
                 </list-item>
@@ -196,9 +196,9 @@
             </button>
           </view>
           <view class="foot-button-box wrap-row"
-            v-else-if="showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
+            v-else-if="disabledEvaluate!==true&&showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
             <button class="cu-btn round sm border"
-              v-if="mainData.order_state==='已完成'&&rowData.is_remark=='待评价'&&mainData.pay_state==='已支付'"
+              v-if="disabledEvaluate!==true&&mainData.order_state==='已完成'&&rowData.is_remark=='待评价'&&mainData.pay_state==='已支付'"
               @click.stop="toEvaluate">评价</button>
             <button class="cu-btn round sm border" v-if="rowData.is_remark!='待评价'"
               @click.stop="toEvaluate('detail')">查看评价</button>
@@ -266,6 +266,7 @@
       // #endif
     },
     props: {
+      disabledEvaluate:Boolean,
       // 主表数据
       mainData: {
         type: Object
@@ -432,7 +433,7 @@
       },
       showEvaluate() {
         // 是否显示自定义评价按钮
-        return this.setViewTemp?.btn_cfg?.show_evaluate === true
+        return this.setViewTemp?.btn_cfg?.show_evaluate === true&&this.disabledEvaluate!==true
       },
       setButtonsAuth() {
         return this.rowData?._buttons || []
@@ -738,8 +739,12 @@
               }
               obj.fmt = cfg?.fmt;
               obj.separator = cfg?.separator
-
               obj.valueWhiteSpace = cfg?.white_space;
+              if(cfg?.white_space=='nowrap'){
+                cfg.flexWrap = 'nowrap'
+                obj.style['flex-wrap'] = 'nowrap';
+                obj.style['white-space'] = 'nowrap';
+              }
               obj.event = col.event
               if (col?.col) {
                 let getVal = this.setValue(col.col, col.cfg);
@@ -929,6 +934,11 @@
             obj.prefix = cfg?.prefix || '';
             obj.suffix = cfg?.suffix || '';
             obj.valueWhiteSpace = cfg?.white_space;
+            if(cfg?.white_space=='nowrap'){
+              cfg.flexWrap = 'nowrap'
+              obj.style['flex-wrap'] = 'nowrap';
+              obj.style['white-space'] = 'nowrap';
+            }
             obj.event = col.event
             if (col?.col) {
               let getVal = this.setValue(col.col, col.cfg);

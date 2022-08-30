@@ -16,11 +16,11 @@
           <radio :value="item.cart_goods_rec_no" :checked="item.checked" v-if="listType === 'cartList'"
             style="transform:scale(0.7);margin-right:5px;" @click="checkboxChange(item)" />
         </view>
-        <list-item class="list-item-wrap" :disabled="setRadioDisabled(item)" :viewTemp="setViewTemp"
-          :labelMap="labelMap" :cartData="cartData" :childData="colV2._childData" :childDataCfg="childDataCfg"
-          :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton" @click-foot-btn="clickFootBtn"
-          :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
-          @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
+        <list-item class="list-item-wrap" :disabled="setRadioDisabled(item)" :disabledEvaluate="disabledEvaluate"
+          :viewTemp="setViewTemp" :labelMap="labelMap" :cartData="cartData" :childData="colV2._childData"
+          :childDataCfg="childDataCfg" :listType="listType" :appName="appName" :rowData="item" :rowButton="rowButton"
+          @click-foot-btn="clickFootBtn" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+          :formButtonDisp="formButtonDisp" @add2Cart="add2Cart" @del2Cart="del2Cart"></list-item>
         <radio :value="item[idCol]?item[idCol].toString():''" :checked="item.checked"
           v-if="listType==='selectorList'||listType==='multiSelectByJson'" style="transform:scale(1);margin-right:5px;"
           :disabled="setRadioDisabled(item)" @click="checkboxChange(item)" />
@@ -36,6 +36,7 @@
       listItem
     },
     props: {
+      disabledEvaluate: Boolean,
       list: {
         type: Array
       },

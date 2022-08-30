@@ -792,7 +792,7 @@
           "serviceName": "srvhealth_store_treasury_info_select",
           "colNames": ["*"],
           order: [{
-            colName: 'modify_time',
+            colName: 'create_time',
             orderType: 'asc'
           }],
           "condition": [{

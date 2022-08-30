@@ -1,6 +1,6 @@
 <template>
   <view class="notice-wrap"
-    v-if="customService&&pageItem&&pageItem.notice_style&&showNoticeBar&&multiRow&&multiListSimple&&multiListSimple.length>0">
+    v-if="pageItem&&pageItem.notice_style&&showNoticeBar&&multiRow&&multiListSimple&&multiListSimple.length>0">
     <u-notice-bar :mode="mode" :list="lists" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
       :type="theme" :color="styleConfig.color" :duration="duration" @click="clickMultiNotice(idx1,$event)"
       v-for="(lists,idx1) in multiListSimple">
@@ -49,10 +49,10 @@
         return this.pageItem?.notice_list_origin === '自定义服务'
       },
       styleConfig() {
-        return this.customService && this.pageItem?.more_config?.styleConfig || {}
+        return this.pageItem?.more_config?.styleConfig || {}
       },
       multiRow() {
-        return this.customService && !isNaN(Number(this.pageItem?.row_number)) && this.pageItem.row_number > 1
+        return !isNaN(Number(this.pageItem?.row_number)) && this.pageItem.row_number > 1
       },
       multiListSimple() {
         if (Array.isArray(this.multiList) && this.multiList.length > 0) {
