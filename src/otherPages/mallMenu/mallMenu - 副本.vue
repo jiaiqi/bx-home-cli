@@ -1,45 +1,54 @@
 <template>
   <view class="u-wrap">
+    <!-- 		<view class="u-search-box">
+			<view class="u-search-inner">
+				<u-icon name="search" color="#909399" :size="28"></u-icon>
+				<text class="u-search-text">搜索</text>
+			</view>
+		</view> -->
     <view class="u-menu-wrap">
-      <scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop">
+      <scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop"
+        :scroll-into-view="itemId">
         <view v-for="(item,index) in tabbar" :key="index" class="u-tab-item"
-          :class="[current==index ? 'u-tab-item-active' : '']" :data-current="index" @tap.stop="swichMenu(index)">
+          :class="[current == index ? 'u-tab-item-active' : '']" @tap.stop="swichMenu(index)">
           <text class="u-line-1">{{item.label}}</text>
         </view>
       </scroll-view>
-      <block v-for="(item,index) in tabbar" :key="index">
-        <scroll-view scroll-y class="right-box" v-if="current==index">
-          <view class="page-view">
-            <view class="class-item">
-              <view class="item-title">
-                <text>{{item.name}}</text>
-              </view>
-              <view class="item-container">
-                <view class="thumb-box" :class="{'double-column':doubleCol}" v-for="(item1, index1) in item.childList"
-                  :key="index1" @click="toDetail(item1)">
-                  <image class="item-menu-image" :src="item1.icon" mode="aspectFill"></image>
-                  <view class="item-menu-name  margin-top-xs">{{item1.label}}</view>
-                </view>
+      <scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box" @scroll="rightScroll">
+        <view class="page-view">
+          <view class="class-item" :id="'item' + index" v-for="(item , index) in tabbar" :key="index">
+            <view class="item-title">
+              <text>{{item.label}}</text>
+            </view>
+            <u-empty v-if="item.childList.length==0"></u-empty>
+            <view class="item-container" v-else>
+              <view class="thumb-box" v-for="(item1, index1) in item.childList" :key="index1" @click="toDetail(item1)">
+                <image class="item-menu-image" :src="item1.icon" mode="aspectFit"></image>
+                <view class="item-menu-name">{{item1.label}}</view>
               </view>
             </view>
           </view>
-        </scroll-view>
-      </block>
+        </view>
+      </scroll-view>
     </view>
   </view>
 </template>
-
 <script>
   export default {
     data() {
       return {
-        doubleCol: false, //一行两列 默认一行一列
-        tabbar: [],
         scrollTop: 0, //tab标题的滚动条位置
+        oldScrollTop: 0,
         current: 0, // 预设当前项的值
         menuHeight: 0, // 左边菜单的高度
         menuItemHeight: 0, // 左边菜单item的高度
-        service: "",
+        itemId: '', // 栏目右边scroll-view用于滚动的id
+        tabbar: [],
+        menuItemPos: [],
+        arr: [],
+        scrollRightTop: 0, // 右边栏目scroll-view的滚动条高度
+        timer: null, // 定时器
+        service:"",
         app: "",
         config: null,
         // 左侧按钮分页信息
@@ -57,9 +66,6 @@
       }
     },
     onLoad(option) {
-      if (option.doubleCol) {
-        this.doubleCol = true
-      }
       if (option.app) {
         this.app = option.app
       }
@@ -68,10 +74,9 @@
         this.initData()
       }
 
-
     },
-    computed: {
-
+    onReady() {
+      this.getMenuItemTop()
     },
     methods: {
       toDetail(e) {
@@ -124,14 +129,14 @@
             "rownumber": this.menuPage.rownumber
           }
         }
-
+        
         if (Array.isArray(cfg?.conditions) && cfg?.conditions.length > 0) {
-          cfg?.conditions.forEach(item => {
+          cfg?.conditions.forEach(item=>{
             item.value = this.renderStr(item.value);
             req.condition.push(item)
           })
         }
-
+        
         const res = await this.$http.post(url, req)
         if (res?.data?.state === 'SUCCESS') {
           let tabbar = res.data.data;
@@ -158,14 +163,14 @@
             "rownumber": this.listPage.rownumber
           }
         }
-
+        
         if (Array.isArray(cfg?.conditions) && cfg?.conditions.length > 0) {
-          cfg?.conditions.forEach(item => {
+          cfg?.conditions.forEach(item=>{
             item.value = this.renderStr(item.value);
             req.condition.push(item)
           })
         }
-
+        
         if (ids && cfg?.relationCol) {
           req.condition.push({
             colName: cfg?.relationCol,
@@ -173,10 +178,10 @@
             value: ids
           })
         }
-
+        
         const url = `/${app}/select/${this.service}`
         const res = await this.$http.post(url, req)
-
+        
         if (res?.data?.state === 'SUCCESS') {
           return res.data.data.map(item => {
             if (cfg.labelCol && item[cfg.labelCol]) {
@@ -188,18 +193,20 @@
             return item
           });
         }
+
       },
       // 点击左边的栏目切换
       async swichMenu(index) {
-        if (index == this.current) return;
-        this.current = index;
-        // 如果为0，意味着尚未初始化
-        if (this.menuHeight == 0 || this.menuItemHeight == 0) {
-          await this.getElRect('menu-scroll-view', 'menuHeight');
-          await this.getElRect('u-tab-item', 'menuItemHeight');
+        if (this.arr.length == 0) {
+          await this.getMenuItemTop();
         }
-        // 将菜单菜单活动item垂直居中
-        this.scrollTop = index * this.menuItemHeight + this.menuItemHeight / 2 - this.menuHeight / 2;
+        if (index == this.current) return;
+        this.scrollRightTop = this.oldScrollTop;
+        this.$nextTick(function() {
+          this.scrollRightTop = this.arr[index];
+          this.current = index;
+          this.leftMenuStatus(index);
+        })
       },
       // 获取一个目标元素的高度
       getElRect(elClass, dataVal) {
@@ -216,8 +223,81 @@
               return;
             }
             this[dataVal] = res.height;
+            resolve();
           }).exec();
         })
+      },
+      // 观测元素相交状态
+      async observer() {
+        this.tabbar.map((val, index) => {
+          let observer = uni.createIntersectionObserver(this);
+          // 检测右边scroll-view的id为itemxx的元素与right-box的相交状态
+          // 如果跟.right-box底部相交，就动态设置左边栏目的活动状态
+          observer.relativeTo('.right-box', {
+            top: 0
+          }).observe('#item' + index, res => {
+            if (res.intersectionRatio > 0) {
+              let id = res.id.substring(4);
+              this.leftMenuStatus(id);
+            }
+          })
+        })
+      },
+      // 设置左边菜单的滚动状态
+      async leftMenuStatus(index) {
+        this.current = index;
+        // 如果为0，意味着尚未初始化
+        if (this.menuHeight == 0 || this.menuItemHeight == 0) {
+          await this.getElRect('menu-scroll-view', 'menuHeight');
+          await this.getElRect('u-tab-item', 'menuItemHeight');
+        }
+        // 将菜单活动item垂直居中
+        this.scrollTop = index * this.menuItemHeight + this.menuItemHeight / 2 - this.menuHeight / 2;
+      },
+      // 获取右边菜单每个item到顶部的距离
+      getMenuItemTop() {
+        new Promise(resolve => {
+          let selectorQuery = uni.createSelectorQuery();
+          selectorQuery.selectAll('.class-item').boundingClientRect((rects) => {
+            // 如果节点尚未生成，rects值为[](因为用selectAll，所以返回的是数组)，循环调用执行
+            if (!rects.length) {
+              setTimeout(() => {
+                this.getMenuItemTop();
+              }, 10);
+              return;
+            }
+            rects.forEach((rect) => {
+              // 这里减去rects[0].top，是因为第一项顶部可能不是贴到导航栏(比如有个搜索框的情况)
+              this.arr.push(rect.top - rects[0].top);
+              resolve();
+            })
+          }).exec()
+        })
+      },
+      // 右边菜单滚动
+      async rightScroll(e) {
+        this.oldScrollTop = e.detail.scrollTop;
+        if (this.arr.length == 0) {
+          await this.getMenuItemTop();
+        }
+        if (this.timer) return;
+        if (!this.menuHeight) {
+          await this.getElRect('menu-scroll-view', 'menuHeight');
+        }
+        setTimeout(() => { // 节流
+          this.timer = null;
+          // scrollHeight为右边菜单垂直中点位置
+          let scrollHeight = e.detail.scrollTop + this.menuHeight / 2;
+          for (let i = 0; i < this.arr.length; i++) {
+            let height1 = this.arr[i];
+            let height2 = this.arr[i + 1];
+            // 如果不存在height2，意味着数据循环已经到了最后一个，设置左边菜单为最后一项即可
+            if (!height2 || scrollHeight >= height1 && scrollHeight < height2) {
+              this.leftMenuStatus(i);
+              return;
+            }
+          }
+        }, 10)
       }
     }
   }
@@ -249,6 +329,12 @@
     display: flex;
     align-items: center;
     padding: 10rpx 16rpx;
+  }
+
+  .u-search-text {
+    font-size: 26rpx;
+    color: $u-tips-color;
+    margin-left: 10rpx;
   }
 
   .u-tab-view {
@@ -286,6 +372,10 @@
     top: 39rpx;
   }
 
+  .u-tab-view {
+    height: 100%;
+  }
+
   .right-box {
     background-color: rgb(250, 250, 250);
   }
@@ -301,10 +391,16 @@
     border-radius: 8rpx;
   }
 
+  .class-item:last-child {
+    min-height: 100vh;
+  }
+
   .item-title {
     font-size: 26rpx;
     color: $u-main-color;
     font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f6f6f6;
   }
 
   .item-menu-name {
@@ -319,31 +415,16 @@
   }
 
   .thumb-box {
-    width: 100%;
+    width: 33.333333%;
     display: flex;
     align-items: center;
-    // justify-content: center;
-    flex-direction: row;
+    justify-content: center;
+    flex-direction: column;
     margin-top: 20rpx;
-    padding: 2px 10px;
   }
 
   .item-menu-image {
     width: 120rpx;
     height: 120rpx;
-    margin-right: 10px;
-    border-radius: 10rpx;
-    overflow: hidden;
-  }
-
-  .double-column {
-    flex-direction: column;
-    width: 50%;
-  }
-
-  .double-column .item-menu-image {
-    width: 220rpx;
-    height: 220rpx;
-    margin-right: 0;
   }
 </style>
