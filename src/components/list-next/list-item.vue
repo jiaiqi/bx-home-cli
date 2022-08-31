@@ -20,9 +20,9 @@
             <view class="col-item bg" v-for="(item,index) in setListView.cols" :key="index" :style="[item.style]"
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
-                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
-                  v-for="row in setChildData">
+                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate"
+                  :viewTemp="item.list_config" :labelMap="labelMap" listType="list" :appName="appName"
+                  :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -131,9 +131,9 @@
             <view class="col-item bg" v-for="(item,index) in setListView.rightCols" :key="index" :style="[item.style]"
               :class="[item.class]">
               <view v-if="item.type==='childData'&&setChildData&&setChildData.length>0">
-                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate" :viewTemp="item.list_config" :labelMap="labelMap"
-                  listType="list" :appName="appName" :main-data="rowData" :rowData="row" :rowButton="rowButton"
-                  v-for="row in setChildData">
+                <list-item class="list-item-wrap child-data" :disabledEvaluate="disabledEvaluate"
+                  :viewTemp="item.list_config" :labelMap="labelMap" listType="list" :appName="appName"
+                  :main-data="rowData" :rowData="row" :rowButton="rowButton" v-for="row in setChildData">
                 </list-item>
               </view>
               <template v-else>
@@ -266,7 +266,7 @@
       // #endif
     },
     props: {
-      disabledEvaluate:Boolean,
+      disabledEvaluate: Boolean,
       // 主表数据
       mainData: {
         type: Object
@@ -360,7 +360,7 @@
           grid_span: this.viewTemp?.grid_span || '3',
           margin: this.viewTemp?.margin,
           padding: this.viewTemp?.padding,
-          borderRadius: this.viewTemp?.borderRadius,
+          'border-radius': this.viewTemp?.borderRadius,
           btn_cfg: this.viewTemp?.btn_cfg,
           background: this.viewTemp?.bg || this.viewTemp?.background,
           img: {
@@ -433,7 +433,7 @@
       },
       showEvaluate() {
         // 是否显示自定义评价按钮
-        return this.setViewTemp?.btn_cfg?.show_evaluate === true&&this.disabledEvaluate!==true
+        return this.setViewTemp?.btn_cfg?.show_evaluate === true && this.disabledEvaluate !== true
       },
       setButtonsAuth() {
         return this.rowData?._buttons || []
@@ -461,7 +461,7 @@
             }
             buttons.push(item)
           })
-          
+
           buttons = buttons.filter((item, index) => {
             if (item.client_type && item.client_type.indexOf('APP') == -1) {
               // 根据自定义按钮配置的客户端类型过滤按钮
@@ -513,7 +513,7 @@
           rootStyle: {
             margin: this.setViewTemp?.margin,
             padding: this.setViewTemp?.padding,
-            borderRadius: this.setViewTemp?.borderRadius,
+            'border-radius': this.setViewTemp?.borderRadius,
             background: this.setViewTemp?.bg || this.setViewTemp?.background,
           }
         };
@@ -609,7 +609,7 @@
                   "female" : null,
                 fileNo: imgIcon?.fileNo,
                 style: imgIcon?.style || {
-                  borderRadius: imgIcon?.radius || imgCfg?.radius
+                  'border-radius': imgIcon?.radius || imgCfg?.radius
                 }
               }
             }
@@ -654,378 +654,262 @@
           }
           result.rightCols = []
           if (Array.isArray(rightCols) && rightCols.length > 0) {
-            rightCols.forEach(col => {
-              let cfg = col?.cfg;
-              let obj = {
-                sufIcon: col.sufIcon,
-                preIcon: col.preIcon,
-                style: {
-                  flex: cfg?.flex,
-                  'border-radius': cfg?.radius,
-                  width: cfg?.width,
-                  height: cfg?.height,
-                  'min-width': cfg?.min_width,
-                  'max-width': cfg?.max_width,
-                  padding: cfg?.padding,
-                  margin: cfg?.margin,
-                  'font-size': cfg?.font_size,
-                  'font-weight': cfg?.font_weight,
-                  'text-align': cfg?.align,
-                  'overflow': cfg?.overflow,
-                  color: cfg?.color,
-                  'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
-                    'right' ? 'flex-end' : cfg?.align
-                },
-                class: {
-                  'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
-                    border: cfg?.style === 'line_button',
-                    round: cfg?.round === true,
-                    light: cfg?.light === true,
-                    sm: cfg?.size === 'sm',
-                    lg: cfg?.size === 'lg',
-                    'bg-blue': cfg?.bg === 'blue',
-                    'bg-red': cfg?.bg === 'red',
-                    'bg-orange': cfg?.bg === 'orange',
-                    'bg-cyan': cfg?.bg === 'cyan',
-                    'bg-yellow': cfg?.bg === 'yellow',
-                    'bg-white': cfg?.bg === 'white',
-                    'bg-black': cfg?.bg === 'black',
-                    'bg-green': cfg?.bg === 'green',
-                    'bg-grey': cfg?.bg === 'grey',
-                    'bg-gray': cfg?.bg === 'gray',
-                    'line-blue': cfg?.border_color === 'blue',
-                    'line-red': cfg?.border_color === 'red',
-                    'line-orange': cfg?.border_color === 'orange',
-                    'line-cyan': cfg?.border_color === 'cyan',
-                    'line-yellow': cfg?.border_color === 'yellow',
-                    'line-white': cfg?.border_color === 'white',
-                    'line-black': cfg?.border_color === 'black',
-                    'line-green': cfg?.border_color === 'green',
-                    'line-grey': cfg?.border_color === 'grey',
-                    'line-gray': cfg?.border_color === 'gray'
-                }
-              };
-
-              if (cfg?.mode) {
-                obj.mode = cfg.mode
-                obj.max = cfg.max
-                obj.allowHalf = cfg.allowHalf
-              }
-              if (col?.type === 'media') {
-                // 图片、视频
-                obj.type = col.type;
-                obj.imgStyle = {
-                  width: cfg?.imgStyle?.width,
-                  height: cfg?.imgStyle?.height,
-                  'border-radius': cfg?.imgStyle?.radius,
-                }
-              }
-              if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
-                obj.style['background-color'] = cfg.bg;
-              }
-              if (cfg?.decoration) {
-                obj.style['text-decoration'] = cfg?.decoration;
-              }
-              if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
-                obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
-              }
-              if (Object.keys(obj.class).length > 0) {
-                obj.class = Object.keys(obj.class).reduce((res, cur) => {
-                  if (obj.class[cur]) {
-                    res += ` ${cur}`;
-                  }
-                  return res;
-                }, '');
-              }
-              obj.fmt = cfg?.fmt;
-              obj.separator = cfg?.separator
-              obj.valueWhiteSpace = cfg?.white_space;
-              if(cfg?.white_space=='nowrap'){
-                cfg.flexWrap = 'nowrap'
-                obj.style['flex-wrap'] = 'nowrap';
-                obj.style['white-space'] = 'nowrap';
-              }
-              obj.event = col.event
-              if (col?.col) {
-                let getVal = this.setValue(col.col, col.cfg);
-                if (getVal?.index === 0) {
-                  obj.prefix = cfg?.prefix || '';
-                  obj.suffix = cfg?.suffix || '';
-                }
-                if (cfg?.disp_label !== false) {
-                  obj.label = getVal?.label || '';
-                }
-                obj.value = getVal?.value;
-                if (obj.value === 0) {
-                  obj.value = '0'
-                } else if (!obj.value && col?.placeholder) {
-                  obj.value = col?.placeholder
-                }
-              }
-
-              if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
-                cfg.value_map.forEach(item => {
-                  if (obj.value === item.value) {
-                    obj.value = item.label;
-                    obj.style['background-color'] = item.bg;
-                    obj.style['color'] = item.color;
-                    result.rootStyle['background-color'] = item?.item_bg || result
-                      .rootStyle['background-color'];
-                    result.rootStyle['color'] = item?.item_color || result.rootStyle[
-                      'color'];
-                    result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle
-                      .bg;
-                    result.btnStyle.color = item?.btn_color || result.btnStyle.color;
-                    if (Array.isArray(item.other_col) && item.other_col.length > 0) {}
-                  }
-                });
-              }
-              if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
-                cfg.cfg_map.forEach(cfgItem => {
-                  if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
-                    cfgItem.condition.forEach(cond => {
-                      if (cond.colName && cond.value) {
-                        let setValue = this.setValue(cond.colName);
-                        if (cond.ruleType === 'eq') {
-                          if (setValue.value === cond.value) {
-                            obj.style.color = cfgItem.color || obj.style
-                              .color;
-                          }
-                        } else if (cond.ruleType === 'in') {
-                          if (cond.value.indexOf(setValue.value) !== -1) {
-                            obj.style.color = cfgItem.color || obj.style
-                              .color;
-                          }
-                        }
-                      }
-                    });
-                  }
-                });
-              }
-              if (cfg?.max && obj.value) {
-                if (!isNaN(Number(cfg?.max))) {
-                  obj.value = obj.value.slice(0, cfg.max);
-                }
-              }
-              if (!obj.value && cfg?.default_val) {
-                obj.value = cfg?.default_val;
-              }
-              if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
-                obj.class += ' hidden';
-              }
-              if (col.type === 'childData') {
-                obj = col;
-                obj.style = {
-                  width: "100%"
-                }
-                if (col?.related_col) {
-                  let related_col = col?.related_col
-                  if (self.childData && Array.isArray(self.childData)) {
-                    obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
-                      related_col])
-                  }
-                }
-
-              }
-              result.rightCols.push(obj);
-            });
+            let attr = this.setColsAttr(rightCols, result)
+            result = attr.result
+            result.rightCols = attr?.cols
           }
         }
-
 
         // 字段配置
         let cols = this.setViewTemp?.cols || [];
         result.cols = [];
         if (Array.isArray(cols) && cols.length > 0) {
-          cols.forEach(col => {
-            let cfg = col?.cfg;
-            let obj = {
-              sufIcon: col.sufIcon,
-              preIcon: col.preIcon,
-              style: {
-                flex: cfg?.flex,
-                'border-radius': cfg?.radius,
-                width: cfg?.width,
-                height: cfg?.height,
-                'min-width': cfg?.min_width,
-                'max-width': cfg?.max_width,
-                padding: cfg?.padding,
-                margin: cfg?.margin,
-                'font-size': cfg?.font_size,
-                'font-weight': cfg?.font_weight,
-                'text-align': cfg?.align,
-                'overflow': cfg?.overflow,
-                color: cfg?.color,
-                'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
-                  'right' ? 'flex-end' : cfg?.align
-              },
-              class: {
-                'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
-                  border: cfg?.style === 'line_button',
-                  round: cfg?.round === true,
-                  light: cfg?.light === true,
-                  sm: cfg?.size === 'sm',
-                  lg: cfg?.size === 'lg',
-                  'bg-blue': cfg?.bg === 'blue',
-                  'bg-red': cfg?.bg === 'red',
-                  'bg-orange': cfg?.bg === 'orange',
-                  'bg-cyan': cfg?.bg === 'cyan',
-                  'bg-yellow': cfg?.bg === 'yellow',
-                  'bg-white': cfg?.bg === 'white',
-                  'bg-black': cfg?.bg === 'black',
-                  'bg-green': cfg?.bg === 'green',
-                  'bg-grey': cfg?.bg === 'grey',
-                  'bg-gray': cfg?.bg === 'gray',
-                  'line-blue': cfg?.border_color === 'blue',
-                  'line-red': cfg?.border_color === 'red',
-                  'line-orange': cfg?.border_color === 'orange',
-                  'line-cyan': cfg?.border_color === 'cyan',
-                  'line-yellow': cfg?.border_color === 'yellow',
-                  'line-white': cfg?.border_color === 'white',
-                  'line-black': cfg?.border_color === 'black',
-                  'line-green': cfg?.border_color === 'green',
-                  'line-grey': cfg?.border_color === 'grey',
-                  'line-gray': cfg?.border_color === 'gray'
-              }
-            };
-            if (cfg?.line_clamp && !isNaN(Number(cfg?.line_clamp))) {
-              obj.style.overflow = 'hidden'
-              obj['text-overflow'] = null
-              obj.style.display = '-webkit-box'
-              obj.style['-webkit-box-orient'] = 'vertical'
-              obj.style['-webkit-line-clamp'] = Number(cfg?.line_clamp)
-              if (cfg?.white_space) {
-                cfg.white_space = null
-              }
-            }
-            if (cfg?.mode) {
-              obj.mode = cfg.mode
-              obj.max = cfg.max
-              obj.allowHalf = cfg.allowHalf
-            }
-            if (col?.type === 'media') {
-              // 图片、视频
-              obj.type = col.type;
-              obj.imgStyle = {
-                width: cfg?.imgStyle?.width,
-                height: cfg?.imgStyle?.height,
-                'border-radius': cfg?.imgStyle?.radius,
-              }
-            }
-            if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
-              obj.style['background-color'] = cfg.bg;
-            }
-            if (cfg?.decoration) {
-              obj.style['text-decoration'] = cfg?.decoration;
-            }
-            if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
-              obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
-            }
-            if (Object.keys(obj.class).length > 0) {
-              obj.class = Object.keys(obj.class).reduce((res, cur) => {
-                if (obj.class[cur]) {
-                  res += ` ${cur}`;
-                }
-                return res;
-              }, '');
-            }
-            obj.fmt = cfg?.fmt;
-            obj.separator = cfg?.separator
-            obj.prefix = cfg?.prefix || '';
-            obj.suffix = cfg?.suffix || '';
-            obj.valueWhiteSpace = cfg?.white_space;
-            if(cfg?.white_space=='nowrap'){
-              cfg.flexWrap = 'nowrap'
-              obj.style['flex-wrap'] = 'nowrap';
-              obj.style['white-space'] = 'nowrap';
-            }
-            obj.event = col.event
-            if (col?.col) {
-              let getVal = this.setValue(col.col, col.cfg);
-              if (getVal?.index === 0) {
-                obj.prefix = cfg?.prefix || '';
-                obj.suffix = cfg?.suffix || '';
-              }
-              if (cfg?.disp_label !== false) {
-                obj.label = getVal?.label || '';
-              }
-              obj.value = getVal?.value;
-              if (obj.value === 0) {
-                obj.value = '0'
-              }
-            }
-
-            if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
-              cfg.value_map.forEach(item => {
-                if (obj.value === item.value) {
-                  obj.value = item.label;
-                  obj.style['background-color'] = item.bg;
-                  obj.style['color'] = item.color;
-                  result.rootStyle['background-color'] = item?.item_bg || result
-                    .rootStyle['background-color'];
-                  result.rootStyle['color'] = item?.item_color || result.rootStyle[
-                    'color'];
-                  result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle
-                    .bg;
-                  result.btnStyle.color = item?.btn_color || result.btnStyle.color;
-                  if (Array.isArray(item.other_col) && item.other_col.length > 0) {}
-                }
-              });
-            }
-            if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
-              cfg.cfg_map.forEach(cfgItem => {
-                if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
-                  cfgItem.condition.forEach(cond => {
-                    if (cond.colName && cond.value) {
-                      let setValue = this.setValue(cond.colName);
-                      if (cond.ruleType === 'eq') {
-                        if (setValue.value === cond.value) {
-                          obj.style.color = cfgItem.color || obj.style
-                            .color;
-                        }
-                      } else if (cond.ruleType === 'in') {
-                        if (cond.value.indexOf(setValue.value) !== -1) {
-                          obj.style.color = cfgItem.color || obj.style
-                            .color;
-                        }
-                      }
-                    }
-                  });
-                }
-              });
-            }
-            if (cfg?.max && obj.value) {
-              if (!isNaN(Number(cfg?.max))) {
-                obj.value = obj.value.slice(0, cfg.max);
-              }
-            }
-            if (!obj.value && cfg?.default_val) {
-              obj.value = cfg?.default_val;
-            }
-            if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
-              obj.class += ' hidden';
-            }
-            if (col.type === 'childData') {
-              obj = col;
-              obj.style = {
-                width: "100%"
-              }
-              if (col?.related_col) {
-                let related_col = col?.related_col
-                if (self.childData && Array.isArray(self.childData)) {
-                  obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
-                    related_col])
-                }
-              }
-
-            }
-            result.cols.push(obj);
-          });
+          let attr = this.setColsAttr(cols, result)
+          result = attr.result
+          result.cols = attr?.cols
         }
         return result;
       }
     },
     methods: {
+      setColsAttr(cols = [], result = {}) {
+        cols = cols.map(col => {
+          let cfg = col?.cfg;
+          let obj = {
+            sufIcon: col.sufIcon,
+            preIcon: col.preIcon,
+            style: {
+              flex: cfg?.flex,
+              'border-radius': cfg?.radius,
+              width: cfg?.width,
+              height: cfg?.height,
+              'min-width': cfg?.min_width,
+              'max-width': cfg?.max_width,
+              padding: cfg?.padding,
+              margin: cfg?.margin,
+              'font-size': cfg?.font_size,
+              'font-weight': cfg?.font_weight,
+              'text-align': cfg?.align,
+              'overflow': cfg?.overflow,
+              color: cfg?.color,
+              'justify-content': cfg?.align === 'left' ? 'flex-start' : cfg?.align ===
+                'right' ? 'flex-end' : cfg?.align
+            },
+            class: {
+              'cu-btn': cfg?.style === 'button' || cfg?.style === 'line_button',
+                border: cfg?.style === 'line_button',
+                round: cfg?.round === true,
+                light: cfg?.light === true,
+                sm: cfg?.size === 'sm',
+                lg: cfg?.size === 'lg',
+                'bg-blue': cfg?.bg === 'blue',
+                'bg-red': cfg?.bg === 'red',
+                'bg-orange': cfg?.bg === 'orange',
+                'bg-cyan': cfg?.bg === 'cyan',
+                'bg-yellow': cfg?.bg === 'yellow',
+                'bg-white': cfg?.bg === 'white',
+                'bg-black': cfg?.bg === 'black',
+                'bg-green': cfg?.bg === 'green',
+                'bg-grey': cfg?.bg === 'grey',
+                'bg-gray': cfg?.bg === 'gray',
+                'line-blue': cfg?.border_color === 'blue',
+                'line-red': cfg?.border_color === 'red',
+                'line-orange': cfg?.border_color === 'orange',
+                'line-cyan': cfg?.border_color === 'cyan',
+                'line-yellow': cfg?.border_color === 'yellow',
+                'line-white': cfg?.border_color === 'white',
+                'line-black': cfg?.border_color === 'black',
+                'line-green': cfg?.border_color === 'green',
+                'line-grey': cfg?.border_color === 'grey',
+                'line-gray': cfg?.border_color === 'gray'
+            }
+          };
+          if (cfg?.line_clamp && !isNaN(Number(cfg?.line_clamp))) {
+            obj.style.overflow = 'hidden'
+            obj['text-overflow'] = null
+            obj.style.display = '-webkit-box'
+            obj.style['-webkit-box-orient'] = 'vertical'
+            obj.style['-webkit-line-clamp'] = Number(cfg?.line_clamp)
+            if (cfg?.white_space) {
+              cfg.white_space = null
+            }
+          }
+          if (cfg?.mode) {
+            obj.mode = cfg.mode
+            obj.max = cfg.max
+            obj.allowHalf = cfg.allowHalf
+          }
+          if (col?.type === 'media') {
+            // 图片、视频
+            obj.type = col.type;
+            obj.imgStyle = {
+              width: cfg?.imgStyle?.width,
+              height: cfg?.imgStyle?.height,
+              'border-radius': cfg?.imgStyle?.radius,
+            }
+          }
+          if (cfg?.bg && cfg?.bg.indexOf('#') !== -1) {
+            obj.style['background-color'] = cfg.bg;
+          }
+          if (cfg?.decoration) {
+            obj.style['text-decoration'] = cfg?.decoration;
+          }
+          if (cfg?.border_color && cfg?.border_color.indexOf('#') !== -1) {
+            obj.style['border'] = `1rpx solid ${cfg?.border_color}`;
+          }
+          if (Object.keys(obj.class).length > 0) {
+            obj.class = Object.keys(obj.class).reduce((res, cur) => {
+              if (obj.class[cur]) {
+                res += ` ${cur}`;
+              }
+              return res;
+            }, '');
+          }
+          obj.fmt = cfg?.fmt;
+          obj.separator = cfg?.separator
+          obj.prefix = cfg?.prefix || '';
+          obj.suffix = cfg?.suffix || '';
+          obj.valueWhiteSpace = cfg?.white_space;
+          if (cfg?.white_space == 'nowrap') {
+            cfg.flexWrap = 'nowrap'
+            obj.style['flex-wrap'] = 'nowrap';
+            obj.style['white-space'] = 'nowrap';
+          }
+          obj.event = col.event
+          if (col?.col) {
+            let getVal = this.setValue(col.col, col.cfg);
+            if (getVal?.index === 0) {
+              obj.prefix = cfg?.prefix || '';
+              obj.suffix = cfg?.suffix || '';
+            }
+            if (cfg?.disp_label !== false) {
+              obj.label = getVal?.label || '';
+            }
+            obj.value = getVal?.value;
+            if (obj.value === 0) {
+              obj.value = '0'
+            } else if (!obj.value && col?.placeholder) {
+              obj.value = col?.placeholder
+            }
+          }
+
+          if (Array.isArray(cfg?.value_map) && cfg.value_map.length > 0) {
+            cfg.value_map.forEach(item => {
+              if (obj.value === item.value) {
+                obj.value = item.label;
+                obj.style['background-color'] = item.bg;
+                obj.style['color'] = item.color;
+                result.rootStyle['background-color'] = item?.item_bg || result
+                  .rootStyle['background-color'];
+                result.rootStyle['color'] = item?.item_color || result.rootStyle[
+                  'color'];
+                result.btnStyle['background-color'] = item?.btn_bg || result.btnStyle
+                  .bg;
+                result.btnStyle.color = item?.btn_color || result.btnStyle.color;
+                if (Array.isArray(item.other_col) && item.other_col.length > 0) {}
+              }
+            });
+          }
+          if (Array.isArray(cfg?.cfg_map) && cfg?.cfg_map.length > 0) {
+            cfg.cfg_map.forEach(cfgItem => {
+              if (Array.isArray(cfgItem.condition) && cfgItem.condition.length > 0) {
+                cfgItem.condition.forEach(cond => {
+                  if (cond.colName && cond.value) {
+                    let setValue = this.setValue(cond.colName);
+                    if (cond.ruleType === 'eq') {
+                      if (setValue.value === cond.value) {
+                        obj.style.color = cfgItem.color || obj.style
+                          .color;
+                      }
+                    } else if (cond.ruleType === 'in') {
+                      if (cond.value.indexOf(setValue.value) !== -1) {
+                        obj.style.color = cfgItem.color || obj.style
+                          .color;
+                      }
+                    }
+                  }
+                });
+              }
+            });
+          }
+          let display = this.evalColDispCond(cfg?.disp_cond)
+          if (display == false) {
+            obj.style.display = 'none'
+          }
+          if (cfg?.max && obj.value) {
+            if (!isNaN(Number(cfg?.max))) {
+              obj.value = obj.value.slice(0, cfg.max);
+            }
+          }
+          if (!obj.value && cfg?.default_val) {
+            obj.value = cfg?.default_val;
+          }
+          if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
+            obj.class += ' hidden';
+          }
+          if (col.type === 'childData') {
+            obj = col;
+            obj.style = {
+              width: "100%"
+            }
+            if (col?.related_col) {
+              let related_col = col?.related_col
+              if (self.childData && Array.isArray(self.childData)) {
+                obj.childData = self.childData.filter(item => item[related_col] === self.rowData[
+                  related_col])
+              }
+            }
+
+          }
+          return obj
+
+        })
+        return {
+          cols,
+          result
+        }
+      },
+      evalColDispCond(conds, data) {
+        let res = true
+        if (Array.isArray(conds) && conds.length > 0) {
+          const rowData = data || this.rowData
+          conds.forEach(cond => {
+            switch (cond.ruleType) {
+              case 'eq':
+                if (cond.colName && cond.value) {
+                  if (rowData[cond.colName] !== cond.value) {
+                    res = false
+                  }
+                }
+                break;
+              case 'ne':
+                if (cond.colName && cond.value) {
+                  if (rowData[cond.colName] === cond.value) {
+                    res = false
+                  }
+                }
+                break;
+              case 'in':
+                if (cond.colName && cond.value) {
+                  if (rowData[cond.colName] && typeof rowData[cond.colName] === 'string' && rowData[cond
+                      .colName].indexOf(cond.value) == -1) {
+                    res = false
+                  }
+                }
+                break;
+              case 'notin':
+                if (cond.colName && cond.value) {
+                  if (rowData[cond.colName] && typeof rowData[cond.colName] === 'string' && rowData[cond
+                      .colName].indexOf(cond.value) !== -1) {
+                    res = false
+                  }
+                }
+                break;
+            }
+          })
+        }
+        return res
+      },
       toEvaluate(e) {
         // 跳转到评价页面
         let fieldsCond = [{
