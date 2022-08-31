@@ -585,7 +585,7 @@
 
 
         if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
-          
+
           // let goodsItem = this.goodsList[0]
 
           // const goods = cols.reduce((res, cur) => {
@@ -615,14 +615,14 @@
           //   })
           //   return
           // }
-          
+
           const url =
             `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
 
           // uni.navigateTo({
           //   url
           // })
-          
+
           uni.navigateTo({
             url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
           })
@@ -644,14 +644,22 @@
           // res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
           //   this.orderInfo.order_pay_amount > 0 || false
 
-          let refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num || 7
-
+          let refunds_num = this.storeInfo?.order_return_day ?? 7
+          
+          if (this.goodsList.find(item => item.refunds_num)?.refunds_num) {
+            refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num
+          }
+          
           if (['待发货', '待收货', '待提货', '已完成'].includes(order_state) && pay_state === '已支付' &&
             order_pay_amount && this.disabledRefund !== true) {
             res = true
           }
-          
+
           if (['餐饮', '酒店'].includes(order_type)) {
+            res = false
+          }
+
+          if(refunds_num === 0 && order_state == '已完成'){
             res = false
           }
           
