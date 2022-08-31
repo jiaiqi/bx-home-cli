@@ -18,7 +18,14 @@
                 <view class="thumb-box" :class="{'double-column':doubleCol}" v-for="(item1, index1) in item.childList"
                   :key="index1" @click="toDetail(item1)">
                   <image class="item-menu-image" :src="item1.icon" mode="aspectFill"></image>
-                  <view class="item-menu-name  margin-top-xs">{{item1.label}}</view>
+                  <view class="item-menu-name">
+                    <view class="item-label">
+                      {{item1.label}}
+                    </view>
+                    <view class="item-desc " v-if="item1.desc">
+                      {{item1.desc}}
+                    </view>
+                  </view>
                 </view>
               </view>
             </view>
@@ -139,6 +146,7 @@
             if (cfg.labelCol && item[cfg.labelCol]) {
               item.label = item[cfg.labelCol]
             }
+
             return item
           });
         }
@@ -181,6 +189,9 @@
           return res.data.data.map(item => {
             if (cfg.labelCol && item[cfg.labelCol]) {
               item.label = item[cfg.labelCol]
+            }
+            if (cfg.descCol && item[cfg.descCol]) {
+              item.desc = item[cfg.descCol]
             }
             if (cfg.iconCol && item[cfg.iconCol]) {
               item.icon = this.getImagePath(item[cfg.iconCol])
@@ -307,11 +318,7 @@
     font-weight: bold;
   }
 
-  .item-menu-name {
-    font-weight: normal;
-    font-size: 24rpx;
-    color: $u-main-color;
-  }
+
 
   .item-container {
     display: flex;
@@ -321,7 +328,6 @@
   .thumb-box {
     width: 100%;
     display: flex;
-    align-items: center;
     // justify-content: center;
     flex-direction: row;
     margin-top: 20rpx;
@@ -329,16 +335,41 @@
   }
 
   .item-menu-image {
-    width: 120rpx;
-    height: 120rpx;
+    width: 150rpx;
+    height: 150rpx;
     margin-right: 10px;
     border-radius: 10rpx;
     overflow: hidden;
   }
 
+  .item-menu-name {
+    font-weight: normal;
+    font-size: 24rpx;
+    color: $u-main-color;
+    flex: 1;
+
+    .item-label {
+      font-weight: bold;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .item-desc {
+      color: #888;
+      margin-top: 5px;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+  }
+
   .double-column {
     flex-direction: column;
     width: 50%;
+    align-items: center;
   }
 
   .double-column .item-menu-image {
