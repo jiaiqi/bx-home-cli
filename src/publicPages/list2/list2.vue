@@ -10,7 +10,7 @@
         @handelCustomButton="handlerCustomizeButton" @onGridButton="clickGridButton" @clickAddButton="clickAddButton"
         @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false"
         :top="topHeight" :readonly="listBarReadonly">
-      </list-bar> 
+      </list-bar>
 
       <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
@@ -33,8 +33,8 @@
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel!=='PC'">
       </filter-tags> -->
       <view class="list-view">
-        <list-next class="list-next" ref="listRef" :disabledEvaluate="disabledEvaluate" :selectoDataId="selectoDataId" :disabledCol="disabledCol"
-          :id-col="idCol" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
+        <list-next class="list-next" ref="listRef" :disabledEvaluate="disabledEvaluate" :selectoDataId="selectoDataId"
+          :disabledCol="disabledCol" :id-col="idCol" :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp"
           :formButtonDisp="formButtonDisp" :cartData="cartData" :listConfig="listConfig" :list="list"
           :listType="listType" :colV2="colV2" :appName="appName" @click-foot-btn="clickFootBtn" @add2Cart="add2Cart"
           @del2Cart="del2Cart" @checkboxChange="checkboxChange" />
@@ -82,7 +82,6 @@
     debounce
   } from '@/common/func/util.js'
   import listNext from '@/components/list-next/list-next.vue';
-  // import listBar from '../components/list-bar/list-bar.vue'
   import countBar from '../components/count-bar/count-bar.vue'
   import cartBottom from '../components/cart-bottom/cart-bottom.vue'
   export default {
@@ -93,48 +92,6 @@
       cartBottom
     },
     watch: {
-      // 'moreConfig.tabs_cfg': {
-      //   immediate: true,
-      //   deep: true,
-      //   handler(newValue, oldValue) {
-      //     if (newValue) {
-      //       let cfg = newValue
-      //       let res = {
-      //         col: cfg?.column,
-      //         tabs: [],
-      //         activeColor: cfg?.active_color
-      //       }
-      //       if (cfg) {
-      //         if (cfg?.type === 'enum_col' && cfg?.column) {
-      //           if (Array.isArray(this.colV2?._fieldInfo)) {
-      //             let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
-      //             if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-      //               if (cfg?.show_total_tab !== false) {
-      //                 res.tabs = [{
-      //                   value: '_all',
-      //                   name: '全部'
-      //                 }]
-      //               }
-      //               let allTab = col.option_list_v2
-      //               if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
-      //                 allTab = cfg.customTabs
-      //               }
-      //               allTab.forEach(item => {
-      //                 res.tabs.push({
-      //                   name: item.value,
-      //                   value: item.value
-      //                 })
-      //               })
-      //             }
-      //           }
-      //         } else if (cfg?.type === 'fk_col' && cfg?.column) {
-
-      //         }
-      //       }
-      //       this.tabsCfg = res
-      //     }
-      //   }
-      // },
       enumTabs: {
         immediate: true,
         deep: true,
@@ -160,42 +117,6 @@
       enumTabs() {
         return this.tabsCfg?.tabs || []
       },
-      // tabsCfg() {
-      //   let cfg = this.moreConfig?.tabs_cfg
-      //   let res = {
-      //     col: cfg?.column,
-      //     tabs: [],
-      //     activeColor: cfg?.active_color
-      //   }
-      //   if (cfg) {
-      //     if (cfg?.type === 'enum_col' && cfg?.column) {
-      //       if (Array.isArray(this.colV2?._fieldInfo)) {
-      //         let col = this.colV2?._fieldInfo.find(item => item.column === cfg.column)
-      //         if (col?.col_type === 'Enum' && col.option_list_v2.length > 0) {
-      //           if (cfg?.show_total_tab !== false) {
-      //             res.tabs = [{
-      //               value: '_all',
-      //               name: '全部'
-      //             }]
-      //           }
-      //           let allTab = col.option_list_v2
-      //           if (Array.isArray(cfg.customTabs) && cfg.customTabs.length > 0) {
-      //             allTab = cfg.customTabs
-      //           }
-      //           allTab.forEach(item => {
-      //             res.tabs.push({
-      //               name: item.value,
-      //               value: item.value
-      //             })
-      //           })
-      //         }
-      //       }
-      //     } else if (cfg?.type === 'fk_col' && cfg?.column) {
-
-      //     }
-      //   }
-      //   return res
-      // },
       sysModel() {
         return getApp().globalData.systemInfo?.model
       },
@@ -293,7 +214,7 @@
       moreConfig() {
         return this.colV2?.moreConfig || {}
       },
-      
+
       list_config() {
         let config = this.colV2?.moreConfig?.list_config
         let obj = {
@@ -476,7 +397,7 @@
     },
     data() {
       return {
-        disabledEvaluate:false,
+        disabledEvaluate: false,
         tabsCfg: null,
         topHeight: 0,
         modalName: "",
@@ -1316,14 +1237,10 @@
           if (tabsCfg?.column && !tabsCfg.col) {
             tabsCfg.col = tabsCfg?.column
           }
+
           tabsCfg.tabs = []
           tabsCfg.activeColor = tabsCfg?.active_color
-          if (tabsCfg?.show_total_tab !== false) {
-            tabsCfg.tabs = [{
-              value: '_all',
-              name: '全部'
-            }]
-          }
+
           if (tabsCfg?.type === 'fk_col' && tabsCfg?.srvInfo && tabsCfg?.srvInfo.key_disp_col && tabsCfg
             ?.srvInfo
             .refed_col) {
@@ -1358,6 +1275,25 @@
               }
             }
           }
+
+          if (tabsCfg?.show_badge == true) {
+            // 每个tab项右上方显示badge
+            let tabs = await this.getTabsCount(tabsCfg.tabs, tabsCfg?.column)
+
+            tabsCfg.tabs = tabs
+          }
+          if (tabsCfg?.show_total_tab !== false) {
+            let totalTab = {
+              value: '_all',
+              name: '全部'
+            }
+            if (tabsCfg?.show_total_badge !== false) {
+              totalTab.count = tabsCfg.tabs.reduce((res, cur) => res += cur.count || 0, 0)
+            }
+            tabsCfg.tabs.unshift(totalTab)
+          }
+
+
           this.tabsCfg = tabsCfg
         }
 
@@ -1372,6 +1308,39 @@
           })
         }
         return colVs;
+      },
+      async getTabsCount(tabs, column) {
+        if (Array.isArray(tabs) && tabs.length > 0 && column) {
+          let req = tabs.map(item => {
+            let obj = {
+              "serviceName": this.serviceName,
+              "colNames": ["*"],
+              "condition": [
+                ...this.condition, {
+                  "colName": column,
+                  "ruleType": "eq",
+                  "value": item.value
+                }
+              ],
+              "page": {
+                "rownumber": 1,
+                "pageNo": 1
+              }
+            }
+            return obj
+          })
+
+          const app = this.appName || uni.getStorageSync('activeApp')
+          let res = await this.$fetch('multi', 'select', req, app);
+          if (Array.isArray(res?.data) && res.data.length === tabs.length) {
+            tabs = tabs.map((item, index) => {
+              let page = res?.data[index]?.page
+              item.count = page?.total || 0
+              return item
+            })
+          }
+        }
+        return tabs
       },
       async getList(cond, initCond) {
         if (!cond) {
@@ -1873,12 +1842,12 @@
               }
             })
           } else if (['操作', '增加'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
-            
+
             if (moreConfig?.type === 'wx_pay') {
               this.onRequestPayment(rowData, moreConfig)
               return
             }
-            
+
             let req = [{
               serviceName: buttonInfo.operate_service,
               condition: buttonInfo.operate_params.condition,
@@ -2612,7 +2581,7 @@
       }
     },
     async onLoad(option) {
-      if(option.disabledEvaluate){
+      if (option.disabledEvaluate) {
         this.disabledEvaluate = true
       }
       if (option.hideChildTable) {
