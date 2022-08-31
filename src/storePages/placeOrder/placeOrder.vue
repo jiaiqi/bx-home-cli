@@ -638,6 +638,7 @@
           order_finish_time // 订单完成时间
         } = this.orderInfo
         if (e == '退款') {
+          
           if (order_type === '虚拟商品' && this.isActive == false) {
             res = true
           }
@@ -668,6 +669,9 @@
             if (this.dayjs(order_finish_time).add(refunds_num, 'day') <= this.dayjs()) {
               res = false
             }
+          }
+          if(this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount>0){
+            res = false
           }
         }
 
