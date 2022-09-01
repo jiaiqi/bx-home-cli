@@ -1137,6 +1137,7 @@
 						if (Array.isArray(cond)) {
 							this.queryCond = cond.filter(item => {
 								if (item.ruleType === 'eq') {
+                  // item.value = this.renderStr(item.value,{...this.global})
 									return item.value
 								} else {
 									return true

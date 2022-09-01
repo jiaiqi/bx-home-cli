@@ -1143,7 +1143,7 @@
 
       .main-image {
         width: 50px;
-        min-height: 50px;
+        height: 50px;
         margin-right: 20rpx;
         display: flex;
         align-items: center;

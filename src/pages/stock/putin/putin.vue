@@ -209,7 +209,7 @@
     ],
     '出库': [
       '销售出库',
-      '调拨出库', 
+      '调拨出库',
       // '报损出库', '其他出库'
     ]
   }
@@ -218,6 +218,10 @@
     data() {
       return {
         // store
+        goods_num: "",
+        goodsNo: "",
+        in_warehouse_type: "",
+        out_warehouse_type: "",
         pageTitle: '入库',
         curEditGoods: -1,
         type: '入库',
@@ -255,6 +259,7 @@
         curGoods: 0, //当前选择商品
         selectedGoods: [],
         scanList: {}
+
       }
 
     },
@@ -264,6 +269,15 @@
       }
     },
     async onLoad(option) {
+      if (option.in_warehouse_type) {
+        this.in_warehouse_type = option.in_warehouse_type
+      }
+      if (option.goods_num) {
+        this.goods_num = option.goods_num
+      }
+      if (option.goodsNo) {
+        this.goodsNo = option.goodsNo
+      }
       if (option.type) {
         type = option.type
       } else {
@@ -708,9 +722,11 @@
         this.form.in_out_date = this.dayjs().format("YYYY-MM-DD HH:mm:ss")
         this.form.store_no = this.storeInfo?.store_no
         if (type === '入库') {
-          this.form.in_warehouse_type = this.typeList[0]
+          this.in_warehouse_type = this.in_warehouse_type || this.typeList[0]
+          this.curType = this.typeList.findIndex(item => item === this.in_warehouse_type)
+          this.form.in_warehouse_type = this.in_warehouse_type
         } else {
-          this.form.out_warehouse_type = this.typeList[0]
+          this.form.out_warehouse_type = this.out_warehouse_type || this.typeList[0]
         }
         await this.getHouse()
         await this.getGoods()
@@ -784,6 +800,19 @@
             this.addForm.bar_code = res.data.data[0].bar_code
             this.addForm.unit = res.data.data[0].unit
             this.addForm.goods_name = res.data.data[0].goods_name
+            if (this.goodsNo) {
+              let selectGoods = res.data.data.find(item => item.goods_no === this.goodsNo)
+              if (selectGoods) {
+                let form = {}
+                form.bar_code = selectGoods.bar_code
+                form.unit = selectGoods.unit
+                form.goods_name = selectGoods.goods_name
+                form.goods_num = this.goods_num||1
+                this.selectedGoods.push({
+                  ...form
+                })
+              }
+            }
           }
         }
       },
