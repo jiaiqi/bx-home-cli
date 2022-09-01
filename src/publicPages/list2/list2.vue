@@ -512,7 +512,7 @@
           if (tab.value !== '_all') {
             cond = [{
               colName: this.tabsCfg?.col,
-              ruleType: 'eq',
+              ruleType: 'in',
               value: tab.value
             }]
           } else {
