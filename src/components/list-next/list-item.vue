@@ -673,6 +673,7 @@
     },
     methods: {
       setColsAttr(cols = [], result = {}) {
+        const self = this
         cols = cols.map(col => {
           let cfg = col?.cfg;
           let obj = {

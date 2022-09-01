@@ -670,6 +670,7 @@
               res = false
             }
           }
+          
           if(this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount>0){
             res = false
           }

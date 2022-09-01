@@ -258,17 +258,7 @@
       },
       disabledTime(e, data) {
         // 判断是否过期 已过期则禁用
-        // if (e.app_count_limit && e.app_count && e.appoint_type !== '登记') {
-        //   //
-        //   if (e.app_count_limit <= e.app_count) {
-        //     if (data && data.app_amount >= data.app_count) {
-        //       return true
-        //     }
-        //   }
-        // }
-        // if(e?._date==='2022/07/12'){
-        //   debugger
-        // }
+        
         if (e.app_count_limit <= e.app_count && e.appoint_type !== '登记') {
           if (e.time_range_appointment_limit && e.time_range) {
             if (e.app_amount >= e.time_range_appointment_limit) {
@@ -290,8 +280,7 @@
             // 还没到可以提前预约的时间
             return true
           }
-        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date <= dayjs().add(e.predispdays,
-            'day').format('YYYY/MM/DD')) {
+        } else if (e.predays && e.app_open_time && dayjs(e._date) > dayjs() && dayjs().add(e.predays,'day') -  dayjs(e._date) < 0) {
           // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
           // 还没到可以提前预约的时间
           return true
@@ -502,6 +491,7 @@
         }
       },
       selectItem(e, data) {
+        debugger
         if (e.predays && e.app_open_time && e._date === dayjs().add(e.predays, 'day').format('YYYY/MM/DD')) {
           if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
             let title = `今天${e.app_open_time.slice(0,5)}后才可以预约${e.predays}天后的疫苗`;
@@ -513,8 +503,7 @@
             })
             return
           }
-        } else if (e.predispdays && e.app_open_time && dayjs(e._date) > dayjs() && e._date <= dayjs().add(e.predispdays,
-            'day').format('YYYY/MM/DD')) {
+        } else if (e.predays && e.app_open_time && dayjs(e._date) > dayjs() && dayjs().add(e.predays,'day') -  dayjs(e._date) < 0) {
           // if (dayjs() - dayjs(dayjs().format('YYYY/MM/DD') + ' ' + e.app_open_time) < 0) {
           // 还没到可以提前预约的时间
           let title = `还没到可以提前预约的时间`
@@ -546,7 +535,7 @@
             return
           }
         }
-
+        debugger
         if (this.disabledTime(e)) {
 
           uni.showToast({
