@@ -217,9 +217,11 @@
 
       </view>
       <view class="list-item-button" v-if="buttonPosition==='right'">
-        <button class="cu-btn" v-for="(btn,index) in setRowButton" :open-type="btn.moreConfig.openType"
-          :data-sharetitle="btn.moreConfig.shareTitle" :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData"
-          :data-btn="btn" :key="index" v-show="isShowBtn(btn)" @click.stop.prevent.capture="clickButton(btn)">
+        <button class="cu-btn" v-for="(btn,index) in setRowButton" :class="[setListView.btnClass]"
+          :style="[setListView.btnStyle,btn.moreConfig&&btn.moreConfig.btnStyle?btn.moreConfig.btnStyle:'']"
+          :open-type="btn.moreConfig.openType" :data-sharetitle="btn.moreConfig.shareTitle"
+          :data-shareurl="btn.moreConfig.shareUrl" :data-row="rowData" :data-btn="btn" :key="index"
+          v-show="isShowBtn(btn)" @click.stop.prevent.capture="clickButton(btn)">
           <text v-if="btn.icon" :class="btn.icon">
 
           </text>
