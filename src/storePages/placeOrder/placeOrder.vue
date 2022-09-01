@@ -578,6 +578,17 @@
       },
       toAfterSale() {
         // 跳转到售后页面
+        
+        if (this.orderInfo.refund_order_state && ['申请中'].includes(this.orderInfo.refund_order_state)) {
+          uni.showModal({
+            title:'提示',
+            content:'退款申请中,请等待审核通过',
+            showCancel:false
+          })
+          return
+        }
+        
+        
         const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
           'origin_price', 'sum_price', 'unit_price', 'packaging_fee', 'goods_name', 'goods_image', 'goods_desc',
           'goods_amount', 'delivery_status', 'goods_type', 'goods_source'
@@ -638,42 +649,46 @@
           order_finish_time // 订单完成时间
         } = this.orderInfo
         if (e == '退款') {
-          
-          if (order_type === '虚拟商品' && this.isActive == false) {
-            res = true
-          }
-          // res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
-          //   this.orderInfo.order_pay_amount > 0 || false
 
-          let refunds_num = this.storeInfo?.order_return_day ?? 7
-          
-          if (this.goodsList.find(item => item.refunds_num)?.refunds_num) {
-            refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num
-          }
-          
           if (['待发货', '待收货', '待提货', '已完成'].includes(order_state) && pay_state === '已支付' &&
             order_pay_amount && this.disabledRefund !== true) {
             res = true
           }
 
+          if (order_type === '虚拟商品' && this.isActive == false) {
+            res = false
+          }
+          // res = this.disabledRefund !== true && this.orderInfo.pay_state === '已支付' && this.orderInfo.order_pay_amount &&
+          //   this.orderInfo.order_pay_amount > 0 || false
+
+          let refunds_num = this.storeInfo?.order_return_day ?? 7
+          if (this.goodsList.find(item => item.refunds_num)?.refunds_num) {
+            refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num
+          }
+
+
+
           if (['餐饮', '酒店'].includes(order_type)) {
             res = false
           }
 
-          if(refunds_num === 0 && order_state == '已完成'){
+          if (refunds_num === 0 && order_state == '已完成') {
             res = false
           }
-          
+
           if (refunds_num && res && order_state == '已完成' && order_finish_time) {
             // 订单完成超过七天或者配置的最晚可退款时间 就不显示退款按钮了
             if (this.dayjs(order_finish_time).add(refunds_num, 'day') <= this.dayjs()) {
               res = false
             }
           }
-          
-          if(this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount>0){
+
+          if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
             res = false
           }
+          // if (this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount > 0) {
+          //   res = false
+          // }
         }
 
         return res
@@ -1511,7 +1526,9 @@
             value: this.orderNo
           }]
         };
-        let orderInfo = await this.$fetch('select', 'srvhealth_store_order_select', req, 'health');
+        let service = 'srvhealth_store_order_user_detail_select'
+        service = 'srvhealth_store_order_select'
+        let orderInfo = await this.$fetch('select', service, req, 'health');
         if (orderInfo && orderInfo.success && orderInfo.data.length > 0) {
           this.orderInfo = orderInfo.data[0];
           if (this.orderInfo?.regimental_dumpling_no) {
