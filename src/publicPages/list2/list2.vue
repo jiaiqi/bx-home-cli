@@ -1890,6 +1890,15 @@
               bindUserInfo,
               storeUser: bindUserInfo
             };
+            
+            if(buttonInfo?.moreConfig?.navType==='takePhone'&&buttonInfo?.moreConfig?.phoneCol){
+              let phone = rowData[buttonInfo?.moreConfig?.phoneCol]
+              uni.makePhoneCall({
+                phoneNumber:phone
+              })
+              return
+            }
+            
             if (buttonInfo?.moreConfig?.navUrl) {
               // 跳转到自定义页面
               if (buttonInfo?.moreConfig?.click_validate) {

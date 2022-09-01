@@ -448,6 +448,10 @@
         return this.$store?.state?.app?.theme
       },
       canLink() {
+        if(this.fieldData?.moreConfig?.navType==='takePhone'&&this.fieldData.value){
+          return true
+        }
+        
         if (this.fieldData.value && this.fieldData.bx_col_type === 'fk') {
           return true
         }
@@ -667,6 +671,12 @@
       },
       toFKLink() {
         // 跳转到fk字段的详情页面
+        if(this.fieldData?.moreConfig?.navType=='takePhone'&&this.fieldData.value){
+          uni.makePhoneCall({
+            phoneNumber:this.fieldData.value
+          })
+          return
+        }
         let serviceName = this.fieldData?.option_list_v2?.serviceName
         let column = this.fieldData?.option_list_v2?.refed_col
         let app = this.fieldData?.option_list_v2?.srv_app || this.srvApp
