@@ -33,9 +33,11 @@
   export default {
     data() {
       return {
+        ascCols: "",
+        descCols: "",
         scrollLeft: 0,
         current: 0,
-
+        serviceName: "",
         cateList: [], //栏目列表
         mode: "single", // multi-多栏目 single 单栏目 默认单栏目 只查传入的栏目编号下的文章
         cateNo: '', // 栏目编号
@@ -64,8 +66,10 @@
         if (type === 'refresh') {
           this.page.pageNo = 1
         }
+        const service = this.serviceName
         let req = {
           condition: this.condition,
+          order: [],
           // order: [{
           // 		colName: 'seq',
           // 		orderType: "asc"
@@ -79,8 +83,32 @@
             pageNo: this.page.pageNo,
             rownumber: this.page.rownumber
           },
-          serviceName: "srvdaq_cms_content_select"
+          serviceName: service
         }
+        if (this.ascCols) {
+          req.order = [
+            ...req.order,
+            this.ascCols.split(',').map(col => {
+              return {
+                colName: col,
+                orderType: "asc"
+              }
+            })
+          ]
+        }
+
+        if (this.descCols) {
+          req.order = [
+            ...req.order,
+            this.descCols.split(',').map(col => {
+              return {
+                colName: col,
+                orderType: "desc"
+              }
+            })
+          ]
+        }
+
 
 
         if (this.mode === 'multi') {
@@ -100,7 +128,7 @@
           }
         }
         this.loadStatus = 'loading'
-        let res = await this.$fetch('select', 'srvdaq_cms_content_select', req, 'daq')
+        let res = await this.$fetch('select', service, req, 'daq')
         if (res.success) {
           let list = []
           if (type === 'refresh') {
@@ -108,10 +136,14 @@
           } else {
             list = [...this.articleList, ...res.data]
           }
-          let topList = list.filter(item => item.top_status === '是')
-          let statusList = list.filter(item => !!item.other_status && item.top_status !== '是')
-          let normalList = list.filter(item => !item.other_status && item.top_status !== '是')
-          this.articleList = [...topList, ...statusList, ...normalList]
+          if(this.serviceName){
+            this.articleList = list
+          }else{
+            let topList = list.filter(item => item.top_status === '是')
+            let statusList = list.filter(item => !!item.other_status && item.top_status !== '是')
+            let normalList = list.filter(item => !item.other_status && item.top_status !== '是')
+            this.articleList = [...topList, ...statusList, ...normalList]
+          }
 
           if (res.page) {
             if (res.page.total > res.page.rownumber * res.page.pageNo) {
@@ -124,6 +156,7 @@
         }
       },
       async getTabs(e) {
+
         let req = {
           "serviceName": "srvdaq_cms_category_select",
           "colNames": ["*"],
@@ -137,7 +170,8 @@
             "rownumber": 999
           }
         };
-        const cate = await this.$fetch('select', 'srvdaq_cms_category_select', req, 'daq')
+        const service =  'srvdaq_cms_category_select'
+        const cate = await this.$fetch('select', service, req, 'daq')
         if (cate.success && cate.data.length > 0) {
           let types = cate.data.reduce((pre, cur) => {
             let obj = {
@@ -180,7 +214,7 @@
                   pageNo: 1,
                   rownumber: this.rownumber
                 },
-                serviceName: "srvdaq_cms_content_select"
+                serviceName: service
               }
               req.push(obj)
             })
@@ -188,27 +222,32 @@
           this.loadstatus = this.loadstatus.map(status => status = 'loading')
           this.$fetch('multi', 'select', req, 'daq').then(res => {
             if (res.success) {
-              res.data.forEach((item, index) => {
-                if (item.state === "SUCCESS") {
-                  let topList = item.data.filter(item => item.top_status ===
-                    '是')
-                  let statusList = item.data.filter(item => !!item
-                    .other_status && item.top_status !== '是')
-                  let normalList = item.data.filter(item => !item
-                    .other_status && item.top_status !== '是')
-                  types[index].list = [...topList, ...statusList, ...
-                    normalList
-                  ]
-                  if (item.page && item.page.rownumber) {
-                    types[index].total = item.page.total
-                    if (item.page.total <= 3) {
-                      this.loadstatus[index] = 'noMore'
-                    } else {
-                      this.loadstatus[index] = 'more'
+              if (this.serviceName) {
+                types[index].list = res.data
+              } else {
+                res.data.forEach((item, index) => {
+                  if (item.state === "SUCCESS") {
+                    let topList = item.data.filter(item => item.top_status ===
+                      '是')
+                    let statusList = item.data.filter(item => !!item
+                      .other_status && item.top_status !== '是')
+                    let normalList = item.data.filter(item => !item
+                      .other_status && item.top_status !== '是')
+                    types[index].list = [...topList, ...statusList, ...
+                      normalList
+                    ]
+                    if (item.page && item.page.rownumber) {
+                      types[index].total = item.page.total
+                      if (item.page.total <= 3) {
+                        this.loadstatus[index] = 'noMore'
+                      } else {
+                        this.loadstatus[index] = 'more'
+                      }
                     }
                   }
-                }
-              })
+                })
+              }
+
               this.noticeList = types
               this.changeTab(0)
             } else {
@@ -262,6 +301,15 @@
       }
     },
     onLoad(option) {
+      if (option.serviceName) {
+        this.serviceName = option.serviceName
+      }
+      if (option.ascCols) {
+        this.ascCols = option.ascCols
+      }
+      if (option.descCols) {
+        this.descCols = option.descCols
+      }
       if (option.mode) {
         this.mode = option.mode
       }

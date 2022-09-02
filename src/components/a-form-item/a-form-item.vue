@@ -1345,6 +1345,9 @@
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
+          if(self.fieldData.option_list_v2?.serviceName==='srvhealth_shipping_address_select'){
+            debugger
+          }
           condition = self.evalConditions(condition, fieldModelsData)
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
@@ -1670,7 +1673,7 @@
         }
         if (this.fieldData.type === 'Selector' && this.fieldData?.moreConfig?.editor_type ===
           'selectorList') {
-          let option_list_v2 = this.fieldData.option_list_v2;
+          let option_list_v2 = self.fieldData.option_list_v2;
           if (Array.isArray(option_list_v2?.conditions)) {
             option_list_v2 = this.deepClone(option_list_v2)
             const fieldModelsData = this.fieldsModel

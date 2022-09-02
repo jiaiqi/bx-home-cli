@@ -34,12 +34,12 @@ export default {
     },
     globalVariable() {
       return {
-        loginUser: this.vloginUser,
-        userInfo: this.userInfo,
-        storeInfo: this.storeInfo,
-        vstoreUser: this.vstoreUser,
-        bindUserInfo: this.vstoreUser,
-        storeUser: this.vstoreUser,
+        loginUser: this.vloginUser, //登录返回的用户信息
+        userInfo: this.userInfo, //人员基本信息
+        storeInfo: this.storeInfo, //店铺信息
+        vstoreUser: this.vstoreUser, //店铺用户信息
+        bindUserInfo: this.vstoreUser, //店铺用户信息
+        storeUser: this.vstoreUser, //店铺用户信息
       }
     },
     setStoreNo() {
@@ -75,7 +75,7 @@ export default {
     //#endif
   },
   methods: {
-    navigateBack(){
+    navigateBack() {
       uni.navigateBack()
     },
     renderStr(str, obj = {}) {
@@ -83,7 +83,7 @@ export default {
         ...this.globalVariable,
         ...obj
       }
-      if (typeof obj === 'object' && str && typeof str==='string') {
+      if (typeof obj === 'object' && str && typeof str === 'string') {
         str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
           key = key.trim()
           let result = obj[key]
@@ -520,7 +520,7 @@ export default {
 
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
-      
+
       if (storeInfo?.store_no) {
         // 3. 店铺用户信息查找
         await this.getStoreUser_()
