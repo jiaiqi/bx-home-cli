@@ -273,7 +273,7 @@
     <view class="icon-area" v-if="(fieldData.type === 'location' || fieldData.type === 'addr')"><text
         class="cuIcon-locationfill text-cyan" @click="getLocation"></text></view>
     <view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
-    <view class="cu-modal bottom-modal" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
+    <view class="cu-modal bottom-modal" style="z-index: 15;" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
       @click="hideModal">
       <view class="cu-dialog" @tap.stop="" v-if="modalName === 'RichEditor'">
         <jin-edit :html="textareaValue" @editOk="saveRichText" :res2Url="uploadRes2Url" :form-data="uploadFormData"
