@@ -703,7 +703,16 @@
           "navigationBarTitleText": "入库",
           "enablePullDownRefresh": false
         }
-      }]
+      }    ,{
+                    "path" : "search/search",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#ifdef H5
     ,

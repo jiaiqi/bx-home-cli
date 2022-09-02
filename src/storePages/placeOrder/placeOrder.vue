@@ -686,6 +686,7 @@
           if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
             res = false
           }
+          
           // if (this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount > 0) {
           //   res = false
           // }

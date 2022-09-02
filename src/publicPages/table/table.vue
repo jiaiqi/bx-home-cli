@@ -39,7 +39,7 @@
               <text v-else-if="col.col_type=='Time'">{{item[col.columns]?item[col.columns].slice(0,5):''}}</text>
               <image lazy-load class="image" :src="getImagePath(item[col.columns],true)" mode="aspectFit"
                 v-else-if="col.type==='images'&&item[col.columns]"></image>
-              <text v-else> {{item[col.columns]||''}}</text>
+              <text v-else> {{getText(item,col.column)||'-'}}</text>
             </view>
           </view>
           <view class="list-item hint">
@@ -331,16 +331,52 @@
               }
             })
           })
-          return arr
+          columns =  arr
         } else {
           const cols = this.srvCols.filter(item => item.columns && item.columns !== 'id' && item.columns
             .indexOf('_no') == -1).slice(0, 4)
-          return cols
+          columns = cols
+        }
+        if(Array.isArray(this.mergeCols)&&this.mergeCols.length>0){
+          this.mergeCols.forEach(cols=>{
+            let colsList = cols.split(',')
+            let arr = []
+            columns.forEach(col=>{
+              if(colsList.indexOf(col.column)>-1 ){
+                const index= arr.findIndex(item=>item.column&&colsList.indexOf(item.column)>-1)
+                if(index>-1){
+                  arr[index].column+=`,${col.column}`
+                  arr[index].label+=`/${col.label}`
+                }else{
+                  arr.push(col)
+                }
+              }else{
+                arr.push(col)
+              }
+            })
+            columns = arr
+          })
         }
         return columns
       }
     },
     methods: {
+      getText(data,col){
+        let str = ''
+        if(data&&col){
+          if(col.indexOf(',')>-1){
+            let cols = col.split(',')
+            cols.forEach(e=>{
+              if(data[e]){
+                str+=`${data[e]} `
+              }
+            })
+          }else{
+            str= data[col]
+          }
+        } 
+        return str
+      },
       onFilterChange(e) {
         this.onInputValue = e
         if (e) {
@@ -1026,7 +1062,11 @@
     },
     onLoad(option) {
       if (option.mergeCols) {
-        this.mergeCols = JSON.parse(option.mergeCols)
+        try{
+          this.mergeCols = JSON.parse(option.mergeCols)
+        }catch(e){
+          //TODO handle the exception
+        }
       }
       if (option.readonly) {
         this.readonly = true

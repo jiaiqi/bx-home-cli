@@ -125,7 +125,7 @@
       </view>
 
       <view class="tg-form"
-        v-if="tgInfo&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime && (type==='view'||type==='detail')">
+        v-if="tgInfo&&tgInfo.act_type&&tgInfo.act_type!=='团购'&&tgInfo&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime && (type==='view'||type==='detail')">
         <view class="cu-form-group ">
           <view class="title">开团时间</view>
           <input :placeholder="''" name="input" :value="tgInfo.activity_statr_datetime" :disabled="true"></input>

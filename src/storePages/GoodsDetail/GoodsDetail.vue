@@ -223,7 +223,7 @@
 
     computed: {
       setStoreNo() {
-        return this.goodsInfo?.store_no || this.storeNo
+        return  this.storeNo || this.goodsInfo?.store_no 
       },
       pageTitle() {
         return this.goodsInfo?.goods_name || '商品详情'
@@ -246,7 +246,7 @@
         // }
       },
       showShareBanner() {
-        return this?.vstoreUser?.store_user_no && this.userInfo?.nick_name && this.shareBonus
+        return this.pageType !== '秒杀'&&this?.vstoreUser?.store_user_no && this.userInfo?.nick_name && this.shareBonus
       },
       shareBonus() {
         // 分享后的奖金

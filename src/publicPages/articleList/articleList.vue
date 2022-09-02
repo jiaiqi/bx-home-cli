@@ -66,7 +66,7 @@
         if (type === 'refresh') {
           this.page.pageNo = 1
         }
-        const service = this.serviceName
+        const service = this.serviceName||'srvdaq_cms_content_select'
         let req = {
           condition: this.condition,
           order: [],
