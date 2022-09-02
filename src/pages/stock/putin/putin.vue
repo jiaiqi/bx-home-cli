@@ -801,6 +801,11 @@
             this.addForm.unit = res.data.data[0].unit
             this.addForm.goods_name = res.data.data[0].goods_name
             if (this.goodsNo) {
+               res.data.data.forEach(item=>{
+                 if(this.goodsNo.indexOf(item.goods_no)!==-1){
+                   
+                 }
+               })
               let selectGoods = res.data.data.find(item => item.goods_no === this.goodsNo)
               if (selectGoods) {
                 let form = {}

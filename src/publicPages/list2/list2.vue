@@ -1318,7 +1318,7 @@
               "condition": [
                 ...this.condition, {
                   "colName": column,
-                  "ruleType": "eq",
+                  "ruleType": "in",
                   "value": item.value
                 }
               ],
