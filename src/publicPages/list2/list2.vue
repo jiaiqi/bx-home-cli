@@ -1841,7 +1841,7 @@
                 this.refresh()
               }
             })
-          } else if (['操作', '增加'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
+          } else if (['操作', '增加','修改'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
 
             if (moreConfig?.type === 'wx_pay') {
               this.onRequestPayment(rowData, moreConfig)

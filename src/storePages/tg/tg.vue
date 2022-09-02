@@ -29,7 +29,7 @@
               {{tgInfo.state||''}}
             </view>
           </view>
-          <view class="date-tiem" v-if="tgInfo&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime&&tgInfo.act_type!=='团购'">
+          <view class="date-tiem" v-if="tgInfo&&tgInfo.act_type&&tgInfo.act_type!=='团购'&&tgInfo.activity_statr_datetime&&tgInfo.activity_end_datetime&&tgInfo.act_type!=='团购'">
             团购起止时间：{{handleDateRange(tgInfo.activity_statr_datetime,tgInfo.activity_end_datetime)}}
           </view>
           <view class="describe" v-if="tgInfo.describe">
@@ -47,16 +47,16 @@
               已参团{{joinMemberAmount||'0'}}人
             </view>
           </view>
-          <view class="count-down" v-if="tgInfo.act_type!=='团购'&&joinMemberAmount&&tgInfo.number&&joinMemberAmount>=tgInfo.number">
+          <view class="count-down" v-if="tgInfo.act_type&&tgInfo.act_type!=='团购'&&joinMemberAmount&&tgInfo.number&&joinMemberAmount>=tgInfo.number">
             已成团
           </view>
-          <view class="count-down" v-if="tgInfo.act_type!=='团购'&&countDown===0">
+          <view class="count-down" v-if="tgInfo.act_type&&tgInfo.act_type!=='团购'&&countDown===0">
             当前团购已结束
           </view>
-          <view class="count-down" v-else-if="!tgInfo.act_type!=='团购'&&countDown!==0&&countDown!=='团购已经结束'&&countDown!=='团购还未开始'">
+          <view class="count-down" v-else-if="tgInfo&&tgInfo.act_type&&tgInfo.act_type!=='团购'&&countDown!==0&&countDown!=='团购已经结束'&&countDown!=='团购还未开始'">
             距离团购结束还有 <text class="text-red margin-left-xs text-bold">{{countDown||''}}</text>
           </view>
-          <view class="count-down text-red" v-else-if="tgInfo.act_type!=='团购'&&countDown">
+          <view class="count-down text-red" v-else-if="tgInfo.act_type&&tgInfo.act_type!=='团购'&&countDown">
             {{countDown}}
           </view>
         </view>
