@@ -1277,7 +1277,6 @@
             });
             return;
           } else if (buttonInfo.operate_type === '增加跳转' || buttonInfo.operate_type === '增加弹出') {
-            debugger;
             let fieldsCond = [];
             if (Array.isArray(buttonInfo.operate_params?.condition) && buttonInfo.operate_params.condition
               .length > 0) {

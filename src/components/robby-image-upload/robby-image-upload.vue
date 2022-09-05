@@ -139,7 +139,6 @@
                   }
                 }
                 let result = res.data
-                debugger
                 // for (let i = 0; i < result.length; i++) {
                   _self.imageList.push(JSON.stringify(result));
                   

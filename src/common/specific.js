@@ -20,10 +20,10 @@ export default {
       if (!userInfo) {
         userInfo = store.state.user.userInfo
       }
-      let pageInfo = Vue.prototype.getShareParams()
-      if (pageInfo && pageInfo.add_url) {
-        share_url = pageInfo.add_url
-      }
+      // let pageInfo = Vue.prototype.getShareParams()
+      // if (pageInfo && pageInfo.add_url) {
+      //   share_url = pageInfo.add_url
+      // }
       if (share_type) {
         share_url += `&share_type=${share_type}`
       } else {
@@ -72,7 +72,9 @@ export default {
         ]
       }
       if (prepay_id) {
+        console.time('获取支付签名接口-start')
         let res = await _http.post(url, req)
+        console.timeEnd('获取支付签名接口-start')
         if (res.data.state === 'SUCCESS') {
           if (Array.isArray(res.data.data) && res.data.data.length > 0) {
             store.commit('SET_PAY_PARAMS', res.data.data[0])
@@ -122,7 +124,9 @@ export default {
       if (profitSharing) {
         req[0].data[0].profit_sharing = 'Y'
       }
+      console.time('统一下单接口-start-end')
       let res = await _http.post(url, req)
+      console.timeEnd('统一下单接口-start-end')
       if (res.data.state === 'SUCCESS') {
         if (Array.isArray(res.data.response) && res.data.response.length > 0) {
           let info = res.data.response[0]

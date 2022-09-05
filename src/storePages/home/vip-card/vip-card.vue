@@ -316,7 +316,6 @@
         let url = this.moreConfig?.open_url
         if (url) {
           url = this.renderStr(url, this)
-          debugger
           if (url && url.indexOf('https') == 0) {
             url = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
           }

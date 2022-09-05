@@ -122,7 +122,6 @@
           start_col,
           end_col
         } = e?.moreConfig || {}
-        debugger
         if (start_col && end_col) {
           this.allField = this.allField.map(item => {
             if (item.column === start_col) {

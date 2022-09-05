@@ -81,7 +81,6 @@
     },
     methods: {
       toArticle(no) {
-        debugger
         uni.navigateTo({
           url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
         });

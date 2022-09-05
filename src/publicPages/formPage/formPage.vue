@@ -401,7 +401,6 @@
         }
       },
       onChildButton(e) {
-        debugger
         if (e?.btn?.button_type === 'add') {
           // 添加子表数据
           this.currentFormFk = e?.foreignKey
@@ -488,7 +487,6 @@
             req[key] = req[key].toString();
           }
         }
-        debugger
         switch (e.button_type) {
           case 'edit':
             if (e.page_type === '详情' && this.use_type === 'detail') {

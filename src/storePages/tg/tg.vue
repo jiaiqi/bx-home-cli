@@ -68,7 +68,7 @@
       </view>
       <view class="goods-list">
         <view class="goods-item" v-for=" (item,index) in goodsList" :key="index">
-          <view class="check-box" v-if="type==='default'&&countDown!==0&&countDown!=='团购已经结束'"
+          <view class="check-box" v-if="disabledCancel!==true&&type==='default'&&countDown!==0&&countDown!=='团购已经结束'"
             @click="changeCheck(index)">
             <radio :checked="item.checked" /><text></text>
           </view>
@@ -171,6 +171,7 @@
         orderNo: "", //消费者点详情进来 传入订单编号
         shareStoreUser: null, // 分享人店铺用户信息
         share_store_user_no: '', //分享人店铺用户编号
+        disabledCancel:false, //禁止选择 只能每种商品都下单 最低一件
       }
     },
     computed: {
@@ -253,8 +254,12 @@
 
       },
       changeCheck(index) {
+     
         let item = this.goodsList[index]
         this.goodsList[index].checked = !item.checked
+        if(this.disabledCancel==true){
+          this.goodsList[index].checked = true
+        }
         if (item.amount <= 0) {
           item.amount = 1
           // this.goodsList[index].amount = 1
@@ -462,6 +467,9 @@
             let data = res.data.data.map(item => {
               item.amount = item.amount || 1
               item.checked = false
+              if(this.disabledCancel){
+                item.checked = true
+              }
               return item
             })
 
@@ -513,8 +521,9 @@
         path += `&store_no=${this.storeNo}`;
       } else if (this.storeInfo?.store_no) {
         path += `&store_no=${this.storeInfo?.store_no}`
+      }else if(this.setStoreNo){
+        path += `&store_no=${this.setStoreNo}`;
       }
-
       let title = `${this.tgInfo.name||'团购分享'}`;
       let imageUrl = '';
 
@@ -525,7 +534,7 @@
       if (this.tgInfo?.wx_share_icon) {
         imageUrl = this.getImagePath(this.tgInfo.wx_share_icon, true);
       }
-
+      console.log(path)
       this.saveSharerInfo(this.userInfo, path, 'appMessage');
       title = this.renderEmoji(title)
       return {
@@ -540,6 +549,9 @@
     },
 
     async onLoad(option) {
+      if(option.disabledCancel){
+        this.disabledCancel = true
+      }
       // #ifdef MP-WEIXIN
       await this.initApp(option)
       //#endif

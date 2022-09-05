@@ -36,8 +36,11 @@
           style="padding: 5upx" lazy-load show-menu-by-longpress @tap="previewImage(item, 'Image')" data-target="Image"
           :src="item"></image>
       </view>
-      <view class="" v-else-if="fieldData.type==='openDocument'">
-        <button class="cu-btn bg-blue round" v-if="fieldData.value" @click="openDocument(fieldData.value)">文件预览</button>
+      <view class="flex" style="width: 100%;" v-else-if="['openDocument','FileList'].includes(fieldData.type)">
+        <view class="file-item flex align-center"  style="width: 100%;" v-for="item in fileList">
+          <text class="margin-lr-xs" style="flex: 1;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{item.src_name||'-'}}</text>
+          <button class="cu-btn bg-blue round" @click="toPreview(item)">文件预览</button>
+        </view>
       </view>
       <view class="form-item-content_detail textarea" v-else-if="
           pageType === 'detail' &&['textarea'].includes(field.type)
@@ -54,6 +57,14 @@
         <text class="cu-tag" v-for="tag in multiSelectJson">
           {{tag['disp_val']}}
         </text>
+      </view>
+      <view class="form-item-content_detail file-list flex flex-wrap" style="width: 100%;" v-else-if="fieldData.type==='FileList'">
+        <view class="file-item text-blue   margin-bottom-xs" v-for="item in fileList"
+          style="flex:1;overflow: hidden;border-bottom:1px solid;text-overflow: ellipsis;white-space: nowrap;" @click="toPreview(item)">
+          <text class="cuIcon-file margin-lr-xs"></text>
+          <text>{{getFileName(item)||'-'}}</text>
+        </view>
+        <!-- <button class="cu-btn bg-blue round" v-if="fieldData.value" @click="openDocument(fieldData.value)">文件预览</button> -->
       </view>
       <view class="form-item-content_detail text" :class="{ 'can-link': canLink }" v-else-if="pageType === 'detail'"
         @click="toFKLink">
@@ -273,8 +284,8 @@
     <view class="icon-area" v-if="(fieldData.type === 'location' || fieldData.type === 'addr')"><text
         class="cuIcon-locationfill text-cyan" @click="getLocation"></text></view>
     <view class="valid_msg" v-show="!valid.valid">{{ valid.msg }}</view>
-    <view class="cu-modal bottom-modal" style="z-index: 15;" v-if="modalName === 'RichEditor'" :class="{ show: modalName === 'RichEditor' }"
-      @click="hideModal">
+    <view class="cu-modal bottom-modal" style="z-index: 15;" v-if="modalName === 'RichEditor'"
+      :class="{ show: modalName === 'RichEditor' }" @click="hideModal">
       <view class="cu-dialog" @tap.stop="" v-if="modalName === 'RichEditor'">
         <jin-edit :html="textareaValue" @editOk="saveRichText" :res2Url="uploadRes2Url" :form-data="uploadFormData"
           :header="reqHeader" :uploadFileUrl="uploadUrl" ref="richEditor" />
@@ -448,10 +459,10 @@
         return this.$store?.state?.app?.theme
       },
       canLink() {
-        if(this.fieldData?.moreConfig?.navType==='takePhone'&&this.fieldData.value){
+        if (this.fieldData?.moreConfig?.navType === 'takePhone' && this.fieldData.value) {
           return true
         }
-        
+
         if (this.fieldData.value && this.fieldData.bx_col_type === 'fk') {
           return true
         }
@@ -498,7 +509,7 @@
         if (this.labelPosition === 'left') {
           result = 'auto';
         }
-        if (['images', 'textarea', 'RichText', 'media'].includes(this.fieldData.type)) {
+        if (['images', 'textarea', 'RichText', 'media', 'FileList'].includes(this.fieldData.type)) {
           if (this.pageType === 'detail' && !this.fieldData.value) {
 
           } else {
@@ -538,6 +549,7 @@
         focusTextArea: false,
         checkedList: [],
         fieldData: {},
+        fileList: [],
         imagesUrl: [],
         popupFieldTypeList: ['TreeSelector', 'treeSelector', 'Selector', 'Set', 'multiSelectByJson'], //点击会弹出popup的字段类型
         pickerFieldList: ['date', 'dateTime', 'time', 'Time', 'Date'],
@@ -638,6 +650,35 @@
       }
     },
     methods: {
+      getFileName(e){
+        let str = ''
+        if(e?.src_name&&e.file_type){
+          str = e.src_name
+          // str = e.src_name.split(`.${e.file_type}`)[0]
+          // if(str.length>30){
+          //   str = str.slice(0,10)+'xxxxxx' +str.slice(str.length-10) + `.${e.file_type}`
+          // }
+        }
+        return str
+      },
+      toPreview(e) {
+        if (e._fileurl && e?.file_type && typeof e?.file_type === 'string') {
+          const type = e.file_type.toLowerCase()
+          switch (type) {
+            case 'jpg':
+            case 'png':
+              uni.previewImage({
+                urls: [e._fileurl]
+              })
+              break;
+            default:
+              uni.openDocument({
+                filePath: e._fileurl
+              })
+              break;
+          }
+        }
+      },
       showCKPicker() {
         this.$refs?.ckPicker?.open?.()
       },
@@ -671,9 +712,9 @@
       },
       toFKLink() {
         // 跳转到fk字段的详情页面
-        if(this.fieldData?.moreConfig?.navType=='takePhone'&&this.fieldData.value){
+        if (this.fieldData?.moreConfig?.navType == 'takePhone' && this.fieldData.value) {
           uni.makePhoneCall({
-            phoneNumber:this.fieldData.value
+            phoneNumber: this.fieldData.value
           })
           return
         }
@@ -1043,9 +1084,28 @@
         }
         this.modalName = '';
       },
+      async getFileList() {
+        let fileDatas = await this.getFilePath(this.fieldData.value);
+        let arr = []
+        if (Array.isArray(fileDatas)) {
+          for (let i = 0; i < fileDatas.length; i++) {
+            const url =
+              `${this.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+            // `${self.$api.getFilePath}${fileDatas[ i ].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}&thumbnailType=fwsu_100`;
+
+            arr.push({
+              ...fileDatas[i],
+              _fileurl: url
+            });
+          }
+        }
+        this.fileList = arr
+      },
       async getDefVal() {
         let self = this;
-        if (self.fieldData.type === 'images' && self.fieldData.value) {
+        if (self.fieldData.type === 'FileList' && self.fieldData.value) {
+          this.getFileList()
+        } else if (self.fieldData.type === 'images' && self.fieldData.value) {
           if (self.fieldData.value.indexOf('http') === -1) {
             // 上传到系统的图片 只有图片编号 查到图片地址后再push
             let fileDatas = await self.getFilePath(self.fieldData.value);
@@ -1345,9 +1405,7 @@
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
-          if(self.fieldData.option_list_v2?.serviceName==='srvhealth_shipping_address_select'){
-            debugger
-          }
+         
           condition = self.evalConditions(condition, fieldModelsData)
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
@@ -1853,7 +1911,7 @@
     },
     created() {
       let self = this;
-      if (['images', 'media', 'RichText'].includes(this.fieldData.type)) {
+      if (['images', 'media', 'RichText', 'FileList'].includes(this.fieldData.type)) {
         this.uploadFormData = {
           serviceName: 'srv_bxfile_service',
           interfaceName: 'add',

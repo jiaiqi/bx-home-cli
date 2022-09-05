@@ -1224,7 +1224,6 @@
             resolve(true)
           }, 100)
         })
-        debugger
         if (e && e.button_type) {
           switch (e.button_type) {
             case 'submit':

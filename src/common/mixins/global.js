@@ -43,7 +43,7 @@ export default {
       }
     },
     setStoreNo() {
-      return this.storeNo || this.store_no || this.goodsInfo?.store_no || this.storeInfo?.store_no
+      return this.storeNo || this.store_no || this.curStoreNo || this.goodsInfo?.store_no || this.storeInfo?.store_no
     },
     showBackHome() {
       if (this.storeNo === "S0000000000") {
@@ -505,7 +505,6 @@ export default {
       if (option) {
         this.checkOptionParams(option);
       }
-
       await this.toAddPage()
 
       // 没有用户昵称和头像 初次进入小程序
@@ -520,7 +519,6 @@ export default {
 
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
-
       if (storeInfo?.store_no) {
         // 3. 店铺用户信息查找
         await this.getStoreUser_()
@@ -529,27 +527,27 @@ export default {
       }
     },
     async getStore_() {
-      if (!this.curStoreNo) {
-        return
+      if (!this.setStoreNo) {
+        return this.storeInfo
       }
       let req = {
         condition: [{
           colName: 'store_no',
           ruleType: 'eq',
-          value: this.curStoreNo
+          value: this.setStoreNo
         }],
         page: {
           pageNo: 1,
           rownumber: 1
         }
       };
-      if (this.storeInfo?.store_no === this.curStoreNo) {
+      if (this.storeInfo?.store_no === this.setStoreNo) {
         return this.storeInfo
       }
       let serviceName = 'srvhealth_store_list_select';
       // serviceName = 'srvhealth_store_mgmt_select'
       serviceName = 'srvhealth_store_cus_niming_detail_select'
-      await this.setSessionInfo(this.curStoreNo)
+      await this.setSessionInfo(this.setStoreNo)
       let res = await this.$fetch('select', serviceName, req, 'health');
       if (Array.isArray(res.data) && res.data.length > 0) {
         this.$store.commit('setStateAttr', {
@@ -593,7 +591,7 @@ export default {
         serviceName: 'srvhealth_store_user_add',
         condition: [],
         data: [{
-          store_no: this.storeInfo?.store_no || this.storeNo || this.curStoreNo,
+          store_no: this.storeInfo?.store_no || this.storeNo || this.setStoreNo,
           name: this.storeInfo?.name,
           image: this.storeInfo?.image,
           type: this.storeInfo?.type,
@@ -718,7 +716,7 @@ export default {
     },
 
     async getStoreUser_() {
-      let storeNo = this.curStoreNo
+      let storeNo = this.setStoreNo
       let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no
       if (invite_user_no && invite_user_no !== this.userInfo?.userno && storeNo) {
         // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !this.userInfo?.invite_user_no && storeNo) {

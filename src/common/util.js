@@ -336,9 +336,9 @@ export default {
         } else if (item.col_type === "Time") {
           fieldInfo.type = "time"
         } else if (item.col_type === "FileList") {
-          fieldInfo.type = "images"
+          fieldInfo.type = "FileList"
           // #ifdef MP-WEIXIN
-          fieldInfo.type = "media"
+          // fieldInfo.type = "media"
           // #endif
           if (fieldInfo?.moreConfig?.mediaType) {
             fieldInfo.mediaType = fieldInfo?.moreConfig?.mediaType
@@ -348,7 +348,7 @@ export default {
             }
           }
           if (fieldInfo?.moreConfig?.openDocument == true) {
-            fieldInfo.type = "openDocument"
+            // fieldInfo.type = "openDocument"
           }
           fieldInfo.srvInfo = {
             tableName: item.table_name,

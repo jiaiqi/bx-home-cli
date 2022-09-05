@@ -837,7 +837,6 @@
         }
       },
       clickGrid(item) {
-        debugger
         let url = item.url || '';
         let cond = [{
           colName: 'store_no',

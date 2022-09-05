@@ -578,17 +578,17 @@
       },
       toAfterSale() {
         // 跳转到售后页面
-        
+
         if (this.orderInfo.refund_order_state && ['申请中'].includes(this.orderInfo.refund_order_state)) {
           uni.showModal({
-            title:'提示',
-            content:'退款申请中,请等待审核通过',
-            showCancel:false
+            title: '提示',
+            content: '退款申请中,请等待审核通过',
+            showCancel: false
           })
           return
         }
-        
-        
+
+
         const cols = ['id', 'order_goods_rec_no', 'order_no', 'goods_no', 'package_goods_no', 'store_no',
           'origin_price', 'sum_price', 'unit_price', 'packaging_fee', 'goods_name', 'goods_image', 'goods_desc',
           'goods_amount', 'delivery_status', 'goods_type', 'goods_source'
@@ -686,7 +686,7 @@
           if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
             res = false
           }
-          
+
           // if (this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount > 0) {
           //   res = false
           // }
@@ -759,7 +759,6 @@
             } catch (e) {
               //TODO handle the exception
               console.log(e)
-              debugger
             }
 
           })
@@ -1003,7 +1002,6 @@
               } catch (e) {
                 //TODO handle the exception
                 console.log(e)
-                debugger
               }
             })
             // #endif
@@ -1636,7 +1634,8 @@
         uni.showLoading({
           mask: true
         })
-
+        console.time('创建订单')
+        debugger
         let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
           serviceName: orderAddService,
@@ -1822,6 +1821,7 @@
           // }
         }
         let res = await this.$fetch('operate', orderAddService, req, 'health')
+        console.timeEnd('创建订单')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1834,7 +1834,9 @@
               // await this.clearOrderCartGoods(ids)
             }
           }
+          console.time('查找订单信息')
           const orderData = await this.getOrderInfo()
+          console.timeEnd('查找订单信息')
           uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
 
@@ -2023,16 +2025,21 @@
                 'group_purchase') !== -
               1;
           }
-
+          console.time('统一下单接口')
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
             orderData, this.wxMchId, goodsName, profit_sharing);
+          console.timeEnd('统一下单接口')
         }
         if (result && result.prepay_id) {
+          console.time('获取支付签名')
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
+          console.timeEnd('获取支付签名')
           uni.showLoading({
             title: '请稍后...',
             mask: true
           })
+          console.time('调起支付弹窗')
+          console.time('开始支付弹窗')
           let payResult = await new Promise((resolve) => {
             wx.requestPayment({
               timeStamp: res.timeStamp.toString(),
@@ -2043,6 +2050,7 @@
               success(res) {
                 // 支付成功
                 self.orderInfo.order_state = '待发货';
+                console.timeEnd('调起支付弹窗')
                 self.updateOrderState('待发货', '已支付', result.prepay_id).then(_ => {
                   self.orderInfo.pay_state = '已支付';
                   uni.redirectTo({
@@ -2054,6 +2062,7 @@
               },
               fail(res) {
                 // 支付失败/取消支付
+                console.timeEnd('调起支付弹窗')
                 self.orderInfo.pay_state = '取消支付';
                 self.updateOrderState('待支付', '待支付', result.prepay_id).then(_ => {
                   resolve(false)
@@ -2061,6 +2070,7 @@
               }
             });
           })
+          console.timeEnd('开始支付弹窗')
           uni.hideLoading()
           if (payResult == true && onClickbutton == true) {
             let afterSubmit = this.moreConfig?.after_submit;
