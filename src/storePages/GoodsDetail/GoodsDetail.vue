@@ -1273,11 +1273,11 @@
         this.hideButton = true
       }
       console.log("options", option)
-      let scene = this.$store?.state?.app?.scene;
-      if (scene === 1154) {
-        this.isPYQ = true
-        return
-      }
+      // let scene = this.$store?.state?.app?.scene;
+      // if (scene === 1154) {
+      //   this.isPYQ = true
+      //   return
+      // }
 
       // #ifdef MP-WEIXIN
       await this.initApp(option)
@@ -1298,12 +1298,12 @@
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId;
       }
-      if (option.storeNo || option.store_no) {
-        this.storeNo = option.storeNo || option.store_no;
-        if (this.storeInfo?.store_no !== this.storeNo) {
-          this.getStoreInfo();
-        }
-      }
+      // if (option.storeNo || option.store_no) {
+      //   this.storeNo = option.storeNo || option.store_no;
+      //   if (this.storeInfo?.store_no !== this.storeNo) {
+      //     this.getStoreInfo();
+      //   }
+      // }
       if (option.destApp) {
         this.destApp = option.destApp;
       }
@@ -1314,7 +1314,7 @@
         this.phone = option.phone;
       }
 
-      await this.toAddPage();
+      // await this.toAddPage();
 
       if (option.goods_no) {
         this.getGoodsInfo(option.goods_no);

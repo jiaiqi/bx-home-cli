@@ -761,7 +761,7 @@ export default {
         let res = await this.$http.post(url, req);
         if (Array.isArray(res.data.data)) {
           if (res.data.data.length > 0) {
-            this.bindUserInfo = res.data.data[0]
+            // this.bindUserInfo = res.data.data[0]
             this.$store.commit('SET_STORE_USER', res.data.data[0]);
             return res.data.data;
           } else if (res.data.data.length == 0) {

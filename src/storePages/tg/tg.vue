@@ -214,12 +214,6 @@
           url
         })
       },
-      // getAddress() {
-
-      // },
-      // getShareStoreUser() {
-
-      // },
       toOrder() {
         // 跳转到下单页面
         let list = this.goodsList.filter(item => item.checked === true && item.amount);
@@ -254,7 +248,6 @@
 
       },
       changeCheck(index) {
-     
         let item = this.goodsList[index]
         this.goodsList[index].checked = !item.checked
         if(this.disabledCancel==true){
@@ -414,7 +407,6 @@
       },
       async getGoodsBoughtNum() {
         // 查找团购商品已团次数
-
         const req = {
           "serviceName": "srvhealth_store_order_goods_num_select",
           "colNames": ["*"],
