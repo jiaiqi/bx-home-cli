@@ -524,11 +524,11 @@
         if (!isNaN(Number(this.shippingFee))) {
           res += this.shippingFee
         }
-        
-        if(!isNaN(Number(res))){
-          res =  Number(res.toFixed(2))
+
+        if (!isNaN(Number(res))) {
+          res = Number(res.toFixed(2))
         }
-        
+
         return res
       },
       totalMoney() {
@@ -667,6 +667,7 @@
           //   this.orderInfo.order_pay_amount > 0 || false
 
           let refunds_num = this.storeInfo?.order_return_day ?? 7
+
           if (this.goodsList.find(item => item.refunds_num)?.refunds_num) {
             refunds_num = this.goodsList.find(item => item.refunds_num)?.refunds_num
           }
@@ -688,9 +689,18 @@
             }
           }
 
-          if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
+          // if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
+          // // if (this.orderInfo.refund_order_state && ['审核通过'].includes(this.orderInfo.refund_order_state)) {
+          //   res = false
+          // }
+          if (this.orderInfo.refund_order_state && ['申请中', '审核通过', '审核不通过'].includes(this.orderInfo
+            .refund_order_state)) {
             res = false
           }
+
+          // if (this.orderInfo.refund_order_state && this.orderInfo.refund_order_state !== '未申请') {
+          //   res = false
+          // }
 
           // if (this.orderInfo?.cumulative_refund_amount && this.orderInfo?.cumulative_refund_amount > 0) {
           //   res = false
@@ -1571,6 +1581,7 @@
         }
       },
       async submitOrder() {
+
         if (!this.canPlace) {
           uni.showModal({
             title: '提示',
@@ -1815,7 +1826,6 @@
           //   req[0].data[0].delivery_type = '自提'
           // }
         }
-
         let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
         if (cartGoodsList.length > 0) {
           req[0].data[0].is_shopping_cart = '是'
@@ -1824,7 +1834,9 @@
           //   await this.clearOrderCartGoods(ids)
           // }
         }
+        this.onPay = true
         let res = await this.$fetch('operate', orderAddService, req, 'health')
+        this.onPay = false
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
