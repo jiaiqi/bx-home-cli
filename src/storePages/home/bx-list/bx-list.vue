@@ -734,12 +734,12 @@
           }
           tabsCfg.activeColor = tabsCfg?.active_color
           tabsCfg.tabs = []
-          if (tabsCfg?.show_total_tab !== false) {
-            tabsCfg.tabs = [{
-              value: '_all',
-              name: '全部'
-            }]
-          }
+          // if (tabsCfg?.show_total_tab !== false) {
+          //   tabsCfg.tabs = [{
+          //     value: '_all',
+          //     name: '全部'
+          //   }]
+          // }
           if (tabsCfg?.type === 'fk_col' && tabsCfg?.srvInfo && tabsCfg?.srvInfo.key_disp_col && tabsCfg
             ?.srvInfo
             .refed_col) {
@@ -753,6 +753,7 @@
                 return item
               })
             }
+
             tabsCfg.tabs = [...tabsCfg.tabs, ...tabs];
           } else if (tabsCfg?.type === 'enum_col' && tabsCfg?.column) {
 
@@ -775,6 +776,32 @@
               }
             }
           }
+          
+          if (tabsCfg?.default && Array.isArray(tabsCfg.tabs)) {
+            const index = tabsCfg.tabs.findIndex(item => item.value === tabsCfg.default)
+            if (index !== -1) {
+              this.curTab = index;
+              this.curTabVal = tabsCfg.tabs[index].value
+            }
+          }
+          
+          if (tabsCfg?.show_badge == true) {
+            // 每个tab项右上方显示badge
+            let tabs = await this.getTabsCount(tabsCfg.tabs, tabsCfg?.column)
+            tabsCfg.tabs = tabs
+          }
+          
+          if (tabsCfg?.show_total_tab !== false) {
+            let totalTab = {
+              value: '_all',
+              name: '全部'
+            }
+            if (tabsCfg?.show_total_badge !== false) {
+              totalTab.count = tabsCfg.tabs.reduce((res, cur) => res += cur.count || 0, 0)
+            }
+            tabsCfg.tabs.unshift(totalTab)
+          }
+          
           this.tabsCfg = tabsCfg
         }
         this.colV2 = colVs;
@@ -789,6 +816,42 @@
         }
         return colVs;
       },
+      // 查找每个tabs数据条数
+      async getTabsCount(tabs, column) {
+        if (Array.isArray(tabs) && tabs.length > 0 && column) {
+          let req = tabs.map(item => {
+            let obj = {
+              "serviceName": this.serviceName,
+              "colNames": ["*"],
+              "condition": [
+                ...this.condition, {
+                  "colName": column,
+                  "ruleType": "in",
+                  "value": item.value
+                }
+              ],
+              "page": {
+                "rownumber": 1,
+                "pageNo": 1
+              }
+            }
+            return obj
+          })
+      
+          const app = this.appName || uni.getStorageSync('activeApp')
+          let res = await this.$fetch('multi', 'select', req, app);
+          if (Array.isArray(res?.data) && res.data.length === tabs.length) {
+            tabs = tabs.map((item, index) => {
+              let page = res?.data[index]?.page
+              item.count = page?.total || 0
+              return item
+            })
+          }
+        }
+        return tabs
+      },
+      
+      
       async getList(cond, initCond) {
         if (!cond) {
           if (!this.curTabVal && Array.isArray(this.enumTabs) && this.enumTabs.length > 0) {

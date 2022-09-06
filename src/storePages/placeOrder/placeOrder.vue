@@ -1634,8 +1634,7 @@
         uni.showLoading({
           mask: true
         })
-        console.time('创建订单')
-        debugger
+
         let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
           serviceName: orderAddService,
@@ -1821,7 +1820,6 @@
           // }
         }
         let res = await this.$fetch('operate', orderAddService, req, 'health')
-        console.timeEnd('创建订单')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1834,9 +1832,7 @@
               // await this.clearOrderCartGoods(ids)
             }
           }
-          console.time('查找订单信息')
           const orderData = await this.getOrderInfo()
-          console.timeEnd('查找订单信息')
           uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
 
@@ -1844,15 +1840,17 @@
             // 微信支付、充值卡、面额卡支付
             if (this.mainData?.pay_config !== '后付') {
               this.onPay = true
+              // #ifdef MP-WEIXIN
               let payRes = await this.toPay();
               console.log('payResult', payRes)
-              this.onPay = false
               if (!payRes) {
                 return
               }
+              // #endif
+              this.onPay = false
+
             }
           } else {
-
             // 卡券核销
             if (res.data[0].order_no) {
               // 创建核销记录
@@ -1983,10 +1981,7 @@
             return res
           }, '')
         }
-        uni.showLoading({
-          mask: true,
-          title: '请稍后..'
-        })
+
         if (totalMoney == 0) {
           // 价格为0  直接完成订单
           self.orderInfo.order_state = '待发货';
@@ -2025,21 +2020,12 @@
                 'group_purchase') !== -
               1;
           }
-          console.time('统一下单接口')
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
             orderData, this.wxMchId, goodsName, profit_sharing);
-          console.timeEnd('统一下单接口')
         }
         if (result && result.prepay_id) {
-          console.time('获取支付签名')
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
-          console.timeEnd('获取支付签名')
-          uni.showLoading({
-            title: '请稍后...',
-            mask: true
-          })
-          console.time('调起支付弹窗')
-          console.time('开始支付弹窗')
+
           let payResult = await new Promise((resolve) => {
             wx.requestPayment({
               timeStamp: res.timeStamp.toString(),
@@ -2050,7 +2036,6 @@
               success(res) {
                 // 支付成功
                 self.orderInfo.order_state = '待发货';
-                console.timeEnd('调起支付弹窗')
                 self.updateOrderState('待发货', '已支付', result.prepay_id).then(_ => {
                   self.orderInfo.pay_state = '已支付';
                   uni.redirectTo({
@@ -2062,7 +2047,6 @@
               },
               fail(res) {
                 // 支付失败/取消支付
-                console.timeEnd('调起支付弹窗')
                 self.orderInfo.pay_state = '取消支付';
                 self.updateOrderState('待支付', '待支付', result.prepay_id).then(_ => {
                   resolve(false)
@@ -2070,8 +2054,6 @@
               }
             });
           })
-          console.timeEnd('开始支付弹窗')
-          uni.hideLoading()
           if (payResult == true && onClickbutton == true) {
             let afterSubmit = this.moreConfig?.after_submit;
             let effect_data = this.orderInfo

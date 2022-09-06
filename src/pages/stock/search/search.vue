@@ -6,11 +6,17 @@
     </view>
     <!-- #endif -->
     <!-- #ifdef MP-WEIXIN -->
-    <camera mode="scanCode" class="camera" @scancode="scancode"></camera>
+    <camera mode="scanCode" class="camera" @scancode="scancode" v-if="!unique_code"></camera>
+    <view class="camera flex align-center justify-center" v-else>
+      <view class="">
+        扫码结果:{{unique_code}}
+      </view>
+      <button class="cu-btn bg-white round" @click="clear">重新扫码</button>
+    </view>
     <!-- #endif -->
-    <view class="scan-result-list bg-white  padding">
+    <view class="scan-result-list bg-white  padding-lr">
       <view class="flex align-center justify-between">
-        <view class=" flex">
+        <view class=" flex align-center">
           <text class="margin-right-xs">货品唯一码:</text>
           <view class="border line-blue ">
             <input type="text" v-model="unique_code" />
@@ -19,25 +25,23 @@
         <button class="cu-btn round bg-blue light" @click="getDetail"> <text class="cuIcon-search"></text></button>
       </view>
 
-      <view class="" v-if="detail">
-        {{goodsName||detail.goods_name||'-'}}{{detail.unit||'盒'}}
+      <view class="flex u-border-top margin-top-xs justify-between text-bold text-black padding-tb-xs" v-if="list&&list.length>0">
+        <text v-if="detail" class="flex-1  margin-right-xs text-blue">{{goodsName||detail.goods_name||'-'}} 【{{detail.unit||'盒'}}】</text>
+        <text class=""> 记录信息</text>
       </view>
-      <view class="margin-top margin-bottom-xs text-bold">
-        记录信息
-      </view>
-
-      <view class="list-box">
-        <view class="list-item flex align-center">
-          <view class="col flex-1">
-            时间
-          </view>
-          <view class="col flex-0-5">
-            类型
-          </view>
-          <view class="col flex-0-5">
-            操作人
-          </view>
+      <view class="list-item flex align-center" v-if="list&&list.length>0">
+        <view class="col flex-1">
+          时间
         </view>
+        <view class="col flex-0-5">
+          类型
+        </view>
+        <view class="col flex-0-5 align-center">
+          操作人
+        </view>
+      </view>
+      <view class="list-box">
+
         <view class="list-item flex align-center" v-for="(item,index) in list">
           <view class="col flex-1">
             {{item.operate_time||'-'}}
@@ -45,7 +49,7 @@
           <view class="col flex-0-5">
             {{item.type||'-'}}
           </view>
-          <view class="col flex-0-5">
+          <view class="col flex-0-5 align-center">
             {{item.operator_name||'-'}}
           </view>
         </view>
@@ -75,7 +79,9 @@
       }
     },
     methods: {
-
+      clear() {
+        this.unique_code = ''
+      },
       back() {
         uni.navigateBack()
       },
@@ -84,6 +90,10 @@
         const req = {
           "serviceName": "srvhealth_goods_track_record_all_select",
           "colNames": ["*"],
+          order: [{
+            orderType: 'desc',
+            colName: 'operate_time'
+          }],
           "condition": [{
             "colName": "unique_code",
             "ruleType": "eq",
@@ -118,11 +128,17 @@
           if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
             this.detail = res.data.data[0]
             this.getList()
+          } else {
+            uni.showModal({
+              title: '提示',
+              content: '未查到条码对应货品相关记录,请点击重新扫码按钮重试',
+              showCancel: false
+            })
           }
         })
       },
       scancode(e) {
-        this.bar_code = e.detail.result
+        this.unique_code = e.detail.result
         this.getDetail()
         uni.showToast({
           title: '扫码成功!',
@@ -142,23 +158,39 @@
     line-height: 180px;
     color: #fff;
   }
-  .flex-0-5{
-    flex: 0.5;
+
+
+  .border {
+    border: 1px solid #f1f1f1;
+    border-radius: 5px;
   }
-  .col{
+
+  .col {
     text-align: left;
   }
+
   .flex-1 {
     flex: 1;
+    overflow: hidden;text-overflow: ellipsis;white-space: nowrap;
+  }
+
+  .flex-0-5 {
+    flex: 0.5;
+  }
+
+  .align-center {
+    text-align: center;
   }
 
   .scan-result-list {
-    height: calc(100vh - 280px);
-    margin-top: 20px;
+    height: calc(100vh - 180px);
+    overflow: hidden;
+    padding-top: 10px;
 
     .list-box {
-      height: calc(100% - 30px);
+      height: 100%;
       overflow-y: scroll;
+      padding-bottom: 400rpx;
 
       .closeIcon {
         background-color: #333;
@@ -188,8 +220,9 @@
   .bottom-button {
     width: 100%;
     text-align: center;
-    height: 80px;
-    padding-top: 20px;
+    height: 40px;
+    position: fixed;
+    bottom: 50rpx;
 
     .cu-btn {
       width: 80%

@@ -397,7 +397,7 @@
                 res.push({
                   ...data,
                   warehouse_no: this.warehouse_no,
-                  _bar_code: e
+                  unique_code: e
                 })
               })
             }
@@ -454,7 +454,7 @@
                   }],
                   "data": codeList.map(item => {
                     return {
-                      "unique_code": item._bar_code,
+                      "unique_code": item.unique_code,
                       "bar_code": item.bar_code,
                       "goods_name": item.goods_name
                     }
@@ -469,7 +469,7 @@
             "condition": [],
             "data": codeList.map(item => {
               return {
-                "unique_code": item._bar_code,
+                "unique_code": item.unique_code,
                 "bar_code": item.bar_code,
                 "goods_name": item.goods_name,
                 "unit": item.unit,
@@ -521,7 +521,7 @@
               res.push({
                 ...data,
                 warehouse_no: this.warehouse_no,
-                _bar_code: e
+                unique_code: e
               })
             })
             return res
@@ -577,7 +577,7 @@
                 }],
                 "data": codeList.map(item => {
                   return {
-                    "unique_code": item._bar_code,
+                    "unique_code": item.unique_code,
                     "bar_code": item.bar_code,
                     "goods_name": item.goods_name
                   }

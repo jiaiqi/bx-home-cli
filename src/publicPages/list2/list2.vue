@@ -1275,13 +1275,21 @@
               }
             }
           }
-
+          
+          if (tabsCfg?.default && Array.isArray(tabsCfg.tabs)) {
+            const index = tabsCfg.tabs.findIndex(item => item.value === tabsCfg.default)
+            if (index !== -1) {
+              this.curTab = index;
+              this.curTabVal = tabsCfg.tabs[index].value
+            }
+          }
+          
           if (tabsCfg?.show_badge == true) {
             // 每个tab项右上方显示badge
             let tabs = await this.getTabsCount(tabsCfg.tabs, tabsCfg?.column)
-
             tabsCfg.tabs = tabs
           }
+          
           if (tabsCfg?.show_total_tab !== false) {
             let totalTab = {
               value: '_all',
@@ -1292,7 +1300,6 @@
             }
             tabsCfg.tabs.unshift(totalTab)
           }
-
 
           this.tabsCfg = tabsCfg
         }
