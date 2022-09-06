@@ -8,12 +8,13 @@
             <u-loading :show="true" mode="flower"></u-loading>
             <text class="text-gray text-sm margin-left-xs">加载中</text>
           </text>
+         
           <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
           <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
         </text>
-        <text v-if="!singleStore" class="flex align-center">
-          <text class="cuIcon-unfold margin-left-xs"></text>
-        </text>
+       <text v-if="!singleStore&&pageTitle" class="flex align-center">
+         <text class="cuIcon-unfold margin-left-xs"></text>
+       </text>
       </view>
     </cu-custom-navbar>
     <view class="">
@@ -1878,7 +1879,7 @@
 
     .home-name {
       display: inline-block;
-      width: calc(100% - 40rpx);
+      // width: calc(100% - 40rpx);
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

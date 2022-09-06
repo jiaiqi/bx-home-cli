@@ -10,15 +10,13 @@
         </view>
 
         <slot></slot>
-
-        <!-- <view
-          class="content"
-          :style="[{ top: StatusBar + 'px' }]"
-          @tap="clickContent"
-        >
-          <slot name="content"></slot>
-        </view> -->
-        <slot name="right"></slot>
+        
+        <slot name="right">
+          <view class="text-lg padding-lr">
+            <text class="cuIcon-favor" style="font-size: 20px;"></text>
+            <!-- <text class="cuIcon-favorfill bg-yellow" style="font-size: 20px;"></text> -->
+          </view>
+        </slot>
       </view>
     </view>
   </view>
@@ -99,7 +97,7 @@
           if (this.$api?.singleStore && this.$api?.storeNo) {
             store_no = this.$api?.storeNo
           }
-          
+
           uni.reLaunch({
             // url: '/pages/index/index',
             url: `/storePages/home/home?store_no=${store_no}`

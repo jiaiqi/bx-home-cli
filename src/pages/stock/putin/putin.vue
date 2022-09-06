@@ -540,7 +540,7 @@
           "serviceName": "srvhealth_in_out_warehouse_add",
           "condition": [],
           "data": [{
-            store_no: this.form.store_no,
+            "store_no": this.form.store_no,
             "operator": this.vstoreUser?.store_user_no,
             "operator_name": this.username,
             "warehouse_no": this.warehouse_no,

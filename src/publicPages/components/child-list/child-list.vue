@@ -25,7 +25,7 @@
           :style="{'min-width':colMinWidth&&colMinWidth[col.columns]?colMinWidth[col.columns]:''}">
           {{col.label||''}}
         </view>
-        <text class="cuIcon-add  more-btn hidden" v-if="showHandle"></text>
+        <text class="cuIcon-add  more-btn hidden" v-if="showHandle&&!disabled"></text>
         <text class="cuIcon-delete text-black hidden" v-if="showDelete&&!disabled"></text>
       </view>
       <view class="list-item" v-for="(item,index) in listData" v-show="item._dirtyFlags!=='delete'"
@@ -233,6 +233,9 @@
     computed: {
       showHandle() {
         // 是否显示操作按钮
+        if(Array.isArray(this.rowButton) && this.rowButton.length==0) return false
+        if(this.disabled)  return false
+        
         let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
@@ -241,9 +244,7 @@
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
           return false
         }
-        if (this.disabled) {
-          return true
-        }
+        
         return true
       },
       theme() {
@@ -276,8 +277,7 @@
       },
       rowButton() {
         let rowButton = this.v2Data?.rowButton
-
-        return rowButton
+        return rowButton.filter(item=>!['duplicatedeep','duplicate'].includes(item.button_type))
       },
       calcRelations() {
         return this.config?.calcRelations
@@ -499,6 +499,9 @@
         this.showActionSheet = false
       },
       showButton(e) {
+        if(this.disabled){
+          return false
+        }
         let rowButton = []
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
           rowButton = this.deepClone(this.rowButton).map(item => {

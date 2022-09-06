@@ -524,6 +524,11 @@
         if (!isNaN(Number(this.shippingFee))) {
           res += this.shippingFee
         }
+        
+        if(!isNaN(Number(res))){
+          res =  Number(res.toFixed(2))
+        }
+        
         return res
       },
       totalMoney() {
