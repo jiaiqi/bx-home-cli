@@ -16,6 +16,7 @@ const state = {
   wxAuthUserInfo: getItem('wxAuthUserInfo') ? getItem('wxAuthUserInfo') : null, //授权用户信息后获取到的数据
   deviceList: [],
   vipCard:{},
+  
 }
 
 const mutations = {

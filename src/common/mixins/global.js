@@ -496,7 +496,19 @@ export default {
         }]
       }]
       if (storeNo) {
-        return await this.$http.post(url, req)
+        return await this.$http.post(url, req).then(res => {
+          if (Array.isArray(res?.data?.response) && res?.data?.response.length > 0) {
+            const {
+              response
+            } = res?.data?.response[0] || {} 
+            if (Array.isArray(response?.collect_cfg) && response?.collect_cfg.length > 0) {
+              this.$store.commit('setStateAttr', {
+                key: 'collectPages',
+                value: response?.collect_cfg
+              })
+            }
+          }
+        })
       }
     },
     async initApp(option = {}) {

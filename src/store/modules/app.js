@@ -42,7 +42,8 @@ const state = {
   scene: 0, //小程序进入场景
   storeInfo: getItem('storeInfo') || {}, // 当前店铺信息
   curStoreNo: "",
-  placeInfo: null
+  placeInfo: null,
+  collectPages:getItem('collectPages') ||[],// 可收藏页面配置数据
 }
 let persistData = {}; //持久化数据
 const mutations = {

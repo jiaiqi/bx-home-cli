@@ -1,18 +1,9 @@
 <template>
 	<view class="activity">
-		<!-- <cu-custom-navbar bg-color="none"
-      
-    ></cu-custom-navbar> -->
+    
 		<u-notice-bar mode="horizontal" :list="noticeList" class="text-white">
 		</u-notice-bar>
-		<!-- <view class="bg-view" :class="{ fullbg: scene === 1154 }">
-      <image
-        :src="require('./img/share-img.png')"
-        mode="scaleToFill"
-        v-if="scene === 1154"
-      />
-      <image :src="require('./img/bg-bottom.png')" mode="scaleToFill" v-else />
-    </view> -->
+    
 		<view>
 			<view class="top-bg">
 				<image :src="require('./img/100-top.png')" mode="scaleToFill" />

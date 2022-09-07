@@ -1298,12 +1298,12 @@
       if (option.wxMchId) {
         this.wxMchId = option.wxMchId;
       }
-      // if (option.storeNo || option.store_no) {
-      //   this.storeNo = option.storeNo || option.store_no;
-      //   if (this.storeInfo?.store_no !== this.storeNo) {
-      //     this.getStoreInfo();
-      //   }
-      // }
+      if (option.storeNo || option.store_no) {
+        this.storeNo = option.storeNo || option.store_no;
+        if (this.storeInfo?.store_no !== this.storeNo) {
+          this.getStoreInfo();
+        }
+      }
       if (option.destApp) {
         this.destApp = option.destApp;
       }

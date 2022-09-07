@@ -63,7 +63,8 @@
         goodsList: [],
         serviceName: "",
         type: "",
-        picture: ""
+        picture: "",
+        onsubmit: false
       }
     },
     computed: {
@@ -130,6 +131,7 @@
           })
           return
         }
+
         const req = [{
           "serviceName": "srvhealth_store_return_order_add",
           "condition": [],
@@ -146,7 +148,7 @@
             "order_no": this.order_no,
             "type": this.type,
             "return_amount": this.backMoney,
-            
+
             "audit_state": "申请中",
             picture: this.form.picture
           }]
@@ -172,8 +174,13 @@
           })
         }]
         // }
+        if (this.onsubmit) {
+          return
+        }
+        this.onsubmit = true
         const url = `/health/operate/srvhealth_store_return_order_add`
         this.$http.post(url, req).then(res => {
+          this.onsubmit = false
           if (res?.data?.state === "SUCCESS") {
             uni.showModal({
               title: '提示',
@@ -184,12 +191,12 @@
                   uni.navigateBack({
                     delta: 2
                   })
+                  wx.miniProgram.navigateBack()
                 }
               }
             })
           }
         })
-
       },
     },
     onLoad(option) {

@@ -1,6 +1,6 @@
 <template>
   <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
-    <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore">
+    <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore" :page-title="pageTitle">
       <view class="nav-bar">
         <text class="home-name" @click.stop="openSwitchHomePage">
           <text>{{pageTitle||''}}</text>

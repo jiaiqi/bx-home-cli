@@ -10,11 +10,11 @@
         </view>
 
         <slot></slot>
-        
+
         <slot name="right">
           <view class="text-lg padding-lr">
-            <text class="cuIcon-favor" style="font-size: 20px;"></text>
-            <!-- <text class="cuIcon-favorfill bg-yellow" style="font-size: 20px;"></text> -->
+            <text class="cuIcon-favor" style="font-size: 20px;" @click="favorPage()"></text>
+            <text class="cuIcon-favorfill text-yellow" style="font-size: 20px;" @click="cancelFavor()"></text>
           </view>
         </slot>
       </view>
@@ -32,6 +32,23 @@
     },
     name: 'cu-custom-navbar',
     computed: {
+      pagePath() {
+        const pages = getCurrentPages()
+        if (pages.length > 0) {
+          const curPage = pages[pages.length - 1];
+          return `/${curPage?.route}`
+        }
+      },
+      isFavor() {
+        // 当前页面是否被收藏
+        let res = false;
+        const pages = getCurrentPages()
+        if (pages.length > 0) {
+          const curPage = pages[pages.length - 1];
+          const fullPath = curPage?.$page?.fullPath
+          return fullPath
+        }
+      },
       isFirstPage() {
         const pages = getCurrentPages()
         return pages && pages.length === 1
@@ -60,6 +77,7 @@
       }
     },
     props: {
+      pageTitle: String,
       bgColor: {
         type: String,
         default: ''
@@ -86,6 +104,60 @@
       }
     },
     methods: {
+      favorPage() {
+        // 收藏当前页面
+        const url = `/sso/operate/srvsso_user_collect_record_add`
+        const req = [{
+          "serviceName": "srvsso_user_collect_record_add",
+          "condition": [],
+          "data": [{
+            "title": this.pageTitle || '',
+            "address": this.pagePath
+          }]
+        }]
+        this.$http.post(url, req).then(res => {
+          console.log(res);
+          if (res?.data?.state === 'SUCCESS') {
+            uni.showToast({
+              title: '收藏成功',
+              icon: 'none'
+            })
+          } else if (res?.data?.resultMessage) {
+            uni.showToast({
+              title: res?.data?.resultMessage,
+              icon: 'none'
+            })
+          }
+        })
+
+      },
+      cancelFavor() {
+        // 取消收藏
+        const url = `/sso/operate/srvsso_user_collect_record_delete`
+        const req = [{
+          "serviceName": "srvsso_user_collect_record_delete",
+          "condition": [{
+            "colName": "id",
+            "ruleType": "eq",
+            "value": "8"
+          }]
+        }]
+        this.$http.post(url, req).then(res => {
+          console.log(res);
+          if (res?.data?.state === 'SUCCESS') {
+            uni.showToast({
+              title: '取消收藏成功',
+              icon: 'none'
+            })
+          } else if (res?.data?.resultMessage) {
+            uni.showToast({
+              title: res?.data?.resultMessage,
+              icon: 'none'
+            })
+          }
+        })
+
+      },
       clickContent() {
         this.$emit('clickContent')
       },
