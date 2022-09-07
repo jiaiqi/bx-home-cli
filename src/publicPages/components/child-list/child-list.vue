@@ -77,8 +77,8 @@
               :main-data="mainData"></a-form>
           </view>
           <view class="button-box" v-if="addV2&&addV2.formButton">
-            <button class="cu-btn bg-blue" v-for="(btn,index) in addV2.formButton" :key="index"
-              @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+            <button class="cu-btn   round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,index) in addV2.formButton"
+              :key="index" @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
           </view>
         </view>
       </view>
@@ -98,9 +98,8 @@
             </a-form>
           </view>
           <view class="button-box" v-if="updateV2&&modalName==='updateChildData'&&updateV2.formButton">
-            <button class="cu-btn bg-orange round bx-bg-color" :class="'bx-bg-'+theme"
-              v-for="(btn,idx) in updateV2.formButton" :key="idx"
-              @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
+            <button class="cu-btn  round bx-bg-color" :class="'bx-bg-'+theme" v-for="(btn,idx) in updateV2.formButton"
+              :key="idx" @click="onChildFormBtn(btn)">{{btn.button_name||''}}</button>
           </view>
         </view>
       </view>
@@ -151,7 +150,7 @@
       }
     },
     props: {
-      srvType:{
+      srvType: {
         type: String
       },
       mainTable: {
@@ -233,9 +232,9 @@
     computed: {
       showHandle() {
         // 是否显示操作按钮
-        if(Array.isArray(this.rowButton) && this.rowButton.length==0) return false
-        if(this.disabled)  return false
-        
+        if (Array.isArray(this.rowButton) && this.rowButton.length == 0) return false
+        if (this.disabled) return false
+
         let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
@@ -244,7 +243,7 @@
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
           return false
         }
-        
+
         return true
       },
       theme() {
@@ -277,7 +276,7 @@
       },
       rowButton() {
         let rowButton = this.v2Data?.rowButton
-        return rowButton.filter(item=>!['duplicatedeep','duplicate'].includes(item.button_type))
+        return rowButton.filter(item => !['duplicatedeep', 'duplicate'].includes(item.button_type))
       },
       calcRelations() {
         return this.config?.calcRelations
@@ -499,7 +498,7 @@
         this.showActionSheet = false
       },
       showButton(e) {
-        if(this.disabled){
+        if (this.disabled) {
           return false
         }
         let rowButton = []
@@ -1116,9 +1115,9 @@
         list = this.deepClone(list)
         let params = list.map((item, index) => {
           let row = this.localListData[index]
-          if(row){
+          if (row) {
             let keys = Object.keys(row);
-            if(Array.isArray(keys)&&keys.length>0){
+            if (Array.isArray(keys) && keys.length > 0) {
               keys.forEach(key => {
                 if (row[key] === item[key]) {
                   delete item[key]
@@ -1393,7 +1392,8 @@
             }
           }
 
-          if ((this.use_type === 'detaillist'||this.v2Data?.use_type=='detaillist')&&this.srvType!=='update') {
+          if ((this.use_type === 'detaillist' || this.v2Data?.use_type == 'detaillist') && this.srvType !==
+            'update') {
             // 详情页面 直接添加
             let reqData = [{
               serviceName: e.service_name,
@@ -1732,6 +1732,7 @@
         let app = this.srvApp || uni.getStorageSync('activeApp');
         let colVs = await this.getServiceV2(this.updateService, 'update', 'update', app);
         this.updateV2 = colVs
+
         colVs._fieldInfo = colVs._fieldInfo.map(item => {
           if (item?.option_list_v2?.refed_col && this.mainData[item.option_list_v2.refed_col]) {
             item.value = this.mainData[item.option_list_v2.refed_col]
@@ -1794,7 +1795,7 @@
               return item
             })
           }
-          colVs.formButton = colVs.formButton
+          // colVs.formButton = colVs.formButton
         }
 
         if (this.fkMoreConfig?.rowButtonDisp) {
@@ -1832,6 +1833,17 @@
               }
             }
           }
+        }
+        if (Array.isArray(colVs.formButton)) {
+          colVs.formButton.sort((a, b) => {
+            if (a.button_type === 'edit' && b.button_type == 'reset') {
+              return 1
+            } else if (a.button_type === 'reset' && b.button_type == 'edit') {
+              return -1
+            } else {
+              return 0
+            }
+          })
         }
         // this.updateV2 = colVs
         // }

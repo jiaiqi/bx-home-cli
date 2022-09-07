@@ -25,6 +25,8 @@ export default {
       curStoreNo: state => state.app.curStoreNo, //当前店铺编号
       placeInfo: state => state.app.placeInfo,
       inviterInfo: state => state.app.inviterInfo,
+      collectPages: state => state.app.collectPages,
+      collectedPages: state => state.app.collectedPages
     }),
     $api() {
       return api
@@ -485,7 +487,22 @@ export default {
       }
       return result
     },
-
+    async getFavorPages(){
+      // 查找已收藏页面
+      const url = `/sso/select/srvsso_user_collect_record_select`
+      const req = {
+        "serviceName": "srvsso_user_collect_record_select",
+        "colNames":["*"]
+        // condition:[{
+          
+        // }]
+      }
+      const res = await this.$http.post(url,req)
+      if(res?.data?.state==='SUCCESS'){
+        console.log(res.data.data)
+        debugger
+      }
+    },
     async setSessionInfo(storeNo) {
       const url = `/health/operate/srvsys_session_info_set`
       const req = [{
@@ -500,11 +517,12 @@ export default {
           if (Array.isArray(res?.data?.response) && res?.data?.response.length > 0) {
             const {
               response
-            } = res?.data?.response[0] || {} 
+            } = res?.data?.response[0] || {}
             if (Array.isArray(response?.collect_cfg) && response?.collect_cfg.length > 0) {
+              this.getFavorPages()
               this.$store.commit('setStateAttr', {
                 key: 'collectPages',
-                value: response?.collect_cfg
+                val: response?.collect_cfg
               })
             }
           }

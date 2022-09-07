@@ -6,7 +6,7 @@
           <view class="store-name">
             <view class="store-name">{{ setStoreInfo.name || '' }}</view>
           </view>
-          <view class="right-btn" @click="toChangeStore">
+          <view class="right-btn" @click.stop="toChangeStore">
             切换
           </view>
         </view>
@@ -87,7 +87,8 @@
         </view>
       </view>
     </view>
-    <view class="store-info simple-layout"  :style="{ 'background-image': backgroundImage }" v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'">
+    <view class="store-info simple-layout" :style="{ 'background-image': backgroundImage }"
+      v-else-if="layout === 'simple'||pageItem.type === '简洁店铺信息'" @click="toPages()">
       <view class="store-name">
         <text>{{ setStoreInfo.name || '' }}</text>
         <view class="store-button">
@@ -96,12 +97,13 @@
               :src="pageItem&&pageItem.icon_qrcode?pageItem.icon_qrcode:require('../../static/qrcode.png')" mode="">
             </image>
           </button>
-          <button class="image-btn sm margin-left" @click.stop="toManage" v-if="isManager && showBtn.manage&&showIcon('manage')">
+          <button class="image-btn sm margin-left" @click.stop="toManage"
+            v-if="isManager && showBtn.manage&&showIcon('manage')">
             <image class="image"
               :src="pageItem&&pageItem.icon_manager?pageItem.icon_manager:require('../../static/setting.png')" mode="">
             </image>
           </button>
-          <button class="image-btn sm margin-left" @click="showShareDialog" v-if="showIcon('share')">
+          <button class="image-btn sm margin-left" @click.stop="showShareDialog" v-if="showIcon('share')">
             <image class="image"
               :src="pageItem&&pageItem.icon_share?pageItem.icon_share:require('../../static/share.png')" mode="">
             </image>
@@ -118,7 +120,7 @@
             {{ setStoreInfo.address || '' }}
           </text>
         </view>
-        <view class="store-address text-gray" @click="showModal"
+        <view class="store-address text-gray" @click.stop="showModal"
           v-if="setStoreInfo.introduction&&!setStoreInfo.address">
           <view v-html="setStoreInfo.introduction" class="introduce-content"></view>
         </view>
@@ -187,8 +189,8 @@
         <view class="qrcode-box">
           <view class="title">我的推广码</view>
           <image :src="qrcodePath" mode="aspectFit" class="qr-code-image" show-menu-by-longpress
-            v-if="setStoreInfo && qrcodePath" @click="toPreviewImage(qrcodePath)"></image>
-          <view class="qr-code-image" v-else @click="makeQrCode"><text class="cuIcon-refresh"></text></view>
+            v-if="setStoreInfo && qrcodePath" @click.stop="toPreviewImage(qrcodePath)"></image>
+          <view class="qr-code-image" v-else @click.stop="makeQrCode"><text class="cuIcon-refresh"></text></view>
           <view class="store-name">{{ setStoreInfo.name || '' }}</view>
         </view>
         <view class="button-box"><button @click.stop="hideModal()" class="cu-btn">关闭</button></view>
@@ -267,7 +269,7 @@
     },
 
     computed: {
-      iconDisplay(){
+      iconDisplay() {
         return this.pageItem?.more_config?.iconDisplay
       },
       posterNo() {
@@ -368,8 +370,9 @@
       };
     },
     methods: {
-      showIcon(e){
-        if(e&&this.iconDisplay?.[e]!==false){
+
+      showIcon(e) {
+        if (e && this.iconDisplay?. [e] !== false) {
           return true
         }
       },
@@ -605,6 +608,36 @@
         this.$emit('setHomePage');
       },
       toPages(e, info) {
+        let url = '';
+        debugger
+        if (!e) {
+          if (this.pageItem?.navigate_type) {
+            let navType = this.pageItem?.navigate_type
+            switch (navType) {
+              // 路由跳转
+              case 'navigateTo':
+              case 'redirectTo':
+              case 'switchTab':
+              case 'reLaunch':
+              case 'navigateTo':
+                url = this.pageItem.btn_target_url
+                uni[navType]({
+                  url
+                })
+                break;
+                // 打开地图到目标定位
+                // 打电话
+              case '打电话':
+                uni.showToast({
+                  title: '未配置电话号码...',
+                  icon: 'none'
+                })
+                break;
+
+            }
+          }
+          return
+        }
         // if (this.hasNotRegInfo) {
         //   uni.navigateTo({
         //     url: '/publicPages/accountExec/accountExec'
@@ -616,7 +649,6 @@
           storeUser: this.vstoreUser,
           storeInfo: this.setStoreInfo
         }
-        let url = '';
         if ((!this.bindUserInfo || !this.bindUserInfo.store_user_no) && e !== 'health-manager') {
           this.$emit('addToStore');
           return;
@@ -908,8 +940,9 @@
   .layout-1,
   .simple-layout {
     flex-wrap: wrap;
-    background-repeat :no-repeat;
-    background-size :100% 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
     .store-name {
       width: 100%;
       font-size: 16px;

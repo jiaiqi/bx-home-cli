@@ -44,6 +44,7 @@ const state = {
   curStoreNo: "",
   placeInfo: null,
   collectPages:getItem('collectPages') ||[],// 可收藏页面配置数据
+  collectedPages:getItem('collectedPages') ||[]
 }
 let persistData = {}; //持久化数据
 const mutations = {

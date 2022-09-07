@@ -1880,6 +1880,7 @@
     .home-name {
       display: inline-block;
       // width: calc(100% - 40rpx);
+      flex: 1;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

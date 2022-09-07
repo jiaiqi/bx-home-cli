@@ -42,7 +42,7 @@
     <view class="child-list bg-white ">
       <view class=" text-black flex justify-between align-center">
         <text class="text-bold">{{form.type||''}}明细</text>
-        <button class="cu-btn bg-grey add " @click="showModal('add')" v-if="type==='入库'">添加</button>
+        <button class="cu-btn line-blue round border" @click="showModal('add')" v-if="type==='入库'">添加</button>
       </view>
       <view class="table">
         <view class="tr th text-bold">
@@ -81,7 +81,7 @@
       </view>
     </view>
     <view class="bottom-button margin-tb">
-      <button class="cu-btn bg-blue" @click="confirm">确认</button>
+      <button class="cu-btn bg-orange round lg bx-btn-bg-color" @click="confirm">确认</button>
     </view>
 
     <view class="cu-modal" :class="{show:modalName==='update'||modalName==='add'}">
