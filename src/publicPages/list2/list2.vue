@@ -1,9 +1,19 @@
 <template>
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}"
     :style="[{'padding-top':topHeight + 'px'}]">
-    <view class="top-bar" id="top-bar">
+    <view class="top-bar" id="top-bar" v-if="topQueryMode&&floatQueryCols&&floatQueryCols.length>0">
+      <step-query :srvApp="appName" :total="total" :fieldInfo="floatQueryCols" @toFilter="toFilter">
+      </step-query>
+      <view class="flex padding-lr padding-bottom-xs align-center">
+        共为您找到 <text class="text-blue padding-lr-xs">{{total||'0'}}</text> 条匹配结果
+      </view>
+      <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
+        <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
+          @change="changeTabs"></u-tabs>
+      </view>
+    </view>
+    <view class="top-bar" id="top-bar" v-else>
       <count-bar :list="countData" :config="countConfig" v-if="countData"></count-bar>
-
       <list-bar @change="changeSerchVal" :listType="listType" :filterCols="filterCols" :srvApp="appName"
         :gridButtonDisp="gridButtonDisp" :rowButtonDisp="rowButtonDisp" :formButtonDisp="formButtonDisp"
         :srvCols="srvCols" :placholder="placeholder" :listButton="listButton" @toOrder="toOrder" @toFilter="toFilter"
@@ -11,22 +21,20 @@
         @search="toSearch" v-if="srvCols&&srvCols.length>0&&list_config.list_bar!==false" :fixed="false"
         :top="topHeight" :readonly="listBarReadonly">
       </list-bar>
-
       <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&filterTags!==false&&sysModel!=='PC'">
       </filter-tags>
-
       <filter-tags :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
         v-if="colV2&&colV2.srv_cols&&tags&&sysModel==='PC'">
       </filter-tags>
-
+      <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
+        <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
+          @change="changeTabs"></u-tabs>
+      </view>
     </view>
-    <view class="tabs-view" v-if="tabsCfg&&tabsCfg.tabs&&tabsCfg.col">
-      <u-tabs :list="enumTabs" :is-scroll="true" :current="curTab" :active-color="tabsCfg.activeColor"
-        @change="changeTabs"></u-tabs>
-    </view>
+  
     <view class="list-content" :class="['theme-'+theme]">
       <!--   <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
@@ -84,12 +92,14 @@
   import listNext from '@/components/list-next/list-next.vue';
   import countBar from '../components/count-bar/count-bar.vue'
   import cartBottom from '../components/cart-bottom/cart-bottom.vue'
+  import stepQuery from '../components/step-query/step-query.vue'
   export default {
     components: {
       listNext,
       // listBar,
       countBar,
-      cartBottom
+      cartBottom,
+      stepQuery
     },
     watch: {
       enumTabs: {
@@ -294,6 +304,58 @@
       srvCols() {
         return this.colV2?._fieldInfo || []
       },
+      floatQueryCols() {
+        // if(this.topQueryMode!==true){
+        //   return []
+        // }
+        let cols = this.moreConfig?.floatQueryCols
+        let arr = []
+        let ignoreArr = ['Image', 'FileList']
+        // let ignoreArr = ['Image', 'String', 'MultilineText', 'Float', 'Integer']
+        if (Array.isArray(cols) && cols.length > 0) {
+          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && cols.includes(item
+            .columns))
+        } else {
+          let defVal = {}
+          if (Array.isArray(this.condition) && this.condition.length > 0) {
+            defVal = this.condition.reduce((res, cur) => {
+              res[cur.colName] = cur.value;
+              return res
+            }, {})
+          }
+          let showCols = []
+          if (Array.isArray(this.list_config?.cols) && this.list_config?.cols.length > 0) {
+            showCols = this.list_config?.cols.map(item => item.col)
+          } else {
+            showCols = this.srvCols.map(item => item.columns)
+          }
+          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && showCols.includes(item
+            .column) && !ignoreArr.includes(item
+            .col_type)).map(
+            item => {
+              if (defVal[item.column]) {
+                item.defaultValue = defVal[item.column]
+                item.disabled = true
+                item.value = defVal[item.column]
+              }
+              return item
+            })
+
+        }
+        if (Array.isArray(this.initCond) && this.initCond.length > 0) {
+          arr = arr.map(field => {
+            this.initCond.forEach(cond => {
+              if (field.column === cond.colName) {
+                field.value = cond.value
+                field.defaultValue = cond.value
+              }
+            })
+            return field
+          })
+        }
+        return arr
+
+      },
       filterCols() {
         let cols = this.moreConfig?.filterCols
         let arr = []
@@ -397,6 +459,7 @@
     },
     data() {
       return {
+        topQueryMode:false,//顶部悬浮筛选模式
         disabledEvaluate: false,
         tabsCfg: null,
         topHeight: 0,
@@ -1275,7 +1338,7 @@
               }
             }
           }
-          
+
           if (tabsCfg?.default && Array.isArray(tabsCfg.tabs)) {
             const index = tabsCfg.tabs.findIndex(item => item.value === tabsCfg.default)
             if (index !== -1) {
@@ -1283,13 +1346,13 @@
               this.curTabVal = tabsCfg.tabs[index].value
             }
           }
-          
+
           if (tabsCfg?.show_badge == true) {
             // 每个tab项右上方显示badge
             let tabs = await this.getTabsCount(tabsCfg.tabs, tabsCfg?.column)
             tabsCfg.tabs = tabs
           }
-          
+
           if (tabsCfg?.show_total_tab !== false) {
             let totalTab = {
               value: '_all',
@@ -1533,6 +1596,7 @@
             };
             return callBackData;
           } else if (page) {
+            this.total = page.total
             if (page.rownumber * page.pageNo >= page.total) {
               this.loadStatus = 'noMore'
             } else {
@@ -1848,7 +1912,7 @@
                 this.refresh()
               }
             })
-          } else if (['操作', '增加','修改'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
+          } else if (['操作', '增加', '修改'].includes(buttonInfo.operate_type) && buttonInfo.operate_mode === '静默操作') {
 
             if (moreConfig?.type === 'wx_pay') {
               this.onRequestPayment(rowData, moreConfig)
@@ -1897,15 +1961,15 @@
               bindUserInfo,
               storeUser: bindUserInfo
             };
-            
-            if(buttonInfo?.moreConfig?.navType==='takePhone'&&buttonInfo?.moreConfig?.phoneCol){
+
+            if (buttonInfo?.moreConfig?.navType === 'takePhone' && buttonInfo?.moreConfig?.phoneCol) {
               let phone = rowData[buttonInfo?.moreConfig?.phoneCol]
               uni.makePhoneCall({
-                phoneNumber:phone
+                phoneNumber: phone
               })
               return
             }
-            
+
             if (buttonInfo?.moreConfig?.navUrl) {
               // 跳转到自定义页面
               if (buttonInfo?.moreConfig?.click_validate) {
@@ -2597,6 +2661,9 @@
       }
     },
     async onLoad(option) {
+      if(option.topQueryMode){
+        this.topQueryMode = true
+      }
       if (option.disabledEvaluate) {
         this.disabledEvaluate = true
       }
@@ -2789,7 +2856,9 @@
 
       if (this.serviceName) {
         this.getListV2().then(_ => {
-          this.refresh()
+          if(this.topQueryMode !== true){
+            this.refresh()
+          }
         })
       }
       this.$nextTick().then(() => {

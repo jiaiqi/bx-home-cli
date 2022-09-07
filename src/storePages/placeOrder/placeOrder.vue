@@ -694,7 +694,7 @@
           //   res = false
           // }
           if (this.orderInfo.refund_order_state && ['申请中', '审核通过', '审核不通过'].includes(this.orderInfo
-            .refund_order_state)) {
+              .refund_order_state)) {
             res = false
           }
 
@@ -1581,13 +1581,14 @@
         }
       },
       async submitOrder() {
-
+        this.onPay = true
         if (!this.canPlace) {
           uni.showModal({
             title: '提示',
             content: `当前时间段不可下单，请在${this.storeInfo.start_time} - ${this.storeInfo.end_time}下单`,
             showCancel: false,
           })
+          this.onPay = false
           return
         }
         if (!this.isFood && this.needIdNum && !this.idNum) {
@@ -1597,6 +1598,7 @@
             showCancel: false,
             confirmText: '知道了'
           })
+          this.onPay = true
           return
         }
         if (!this.isFood && this.storeInfo?.type === '酒店' && !this.room_no) {
@@ -1606,6 +1608,7 @@
             duration: 3000,
             mask: true
           })
+          this.onPay = true
           return
         }
 
@@ -1632,7 +1635,8 @@
         //   })
         //   return
         // }
-
+        
+        
         if (this.mainData.repast_type && this.mainData.repast_type == '外卖') {
           // 外卖才需要配送费
           let qisong = await this.getSendMoney()
@@ -1644,12 +1648,9 @@
 
         let formData = this.$refs.bxForm.getFieldModel();
         if (formData == false) {
+          this.onPay = true
           return
         }
-
-        uni.showLoading({
-          mask: true
-        })
 
         let orderAddService = this.orderAddService || 'srvhealth_store_order_add'
         let req = [{
@@ -1834,9 +1835,7 @@
           //   await this.clearOrderCartGoods(ids)
           // }
         }
-        this.onPay = true
         let res = await this.$fetch('operate', orderAddService, req, 'health')
-        this.onPay = false
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           console.log(res.data[0]);
           this.orderNo = res.data[0].order_no;
@@ -1896,7 +1895,7 @@
             showCancel: false
           })
         }
-        uni.hideLoading()
+        this.onPay = false
         // });
       },
       async clearOrderCartGoods(ids) {
@@ -1974,15 +1973,15 @@
           return true
         }
 
-        if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
-            .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd')) && totalMoney >
-          0.01) {
-          uni.showToast({
-            title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
-            icon: "none"
-          })
-          totalMoney = 0.1
-        }
+        // if (Array.isArray(this.vloginUser?.roles) && (this.vloginUser.roles.includes('health_admin') || this
+        //     .vloginUser.roles.includes('DEVE_LOPER') || this.vloginUser.roles.includes('bx_rd')) && totalMoney >
+        //   0.01) {
+        //   uni.showToast({
+        //     title: `实际应该支付金额${totalMoney}元,测试人员默认支付0.01元`,
+        //     icon: "none"
+        //   })
+        //   totalMoney = 0.1
+        // }
 
         let result = {};
         let goodsName = ''

@@ -2460,6 +2460,7 @@ button.cuIcon.lg {
 	overflow: hidden;
 }
 
+
 .cu-modal.bottom-modal::before {
 	vertical-align: bottom;
 }
@@ -2480,6 +2481,30 @@ button.cuIcon.lg {
 
 .cu-modal.bottom-modal.show .cu-dialog {
 	border-radius: 20rpx 20rpx 0 0;
+}
+
+
+
+.cu-modal.top-modal::before {
+	vertical-align: top;
+}
+
+.cu-modal.top-modal .cu-dialog {
+	width: 100%;
+	border-radius: 0;
+}
+
+.cu-modal.top-modal {
+	margin-top: -1000upx;
+}
+
+.cu-modal.top-modal.show {
+	margin-top: 0;
+
+}
+
+.cu-modal.top-modal.show .cu-dialog {
+	border-radius:  0 0 50rpx 50rpx;
 }
 
 .cu-modal.drawer-modal {

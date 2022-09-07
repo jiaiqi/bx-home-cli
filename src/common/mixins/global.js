@@ -487,21 +487,26 @@ export default {
       }
       return result
     },
-    async getFavorPages(){
+    async getFavorPages() {
       // 查找已收藏页面
       const url = `/sso/select/srvsso_user_collect_record_select`
       const req = {
         "serviceName": "srvsso_user_collect_record_select",
-        "colNames":["*"]
+        "colNames": ["*"]
         // condition:[{
-          
+
         // }]
       }
-      const res = await this.$http.post(url,req)
-      if(res?.data?.state==='SUCCESS'){
+      const res = await this.$http.post(url, req)
+      let arr = []
+      if (res?.data?.state === 'SUCCESS') {
         console.log(res.data.data)
-        debugger
+        arr = res.data.data
       }
+      this.$store.commit('setStateAttr', {
+        key: 'collectedPages',
+        val: arr
+      })
     },
     async setSessionInfo(storeNo) {
       const url = `/health/operate/srvsys_session_info_set`
@@ -518,13 +523,15 @@ export default {
             const {
               response
             } = res?.data?.response[0] || {}
+            let collect_cfg = []
             if (Array.isArray(response?.collect_cfg) && response?.collect_cfg.length > 0) {
               this.getFavorPages()
-              this.$store.commit('setStateAttr', {
-                key: 'collectPages',
-                val: response?.collect_cfg
-              })
+              collect_cfg = response?.collect_cfg
             }
+            this.$store.commit('setStateAttr', {
+              key: 'collectPages',
+              val: collect_cfg
+            })
           }
         })
       }

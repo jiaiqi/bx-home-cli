@@ -216,7 +216,7 @@
 
   .bottom-modal {}
 
-  .cu-dialog:not(.bottom-modal>.cu-dialog) {
+  .cu-dialog:not(.bottom-modal>.cu-dialog):not(.top-modal>.cu-dialog) {
     width: calc(100% - 20px) !important;
     max-width: 800px;
   }
