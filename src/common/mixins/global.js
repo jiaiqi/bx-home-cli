@@ -507,6 +507,7 @@ export default {
         key: 'collectedPages',
         val: arr
       })
+      return
     },
     async setSessionInfo(storeNo) {
       const url = `/health/operate/srvsys_session_info_set`
@@ -518,22 +519,22 @@ export default {
         }]
       }]
       if (storeNo) {
-        return await this.$http.post(url, req).then(res => {
-          if (Array.isArray(res?.data?.response) && res?.data?.response.length > 0) {
-            const {
-              response
-            } = res?.data?.response[0] || {}
-            let collect_cfg = []
-            if (Array.isArray(response?.collect_cfg) && response?.collect_cfg.length > 0) {
-              this.getFavorPages()
-              collect_cfg = response?.collect_cfg
-            }
-            this.$store.commit('setStateAttr', {
-              key: 'collectPages',
-              val: collect_cfg
-            })
+        const res = await this.$http.post(url, req)
+        if (Array.isArray(res?.data?.response) && res?.data?.response.length > 0) {
+          const {
+            response
+          } = res?.data?.response[0] || {}
+          let collect_cfg = []
+          if (Array.isArray(response?.collect_cfg) && response?.collect_cfg.length > 0) {
+            await this.getFavorPages()
+            collect_cfg = response?.collect_cfg
           }
-        })
+          this.$store.commit('setStateAttr', {
+            key: 'collectPages',
+            val: collect_cfg
+          })
+        }
+        return res
       }
     },
     async initApp(option = {}) {

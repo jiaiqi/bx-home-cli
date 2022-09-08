@@ -1,12 +1,10 @@
 <template>
   <bx-auth @auth-complete="initPage" v-if="showAuth"></bx-auth>
   <view class="goods-detail-wrap" v-else>
-    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
-      <view class="nav-bar">
-        <text class="home-name">
-          <text>{{pageTitle}}</text>
-        </text>
-      </view>
+    <cu-custom-navbar :isBack="true" :data="goodsInfo" :back-home="showBackHome" :custom-store-no="setStoreNo">
+      <text class="text-over-hidden-ellipsis">
+        <text>{{pageTitle}}</text>
+      </text>
     </cu-custom-navbar>
     <swiper class="screen-swiper main-image square-dot" easing-function="linear" :indicator-dots="true" :circular="true"
       :autoplay="true" interval="5000" duration="500" @change="swiperChange"
@@ -89,7 +87,8 @@
         {{storeInfo.name.slice(0,1)}}
       </view>
       <view class="store-name">{{ storeInfo.name || '' }}</view>
-      <view class="phoneCall" v-if="phone||storeInfo.telephone" @click.stop="phoneCall"><text class="cuIcon-phone text-cyan"></text>
+      <view class="phoneCall" v-if="phone||storeInfo.telephone" @click.stop="phoneCall"><text
+          class="cuIcon-phone text-cyan"></text>
       </view>
     </view>
     <evaluate-card :eval_show_way="goodsInfo.eval_show_way" :goods_no="goodsInfo.goods_no"
@@ -153,7 +152,7 @@
             邀请好友成功购买本商品，每单最高得<text class="text-orange">￥{{shareBonus}}</text>现金奖励
           </view>
           <view class="bottom-buttons">
-          <!--  <button class="cu-btn bg-blue margin-right" @click="makePosterImage"
+            <!--  <button class="cu-btn bg-blue margin-right" @click="makePosterImage"
               v-if="goodsInfo&&goodsInfo.price&&goodsInfo.goods_name&&goodsInfo.goods_img">
               生成海报卡片
             </button> -->
@@ -164,7 +163,7 @@
         </view>
       </view>
     </view>
-<!--    <make-poster :price="goodsInfo.price" :title="goodsInfo.goods_name"
+    <!--    <make-poster :price="goodsInfo.price" :title="goodsInfo.goods_name"
      :qrcodeText="qrcodeText"
      :main-image="goodsInfo.goods_img"
       v-if="goodsInfo&&goodsInfo.price&&goodsInfo.goods_name&&goodsInfo.goods_img" ref="makePoster">
@@ -190,8 +189,8 @@
     },
     data() {
       return {
-        disabled:false,
-        qrcodeText:"",
+        disabled: false,
+        qrcodeText: "",
         isPYQ: false,
         current: 0,
         videoContext: {},
@@ -223,7 +222,7 @@
 
     computed: {
       setStoreNo() {
-        return  this.storeNo || this.goodsInfo?.store_no 
+        return this.storeNo || this.goodsInfo?.store_no
       },
       pageTitle() {
         return this.goodsInfo?.goods_name || '商品详情'
@@ -237,16 +236,9 @@
             return true
           }
         }
-        // let status = this.storeInfo?.audit_status;
-        // if (status) {
-        //   if (['非公开', '仅本店', '双向隔离'].includes(status)) {
-        //     return false;
-        //   }
-        //   return true;
-        // }
       },
       showShareBanner() {
-        return this.pageType !== '秒杀'&&this?.vstoreUser?.store_user_no && this.userInfo?.nick_name && this.shareBonus
+        return this.pageType !== '秒杀' && this?.vstoreUser?.store_user_no && this.userInfo?.nick_name && this.shareBonus
       },
       shareBonus() {
         // 分享后的奖金
@@ -1269,7 +1261,7 @@
       };
     },
     async onLoad(option) {
-      if(option.disabled){
+      if (option.disabled) {
         this.hideButton = true
       }
       console.log("options", option)
@@ -1725,29 +1717,12 @@
 
   }
 
-  ::v-deep .nav-bar {
-    display: flex;
-    align-items: center;
-    padding: 10rpx 20rpx;
-    width: 100%;
-    // background-color: #fff;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 
-    .home-name {
-      display: inline-block;
-      width: calc(100% - 40rpx);
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-  }
-  .bg-transparent{
+  .bg-transparent {
     background: transparent;
   }
-  .flex-1{
+
+  .flex-1 {
     flex: 1;
   }
 </style>
