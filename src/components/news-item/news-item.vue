@@ -55,9 +55,9 @@
           if (this.storeInfo.store_no) {
             url += `&store_no=${this.storeInfo.store_no}`
           }
-          if (this.storeInfo.logo) {
-            url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
-          }
+          // if (this.storeInfo.logo) {
+          //   url += `&logo=${encodeURIComponent(this.getImagePath(this.storeInfo.logo, true))}`
+          // }
           uni.navigateTo({
             url: url
           });

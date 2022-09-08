@@ -9,13 +9,16 @@
           <slot name="backText"></slot>
         </view>
 
-        <slot></slot>
+        <view class="nav-bar" style="display: flex;">
+          <slot></slot>
+        </view>
 
         <slot name="right">
-     <!--     <view class="text-lg padding-lr">
-            <text class="cuIcon-favor" style="font-size: 20px;" @click="favorPage()"></text>
-            <text class="cuIcon-favorfill text-yellow" style="font-size: 20px;" @click="cancelFavor()"></text>
-          </view> -->
+          <view class="text-lg padding-lr-xs right-icon" v-if="canBeFaver">
+            <text class="cuIcon-favorfill text-yellow" style="font-size: 20px;" @click="cancelFavor()"
+              v-if="isFavor"></text>
+            <text class="cuIcon-favor" style="font-size: 20px;" @click="favorPage()" v-else></text>
+          </view>
         </slot>
       </view>
     </view>
@@ -32,21 +35,51 @@
     },
     name: 'cu-custom-navbar',
     computed: {
-      pagePath() {
+      canBeFaver() {
+        // 是否可以被收藏
+        if (this.pageRoute && Array.isArray(this.collectPages)) {
+          return this.collectPages.find(item => item.page_path === this
+            .pageRoute)
+        } else {
+          return false
+        }
+      },
+
+      pageRoute() {
         const pages = getCurrentPages()
         if (pages.length > 0) {
           const curPage = pages[pages.length - 1];
           return `/${curPage?.route}`
         }
       },
-      isFavor() {
-        // 当前页面是否被收藏
-        let res = false;
+      pagePath() {
         const pages = getCurrentPages()
         if (pages.length > 0) {
           const curPage = pages[pages.length - 1];
-          const fullPath = curPage?.$page?.fullPath
+          let fullPath = curPage?.$page?.fullPath
+          if (this.pdNo) {
+            fullPath += `&link_pd_no=${this.pdNo}`
+          }
+          // if (fullPath && fullPath.indexOf('storePages/home/home') !== -1 && fullPath.indexOf('store_no') == -1 &&
+          //   fullPath.indexOf('?') == -1) {
+          //   fullPath += `?store_no=${this.setStoreNo}`
+          // }
           return fullPath
+        }
+      },
+      isFavor() {
+        // 当前页面是否被收藏
+        if (Array.isArray(this.collectedPages) && this.collectedPages.length > 0) {
+          return this.collectedPages.find(item => {
+            let path = item.address
+            if (item.address === '/storePages/home/home' && item.tenant_no) {
+              path = `${item.address}?store_no=${item.tenant_no}`
+            }
+            if (this.pdNo && path && path.indexOf('link_pd_no') == -1) {
+              path += `&link_pd_no=${this.pdNo}`
+            }
+            return path == this.pagePath
+          })
         }
       },
       isFirstPage() {
@@ -78,6 +111,7 @@
     },
     props: {
       pageTitle: String,
+      pdNo: String,
       bgColor: {
         type: String,
         default: ''
@@ -104,45 +138,52 @@
       }
     },
     methods: {
-      favorPage() {
+      async favorPage() {
         // 收藏当前页面
+        let title = this.canBeFaver?.title_temp || this.pageTitle || ''
+        if (title) {
+          title = this.renderStr(title, {
+            data: this.data || {},
+            ...this.globalVariable
+          })
+        }
         const url = `/sso/operate/srvsso_user_collect_record_add`
         const req = [{
           "serviceName": "srvsso_user_collect_record_add",
           "condition": [],
           "data": [{
-            "title": this.pageTitle || '',
+            "title": title,
             "address": this.pagePath
           }]
         }]
-        this.$http.post(url, req).then(res => {
-          console.log(res);
-          if (res?.data?.state === 'SUCCESS') {
-            uni.showToast({
-              title: '收藏成功',
-              icon: 'none'
-            })
-          } else if (res?.data?.resultMessage) {
-            uni.showToast({
-              title: res?.data?.resultMessage,
-              icon: 'none'
-            })
-          }
-        })
-
+        const res = await this.$http.post(url, req)
+        console.log(res);
+        if (res?.data?.state === 'SUCCESS') {
+          uni.showToast({
+            title: '收藏成功',
+            icon: 'none'
+          })
+        } else if (res?.data?.resultMessage) {
+          uni.showToast({
+            title: res?.data?.resultMessage,
+            icon: 'none'
+          })
+        }
+        await this.setSessionInfo(this.setStoreNo)
       },
-      cancelFavor() {
+      async cancelFavor() {
         // 取消收藏
-        const url = `/sso/operate/srvsso_user_collect_record_delete`
-        const req = [{
-          "serviceName": "srvsso_user_collect_record_delete",
-          "condition": [{
-            "colName": "id",
-            "ruleType": "eq",
-            "value": "8"
+        if (this.isFavor?.id) {
+          const url = `/sso/operate/srvsso_user_collect_record_delete`
+          const req = [{
+            "serviceName": "srvsso_user_collect_record_delete",
+            "condition": [{
+              "colName": "id",
+              "ruleType": "eq",
+              "value": this.isFavor?.id
+            }]
           }]
-        }]
-        this.$http.post(url, req).then(res => {
+          const res = await this.$http.post(url, req)
           console.log(res);
           if (res?.data?.state === 'SUCCESS') {
             uni.showToast({
@@ -155,8 +196,8 @@
               icon: 'none'
             })
           }
-        })
-
+          await this.setSessionInfo(this.setStoreNo)
+        }
       },
       clickContent() {
         this.$emit('clickContent')
@@ -181,14 +222,30 @@
         }
 
       }
-    }
+    },
   }
 </script>
 
 <style>
   .cu-custom {
     width: 100vw;
+    display: flex;
+  }
 
+  .right-icon {
+    background-color: var(--home-bg-color) !important;
+  }
+
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10rpx 20rpx;
+    flex: 1;
+    max-width: calc(100% - 100rpx);
+    /* #ifdef H5 */
+    max-width: calc(100% - 130rpx);
+    /* #endif */
   }
 
   .action,

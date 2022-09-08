@@ -1,5 +1,10 @@
 <template>
-  <view class="article-wrap">
+  <view class="article-wrap" v-if="articleData&&articleData.title">
+    <cu-custom-navbar :isBack="true" :data="articleData" :page-title="articleData.title">
+      <view class="text-over-hidden-ellipsis">
+        {{articleData.title||''}}
+      </view>
+    </cu-custom-navbar>
     <view class="top">
       <view class="head-image" v-if="
   		    articleData.icon_image && articleData.cover_pic_style === '下一'
@@ -231,7 +236,7 @@
         if (e.navType) {
           navType = e.navType;
         }
-        if(e.navigate_type){
+        if (e.navigate_type) {
           navType = e.navigate_type;
         }
         if (navType === '视频号主页') {
@@ -317,12 +322,12 @@
           }
         }
         if (item.bg_color) {
-          if(Array.isArray(ColorList)&&ColorList.length>0){
-            ColorList.forEach(cur=>{
+          if (Array.isArray(ColorList) && ColorList.length > 0) {
+            ColorList.forEach(cur => {
               const color = `${cur.title}  ${cur.color}`
-              if(item.bg_color ===  color){
+              if (item.bg_color === color) {
                 str += ` bg-${cur.name}`
-              } 
+              }
             })
           }
         } else {
@@ -692,6 +697,7 @@
     position: fixed;
     bottom: 20px;
     width: 100%;
+
     .bottom-button {
       padding: 6px;
       min-height: 36px;

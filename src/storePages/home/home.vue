@@ -1,21 +1,22 @@
 <template>
   <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
-    <cu-custom-navbar :isBack="showBackPage" :back-home="showBackHome&&!singleStore" :page-title="pageTitle">
-      <view class="nav-bar">
-        <text class="home-name" @click.stop="openSwitchHomePage">
-          <text>{{pageTitle||''}}</text>
-          <text v-if="loadStatus==='loading'">
-            <u-loading :show="true" mode="flower"></u-loading>
-            <text class="text-gray text-sm margin-left-xs">加载中</text>
+    <cu-custom-navbar :isBack="showBackPage" :pd-no="pdNo" :back-home="showBackHome&&!singleStore"
+      :page-title="pageTitle">
+        <view class="flex align-center justify-between home-name"  @click.stop="openSwitchHomePage">
+          <text class="">
+            <text>{{pageTitle||''}}</text>
+            <text v-if="loadStatus==='loading'">
+              <u-loading :show="true" mode="flower"></u-loading>
+              <text class="text-gray text-sm margin-left-xs">加载中</text>
+            </text>
+          
+            <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
+            <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
           </text>
-
-          <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
-          <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
-        </text>
-        <text v-if="!singleStore&&pageTitle" class="flex align-center">
-          <text class="cuIcon-unfold margin-left-xs"></text>
-        </text>
-      </view>
+          <text v-if="!singleStore&&pageTitle" class="flex align-center">
+            <text class="cuIcon-unfold margin-left-xs"></text>
+          </text>
+        </view>
     </cu-custom-navbar>
     <view class="">
       <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
@@ -1870,18 +1871,17 @@
     font-size: var(--home-text-size);
   }
 
-  ::v-deep .nav-bar {
-    display: flex;
-    align-items: center;
-    padding: 10rpx 20rpx;
-    width: 100%;
-    // background-color: #fff;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  // ::v-deep .nav-bar {
+  //   display: flex;
+  //   align-items: center;
+  //   padding: 10rpx 20rpx;
+  //   width: 100%;
+  //   // background-color: #fff;
+  //   overflow: hidden;
+  //   white-space: nowrap;
+  //   text-overflow: ellipsis;
 
     .home-name {
-      display: inline-block;
       // width: calc(100% - 40rpx);
       flex: 1;
       overflow: hidden;
@@ -1889,7 +1889,7 @@
       text-overflow: ellipsis;
     }
 
-  }
+  // }
 
   .copyright-box {
     padding: 20px;

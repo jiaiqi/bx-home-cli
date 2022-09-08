@@ -48,7 +48,10 @@
           "navigationBarTextStyle": "black"
         },
         {
-          "path": "article/article"
+          "path": "article/article",
+          "style": {
+            "navigationStyle": "custom"
+          }
         },
         {
           "path": "articleList/articleList",

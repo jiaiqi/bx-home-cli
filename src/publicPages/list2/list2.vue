@@ -34,7 +34,7 @@
           @change="changeTabs"></u-tabs>
       </view>
     </view>
-  
+
     <view class="list-content" :class="['theme-'+theme]">
       <!--   <filter-tags :mode="tagsMode" :tabs="tags" ref="filterTabs" :cols="colV2.srv_cols" :srv="serviceName"
         @on-input-value="onFilterChange" @on-change="getListWithFilter"
@@ -459,7 +459,7 @@
     },
     data() {
       return {
-        topQueryMode:false,//顶部悬浮筛选模式
+        topQueryMode: false, //顶部悬浮筛选模式
         disabledEvaluate: false,
         tabsCfg: null,
         topHeight: 0,
@@ -2433,8 +2433,12 @@
             })
             return
           }
-
+          console.log(buttonInfo)
           this.onButtonToUrl(data, this.appName).then(res => {
+            if(buttonInfo?.service_name=='srvsso_user_collect_record_delete'){
+              // 用户收藏表，刷新收藏记录
+              this.getFavorPages()
+            }
             if (buttonInfo && buttonInfo.button_type === 'delete') {
               if (res.state === 'SUCCESS') {
                 this.refresh()
@@ -2661,7 +2665,7 @@
       }
     },
     async onLoad(option) {
-      if(option.topQueryMode){
+      if (option.topQueryMode) {
         this.topQueryMode = true
       }
       if (option.disabledEvaluate) {
@@ -2856,7 +2860,7 @@
 
       if (this.serviceName) {
         this.getListV2().then(_ => {
-          if(this.topQueryMode !== true){
+          if (this.topQueryMode !== true) {
             this.refresh()
           }
         })

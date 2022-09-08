@@ -258,4 +258,11 @@
       margin-right: initial;
     }
   }
+  
+  .text-over-hidden-ellipsis{
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 </style>

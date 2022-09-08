@@ -1,5 +1,5 @@
 <template>
-  <view class="step-query" :class="['theme-'+theme]">
+  <view class="step-query" :class="['theme-'+theme]" @touchmove.stop.prevent>
     <view class="top-float" @click="open">
       <view class="">
         {{title||'筛选条件'}}
