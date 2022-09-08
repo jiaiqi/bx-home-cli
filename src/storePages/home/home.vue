@@ -8,13 +8,13 @@
             <u-loading :show="true" mode="flower"></u-loading>
             <text class="text-gray text-sm margin-left-xs">加载中</text>
           </text>
-         
+
           <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
           <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
         </text>
-       <text v-if="!singleStore&&pageTitle" class="flex align-center">
-         <text class="cuIcon-unfold margin-left-xs"></text>
-       </text>
+        <text v-if="!singleStore&&pageTitle" class="flex align-center">
+          <text class="cuIcon-unfold margin-left-xs"></text>
+        </text>
       </view>
     </cu-custom-navbar>
     <view class="">
@@ -38,7 +38,10 @@
             </view>
             <view class="row">
               由 <text style="color: #80afdd;text-decoration: underline;" class=" margin-right-xs margin-left-xs"
-                @click="toHome">百想首页</text> 提供技术支持
+                @click="toHome">
+                <text v-if="$api&&$api.miniProgramName">{{$api.miniProgramName}}</text>
+                <text v-else> 百想首页</text>
+              </text> 提供技术支持
             </view>
           </view>
         </view>

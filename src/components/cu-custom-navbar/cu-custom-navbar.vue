@@ -12,10 +12,10 @@
         <slot></slot>
 
         <slot name="right">
-          <view class="text-lg padding-lr">
+     <!--     <view class="text-lg padding-lr">
             <text class="cuIcon-favor" style="font-size: 20px;" @click="favorPage()"></text>
             <text class="cuIcon-favorfill text-yellow" style="font-size: 20px;" @click="cancelFavor()"></text>
-          </view>
+          </view> -->
         </slot>
       </view>
     </view>

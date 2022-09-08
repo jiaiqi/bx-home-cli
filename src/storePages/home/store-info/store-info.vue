@@ -742,7 +742,6 @@
 
         .store-name {
           max-width: 600rpx;
-          padding-bottom: 5px;
           font-weight: bold;
           overflow: hidden;
           text-overflow: ellipsis;

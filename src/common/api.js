@@ -47,16 +47,16 @@ let conf = {
     // customQrcodeFolder: 'rjxh',
     // miniProgramName: "陕西省软件行业协会",
 
-    // // 弥月妈妈
-    // appNo: "APPNO20220401101144",
-    // appId: "wxd1c976c54f57c493",
-    // singleStore: true,
-    // storeNo: 'S2203220104',
-    // customQrcodeFolder: 'mymm',
-    // wxMchId:"1617830911",//微信商户号
-    // miniProgramName: "弥月妈妈母婴智慧创业圈",
+    // 弥月妈妈
+    appNo: "APPNO20220401101144",
+    appId: "wxd1c976c54f57c493",
+    singleStore: true,
+    storeNo: 'S2203220104',
+    customQrcodeFolder: 'mymm',
+    wxMchId:"1617830911",//微信商户号
+    miniProgramName: "弥月妈妈母婴智慧创业圈",
 
-    // 易企跑
+    // // 易企跑
     // appNo: "APPNO20220614113855",
     // appId: "wx94525ef9e15a3f28",
     // singleStore: true,
@@ -65,7 +65,7 @@ let conf = {
     // // wxMchId:"1617830911",//微信商户号
     // miniProgramName: "易企跑企服",
     
-    // 产康
+    //  产康
     // appNo: "APPNO20220830151740",
     // appId: "wxfba5fb42d052300f",
     // // serviceAddress: "http://192.168.0.241:8080", // 内网

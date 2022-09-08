@@ -8,7 +8,7 @@
         <text class="cuIcon-unfold margin-lr-xs"></text>
       </view>
     </view>
-    <view class="cu-modal top-modal" :class="{show:show}" @touchstart.stop="">
+    <view class="cu-modal top-modal" :class="{show:show}">
       <view class="cu-dialog">
         <view class="form-box">
           <a-form :fields="filterCols" :srvApp="srvApp" ref='filterForm' pageType="filter" v-if="filterCols"
