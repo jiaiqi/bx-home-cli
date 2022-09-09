@@ -36,7 +36,7 @@
         </view>
         <button class="cuIcon-right cu-btn bg-white  more-btn " v-if="showHandle&&showButton(item)"
           @click.stop="showAction(item)"></button>
-        <text class="cuIcon-delete text-black" v-if="showDelete&&!disabled"
+        <text class="cuIcon-delete text-black" v-else-if="showDelete&&!disabled"
           @click.stop="onChildFormBtn({button_type:'delete'},index)"></text>
       </view>
       <view class="list-item" v-for="(item,index) in initData" @click="onButton({button_type:'editInit'},index)">
@@ -208,6 +208,8 @@
             if (Array.isArray(this.updateV2?._fieldInfo)) {
               allFields = this.deepClone(this.updateV2?._fieldInfo)
             }
+          } else {
+            this.use_type = this.config?.use_type || 'detaillist'
           }
           this.allFields = allFields.map(item => {
             if (this.fk_condition && this.fk_condition[item.column]) {
@@ -232,19 +234,28 @@
     computed: {
       showHandle() {
         // 是否显示操作按钮
-        if (Array.isArray(this.rowButton) && this.rowButton.length == 0) return false
-        if (this.disabled) return false
+        let res = true
+        if (Array.isArray(this.rowButton) && this.rowButton.length == 0) {
+          debugger
+          res = false
+        }
+        if (this.disabled) {
+          debugger
+          res = false
+        }
 
         let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
-          return false
+          debugger
+          res = false
         }
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
-          return false
+          debugger
+          res = false
         }
-
-        return true
+        console.log(res);
+        return res
       },
       theme() {
         return this.$store?.state?.app?.theme
@@ -276,7 +287,11 @@
       },
       rowButton() {
         let rowButton = this.v2Data?.rowButton
-        return rowButton.filter(item => !['duplicatedeep', 'duplicate'].includes(item.button_type))
+        if (Array.isArray(rowButton)) {
+          return rowButton.filter(item => !['duplicatedeep', 'duplicate'].includes(item.button_type))
+        } else {
+          return []
+        }
       },
       calcRelations() {
         return this.config?.calcRelations
@@ -498,8 +513,9 @@
         this.showActionSheet = false
       },
       showButton(e) {
+        let res = true
         if (this.disabled) {
-          return false
+          res = false
         }
         let rowButton = []
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
@@ -510,9 +526,8 @@
           })
         }
         if (Array.isArray(e?._buttons) && e._buttons.length >= rowButton.length) {
-          rowButton = rowButton.filter((item, index) => e._buttons[index] == 1 && !['duplicate', 'duplicatedeep']
-            .includes(item
-              .button_type))
+          rowButton = rowButton.filter((item, index) => e?._buttons[index] == 1 && !['duplicate', 'duplicatedeep']
+            .includes(item.button_type))
         }
 
         if (this.fkMoreConfig?.rowButtonDisp) {
@@ -522,27 +537,29 @@
                 let customize_hide = this.fkMoreConfig?.rowButtonDisp['customize_hide']
                 if (Array.isArray(customize_hide)) {
                   if (customize_hide.includes(item.id) || customize_hide.includes(item.button_name)) {
-                    return false
+                    res = false
                   }
                 }
               }
             }
             if (this.fkMoreConfig?.rowButtonDisp[item.button_type] === false) {
-              return false
+              res = false
             } else if (this.fkMoreConfig?.rowButtonDisp[item.button_type] && typeof this.fkMoreConfig
               ?.rowButtonDisp[item.button_type] === 'string') {
               item.button_custom_name = this.fkMoreConfig?.rowButtonDisp[item.button_type]
             }
-            return true
+            res = true
           })
         }
         if (rowButton.length === 0) {
-          return false
+          res = false
         }
         if (rowButton.length === 1 && rowButton.find(item => item.button_type === 'detail')) {
-          return false
+          res = false
         }
-        return true
+        console.log(res);
+        debugger
+        return res
       },
       showAction(e) {
         this.curItem = e;

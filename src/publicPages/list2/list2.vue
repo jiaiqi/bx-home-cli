@@ -2407,6 +2407,7 @@
             if (this.disabled === true) {
               targetUrl += '&disabled=true'
             }
+            
             let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
             if (this.listConfig?.navType === 'webview' || targetUrl && targetUrl.indexOf('https') == 0) {
               targetUrl = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(targetUrl)}`
