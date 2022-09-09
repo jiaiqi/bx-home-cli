@@ -207,10 +207,10 @@
       },
       favor: throttle(function() {
         this.favorPage()
-      }, 5000, true),
+      }, 2000, true),
       cancel: throttle(function() {
         this.cancelFavor()
-      }, 5000, true),
+      }, 2000, true),
       async favorPage() {
         // 收藏当前页面
         let title = this.canBeFaver?.title_temp || this.pageTitle || ''
@@ -318,13 +318,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10rpx 20rpx;
+    padding: 10rpx;
     max-width: calc(100% - 100rpx);
     /* #ifdef H5 */
     max-width: calc(100% - 130rpx);
     /* #endif */
   }
-
+  .right-icon:active {
+    transform: translate(1px,2px);
+  }
   .action,
   .nav-bar {
     background-color: var(--home-bg-color) !important;

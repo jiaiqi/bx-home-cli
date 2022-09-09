@@ -1,15 +1,13 @@
 <template>
   <view class="form-wrap"
     :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode,'order-mode':orderMode}]">
-    <!-- #ifdef MP-WEIXIN -->
     <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
-      <view class="nav-bar">
-        <text class="home-name">
+      <view class="">
+        <!-- <text class="home-name"> -->
           <text>{{pageTitle||''}}</text>
-        </text>
+        <!-- </text> -->
       </view>
     </cu-custom-navbar>
-    <!-- #endif -->
     <view class="custom-view bg-blue" :style="{'background-color':view_cfg.bg}"
       v-if="srvType==='detail'&&view_cfg&&view_cfg.title">
       <view class="icon">
@@ -2381,23 +2379,23 @@
     }
   }
 
-  ::v-deep .nav-bar {
-    display: flex;
-    align-items: center;
-    padding: 10rpx 20rpx;
-    width: 100%;
-    // background-color: #fff;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  // ::v-deep .nav-bar {
+  //   display: flex;
+  //   align-items: center;
+  //   padding: 10rpx 20rpx;
+  //   width: 100%;
+  //   // background-color: #fff;
+  //   overflow: hidden;
+  //   white-space: nowrap;
+  //   text-overflow: ellipsis;
 
-    .home-name {
-      display: inline-block;
-      width: calc(100% - 40rpx);
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
+  //   .home-name {
+  //     display: inline-block;
+  //     width: calc(100% - 40rpx);
+  //     overflow: hidden;
+  //     white-space: nowrap;
+  //     text-overflow: ellipsis;
+  //   }
 
-  }
+  // }
 </style>
