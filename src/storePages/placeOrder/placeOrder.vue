@@ -6,11 +6,11 @@
     </view>
     <view class="order-detail">
       <view class="form-box">
-        <a-form v-if="isLoadingCols!==true&&colV2 && fields && isArray(fields )&&fields.length>0" :fields="fields"
-          :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="srvType" ref="bxForm"
-          :mainData="mainData" @value-blur="valueChange">
+        <a-form v-if="((srvType==='add'&&isLoadingCols!==true)||srvType==='detail')&& isArray(fields )&&fields.length>0"
+          :fields="fields" :moreConfig="moreConfig" :srvApp="appName" :pageType="srvType" :formType="srvType"
+          ref="bxForm" :mainData="mainData" @value-blur="valueChange">
         </a-form>
-        <view class="flex justify-center padding-tb" v-else>
+        <view class="flex justify-center padding-tb" v-else-if="isLoadingCols===true">
           <u-loading mode="flower"></u-loading>
         </view>
       </view>
@@ -1612,31 +1612,6 @@
           return
         }
 
-        // if (!this.isFood && !this.addressInfo.fullAddress && !this.room_no && ['快递', '卖家配送'].includes(this
-        //     .delivery_type) &&
-        //   this.needAddress && !this.tgNo) {
-        //   uni.showToast({
-        //     title: '请先选择您的地址信息',
-        //     icon: 'none',
-        //     mask: true
-        //   })
-        //   return
-        // }
-
-        // if (!this.isFood && (!this.addressInfo.telNumber || !this.addressInfo.userName) && !this.room_no && ['快递',
-        //     '卖家配送'
-        //   ]
-        //   .includes(this.delivery_type) && this.needAddress) {
-        //   uni.showToast({
-        //     title: '请确认您的姓名、地址、手机号是否填写完善',
-        //     icon: 'none',
-        //     duration: 3000,
-        //     mask: true
-        //   })
-        //   return
-        // }
-        
-        
         if (this.mainData.repast_type && this.mainData.repast_type == '外卖') {
           // 外卖才需要配送费
           let qisong = await this.getSendMoney()
@@ -1820,20 +1795,10 @@
           // 团长开团编号
           req[0].data[0].regimental_dumpling_no = this.tgNo
           req[0].data[0].delivery_type = '快递'
-          // if (this.goodsWay === '快递') {
-          //   req[0].data[0].delivery_type = '快递'
-          // } else {
-          //   // 团长代收
-          //   req[0].data[0].delivery_type = '自提'
-          // }
         }
         let cartGoodsList = this.orderInfo.goodsList.filter(item => !!item.cart_goods_rec_no)
         if (cartGoodsList.length > 0) {
           req[0].data[0].is_shopping_cart = '是'
-          // let ids = cartGoodsList.map(item => item.id).toString()
-          // if (ids) {
-          //   await this.clearOrderCartGoods(ids)
-          // }
         }
         let res = await this.$fetch('operate', orderAddService, req, 'health')
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {

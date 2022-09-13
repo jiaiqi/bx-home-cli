@@ -319,6 +319,18 @@
       };
     },
     watch: {
+      rowButton: {
+        deep: true,
+        immediate: true,
+        handler(btns) {
+          // uni.setStorageSync(`${this.dayjs().format("mm:ss")}-rowbuttons`, btns)
+          // console.log(`${this.dayjs().format("mm:ss")}-rowbuttons`, btns);
+          // uni.setStorageSync(`${this.dayjs().format("mm:ss")}-setRowbuttons`, this.setRowButton)
+          // console.log(`${this.dayjs().format("mm:ss")}-setRowbuttons`, this.setRowButton);
+          // uni.setStorageSync(`${this.dayjs().format("mm:ss")}-rowButtonDisp`, this.rowButtonDisp)
+          // console.log(`${this.dayjs().format("mm:ss")}-rowButtonDisp`, this.rowButtonDisp);
+        }
+      },
       childData: {
         deep: true,
         immediate: true,
@@ -1026,7 +1038,7 @@
           }
         }
         let resCol = '';
-       
+
         for (let i = 0; i < arr.length; i++) {
           let column = arr[i].trim();
           if (detail[column] || detail[column] === 0) {

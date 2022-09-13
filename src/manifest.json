@@ -131,5 +131,7 @@
             "minified" : true
         }
     },
-    "locale" : "zh-Hans"
+    "locale" : "zh-Hans",
+    "vueVersion" : "2",
+    "fallbackLocale" : "zh-Hans"
 }

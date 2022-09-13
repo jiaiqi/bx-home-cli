@@ -71,6 +71,7 @@
         }
       }
     },
+    
     async created() {
       const oldFieldModel = this.oldField.reduce((res, cur) => {
         if (cur.value) {
@@ -93,6 +94,7 @@
       }, {})
       this.oldFieldModel = this.deepClone(oldFieldModel)
       this.fieldModel = this.deepClone(oldFieldModel)
+      console.error('form load')
     },
     computed: {
       showSectionName() {

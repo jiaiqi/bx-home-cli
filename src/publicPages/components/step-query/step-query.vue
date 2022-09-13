@@ -181,7 +181,7 @@
     }
 
     .form-box {
-      max-height: 80vh;
+      height: calc(100vh - 100px);
       overflow-y: scroll;
     }
 
@@ -196,8 +196,9 @@
     padding: 20px 10px;
     margin: 0;
     justify-content: center;
+    align-items: flex-start;
     position: relative;
-
+    height: 100px;
     .reset {
       position: absolute;
       right: 0;

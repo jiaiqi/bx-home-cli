@@ -1,9 +1,34 @@
 <template>
-  <view class="user-card card-bag" v-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]"
+  <view class="user-card ck" v-if="cardStyle==='创客'">
+    <view class="left" v-if="!hasNotRegInfo">
+      <view class="profile-image">
+        <image :src="getUserImage()" class="profile-image"></image>
+      </view>
+      <view class="nick-name">
+        <view class="name text-bold">
+          <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'微信用户' }}</text>
+        </view>
+        <view class="">
+          当前店铺：{{storeInfo.name||''}}
+        </view>
+      </view>
+    </view>
+    <view class="left" v-else>
+      <button class="cu-btn bg-white" @click="toEditUserInfo">点击完善用户信息</button>
+    </view>
+    <view class="right">
+      <!-- #ifdef MP-WEIXIN -->
+      <!--  <button class="cu-btn  light round sm line-orange border" @click="getUserProfile">
+        <text class="cuIcon-refresh"></text>
+        更新头像昵称
+      </button> -->
+      <!-- #endif -->
+    </view>
+  </view>
+  <view class="user-card card-bag" v-else-if="cardStyle==='卡包'" :style="[{backgroundColor:pageItem.component_bg_color}]"
     @click="toEdit">
     <view class="top">
-      <image :src="getUserImage()" class="profile-image"
-        mode="aspectFit"  @click.stop="getUserProfile"></image>
+      <image :src="getUserImage()" class="profile-image" mode="aspectFit" @click.stop="getUserProfile"></image>
       <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'点击完善用户信息' }}</text>
       <!-- #ifdef MP-WEIXIN -->
       <view class="flex flex-1 justify-end">
@@ -21,20 +46,15 @@
   <view class="user-card" v-else>
     <view class="left" v-if="!hasNotRegInfo">
       <view class="profile-image">
-        <!-- <open-data type="userAvatarUrl"></open-data> -->
         <image :src="getUserImage()" class="profile-image"></image>
       </view>
       <view class="nick-name">
-        <!-- <open-data type="userNickName"></open-data> -->
         <view class="name">
           <text class="margin-right-xs"> {{ userInfo.nick_name || userInfo.name||'微信用户' }}</text>
         </view>
-
-        <!-- <view class="account">账号：{{ userInfo.userno }}</view> -->
         <view class="text-orange" v-if="config&&config.showSubscribe&&!isAttention" @click="toOfficial(true)">
           点击关注公众号,及时获取消息通知!
         </view>
-
       </view>
     </view>
     <view class="left" v-else>
@@ -158,12 +178,21 @@
 </script>
 
 <style lang="scss" scoped>
-  .flex-1{
+  .flex-1 {
     flex: 1;
   }
+
   .user-card {
     display: flex;
     padding: 10px;
+
+    &.ck {
+      min-height: 130px;
+      background: linear-gradient(to bottom, #FFEAC6, #FEEED2 80%,#F9F9FA);
+      .left{
+        align-items: center;
+      }
+    }
 
     &.card-bag {
       padding: 10px 10px 0;

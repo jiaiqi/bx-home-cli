@@ -2504,7 +2504,7 @@ button.cuIcon.lg {
 }
 
 .cu-modal.top-modal.show .cu-dialog {
-	border-radius:  0 0 50rpx 50rpx;
+	border-radius:  0;
 }
 
 .cu-modal.drawer-modal {
