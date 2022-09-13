@@ -668,6 +668,13 @@
             "enablePullDownRefresh": false
           }
 
+        }, {
+          "path": "policy/policy",
+          "style": {
+            "navigationBarTitleText": "",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     },
@@ -706,16 +713,14 @@
           "navigationBarTitleText": "入库",
           "enablePullDownRefresh": false
         }
-      }    ,{
-                    "path" : "search/search",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+      }, {
+        "path": "search/search",
+        "style": {
+          "navigationBarTitleText": "",
+          "enablePullDownRefresh": false
+        }
+
+      }]
     }
     //#ifdef H5
     ,
@@ -791,15 +796,6 @@
     }
     //#endif
   ],
-  // "leftWindow": {
-  //   "path": "/sidebar/sidebar.vue", // 指定 leftWindow 页面文件
-  //   "style": {
-  //     "width": "200px"
-  //   },
-  //   "matchMedia": {
-  //     "minWidth": 800 //生效条件，当窗口宽度大于800px时显示
-  //   }
-  // },
   "easycom": {
     "^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
   },

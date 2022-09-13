@@ -9,20 +9,6 @@
     }
   }],
   "subPackages": [
-    // {
-    //   "root": "pages/home",
-    //   "pages": [
-
-    //     {
-    //       "path": "index",
-    //       "style": {
-    //         "navigationBarTitleText": "",
-    //         "enablePullDownRefresh": false
-    //       }
-
-    //     }
-    //   ]
-    // },
     {
       "root": "publicPages",
       "pages": [{
@@ -36,9 +22,6 @@
         {
           "path": "list/list"
         },
-        // {
-        //   "path": "form/form"
-        // },
         {
           "path": "gropDetail/gropDetail"
         },
@@ -116,28 +99,32 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": true
           }
-        }, {
+        }, 
+        {
           "path": "formPage/singleChild",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        }, {
-          "path": "mixForm/mixForm",
-          "style": {
-            "navigationBarTitleText": "表单-列表混合页面",
-            "enablePullDownRefresh": false,
-            "navigationBarBackgroundColor": "#F8F8FA",
-            "navigationBarTextStyle": "black"
-          }
-        }, {
+        }, 
+        // {
+        //   "path": "mixForm/mixForm",
+        //   "style": {
+        //     "navigationBarTitleText": "表单-列表混合页面",
+        //     "enablePullDownRefresh": false,
+        //     "navigationBarBackgroundColor": "#F8F8FA",
+        //     "navigationBarTextStyle": "black"
+        //   }
+        // }, 
+        {
           "path": "dateTimeSelector/dateTimeSelector",
           "style": {
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
 
-        }, {
+        }, 
+        {
           "path": "cascaderList/cascaderList",
           "style": {
             "navigationBarTitleText": "",
@@ -530,13 +517,14 @@
     },
     {
       "root": "otherPages",
-      "pages": [{
-          "path": "clockIn/clockIn",
-          "style": {
-            "navigationBarTitleText": "打卡",
-            "enablePullDownRefresh": true
-          }
-        },
+      "pages": [
+        // {
+        //   "path": "clockIn/clockIn",
+        //   "style": {
+        //     "navigationBarTitleText": "打卡",
+        //     "enablePullDownRefresh": true
+        //   }
+        // },
         // {
         //   "path": "activity/activity",
         //   "style": {
@@ -604,13 +592,15 @@
             "navigationBarTitleText": "wifi配置",
             "enablePullDownRefresh": false
           }
-        }, {
-          "path": "map/map",
-          "style": {
-            "navigationBarTitleText": "",
-            "enablePullDownRefresh": false
-          }
         }
+        // , 
+        // {
+        //   "path": "map/map",
+        //   "style": {
+        //     "navigationBarTitleText": "",
+        //     "enablePullDownRefresh": false
+        //   }
+        // }
         // #ifdef H5
         , {
           "path": "article/article",
@@ -633,28 +623,30 @@
             "navigationBarTitleText": "",
             "enablePullDownRefresh": false
           }
-        }, {
-          "path": "jmsq/jmsq",
-          "style": {
-            "navigationBarTitleText": "加盟申请",
-            "enablePullDownRefresh": false
-          }
+        }, 
+        // {
+        //   "path": "jmsq/jmsq",
+        //   "style": {
+        //     "navigationBarTitleText": "加盟申请",
+        //     "enablePullDownRefresh": false
+        //   }
 
-        }, {
-          "path": "addMember/addMember",
-          "style": {
-            "navigationBarTitleText": "添加会员",
-            "enablePullDownRefresh": false
-          }
+        // }, {
+        //   "path": "addMember/addMember",
+        //   "style": {
+        //     "navigationBarTitleText": "添加会员",
+        //     "enablePullDownRefresh": false
+        //   }
 
-        }, {
-          "path": "yggl/yggl",
-          "style": {
-            "navigationBarTitleText": "员工管理",
-            "enablePullDownRefresh": false
-          }
+        // }, {
+        //   "path": "yggl/yggl",
+        //   "style": {
+        //     "navigationBarTitleText": "员工管理",
+        //     "enablePullDownRefresh": false
+        //   }
 
-        }, {
+        // }, 
+        {
           "path": "scanCode/scanCode",
           "style": {
             "navigationBarTitleText": "扫码",

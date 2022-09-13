@@ -102,33 +102,6 @@ export default {
 							success: true,
 							data: { longitude: `${screenSw.longitude},${screenNe.longitude}`, latitude: `${screenSw.latitude},${screenNe.latitude}` }
 						});
-						// const rightTop = {
-						// 	latitude:screenNe.latitude,
-						// 	longitude:screenNe.longitude
-						// }
-						// const leftTop = {
-						// 	latitude:screenSw.latitude,
-						// 	longitude:screenNe.longitude
-						// }
-
-						// const rightBottom = {
-						// 	latitude:screenSw.latitude,
-						// 	longitude:screenNe.longitude
-						// }
-
-						// const leftBottom = {
-						// 	latitude:screenNe.latitude,
-						// 	longitude:screenSw.longitude
-						// }
-
-						// const screenHeight = wx.getSystemInfoSync().windowHeight;
-						// const screenWidth = wx.getSystemInfoSync().windowWidth;
-						// var point = {
-						// 	latitude: this.latitude,
-						// 	longitude: this.longitude
-						// };
-						// var x = (screenWidth / (screenNe.longitude - screenSw.longitude)) * (point.longitude - screenSw.longitude);
-						// var y = (screenHeight / (screenSw.latitude - screenNe.latitude)) * (point.latitude - screenNe.latitude);
 					},
 					fail: err => {
 						resolve({

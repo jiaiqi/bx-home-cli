@@ -1,8 +1,7 @@
 <template>
   <view class="" v-if="data">
-
     <cu-custom-navbar :data="data" :isBack="true" :back-home="false" :page-title="data.policy_title">
-      <view class="flex align-center justify-between home-name" @click.stop="openSwitchHomePage">
+      <view class="flex align-center justify-between home-name">
         <text class="">
           <text>{{data.policy_title||''}}</text>
         </text>
@@ -75,7 +74,6 @@
         <view class="content-content">
           <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" style=" user-select: none;"
             :value="data.declaration_cond" class="no-select" readonly :disabled="true"></textarea>
-          <!--   <mp-html :content="data.declaration_cond.replace(/\<img/gi, '<img width=100%')" /> -->
         </view>
       </view>
       <view class="content-card">

@@ -2,13 +2,11 @@
   <view>
     <view class="cu-custom" :style="[{ height: CustomBar + 'px' }]">
       <view class="cu-bar fixed" :style="style" :class="className">
-        <!-- <view class="cu-bar fixed" :style="style" :class="[bgImage != '' ? 'none-bg text-white bg-img' : '', bgColor]"> -->
         <view class="action" @tap="BackPage" v-if="isBack">
           <text class="cuIcon-home" v-if="isFirstPage||backHome"></text>
           <text class="cuIcon-back" v-else></text>
           <slot name="backText"></slot>
         </view>
-
         <view class="nav-bar" style="display: flex;">
           <slot></slot>
         </view>
@@ -185,7 +183,9 @@
         const pages = getCurrentPages()
         if (pages.length > 0) {
           const curPage = pages[pages.length - 1];
+          console.log(curPage);
           let fullPath = `/${curPage.route}`
+
           // curPage?.$page?.fullPath
           const options = curPage.options
           if (typeof options === 'object' && Object.keys(options).length > 0) {
@@ -202,6 +202,11 @@
           if (this.pdNo && fullPath.indexOf('link_pd_no') == -1) {
             fullPath += `&link_pd_no=${this.pdNo}`
           }
+          // #ifdef H5
+          if (this.canBeFaver?.page_type === 'H5' && window?.location?.href) {
+            fullPath = window.location.href
+          }
+          // #endif
           return fullPath
         }
       },
@@ -324,9 +329,11 @@
     max-width: calc(100% - 130rpx);
     /* #endif */
   }
+
   .right-icon:active {
-    transform: translate(1px,2px);
+    transform: translate(1px, 2px);
   }
+
   .action,
   .nav-bar {
     background-color: var(--home-bg-color) !important;
