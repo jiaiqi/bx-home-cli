@@ -70,7 +70,7 @@
           申报对象条件
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" style=" user-select: none;"
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" style=" user-select: none;"
             :value="data.declaration_cond" class="no-select" readonly :disabled="true"></textarea>
         </view>
       </view>
@@ -79,7 +79,7 @@
           补贴标准
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" :value="data.subsidy_standard"
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" :value="data.subsidy_standard"
             class="no-select" readonly :disabled="true"></textarea>
         </view>
       </view>
@@ -88,7 +88,7 @@
           政策依据
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :auto-height="true" :enabled="false" :value="data.policy_basis"
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" :value="data.policy_basis"
             class="no-select" readonly :disabled="true"></textarea>
         </view>
       </view>
@@ -226,7 +226,8 @@
     .content-content {
       padding: 10px;
       position: relative;
-
+      // overflow-y: scroll;
+      // max-height: 300px;
       &::after {
         position: absolute;
         content: '';

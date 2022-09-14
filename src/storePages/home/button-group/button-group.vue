@@ -1587,7 +1587,11 @@
           flex: 1;
           display: flex;
           align-items: center;
-
+          // .cu-btn{
+          //   font-size: 14px;
+          //   flex: 1;
+          //   line-height: 16px;
+          // }
           .icon {
             width: 30px;
             height: 30px;
@@ -1598,6 +1602,11 @@
             width: 50px;
             height: 50px;
             margin-right: 10px;
+          }
+          .text{
+            font-size: 14px;
+            flex: 1;
+            line-height: 16px;
           }
         }
 
@@ -1616,7 +1625,6 @@
           padding: 0;
           height: inherit;
           color: currentColor;
-          width: 100%;
           text-align: left;
           justify-content: flex-start;
         }

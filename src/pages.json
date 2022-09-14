@@ -792,6 +792,12 @@
           "navigationBarTitleText": "政策展示",
           "enablePullDownRefresh": false
         }
+      }, {
+        "path": "earning-list/earning-list",
+        "style": {
+          "navigationBarTitleText": "收益明细",
+          "enablePullDownRefresh": false
+        }
       }]
     }
     //#endif
