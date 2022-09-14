@@ -1,10 +1,8 @@
 <template>
   <view class="" v-if="data">
     <cu-custom-navbar :data="data" :isBack="true" :back-home="false" :page-title="data.policy_title">
-      <view class="flex align-center justify-between home-name">
-        <text class="">
-          <text>{{data.policy_title||''}}</text>
-        </text>
+      <view class="text-over-hidden-ellipsis">
+        <text>{{data.policy_title||''}}</text>
       </view>
     </cu-custom-navbar>
 
