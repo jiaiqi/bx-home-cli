@@ -22,7 +22,7 @@
           <text class="cuIcon-close"></text>
         </view>
       </view>
-     
+
     </view>
   </view>
 </template>
@@ -37,7 +37,7 @@
     },
     computed: {
       tipText() {
-        return this.pageItem?.tip_text 
+        return this.pageItem?.tip_text
       }
     },
     props: {
@@ -53,7 +53,13 @@
         this.showTipModal = !this.showTipModal
       },
       toList() {
-        const url = `/pages/h5/earning-list/earning-list`
+        const frontEndAddress = this.$api.frontEndAddress
+        const webUrl = `https://login.100xsys.cn/health/#/pages/h5/earning-list/earning-list`
+        const url =
+          `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(webUrl)}`
+        uni.navigateTo({
+          url
+        })
         uni.navigateTo({
           url
         })
@@ -75,9 +81,10 @@
 </script>
 
 <style scoped lang="scss">
-  .cu-dialog{
+  .cu-dialog {
     background-color: transparent;
-    .content{
+
+    .content {
       background-color: #fff;
       border-radius: 10px;
       padding: 20px;
@@ -85,7 +92,8 @@
       margin: 0 auto;
       line-height: 1.7;
     }
-    .close-icon{
+
+    .close-icon {
       margin: 10px auto;
       border-radius: 50px;
       height: 30px;
@@ -97,6 +105,7 @@
       font-size: 20px;
     }
   }
+
   .my-earning {
     height: 220rpx;
     display: flex;

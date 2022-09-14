@@ -2209,6 +2209,13 @@
           }
         } else {
           req[0].data[0].msg_link = this.chooseRecod;
+          if(!this.chooseRecod){
+            uni.showToast({
+              title:'发送内容不能为空',
+              icon:'none'
+            })
+            return
+          }
         }
         if (serviceName === 'srvhealth_consultation_chat_record_add') {
           if (req[0].data[0].msg_content && req[0].data[0].msg_content.indexOf("@所有人") !== -1) {

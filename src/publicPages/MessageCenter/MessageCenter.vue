@@ -141,18 +141,47 @@
         // 查找此店铺的客服会话列表
         let req = {
           "condition": [{
-            "colName": "session_type",
-            "ruleType": "in",
-            "value": this.session_type || "机构用户客服"
-          }, {
-            "colName": "store_no",
-            "ruleType": "eq",
-            "value": this.storeNo
-          }, {
-            "colName": "msg_count",
-            ruleType: 'gt',
-            value: 0
-          }],
+              "colName": "session_type",
+              "ruleType": "in",
+              "value": this.session_type || "机构用户客服"
+            },
+            // {
+            //   "colName": "store_user_image",
+            //   "ruleType": "notnull"
+            // },
+            {
+              "colName": "store_user_name",
+              "ruleType": "notnull"
+            },
+            {
+              "colName": "store_user_name",
+              "ruleType": "ne",
+              "value": ''
+            },
+            {
+              "colName": "last_msg_content",
+              "ruleType": "notnull"
+            },
+            {
+              "colName": "last_msg_content",
+              "ruleType": "ne",
+              "value": ''
+            },
+            {
+              "colName": "last_msg_content",
+              "ruleType": "ne",
+              "value": 'null'
+            },
+            {
+              "colName": "store_no",
+              "ruleType": "eq",
+              "value": this.storeNo
+            }, {
+              "colName": "msg_count",
+              ruleType: 'gt',
+              value: 0
+            }
+          ],
           order: [
             // {
             // 	"colName": "kefu_kefu_unread_msg,kefu_kefu_unack_msg,last_msg_time",
@@ -184,6 +213,20 @@
             // 		"orderType": "desc" // asc升序  desc降序
             // 	}
           ],
+          // relation_condition: {
+          //   "relation": "OR",
+          //   "data": [{
+          //     "relation": "AND",
+          //       data:[
+          //         {
+          //           "colName": "path",
+          //           "value": "1",
+          //           "ruleType": "[like]"
+          //         }
+          //       ]
+          //     }
+          //   ]
+          // },
           order: [{
             colName: 'last_msg_time',
             orderType: "desc"
