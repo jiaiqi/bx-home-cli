@@ -189,6 +189,7 @@
     &.ck {
       min-height: 130px;
       background: linear-gradient(to bottom, #FFEAC6, #FEEED2 80%,#F9F9FA);
+      padding: 0 10px;
       .left{
         align-items: center;
       }

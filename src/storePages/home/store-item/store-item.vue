@@ -72,6 +72,7 @@
     <float-button :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '悬浮按钮'" />
     <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'"></poster-popup>
     <data-display :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '数据展示'"></data-display>
+    <my-earnings :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '我的收益'" />
   </view>
 </template>
 
@@ -98,6 +99,7 @@
   import floatButton from '../float-button/float-button.vue'
   import posterPopup from '../poster-popup/poster-popup.vue'
   import dataDisplay from '../data-display/data-display.vue'
+  import myEarnings from '@/storePages/home/my-earnings/my-earnings.vue'
   export default {
     components: {
       slideList,
@@ -121,7 +123,8 @@
       scoreInput,
       floatButton,
       posterPopup,
-      dataDisplay
+      dataDisplay,
+      myEarnings, //我的收益
     },
     props: {
       pageItem: {
