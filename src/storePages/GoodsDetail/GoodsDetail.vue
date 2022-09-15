@@ -1312,6 +1312,7 @@
         this.getGoodsInfo(option.goods_no);
         this.getCartList();
       }
+      
     }
   };
 </script>
@@ -1326,6 +1327,7 @@
     .share-banner {
       position: fixed;
       top: 80px;
+      top: calc(var(--window-top) + 80px);
       right: 0;
       padding: 0 10px;
       color: #fff;

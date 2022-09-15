@@ -214,6 +214,13 @@
         </view>
       </view>
     </view>
+    <view class="cu-modal" :class="{show:modalName==='poster'}">
+      <view class="cu-dialog">
+
+      </view>
+    </view>
+    <hch-poster ref="hchPoster" @cancel="handleCancel" :posterData.sync="posterData" @previewImage="previewImage"
+      v-if=" posterData" />
   </view>
 </template>
 
@@ -270,6 +277,10 @@
         menuList: [],
         noticeNum: {},
         validateMap: null,
+        curPosterCfg: {
+
+        },
+        posterData: null
       };
     },
 
@@ -377,6 +388,24 @@
       },
     },
     methods: {
+
+      handleCancel(val) {
+        // this.canvasFlag = val
+      },
+      /**
+       * @description: h5的情况下，点击海报保存按钮到图片预览海报，可以长按保存
+       * @param {*} base64
+       * @return {*}
+       * @author: hch
+       */
+      previewImage(base64) {
+        // 预览图片
+        uni.previewImage({
+          urls: [base64]
+        })
+      },
+
+
       getPicBtnStyle(e = {}) {
         let style = {}
         // {width:item.imgWidth,height:item.imgHeight,margin:item.margin},
@@ -402,7 +431,7 @@
             }
           }
         }
-        if(e.imgHeight){
+        if (e.imgHeight) {
           style.height = e.imgHeight
         }
         // let attrs = Object.keys(style)
@@ -479,6 +508,18 @@
             let obj = {
               prompt: btn.prompt,
               navType: btn.navigate_type,
+              poster: {
+                profile: this.getImagePath(this.renderStr(btn.font_icon, {
+                  ...this.globalVariable
+                })),
+                title: this.renderStr(btn.poster_title, {
+                  ...this.globalVariable
+                }),
+                bg: this.getImagePath(btn.poster_bg),
+                qrcodeText: this.renderStr(btn.dest_page, {
+                  ...this.globalVariable
+                })
+              },
               icon: '',
               iconType: "image",
               label: btn.button_label,
@@ -982,7 +1023,76 @@
           }
         }
       },
-
+      showPoster(e) {
+        // 展示海报弹窗
+        if (e?.poster) {
+          this.curPosterCfg = e.poster
+          this.posterData = {
+            poster: {
+              //根据屏幕大小自动生成海报背景大小
+              url: this.curPosterCfg?.bg, //图片地址
+              r: 0, //圆角半径
+              w: 320, //海报宽度
+              h: 500, //海报高度
+              p: 0, //海报内边距padding
+            },
+            mainImg: {
+              //海报主商品图
+              url: e.poster?.profile, //图片地址
+              r: 30, //圆角半径
+              w: 60, //宽度
+              h: 60, //高度
+              x: 80,
+              y: 15,
+            },
+            title: {
+              //商品标题
+              x: 140,
+              y: 40,
+              w: 150,
+              text: e.poster?.title, //文本
+              fontSize: 18, //字体大小
+              color: '#000', //颜色
+              lineHeight: 25, //行高
+              mt: 20 //margin-top
+            },
+            codeImg: {
+              //小程序码
+              text: e?.poster.qrcodeText,
+              url: 'https://huangchunhongzz.gitee.io/imgs/poster/code.png', //图片地址
+              w: 130, //宽度
+              h: 130, //高度
+              mt: 150, //margin-top
+              y:190,
+              x:95,
+              r: 0 ,//圆角半径
+            },
+            tips:[],
+            // tips: [
+            //   //提示信息
+            //   // {
+            //   //   text: '记忆之王', //文本
+            //   //   fontSize: 14, //字体大小
+            //   //   color: '#2f1709', //字体颜色
+            //   //   align: 'center', //对齐方式
+            //   //   lineHeight: 25, //行高
+            //   //   mt: 20 //margin-top
+            //   // },
+            //   {
+            //     text: '长按/扫描识别查看商品', //文本
+            //     fontSize: 12, //字体大小
+            //     color: '#2f1709', //字体颜色
+            //     align: 'center', //对齐方式
+            //     lineHeight: 25, //行高
+            //     mt: 20 //margin-top
+            //   }
+            // ]
+          }
+          this.$nextTick(() => {
+            this.$refs.hchPoster.posterShow()
+          })
+        }
+      },
       async handlerBeforeClick(e) {
         let res = true
 
@@ -998,7 +1108,7 @@
             showCancel: false
           })
           res = false
-        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup'].includes(e.navType)) {
+        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup', '海报弹窗'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -1014,6 +1124,9 @@
               break;
             case "toGroup":
               this.toGroup(e.type)
+              break;
+            case "海报弹窗":
+              this.showPoster(e)
               break;
           }
           res = false
@@ -1587,6 +1700,7 @@
           flex: 1;
           display: flex;
           align-items: center;
+
           // .cu-btn{
           //   font-size: 14px;
           //   flex: 1;
@@ -1603,7 +1717,8 @@
             height: 50px;
             margin-right: 10px;
           }
-          .text{
+
+          .text {
             font-size: 14px;
             flex: 1;
             line-height: 16px;

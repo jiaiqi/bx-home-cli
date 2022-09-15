@@ -88,6 +88,7 @@
 					filePath = await this.drawLogoSync(filePath)
 				}
 				this.makeComplete(filePath)
+        return filePath
 			},
 			makeComplete(filePath) {
 				this.$emit('makeComplete', filePath)
