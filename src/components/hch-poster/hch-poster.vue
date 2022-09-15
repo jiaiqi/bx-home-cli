@@ -281,10 +281,10 @@
         uni.canvasToTempFilePath({
             // x: this.poster.x,
             // y: this.poster.y,
-            // width: this.poster.w, // 画布的宽
-            // height: this.poster.h, // 画布的高
-            // destWidth: this.poster.w * 5,
-            // destHeight: this.poster.h * 5,
+            width: this.poster.w, // 画布的宽
+            height: this.poster.h, // 画布的高
+            destWidth: this.poster.w * 5,
+            destHeight: this.poster.h * 5,
             canvasId: 'myCanvas',
             success(res) {
               //保存图片至相册
