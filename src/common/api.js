@@ -37,7 +37,7 @@ let conf = {
     ws: "wss://srvms.100xsys.cn:8081",
     frontPath: "https://wx2.100xsys.cn/health/#/",
     singleStore: true,
-    
+
     // // 陕西省软件行业协会
     // appNo: "APPNO20220302164231",
     // appId: "wx0c82edeb3cdd554e",
@@ -64,7 +64,7 @@ let conf = {
     customQrcodeFolder: 'yqpqf',
     // wxMchId:"1617830911",//微信商户号
     miniProgramName: "易企跑企服",
-    
+
     // //  产康
     // appNo: "APPNO20220830151740",
     // appId: "wxfba5fb42d052300f",

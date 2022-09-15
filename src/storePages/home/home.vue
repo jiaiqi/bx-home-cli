@@ -9,9 +9,6 @@
               <u-loading :show="true" mode="flower"></u-loading>
               <text class="text-gray text-sm margin-left-xs">加载中</text>
             </text>
-          
-            <!-- <text class="cuIcon-order margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
-            <!-- <text class="cuIcon-unfold margin-left-xs" v-if="loadStatus!=='loading'&&pageTitle"></text> -->
           </text>
           <text v-if="!singleStore&&pageTitle" class="flex align-center">
             <text class="cuIcon-unfold margin-left-xs"></text>
@@ -716,24 +713,7 @@
               this.isBind = false;
             }
             this.bindUserInfo = isBind;
-            // let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
-            //   ?.invite_user_no;
-            // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !updated) {
-            // if (this.StoreInfo?.standard == '更新') {
-            //   // if (!this.bindUserInfo.invite_store_user_no||this.StoreInfo?.standard !== '不更新') {
-            //   // 更新店铺用户的邀请人编码
-            //   let data = {
-            //     invite_user_no: invite_user_no
-            //   };
-            //   let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
-            //   if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
-            //     .store_user_no !== this
-            //     .bindUserInfo?.store_user_no) {
-            //     data.invite_store_user_no = inviterStoreUser.store_user_no;
-            //   }
-            //   this.updateStoreUser(data);
-            // }
-            // }
+            
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           } else {
             this.isBind = false;
@@ -742,34 +722,7 @@
           this.isBind = false;
         }
       },
-      // async getInviteStoreUser(user_no) {
-      //   let url = this.getServiceUrl('health', 'srvhealth_store_user_share_select', 'select');
-      //   let req = {
-      //     colNames: ['*'],
-      //     serviceName: 'srvhealth_store_user_share_select',
-      //     condition: [{
-      //         colName: 'user_account',
-      //         ruleType: 'eq',
-      //         value: user_no
-      //       },
-      //       {
-      //         colName: 'store_no',
-      //         ruleType: 'eq',
-      //         value: this.StoreInfo.store_no
-      //       }
-      //     ],
-      //     page: {
-      //       rownumber: 1
-      //     }
-      //   };
-      //   if (!user_no) {
-      //     return;
-      //   }
-      //   let res = await this.$http.post(url, req);
-      //   if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
-      //     return res.data.data[0];
-      //   }
-      // },
+     
       async getThemeCfg(no) {
         // 查找店铺主题配置
         if (!no || typeof no !== 'string') {
@@ -938,6 +891,7 @@
         let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
           ?.invite_user_no;
         try {
+          debugger
           let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
           if (inviterStoreUser && inviterStoreUser.store_user_no) {
             req[0].data[0].invite_store_user_no = inviterStoreUser.store_user_no;
@@ -1524,15 +1478,15 @@
     onShareAppMessage() {
       let path =
         `pages/home/home?from=share&store_no=${this.storeNo}&invite_user_no=${this.userInfo.userno}&share_type=bindOrganization&doctor_no=${this.userInfo.no}`;
-      let title = `${this.userInfo.name}邀请您使用【${this.StoreInfo.name}】`;
+      let title = `${this.userInfo.name}邀请您使用【${this.storeInfo?.name||''}】`;
       title = this.renderEmoji(title)
       // title = `${this.userInfo.name}邀请您使用【呼吸健康云助手】，【呼吸健康云助手】 -- 集患者服务，呼吸筛查，医生助理，科学研究为一体的功能性小程序`
-      let imageUrl = this.getImagePath(this.StoreInfo.image, true);
-      if (this.StoreInfo?.logo) {
-        imageUrl = this.getImagePath(this.StoreInfo.logo, true);
+      let imageUrl = this.getImagePath(this.storeInfo.image, true);
+      if (this.storeInfo?.logo) {
+        imageUrl = this.getImagePath(this.storeInfo.logo, true);
       }
-      if (this.StoreInfo?.wx_share_img) {
-        imageUrl = this.getImagePath(this.StoreInfo.wx_share_img, true);
+      if (this.storeInfo?.wx_share_img) {
+        imageUrl = this.getImagePath(this.storeInfo.wx_share_img, true);
       }
       this.saveSharerInfo(this.userInfo, path);
       return {

@@ -241,11 +241,11 @@
         <text v-else>{{ totalMoney || "" }}</text>
       </text>
       <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" :class="'bx-bg-'+theme"
-        @click="submitOrder" v-if="orderInfo.order_state === '待提交'">
+        @click="submitOrder" v-if="orderInfo.order_state === '待提交'&&!onPay">
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
-      <button class="cu-btn bg-gradual-orange round" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&orderInfo.order_state!=='取消订单'&&
+      <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&orderInfo.order_state!=='取消订单'&&
             ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'&&!onPay
           ">
         付款
@@ -602,19 +602,6 @@
 
         if (Array.isArray(this.goodsList) && this.goodsList.length > 0) {
 
-          // let goodsItem = this.goodsList[0]
-
-          // const goods = cols.reduce((res, cur) => {
-          //   res[cur] = goodsItem[cur];
-          //   return res
-          // }, {})
-
-
-          // goods.order_pay_amount = this.orderInfo?.order_pay_amount
-          // if (goodsItem.return_num) {
-          //   goods.goods_amount = goods.goods_amount - goodsItem.return_num
-          // }
-
           const goodsList = this.goodsList.map(item => {
             let obj = cols.reduce((res, cur) => {
               res[cur] = item[cur];
@@ -622,22 +609,10 @@
             }, {})
             return obj
           })
-
-          // if (!goods.goods_amount || goods.goods_amount < 1) {
-          //   uni.showModal({
-          //     title: '提示',
-          //     content: '已退数量大于已购数量',
-          //     showCancel: false
-          //   })
-          //   return
-          // }
-
+          
           const url =
             `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
 
-          // uni.navigateTo({
-          //   url
-          // })
 
           uni.navigateTo({
             url: `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(url)}`
@@ -1582,6 +1557,7 @@
       },
       async submitOrder() {
         this.onPay = true
+
         if (!this.canPlace) {
           uni.showModal({
             title: '提示',
@@ -1591,6 +1567,7 @@
           this.onPay = false
           return
         }
+
         if (!this.isFood && this.needIdNum && !this.idNum) {
           uni.showModal({
             title: '提示',
@@ -1601,6 +1578,7 @@
           this.onPay = true
           return
         }
+
         if (!this.isFood && this.storeInfo?.type === '酒店' && !this.room_no) {
           uni.showToast({
             title: '请选择房间号',

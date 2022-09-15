@@ -44,9 +44,9 @@ export default {
         storeUser: this.vstoreUser, //店铺用户信息
       }
     },
-    setStoreNo() {
-      return this.storeNo || this.store_no || this.curStoreNo || this.goodsInfo?.store_no || this.storeInfo?.store_no
-    },
+    // setStoreNo() {
+    //   return this.storeNo || this.store_no || this.curStoreNo || this.goodsInfo?.store_no || this.storeInfo?.store_no
+    // },
     showBackHome() {
       if (this.storeNo === "S0000000000") {
         return false
@@ -543,6 +543,7 @@ export default {
       if (option) {
         this.checkOptionParams(option);
       }
+      
       await this.toAddPage()
 
       // 没有用户昵称和头像 初次进入小程序
@@ -554,38 +555,39 @@ export default {
       //     return
       //   }
       // }
-
+      console.log(this.curStoreNo)
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
       if (storeInfo?.store_no) {
         // 3. 店铺用户信息查找
+        
         await this.getStoreUser_()
         // 4. vipcard信息查找
         await this.getVipCard()
       }
     },
     async getStore_() {
-      if (!this.setStoreNo) {
+      if (!this.curStoreNo) {
         return this.storeInfo
       }
       let req = {
         condition: [{
           colName: 'store_no',
           ruleType: 'eq',
-          value: this.setStoreNo
+          value: this.curStoreNo
         }],
         page: {
           pageNo: 1,
           rownumber: 1
         }
       };
-      if (this.storeInfo?.store_no === this.setStoreNo) {
+      if (this.storeInfo?.store_no === this.curStoreNo) {
         return this.storeInfo
       }
       let serviceName = 'srvhealth_store_list_select';
       // serviceName = 'srvhealth_store_mgmt_select'
       serviceName = 'srvhealth_store_cus_niming_detail_select'
-      await this.setSessionInfo(this.setStoreNo)
+      await this.setSessionInfo(this.curStoreNo)
       let res = await this.$fetch('select', serviceName, req, 'health');
       if (Array.isArray(res.data) && res.data.length > 0) {
         this.$store.commit('setStateAttr', {
@@ -629,7 +631,7 @@ export default {
         serviceName: 'srvhealth_store_user_add',
         condition: [],
         data: [{
-          store_no: this.storeInfo?.store_no || this.storeNo || this.setStoreNo,
+          store_no: this.storeInfo?.store_no || this.storeNo || this.curStoreNo,
           name: this.storeInfo?.name,
           image: this.storeInfo?.image,
           type: this.storeInfo?.type,
@@ -654,6 +656,7 @@ export default {
       let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
         ?.invite_user_no;
       try {
+        
         let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
         if (inviterStoreUser && inviterStoreUser.store_user_no) {
           req[0].data[0].invite_store_user_no = inviterStoreUser.store_user_no;
@@ -748,33 +751,15 @@ export default {
             title: '操作成功'
           });
         }
+        
         await this.getStoreUser_();
       }
       return
     },
 
     async getStoreUser_() {
-      let storeNo = this.setStoreNo
-      let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no
-      if (invite_user_no && invite_user_no !== this.userInfo?.userno && storeNo) {
-        // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !this.userInfo?.invite_user_no && storeNo) {
-        if (this.storeInfo?.standard == '更新') {
-          // 更新店铺用户的邀请人编码
-          let data = {
-            invite_user_no: invite_user_no
-          };
-          if (!this.userInfo?.invite_user_no) {
-            await this.updatePersonInfo(data);
-          }
-          let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
-          if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
-            .store_user_no !== this
-            .vstoreUser?.store_user_no) {
-            data.invite_store_user_no = inviterStoreUser.store_user_no;
-          }
-          await this.updateStoreUser(data)
-        }
-      }
+      let storeNo = this.curStoreNo
+    
       if (this.userInfo?.no && storeNo) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {
@@ -801,6 +786,30 @@ export default {
           if (res.data.data.length > 0) {
             // this.bindUserInfo = res.data.data[0]
             this.$store.commit('SET_STORE_USER', res.data.data[0]);
+            
+            let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no
+            if (invite_user_no && invite_user_no !== this.userInfo?.userno && storeNo) {
+              // if (invite_user_no && invite_user_no !== this.userInfo?.userno && !this.userInfo?.invite_user_no && storeNo) {
+              if (this.storeInfo?.standard == '更新') {
+                // 更新店铺用户的邀请人编码
+                let data = {
+                  invite_user_no: invite_user_no
+                };
+                if (!this.userInfo?.invite_user_no) {
+                  await this.updatePersonInfo(data);
+                }
+                
+                let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
+                if (inviterStoreUser && inviterStoreUser.store_user_no && inviterStoreUser
+                  .store_user_no !== this
+                  .vstoreUser?.store_user_no) {
+                    
+                  data.invite_store_user_no = inviterStoreUser.store_user_no;
+                }
+                await this.updateStoreUser(data)
+              }
+            }
+            
             return res.data.data;
           } else if (res.data.data.length == 0) {
             // 没有查找到店铺用户

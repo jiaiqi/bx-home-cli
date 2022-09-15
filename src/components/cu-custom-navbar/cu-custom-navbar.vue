@@ -247,7 +247,7 @@
             icon: 'none'
           })
         }
-        await this.setSessionInfo(this.setStoreNo)
+        await this.setSessionInfo(this.curStoreNo)
         this.initPageInfo()
       },
 
@@ -276,7 +276,7 @@
               icon: 'none'
             })
           }
-          await this.setSessionInfo(this.setStoreNo)
+          await this.setSessionInfo(this.curStoreNo)
           this.initPageInfo()
         }
       },

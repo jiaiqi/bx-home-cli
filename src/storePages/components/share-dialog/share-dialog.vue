@@ -15,7 +15,7 @@
               <text>{{miniProgramName||''}}</text>
             </view>
             <view class="share-title">
-              {{storeUser.person_name||storeUser.user_name||''}}邀请您使用【{{storeInfo.name}}】
+              {{storeUser.person_name||storeUser.user_name||''}}邀请您使用【{{storeInfo.name||'-'}}】
             </view>
             <image class="share-image" v-if="storeInfo.wx_share_img||storeInfo.image||storeInfo.logo"
               :src="getImagePath(storeInfo.wx_share_img||storeInfo.image||storeInfo.logo,true)" mode="aspectFill">

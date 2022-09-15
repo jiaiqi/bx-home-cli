@@ -1,7 +1,7 @@
 <template>
   <view class="form-wrap"
     :class="['theme-'+theme,{'no-padding':srvType==='detail'&&view_cfg&&view_cfg.title,'step-mode':stepMode,'order-mode':orderMode}]">
-    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="setStoreNo">
+    <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="curStoreNo">
       <view class="">
         <!-- <text class="home-name"> -->
           <text>{{pageTitle||''}}</text>

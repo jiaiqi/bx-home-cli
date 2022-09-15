@@ -43,7 +43,7 @@
       srvApp: {
         type: String
       },
-      title:String
+      title: String
     },
     computed: {
       theme() {
@@ -70,7 +70,7 @@
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
         console.log(model)
-        
+
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
             model[key] == true)) {
 
@@ -152,9 +152,8 @@
           let ignoreType = ['images', 'input', 'text', 'number']
           ignoreType = ['images']
           console.log(this.deepClone(filterCols))
-          this.filterCols = filterCols.filter(item => (item.in_cond === 1 || item.in_cond_def == 1) && item.in_list ===
-            1 && !ignoreType
-            .includes(item.type) && !/^\_.*\_disp$/.test(item.column))
+          this.filterCols = filterCols.filter(item => !ignoreType.includes(item.type) && !/^\_.*\_disp$/.test(item
+            .column))
         }
       }
     },
@@ -199,6 +198,7 @@
     align-items: flex-start;
     position: relative;
     height: 100px;
+
     .reset {
       position: absolute;
       right: 0;

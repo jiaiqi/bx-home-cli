@@ -222,7 +222,7 @@
 
         try {
           let data = {
-            storeNo: this.setStoreNo,
+            storeNo: this.curStoreNo,
             ...this.$data,
             ...this.globalVariable
           }

@@ -60,9 +60,6 @@
         uni.navigateTo({
           url
         })
-        uni.navigateTo({
-          url
-        })
       },
       getData() {
         const url = `/health/select/srvhealth_commission_count_select`

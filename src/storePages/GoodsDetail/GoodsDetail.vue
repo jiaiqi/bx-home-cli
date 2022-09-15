@@ -1,7 +1,7 @@
 <template>
   <bx-auth @auth-complete="initPage" v-if="showAuth"></bx-auth>
   <view class="goods-detail-wrap" v-else>
-    <cu-custom-navbar :isBack="true" :data="goodsInfo" :back-home="showBackHome" :custom-store-no="setStoreNo">
+    <cu-custom-navbar :isBack="true" :data="goodsInfo" :back-home="showBackHome" :custom-store-no="curStoreNo">
       <text class="text-over-hidden-ellipsis">
         <text>{{pageTitle}}</text>
       </text>
@@ -222,7 +222,7 @@
 
     computed: {
       setStoreNo() {
-        return this.storeNo || this.goodsInfo?.store_no
+        return this.curStoreNo || this.storeNo || this.goodsInfo?.store_no
       },
       pageTitle() {
         return this.goodsInfo?.goods_name || '商品详情'

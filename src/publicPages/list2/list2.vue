@@ -313,8 +313,29 @@
         let ignoreArr = ['Image', 'FileList']
         // let ignoreArr = ['Image', 'String', 'MultilineText', 'Float', 'Integer']
         if (Array.isArray(cols) && cols.length > 0) {
-          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && cols.includes(item
-            .columns))
+          this.srvCols.forEach(item => {
+            cols.forEach(col => {
+              if (typeof col === 'string' && col === item.column) {
+                item.display = true
+                arr.push(item)
+              } else if (typeof col === 'object') {
+                if (col?.column === item.column) {
+                  if (col?.required) {
+                    item.required = true
+                  }
+                  if (col?.value) {
+                    item.value = col?.value
+                  }
+                  if (col?.disabled) {
+                    item.disabled = col?.disabled
+                  }
+                  item.display = true
+                  arr.push(item)
+                }
+              }
+            })
+          })
+
         } else {
           let defVal = {}
           if (Array.isArray(this.condition) && this.condition.length > 0) {
@@ -354,15 +375,44 @@
           })
         }
         return arr
-
       },
       filterCols() {
         let cols = this.moreConfig?.filterCols
         let arr = []
         let ignoreArr = ['Image', 'String', 'MultilineText', 'Float', 'Integer']
-        if (Array.isArray(cols) && cols.length > 0) {
-          arr = this.srvCols.filter(item => (item.in_cond === 1 || item.in_cond_def === 1) && cols.includes(item
-            .columns))
+        if (Array.isArray(cols) && cols.length > 0 && Array.isArray(this.srvCols) && this.srvCols.length > 0) {
+          this.srvCols.forEach(item => {
+            // if ((item.in_cond === 1 || item.in_cond_def === 1)) {
+            cols.forEach(col => {
+              if (typeof col === 'string' && col === item.column) {
+                item.display = true
+                arr.push(item)
+              } else if (typeof col === 'object') {
+                if (col?.column === item.column) {
+                  if (col?.required) {
+                    item.required = true
+                  }
+                  item.display = true
+                  arr.push(item)
+                }
+              }
+            })
+            // if (cols.every(col => typeof col === 'string')) {
+            //   arr.push(item)
+            //   // return cols.includes(item
+            //   //   .columns)
+            // } else {
+            //   let colData = cols.find(col => col?.column && col?.column == item
+            //     .columns)
+            //   if (colData) {
+            //     if (colData.required) {
+            //       item.required = true
+            //     }
+            //     arr.push(item)
+            //   }
+            // }
+            // }
+          })
         } else {
           let defVal = {}
 
@@ -2407,7 +2457,7 @@
             if (this.disabled === true) {
               targetUrl += '&disabled=true'
             }
-            
+
             let navTypes = ['navigateTo', 'redirectTo', 'reLaunch']
             if (this.listConfig?.navType === 'webview' || targetUrl && targetUrl.indexOf('https') == 0) {
               targetUrl = `/publicPages/webviewPage/webviewPage?webUrl=${encodeURIComponent(targetUrl)}`
@@ -2436,7 +2486,7 @@
           }
           console.log(buttonInfo)
           this.onButtonToUrl(data, this.appName).then(res => {
-            if(buttonInfo?.service_name=='srvsso_user_collect_record_delete'){
+            if (buttonInfo?.service_name == 'srvsso_user_collect_record_delete') {
               // 用户收藏表，刷新收藏记录
               this.getFavorPages()
             }
