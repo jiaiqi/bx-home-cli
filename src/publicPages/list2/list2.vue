@@ -2,7 +2,8 @@
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}"
     :style="[{'padding-top':topHeight + 'px'}]">
     <view class="top-bar" id="top-bar" v-if="topQueryMode&&floatQueryCols&&floatQueryCols.length>0">
-      <step-query :srvApp="appName" :total="total" :fieldInfo="floatQueryCols" @toFilter="toFilter">
+      <step-query :srvApp="appName" :float-query-cfg="floatQueryCfg" :total="total" :fieldInfo="floatQueryCols"
+        @toFilter="toFilter">
       </step-query>
       <view class="flex padding-lr padding-bottom-xs align-center">
         共为您找到 <text class="text-blue padding-lr-xs">{{total||'0'}}</text> 条匹配结果
@@ -118,6 +119,9 @@
       }
     },
     computed: {
+      floatQueryCfg() {
+        return this.colV2?.moreConfig?.float_query_cfg
+      },
       showUpper() {
         return this._pageScrollTop > 100
       },

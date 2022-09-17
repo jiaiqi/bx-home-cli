@@ -160,6 +160,12 @@
         })
       },
     },
+    onShareAppMessage() {
+      
+    },
+    onShareTimeline() {
+      
+    },
     onLoad(option) {
       if (option.id) {
         this.id = option.id

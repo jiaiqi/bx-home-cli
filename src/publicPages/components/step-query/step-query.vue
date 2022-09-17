@@ -20,8 +20,6 @@
         <view class="button-box">
           <button class="cu-btn bg-green light round margin-right-xs lg " @click="reset"><text
               class="cuIcon-refresh margin-right-xs "></text>重置</button>
-          <!--      <button class="cu-btn bg-grey light" @click="close"><text
-                  class="cuIcon-close margin-right-xs "></text>取消</button> -->
           <button class="cu-btn bg-blue light confirm round lg" :class="{' bx-bg-color':theme}" @click="toFilter">
             <text class="cuIcon-search margin-right-xs"></text>
             <text>确定</text>
@@ -37,6 +35,9 @@
   // 步骤查询
   export default {
     props: {
+      floatQueryCfg: {
+        type: Object
+      },
       fieldInfo: {
         type: [Object, Array]
       },
@@ -48,6 +49,9 @@
     computed: {
       theme() {
         return this.$store?.state?.app?.theme
+      },
+      addCfg() {
+        return this.floatQueryCfg?.add_cfg
       },
       // showConfirm() {
       //   return typeof this.model === 'object' && Object.keys(this.model).length > 0
@@ -67,16 +71,47 @@
           this.model[column] = triggerField.value
         }
       },
+      async sendAddService(model) {
+        let data = {}
+        if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
+          this.addCfg.cols.forEach(col => {
+            data[col] = model[col]
+          })
+        }
+        if (this.addCfg?.service && this.addCfg?.app && this.addCfg?.send_request) {
+          const {
+            app,
+            service
+          } = this.addCfg
+          const url = `/${app}/operate/${service}`
+          const req = [{
+            "serviceName": service,
+            "data": [data]
+          }]
+          const res = await this.$http.post(url, req)
+          console.log(res)
+        }
+      },
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
         console.log(model)
 
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
             model[key] == true)) {
-
+          if (this.addCfg?.send_request) {
+            this.sendAddService(model)
+          }
           let result = []
           this.filterCols = this.filterCols.map((item) => {
             if (model[item.column]) {
+              if (this.floatQueryCfg?.exclude_add_cols === true) {
+                // 配置了查询不包含add提交的字段
+                if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
+                  if (this.addCfg.cols.find(col => col === item.column)) {
+                    return
+                  }
+                }
+              }
               item['value'] = model[item.column]
               result.push(item)
             }
@@ -115,11 +150,25 @@
       open() {
         this.show = true
       },
-      reset() {
+      async getCols() {
+        let app = this.addCfg?.app || this.srvApp || uni.getStorageSync('activeApp');
+        let self = this;
+        let colVs = await this.getServiceV2(this.addCfg?.service, 'add', 'add', app);
+        console.log(colVs)
+        return colVs?._fieldInfo
+
+      },
+      async reset() {
         this.filterCols = []
-        if (Array.isArray(this.fieldInfo)) {
-          let filterCols = this.fieldInfo
-          let model = this.fieldInfo.reduce((res, cur) => {
+        let filelds = this.fieldInfo;
+        if (this.floatQueryCfg?.use_add_v2 === true) {
+          // 字段使用add服务的字段
+          filelds = await this.getCols() || []
+        }
+
+        if (Array.isArray(filelds) && filelds.length > 0) {
+          let filterCols = filelds
+          let model = filelds.reduce((res, cur) => {
             if (cur.value) {
               res[cur.column] = cur.value
             } else if (cur.defaultValue) {

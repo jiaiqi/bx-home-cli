@@ -17,8 +17,8 @@
     <!-- 海报 -->
     <!-- :width="system.w" :height="system.h" 支付宝必须要这样设置宽高才有效果 -->
     <canvas class="canvas" canvas-id="myCanvas" id="myCanvas"
-      :style="'width:' + system.w + 'px; height:' + system.h + 'px;'" :width="system.w"
-      :height="system.h-system.menuButtonTop"></canvas>
+      :style="'width:' + poster.w + 'px; height:' + poster.h + 'px;'" :width="poster.w"
+      :height="poster.h"></canvas>
     <view class="button-wrapper" :style="'width:' + poster.w + 'px;'">
       <!-- 保存海报按钮 -->
       <!-- #ifndef MP-QQ -->
@@ -287,6 +287,7 @@
             destHeight: this.poster.h * 5,
             canvasId: 'myCanvas',
             success(res) {
+              debugger
               //保存图片至相册
               // #ifndef H5
               // 除了h5以外的其他端
@@ -333,7 +334,6 @@
               uni.hideLoading()
             }
           },
-          this
         )
         // #endif
         // #ifdef MP-ALIPAY
@@ -379,7 +379,6 @@
               uni.hideLoading()
             }
           },
-          this
         )
         // #endif
       },
@@ -422,6 +421,8 @@
 
     .canvas {
       z-index: 10;
+      width: 100%;
+      height: 100%;
     }
 
     .button-wrapper {
