@@ -13,7 +13,7 @@
         <view class="form-box">
           <a-form :fields="filterCols" :srvApp="srvApp" ref='filterForm' pageType="filter" v-if="filterCols"
             @value-blur="setData"></a-form>
-          <view class="tip" v-if="!filterCols|| filterCols.length===0">
+          <view class="tip" v-if="filterCols&&filterCols.length===0">
             没有可筛选字段
           </view>
         </view>
@@ -60,7 +60,7 @@
     data() {
       return {
         model: {},
-        filterCols: [],
+        filterCols: null,
         show: true
       }
     },
@@ -72,12 +72,18 @@
         }
       },
       async sendAddService(model) {
-        let data = {}
-        if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
-          this.addCfg.cols.forEach(col => {
-            data[col] = model[col]
-          })
-        }
+        // let data = {}
+        // if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
+        //   this.addCfg.cols.forEach(col => {
+        //     data[col] = model[col]
+        //   })
+        // }
+        let data = this.deepClone(model)
+        Object.keys(data).forEach(key => {
+          if (data[key] === null) {
+            delete data[key]
+          }
+        })
         if (this.addCfg?.service && this.addCfg?.app && this.addCfg?.send_request) {
           const {
             app,
@@ -86,7 +92,7 @@
           const url = `/${app}/operate/${service}`
           const req = [{
             "serviceName": service,
-            "data": [data]
+            "data": [model]
           }]
           const res = await this.$http.post(url, req)
           console.log(res)
@@ -94,30 +100,43 @@
       },
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
-        console.log(model)
-
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
             model[key] == true)) {
+
           if (this.addCfg?.send_request) {
             this.sendAddService(model)
           }
+
           let result = []
           this.filterCols = this.filterCols.map((item) => {
             if (model[item.column]) {
-              if (this.floatQueryCfg?.exclude_add_cols === true) {
-                // 配置了查询不包含add提交的字段
-                if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
-                  if (this.addCfg.cols.find(col => col === item.column)) {
-                    return
+              // if (this.floatQueryCfg?.exclude_add_cols === true) {
+              //   // 配置了查询不包含add提交的字段
+              //   if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
+              //     if (this.addCfg.cols.find(col => col === item.column)) {
+              //       return
+              //     }
+              //   }
+              // }
+
+              if (Array.isArray(this.floatQueryCfg?.query_cols) && this.floatQueryCfg?.query_cols.length > 0) {
+                const column = this.floatQueryCfg?.query_cols.find(e => e.add === item.column)
+                if (column?.column) {
+                  const obj = {
+                    type: item.type,
+                    col_type: item.col_type,
+                    column: column?.column,
+                    value: model[item.column]
                   }
+                  result.push(obj)
                 }
               }
-              item['value'] = model[item.column]
-              result.push(item)
+              // item['value'] = model[item.column]
+              // result.push(item)
             }
             return item
           })
-          if (Array.isArray(result)) {
+          if (Array.isArray(result) && result.length > 0) {
             let cond = result.filter(item => item.value !== '全部' && item.column).map(item => {
               let obj = {
                 colName: item.column,
@@ -159,7 +178,7 @@
 
       },
       async reset() {
-        this.filterCols = []
+        // this.filterCols = []
         let filelds = this.fieldInfo;
         if (this.floatQueryCfg?.use_add_v2 === true) {
           // 字段使用add服务的字段
