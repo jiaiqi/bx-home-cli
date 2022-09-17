@@ -29,6 +29,9 @@
       }
     },
     props: {
+      queryOptions: {
+        type: Object
+      },
       pageItem: {
         type: Object
       },
@@ -44,7 +47,14 @@
         return this.pageItem?.more_config?.content_cfg?.service
       },
       condition() {
-        let cond = this.pageItem?.more_config?.content_cfg?.condition;
+        let cond = this.queryOptions.card_condition || this.pageItem?.more_config?.content_cfg?.condition;
+        if (typeof cond === 'string') {
+          try {
+            cond = JSON.parse(cond)
+          } catch (e) {
+            //TODO handle the exception
+          }
+        }
         if (Array.isArray(cond) && cond.length > 0) {
           cond = cond.map(item => {
             if (item.value && typeof item.value === 'string') {
@@ -136,7 +146,7 @@
     .content {
       // display: flex;
       color: #666;
-      
+
       .icon {
         width: 60px;
         height: 60px;

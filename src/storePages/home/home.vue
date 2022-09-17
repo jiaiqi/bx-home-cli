@@ -2,33 +2,33 @@
   <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
     <cu-custom-navbar :isBack="showBackPage" :pd-no="pdNo" :back-home="showBackHome&&!singleStore"
       :page-title="pageTitle">
-        <view class="flex align-center justify-between home-name"  @click.stop="openSwitchHomePage">
-          <text class="">
-            <text>{{pageTitle||''}}</text>
-            <text v-if="loadStatus==='loading'">
-              <u-loading :show="true" mode="flower"></u-loading>
-              <text class="text-gray text-sm margin-left-xs">加载中</text>
-            </text>
+      <view class="flex align-center justify-between home-name" @click.stop="openSwitchHomePage">
+        <text class="">
+          <text>{{pageTitle||''}}</text>
+          <text v-if="loadStatus==='loading'">
+            <u-loading :show="true" mode="flower"></u-loading>
+            <text class="text-gray text-sm margin-left-xs">加载中</text>
           </text>
-          <text v-if="!singleStore&&pageTitle" class="flex align-center">
-            <text class="cuIcon-unfold margin-left-xs"></text>
-          </text>
-        </view>
+        </text>
+        <text v-if="!singleStore&&pageTitle" class="flex align-center">
+          <text class="cuIcon-unfold margin-left-xs"></text>
+        </text>
+      </view>
     </cu-custom-navbar>
     <view class="">
       <view class="page-item-list" v-if="pageItemList&&pageItemList.length>0&&pageDefineList.length===0">
-        <store-item v-for="pageItem in pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
-          :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"
-          @toDoctorDetail="toDoctorDetail" :isManage="isManage" @bindStore="bindStore" @setHomePage="setHomePage"
-          @getQrcode="getQrcode">
+        <store-item v-for="pageItem in pageItemList" :queryOptions="queryOptions" :key="pageItem.component_no"
+          :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
+          :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" :isManage="isManage"
+          @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode">
         </store-item>
       </view>
       <view class="page-item-list" v-for="(tab,index) in pageDefineList" v-show="currentTab===index">
         <view class="" v-if="tab&&tab.pageItemList">
-          <store-item v-for="pageItem in tab.pageItemList" :key="pageItem.component_no" :pageItem="getConfig(pageItem)"
-            :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind" :bindUserInfo="bindUserInfo" ref="storeItem"
-            @toDoctorDetail="toDoctorDetail" :isManage="isManage" @bindStore="bindStore" @setHomePage="setHomePage"
-            @getQrcode="getQrcode">
+          <store-item v-for="pageItem in tab.pageItemList" :queryOptions="queryOptions" :key="pageItem.component_no"
+            :pageItem="getConfig(pageItem)" :StoreInfo="StoreInfo" :userInfo="userInfo" :is-bind="isBind"
+            :bindUserInfo="bindUserInfo" ref="storeItem" @toDoctorDetail="toDoctorDetail" :isManage="isManage"
+            @bindStore="bindStore" @setHomePage="setHomePage" @getQrcode="getQrcode">
           </store-item>
           <view class="copyright-box">
             <view class="row">
@@ -105,6 +105,7 @@
         rowData: {},
         invite_user_no: '',
         loadStatus: 'more',
+        queryOptions: {},
       };
     },
     computed: {
@@ -713,7 +714,7 @@
               this.isBind = false;
             }
             this.bindUserInfo = isBind;
-            
+
             this.$store.commit('SET_STORE_USER', this.bindUserInfo);
           } else {
             this.isBind = false;
@@ -722,7 +723,7 @@
           this.isBind = false;
         }
       },
-     
+
       async getThemeCfg(no) {
         // 查找店铺主题配置
         if (!no || typeof no !== 'string') {
@@ -1520,6 +1521,7 @@
       // })
     },
     async onLoad(option) {
+      this.queryOptions = option
       // #ifdef MP-WEIXIN
       await this.initApp(option)
       //#endif
@@ -1835,13 +1837,13 @@
   //   white-space: nowrap;
   //   text-overflow: ellipsis;
 
-    .home-name {
-      // width: calc(100% - 40rpx);
-      flex: 1;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
+  .home-name {
+    // width: calc(100% - 40rpx);
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 
   // }
 

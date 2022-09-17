@@ -73,7 +73,7 @@
     <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'" />
     <data-display :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '数据展示'" />
     <my-earnings :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '我的收益'" />
-    <content-card :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '内容卡片'" />
+    <content-card :queryOptions="queryOptions" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '内容卡片'" />
   </view>
 </template>
 
@@ -130,6 +130,9 @@
       contentCard
     },
     props: {
+      queryOptions:{
+        type: Object
+      },
       pageItem: {
         type: Object
       },
