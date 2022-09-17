@@ -70,9 +70,10 @@
       v-else-if="storeNo && pageItem && pageItem.type === '排队信息'&&pageItem.more_config&&pageItem.more_config.queueCfg" />
     <score-input :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '根据高考总分推荐学校'" />
     <float-button :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '悬浮按钮'" />
-    <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'"></poster-popup>
-    <data-display :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '数据展示'"></data-display>
+    <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'" />
+    <data-display :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '数据展示'" />
     <my-earnings :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '我的收益'" />
+    <content-card :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '内容卡片'" />
   </view>
 </template>
 
@@ -100,6 +101,7 @@
   import posterPopup from '../poster-popup/poster-popup.vue'
   import dataDisplay from '../data-display/data-display.vue'
   import myEarnings from '@/storePages/home/my-earnings/my-earnings.vue'
+  import contentCard from '@/storePages/home/content-card/content-card.vue'
   export default {
     components: {
       slideList,
@@ -125,6 +127,7 @@
       posterPopup,
       dataDisplay,
       myEarnings, //我的收益
+      contentCard
     },
     props: {
       pageItem: {

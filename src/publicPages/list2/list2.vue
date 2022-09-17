@@ -2,7 +2,7 @@
   <view class="page-wrap" :class="{'pc-model':sysModel==='PC','cart-list':listType==='cartList'}"
     :style="[{'padding-top':topHeight + 'px'}]">
     <view class="top-bar" id="top-bar" v-if="topQueryMode&&floatQueryCols&&floatQueryCols.length>0">
-      <step-query :srvApp="appName" :float-query-cfg="floatQueryCfg" :total="total" :fieldInfo="floatQueryCols"
+      <step-query :srvApp="appName" :float-query-cfg="floatQueryCfg" :total="total" :fieldInfo="srvCols"
         @toFilter="toFilter">
       </step-query>
       <view class="flex padding-lr padding-bottom-xs align-center">

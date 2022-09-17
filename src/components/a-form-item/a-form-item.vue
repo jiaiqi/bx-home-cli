@@ -37,8 +37,9 @@
           :src="item"></image>
       </view>
       <view class="flex" style="width: 100%;" v-else-if="['openDocument','FileList'].includes(fieldData.type)">
-        <view class="file-item flex align-center"  style="width: 100%;" v-for="item in fileList">
-          <text class="margin-lr-xs" style="flex: 1;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{item.src_name||'-'}}</text>
+        <view class="file-item flex align-center" style="width: 100%;" v-for="item in fileList">
+          <text class="margin-lr-xs"
+            style="flex: 1;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{item.src_name||'-'}}</text>
           <button class="cu-btn bg-blue round" @click="toPreview(item)">文件预览</button>
         </view>
       </view>
@@ -58,9 +59,11 @@
           {{tag['disp_val']}}
         </text>
       </view>
-      <view class="form-item-content_detail file-list flex flex-wrap" style="width: 100%;" v-else-if="fieldData.type==='FileList'">
+      <view class="form-item-content_detail file-list flex flex-wrap" style="width: 100%;"
+        v-else-if="fieldData.type==='FileList'">
         <view class="file-item text-blue   margin-bottom-xs" v-for="item in fileList"
-          style="flex:1;overflow: hidden;border-bottom:1px solid;text-overflow: ellipsis;white-space: nowrap;" @click="toPreview(item)">
+          style="flex:1;overflow: hidden;border-bottom:1px solid;text-overflow: ellipsis;white-space: nowrap;"
+          @click="toPreview(item)">
           <text class="cuIcon-file margin-lr-xs"></text>
           <text>{{getFileName(item)||'-'}}</text>
         </view>
@@ -650,9 +653,9 @@
       }
     },
     methods: {
-      getFileName(e){
+      getFileName(e) {
         let str = ''
-        if(e?.src_name&&e.file_type){
+        if (e?.src_name && e.file_type) {
           str = e.src_name
           // str = e.src_name.split(`.${e.file_type}`)[0]
           // if(str.length>30){
@@ -1405,7 +1408,6 @@
         } else if (self.fieldData.option_list_v2 && Array.isArray(self.fieldData.option_list_v2.conditions) &&
           self.fieldData.option_list_v2.conditions.length > 0) {
           let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
-         
           condition = self.evalConditions(condition, fieldModelsData)
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
@@ -1830,6 +1832,7 @@
             } else {
               // await this.getSelectorData(null, null, null)
               this.modalName = 'Selector';
+              this.$refs?.optionSelector?.refresh()
             }
             break;
           case 'TreeSelector':

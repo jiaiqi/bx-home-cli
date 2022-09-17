@@ -92,7 +92,7 @@
           const url = `/${app}/operate/${service}`
           const req = [{
             "serviceName": service,
-            "data": [model]
+            "data": [data]
           }]
           const res = await this.$http.post(url, req)
           console.log(res)
@@ -110,16 +110,8 @@
           let result = []
           this.filterCols = this.filterCols.map((item) => {
             if (model[item.column]) {
-              // if (this.floatQueryCfg?.exclude_add_cols === true) {
-              //   // 配置了查询不包含add提交的字段
-              //   if (Array.isArray(this.addCfg?.cols) && this.addCfg?.cols.length > 0) {
-              //     if (this.addCfg.cols.find(col => col === item.column)) {
-              //       return
-              //     }
-              //   }
-              // }
-
-              if (Array.isArray(this.floatQueryCfg?.query_cols) && this.floatQueryCfg?.query_cols.length > 0) {
+              if (this.floatQueryCfg?.use_add_v2 && Array.isArray(this.floatQueryCfg?.query_cols) && this
+                .floatQueryCfg?.query_cols.length > 0) {
                 const column = this.floatQueryCfg?.query_cols.find(e => e.add === item.column)
                 if (column?.column) {
                   const obj = {
@@ -130,9 +122,15 @@
                   }
                   result.push(obj)
                 }
+              } else {
+                const obj = {
+                  type: item.type,
+                  col_type: item.col_type,
+                  column: item.column,
+                  value: model[item.column]
+                }
+                result.push(item)
               }
-              // item['value'] = model[item.column]
-              // result.push(item)
             }
             return item
           })
@@ -179,10 +177,14 @@
       },
       async reset() {
         // this.filterCols = []
-        let filelds = this.fieldInfo;
+        let filelds = [];
         if (this.floatQueryCfg?.use_add_v2 === true) {
           // 字段使用add服务的字段
           filelds = await this.getCols() || []
+        } else {
+          if (Array.isArray(this.floatQueryCfg.query_cols) && this.floatQueryCfg.query_cols.length > 0) {
+            filelds = this.fieldInfo.filter(item => this.floatQueryCfg.query_cols.find(e => e.column === item.column))
+          }
         }
 
         if (Array.isArray(filelds) && filelds.length > 0) {
@@ -200,13 +202,13 @@
             if (item.defaultValue) {
               item.value = item.defaultValue
             }
-            if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
-              .conditions
-              .length > 0) {
-              let data = model || {}
-              item.option_list_v2.conditions = this.evalConditions(item.option_list_v2
-                .conditions, data)
-            }
+            // if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
+            //   .conditions
+            //   .length > 0) {
+            //   let data = model || {}
+            //   item.option_list_v2.conditions = this.evalConditions(item.option_list_v2
+            //     .conditions, data)
+            // }
             if (['date', 'dateTime', 'time', 'Time', 'Date'].includes(item.type)) {
               item.startVal = ''
               item.endVal = ''
