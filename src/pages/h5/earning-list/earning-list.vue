@@ -60,10 +60,20 @@
               ruleType: 'eq',
               value: '成功'
             },
+            // {
+            //   colName: 'amount',
+            //   ruleType: 'notnull'
+            // },
             {
-              colName: 'amount',
-              ruleType: 'notnull'
+              colName: 'store_no',
+              ruleType:'eq',
+              value: this.storeInfo?.store_no
             },
+            {
+              colName:'user_account',
+              ruleType:'eq',
+              value:this.vstoreUser?.user_account
+            }
             // {
             //   colName:'store_user_no',
             //   ruleType:'eq',

@@ -506,6 +506,7 @@
             }
 
             let obj = {
+              button_no: btn.button_no,
               prompt: btn.prompt,
               navType: btn.navigate_type,
               poster: {
@@ -1063,11 +1064,11 @@
               w: 130, //宽度
               h: 130, //高度
               mt: 150, //margin-top
-              y:190,
-              x:95,
-              r: 0 ,//圆角半径
+              y: 190,
+              x: 95,
+              r: 0, //圆角半径
             },
-            tips:[],
+            tips: [],
             // tips: [
             //   //提示信息
             //   // {
@@ -1108,7 +1109,7 @@
             showCancel: false
           })
           res = false
-        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup', '海报弹窗'].includes(e.navType)) {
+        } else if (e?.navType && ['livePlayer', 'scanCode', 'toGroup', '海报弹窗', '周边地图'].includes(e.navType)) {
           switch (e.navType) {
             case 'livePlayer':
               // 小程序直播
@@ -1127,6 +1128,12 @@
               break;
             case "海报弹窗":
               this.showPoster(e)
+              break;
+            case "周边地图":
+              const url = `/otherPages/aroundMap/aroundMap?button_no=${e.button_no}`
+              uni.navigateTo({
+                url
+              })
               break;
           }
           res = false

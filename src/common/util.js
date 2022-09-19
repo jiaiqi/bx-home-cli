@@ -715,22 +715,22 @@ export default {
       console.log("url:", urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal)
       return urlVal + '/' + appVal + '/' + srvTypeVal + '/' + srvVal
     }
-    Vue.prototype.onRegTest = (regStr='',msgs='',text='')=>{
-        let reg = new RegExp(regStr)
-        if (reg.test(text)) {
-          let obj = {
-            valid: reg.test(text),
-            msg: "有效"
-          }
-          return obj
-        } else {
-          msgs = msgs === '' ? '信息有误' : msgs
-          let obj = {
-            valid: reg.test(text),
-            msg: msgs
-          }
-          return obj
+    Vue.prototype.onRegTest = (regStr = '', msgs = '', text = '') => {
+      let reg = new RegExp(regStr)
+      if (reg.test(text)) {
+        let obj = {
+          valid: reg.test(text),
+          msg: "有效"
         }
+        return obj
+      } else {
+        msgs = msgs === '' ? '信息有误' : msgs
+        let obj = {
+          valid: reg.test(text),
+          msg: msgs
+        }
+        return obj
+      }
     }
     /**
      * 封装配置的校验信息
@@ -770,7 +770,7 @@ export default {
         Validators['reg'] = getStr(str, 'ngPattern=', ';')
         Validators['required'] = reg.test(str)
         Validators['msg'] = getStr(msg, 'ngPattern=', ';')
-      
+
         return Validators
       } else if (vds && !msg) {
         let reg = /required/gi
@@ -795,7 +795,7 @@ export default {
     //     Symbol: (val) => Object.prototype.toString.call(val) === '[object Symbol]',
     //     Function: (val) => Object.prototype.toString.call(val) === '[object Function]',
     //   }
-      
+
     //   if (is.Function(value)) {
     //     return value
     //     if (/^function/.test(value.toString()) || /^\(\)/.test(value.toString()))
@@ -2403,6 +2403,29 @@ export default {
         content.height = scale > 1 ? maxW / scale : maxH;
       }
       return content;
+    }
+    /**
+     * 计算距离，参数分别为第一点的纬度，经度；第二点的纬度，经度
+     */
+    Vue.prototype.getGeoDistance = (lat1, lng1, lat2, lng2) => {
+      //进行经纬度转换为距离的计算
+      function rad(d) {
+        return d * Math.PI / 180.0; //经纬度转换成三角函数中度分表形式。
+      }
+      const radLat1 = rad(lat1);
+      const radLat2 = rad(lat2);
+      const a = radLat1 - radLat2;
+      const b = rad(lng1) - rad(lng2);
+      let s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
+        Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+      s = s * 6378.137;
+      // 输出为公里
+      // s = Math.round(s * 10000) / 10000;
+      // // 输出为米
+      s = Math.round(s * 1000);
+      s = s.toFixed(4);
+      return s;
+
     }
   }
 }

@@ -675,6 +675,12 @@
             "navigationStyle": "custom",
             "enablePullDownRefresh": false
           }
+        }, {
+          "path": "aroundMap/aroundMap",
+          "style": {
+            "navigationBarTitleText": "周边地图",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     },

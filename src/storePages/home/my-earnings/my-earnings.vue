@@ -66,6 +66,18 @@
         const req = {
           serviceName: 'srvhealth_commission_count_select',
           colNames: ["*"],
+          condition:[
+            {
+              colName:'store_no',
+              ruleType:'eq',
+              value:this.storeInfo?.store_no
+            },
+            {
+              colName:'user_no',
+              ruleType:'eq',
+              value:this.userInfo?.userno
+            },
+          ]
         }
         this.$http.post(url, req).then(res => {
           if (Array.isArray(res?.data?.data) && res.data.data.length > 0) {
