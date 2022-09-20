@@ -609,7 +609,6 @@
       },
       toPages(e, info) {
         let url = '';
-        debugger
         if (!e) {
           if (this.pageItem?.navigate_type) {
             let navType = this.pageItem?.navigate_type

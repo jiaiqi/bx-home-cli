@@ -236,22 +236,18 @@
         // 是否显示操作按钮
         let res = true
         if (Array.isArray(this.rowButton) && this.rowButton.length == 0) {
-          debugger
           res = false
         }
         if (this.disabled) {
-          debugger
           res = false
         }
 
         let constraint_name = this.config?.foreign_key?.constraint_name || this.config?.foreign_key?.key_no
         if (constraint_name && this.srvRowButtonDisp && this.srvRowButtonDisp[constraint_name] && this.srvRowButtonDisp[
             constraint_name]['handle'] === false) {
-          debugger
           res = false
         }
         if (this.use_type && this.use_type.indexOf('detail') == -1) {
-          debugger
           res = false
         }
         console.log(res);
@@ -558,7 +554,6 @@
           res = false
         }
         console.log(res);
-        debugger
         return res
       },
       showAction(e) {

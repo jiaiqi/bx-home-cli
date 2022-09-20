@@ -1042,7 +1042,6 @@
         for (let i = 0; i < arr.length; i++) {
           let column = arr[i].trim();
           if (detail[column] || detail[column] === 0) {
-            console.log(detail[column])
             resCol = column;
             res['index'] = i
             break;

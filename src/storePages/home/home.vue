@@ -892,7 +892,6 @@
         let invite_user_no = this.invite_user_no || this.inviterInfo?.invite_user_no || this.userInfo
           ?.invite_user_no;
         try {
-          debugger
           let inviterStoreUser = await this.getInviteStoreUser(invite_user_no);
           if (inviterStoreUser && inviterStoreUser.store_user_no) {
             req[0].data[0].invite_store_user_no = inviterStoreUser.store_user_no;

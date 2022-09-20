@@ -287,7 +287,6 @@
             destHeight: this.poster.h * 5,
             canvasId: 'myCanvas',
             success(res) {
-              debugger
               //保存图片至相册
               // #ifndef H5
               // 除了h5以外的其他端

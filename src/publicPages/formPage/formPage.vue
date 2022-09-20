@@ -4,7 +4,7 @@
     <cu-custom-navbar :isBack="true" :back-home="showBackHome" :custom-store-no="curStoreNo">
       <view class="">
         <!-- <text class="home-name"> -->
-          <text>{{pageTitle||''}}</text>
+        <text>{{pageTitle||''}}</text>
         <!-- </text> -->
       </view>
     </cu-custom-navbar>
@@ -1425,6 +1425,113 @@
         }
 
       },
+      async getChildTemplateData(e = {}) {
+        let {
+          app,
+          service,
+          condition
+        } = e;
+        app = app || uni.getStorageSync('activeApp')
+        if (app && service) {
+          if (Array.isArray(condition) && condition.length > 0) {
+            condition = condition.map(item => {
+              item.value = this.renderStr(item.value, {
+                ...this.globalVariable,
+                data: this.mainData
+              })
+              return item
+            })
+          }
+          const url = `/${app}/select/${service}`
+          const req = {
+            "serviceName": service,
+            "colNames": ["*"],
+            "condition": condition || [],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 50
+            }
+          }
+          const res = await this.$http.post(url, req);
+          if (res?.data?.state === 'SUCCESS') {
+            return res.data.data
+          }
+        }
+      },
+      async setInitChildData(moreConfig = {}) {
+
+        let fkInitData = moreConfig?.fkInitData
+        let fkTemplate = moreConfig?.fkTemplate
+
+        if (fkTemplate) {
+          if (!fkInitData && fkTemplate) {
+            fkInitData = {}
+            const globalVariable = {
+              ...this.globalVariable,
+              mainData: this.mainData
+            }
+            for (let key in fkTemplate) {
+              fkInitData[key] = []
+              let cfg = fkTemplate[key]
+              let data = await this.getChildTemplateData(cfg)
+              if (Array.isArray(data) && data.length > 0) {
+                data = data.map(item => {
+                  if (Object.keys(cfg?.defaultValue).length > 0) {
+                    Object.keys(cfg?.defaultValue).forEach(key => {
+                      item[key] = this.renderStr(cfg?.defaultValue[key], globalVariable)
+                    })
+                  }
+                  item["_isMemoryData"] = true
+                  item["_dirtyFlags"] = "add"
+                  return item
+                })
+              }
+              fkInitData[key] = data
+            }
+          }
+        }
+
+        if (fkInitData && Array.isArray(this
+            .childService)) {
+          if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
+            Object.keys(fkInitData).forEach(key => {
+              if (Array.isArray(fkInitData[key]) && fkInitData[key].length > 0) {
+                let childIndex = this.childService.findIndex(item => item.foreign_key
+                  ?.constraint_name === key)
+                if (childIndex > -1) {
+                  let arr = []
+                  arr = fkInitData[key].map(item => {
+                    let strItem = JSON.stringify(item);
+                    let data = {
+                      mainData: this.mainData
+                    }
+                    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
+                      "YYYY-MM-DD"))
+                    strItem = this.renderStr(strItem, data)
+                    item = JSON.parse(strItem)
+                    if (this.fkInitVal && this.fkInitVal[key]) {
+                      let fkInitVal = this.fkInitVal[key]
+                      Object.keys(fkInitVal).forEach(initKey => {
+                        if (!item[initKey] && fkInitVal[initKey] &&
+                          typeof fkInitVal[initKey] ===
+                          'string') {
+                          item[initKey] = this.renderStr(fkInitVal[
+                            initKey], data) || item[initKey]
+                        }
+                      })
+                    }
+                    item._type = 'initData'
+                    return item
+                  })
+                  if (arr.length > 0) {
+                    this.$refs.childList[childIndex].setInitData(arr)
+                  }
+                }
+              }
+            })
+          }
+        }
+      },
       async valueChange(e, triggerField) {
         const column = triggerField.column
         if (this.mainData && typeof this.mainData === 'object') {
@@ -1487,47 +1594,19 @@
         if (triggerField?.validators && triggerField.validators.indexOf('js_validate') !== -1) {
           let validate = await this.evalValidate(this.serviceName, column, fieldModel, this.appName)
         }
-        if (triggerField?.moreConfig?.fkInitData && fieldModel[triggerField.column] && Array.isArray(this
-            .childService)) {
-          let fkInitData = triggerField.moreConfig.fkInitData
-          if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
-            Object.keys(fkInitData).forEach(key => {
-              if (Array.isArray(fkInitData[key]) && fkInitData[key].length > 0) {
-                let childIndex = this.childService.findIndex(item => item.foreign_key
-                  ?.constraint_name === key)
-                if (childIndex > -1) {
-                  let arr = []
-                  arr = fkInitData[key].map(item => {
-                    let strItem = JSON.stringify(item);
-                    let data = {
-                      mainData: this.mainData
-                    }
-                    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
-                      "YYYY-MM-DD"))
-                    strItem = this.renderStr(strItem, data)
-                    item = JSON.parse(strItem)
-                    if (this.fkInitVal && this.fkInitVal[key]) {
-                      let fkInitVal = this.fkInitVal[key]
-                      Object.keys(fkInitVal).forEach(initKey => {
-                        if (!item[initKey] && fkInitVal[initKey] &&
-                          typeof fkInitVal[initKey] ===
-                          'string') {
-                          item[initKey] = this.renderStr(fkInitVal[
-                            initKey], data) || item[initKey]
-                        }
-                      })
-                    }
-                    item._type = 'initData'
-                    return item
-                  })
-                  if (arr.length > 0) {
-                    this.$refs.childList[childIndex].setInitData(arr)
-                  }
-                }
-              }
-            })
-          }
+        if (this.srvType == 'add' && typeof this.moreConfig?.fkTemplate == 'object' && Object.keys(this.moreConfig
+            ?.fkTemplate).length > 0) {
+          Object.keys(this.moreConfig?.fkTemplate).forEach(key => {
+            if (this.moreConfig?.fkTemplate[key]?.trigger && this.moreConfig?.fkTemplate[key]?.trigger.indexOf(
+                triggerField.column) > -1) {
+              // 相关字段值改变  改变初始值
+              this.setInitChildData(triggerField?.moreConfig)
+            }
+          })
+        }else{
+          this.setInitChildData(triggerField?.moreConfig)
         }
+        
       },
 
       toPages(type, e) {
@@ -1637,7 +1716,6 @@
         }
         this[`${this.srvType}V2`] = colVs
 
-
         if (['update', 'add'].includes(this.srvType)) {
           await this.getDetailV2(colVs.select_service_name)
         }
@@ -1731,7 +1809,7 @@
           case 'add':
             if (!this.mainData) {
               this.mainData = {
-                ...this.storeInfo
+                // ...this.storeInfo
               }
             }
 
@@ -1851,6 +1929,10 @@
               }
             }
           }
+        }
+        this.mainData = defaultVal
+        if (this.srvType == 'add' && this.moreConfig) {
+          this.setInitChildData(this.moreConfig)
         }
 
         // #ifdef MP-WEIXIN

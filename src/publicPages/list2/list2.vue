@@ -916,7 +916,6 @@
       },
       getListWithFilter(e) {
         let self = this
-        debugger
         let tabsConds = this.$refs.filterTabs.buildConditions(true)
         this.relationCondition = tabsConds?.relation_condition
         this.filterVal = tabsConds?.value

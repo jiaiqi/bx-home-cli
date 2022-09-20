@@ -398,7 +398,6 @@
       },
       pickerChange(val, e) {
         this.formModel[this.setTabs[this.curTag].list_tab_no].value = val
-
         const list_tab_no = this.setTabs[this.curTag].list_tab_no
         this.clearRelationVal(list_tab_no)
         this.radioChange(val, e)
@@ -550,19 +549,6 @@
             if (item.showAllTag == true) {
               let srvInfo = item?.more_config?.srvInfo
               if (srvInfo?.serviceName) {
-                // {
-                //     "refed_col": "name",
-                //     "srv_app": "park",
-                //     "serviceName": "srvpark_city_select",
-                //     "conditions": [
-                //         {
-                //             "colName": "area_type",
-                //             "ruleType": "in",
-                //             "value": "'省,直辖市'"
-                //         }
-                //     ],
-                //     "key_disp_col": "name"
-                // }
                 let req = {
                   serviceName: srvInfo.serviceName,
                   colNames: ['*'],
@@ -641,9 +627,7 @@
               return citem
             }
           })
-
         }
-        // console.log('e',e)
       },
       onReset() {
         this.onBuildFormValues()
@@ -854,25 +838,12 @@
               }
               relation.data.push(self.deepClone(colData))
 
-              // relation.data.push({
-              //   colName: condsModel[tabs[i]].colName[0],
-              //   ruleType: 'like',
-              //   value: value
-              // })
-
-              // if (this.fkFieldLabel) {
-              //   relation.data.push({
-              //     colName: condsModel[tabs[i]].colName[0],
-              //     ruleType: 'like',
-              //     value: this.fkFieldLabel
-              //   })
-              // }
 
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
               // let rt = 
               let val = condsModel[tabs[i]].value
-              if(typeof val === 'string'){
+              if (typeof val === 'string') {
                 val = val.split(',')
               }
               if (Array.isArray(val)) {
@@ -883,10 +854,9 @@
                     }
                   })
                   relation.relation = 'OR'
-                  console.log(tags, rt, val, j, condsModel);
                   colData.colName = condsModel[tabs[i]].colName[0]
-                  colData.ruleType = rt?.ruleType
-                  colData.value = rt?.value
+                  colData.ruleType = rt?.ruleType || 'like'
+                  colData.value = rt?.value || ''
                   relation.data.push(self.deepClone(colData))
                 }
               }
