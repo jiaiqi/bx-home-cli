@@ -872,17 +872,23 @@
               let tags = condsModel[tabs[i]].tags
               // let rt = 
               let val = condsModel[tabs[i]].value
-              for (let j = 0; j < val.length; j++) {
-                let rt = tags.filter((item) => {
-                  if (item.value === val[j]) {
-                    return item
-                  }
-                })
-                relation.relation = 'OR'
-                colData.colName = condsModel[tabs[i]].colName[0]
-                colData.value = val[j]
-                colData.ruleType = rt[0].ruleType
-                relation.data.push(self.deepClone(colData))
+              if(typeof val === 'string'){
+                val = val.split(',')
+              }
+              if (Array.isArray(val)) {
+                for (let j = 0; j < val.length; j++) {
+                  let rt = tags.find((item) => {
+                    if (item.value === val[j]) {
+                      return true
+                    }
+                  })
+                  relation.relation = 'OR'
+                  console.log(tags, rt, val, j, condsModel);
+                  colData.colName = condsModel[tabs[i]].colName[0]
+                  colData.ruleType = rt?.ruleType
+                  colData.value = rt?.value
+                  relation.data.push(self.deepClone(colData))
+                }
               }
             }
 
@@ -1034,6 +1040,7 @@
       font-size: 14px;
       background-color: #f8f8fa;
       border: 1px solid #f1f1f1;
+
       &:nth-child(1),
       &:nth-child(2),
       &:nth-child(3),
