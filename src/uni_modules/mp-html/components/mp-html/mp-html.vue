@@ -376,6 +376,7 @@ export default {
           this.$emit('imgtap', message.attrs)
           if (this.previewImg) {
             uni.previewImage({
+              showmenu:false,
               current: parseInt(message.attrs.i),
               urls: this.imgList
             })

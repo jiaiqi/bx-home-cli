@@ -1239,6 +1239,7 @@
         console.log('---------预览');
         let arr = [url];
         uni.previewImage({
+          showmenu:false,
           urls: arr
         });
       },

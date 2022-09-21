@@ -317,6 +317,7 @@
       },
       previewImage() {
         uni.previewImage({
+          showmenu:false,
           urls: [this.groupQrCode],
           longPressActions: {
             itemList: ['发送给朋友', '保存图片', '收藏'],

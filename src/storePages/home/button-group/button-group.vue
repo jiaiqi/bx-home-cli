@@ -401,6 +401,7 @@
       previewImage(base64) {
         // 预览图片
         uni.previewImage({
+          showmenu:false,
           urls: [base64]
         })
       },

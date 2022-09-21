@@ -302,6 +302,7 @@
 							_ts.$emit('imgtap', this);
 							if (preview) {
 								uni.previewImage({
+                  showmenu:false,
 									current: this.i,
 									urls: _ts.imgList
 								});
@@ -573,6 +574,7 @@
 						this.$emit('imgtap', d.img);
 						if (preview)
 							uni.previewImage({
+                showmenu:false,
 								current: d.img.i,
 								urls: this.imgList
 							})

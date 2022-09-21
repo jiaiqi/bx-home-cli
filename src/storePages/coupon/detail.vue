@@ -113,7 +113,7 @@
 
     <view class="bottom-btn" v-if="cardInfo&&['套餐卡','提货卡'].includes(cardInfo.card_type)&&cardInfo.use_states==='使用中'">
       <button class="cu-btn bg-blue shadow-blur lg round" @click="toHexiao">核销</button>
-      <button class="cu-btn bg-blue shadow-blur lg round" @click="showQrcode">核销码</button>
+      <button class="cu-btn bg-blue shadow-blur lg round" @click="showQrcode" v-if="showVerificationCode!=='否'">核销码</button>
     </view>
     <view class="bottom-btn" v-else-if="cardInfo.use_states==='未激活'">
       <button class="cu-btn bg-blue shadow-blur lg round" :data-item="cardInfo"
@@ -164,6 +164,7 @@
         codeSize: uni.upx2px(750),
         qrcodePath: "",
         qrCodeText: "",
+        showVerificationCode: '是'
       }
     },
     computed: {
@@ -511,7 +512,9 @@
       //#endif
       if (option.appName) {
         this.appName = option.appName
-
+      }
+      if (option.showVerificationCode) {
+        this.showVerificationCode = option.showVerificationCode
       }
       if (option.buttons) {
         try {

@@ -519,6 +519,7 @@ export default {
 			if (!this.previewFullImage) return;
 			const images = this.lists.map(item => item.url || item.path);
 			uni.previewImage({
+        showmenu:false,
 				urls: images,
 				current: url,
 				success: () => {

@@ -180,6 +180,7 @@
 						var urls = this.top.imgList,
 							current = urls[attrs.i] ? parseInt(attrs.i) : (urls = [attrs.src], 0);
 						uni.previewImage({
+              showmenu:false,
 							current,
 							urls
 						})

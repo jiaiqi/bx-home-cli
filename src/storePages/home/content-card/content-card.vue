@@ -102,6 +102,7 @@
       toPreview(e) {
         this.loadImages(e).then(res => {
           uni.previewImage({
+            showmenu:false,
             urls: res
           })
         })

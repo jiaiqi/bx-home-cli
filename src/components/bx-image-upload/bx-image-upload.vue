@@ -685,6 +685,7 @@
         uni.previewImage({
           urls: images,
           current: url,
+          showmenu:false,
           success: () => {
             this.$emit('on-preview', url, this.lists, this.index);
           },

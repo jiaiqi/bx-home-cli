@@ -887,6 +887,7 @@ export default {
         return url.replace(/&thumbnailType=fwsu_100/gi, '');
       });
       uni.previewImage({
+        showmenu:false,
         urls,
         current,
         longPressActions: {

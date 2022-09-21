@@ -671,6 +671,7 @@
             case 'jpg':
             case 'png':
               uni.previewImage({
+                showmenu:false,
                 urls: [e._fileurl]
               })
               break;
@@ -873,12 +874,13 @@
         });
         uni.previewImage({
           urls: urls,
-          longPressActions: {
-            itemList: ['发送给朋友', '保存图片', '收藏'],
-            success: function(data) {
-              console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
-            }
-          }
+          showmenu:false,
+          // longPressActions: {
+          //   itemList: ['发送给朋友', '保存图片', '收藏'],
+          //   success: function(data) {
+          //     console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
+          //   }
+          // }
         });
       },
       async getLocation() {

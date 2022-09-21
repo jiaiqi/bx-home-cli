@@ -218,6 +218,7 @@ export default {
       // 自动预览图片
       if (this.root.previewImg) {
         uni.previewImage({
+          showmenu:false,
           current: parseInt(node.attrs.i),
           urls: this.root.imgList
         })

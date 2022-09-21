@@ -314,6 +314,7 @@
       previewImage: function(e) {
         var imageIndex = e.currentTarget.dataset.index;
         uni.previewImage({
+          showmenu:false,
           current: this.imageListData[imageIndex],
           indicator: 'number',
           loop: 'true',

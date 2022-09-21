@@ -105,7 +105,8 @@
         })
       },
       toCardList() {
-        let url = `/storePages/coupon/coupon?destApp=health&serviceName=srvhealth_store_card_case_select`
+        let url =
+          `/storePages/coupon/coupon?destApp=health&serviceName=srvhealth_store_card_case_select&showVerificationCode=${this.pageItem.show_verification_code}`
         uni.navigateTo({
           url
         })
@@ -188,9 +189,10 @@
 
     &.ck {
       min-height: 130px;
-      background: linear-gradient(to bottom, #FFEAC6, #FEEED2 80%,#F9F9FA);
+      background: linear-gradient(to bottom, #FFEAC6, #FEEED2 80%, #F9F9FA);
       padding: 0 10px;
-      .left{
+
+      .left {
         align-items: center;
       }
     }

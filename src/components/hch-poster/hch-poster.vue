@@ -332,7 +332,7 @@
               })
               uni.hideLoading()
             }
-          },
+          },_this
         )
         // #endif
         // #ifdef MP-ALIPAY
@@ -377,7 +377,7 @@
               })
               uni.hideLoading()
             }
-          },
+          },_this
         )
         // #endif
       },

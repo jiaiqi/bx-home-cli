@@ -42,7 +42,7 @@
             </view>
           </view>
         </view>
-        <view class="empty-box"  v-if="loadStatus==='noMore'&&list.length==0">
+        <view class="empty-box" v-if="loadStatus==='noMore'&&list.length==0">
           <u-empty text="列表为空" mode="list"></u-empty>
         </view>
       </radio-group>
@@ -73,7 +73,8 @@
         condition: [],
         emitId: "",
         selectedId: '',
-        loadStatus: 'loading'
+        loadStatus: 'loading',
+        showVerificationCode: '是',
       }
     },
     computed: {
@@ -241,7 +242,7 @@
             ruleType: 'eq'
           }]
           let url =
-            `./detail?type=detail&serviceName=${this.serviceName}&cond=${JSON.stringify(cond)}&appName=health&style=${JSON.stringify(style)}&rightTemp=${JSON.stringify(this.rightTemp)}&rightTopBadgeCol=${this.rightTopBadgeCol}`
+            `./detail?type=detail&serviceName=${this.serviceName}&cond=${JSON.stringify(cond)}&showVerificationCode=${this.showVerificationCode}&appName=health&style=${JSON.stringify(style)}&rightTemp=${JSON.stringify(this.rightTemp)}&rightTopBadgeCol=${this.rightTopBadgeCol}`
           if (Array.isArray(this.buttons) && this.buttons.length > 0) {
             url += `&buttons=${JSON.stringify(this.buttons)}`
           }
@@ -385,7 +386,7 @@
             title: colVs.service_view_name
           });
         }
-        if(!colVs){
+        if (!colVs) {
           return
         }
         console.log('colVs', colVs);
@@ -423,6 +424,9 @@
     },
 
     onLoad(option) {
+      if (option.showVerificationCode == '否') {
+        this.showVerificationCode = option.showVerificationCode
+      }
       if (option.mode) {
         this.mode = option.mode
       }
@@ -492,9 +496,10 @@
   .coupon-list {
     padding: 10px;
     min-height: 80vh;
-    .empty-box{
+
+    .empty-box {
       width: 100vw;
-      height:80vh;
+      height: 80vh;
       display: flex;
       align-items: center;
       justify-content: center;
