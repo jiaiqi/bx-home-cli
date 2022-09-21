@@ -197,10 +197,10 @@
           </view>
           <view class="foot-button-box wrap-row"
             v-else-if="disabledEvaluate!==true&&showEvaluate&&mainData&&mainData.order_no &&rowData.goods_no&&mainData.pay_state&&rowData.is_remark&&mainData.order_state==='已完成'">
-            <button class="cu-btn round sm border"
+            <button class="cu-btn round  border line-orange"
               v-if="disabledEvaluate!==true&&mainData.order_state==='已完成'&&rowData.is_remark=='待评价'&&mainData.pay_state==='已支付'"
               @click.stop="toEvaluate">评价</button>
-            <button class="cu-btn round sm border" v-if="rowData.is_remark!='待评价'"
+            <button class="cu-btn round  border" v-if="rowData.is_remark!='待评价'"
               @click.stop="toEvaluate('detail')">查看评价</button>
           </view>
           <view class="foot-button-box" :class="{'wrap-row':!setListView.btnWrapRow||setListView.btnWrapRow!==false}"
@@ -862,6 +862,12 @@
           if (!obj.value && obj.value !== 0 && cfg?.show_null !== true) {
             obj.class += ' hidden';
           }
+     
+          if (obj.value == 0 && cfg?.show_zero !== true) {
+            obj.class += ' hidden';
+            obj.style.display = 'none'
+          }
+          
           if (col.type === 'childData') {
             obj = col;
             obj.style = {

@@ -22,10 +22,10 @@
         </view>
         <view class="" v-if="orderInfo&&orderInfo.order_no">
           <!-- <button class="cu-btn round sm margin-right-xs" @click="toAfterSale" v-if="showButton('退款')">退款</button> -->
-          <button class="cu-btn round sm border"
+          <button class="cu-btn round line-orange border"
             v-if="disabledEvaluate!==true&&orderInfo&&orderInfo.order_state==='已完成'&& goods.is_remark=='待评价'&&goods.pay_state==='已支付'"
             @click="toEvaluate">评价</button>
-          <button class="cu-btn round sm border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'"
+          <button class="cu-btn round line-orange border" v-if="disabledEvaluate!==true&&goods.is_remark!='待评价'"
             @click="toEvaluate('detail')">查看评价</button>
         </view>
       </view>
@@ -143,7 +143,7 @@
         if (this.goods.return_num) {
           goods.goods_amount = goods.goods_amount - this.goods.return_num
         }
-        
+
 
         if (!goods.goods_amount || goods.goods_amount < 1) {
           uni.showModal({

@@ -1600,7 +1600,7 @@
             if (this.moreConfig?.fkTemplate[key]?.trigger && this.moreConfig?.fkTemplate[key]?.trigger.indexOf(
                 triggerField.column) > -1) {
               // 相关字段值改变  改变初始值
-              this.setInitChildData(triggerField?.moreConfig)
+              this.setInitChildData(this.moreConfig)
             }
           })
         }else{

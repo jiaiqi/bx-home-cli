@@ -5,7 +5,7 @@
         <view class="top">
           <view class="left">
             <view class="name">
-              {{mainData.person_name||'陈阿姨'}}
+              {{mainData.person_name||'-'}}
             </view>
             <view class="golden">
               年龄：{{mainData.age||' - '}}岁
@@ -49,7 +49,7 @@
         自我介绍
       </view>
       <view class="tags-box" v-if="tags&&tags.length>0">
-        <view class="cu-btn round sm margin-right-xs" v-for="item in tags">
+        <view class="cu-btn round sm margin-right-xs margin-bottom-xs" v-for="item in tags">
           {{item}}
         </view>
       </view>
@@ -96,6 +96,9 @@
         <view class="title text-white">
           专业证件
         </view>
+        <view class="text-center text-sm">
+          联系客服可获取资质证件
+        </view>
         <view class="card-list">
           <view class="card-item" v-for="item in certList" @click="openCert(item)">
             <text class="cuIcon-card margin-right-xs"></text><text>{{item.documents_name}}</text>
@@ -126,7 +129,7 @@
           </view> -->
         </view>
       </view>
-      <view class="list-card" v-if="skillList&&skillList.length>0">
+<!--      <view class="list-card" v-if="skillList&&skillList.length>0">
         <view class="card-title">
           <view class="title">
             服务技能
@@ -140,7 +143,7 @@
             {{item.skill_name||''}}
           </view>
         </view>
-      </view>
+      </view> -->
     </view>
 
     <view class="content-box bg-white" style="background-color: #FD7E90;color: #Fff;"
@@ -385,7 +388,7 @@
             if (this.mainData.service_no) {
               this.getCert()
               this.getServiceList()
-              this.getSkillList()
+              // this.getSkillList()
               this.getGoods()
             }
             if (this.mainData.service_image) {

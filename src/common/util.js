@@ -1982,7 +1982,8 @@ export default {
           let result = obj[key]
           if (key === 'today') {
             result = dayjs().format("YYYY-MM-DD")
-          }
+          } 
+          
           let arr = key.split('.')
           if (arr.length > 1) {
             result = obj

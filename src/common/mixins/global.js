@@ -85,16 +85,20 @@ export default {
         ...this.globalVariable,
         ...obj
       }
-      if (typeof obj === 'object' && str && typeof str === 'string') {
-        str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
-          key = key.trim()
-          let result = obj[key]
-          if (key === 'today') {
-            result = dayjs().format("YYYY-MM-DD")
-          }
+      
+      const buildResult = (key, result) => {
+        if (key && key.indexOf('||') !== -1) {
+          let arr = key.split('||')
+          console.log(arr);
+          result = arr.reduce((pre, cur) => {
+            if (!pre) {
+              pre = buildResult(cur, result)
+            }
+            return pre
+          }, '')
+        } else {
           let arr = key.split('.')
           if (arr.length > 1) {
-            result = obj
             arr.forEach(item => {
               try {
                 result = result[item] ?? '';
@@ -106,6 +110,36 @@ export default {
               }
             })
           }
+        }
+        return result
+      
+      }
+      
+      
+      if (typeof obj === 'object' && str && typeof str === 'string') {
+        str = str.replace(/\$\{(.*?)\}/g, (match, key) => {
+          key = key.trim()
+          let result = obj[key]
+          if (key === 'today') {
+            result = dayjs().format("YYYY-MM-DD")
+          }else{
+            result = buildResult(key,obj)
+          }
+
+          // let arr = key.split('.')
+          // if (arr.length > 1) {
+          //   result = obj
+          //   arr.forEach(item => {
+          //     try {
+          //       result = result[item] ?? '';
+          //       if (result === 0) {
+          //         result = '0'
+          //       }
+          //     } catch (e) {
+          //       //TODO handle the exception
+          //     }
+          //   })
+          // }
           return result
         })
       }
