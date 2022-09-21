@@ -27,7 +27,7 @@
             属相：{{mainData.sign_of_the_zodiac||'-'}}
           </view>
           <view class="attr-item">
-            服务：{{mainData.service_num||'-'}}户
+            服务：{{mainData.served_num || '-'}}户
           </view>
           <view class="attr-item">
             星座：{{mainData.constellation||'-'}}

@@ -1458,9 +1458,10 @@
           }
         }
       },
-      async setInitChildData(moreConfig = {}) {
+      async setInitChildData(moreConfig = {},hook='value-change') {
 
         let fkInitData = moreConfig?.fkInitData
+    
         let fkTemplate = moreConfig?.fkTemplate
 
         if (fkTemplate) {
@@ -1473,6 +1474,10 @@
             for (let key in fkTemplate) {
               fkInitData[key] = []
               let cfg = fkTemplate[key]
+   
+              if(cfg?.immediate===false&&hook=='on-load'){
+                return
+              }
               let data = await this.getChildTemplateData(cfg)
               if (Array.isArray(data) && data.length > 0) {
                 data = data.map(item => {
@@ -1490,7 +1495,6 @@
             }
           }
         }
-
         if (fkInitData && Array.isArray(this
             .childService)) {
           if (typeof fkInitData === 'object' && Object.keys(fkInitData).length > 0) {
@@ -1932,7 +1936,7 @@
         }
         this.mainData = defaultVal
         if (this.srvType == 'add' && this.moreConfig) {
-          this.setInitChildData(this.moreConfig)
+          this.setInitChildData(this.moreConfig,'on-load')
         }
 
         // #ifdef MP-WEIXIN
