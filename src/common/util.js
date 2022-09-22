@@ -887,7 +887,7 @@ export default {
         return url.replace(/&thumbnailType=fwsu_100/gi, '');
       });
       uni.previewImage({
-        showmenu:false,
+        showmenu: false,
         urls,
         current,
         longPressActions: {
@@ -1782,7 +1782,7 @@ export default {
     }
 
     Vue.prototype.getImagePath = (no, notThumb) => {
-      if (no) {
+      if (no && typeof no === 'string') {
         if ((no.indexOf('http://') !== -1 || no.indexOf('https://') !== -1)) {
           return no
         }
@@ -1983,8 +1983,8 @@ export default {
           let result = obj[key]
           if (key === 'today') {
             result = dayjs().format("YYYY-MM-DD")
-          } 
-          
+          }
+
           let arr = key.split('.')
           if (arr.length > 1) {
             result = obj

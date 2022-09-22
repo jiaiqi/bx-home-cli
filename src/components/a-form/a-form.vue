@@ -438,7 +438,6 @@
           this.allField = this.oldField.map((item, index) => {
             this.$refs.fitem[index].fieldData.value = item.value;
             this.fieldModel[item.columns] = item.value
-            console.log('onReset', item.column, item.value)
             self.$refs.fitem[index]?.$refs?.optionSelector?.onreset?.()
             if (self.pageType === 'filter') {
               if (item.defaultValue) {

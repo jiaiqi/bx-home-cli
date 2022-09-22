@@ -7,7 +7,7 @@
           <input @input="onSearch" type="text" placeholder="搜索" confirm-type="search" />
         </view>
         <text class="cu-btn cuIcon-refresh line-blue shadow round margin-right-xs" @click.stop="refresh"></text>
-        <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click.stop="toFkAdd">
+        <text class="cu-btn cuIcon-add line-blue shadow round margin-right-xs" @click.stop="toFkAdd" v-if="allowAdd">
         </text>
       </view>
       <view class="option-box">
@@ -66,6 +66,10 @@
       allowCanel: {
         type: Boolean,
         default: false
+      },
+      allowAdd: {
+        type: Boolean,
+        default: true
       }
     },
     data() {
@@ -101,7 +105,7 @@
       selectorInput(e) {
         this.otherNodeVal = e?.detail?.value
       },
-      onreset(){
+      onreset() {
         this.curVal = ''
       },
       onChange(e) {

@@ -100,12 +100,29 @@
       },
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
+        
+        if(Array.isArray(this.floatQueryCfg?.use_last_value_cols)&&this.floatQueryCfg?.use_last_value_cols.length>0){
+          this.floatQueryCfg?.use_last_value_cols.forEach(item=>{
+            let cols = item.split(',').reverse()
+            if(cols.length>0){
+              let hasVal = false
+              cols.forEach(col=>{
+                if(model[col]){
+                  if(hasVal){
+                    delete model[col]
+                  }
+                  hasVal = true
+                }
+              })
+            }
+          })
+        }
+        console.log(model);
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
-            model[key] == true)) {
-
-          if (this.addCfg?.send_request) {
-            this.sendAddService(model)
-          }
+            model[key] == true)) { 
+          // if (this.addCfg?.send_request) {
+          //   this.sendAddService(model)
+          // }
 
           let result = []
           this.filterCols = this.filterCols.map((item) => {
@@ -197,26 +214,22 @@
             }
             return res
           }, {})
-          filterCols = filterCols.map(item => {
+          filterCols = filterCols.map((item,index) => {
+            
             item.value = null
             if (item.defaultValue) {
               item.value = item.defaultValue
-            }
-            // if (Array.isArray(item?.option_list_v2?.conditions) && item.option_list_v2
-            //   .conditions
-            //   .length > 0) {
-            //   let data = model || {}
-            //   item.option_list_v2.conditions = this.evalConditions(item.option_list_v2
-            //     .conditions, data)
-            // }
+            } 
+            
             if (['date', 'dateTime', 'time', 'Time', 'Date'].includes(item.type)) {
               item.startVal = ''
               item.endVal = ''
             }
             if (item.type === 'TreeSelector') {
               item.value = ''
-              item.colData = null
+              item.colData = null 
             }
+            this.$refs?.filterForm?.onReset?.()
             return item
           })
           let ignoreType = ['images', 'input', 'text', 'number']

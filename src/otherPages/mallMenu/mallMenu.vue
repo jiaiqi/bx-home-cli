@@ -25,6 +25,10 @@
                     <view class="item-desc " v-if="item1.desc">
                       {{item1.desc}}
                     </view>
+                    <view class="flex justify-between margin-tb-xs text-gray">
+                      <text>销量：{{item1.salesCount}}</text>
+                      <text>浏览数：{{item1.viewsCount}}</text>
+                    </view>
                   </view>
                 </view>
               </view>
@@ -195,6 +199,12 @@
             }
             if (cfg.iconCol && item[cfg.iconCol]) {
               item.icon = this.getImagePath(item[cfg.iconCol])
+            }
+            if (cfg.salesCountCol && item[cfg.salesCountCol]) {
+              item.salesCount = item[cfg.salesCountCol]
+            }
+            if (cfg.viewingCountCol && item[cfg.viewingCountCol]) {
+              item.viewsCount = item[cfg.viewingCountCol]
             }
             return item
           });
