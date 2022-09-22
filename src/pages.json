@@ -804,7 +804,16 @@
           "navigationBarTitleText": "收益明细",
           "enablePullDownRefresh": false
         }
-      }]
+      }    ,{
+                    "path" : "videoPlayer/videoPlayer",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
     }
     //#endif
   ],

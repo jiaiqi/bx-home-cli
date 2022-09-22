@@ -250,7 +250,7 @@
           @touchend="longpressNumEnd">+</view>
       </view>
       <bx-media-upload class="form-item-content_value image" :min-ratio="fieldData.minRatio"
-        :max-ratio="fieldData.maxRatio" :file-no="fieldData.value" :value="imagesUrl" :mediaType="fieldData.mediaType"
+        :max-ratio="fieldData.maxRatio" :file-no="fieldData.value" v-model="imagesUrl" :mediaType="fieldData.mediaType"
         :enable-del="fieldData.disabled ? !fieldData.disabled : true"
         :enable-add="fieldData.disabled ? !fieldData.disabled : true" :server-url="uploadUrl" @delete="deleteImage"
         @add="getImagesInfo" :form-data="uploadFormData" :header="reqHeader" :showUploadProgress="true"

@@ -10,12 +10,12 @@
         <text class="cuIcon-playfill icon" v-if="['mp4'].includes(item.file_type) "
           @click.stop="toOpenVideo(item)"></text>
       </view>
-      <view class="media-select-box" v-for="item in tempFiles" v-if="mediaType">
+      <!--    <view class="media-select-box" v-for="item in tempFiles" v-if="mediaType">
         <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
         <image class="media" :src="item.thumbTempFilePath" mode="aspectFill" v-else-if="item.fileType==='video'">
         </image>
         <text class="cuIcon-playfill icon" v-if="item.fileType==='video'" @click.stop="toOpenVideo(item)"></text>
-      </view>
+      </view> -->
       <view class="file-list" v-else>
         <view class="file" v-for="(item,index) in tempFiles">
           <text class="cuIcon-file"></text>
@@ -93,6 +93,9 @@
         } = e;
         tempFilePath = tempFilePath || e.fileUrl
         if (tempFilePath) {
+          // uni.navigateTo({
+          //   url: `/pages/h5/videoPlayer/videoPlayer?url=${encodeURIComponent(tempFilePath)}`
+          // })
           uni.navigateTo({
             url: `/otherPages/tVideoPlayer/tVideoPlayer?src=${encodeURIComponent(tempFilePath)}`
           })
@@ -166,6 +169,10 @@
             for (let i = 0; i < result.length; i++) {
               try {
                 result[i] = JSON.parse(result[i])
+                if (result[i].fileurl) {
+                  result[i].fileUrl =
+                    `${_self.$api.getFilePath}${result[i].fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+                }
               } catch (e) {
                 //TODO handle the exception
               }
@@ -283,16 +290,16 @@
             maxDuration: 30,
             camera: 'back',
             success(res) {
-              
+
               console.log(res.type) // 文件类型，有效值有 image 、video、mix
               console.log(res.tempFiles) // 文件类型，有效值有 image 、video、mix
-              
+
               if (Array.isArray(res.tempFiles) && res.tempFiles.length > 0) {
-                
+
                 if (res.tempFiles[0]?.width && res.tempFiles[0]?.height) {
-                  
+
                   let ratio = res.tempFiles[0]?.width / res.tempFiles[0]?.height
-                  
+
                   if (self.minRatio && self.minRatio > ratio) {
                     uni.showModal({
                       title: '提示',
