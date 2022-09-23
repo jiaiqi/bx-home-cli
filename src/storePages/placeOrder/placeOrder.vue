@@ -245,6 +245,7 @@
         <text v-if="pay_method">确认核销</text>
         <text v-else> 提交订单</text>
       </button>
+      <!-- #ifdef MP-WEIXIN -->
       <button class="cu-btn bg-gradual-orange round" :disabled="isLoadingCols==true" @click="toPay(true)" v-if="orderInfo.pay_state&&orderInfo.order_state!=='待提交'&&orderInfo.order_state!=='取消订单'&&
             ['取消支付','待支付'].includes(orderInfo.pay_state)&&payMode !== 'coupon'&&!onPay
           ">
@@ -254,6 +255,7 @@
         v-if="showButton('退款')">
         退款
       </button>
+      <!-- #endif -->
     </view>
     <view class="cu-modal bottom-modal" :class="{
        show: modalName === 'Selector'
@@ -609,7 +611,7 @@
             }, {})
             return obj
           })
-          
+
           const url =
             `https://login.100xsys.cn/health/#/pages/h5/afterSale/afterSale?user_no=${this.userInfo.userno}&no=${this.orderInfo?.order_no}&amount=${this.orderInfo.order_pay_amount}&storeUserNo=${this.vstoreUser.store_user_no}&goodsList=${JSON.stringify(goodsList)}`
 
@@ -1473,20 +1475,25 @@
             ruleType: 'eq',
             value: this.orderInfo.order_no
           }],
-          data: [{
-            pay_state: pay_state
-          }]
+          data: []
         }];
+        // if (pay_state) {
+        //   req[0].data[0].pay_state = pay_state
+        // }
 
-        if (order_state) {
-          req[0].data[0].order_state = order_state
-        }
+        // if (order_state) {
+        //   req[0].data[0].order_state = order_state
+        // }
 
         if (prepay_id) {
-          req[0].data[0].prepay_id = prepay_id
+          req[0].data[0] = {
+            prepay_id: prepay_id
+          }
         }
-
-        // await this.$fetch('operate', serviceName, req, 'health')
+        if (!prepay_id) {
+          return
+        }
+        await this.$fetch('operate', serviceName, req, 'health')
 
         // 支付成功后修改订单状态和支付状态
         await this.getOrderInfo()
@@ -1791,6 +1798,8 @@
               // await this.clearOrderCartGoods(ids)
             }
           }
+
+
           const orderData = await this.getOrderInfo()
           uni.$emit('goods-cart-change')
           this.getSrvCols('add', 'detail')
@@ -1805,6 +1814,13 @@
               if (!payRes) {
                 return
               }
+              // #endif
+              // #ifdef H5
+              uni.showModal({
+                title: '提示',
+                content: '下单成功，请在小程序端进行支付',
+                showCancel: false
+              })
               // #endif
               this.onPay = false
 
@@ -1981,10 +1997,14 @@
           }
           result = await this.toPlaceOrder(totalMoney * 100, this.loginUserInfo?.login_user_type,
             orderData, this.wxMchId, goodsName, profit_sharing);
+          if (result?.prepay_id) {
+            self.updateOrderState('', '', result.prepay_id).then(_ => {
+              resolve(false)
+            })
+          }
         }
         if (result && result.prepay_id) {
           let res = await this.getPayParams(result.prepay_id, this.wxMchId);
-
           let payResult = await new Promise((resolve) => {
             wx.requestPayment({
               timeStamp: res.timeStamp.toString(),

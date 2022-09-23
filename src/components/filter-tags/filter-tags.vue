@@ -272,6 +272,9 @@
           const keys = Object.keys(this.formModel)
           if (keys.length > 0) {
             keys.forEach(key => {
+              if(Array.isArray(this.formModel[key]?.colName)&&this.formModel[key]?.colName.length>0){
+                data[this.formModel[key]?.colName[0]] = this.formModel[key].value
+              }
               data[key] = this.formModel[key].value
             })
           }
