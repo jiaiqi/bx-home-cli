@@ -94,7 +94,6 @@
       }, {})
       this.oldFieldModel = this.deepClone(oldFieldModel)
       this.fieldModel = this.deepClone(oldFieldModel)
-      console.error('form load')
     },
     computed: {
       showSectionName() {

@@ -262,7 +262,7 @@
         let globalData = getApp().globalData
         let appName = self.srvInfo?.srv_app || self.srvApp || uni.getStorageSync(
           'activeApp');
-
+        debugger
         if (cond && Array.isArray(cond)) {
           req.condition = cond;
         } else if (self.srvInfo && Array.isArray(self.srvInfo.conditions) &&
@@ -272,13 +272,15 @@
           const keys = Object.keys(this.formModel)
           if (keys.length > 0) {
             keys.forEach(key => {
-              if(Array.isArray(this.formModel[key]?.colName)&&this.formModel[key]?.colName.length>0){
-                data[this.formModel[key]?.colName[0]] = this.formModel[key].value
-              }
+              // if(Array.isArray(this.formModel[key]?.colName)&&this.formModel[key]?.colName.length>0){
+              //   data[this.formModel[key]?.colName[0]] = this.formModel[key].value
+              // }
+              console.log('key', key, data);
               data[key] = this.formModel[key].value
             })
           }
-
+          console.log(this.formModel);
+          debugger
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
               if (item.value.indexOf('top.user.user_no') !== -1) {
