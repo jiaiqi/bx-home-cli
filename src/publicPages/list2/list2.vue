@@ -916,7 +916,7 @@
       },
       getListWithFilter(e) {
         let self = this
-        let tabsConds = this.$refs.filterTabs.buildConditions(true)
+        let tabsConds = this.$refs.filterTabs.buildConditions(true,this.colV2?.moreConfig?.filter_tags_cfg)
         this.relationCondition = tabsConds?.relation_condition
         this.filterVal = tabsConds?.value
         setTimeout(() => {

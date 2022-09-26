@@ -811,7 +811,10 @@
           });
           this.StoreInfo = res.data[0];
           if (this.StoreInfo?.style_no) {
-            this.getThemeCfg(this.StoreInfo?.style_no)
+            if(forceUpdate||this.themeConfig?.style_no!==this.StoreInfo?.style_no){
+              // 强制更新 或者切换店铺后 才会重新查找主题配置
+              this.getThemeCfg(this.StoreInfo?.style_no)
+            }
           } else {
             this.$store.commit('SET_THEME_CFG', null)
           }

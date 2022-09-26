@@ -1434,11 +1434,14 @@
         app = app || uni.getStorageSync('activeApp')
         if (app && service) {
           if (Array.isArray(condition) && condition.length > 0) {
-            condition = condition.map(item => {
-              item.value = this.renderStr(item.value, {
+            condition = this.deepClone(condition)
+            const globalVariable = {
                 ...this.globalVariable,
-                data: this.mainData
-              })
+                data: this.mainData,
+                mainData:this.mainData
+              }
+            condition = condition.map(item => {
+              item.value = this.renderStr(item.value,globalVariable )
               return item
             })
           }
@@ -1486,10 +1489,17 @@
                       item[key] = this.renderStr(cfg?.defaultValue[key], globalVariable)
                     })
                   }
+                  if (cfg?.excludeCols&& Array.isArray(cfg?.excludeCols)&&cfg?.excludeCols.length > 0) {
+                    cfg?.excludeCols.forEach(key=>{
+                      delete item[key] 
+                    })
+                  }
                   item["_isMemoryData"] = true
                   item["_dirtyFlags"] = "add"
                   return item
                 })
+              }else{
+                data = []
               }
               fkInitData[key] = data
             }
@@ -1527,7 +1537,7 @@
                     item._type = 'initData'
                     return item
                   })
-                  if (arr.length > 0) {
+                  if (Array.isArray(arr)) {
                     this.$refs.childList[childIndex].setInitData(arr)
                   }
                 }

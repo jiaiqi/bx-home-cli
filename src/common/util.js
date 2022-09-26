@@ -1603,7 +1603,10 @@ export default {
       }
       // 登录 查找基本信息
       // return
-      let data = await selectPersonInfo()
+      let data = {}
+      if(true){
+       data =  await selectPersonInfo()
+      }
 
       let wxUserInfo = ''
       if (store && store.state && store.state.user) {

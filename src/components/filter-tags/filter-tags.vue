@@ -262,7 +262,6 @@
         let globalData = getApp().globalData
         let appName = self.srvInfo?.srv_app || self.srvApp || uni.getStorageSync(
           'activeApp');
-        debugger
         if (cond && Array.isArray(cond)) {
           req.condition = cond;
         } else if (self.srvInfo && Array.isArray(self.srvInfo.conditions) &&
@@ -280,7 +279,6 @@
             })
           }
           console.log(this.formModel);
-          debugger
           condition = condition.map(item => {
             if (typeof item.value === 'string' && item.value) {
               if (item.value.indexOf('top.user.user_no') !== -1) {
@@ -492,7 +490,7 @@
             // this.$nextTick(_ => {
             //   this.$refs?.treeSelector?.getData?.()
             // })
-          } else if (this.setTabs[index]._type === 'fk') {
+          } else if (this.setTabs[index]?._type === 'fk') {
             this.getSelectorData()
           } else {
             this.curTagButtons = tag?.options
@@ -749,13 +747,14 @@
           })
         })
       },
-      buildConditions(returnVal = false) {
+      buildConditions(returnVal = false, filterTagsCfg) {
         let self = this
         let condsModel = self.formModel
         let relation_Conditions = {
           "relation": "AND",
           "data": []
         }
+
         let tabs = Object.keys(condsModel)
 
         let colData = {}
@@ -785,6 +784,7 @@
               relation.data = []
               let values = condsModel[tabs[i]].inputType === 'Date' || condsModel[tabs[i]].inputType === 'DateTime' ?
                 self.formatDateValues(condsModel[tabs[i]].value) : condsModel[tabs[i]].value
+
               for (let v = 0; v < values.length; v++) {
                 child_relation = {
                   "relation": "AND",
@@ -831,19 +831,20 @@
               } else if (Array.isArray(condsModel[tabs[i]].value) && condsModel[tabs[i]].value.length > 0) {
                 value = condsModel[tabs[i]].value.join(",")
               }
-              relation.relation = 'OR'
 
+              relation.relation = 'OR'
               colData.colName = condsModel[tabs[i]].colName[0]
               colData.value = value
+
               // colData.ruleType = "in"
               if (value && value.indexOf(',') !== -1) {
                 colData.ruleType = "in"
               } else {
                 colData.ruleType = "like"
               }
-              relation.data.push(self.deepClone(colData))
 
-
+              // relation.data.push(self.deepClone(colData))
+              relation_Conditions.data.push(self.deepClone(colData))
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
               // let rt = 
@@ -873,6 +874,7 @@
               "relation": "OR",
               "data": []
             }
+            console.log(condsModel[tabs[i]].colName);
             for (let col = 0; col < condsModel[tabs[i]].colName.length; col++) {
               colData.colName = condsModel[tabs[i]].colName[col]
               colData.value = condsModel[tabs[i]].value
@@ -883,12 +885,28 @@
               }
               relation.data.push(self.deepClone(colData))
             }
+          } else if (!condsModel[tabs[i]].value) {
+            console.log(condsModel[tabs[i]]);
+            if (Array.isArray(relation_Conditions?.data) && relation_Conditions.data.length > 0 && Array.isArray(
+                filterTagsCfg?.strictTags) && filterTagsCfg?.strictTags.length > 0) {
+              // 严格匹配模式
+              const colName = condsModel[tabs[i]].colName[0]
+              if (filterTagsCfg?.strictTags.indexOf(colName) !== -1){
+                relation_Conditions.data.push({
+                  colName,
+                  ruleType: 'notnull',
+                  value: ''
+                })
+              }
+                
+            }
           }
 
           if (relation.data.length !== 0) {
             relation_Conditions.data.push(self.deepClone(relation))
           }
         }
+
         if (returnVal == true) {
           return {
             relation_condition: relation_Conditions,
