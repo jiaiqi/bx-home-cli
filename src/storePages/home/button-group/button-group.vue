@@ -456,6 +456,9 @@
               if (res.statusCode === 200) {
                 resolve(res.tempFilePath)
               }
+            },
+            fail: () => {
+              resolve(url)
             }
           });
           // #endif

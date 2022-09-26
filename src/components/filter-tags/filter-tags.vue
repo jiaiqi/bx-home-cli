@@ -888,7 +888,7 @@
           } else if (!condsModel[tabs[i]].value) {
             console.log(condsModel[tabs[i]]);
             if (Array.isArray(relation_Conditions?.data) && relation_Conditions.data.length > 0 && Array.isArray(
-                filterTagsCfg?.strictTags) && filterTagsCfg?.strictTags.length > 0) {
+                filterTagsCfg?.strictTags) && filterTagsCfg?.strictTags.length > 1) {
               // 严格匹配模式
               const colName = condsModel[tabs[i]].colName[0]
               if (filterTagsCfg?.strictTags.indexOf(colName) !== -1){
