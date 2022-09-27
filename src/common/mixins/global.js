@@ -169,6 +169,7 @@ export default {
       })
     },
     openDocument(e) {
+      debugger
       if (e) {
         let path = this.getImagePath(e, true)
         // #ifdef MP-WEIXIN
@@ -224,7 +225,7 @@ export default {
     },
     getUserImage() {
       // 获取用户头像
-      let img = this.userInfo?.user_image || this.userInfo.profile_url || '20220728150847232100';
+      let img = this.userInfo.profile_url ||this.userInfo?.user_image  || '20220728150847232100';
       return this.getImagePath(img, true)
     },
     async unbindWxUser() {

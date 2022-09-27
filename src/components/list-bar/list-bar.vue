@@ -8,12 +8,12 @@
           :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
       </view>
       <view class="action">
-        <button class="cu-btn bg-white shadow-blur " @click="toSearch"
+        <button class="cu-btn round  light  " @click="toSearch"
           v-if="gridButtonDisp&&gridButtonDisp.refresh!==false">
           <text class="cuIcon-search" v-if="searchVal"></text>
           <text class="cuIcon-refresh" v-else></text>
         </button>
-        <button v-if="sysModel!=='PC'" class="cu-btn bg-white margin-left-xs round" @click="clickGridButton(btn)"
+        <button v-if="sysModel!=='PC'" class="cu-btn round  light  margin-left-xs " @click="clickGridButton(btn)"
           v-for="(btn, btnIndex) in setListBtn" :key="btnIndex" v-show="isShowBtn(btn,btnIndex)">
           <text :class="[btn.icon]" class=""></text>
           <text class="button-name">{{btn.button_name||''}}</text>
@@ -304,7 +304,7 @@
     // height: 100px;
     .search-form {
       transition: all 0.5s ease-in-out;
-      margin: 0 15px 0 5px;
+      margin: 0 5px 0 10px;
     }
 
     .action {

@@ -750,11 +750,24 @@
       buildConditions(returnVal = false, filterTagsCfg) {
         let self = this
         let condsModel = self.formModel
+        const tagsRelationCondition = filterTagsCfg?.tag_select_relation
+        console.log(filterTagsCfg);
         let relation_Conditions = {
           "relation": "AND",
           "data": []
         }
-
+        
+        const globalData = {
+          ...this.globalVariable,
+          data:{}
+        }
+        
+        Object.keys(this.formModel).map(key => {
+          if (Array.isArray(this.formModel[key].colName) && this.formModel[key].colName.length > 0) {
+            globalData.data[this.formModel[key].colName[0]] = this.formModel[key].value
+          }
+        })
+        
         let tabs = Object.keys(condsModel)
 
         let colData = {}
@@ -831,19 +844,23 @@
               } else if (Array.isArray(condsModel[tabs[i]].value) && condsModel[tabs[i]].value.length > 0) {
                 value = condsModel[tabs[i]].value.join(",")
               }
-
               relation.relation = 'OR'
               colData.colName = condsModel[tabs[i]].colName[0]
               colData.value = value
-
+             
               // colData.ruleType = "in"
               if (value && value.indexOf(',') !== -1) {
                 colData.ruleType = "in"
               } else {
                 colData.ruleType = "like"
               }
-
-              // relation.data.push(self.deepClone(colData))
+              if (tagsRelationCondition && tagsRelationCondition[colData.colName]?.relation) {
+                console.log(globalData);
+                const relationCondition = this.buildRelationCondition(tagsRelationCondition[colData.colName],globalData)
+                if(relationCondition?.relation){
+                  colData = relationCondition
+                }
+              }
               relation_Conditions.data.push(self.deepClone(colData))
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
@@ -883,6 +900,7 @@
               } else {
                 colData.ruleType = "[like]"
               }
+              debugger
               relation.data.push(self.deepClone(colData))
             }
           } else if (!condsModel[tabs[i]].value) {
@@ -891,14 +909,14 @@
                 filterTagsCfg?.strictTags) && filterTagsCfg?.strictTags.length > 1) {
               // 严格匹配模式
               const colName = condsModel[tabs[i]].colName[0]
-              if (filterTagsCfg?.strictTags.indexOf(colName) !== -1){
+              if (filterTagsCfg?.strictTags.indexOf(colName) !== -1) {
                 relation_Conditions.data.push({
                   colName,
                   ruleType: 'notnull',
                   value: ''
                 })
               }
-                
+
             }
           }
 

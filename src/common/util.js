@@ -1604,8 +1604,8 @@ export default {
       // 登录 查找基本信息
       // return
       let data = {}
-      if(true){
-       data =  await selectPersonInfo()
+      if (true) {
+        data = await selectPersonInfo()
       }
 
       let wxUserInfo = ''
@@ -1966,7 +1966,22 @@ export default {
       })
       return conditions
     }
-
+    Vue.prototype.buildRelationCondition = (relationCondition = {}, obj = {}) => {
+      if (relationCondition?.relation && Array.isArray(relationCondition?.data) && relationCondition?.data.length >
+        0) {
+        relationCondition?.data.forEach(item => {
+          if (item.relation) {
+            item = Vue.prototype.buildRelationCondition(item, obj)
+          }else if(item.value){
+            console.log(obj,item.value);
+            item.value = Vue.prototype.renderStr(item.value,obj)
+            console.log(obj,item.value);
+            debugger
+          }
+        })
+      }
+      return relationCondition
+    }
     Vue.prototype.renderStr = (str, obj = {}) => {
       obj = {
         ...Vue.prototype.globalVariable,
@@ -2430,7 +2445,8 @@ export default {
       s = Math.round(s * 1000);
       s = s.toFixed(4);
       return s;
-
     }
+
+
   }
 }

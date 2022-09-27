@@ -16,7 +16,10 @@
           易企跑.{{data.publication_date||''}}
         </view>
         <view class="">
-          {{data.province||''}}.{{data.city||''}}
+          <text>{{data.province||''}}</text>
+          <text v-if="data.city">.{{data.city||''}}</text>
+          <text v-if="data.districts">.{{data.districts||''}}</text>
+          <text v-if="data.policy_sources_unit_name">，{{data.policy_sources_unit_name||''}}</text>
         </view>
       </view>
       <view class="info-card flex flex-wrap">
@@ -70,8 +73,9 @@
           申报对象条件
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" style=" user-select: none;"
-            :value="data.declaration_cond" class="no-select" readonly :disabled="true"></textarea>
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false"
+            style=" user-select: none;" :value="data.declaration_cond" class="no-select" readonly
+            :disabled="true"></textarea>
         </view>
       </view>
       <view class="content-card">
@@ -79,8 +83,8 @@
           补贴标准
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" :value="data.subsidy_standard"
-            class="no-select" readonly :disabled="true"></textarea>
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false"
+            :value="data.subsidy_standard" class="no-select" readonly :disabled="true"></textarea>
         </view>
       </view>
       <view class="content-card">
@@ -88,8 +92,8 @@
           政策依据
         </view>
         <view class="content-content">
-          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false" :value="data.policy_basis"
-            class="no-select" readonly :disabled="true"></textarea>
+          <textarea @selectstart="()=>false" :maxlength="-1" :auto-height="true" :enabled="false"
+            :value="data.policy_basis" class="no-select" readonly :disabled="true"></textarea>
         </view>
       </view>
 
@@ -100,6 +104,20 @@
         <news-item :item="item" v-for="(item, noticeIndex) in  articles" :key="noticeIndex"></news-item>
       </view>
     </view>
+    <view class="bg-white padding margin-tb">
+      <view class="content-card" v-if="data&&data.policy_annex&&files.length>0">
+        <view class="content-title text-blue">
+          附件
+        </view>
+        <view class="">
+          <view style="z-index: 99;" class="text-blue text-center padding" v-for="item in files"
+            @click="openFile(item)">
+            <text class="cuIcon-file margin-right-xs "></text> {{item.src_name||'-'}}
+          </view>
+        </view>
+      </view>
+    </view>
+
   </view>
 </template>
 
@@ -109,10 +127,28 @@
       return {
         id: null,
         data: {},
-        articles: []
+        articles: [],
+        files: []
       }
     },
     methods: {
+      openFile(item) {
+        debugger
+        this.openDocument(item._fileUrl)
+      },
+      async getFiles(fileNo) {
+        if (fileNo) {
+          let files = await this.getFilePath(fileNo)
+          console.log(files);
+          if (Array.isArray(files)) {
+            this.files = files.map(item => {
+              item._fileUrl =
+                `${this.$api.getFilePath}${item.fileurl}&bx_auth_ticket=${uni.getStorageSync('bx_auth_ticket')}`;
+              return item
+            })
+          }
+        }
+      },
       getRelationArticle() {
         const url = `/daq/select/srvdaq_cms_content_jiedu_select`
         const req = {
@@ -123,7 +159,6 @@
             "ruleType": "eq",
             "value": this.data.policy_no
           }],
-          "relation_condition": {},
           "page": {
             "pageNo": 1,
             "rownumber": 20
@@ -132,6 +167,7 @@
         this.$http.post(url, req).then(res => {
           if (res?.data?.state == 'SUCCESS') {
             this.articles = res.data.data
+
           }
         })
       },
@@ -153,6 +189,9 @@
         this.$http.post(url, req).then(res => {
           if (Array.isArray(res?.data?.data) && res?.data?.data.length > 0) {
             this.data = res.data.data[0]
+            if (this.data?.policy_annex) {
+              this.getFiles(this.data?.policy_annex)
+            }
             if (this.data?.policy_no) {
               this.getRelationArticle()
             }
@@ -161,10 +200,10 @@
       },
     },
     onShareAppMessage() {
-      
+
     },
     onShareTimeline() {
-      
+
     },
     onLoad(option) {
       if (option.id) {
@@ -232,6 +271,7 @@
     .content-content {
       padding: 10px;
       position: relative;
+
       // overflow-y: scroll;
       // max-height: 300px;
       &::after {
