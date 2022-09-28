@@ -861,7 +861,8 @@
                   colData = relationCondition
                 }
               }
-              relation_Conditions.data.push(self.deepClone(colData))
+              relation_Conditions.data= [self.deepClone(colData)]
+              // relation_Conditions.data.push(self.deepClone(colData))
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags
               // let rt = 
@@ -900,7 +901,6 @@
               } else {
                 colData.ruleType = "[like]"
               }
-              debugger
               relation.data.push(self.deepClone(colData))
             }
           } else if (!condsModel[tabs[i]].value) {
@@ -910,11 +910,11 @@
               // 严格匹配模式
               const colName = condsModel[tabs[i]].colName[0]
               if (filterTagsCfg?.strictTags.indexOf(colName) !== -1) {
-                relation_Conditions.data.push({
-                  colName,
-                  ruleType: 'notnull',
-                  value: ''
-                })
+                // relation_Conditions.data.push({
+                //   colName,
+                //   ruleType: 'isnull',
+                //   value: ''
+                // })
               }
 
             }

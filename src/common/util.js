@@ -1974,9 +1974,12 @@ export default {
             item = Vue.prototype.buildRelationCondition(item, obj)
           }else if(item.value){
             console.log(obj,item.value);
+            if(item.value&&item.value.indexOf('$')>-1){
+              debugger
+            }
             item.value = Vue.prototype.renderStr(item.value,obj)
             console.log(obj,item.value);
-            debugger
+            
           }
         })
       }

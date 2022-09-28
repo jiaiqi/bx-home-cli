@@ -916,11 +916,9 @@
       },
       getListWithFilter(e) {
         let self = this
-        console.log(this.colV2?.moreConfig);
-        debugger
-        
-        let tabsConds = this.$refs.filterTabs.buildConditions(true,this.colV2?.moreConfig?.filter_tags_cfg)
-        
+
+        let tabsConds = this.$refs.filterTabs.buildConditions(true, this.colV2?.moreConfig?.filter_tags_cfg)
+
         this.relationCondition = tabsConds?.relation_condition
         this.filterVal = tabsConds?.value
         setTimeout(() => {
@@ -1066,11 +1064,15 @@
       changeSerchVal(e) {
         this.searchVal = e
       },
-      toFilter(e) {
+      toFilter(e, relation_condition) {
         this.searchVal = ''
         this.showFilter = false;
+        if (relation_condition) {
+          this.relationCondition = relation_condition
+        }
         if (Array.isArray(e)) {
           let cond = e
+          this.condition = e
           this.getList(cond)
         }
       },

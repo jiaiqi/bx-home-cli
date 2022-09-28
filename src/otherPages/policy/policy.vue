@@ -16,10 +16,11 @@
           易企跑.{{data.publication_date||''}}
         </view>
         <view class="">
-          <text>{{data.province||''}}</text>
+          {{data.policy_sources_string||''}}
+         <!-- <text>{{data.province||''}}</text>
           <text v-if="data.city">.{{data.city||''}}</text>
           <text v-if="data.districts">.{{data.districts||''}}</text>
-          <text v-if="data.policy_sources_unit_name">，{{data.policy_sources_unit_name||''}}</text>
+          <text v-if="data.policy_sources_unit_name">，{{data.policy_sources_unit_name||''}}</text> -->
         </view>
       </view>
       <view class="info-card flex flex-wrap">

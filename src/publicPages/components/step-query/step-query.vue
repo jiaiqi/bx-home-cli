@@ -100,23 +100,23 @@
       },
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
-        
-        if(Array.isArray(this.floatQueryCfg?.use_last_value_cols)&&this.floatQueryCfg?.use_last_value_cols.length>0){
-          this.floatQueryCfg?.use_last_value_cols.forEach(item=>{
-            let cols = item.split(',').reverse()
-            if(cols.length>0){
-              let hasVal = false
-              cols.forEach(col=>{
-                if(model[col]){
-                  if(hasVal){
-                    delete model[col]
-                  }
-                  hasVal = true
-                }
-              })
-            }
-          })
-        }
+        const cfg = this.floatQueryCfg
+        // if(Array.isArray(this.floatQueryCfg?.use_last_value_cols)&&this.floatQueryCfg?.use_last_value_cols.length>0){
+        //   this.floatQueryCfg?.use_last_value_cols.forEach(item=>{
+        //     let cols = item.split(',').reverse()
+        //     if(cols.length>0){
+        //       let hasVal = false
+        //       cols.forEach(col=>{
+        //         if(model[col]){
+        //           if(hasVal){
+        //             delete model[col]
+        //           }
+        //           hasVal = true
+        //         }
+        //       })
+        //     }
+        //   })
+        // }
         console.log(model);
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
             model[key] == true)) { 
@@ -151,7 +151,12 @@
             }
             return item
           })
+          const globalData = {
+            data:model
+          }
+        
           if (Array.isArray(result) && result.length > 0) {
+            let relationCondition = {}
             let cond = result.filter(item => item.value !== '全部' && item.column).map(item => {
               let obj = {
                 colName: item.column,
@@ -165,9 +170,14 @@
                   .value)) {
                 obj.ruleType = 'between'
               }
+              
+              if(cfg?.relation_condition&&cfg?.relation_condition[item.column]){
+                relationCondition =  this.buildRelationCondition(cfg?.relation_condition[item.column],globalData)
+                return false
+              }
               return obj
-            })
-            this.$emit('toFilter', cond)
+            }).filter(item=>item!==false)
+            this.$emit('toFilter', cond,relationCondition)
           }
           this.close()
         } else {
