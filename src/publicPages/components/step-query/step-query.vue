@@ -100,7 +100,7 @@
       },
       toFilter() {
         let model = this.$refs.filterForm.getFieldModel();
-        const cfg = this.floatQueryCfg
+        const cfg = this.deepClone(this.floatQueryCfg||{})
         // if(Array.isArray(this.floatQueryCfg?.use_last_value_cols)&&this.floatQueryCfg?.use_last_value_cols.length>0){
         //   this.floatQueryCfg?.use_last_value_cols.forEach(item=>{
         //     let cols = item.split(',').reverse()
@@ -119,10 +119,11 @@
         // }
         console.log(model);
         if (model && typeof model === 'object' && Object.keys(model).length > 0 && Object.keys(model).some(key => !!
-            model[key] == true)) { 
-          // if (this.addCfg?.send_request) {
-          //   this.sendAddService(model)
-          // }
+            model[key] == true)) {
+              
+          if (this.addCfg?.send_request) {
+            this.sendAddService(model)
+          }
 
           let result = []
           this.filterCols = this.filterCols.map((item) => {
@@ -135,7 +136,8 @@
                     type: item.type,
                     col_type: item.col_type,
                     column: column?.column,
-                    value: model[item.column]
+                    value: model[item.column],
+                    ruleType: column.ruleType
                   }
                   result.push(obj)
                 }
@@ -144,7 +146,8 @@
                   type: item.type,
                   col_type: item.col_type,
                   column: item.column,
-                  value: model[item.column]
+                  value: model[item.column],
+                  ruleType: item.ruleType
                 }
                 result.push(item)
               }
@@ -152,15 +155,16 @@
             return item
           })
           const globalData = {
-            data:model
+            data: model
           }
-        
+
           if (Array.isArray(result) && result.length > 0) {
             let relationCondition = {}
+            console.log(result);
             let cond = result.filter(item => item.value !== '全部' && item.column).map(item => {
               let obj = {
                 colName: item.column,
-                ruleType: 'like',
+                ruleType: item.ruleType || 'like',
                 value: item.value
               }
               if (item.col_type === 'Set') {
@@ -170,14 +174,14 @@
                   .value)) {
                 obj.ruleType = 'between'
               }
-              
-              if(cfg?.relation_condition&&cfg?.relation_condition[item.column]){
-                relationCondition =  this.buildRelationCondition(cfg?.relation_condition[item.column],globalData)
+
+              if (cfg?.relation_condition && cfg?.relation_condition[item.column]) {
+                relationCondition = this.buildRelationCondition(cfg?.relation_condition[item.column], globalData)
                 return false
               }
               return obj
-            }).filter(item=>item!==false)
-            this.$emit('toFilter', cond,relationCondition)
+            }).filter(item => item !== false)
+            this.$emit('toFilter', cond, relationCondition)
           }
           this.close()
         } else {
@@ -224,20 +228,20 @@
             }
             return res
           }, {})
-          filterCols = filterCols.map((item,index) => {
-            
+          filterCols = filterCols.map((item, index) => {
+
             item.value = null
             if (item.defaultValue) {
               item.value = item.defaultValue
-            } 
-            
+            }
+
             if (['date', 'dateTime', 'time', 'Time', 'Date'].includes(item.type)) {
               item.startVal = ''
               item.endVal = ''
             }
             if (item.type === 'TreeSelector') {
               item.value = ''
-              item.colData = null 
+              item.colData = null
             }
             this.$refs?.filterForm?.onReset?.()
             return item

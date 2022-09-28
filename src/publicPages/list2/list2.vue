@@ -120,7 +120,9 @@
     },
     computed: {
       floatQueryCfg() {
-        return this.colV2?.moreConfig?.float_query_cfg
+        if(typeof this.colV2?.moreConfig?.float_query_cfg==='object'){
+          return this.deepClone(this.colV2?.moreConfig?.float_query_cfg)
+        }
       },
       showUpper() {
         return this._pageScrollTop > 100
@@ -916,8 +918,14 @@
       },
       getListWithFilter(e) {
         let self = this
-
-        let tabsConds = this.$refs.filterTabs.buildConditions(true, this.colV2?.moreConfig?.filter_tags_cfg)
+        let filter_tags_cfg = this.colV2?.moreConfig?.filter_tags_cfg
+        console.log(filter_tags_cfg);
+        debugger
+        if (typeof filter_tags_cfg === 'object') {
+          filter_tags_cfg = this.deepClone(filter_tags_cfg)
+          debugger
+        }
+        let tabsConds = this.$refs.filterTabs.buildConditions(true, filter_tags_cfg)
 
         this.relationCondition = tabsConds?.relation_condition
         this.filterVal = tabsConds?.value
@@ -1073,7 +1081,7 @@
         if (Array.isArray(e)) {
           let cond = e
           this.condition = e
-          this.getList(cond)
+          this.getList()
         }
       },
       handlerCustomizeButton(e) {

@@ -856,12 +856,16 @@
               }
               if (tagsRelationCondition && tagsRelationCondition[colData.colName]?.relation) {
                 console.log(globalData);
-                const relationCondition = this.buildRelationCondition(tagsRelationCondition[colData.colName],globalData)
+                let relationCondition = this.deepClone(tagsRelationCondition[colData.colName])
+               relationCondition = this.buildRelationCondition(tagsRelationCondition[colData.colName],globalData)
                 if(relationCondition?.relation){
-                  colData = relationCondition
+                  // colData = relationCondition
+                   relation_Conditions.data= [relationCondition]
                 }
+              }else{
+                relation.data.push(self.deepClone(colData))
               }
-              relation_Conditions.data= [self.deepClone(colData)]
+             
               // relation_Conditions.data.push(self.deepClone(colData))
             } else if (condsModel[tabs[i]].inputType === 'String') {
               let tags = condsModel[tabs[i]].tags

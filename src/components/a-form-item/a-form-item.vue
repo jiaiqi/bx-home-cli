@@ -79,13 +79,15 @@
 
       <bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" v-model="fieldData.value"
         v-else-if="fieldData.type === 'radio'" @change="radioChange" :disabled="fieldData.disabled">
-        <bx-radio class="radio" color="#2979ff" v-for="item in fieldData.options" :key="item"
-          :disabled="fieldData.disabled|| false" :name="item">{{ item }}</bx-radio>
+        <bx-radio :allowCanel="fieldData.moreConfig&&fieldData.moreConfig.allowCanel" class="radio" color="#2979ff"
+          v-for="item in fieldData.options" :key="item" :disabled="fieldData.disabled|| false" :name="item">{{ item }}
+        </bx-radio>
       </bx-radio-group>
       <bx-radio-group class="form-item-content_value radio-group" :mode="optionMode" :disabled="fieldData.disabled"
         v-model="fieldData.value" v-else-if="fieldData.type === 'radioFk'" @change="radioChange">
-        <bx-radio :iconSize="fieldData.iconSize" class="radio" color="#2979ff" v-for="item in radioOptions"
-          :key="item.value" :disabled="fieldData.disabled||false" :name="item.value" :serial-char="item.serialChar">
+        <bx-radio :allowCanel="fieldData.moreConfig&&fieldData.moreConfig.allowCanel" :iconSize="fieldData.iconSize"
+          class="radio" color="#2979ff" v-for="item in radioOptions" :key="item.value"
+          :disabled="fieldData.disabled||false" :name="item.value" :serial-char="item.serialChar">
           {{ item.label }}
         </bx-radio>
       </bx-radio-group>
@@ -132,7 +134,8 @@
             </bx-checkbox>
           </bx-checkbox-group>
           <bx-radio-group v-if="fieldData.type === 'Selector'" class="form-item-content_value radio-group"
-            v-model="fieldData.value" mode="button" @change="pickerChange" :disabled="fieldData.disabled">
+            v-model="fieldData.value" :allowCanel="fieldData.moreConfig&&fieldData.moreConfig.allowCanel" mode="button"
+            @change="pickerChange" :disabled="fieldData.disabled">
             <bx-radio v-for="item in radioOptions" :key='item.value' :name="item.value">{{ item.label }}
             </bx-radio>
           </bx-radio-group>
@@ -312,7 +315,8 @@
         <option-selector ref='optionSelector' :allowAdd="optionSelectorAllowAdd" :has-next="hasNext"
           :modalName="modalName" :show-search="fieldData.showSearch!==false&&modalName === 'Selector'"
           :options="radioOptions" :selectType="selectType" @load-more="nextPage()" @hide="hideModal()"
-          @search="searchFKDataWithKey" @refresh="refresh()" @toFkAdd="toFkAdd"
+          @search="searchFKDataWithKey" @refresh="refresh()"
+          :allowCanel="fieldData.moreConfig&&fieldData.moreConfig.allowCanel" @toFkAdd="toFkAdd"
           @change="pickerChange($event,'Selector')">
         </option-selector>
 
