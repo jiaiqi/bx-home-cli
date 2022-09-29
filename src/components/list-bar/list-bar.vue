@@ -6,9 +6,10 @@
         <text class="cuIcon-search"></text>
         <input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal"
           :placeholder="placeholder" confirm-type="search" @confirm="toSearch" />
+        <button class="cuIcon-close cu-btn round bg-transparent sm" v-if="searchVal" @click="clear"></button>
       </view>
       <view class="action">
-        <button class="cu-btn round  light  " @click="toSearch"
+        <button class="cu-btn round  light" @click="toSearch"
           v-if="gridButtonDisp&&gridButtonDisp.refresh!==false">
           <text class="cuIcon-search" v-if="searchVal"></text>
           <text class="cuIcon-refresh" v-else></text>
@@ -261,6 +262,10 @@
             break;
         }
 
+      },
+      clear(){
+        this.searchVal = ''
+        this.toSearch()
       },
       toSearch() {
         this.$emit('search', this.searchVal)

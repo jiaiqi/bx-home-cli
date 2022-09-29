@@ -120,7 +120,7 @@
     },
     computed: {
       floatQueryCfg() {
-        if(typeof this.colV2?.moreConfig?.float_query_cfg==='object'){
+        if (typeof this.colV2?.moreConfig?.float_query_cfg === 'object') {
           return this.deepClone(this.colV2?.moreConfig?.float_query_cfg)
         }
       },
@@ -623,7 +623,7 @@
       hideModal() {
         this.modalName = ''
       },
-      changeTabs(index) {
+      changeTabs(index, dotChangePageNo = false) {
         this.curTab = index
         let cond = null
         let tab = this.tabsCfg.tabs[index]
@@ -646,7 +646,9 @@
             }
           }
           this.curTabVal = tab.value
-          this.pageNo = 1;
+          if (dotChangePageNo !== true) {
+            this.pageNo = 1;
+          }
           this.getList(cond)
         }
       },
@@ -919,11 +921,8 @@
       getListWithFilter(e) {
         let self = this
         let filter_tags_cfg = this.colV2?.moreConfig?.filter_tags_cfg
-        console.log(filter_tags_cfg);
-        debugger
         if (typeof filter_tags_cfg === 'object') {
           filter_tags_cfg = this.deepClone(filter_tags_cfg)
-          debugger
         }
         let tabsConds = this.$refs.filterTabs.buildConditions(true, filter_tags_cfg)
 
@@ -1063,9 +1062,7 @@
         }, 100)
       },
       toSearch(e) {
-        let keywords = e || this.searchVal;
-        this.searchVal = keywords
-        uni.setStorageSync(this.serviceName + '_searchVal', this.searchVal)
+        this.searchVal = e || ''
         this.pageNo = 1
         this.getList()
       },
@@ -1488,7 +1485,7 @@
           if (this.curTabVal && this.tabsCfg?.col && Array.isArray(this.tabsCfg.tabs)) {
             let index = this.tabsCfg.tabs.findIndex(item => item.value === this.curTabVal);
             if (index >= 0) {
-              this.changeTabs(index)
+              this.changeTabs(index, true)
               return
             }
           }
@@ -2940,7 +2937,8 @@
     },
     onReachBottom() {
       if (this.loadStatus === 'more') {
-        this.pageNo++;
+        this.pageNo += 1;
+        console.log(this.pageNo);
         this.getList(null, this.initCond)
       }
     },
