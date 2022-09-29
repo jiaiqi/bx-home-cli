@@ -5,7 +5,7 @@ let env = 'prod'
 
 // env = 'test'
 
-env = 'custom'
+// env = 'custom'
 
 
 // if (process?.env?.APP_ENV) {
