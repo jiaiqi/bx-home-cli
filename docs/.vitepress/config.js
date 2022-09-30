@@ -7,6 +7,7 @@ export default {
     nav: [
       { text: "店铺相关", link: "/articles/store/" },
       { text: "首页组件配置", link: "/articles/store/components" },
+      { text: "表单页面", link: "/articles/form/" },
       //   {
       //     text: "Drop Menu",
       //     items: [
@@ -38,12 +39,48 @@ export default {
       "/articles/": [
         {
           text: "店铺相关配置",
+          link: "/articles/store/",
           items: [
             {
               text: "创建店铺",
               link: "/articles/store/create",
             },
             { text: "店铺首页组件", link: "/articles/store/components" },
+          ],
+        },
+        {
+          text: "店铺首页组件",
+          link: "/articles/components/",
+          items: [
+            {
+              text: "轮播图",
+              link: "/articles/components/carousel",
+            },
+            { text: "店铺信息", link: "/articles/components/store-info" },
+          ],
+        },
+        {
+          text: "表单页面",
+          items: [
+            {
+              text: "公共",
+              link: "/articles/form/",
+            },
+            { text: "添加", link: "/articles/form/add" },
+            { text: "详情", link: "/articles/form/detail" },
+          ],
+        },
+        {
+          text: "列表页面",
+          items: [
+            {
+              text: "列表配置",
+              link: "/articles/list/",
+            },
+            { text: "操作栏", link: "/articles/list/listbar" },
+            { text: "快捷筛选", link: "/articles/list/filter-tag" },
+            { text: "tabs", link: "/articles/list/tabs" },
+            { text: "全屏筛选", link: "/articles/list/full-screen-filter" },
           ],
         },
         // {
