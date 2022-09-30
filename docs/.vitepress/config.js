@@ -1,6 +1,7 @@
 export default {
   title: "百想首页",
   description: "配置说明文档",
+  base: "/health/docs/",
   themeConfig: {
     siteTitle: "百想首页",
     logo: "/logo.jpg",
@@ -40,10 +41,10 @@ export default {
         {
           text: "表单页面",
           items: [
-            {
-              text: "公共",
-              link: "/articles/form/",
-            },
+            // {
+            //   text: "公共",
+            //   link: "/articles/form/",
+            // },
             { text: "添加", link: "/articles/form/add" },
             { text: "详情", link: "/articles/form/detail" },
           ],
