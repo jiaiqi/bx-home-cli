@@ -1149,7 +1149,7 @@
           // 多选
           self.fieldData.value = self.fieldData.value.split(',');
         } else if (self.fieldData && ['TreeSelector', 'Selector', 'location'].includes(self.fieldData.type)) {
-
+        
           let cond = null;
           if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && self.formType !== 'add') {
             cond = [{
@@ -1166,6 +1166,7 @@
               .colData[self.fieldData.option_list_v2.key_disp_col]
 
           } else {
+         
             self.getSelectorData(cond).then(_ => {
               if (self.fieldData.value) {
                 let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData
@@ -1375,6 +1376,7 @@
       },
       async getSelectorData(cond, serv, relation_condition) {
         let self = this;
+        serv = serv || self.fieldData?.option_list_v2?.serviceName
         // self.fieldData.old_value = self.fieldData.value
         if (this.fieldData.col_type === 'Enum') {
           if (Array.isArray(this.fieldData?.moreConfig?.customOptions) && this.fieldData?.moreConfig?.customOptions
@@ -1388,7 +1390,7 @@
           return;
         }
         let req = {
-          serviceName: serv || self.fieldData?.option_list_v2?.serviceName,
+          serviceName:serv ,
           colNames: ['*'],
           condition: [],
           order: [],
@@ -1848,7 +1850,7 @@
           case 'TreeSelector':
             // await this.getSelectorData(null, null, null)
             this.modalName = 'TreeSelector';
-            this.selectTreeData = this.selectTreeData || {}
+            this.selectTreeData = this.selectTreeData || {} 
             break;
         }
       },
@@ -1947,6 +1949,11 @@
       this.initSetOptions()
       if (self.fieldData && ['Selector', 'location'].includes(self.fieldData.type)) {
         self.getDefVal()
+      }
+      if(['TreeSelector'].includes(self.fieldData.type)){
+        if (!this.fieldData.value && this.fieldData?.moreConfig?.defaultSelectCondition) {
+          this.getSelectorData()
+        }
       }
     }
   };
