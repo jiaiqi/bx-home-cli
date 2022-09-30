@@ -5,6 +5,13 @@ export default {
   themeConfig: {
     siteTitle: "百想首页",
     logo: "/logo.jpg",
+    algolia: {
+      appId: "8F5Y6H6WKT",
+      apiKey: "53ef09f0a80fe0ad343db5ede491c552",
+      indexName: "home",
+      container: "#docsearch",
+      debug: false,
+    },
     nav: [
       { text: "店铺相关", link: "/articles/store/" },
       { text: "首页组件配置", link: "/articles/store/components" },

@@ -1201,7 +1201,8 @@
             await this.bindStore();
           }
           if (forceUpdate) {
-            await this.getStoreUserInfo(forceUpdate)
+            this.getStoreUserInfo(forceUpdate)
+            // await this.getStoreUserInfo(forceUpdate)
           }
           if (!this.pageItemList || (Array.isArray(this.pageItemList) && this.pageItemList.length == 0)) {
             if (!this.pdNo) {

@@ -1597,10 +1597,10 @@ export default {
     }
 
     Vue.prototype.toAddPage = async (rawData) => {
-      let isLogin = store.state.app.isLogin
-      if (!isLogin) {
-        isLogin = await wxVerifyLogin()
-      }
+      // let isLogin = store.state.app.isLogin
+      // if (!isLogin) {
+      //   isLogin = await wxVerifyLogin()
+      // }
       // 登录 查找基本信息
       // return
       let data = {}

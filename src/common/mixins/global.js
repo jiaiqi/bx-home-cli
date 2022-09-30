@@ -1,7 +1,7 @@
 import store from '@/store'
 import api from '@/common/api.js'
 import {
-  selectPersonInfo
+  selectPersonInfo,wxVerifyLogin
 } from '@/common/api/login.js'
 import {
   mapState
@@ -578,6 +578,10 @@ export default {
       if (option) {
         this.checkOptionParams(option);
       }
+      let isLogin = this.$store?.state?.app.isLogin
+      if (!isLogin) {
+        isLogin = await wxVerifyLogin()
+      }
       
       await this.toAddPage()
 
@@ -590,15 +594,15 @@ export default {
       //     return
       //   }
       // }
-      console.log(this.curStoreNo)
       // 2. 店铺信息查找
       let storeInfo = await this.getStore_()
       if (storeInfo?.store_no) {
         // 3. 店铺用户信息查找
         
-        await this.getStoreUser_()
-        // 4. vipcard信息查找
-        await this.getVipCard()
+        await this.getStoreUser_().then(_=>{
+          // 4. vipcard信息查找
+           this.getVipCard()
+        })
       }
     },
     async getStore_() {
