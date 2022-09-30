@@ -33,32 +33,10 @@ export default {
       //       },
       //     ],
       //   },
-      { text: "gitee", link: "https://gitee.com/jiaiqi" },
+      // { text: "gitee", link: "https://gitee.com/jiaiqi" },
     ],
     sidebar: {
       "/articles/": [
-        {
-          text: "店铺相关配置",
-          link: "/articles/store/",
-          items: [
-            {
-              text: "创建店铺",
-              link: "/articles/store/create",
-            },
-            { text: "店铺首页组件", link: "/articles/store/components" },
-          ],
-        },
-        {
-          text: "店铺首页组件",
-          link: "/articles/components/",
-          items: [
-            {
-              text: "轮播图",
-              link: "/articles/components/carousel",
-            },
-            { text: "店铺信息", link: "/articles/components/store-info" },
-          ],
-        },
         {
           text: "表单页面",
           items: [
@@ -81,6 +59,28 @@ export default {
             { text: "快捷筛选", link: "/articles/list/filter-tag" },
             { text: "tabs", link: "/articles/list/tabs" },
             { text: "全屏筛选", link: "/articles/list/full-screen-filter" },
+          ],
+        },
+        {
+          text: "店铺相关配置",
+          link: "/articles/store/",
+          items: [
+            {
+              text: "创建店铺",
+              link: "/articles/store/create",
+            },
+            { text: "店铺首页组件", link: "/articles/store/components" },
+          ],
+        },
+        {
+          text: "店铺首页组件",
+          link: "/articles/components/",
+          items: [
+            {
+              text: "轮播图",
+              link: "/articles/components/carousel",
+            },
+            { text: "店铺信息", link: "/articles/components/store-info" },
           ],
         },
         // {
