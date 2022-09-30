@@ -1582,7 +1582,7 @@
             showCancel: false,
             confirmText: '知道了'
           })
-          this.onPay = true
+          this.onPay = false
           return
         }
 
@@ -1593,7 +1593,7 @@
             duration: 3000,
             mask: true
           })
-          this.onPay = true
+          this.onPay = false
           return
         }
 
@@ -1608,7 +1608,7 @@
 
         let formData = this.$refs.bxForm.getFieldModel();
         if (formData == false) {
-          this.onPay = true
+          this.onPay = false
           return
         }
 
@@ -1690,7 +1690,7 @@
                 if (item.cart_goods_rec_no) {
                   obj.cart_goods_rec_no = item.cart_goods_rec_no
                 }
-
+                
                 return obj;
               })
             }]
@@ -1812,6 +1812,7 @@
               let payRes = await this.toPay();
               console.log('payResult', payRes)
               if (!payRes) {
+                this.onPay = false
                 return
               }
               // #endif
