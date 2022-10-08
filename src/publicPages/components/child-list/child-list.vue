@@ -10,6 +10,12 @@
       </view>
 
       <view class="to-more" v-if="config.unfold !==false">
+        <picker @change="bindPickerChange" v-model="curTemplate" :range="templates">
+          <text class=""> <button v-if="templateButtonLabel"
+              class="cu-btn bx-line-btn-color round border margin-right-xs"
+              @click="changeTemplatePopup">{{templateButtonLabel}}</button></text>
+        </picker>
+
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
           :class="{sm:publicButton.length>2,'bx-line-btn-color':theme}" v-for="(btn,index) in publicButton" :key="index"
           @click="onButton(btn)">
@@ -65,10 +71,10 @@
       <!-- <text>向上折叠</text> -->
       <text class="cuIcon-fold"></text>
     </view>
-    <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
+    <view class="cu-modal"   @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
       <view class="cu-dialog" @click.stop.prevent="" v-if="addV2&&modalName==='addChildData'">
         <view class="close-btn text-right">
-          <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
+          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="" style="max-height: 80vh;overflow-y: scroll;">
           <view class="child-form-wrap">
@@ -85,10 +91,10 @@
     </view>
     <batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit">
     </batch-add>
-    <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
+    <view class="cu-modal"   @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
       <view class="cu-dialog" @click.stop.prevent="" v-if="updateV2&&modalName==='updateChildData'">
         <view class="close-btn text-right">
-          <button class="cu-btn bg-white shadow-blur" @click="hideModal()"><text class="cuIcon-close"></text></button>
+          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text class="cuIcon-close"></text></button>
         </view>
         <view class="" style="max-height: 80vh;overflow-y: scroll;">
           <view class="child-form-wrap">
@@ -104,6 +110,20 @@
         </view>
       </view>
     </view>
+    <!--    <view class="cu-modal bottom-modal" :class="{show:templatePopup}" @touchstart.stop.prevent="">
+      <view class="cu-dialog" style="min-height: 30vh;padding: 20px;">
+        <bx-radio-group class="form-item-content_value radio-group" :mode="'button'" v-model="curTemplate">
+          <bx-radio :allowCanel="false" class="radio" color="#2979ff" v-for="item in templates" :key="item._value"
+            :disabled="false" :name="item._value" @change="radioChange">
+            {{ item._label }}
+          </bx-radio>
+        </bx-radio-group>
+        <picker @change="bindPickerChange" v-model="curTemplate" :range="templates">
+          <view class="uni-input">{{templates[index]._label||''}}</view>
+        </picker>
+        
+      </view>
+    </view> -->
     <u-action-sheet :list="listItemAction" @click="clickActionItem" v-model="showActionSheet"></u-action-sheet>
   </view>
 </template>
@@ -117,6 +137,10 @@
     },
     data() {
       return {
+        templatePopup: false,
+        templates: [],
+        templateList: [],
+        curTemplate: "",
         v2Data: null,
         addV2: null,
         updateV2: null,
@@ -232,6 +256,15 @@
       }
     },
     computed: {
+      fkTemplate() {
+        return this.config?.constraint_name && this.srvMoreConfig?.fkTemplate[this.config?.constraint_name] || false
+      },
+      templateButtonLabel() {
+        return this.fkTemplate?.buttonLabel
+      },
+      handlerButton() {
+        return this.srvMoreConfig
+      },
       showHandle() {
         // 是否显示操作按钮
         let res = true
@@ -485,6 +518,162 @@
       })
     },
     methods: {
+      bindPickerChange(e) {
+        this.curTemplate = e.detail.value
+        let cfg = this.fkTemplate
+        this.getInitChildList(this.templateList[this.curTemplate]).then(data => {
+          console.log(data);
+          const globalVariable = {
+            ...this.globalVariable,
+            data: this.mainData,
+            mainData: this.mainData,
+            selectData: this.templateList[this.curTemplate]
+          }
+          if (Array.isArray(data) && data.length > 0) {
+            data = data.map(item => {
+              if (Object.keys(cfg?.defaultValue).length > 0) {
+                Object.keys(cfg?.defaultValue).forEach(key => {
+                  item[key] = this.renderStr(cfg?.defaultValue[key], globalVariable)
+                })
+              }
+              if (cfg?.excludeCols && Array.isArray(cfg?.excludeCols) && cfg?.excludeCols.length > 0) {
+                cfg?.excludeCols.forEach(key => {
+                  delete item[key]
+                })
+              }
+              item["_isMemoryData"] = true
+              item["_dirtyFlags"] = "add"
+              return item
+            })
+          } else {
+            data = []
+          }
+         // let arr = data.map(item => {
+         //    let strItem = JSON.stringify(item);
+          
+         //    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
+         //      "YYYY-MM-DD"))
+         //    strItem = this.renderStr(strItem, data)
+         //    item = JSON.parse(strItem)
+         //    if (this.fkInitVal && this.fkInitVal[key]) {
+         //      let fkInitVal = this.fkInitVal[key]
+         //      Object.keys(fkInitVal).forEach(initKey => {
+         //        if (!item[initKey] && fkInitVal[initKey] &&
+         //          typeof fkInitVal[initKey] ===
+         //          'string') {
+         //          item[initKey] = this.renderStr(fkInitVal[
+         //            initKey], globalVariable) || item[initKey]
+         //        }
+         //      })
+         //    }
+         //    item._type = 'initData'
+         //    return item
+         //  })
+          if (Array.isArray(data)) {
+            this.setInitData(data)
+          }
+          debugger
+        })
+
+      },
+      async getInitChildList(e) {
+        let cfg = this.fkTemplate?.dataServiceCfg
+        if (cfg) {
+          let {
+            app,
+            service,
+            condition
+          } = cfg;
+
+          app = app || this.fkTemplate?.app || uni.getStorageSync('activeApp')
+          if (app && service) {
+            if (Array.isArray(condition) && condition.length > 0) {
+              condition = this.deepClone(condition)
+              const globalVariable = {
+                ...this.globalVariable,
+                data: this.mainData,
+                mainData: this.mainData,
+                selectData: e
+              }
+              condition = condition.map(item => {
+                item.value = this.renderStr(item.value, globalVariable)
+                return item
+              })
+            }
+            const url = `/${app}/select/${service}`
+            const req = {
+              "serviceName": service,
+              "colNames": ["*"],
+              "condition": condition || [],
+              "page": {
+                "pageNo": 1,
+                "rownumber": 50
+              }
+            }
+            const res = await this.$http.post(url, req);
+            if (res?.data?.state === 'SUCCESS') {
+              return res.data.data
+            }
+          }
+
+        }
+        debugger
+
+
+      },
+      async getTemplate() {
+        const {
+          app,
+          service,
+          condition
+        } = this.fkTemplate || {}
+        if (app && service) {
+          const url = `/${app}/select/${service}`
+          const globalVariable = {
+            ...this.globalVariable,
+            mainData: this.mainData,
+            config: this.config
+          }
+          let conditions = []
+          if (Array.isArray(condition) && condition.length > 0) {
+            conditions = this.deepClone(condition);
+            conditions = conditions.map(item => {
+              item.value = this.renderStr(item.value, globalVariable)
+              return item
+            })
+          }
+          const req = {
+            "serviceName": service,
+            "colNames": ["*"],
+            "condition": conditions || [],
+            "page": {
+              "pageNo": 1,
+              "rownumber": 100
+            }
+          }
+          this.templates = []
+          const res = await this.$http.post(url, req)
+          if (res?.data?.state === 'SUCCESS') {
+            this.templateList = res.data.data.map(item => {
+              if (this.fkTemplate?.dispCol) {
+                item._label = item[this.fkTemplate?.dispCol]
+              }
+              if (this.fkTemplate?.refedCol) {
+                item._value = item[this.fkTemplate?.refedCol]
+              }
+              this.templates.push(item._label || item.value || '---')
+              return item
+            })
+
+          }
+        }
+      },
+      async changeTemplatePopup() {
+        if (!this.templatePopup) {
+          await this.getTemplate();
+        }
+        this.templatePopup = !this.templatePopup
+      },
       hasHandlerButton(e) {
         let rowButton = []
         if (Array.isArray(this.rowButton) && this.rowButton.length > 0) {
@@ -2238,6 +2427,7 @@
     .to-more {
       text-align: right;
       padding-top: 20rpx;
+      display: flex;
 
       .line-orange {
         // color: #FFE8D1;

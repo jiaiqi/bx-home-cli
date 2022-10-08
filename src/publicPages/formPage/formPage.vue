@@ -45,8 +45,8 @@
 
         <view class="child-service" v-for="(item,index) in childServiceRadioOption" :key="index">
           <child-list v-show="curChild===item.constraint_name" :config="item" :srvType="srvType"
-            :childListData="childListData" :disabled="disabled || disabledChildButton" :appName="appName"
-            :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
+            :srvMoreConfig="moreConfig" :childListData="childListData" :disabled="disabled || disabledChildButton"
+            :appName="appName" :main-data="mainData" :fkInitVal="fkInitVal[item.constraint_name||item.key_no]"
             :fkCondition="fkCondition[item.constraint_name||item.key_no]" ref="childList" @onButton="onChildButton"
             @child-list-change="childListChange">
           </child-list>
@@ -56,7 +56,7 @@
       <view class="child-service-box" :class="{'pc-model':model==='PC'}"
         v-else-if="colsV2Data && isArray(fields)&&fields.length>0">
         <view class="child-service" v-for="(item,index) in childService" :key="index">
-          <child-list :config="item" :srvType="srvType" :childListData="childListData"
+          <child-list :config="item" :srvType="srvType" :childListData="childListData" :srvMoreConfig="moreConfig"
             :disabled="disabled || disabledChildButton" :appName="appName" :main-data="mainData"
             :fkInitVal="fkInitVal[item.constraint_name]" :fkCondition="fkCondition[item.constraint_name]"
             ref="childList" @onButton="onChildButton" @child-list-change="childListChange">
@@ -1436,12 +1436,12 @@
           if (Array.isArray(condition) && condition.length > 0) {
             condition = this.deepClone(condition)
             const globalVariable = {
-                ...this.globalVariable,
-                data: this.mainData,
-                mainData:this.mainData
-              }
+              ...this.globalVariable,
+              data: this.mainData,
+              mainData: this.mainData
+            }
             condition = condition.map(item => {
-              item.value = this.renderStr(item.value,globalVariable )
+              item.value = this.renderStr(item.value, globalVariable)
               return item
             })
           }
@@ -1461,10 +1461,10 @@
           }
         }
       },
-      async setInitChildData(moreConfig = {},hook='value-change') {
+      async setInitChildData(moreConfig = {}, hook = 'value-change') {
 
         let fkInitData = moreConfig?.fkInitData
-    
+
         let fkTemplate = moreConfig?.fkTemplate
 
         if (fkTemplate) {
@@ -1477,8 +1477,7 @@
             for (let key in fkTemplate) {
               fkInitData[key] = []
               let cfg = fkTemplate[key]
-   
-              if(cfg?.immediate===false&&hook=='on-load'){
+              if ((cfg?.immediate === false && hook == 'on-load') || cfg?.withButton === true) {
                 return
               }
               let data = await this.getChildTemplateData(cfg)
@@ -1489,16 +1488,16 @@
                       item[key] = this.renderStr(cfg?.defaultValue[key], globalVariable)
                     })
                   }
-                  if (cfg?.excludeCols&& Array.isArray(cfg?.excludeCols)&&cfg?.excludeCols.length > 0) {
-                    cfg?.excludeCols.forEach(key=>{
-                      delete item[key] 
+                  if (cfg?.excludeCols && Array.isArray(cfg?.excludeCols) && cfg?.excludeCols.length > 0) {
+                    cfg?.excludeCols.forEach(key => {
+                      delete item[key]
                     })
                   }
                   item["_isMemoryData"] = true
                   item["_dirtyFlags"] = "add"
                   return item
                 })
-              }else{
+              } else {
                 data = []
               }
               fkInitData[key] = data
@@ -1617,10 +1616,10 @@
               this.setInitChildData(this.moreConfig)
             }
           })
-        }else{
+        } else {
           this.setInitChildData(triggerField?.moreConfig)
         }
-        
+
       },
 
       toPages(type, e) {
@@ -1946,7 +1945,7 @@
         }
         this.mainData = defaultVal
         if (this.srvType == 'add' && this.moreConfig) {
-          this.setInitChildData(this.moreConfig,'on-load')
+          this.setInitChildData(this.moreConfig, 'on-load')
         }
 
         // #ifdef MP-WEIXIN
