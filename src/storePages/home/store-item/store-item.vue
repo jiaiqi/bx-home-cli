@@ -47,9 +47,11 @@
     </link-wifi>
     <bx-list ref="normalList" v-else-if="storeNo && pageItem && pageItem.type === '通用列表'" :beforeClick="beforeClick"
       :pageItem="pageItem" class="bx-list" />
-    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :page-item="pageItem" :config="moreConfig">
+    <user-card v-else-if="storeNo && pageItem && pageItem.type === '用户卡片'" :page-item="pageItem" :config="moreConfig"
+      ref="userCard">
     </user-card>
-    <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick">
+    <vip-card :config="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '会员卡片'" :beforeClick="beforeClick"
+      ref="vipCard">
     </vip-card>
     <avatar-list :storeNo="storeNo" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '用户展示'"
       :beforeClick="beforeClick"></avatar-list>
@@ -73,7 +75,8 @@
     <poster-popup :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '海报弹窗'" />
     <data-display :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '数据展示'" />
     <my-earnings :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '我的收益'" />
-    <content-card :queryOptions="queryOptions" :page-item="pageItem" v-else-if="storeNo && pageItem && pageItem.type === '内容卡片'" />
+    <content-card :queryOptions="queryOptions" :page-item="pageItem"
+      v-else-if="storeNo && pageItem && pageItem.type === '内容卡片'" />
   </view>
 </template>
 
@@ -130,7 +133,7 @@
       contentCard
     },
     props: {
-      queryOptions:{
+      queryOptions: {
         type: Object
       },
       pageItem: {
@@ -453,6 +456,16 @@
             case '通知横幅':
               if (this.$refs && this.$refs.noticeList && this.$refs.noticeList.getList) {
                 this.$refs.noticeList.getList();
+              }
+              break;
+            case '用户卡片':
+              if (this.$refs && this.$refs.userCard && this.$refs.userCard.getList) {
+                // this.$refs.userCard.getList();
+              }
+              break;
+            case '会员卡片':
+              if (this.$refs?.vipCard?.getCard) {
+                this.$refs.vipCard.getCard();
               }
               break;
           }

@@ -60,7 +60,7 @@
     </u-tabbar>
     <starGuide></starGuide>
     <view class="shadow-view" @click="clickShadow" v-if="notNickName"></view>
-    <bx-auth @auth-complete="initPage" ref="bxAuth" :allowCancel="true" @cancel="cancelAuth"></bx-auth>
+    <bx-auth @auth-complete="initPage" ref="bxAuth" :allowCancel="true" @cancel="cancelAuth" v-if="notNickName"></bx-auth>
   </view>
 
 </template>
@@ -110,7 +110,8 @@
     },
     computed: {
       notNickName() {
-        return (!this.userInfo?.nick_name || this.userInfo?.nick_name === '微信用户') && !this.userInfo?.profile_url
+        return (!this.userInfo?.nick_name || this.userInfo?.nick_name === '微信用户') && this.userInfo?.userno && !this.userInfo
+          ?.profile_url
       },
       pageTitle() {
         return this.currentPageDefine?.pg_title || this.StoreInfo?.name
@@ -811,7 +812,7 @@
           });
           this.StoreInfo = res.data[0];
           if (this.StoreInfo?.style_no) {
-            if(forceUpdate||this.themeConfig?.style_no!==this.StoreInfo?.style_no){
+            if (forceUpdate || this.themeConfig?.style_no !== this.StoreInfo?.style_no) {
               // 强制更新 或者切换店铺后 才会重新查找主题配置
               this.getThemeCfg(this.StoreInfo?.style_no)
             }
@@ -1191,10 +1192,10 @@
         await this.initApp()
         //#endif
         this.pageItemList = false
-        if (!this.isAttention) {
-          // 检测是否已关注公众号
-          this.checkSubscribeStatus();
-        }
+        // if (!this.isAttention) {
+        //   // 检测是否已关注公众号
+        //   this.checkSubscribeStatus();
+        // }
         if (this.storeNo) {
           await this.selectStoreInfo(null, forceUpdate);
           if (!this.vstoreUser?.id) {
@@ -1473,11 +1474,10 @@
       this.globalData = globalData;
       if (!this.isAttention) {
         // 检测是否已关注公众号
-        this.checkSubscribeStatus();
+        this.$nextTick(()=>{
+          this.checkSubscribeStatus();
+        })
       }
-      // if (this.storeInfo?.store_no && this.storeNo && this.storeInfo?.store_no !== this.storeNo) {
-      //   this.initPage()
-      // }
     },
     onShareAppMessage() {
       let path =
