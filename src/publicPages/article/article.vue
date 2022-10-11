@@ -21,7 +21,10 @@
           }}</view>
         </view>
         <view class="create-time">
-          <text class="store-name" @click="toStore" v-if="storeName && storeNo">{{ storeName }}</text>
+          <view class="store-name flex justify-between">
+            <text class="store-name" @click="toStore" v-if="storeName && storeNo">{{ storeName }}</text>
+            <text v-if="articleData.author">({{articleData.author}})</text>
+          </view>
           <text v-if="articleData.create_time">{{ dayjs(articleData.create_time).format("YYYY-MM-DD") }}</text>
         </view>
       </view>

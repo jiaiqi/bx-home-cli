@@ -3,7 +3,7 @@
 			'is-swiper': pageItem.type === '轮播图',
 			'padding':['疫苗列表'].includes(pageItem.type),
 			'bg-transparent': pageItem && ['关联店铺', '通知横幅', '会员卡片', '通用列表', '商品列表'].includes(pageItem.type),
-			'noMargin noPadding': pageItem && ['店铺信息2', '通知横幅', '通用列表', '会员卡片','悬浮按钮'].includes(pageItem.type)
+			'noMargin noPadding': pageItem && ['店铺信息2', '通用列表', '会员卡片','悬浮按钮'].includes(pageItem.type)
 		}">
     <view class="title" :style="titleStyle"
       v-if="pageItem && pageItem.show_label === '是' && ['通用列表','疫苗列表','商品列表','海报弹窗','悬浮按钮'].indexOf(pageItem.type)==-1"

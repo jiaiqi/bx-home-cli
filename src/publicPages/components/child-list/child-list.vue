@@ -11,9 +11,8 @@
 
       <view class="to-more" v-if="config.unfold !==false">
         <picker @change="bindPickerChange" v-model="curTemplate" :range="templates">
-          <text class=""> <button v-if="templateButtonLabel"
-              class="cu-btn bx-line-btn-color round border margin-right-xs"
-              @click="changeTemplatePopup">{{templateButtonLabel}}</button></text>
+          <button v-if="templateButtonLabel" class="cu-btn bx-line-btn-color round border margin-right-xs"
+            @click="changeTemplatePopup">{{templateButtonLabel}}</button>
         </picker>
 
         <button class="cu-btn line-orange round border" v-show="disabled!==true"
@@ -71,10 +70,11 @@
       <!-- <text>向上折叠</text> -->
       <text class="cuIcon-fold"></text>
     </view>
-    <view class="cu-modal"   @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
+    <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='addChildData'}">
       <view class="cu-dialog" @click.stop.prevent="" v-if="addV2&&modalName==='addChildData'">
         <view class="close-btn text-right">
-          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text class="cuIcon-close"></text></button>
+          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text
+              class="cuIcon-close"></text></button>
         </view>
         <view class="" style="max-height: 80vh;overflow-y: scroll;">
           <view class="child-form-wrap">
@@ -91,10 +91,11 @@
     </view>
     <batch-add ref="batchAdd" :main-data="mainData" :selectColInfo="selectColInfo" @submit="batchSubmit">
     </batch-add>
-    <view class="cu-modal"   @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
+    <view class="cu-modal" @click.stop="hideModal" :class="{show:modalName==='updateChildData'}">
       <view class="cu-dialog" @click.stop.prevent="" v-if="updateV2&&modalName==='updateChildData'">
         <view class="close-btn text-right">
-          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text class="cuIcon-close"></text></button>
+          <button class="cu-btn bg-white shadow-blur" @click.stop="hideModal()"><text
+              class="cuIcon-close"></text></button>
         </view>
         <view class="" style="max-height: 80vh;overflow-y: scroll;">
           <view class="child-form-wrap">
@@ -218,6 +219,18 @@
       }
     },
     watch: {
+      fkTemplate: {
+        immediate: true,
+        handler(newVal) {
+          if (newVal?.service) {
+            // this.$nextTick(()=>{
+              setTimeout(_=>{
+                this.getTemplate();
+              },1500)
+            // })
+          }
+        }
+      },
       modalName: {
         immediate: true,
         handler(newValue) {
@@ -548,31 +561,30 @@
           } else {
             data = []
           }
-         // let arr = data.map(item => {
-         //    let strItem = JSON.stringify(item);
-          
-         //    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
-         //      "YYYY-MM-DD"))
-         //    strItem = this.renderStr(strItem, data)
-         //    item = JSON.parse(strItem)
-         //    if (this.fkInitVal && this.fkInitVal[key]) {
-         //      let fkInitVal = this.fkInitVal[key]
-         //      Object.keys(fkInitVal).forEach(initKey => {
-         //        if (!item[initKey] && fkInitVal[initKey] &&
-         //          typeof fkInitVal[initKey] ===
-         //          'string') {
-         //          item[initKey] = this.renderStr(fkInitVal[
-         //            initKey], globalVariable) || item[initKey]
-         //        }
-         //      })
-         //    }
-         //    item._type = 'initData'
-         //    return item
-         //  })
+          // let arr = data.map(item => {
+          //    let strItem = JSON.stringify(item);
+
+          //    strItem = strItem.replace(/new Date\(\)/ig, dayjs().format(
+          //      "YYYY-MM-DD"))
+          //    strItem = this.renderStr(strItem, data)
+          //    item = JSON.parse(strItem)
+          //    if (this.fkInitVal && this.fkInitVal[key]) {
+          //      let fkInitVal = this.fkInitVal[key]
+          //      Object.keys(fkInitVal).forEach(initKey => {
+          //        if (!item[initKey] && fkInitVal[initKey] &&
+          //          typeof fkInitVal[initKey] ===
+          //          'string') {
+          //          item[initKey] = this.renderStr(fkInitVal[
+          //            initKey], globalVariable) || item[initKey]
+          //        }
+          //      })
+          //    }
+          //    item._type = 'initData'
+          //    return item
+          //  })
           if (Array.isArray(data)) {
             this.setInitData(data)
           }
-          debugger
         })
 
       },
@@ -617,9 +629,6 @@
           }
 
         }
-        debugger
-
-
       },
       async getTemplate() {
         const {
@@ -664,7 +673,6 @@
               this.templates.push(item._label || item.value || '---')
               return item
             })
-
           }
         }
       },

@@ -507,68 +507,6 @@
                 ]
               };
               break;
-            case '文章列表':
-              // reqBody = {
-              //   "serviceName": "srvdaq_cms_category_select",
-              //   "colNames": [ "*" ],
-              //   "condition": [ {
-              //     "colName": "parent_no",
-              //     "value": element.category_no,
-              //     "ruleType": "eq"
-              //   } ],
-              //   "page": {
-              //     "pageNo": 1,
-              //     "rownumber": 999
-              //   }
-              // };
-              break;
-            case '疫苗列表':
-              // reqBody = {
-              //   serviceName: "srvhealth_store_vaccine_stocks_select",
-              //   "page": {
-              //     "pageNo": 1,
-              //     "rownumber": 100
-              //   },
-              //   "colNames": [ "*" ],
-              //   condition: [
-              //     {
-              //       colName: 'vaccine_type',
-              //       ruleType: 'in',
-              //       value: "一类,二类"
-              //     },
-              //     {
-              //       colName: 'store_no',
-              //       ruleType: 'eq',
-              //       value: storeNo
-              //     }
-              //   ]
-              // }
-              break;
-            case '轮播图':
-              // reqBody =
-              break;
-            case '商品列表':
-              // reqBody = {
-              // 	serviceName: 'srvhealth_store_goods_guest_select',
-              // 	colNames: ['*'],
-              // 	condition: [{
-              // 		colName: 'store_no',
-              // 		ruleType: 'eq',
-              // 		value: storeNo
-              // 	}]
-              // };
-              // if (element?.more_config && typeof element.more_config === 'string') {
-              // 	let more_config = {};
-              // 	try {
-              // 		more_config = JSON.parse(element.more_config);
-              // 	} catch (err) {
-              // 		console.log(err);
-              // 	}
-              // 	if (Array.isArray(element.more_config?.condition) && element.more_config?.condition.length > 0) {
-              // 		reqBody.condition = [...reqBody, ...element.more_config?.condition];
-              // 	}
-              // }
-              break;
             case '通知横幅':
               reqBody = {
                 serviceName: 'srvhealth_store_home_notice_select',
@@ -618,46 +556,23 @@
               case '人员列表':
                 element['listdata'] = dataArray[index];
                 break;
-              case '商品列表':
-                // if (Array.isArray(dataArray[index]) && dataArray[index].length > 0) {
-                //   element['listdata'] = dataArray[index].reduce((pre, cur) => {
-                //     let url = this.getImagePath(cur['goods_img'], true);
-                //     cur.url = url;
-                //     if (cur['goods_img']) {
-                //       this.getImageInfo({
-                //         url: url
-                //       }).then(picInfo => {
-                //         if (picInfo.w && picInfo.h) {
-                //           let res = this.setPicHeight(picInfo);
-                //           if (res.w && res.h) {
-                //             this.$set(cur, 'imgWidth', res.w);
-                //             this.$set(cur, 'imgHeight', res.h);
-                //           }
-                //         }
-                //       });
-                //     }
-                //     pre.push(cur)
-                //     return pre
-                //   }, []);
-                // }
-                break;
-              case '通知横幅':
-                if (dataArray[index] && Array.isArray(dataArray[index])) {
-                  element['listdata'] = dataArray[index].map(item => {
-                    if (!item.style_config) {
-                      item.style_config = {};
-                    } else if (typeof item.style_config === 'string') {
-                      try {
-                        item.style_config = JSON.parse(item.style_config);
-                      } catch (e) {
-                        //TODO handle the exception
-                      }
-                    }
-                    return item;
-                  })
-                }
+              // case '通知横幅':
+              //   if (dataArray[index] && Array.isArray(dataArray[index])) {
+              //     element['listdata'] = dataArray[index].map(item => {
+              //       if (!item.style_config) {
+              //         item.style_config = {};
+              //       } else if (typeof item.style_config === 'string') {
+              //         try {
+              //           item.style_config = JSON.parse(item.style_config);
+              //         } catch (e) {
+              //           //TODO handle the exception
+              //         }
+              //       }
+              //       return item;
+              //     })
+              //   }
 
-                break;
+              //   break;
             }
             //  [ '按钮组', '人员列表', '商品列表', '通知横幅' ]
           }

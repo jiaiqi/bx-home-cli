@@ -1744,7 +1744,7 @@
         }
 
         colVs = this.deepClone(colVs);
-        if (colVs && colVs.service_view_name) {
+        if (colVs && colVs.service_view_name && !this.pageTitle) {
           this.pageTitle = colVs.service_view_name
           uni.setNavigationBarTitle({
             title: colVs.service_view_name
@@ -2066,6 +2066,12 @@
       };
     },
     async onLoad(option) {
+      if (option.pageTitle) {
+        this.pageTitle = option.pageTitle
+        uni.setNavigationBarTitle({
+          title: option.pageTitle
+        });
+      }
       if (option.backUrl) {
         try {
           this.backUrl = decodeURIComponent(option.backUrl)

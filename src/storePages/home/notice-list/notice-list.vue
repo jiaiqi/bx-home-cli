@@ -238,6 +238,7 @@
         }
         let res = await this.$fetch('select', serviceName, req, app)
         if (res.success) {
+          debugger
           this.noticeList = res.data.map(item => {
             item.label = item.label || item.title
             item.label = this.renderStr(item.label,{...this.globalVariable})
@@ -269,9 +270,6 @@
         }
       }
     },
-    mounted() {
-
-    }
   }
 </script>
 
@@ -279,7 +277,6 @@
   .notice-wrap {
     /* margin-bottom: 20rpx; */
     min-width: 300px;
-    // margin: 0rpx 20rpx 0;
     border-radius: 20rpx;
     overflow: hidden;
     // background-color: #fff;

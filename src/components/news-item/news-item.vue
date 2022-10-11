@@ -20,9 +20,12 @@
         <button class="line-red cu-btn sm" v-if="item && item.other_status && item.other_status === '精选'">精选</button>
         <button class="line-red cu-btn sm" v-if="item && item.top_status && item.top_status === '是'">置顶</button>
       </text>
-      <text class="date" v-if="hideCreateTime!==true">{{
-          dayjs(item.create_time).format("YYYY-MM-DD")
-        }}</text>
+      <view class="flex align-center justify-between">
+        <text class="date" v-if="hideCreateTime!==true">{{
+            dayjs(item.create_time).format("YYYY-MM-DD")
+          }}</text>
+        <text class="padding-left date" v-if="item.author">{{item.author }}</text>
+      </view>
     </view>
   </view>
 </template>
