@@ -270,7 +270,7 @@
     },
     computed: {
       fkTemplate() {
-        return this.config?.constraint_name && this.srvMoreConfig?.fkTemplate[this.config?.constraint_name] || false
+        return this.config?.constraint_name && this.srvMoreConfig?.fkTemplate?.[this.config?.constraint_name] || false
       },
       templateButtonLabel() {
         return this.fkTemplate?.buttonLabel
