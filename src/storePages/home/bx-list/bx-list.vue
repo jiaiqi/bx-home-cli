@@ -410,13 +410,15 @@
         this.curTab = e;
         // this.serviceName  = this.tabs[e].service||this.serviceName
         // this.appName  = this.tabs[e].app||this.appName
-        if (this.tabsCfg?.type === 'fk_col') {
+        console.log(e,this.tabsCfg?.type);
+        if (this.tabsCfg?.type === 'fk_col'||this.tabsCfg?.type === 'enum_col') {
           let cond = null
           let tab = this.tabsCfg.tabs[e]
           if (tab.value) {
             if (tab.value !== '_all') {
+              // cond = []
               cond = [{
-                colName: this.tabsCfg?.col || this.tabsCfg?.col,
+                colName: this.tabsCfg?.col || this.tabsCfg?.column,
                 ruleType: 'eq',
                 value: tab.value
               }]
@@ -425,7 +427,7 @@
               if (Array.isArray(this.enumTabs) && this.enumTabs.length > 1) {
                 let val = this.enumTabs.filter(item => item.value !== '_all').map(item => item.value).toString()
                 cond = [{
-                  colName: this.tabsCfg?.col,
+                  colName: this.tabsCfg?.col|| this.tabsCfg?.column,
                   ruleType: 'in',
                   value: val
                 }]
@@ -436,10 +438,10 @@
             this.getList(cond)
           }
         } else {
-          this.condition = this.tabs[e].condition || [];
-          this.getListV2().then(_ => {
-            this.refresh();
-          });
+          this.condition = this.tabs[e]?.condition || [];
+          // this.getListV2().then(_ => {
+          //   this.refresh();
+          // });
         }
 
       },
