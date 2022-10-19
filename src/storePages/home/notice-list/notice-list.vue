@@ -5,7 +5,8 @@
       :type="theme" :color="styleConfig.color" :duration="duration" @click="clickMultiNotice(idx1,$event)"
       v-for="(lists,idx1) in multiListSimple">
       <template v-slot:leftIcon>
-        <view style="display: flex;margin: 0;padding: 0;align-items: center;" class="" v-if="pageItem&&pageItem.notice_left_icon">
+        <view style="display: flex;margin: 0;padding: 0;align-items: center;" class=""
+          v-if="pageItem&&pageItem.notice_left_icon">
           <image :style="[{width:volumeSize+'rpx',height:volumeSize+'rpx'}]"
             :src="getImagePath(pageItem.notice_left_icon)" mode="aspectFit"></image>
         </view>
@@ -16,6 +17,13 @@
     v-else-if="pageItem&&pageItem.notice_style&&showNoticeBar&&setList&&setList&&setList.length>0">
     <u-notice-bar :mode="mode" :list="setList" :is-circular="false" :more-icon="false" :volume-size="volumeSize"
       :type="theme" :color="color" :duration="duration" @click="clickNotice">
+      <template v-slot:leftIcon>
+        <view style="display: flex;margin: 0;padding: 0;align-items: center;" class=""
+          v-if="pageItem&&pageItem.notice_left_icon">
+          <image :style="[{width:volumeSize+'rpx',height:volumeSize+'rpx'}]"
+            :src="getImagePath(pageItem.notice_left_icon)" mode="aspectFit"></image>
+        </view>
+      </template>
     </u-notice-bar>
   </view>
   <view class="notice-wrap" v-else-if="pageItem&&noticeList&&noticeList.length>0">
@@ -186,7 +194,9 @@
           if (Array.isArray(res?.data?.data)) {
             this.noticeList = res.data.data.map(item => {
               item.label = item.label || item[this.reqCfg?.labelCol] || ''
-              item.label = this.renderStr(item.label,{...this.globalVariable})
+              item.label = this.renderStr(item.label, {
+                ...this.globalVariable
+              })
               return item
             })
           }
@@ -241,7 +251,9 @@
           debugger
           this.noticeList = res.data.map(item => {
             item.label = item.label || item.title
-            item.label = this.renderStr(item.label,{...this.globalVariable})
+            item.label = this.renderStr(item.label, {
+              ...this.globalVariable
+            })
             if (!item.style_config) {
               item.style_config = {}
             } else if (typeof item.style_config === 'string') {

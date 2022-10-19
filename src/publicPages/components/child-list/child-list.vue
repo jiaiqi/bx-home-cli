@@ -1737,10 +1737,9 @@
         if (Array.isArray(calcCols) && calcCols.length > 0) {
           calcResult = await this.evalCalc(table_name, calcCols, fieldModel, this.srvApp)
         }
-
+        
         for (let i = 0; i < allFields.length; i++) {
-          const item = allFields[i]
-
+          const item = allFields[i] 
           item.old_value = item.value
           if (e && typeof e === 'object' && e.hasOwnProperty(item.column)) {
             item.old_value = item.value;
@@ -2096,6 +2095,7 @@
           if (item.column && this.mainData && this.mainData[item.column]) {
             item.value = this.mainData[item.column]
           }
+          
           if (Array.isArray(item?.option_list_v2?.mconditions) && item.option_list_v2
             .mconditions.length > 0) {
             let mconditions = item.option_list_v2.mconditions
@@ -2133,6 +2133,12 @@
           if (item.in_add === 1) {
             item.display = true
           }
+          
+          // 从主表数据中冗余
+          if(item.redundant?.dependField===this.config?.foreign_key?.referenced_column_name){
+            item.value = this.mainData[item.redundant?.refedCol]
+          }
+          
           if (item.columns === this.foreignKey?.column_name) {
             item.display = false;
             if (this.foreignKey?.referenced_column_name && this.mainData[this.foreignKey
