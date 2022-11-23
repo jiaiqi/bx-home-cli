@@ -562,7 +562,7 @@
           "condition": [{
               "colName": "app_date",
               "ruleType": "eq",
-              "value": item.app_date
+              "value": this.dayjs(item.app_date).format("YYYY-MM-DD")
             },
             {
               colName: 'app_state',
