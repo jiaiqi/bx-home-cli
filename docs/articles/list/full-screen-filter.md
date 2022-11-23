@@ -7,7 +7,8 @@
             "query_cols": [
                 {
                     "column":"policy_industry",
-                    "add":"industry" //添加服务中对应的字段
+                    "add":"industry", //添加服务中对应的字段
+                    "ruleType":"le"  // 配置了ruleType就用配置的 没有配置用like
                 }
             ],
             "use_add_v2":true,//查询字段的配置是否使用add服务的

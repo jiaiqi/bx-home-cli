@@ -1,0 +1,93 @@
+{
+  "pages": [{
+    "path": "pages/home/home",
+    "style": {
+      "navigationBarTitleText": "",
+      "navigationBarTextStyle": "black",
+      "navigationStyle": "custom",
+      "enablePullDownRefresh": true
+    }
+  }],
+  "subPackages": [{
+      "root": "publicPages",
+      "pages": [{
+          "path": "accountExec/accountExec",
+          "style": {
+            "navigationBarTitleText": "登录",
+            "navigationBarBackgroundColor": "#FFF",
+            "navigationBarTextStyle": "black"
+          }
+        },
+
+        {
+          "path": "webviewPage/webviewPage"
+        },
+        {
+          "path": "list2/list2",
+          "style": {
+            "navigationBarTitleText": "列表",
+            "enablePullDownRefresh": true,
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#fff",
+            "topWindow": false, // 当前页面不显示 topWindow
+            "leftWindow": false, // 当前页面不显示 leftWindow
+            "rightWindow": false // 当前页面不显示 rightWindow
+          }
+        }
+      ]
+    },
+    {
+      "root": "otherPages",
+      "pages": [{
+          "path": "clockIn/clockIn",
+          "style": {
+            "navigationBarTitleText": "",
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": true
+          }
+        }
+      
+      ]
+    },
+    {
+      "root": "storePages",
+      "pages": [{
+          "path": "home/home",
+          "style": {
+            "navigationBarTitleText": "",
+            "navigationBarBackgroundColor": "#fff",
+            "navigationBarTextStyle": "black",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": true
+          }
+        }
+      
+      ]
+    }
+
+  ],
+
+  "easycom": {
+    "^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "",
+    "navigationBarBackgroundColor": "#fff",
+    "backgroundColor": "#F8F8F8",
+    "pageOrientation": "auto",
+    "rpxCalcMaxDeviceWidth": 500, // rpx 计算所支持的最大设备宽度，单位 px，默认值为 960
+    "rpxCalcBaseDeviceWidth": 375, // rpx 计算使用的基准设备宽度，设备实际宽度超出 rpx 计算所支持的最大设备宽度时将按基准宽度计算，单位 px，默认值为 375
+    "rpxCalcIncludeWidth": 750 // rpx 计算特殊处理的值，始终按实际的设备宽度计算，单位 rpx，默认值为 750
+  },
+  "condition": {
+    // "current": 0,
+    "list": [{
+      "name": "聊天页面",
+      "path": "publicPages/chat/chat",
+      "query": "q=https%3A%2F%2Fwx2.100xsys.cn%2FjoinGroup%2FGC202104060944050002"
+    }]
+  }
+}
