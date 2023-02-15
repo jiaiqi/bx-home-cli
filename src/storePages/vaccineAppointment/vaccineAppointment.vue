@@ -89,7 +89,7 @@
           </view>
           <view class="bx-form-group">
             <view class="title">出生日期</view>
-            <picker mode="date" v-model="formModel.customer_birth_day" start="1900-09-01" end="2022-09-01"
+            <picker mode="date" v-model="formModel.customer_birth_day" start="1900-09-01" :end="nowDate"
               @change="DateChange">
               <view class="picker input">
                 <text class="place-holder" v-if="!formModel.customer_birth_day">请选择</text>
@@ -158,10 +158,13 @@
         imagesUrl: [],
         dayOrderInfo: {},
         app_type: "", // 默认疫苗预约
-        moreConfig: {}
+        moreConfig: {},
       }
     },
     computed: {
+      nowDate(){
+        return this.dayjs().format("YYYY-MM-DD")
+      },
       notEmpty() {
         if (Array.isArray(this.timeArr) && this.timeArr.length > 0) {
           if (Array.isArray(this.getRange) && this.getRange.length > 0) {

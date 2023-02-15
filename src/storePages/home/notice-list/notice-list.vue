@@ -248,7 +248,6 @@
         }
         let res = await this.$fetch('select', serviceName, req, app)
         if (res.success) {
-          debugger
           this.noticeList = res.data.map(item => {
             item.label = item.label || item.title
             item.label = this.renderStr(item.label, {

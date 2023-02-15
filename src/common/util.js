@@ -1623,27 +1623,6 @@ export default {
       } else if (data?.no) {
         // 未查到用户信息
         store.commit('SET_AUTH_USERINFO', false)
-        // 获取授权，登记用户信息
-        // return 
-        // #ifdef MP-WEIXIN
-        // const wxUser = await wx.getUserProfile({
-        // 	desc: '用于完善会员资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-        // })
-        // if (wxUser && wxUser.userInfo) {
-        // 	let rawData = {
-        // 		nickname: wxUser.userInfo.nickName,
-        // 		sex: wxUser.userInfo.gender,
-        // 		country: wxUser.userInfo.country,
-        // 		province: wxUser.userInfo.province,
-        // 		city: wxUser.userInfo.city,
-        // 		headimgurl: wxUser.userInfo.avatarUrl
-        // 	};
-        // 	// 保存用户信息
-        // 	await Vue.prototype.setWxUserInfo(rawData);
-        // 	store.commit('SET_WX_USERINFO', rawData);
-        // 	store.commit('SET_AUTH_USERINFO', true);
-        // }
-        // #endif
 
         if ((wxUserInfo && (!wxUserInfo.nickname || wxUserInfo.nickname === '微信用户')) || !wxUserInfo) {
           // 未授权获取用户信息

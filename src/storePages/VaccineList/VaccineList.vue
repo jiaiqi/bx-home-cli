@@ -281,6 +281,7 @@
         }]
         let res = await this.$fetch('operate', 'srvhealth_person_info_real_identity_update', req, 'health')
         if (res.success) {
+          this.hideModal()
           if (Array.isArray(res.data) && res.data.length > 0) {
             uni.setStorageSync('cur_user_no', res.data[0].no)
             this.$store.commit('SET_USERINFO', res.data[0])

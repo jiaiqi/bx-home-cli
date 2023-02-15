@@ -2,18 +2,36 @@
   <view class="cu-modal bottom-modal" :class="{show:show}">
     <view class="cu-dialog">
       <view class="auth-box">
-        <view class="margin-tb">
+        <view class="margin-tb" v-if="canUseChooseAvatar">
+          <button class="avatar-wrapper" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+            <image class="avatar" :src="avatarUrl" mode="aspectFill" v-if="avatarUrl"></image>
+            <text class="cuIcon-peoplefill" v-else></text>
+          </button>
+          
+       <!--   <bx-image-upload
+            :max-count="1"
+            open-type="chooseAvatar"
+            :disabled="false" :custom-btn="false" interfaceName="add"
+            appName="health" :tableName="uploadFormData.table_name" :value="avatarUrl"
+            :index="fieldData.column" :action="uploadUrl" @change="imgChange" v-else-if="fieldData.type === 'images'">
+       
+          </bx-image-upload> -->
+          <input type="nickname" class="weui-input" placeholder="请输入昵称" v-model="nickname" @change="nickNameChange"/>
+        </view>
+        <view class="margin-tb" v-else>
           <image :src="getImagePath(storeInfo.logo)" mode="aspectFit"
             style="width: 160rpx;height: 160rpx;border-radius: 50%;"></image>
           <view class="text-lg margin-tb-xs text-bold">
             {{storeInfo.name||''}}
           </view>
         </view>
+
         <view class="title">
           <!-- {{title||''}} -->
         </view>
 
-        <view class="tips">{{ tips }}</view>
+        <view class="tips" v-if="canUseChooseAvatar">请在上方选择头像昵称来完善信息，以便体验完整小程序</view>
+        <view class="tips" v-else>{{ tips }}</view>
 
         <view class="bottom">
           <!-- 登录代表您已同意<text class="text-blue" @click="toArticle('CT2021012816330102')">百想用户协议</text> -->
@@ -31,7 +49,10 @@
         <view class="button-box flex flex-wrap justify-center align-center">
           <button class="cu-btn bg-transparent text-gray button margin-tb" @click="cancel"
             v-if="allowCancel">取消</button>
-          <button class="cu-btn bg-transparent text-blue button light" lang="zh_CN" v-if="canIUseGetUserProfile"
+            <button class="cu-btn bg-transparent text-blue button light" lang="zh_CN" v-if="canUseChooseAvatar"
+              @tap="confirm">
+              确定 </button>
+          <button class="cu-btn bg-transparent text-blue button light" lang="zh_CN" v-else-if="canIUseGetUserProfile"
             @tap="getUserProfile">
             确定 </button>
           <button class="cu-btn bg-transparent text-blue button light" v-else open-type="getUserInfo"
@@ -48,6 +69,9 @@
   export default {
     data() {
       return {
+        avatarUrl:"",
+        avatarUrlFileNo:"",
+        nickname:"",
         canIUseGetUserProfile: false,
         isChecked: false,
         show: false,
@@ -80,6 +104,59 @@
       this.getDocs()
     },
     methods: {
+      uploadProfile(url){
+        // 创建上传对象
+        uni.showLoading();
+        uni.uploadFile({
+          url: this.$api.upload,
+          filePath: url,
+          name: 'file',
+          formData: {
+            "serviceName": "srv_bxfile_service",
+            "interfaceName": 'update',
+            // "thumbnailType": "fwsu_100",
+            "app_no": 'health',
+            "table_name": 'bxhealth_person_info',
+            "columns": 'profile_url',
+            "file_no": ''
+          },
+          header: {
+             'bx_auth_ticket': uni.getStorageSync('bx_auth_ticket')
+          },
+          success: res => {
+            // 判断是否json字符串，将其转为json格式
+            let data = this.$u.test.jsonString(res.data) ? JSON.parse(res.data) : res.data;
+            if (![200, 201, 204].includes(res.statusCode)) {
+              uni.showToast({
+                title: '头像上传失败，请重试',
+                icon: 'none'
+              });
+            } else {
+              // 上传成功
+              console.log(data?.file_no,'data?.file_no',data,res);
+              this.avatarUrlFileNo = data?.file_no
+            }
+          },
+          fail: e => {
+            uni.showToast({
+              title: '头像上传失败，请重试',
+              icon: 'none'
+            });
+          },
+          complete: res => {
+            uni.hideLoading();
+          }
+        });
+      },
+      nickNameChange(e){
+        this.nickname = e.detail.value
+      },
+      onChooseAvatar(e){
+        const avatarUrl = e?.detail?.avatarUrl;
+        console.log(avatarUrl);
+        this.avatarUrl = avatarUrl
+        this.uploadProfile(avatarUrl)
+      },
       toArticle(no) {
         uni.navigateTo({
           url: `/publicPages/article/article?serviceName=srvdaq_cms_content_select&content_no=${no}`
@@ -120,6 +197,33 @@
         this.show = false
         this.$emit('cancel')
       },
+      confirm(){
+        // console.log(this.avatarUrlFileNo,this.nickname);
+        // if (!this.avatarUrlFileNo||!this.nickname) {
+        //   uni.showToast({
+        //     title: '请先完善头像昵称',
+        //     icon: 'none'
+        //   })
+        //   return
+        // }
+        if (!this.isChecked) {
+          uni.showToast({
+            title: '请先阅读并接受协议条款',
+            icon: 'none'
+          })
+          return
+        }
+        
+        const res = {
+          userInfo:{
+            avatarUrl:this.avatarUrlFileNo||null,
+            nickName:this.nickname||`微信用户_${new Date().getTime()}`,
+            gender:0
+          }
+        }
+        this.$store.commit('SET_AUTH_USER', res)
+        this.handleUserInfo(res)
+      },
       getUserProfile(e) {
         if (!this.isChecked) {
           uni.showToast({
@@ -134,6 +238,7 @@
         wx.getUserProfile({
           desc: '用于完善用户资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
           success: (res) => {
+            debugger
             this.$store.commit('SET_AUTH_USER', res)
             this.handleUserInfo(res)
           }
@@ -197,6 +302,34 @@
 </script>
 
 <style lang="scss">
+  .weui-input{
+    margin-top: 5px;
+    height: 40px;
+    line-height: 40px;
+    // border: ;
+  }
+  .avatar-wrapper{
+    background-color: #f1f1f1;
+    border: none;
+    
+    width: 50px;
+    height: 50px;
+    border-radius: 10rpx;
+    padding: 0;
+    font-size: 24px;
+    line-height: 50px;
+    text-align: center;
+    &::after{
+      border: none;
+    }
+    .avatar{
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+    }
+  }
   .auth-box {
     width: 100%;
     // height: calc(100vh - var(--window-top) - var(--window-bottom));

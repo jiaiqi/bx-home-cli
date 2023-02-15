@@ -209,7 +209,7 @@
         <view class="value rich-text" v-if="!fieldData.value">请输入</view>
         <rich-text :nodes="fieldData.value" class="value rich-text" v-else></rich-text>
       </view>
-      <input :type="fieldData.column==='nick_name'?'nickname':'text'" class="" style="width: 100%"
+      <input :type="inputType" class="" style="width: 100%"
         :placeholder="fieldData.disabled ?'':'请输入'+(fieldData.customLabel||fieldData.label)" :value="fieldData.value"
         @blur="inputChange" :maxlength="max_len" :disabled="fieldData.disabled|| false"
         v-else-if="fieldData.type === 'text'" />
@@ -276,7 +276,7 @@
 
       <bx-image-upload
         :max-count="fieldData&&fieldData.moreConfig&&fieldData.moreConfig.maxCount?fieldData.moreConfig.maxCount:10"
-        :open-type="['profile_url','user_image'].includes(fieldData.column)?'chooseAvatar':''"
+        :open-type="inputType"
         :disabled="pageType==='detail'||fieldData.disabled" :custom-btn="false" :interfaceName="formType"
         :appName="uploadFormData.app_no" :tableName="uploadFormData.table_name" :value="fieldData.value"
         :index="fieldData.column" :action="uploadUrl" @change="imgChange" v-else-if="fieldData.type === 'images'">
@@ -549,7 +549,18 @@
       },
       datePriceConfig() {
         return this.fieldData?.moreConfig?.date_price_config
-      }
+      },
+      inputType() {
+        if (this.fieldData?.moreConfig?.inputType) {
+          return this.fieldData?.moreConfig?.inputType
+        } else if (this.fieldData.column === 'nickname') {
+          return 'nickname'
+        } else if (this.fieldData.type === 'images'&&['profile_url', 'user_image'].includes(this.fieldData.column)) {
+          return 'chooseAvatar'
+        } else {
+          return this.fieldData.type
+        }
+      },
     },
     data() {
       return {
@@ -1149,7 +1160,7 @@
           // 多选
           self.fieldData.value = self.fieldData.value.split(',');
         } else if (self.fieldData && ['TreeSelector', 'Selector', 'location'].includes(self.fieldData.type)) {
-        
+
           let cond = null;
           if (self.fieldData.value && self.fieldData?.option_list_v2?.refed_col && self.formType !== 'add') {
             cond = [{
@@ -1166,7 +1177,7 @@
               .colData[self.fieldData.option_list_v2.key_disp_col]
 
           } else {
-         
+
             self.getSelectorData(cond).then(_ => {
               if (self.fieldData.value) {
                 let fkFieldLabel = self.selectorData.find(item => item.value === self.fieldData
@@ -1390,7 +1401,7 @@
           return;
         }
         let req = {
-          serviceName:serv ,
+          serviceName: serv,
           colNames: ['*'],
           condition: [],
           order: [],
@@ -1850,7 +1861,7 @@
           case 'TreeSelector':
             // await this.getSelectorData(null, null, null)
             this.modalName = 'TreeSelector';
-            this.selectTreeData = this.selectTreeData || {} 
+            this.selectTreeData = this.selectTreeData || {}
             break;
         }
       },
@@ -1950,7 +1961,7 @@
       if (self.fieldData && ['Selector', 'location'].includes(self.fieldData.type)) {
         self.getDefVal()
       }
-      if(['TreeSelector'].includes(self.fieldData.type)){
+      if (['TreeSelector'].includes(self.fieldData.type)) {
         if (!this.fieldData.value && this.fieldData?.moreConfig?.defaultSelectCondition) {
           this.getSelectorData()
         }

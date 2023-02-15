@@ -1333,7 +1333,7 @@
           try {
             let data = {
               storeNo: this.storeNo,
-              ...this.$data,
+              // ...this.$data,
               storeInfo: this.storeInfo,
               userInfo: this.userInfo,
               bindUserInfo: this.bindUserInfo,

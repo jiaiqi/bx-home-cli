@@ -44,6 +44,31 @@ export default {
         storeUser: this.vstoreUser, //店铺用户信息
       }
     },
+    canUseChooseAvatar(){
+      const SDKVersion =  wx.getSystemInfoSync().SDKVersion
+      function compareVersion(v1, v2) {
+        v1 = v1.split('.')
+        v2 = v2.split('.')
+        const len = Math.max(v1.length, v2.length)
+        while (v1.length < len) {
+          v1.push('0')
+        }
+        while (v2.length < len) {
+          v2.push('0')
+        }
+        for (let i = 0; i < len; i++) {
+          const num1 = parseInt(v1[i])
+          const num2 = parseInt(v2[i])
+          if (num1 > num2) {
+            return 1
+          } else if (num1 < num2) {
+            return -1
+          }
+        }
+        return 0
+      }
+      return compareVersion(SDKVersion, '2.21.2') === 1
+    },
     // setStoreNo() {
     //   return this.storeNo || this.store_no || this.curStoreNo || this.goodsInfo?.store_no || this.storeInfo?.store_no
     // },
@@ -85,7 +110,6 @@ export default {
         ...this.globalVariable,
         ...obj
       }
-      
       const buildResult = (key, result) => {
         if (key && key.indexOf('||') !== -1) {
           let arr = key.split('||')
@@ -122,7 +146,7 @@ export default {
           let result = obj[key]
           if (key === 'today') {
             result = dayjs().format("YYYY-MM-DD")
-          }else{
+          }else if(typeof result !=='string'){
             result = buildResult(key,obj)
           }
 
@@ -798,7 +822,7 @@ export default {
 
     async getStoreUser_() {
       let storeNo = this.curStoreNo
-    
+      debugger
       if (this.userInfo?.no && storeNo) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {

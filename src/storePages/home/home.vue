@@ -1,5 +1,10 @@
 <template>
-  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]">
+<!--  <view class=""  v-if="notNickName">
+    
+  </view> -->
+  <view :style="themeVariable" class="page-wrap" :class="['theme-' + theme]" >
+    <view class="shadow-view" @click="clickShadow"  v-if="notNickName"></view>
+    <bx-auth @auth-complete="initPage" ref="bxAuth" :allowCancel="true" @cancel="cancelAuth" v-if="notNickName"></bx-auth>
     <cu-custom-navbar :isBack="showBackPage" :pd-no="pdNo" :back-home="showBackHome&&!singleStore"
       :page-title="pageTitle">
       <view class="flex align-center justify-between home-name" @click.stop="openSwitchHomePage">
@@ -59,8 +64,7 @@
       :before-switch="beforeSwitch" @change="changeTab">
     </u-tabbar>
     <starGuide></starGuide>
-    <view class="shadow-view" @click="clickShadow" v-if="notNickName"></view>
-    <bx-auth @auth-complete="initPage" ref="bxAuth" :allowCancel="true" @cancel="cancelAuth" v-if="notNickName"></bx-auth>
+  
   </view>
 
 </template>

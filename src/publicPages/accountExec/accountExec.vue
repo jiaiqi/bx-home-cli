@@ -221,7 +221,6 @@
     },
     methods: {
       initPage(e) {
-
         uni.navigateBack()
       },
       changeLoginType(e) {
@@ -417,10 +416,7 @@
           }
         } catch (e) {
           //TODO handle the exception
-          // uni.showToast({
-          //   title: typeof e === 'string' ? e : JSON.stringify(e),
-          //   icon: 'none'
-          // });
+    
         }
         this.$http.post(url, req).then(response => {
           if (response.data.response[0].response.authUrl) {
@@ -481,14 +477,12 @@
                     uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
                     if (resData.login_user_info.user_no) {
                       uni.setStorageSync('login_user_info', resData.login_user_info);
-                      // top.user = resData.login_user_info;
                       console.log('resData.login_user_info', resData
                         .login_user_info);
                     }
                     if (resData.login_user_info.data) {
                       uni.setStorageSync('visiter_user_info', resData.login_user_info
                         .data[0]);
-                      // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
                     }
                     uni.setStorageSync('isLogin', true);
                     console.log('that.backUrl', that.backUrl);
@@ -539,8 +533,6 @@
                 let expire_timestamp = parseInt(new Date().getTime() / 1000) + loginMsg
                   .expire_time; //过期时间的时间戳(秒)
                 uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
-                // let expire_timestamp = parseInt(new Date().getTime() / 1000) + 10; //过期时间的时间戳(秒)
-                // uni.setStorageSync('expire_time', 10); // 有效时间
                 uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
                 uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
                 if (resData.login_user_info && resData.login_user_info.user_no) {
@@ -553,7 +545,6 @@
                 }
                 if (resData.login_user_info && resData.login_user_info.data) {
                   uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-                  // this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
                 }
                 uni.showModal({
                   title: '提示',
@@ -567,11 +558,7 @@
                       console.log('用户点击取消');
                       let loginBackurl = uni.getStorageSync('loginBackurl')
                       if (loginBackurl && loginBackurl.indexOf('accountExec') == -1) {
-                        // loginBackurl = that.getDecodeUrl(loginBackurl)
-                        // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-                        // if (url && url.lastIndexOf("backUrl=") !== -1) {
-                        //   url = url.substring(url.lastIndexOf("backUrl=") +
-                        //     8, url.length)
+         
                         console.log("授权成功，准备返回用户界面url", url)
                         // }
 
@@ -621,12 +608,7 @@
                 uni.hideLoading();
                 let loginBackurl = uni.getStorageSync('loginBackurl')
                 if (loginBackurl && loginBackurl !== '/' && loginBackurl.indexOf('accountExec') == -1) {
-                  // url = that.getDecodeUrl(url);
-                  // // alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-                  // if (url && url.lastIndexOf('backUrl=') !== -1) {
-                  //   url = url.substring(url.lastIndexOf('backUrl=') + 8, url.length);
-                  //   // console.log("授权成功，准备返回用户界面url",url)
-                  // }
+                
                   uni.reLaunch({
                     url: loginBackurl,
                     fail() {
@@ -811,14 +793,13 @@
             // #ifdef MP-WEIXIN
             url2 = url2 || that.$api.homePath
             // #endif
-
-
             uni.reLaunch({
               url: ` /${url2}`
             });
           } else {
             uni.showToast({
               title: response.data.resultMessage,
+              icon:'none',
               duration: 2000
             });
           }

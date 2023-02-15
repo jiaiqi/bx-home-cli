@@ -160,6 +160,7 @@ let ENV = {
    * */
   backUrl: remoteAddress.ssourl, // 授权域名
   serverURL: remoteAddress.serviceAddress, // 后台地址
+  // serverURLTest: remoteAddress.serviceAddressTest, // 后台地址
   refuseCode: '0111', // 后台拒绝识别码
   byCode: '1111', // 后台通过码
   byState: 'SUCCESS', // 状态码
