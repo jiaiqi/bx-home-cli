@@ -454,7 +454,17 @@
                   arr2.push(this.deepClone(obj))
                   start = obj.timeEnd
                 }
-                obj1.list = arr2
+                let rangeLength = arr2.length
+                let curLimitCount = 0
+                obj1.list = arr2.map((item,index)=>{
+                  item._time_range_appointment_limit = parseInt(item.app_count_limit/rangeLength)
+                  if(index===rangeLength-1){
+                  item._time_range_appointment_limit =   item.app_count_limit - curLimitCount
+                  }else{
+                    curLimitCount+=item._time_range_appointment_limit
+                  }
+                  return item
+                })
                 if (Array.isArray(recordList) && recordList.length > 0) {
                   obj1.app_amount = recordList.reduce((res, cur) => {
                     if (typeof cur.amount === 'number' && !isNaN(cur.amount)) {
@@ -477,13 +487,13 @@
                 obj.timeStart = dayjs(obj.app_date + ' ' + obj.app_time_start).format("HH:mm")
                 obj.timeEnd = dayjs(obj.app_date + ' ' + obj.app_time_end).format("HH:mm")
                 obj.app_amount = obj.app_count
+                obj._time_range_appointment_limit = obj.app_count_limit
                 obj1.list = [obj]
                 arr.push(obj1)
               }
             }
           }
           this.timeArr = arr
-          let timeArr = res.data
 
           this.formModel.customer_name = this.userInfo.name || this.userInfo.nickName || null
           this.formModel.customer_phone = this.userInfo.phone || null

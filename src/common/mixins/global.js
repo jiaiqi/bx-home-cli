@@ -822,7 +822,6 @@ export default {
 
     async getStoreUser_() {
       let storeNo = this.curStoreNo
-      debugger
       if (this.userInfo?.no && storeNo) {
         let url = this.getServiceUrl('health', 'srvhealth_store_user_select', 'select');
         let req = {

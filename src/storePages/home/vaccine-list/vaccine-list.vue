@@ -25,7 +25,7 @@
         <view class="tab-list" v-if="subList&&subList.length>1">
           <view class="tab-item" :class="[curSub===index?'active':'','tab-item-'+index]" v-for="(item,index) in subList"
             :key="index" @click="changeSub(index)">
-            {{item.name||''}}
+            {{item.label||item.name||''}}
           </view>
         </view>
         <swiper class="swiper " indicator-active-color="#00aaff" indicator-color="#ccc" :indicator-dots="true"
@@ -310,6 +310,15 @@
             return {
               name: item,
               col: this.moreConfig?.tabs?.col
+            }
+          })
+        } else if (this.moreConfig?.cusTabs && Array.isArray(this.moreConfig?.cusTabs) && this.moreConfig?.cusTabs
+          .length > 0) {
+          res = this.moreConfig?.cusTabs.map(item => {
+            return {
+              name: item.name,
+              label: item.label || item.name,
+              col: item.col
             }
           })
         }
