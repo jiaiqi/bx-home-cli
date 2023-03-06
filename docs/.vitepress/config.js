@@ -57,6 +57,16 @@ export default {
           ],
         },
         {
+          text: "详情",
+          items: [
+            // {
+            //   text: "公共",
+            //   link: "/articles/form/",
+            // },
+            { text: "模板配置", link: "/articles/detail/template" },
+          ],
+        },
+        {
           text: "列表页面",
           items: [
             {
