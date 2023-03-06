@@ -193,7 +193,6 @@ export default {
       })
     },
     openDocument(e) {
-      debugger
       if (e) {
         let path = this.getImagePath(e, true)
         // #ifdef MP-WEIXIN

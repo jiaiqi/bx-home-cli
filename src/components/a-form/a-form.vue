@@ -372,7 +372,7 @@
         }
 
         for (let index = 0; index < this.allField.length; index++) {
-          const item = this.allField[index]
+          let item = this.allField[index]
           if (item.column === e.column) {
             item = this.deepClone(e)
           }

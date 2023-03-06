@@ -73,7 +73,8 @@
 
       <view class="content flex flex-wrap justify-center">
         <view class="media-item" v-for="item in videos">
-          <video :src="item._fileUrl" v-if="isVideo(item.file_type)"></video>
+          <video style="width: 640rpx;height:360rpx;" :src="item._fileUrl" v-if="isVideo(item.file_type)"
+            object-fit="cover"></video>
           <u-image width="220rpx" height="150rpx" :src="item._fileUrl" mode="aspectFit" v-else></u-image>
         </view>
       </view>
@@ -129,7 +130,7 @@
           </view> -->
         </view>
       </view>
-<!--      <view class="list-card" v-if="skillList&&skillList.length>0">
+      <!--      <view class="list-card" v-if="skillList&&skillList.length>0">
         <view class="card-title">
           <view class="title">
             服务技能
@@ -153,11 +154,11 @@
       </view>
 
       <view class="content">
-        <view class="goods-item flex justify-between margin-bottom-xs" v-for="item in goodsList">
+        <view class="goods-item flex justify-between margin-bottom" v-for="item in goodsList">
           <view class="text-white">
             {{item.goods_name||''}}
           </view>
-          <button class="cu-btn bg-red light round sm" @click="toOrder(item)">预约</button>
+          <button class="cu-btn bg-red light round " @click="toOrder(item)">预约</button>
         </view>
       </view>
     </view>
@@ -582,6 +583,10 @@
       border: none;
     }
 
+    .goods-item {
+      font-size: 16px;
+    }
+
     .title {
       text-align: center;
       font-size: 20px;
@@ -659,7 +664,7 @@
     .content {
       color: #433537;
       padding: 10px 0;
-      letter-spacing: 2px;
+      // letter-spacing: 2px;
       line-height: 20px;
     }
   }
@@ -700,12 +705,14 @@
       padding: 15px;
       display: flex;
       flex-wrap: wrap;
+
       .list-item {
         padding: 5px 15px;
         position: relative;
         min-width: 40vw;
         max-width: 50vw;
         flex: 1;
+
         &:before {
           content: '';
           width: 4px;

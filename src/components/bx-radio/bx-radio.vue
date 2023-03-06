@@ -314,7 +314,8 @@
       flex: 1;
       min-width: 50px;
       text-align: center;
-
+      font-size: 16px;
+      
       &::before {
         position: absolute;
         content: '';
@@ -340,11 +341,10 @@
         color: #333;
         background-color: #f8f8fa;
         border: 1px solid #f1f1f1;
-        padding: 5rpx 10rpx;
         border-radius: 30rpx;
         letter-spacing: 1px;
         transition: all 0.5s;
-
+        padding: 5px 15px;
         &.active {
           transform: scale(1.1);
         }

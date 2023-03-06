@@ -1,5 +1,4 @@
 <template>
-
   <view class="tree-selector">
     <view class="content">
       <view class="cu-bar search bg-white" v-if="showSearch">
