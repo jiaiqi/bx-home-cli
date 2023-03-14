@@ -36,8 +36,8 @@
           style="padding: 5upx" lazy-load show-menu-by-longpress @tap="previewImage(item, 'Image')" data-target="Image"
           :src="item"></image>
       </view>
-      <view class="flex" style="width: 100%;" v-else-if="['openDocument','FileList'].includes(fieldData.type)">
-        <view class="file-item flex align-center" style="width: 100%;" v-for="item in fileList">
+      <view class="flex" style="width: 100%;flex-wrap: wrap;" v-else-if="['openDocument','FileList'].includes(fieldData.type)">
+        <view class="file-item flex align-center margin-bottom" style="width: 100%;" v-for="item in fileList">
           <text class="margin-lr-xs"
             style="flex: 1;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{item.src_name||'-'}}</text>
           <button class="cu-btn bg-blue round" @click="toPreview(item)">文件预览</button>

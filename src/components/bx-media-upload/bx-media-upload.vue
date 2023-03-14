@@ -1,7 +1,7 @@
 <template>
   <view class="image-video-box">
     <template class="" v-if="enableAdd||enableDel">
-      <view class="media-select-box" v-for="item in uploadFiles" v-if="mediaType">
+      <view class="media-select-box" v-for="(item,index) in uploadFiles" v-if="mediaType">
         <image class="media" :src="item.fileUrl" mode="aspectFill" v-if="['png','jpg','gif'].includes(item.file_type)"
           @click.stop=" toPreviewImage(item.fileUrl)">
         </image>
@@ -9,6 +9,9 @@
           :src="item.fileUrl" mode="aspectFill" v-if="['mp4'].includes(item.file_type) "></video>
         <text class="cuIcon-playfill icon" v-if="['mp4'].includes(item.file_type) "
           @click.stop="toOpenVideo(item)"></text>
+        <view class="u-delete-icon" @tap.stop="deleteItem(index)" :style="{background:'#fa3534' }">
+          <u-icon class="u-icon" name="close" size="20" color="#fff"></u-icon>
+        </view>
       </view>
       <!--    <view class="media-select-box" v-for="item in tempFiles" v-if="mediaType">
         <image class="media" :src="item.tempFilePath" mode="aspectFill" v-if="item.fileType==='image'"></image>
@@ -60,6 +63,76 @@
       }
     },
     methods: {
+      deleteItem(index) {
+        uni.showModal({
+          title: '提示',
+          content: '您确定要删除此项吗？',
+          success: async (res) => {
+            if (res.confirm) {
+              // 先检查是否有定义before-remove移除前钩子
+              // 执行before-remove钩子
+              if (this.beforeRemove && typeof(this.beforeRemove) === 'function') {
+                // 此处钩子执行 原理同before-remove参数，见上方注释
+                let beforeResponse = this.beforeRemove.bind(this.$u.$parent.call(this))(index, this.lists);
+                // 判断是否返回了promise
+                if (!!beforeResponse && typeof beforeResponse.then === 'function') {
+                  await beforeResponse.then(res => {
+                    // promise返回成功，不进行动作，继续上传
+                    this.handlerDeleteItem(index);
+                  }).catch(err => {
+                    // 如果进入promise的reject，终止删除操作
+                    this.showToast('已终止移除');
+                  })
+                } else if (beforeResponse === false) {
+                  // 返回false，终止删除
+                  this.showToast('已终止移除');
+                } else {
+                  // 如果返回true，执行删除操作
+                  this.handlerDeleteItem(index);
+                }
+              } else {
+                // 如果不存在before-remove钩子，
+                this.handlerDeleteItem(index);
+              }
+            }
+          }
+        });
+      },
+      // 提示用户消息
+      showToast(message, force = false) {
+        if (this.showTips || force) {
+          uni.showToast({
+            title: message,
+            icon: 'none'
+          });
+        }
+      },
+      // 执行移除图片的动作，上方代码只是判断是否可以移除
+      handlerDeleteItem(index) {
+        // // 如果文件正在上传中，终止上传任务，进度在0 < progress < 100则意味着正在上传
+        // if (this.lists[index].process < 100 && this.lists[index].process > 0) {
+        //   typeof this.lists[index].uploadTask != 'undefined' && this.lists[index].uploadTask.abort();
+        // }
+        const deleteAction = `${this.$api.srvHost}/file/delete`
+        const fileUrl = this.uploadFiles[index]?.fileurl
+        const req = {
+          "fileurl": fileUrl
+        }
+        this.$http.post(deleteAction, req).then(res => {
+          if (res?.data?.resultCode === 'SUCCESS') {
+            this.uploadFiles.splice(index, 1);
+            this.$forceUpdate();
+            this.$emit('on-remove', index, this.uploadFiles, this.index);
+            if (this.uploadFiles.length === 0) {
+              this.fileNo = ''
+            }
+            this.showToast(res?.data?.state || '移除成功');
+          } else {
+            this.showToast('移除失败,请重试');
+          }
+        })
+
+      },
       async getFiles() {
         let url = this.getServiceUrl('file', 'srvfile_attachment_select', 'select')
         let req = {
@@ -384,7 +457,21 @@
       font-size: 30px;
       display: inline-block;
       position: relative;
-
+      .u-delete-icon {
+        position: absolute;
+        top: 10rpx;
+        right: 10rpx;
+        z-index: 10;
+        background-color: $u-type-error;
+        border-radius: 100rpx;
+        width: 44rpx;
+        height: 44rpx;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
       &:first-child,
       &:nth-child(3n+1) {
         margin-left: 0;
