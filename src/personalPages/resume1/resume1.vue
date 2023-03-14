@@ -29,9 +29,9 @@
           <view class="attr-item">
             服务：{{mainData.served_num || '-'}}户
           </view>
-          <view class="attr-item">
+      <!--    <view class="attr-item">
             星座：{{mainData.constellation||'-'}}
-          </view>
+          </view> -->
           <view class="attr-item">
             籍贯：{{mainData.rf_hometown_name_path?mainData.rf_hometown_name_path.replaceAll('/',''):'-'}}
           </view>
@@ -407,6 +407,9 @@
                   fileDatas,
                   files
                 } = res
+                if(fileDatas&&fileDatas.length>1){
+                  fileDatas = [fileDatas[0]]
+                }
                 this.videos = fileDatas
               })
             }
